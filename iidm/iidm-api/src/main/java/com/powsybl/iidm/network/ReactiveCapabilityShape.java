@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -13,27 +13,29 @@ import java.util.Collection;
  * Base interface for reactive capabilities shape limits.
  * <pre>
  *  Example of realisable point inside a cubic convex PQU enveloppe
- *           U (kV) ^
- *                     |
- *                     |      +------------------+
- *                     |     /|                 /|
- *                     |    / |                / |
- *                     *---*--+---------------* |
- *                     | / |  |               |  |
- *                     |/  |  . (P, Q, U)     |  |
- *                     +---|--|---------------|--+
- *                     |   |  +---------------|--+
- *                     |   | /                | /
- *                     |   |/                 |/
- *                     +---|------------------+
- *                     |
- * <-------------------*--------------------------------> P (MW)
- *                    /
- *                   /
- *                  / Q (MVaR)
+ * U (kV)
+ * <pre>
  *
+ *   U (kV)
+ *   ^
+ *   |          G-----------H
+ *   |         /|          /|
+ *   |        / |         / |
+ *   |       E-----------F  |
+ *   |       |  |        |  |
+ *   |       |  C--------|--D
+ *   |       | /    *    | /   * = realisable point
+ *   |       |/          |/
+ *   |       A-----------B
+ *   |
+ *   +-----------------------------> P (MW)
+ *  /
+ * v
+ * Q (MVAr)
+ *
+ * </pre>
  * - P (MW): Active Power (Horizontal Axis)
- * - Q (MVaR): Reactive Power (Depth Axis)
+ * - Q (MVAr): Reactive Power (Depth Axis)
  * - U (kV): Voltage (Vertical Axis)
  * </pre>
  * The bounding box represents the operational limits—the single convex polyhedron defined by your constraints (the listOfPlanes).
@@ -67,8 +69,8 @@ public interface ReactiveCapabilityShape extends ReactiveLimits {
     /**
      * Checks if a point (P, Q, U) is inside the convex polyhedron.
      * @param p The Active Power (P in MW).
-     * @param q The Reactive Power (Q in MVaR).
-     * @param u The Voltage (U in KV).
+     * @param q The Reactive Power (Q in MVAr).
+     * @param u The Voltage (U in kV).
      * @return true if the point satisfies ALL plane constraints, false otherwise.
      */
     boolean isInside(final double p, final double q, final double u);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -45,11 +45,11 @@ public final class ReactiveCapabilityShapePolyhedron {
      */
     private final List<ReactiveCapabilityShapePlane> listOfPlanes;
     /**
-     * Lower bound for reactive power in MVaR (default to Double.NaN for inactive)
+     * Lower bound for reactive power in MVAr (default to Double.NaN for inactive)
      */
     private double minQ = Double.NaN;
     /**
-     * Upper bound for reactive power in MVaR (default to Double.NaN for inactive)
+     * Upper bound for reactive power in MVAr (default to Double.NaN for inactive)
      */
     private double maxQ = Double.NaN;
     /**
@@ -61,11 +61,11 @@ public final class ReactiveCapabilityShapePolyhedron {
      */
     private double maxP = Double.NaN;
     /**
-     * Lower bound for voltage in KV (default to Double.NaN for inactive)
+     * Lower bound for voltage in kV (default to Double.NaN for inactive)
      */
     private double minU = Double.NaN;
     /**
-     * Upper bound for voltage in KV (default to Double.NaN for inactive)
+     * Upper bound for voltage in kV (default to Double.NaN for inactive)
      */
     private double maxU = Double.NaN;
     /**
@@ -92,8 +92,8 @@ public final class ReactiveCapabilityShapePolyhedron {
 
     /**
      * Add lower and upper bound for reactive power
-     * @param minQ the lower bound for the reactive power in MVaR (can be set to Double.NaN for disabling)
-     * @param maxQ the upper bound for the reactive power in MVaR (can be set to Double.NaN for disabling)
+     * @param minQ the lower bound for the reactive power in MVAr (can be set to Double.NaN for disabling)
+     * @param maxQ the upper bound for the reactive power in MVAr (can be set to Double.NaN for disabling)
      * @return this
      */
     public ReactiveCapabilityShapePolyhedron withReactivePowerBounds(final double minQ, final double maxQ) {
@@ -118,7 +118,8 @@ public final class ReactiveCapabilityShapePolyhedron {
      * Add lower and upper bound for voltage
      * @param minU the lower bound for the voltage in KV (can be set to Double.NaN for disabling)
      * @param maxU the upper bound for the voltage in KV (can be set to Double.NaN for disabling)
-     * @return this
+     * @param minU the lower bound for the voltage in kV (can be set to Double.NaN for disabling)
+     * @param maxU the upper bound for the voltage in kV (can be set to Double.NaN for disabling)
      */
     public ReactiveCapabilityShapePolyhedron withVoltageBounds(final double minU, final double maxU) {
         this.minU = minU;
@@ -129,8 +130,8 @@ public final class ReactiveCapabilityShapePolyhedron {
     /**
      * Checks if a point (P, Q, U) is inside the convex polyhedron.
      * @param p The Active Power (P in MW).
-     * @param q The Reactive Power (Q in MVaR).
-     * @param u The Voltage (U in KV).
+     * @param q The Reactive Power (Q in MVAr).
+     * @param u The Voltage (U in kV).
      * @return true if the point satisfies ALL plane constraints, false otherwise.
      */
     public boolean isInside(final double p, final double q, final double u) {
@@ -168,8 +169,8 @@ public final class ReactiveCapabilityShapePolyhedron {
     /**
      * Return true if the p, q, u point is inside the polytope and respects the bound constraints
      * @param p the active power in MW
-     * @param q the reactive power in MVaR
-     * @param u the tension in KV
+     * @param q the reactive power in MVAr
+     * @param u the tension in kV
      * @return true iff the p, q, u point is inside the polytope and respects the bound constraints
      */
     private boolean isInsideBounds(final double p, final double q, final double u) {
@@ -182,7 +183,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     }
 
     /**
-     * Gets the minimum feasible Reactive Power (Q in MVaR) for a fixed Active Power (P in MW) and Voltage (U in KV).
+     * Gets the minimum feasible Reactive Power (Q in MVAr) for a fixed Active Power (P in MW) and Voltage (U in kV).
      * This is the tightest lower bound imposed by the set of planes.
      */
     public double getMinQ(final double p, final double u) {
@@ -190,7 +191,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     }
 
     /**
-     * Gets the maximum feasible Reactive Power (Q in MVaR) for a fixed Active Power (P in MW) and Voltage (U in KV).
+     * Gets the maximum feasible Reactive Power (Q in MVAr) for a fixed Active Power (P in MW) and Voltage (U in kV).
      * This is the tightest upper bound imposed by the set of planes.
      */
     public double getMaxQ(final double p, final double u) {
@@ -202,7 +203,7 @@ public final class ReactiveCapabilityShapePolyhedron {
      * @param p The fixed active power in KW
      * @param goalType Either GoalType.MINIMIZE for minimization of Q or GoalType.MAXIMIZE for maximization of Q
      * @param additionalConstraints Optional set of additional constraints
-     * @return the optimal value for the reactive power Q in MVaR
+     * @return the optimal value for the reactive power Q in MVAr
      */
     public double getOptimalQ(final double p, final GoalType goalType, final List<LinearConstraint> additionalConstraints) {
         try {
@@ -219,7 +220,7 @@ public final class ReactiveCapabilityShapePolyhedron {
                         )
                 );
             }
-            // Fix active power at the given value of p
+            // Set the active power to the given value of p
             constraints.add(new LinearConstraint(new double[]{0.0, 0.0, 1.0}, Relationship.EQ, p));
             if (additionalConstraints != null) {
                 constraints.addAll(additionalConstraints);
@@ -273,7 +274,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     }
 
     /**
-     * Finds the overall minimum Q in MVaR for a fixed P in MW, considering ALL feasible U in KV value within the polyhedron.
+     * Finds the overall minimum Q in MVAr for a fixed P in MW, considering ALL feasible U in kV value within the polyhedron.
      */
     public double getMinQ(final double p) {
         return getOptimalQ(p, GoalType.MINIMIZE, Collections.emptyList());
@@ -297,10 +298,10 @@ public final class ReactiveCapabilityShapePolyhedron {
         sb.append("\n").append(separator);
         sb.append("| UPPER AND LOWER BOUNDS ON (P, Q, U)\n");
         if (!Double.isNaN(this.minQ)) {
-            sb.append(" Q ≥ ").append(this.minQ).append(" MVaR");
+            sb.append(" Q ≥ ").append(this.minQ).append(" MVAr");
         }
         if (!Double.isNaN(this.maxQ)) {
-            sb.append(" Q ≤ ").append(this.maxQ).append(" MVaR");
+            sb.append(" Q ≤ ").append(this.maxQ).append(" MVAr");
         }
         if (!Double.isNaN(this.minP)) {
             sb.append(" P ≥ ").append(this.minP).append(" MW");
@@ -309,10 +310,10 @@ public final class ReactiveCapabilityShapePolyhedron {
             sb.append(" P ≤ ").append(this.maxP).append(" MW");
         }
         if (!Double.isNaN(this.minU)) {
-            sb.append(" U ≥ ").append(this.minU).append(" KV");
+            sb.append(" U ≥ ").append(this.minU).append(" kV");
         }
         if (!Double.isNaN(this.maxU)) {
-            sb.append(" U ≤ ").append(this.maxU).append(" KV");
+            sb.append(" U ≤ ").append(this.maxU).append(" kV");
         }
         if (listOfPlanes.isEmpty()) {
             sb.append("\nThe Polyhedron is unbounded and undefined (no constraints).");

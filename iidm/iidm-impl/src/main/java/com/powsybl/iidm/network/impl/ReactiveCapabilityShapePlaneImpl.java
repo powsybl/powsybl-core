@@ -18,7 +18,7 @@ import static org.apache.commons.math3.util.Precision.EPSILON;
  * <pre>
  * The inequality is of the form: Q + alpha * U + beta * P  {≤, ≥}  gamma.
  * P = Active Power (MW)
- * Q = Reactive Power (MVaR)
+ * Q = Reactive Power (MVAr)
  * U = Voltage (KV)
  * </pre>
  *
