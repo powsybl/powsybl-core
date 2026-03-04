@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * without details of the DC grid).
  */
 
-class PointToPointHvdcConverter extends AbstractHvdcConverter {
+class SimplifiedHvdcConverter extends AbstractHvdcConverter {
 
     private final List<Configuration> configurations = new ArrayList<>();
 
@@ -35,7 +35,7 @@ class PointToPointHvdcConverter extends AbstractHvdcConverter {
     private final Set<DataObject> dcElmTerms = new HashSet<>();
     private final Set<DataObject> usedVscs = new HashSet<>();
 
-    PointToPointHvdcConverter(ImportContext importContext, Network network) {
+    SimplifiedHvdcConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
 
@@ -133,7 +133,7 @@ class PointToPointHvdcConverter extends AbstractHvdcConverter {
 
     private Optional<DataObject> findVsc1(List<DCLink> links) {
         if (!links.isEmpty()) {
-            DataObject elmTerm1 = links.get(0).elmTerm1;
+            DataObject elmTerm1 = links.getFirst().elmTerm1;
             Optional<DataObject> elmVsc1 = findTheOnlyOneDataObject(vscConnectedToElmTerm(elmTerm1));
             if (elmVsc1.isPresent()) {
                 // Check other VSC is at end 1 for all the links in the HVDC configuration
@@ -165,7 +165,7 @@ class PointToPointHvdcConverter extends AbstractHvdcConverter {
         } else if (dataObjects.size() > 1) {
             throw new PowerFactoryException("Unsupported Hvdc configuration");
         }
-        return Optional.of(dataObjects.get(0));
+        return Optional.of(dataObjects.getFirst());
     }
 
     private static final class Configuration {
