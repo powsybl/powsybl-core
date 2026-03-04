@@ -17,6 +17,8 @@ import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,6 +26,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,6 +79,16 @@ class DefaultLimitReductionsApplierTest {
 
     @Test
     void applyReductionsTest() {
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.newOperationalLimitsGroup2(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).newCurrentLimits()
+            .setPermanentLimit(800)
+            .beginTemporaryLimit()
+            .setName("20'")
+            .setAcceptableDuration(20 * 60)
+            .setValue(950)
+            .endTemporaryLimit()
+            .add();
+        line.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
         // pre-contingency
         applier.setWorkingContingency(null);
         // - No reductions apply for "NHV1_NHV2_1"
@@ -99,12 +113,19 @@ class DefaultLimitReductionsApplierTest {
         assertEquals(450, container.getLimits().getPermanentLimit(), 0.01);
         limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
         assertFalse(limits.isEmpty());
-        container = limits.stream().findFirst().orElseThrow();
-        LoadingLimits reducedLimits = container.getLimits();
-        assertEquals(990, reducedLimits.getPermanentLimit(), 0.01);
-        assertEquals(1200, reducedLimits.getTemporaryLimitValue(10 * 60), 0.01);
-        assertEquals(1500, reducedLimits.getTemporaryLimitValue(60), 0.01);
-        assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(0), 0.01);
+        Assertions.assertThat(limits)
+            .extracting(
+                LimitsContainer::getLimits
+            )
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                l -> l.getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getValue).toList()
+            )
+            .containsExactlyInAnyOrder(
+                new Tuple(990., List.of(1200., 1500., Double.MAX_VALUE)),
+                new Tuple(720., List.of(950.))
+            );
+
         // - Same reductions as before apply for "NHV1_NHV2_2"
         computeAndCheckLimitsOnLine2(0.5, false);
         computeAndCheckLimitsOnLine2(0.2, true);
@@ -119,17 +140,28 @@ class DefaultLimitReductionsApplierTest {
 
         limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
         assertFalse(limits.isEmpty());
-        container = limits.stream().findFirst().orElseThrow();
-        checkOriginalLimitsOnLine1(container.getLimits());
-        checkOriginalLimitsOnLine1(container.getOriginalLimits());
-        assertFalse(container.isDistinct());
+        Map<String, LimitsContainer<LoadingLimits>> containerByGroupId = limits.stream()
+            .collect(Collectors.toMap(
+                LimitsContainer::getOperationalLimitsGroupId,
+                Function.identity()
+            ));
+        checkOriginalLimitsDefaultOnLine1(containerByGroupId.get("DEFAULT").getLimits());
+        checkOriginalLimitsDefaultOnLine1(containerByGroupId.get("DEFAULT").getOriginalLimits());
+        checkOriginalLimitsActivatedTwoOneOnLine1(containerByGroupId.get(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).getLimits());
+        checkOriginalLimitsActivatedTwoOneOnLine1(containerByGroupId.get(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).getOriginalLimits());
+        assertFalse(containerByGroupId.get("DEFAULT").isDistinct());
     }
 
-    private static void checkOriginalLimitsOnLine1(LoadingLimits limits) {
+    private static void checkOriginalLimitsDefaultOnLine1(LoadingLimits limits) {
         assertEquals(1100, limits.getPermanentLimit(), 0.01);
         assertEquals(1200, limits.getTemporaryLimitValue(10 * 60), 0.01);
         assertEquals(1500, limits.getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, limits.getTemporaryLimitValue(0), 0.01);
+    }
+
+    private static void checkOriginalLimitsActivatedTwoOneOnLine1(LoadingLimits limits) {
+        assertEquals(800, limits.getPermanentLimit(), 0.01);
+        assertEquals(950, limits.getTemporaryLimitValue(20 * 60), 0.01);
     }
 
     private static void checkOriginalLimitsOnLine2(LoadingLimits limits) {
@@ -175,7 +207,7 @@ class DefaultLimitReductionsApplierTest {
         assertTrue(Double.isNaN(reducedLimits.getTemporaryLimitValue(10 * 60))); // removed since the 1' limit's reduced value is < 1200
         assertEquals(1125, reducedLimits.getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(0), 0.01);
-        checkOriginalLimitsOnLine1(container.getOriginalLimits());
+        checkOriginalLimitsDefaultOnLine1(container.getOriginalLimits());
         assertTrue(container.isDistinct());
     }
 
@@ -236,8 +268,8 @@ class DefaultLimitReductionsApplierTest {
                 LimitType.CURRENT, ThreeSides.TWO, false);
         assertFalse(limits.isEmpty());
         LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
-        checkOriginalLimitsOnLine1(container.getLimits());
-        checkOriginalLimitsOnLine1(container.getOriginalLimits());
+        checkOriginalLimitsDefaultOnLine1(container.getLimits());
+        checkOriginalLimitsDefaultOnLine1(container.getOriginalLimits());
     }
 
     static Stream<Arguments> getNoChangesComputers() {
