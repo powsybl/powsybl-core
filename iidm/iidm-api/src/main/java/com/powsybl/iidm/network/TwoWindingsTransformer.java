@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * A two-winding power transformer.
@@ -239,4 +240,20 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     default void setPhaseTapPositionToSolvedTapPosition() {
         this.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues);
     }
+
+    boolean connect(boolean propagateDisconnectionIfNeeded);
+
+    default boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean propagateConnectionIfNeeded) {
+        return connect(isTypeSwitchToOperate, null, propagateConnectionIfNeeded);
+    }
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean propagateConnectionIfNeeded);
+
+    boolean disconnect(boolean propagateDisconnectionIfNeeded);
+
+    default boolean disconnect(Predicate<Switch> isSwitchOpenable, boolean propagateDisconnectionIfNeeded) {
+        return disconnect(isSwitchOpenable, null, propagateDisconnectionIfNeeded);
+    }
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean propagateDisconnectionIfNeeded);
 }
