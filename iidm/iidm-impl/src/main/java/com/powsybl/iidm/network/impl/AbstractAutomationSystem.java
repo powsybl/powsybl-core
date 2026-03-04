@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.AutomationSystem;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.iidm.network.AutomationSystem;
 
 import java.util.Objects;
 
@@ -17,22 +17,19 @@ import java.util.Objects;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 abstract class AbstractAutomationSystem<I extends AutomationSystem<I>> extends AbstractIdentifiable<I> implements AutomationSystem<I> {
-    private final TBooleanArrayList enabled;
+    private final ExtendedBooleanArrayList enabled;
 
     AbstractAutomationSystem(Ref<NetworkImpl> networkRef, String id, String name, boolean enabled) {
         super(id, name);
         Objects.requireNonNull(networkRef);
 
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.enabled = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.enabled.add(enabled);
-        }
+        this.enabled = new ExtendedBooleanArrayList(variantArraySize, enabled);
     }
 
     @Override
     public boolean isEnabled() {
-        return enabled.get(getNetwork().getVariantIndex());
+        return enabled.getBoolean(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -43,14 +40,13 @@ abstract class AbstractAutomationSystem<I extends AutomationSystem<I>> extends A
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        enabled.ensureCapacity(enabled.size() + number);
-        enabled.fill(initVariantArraySize, initVariantArraySize + number, enabled.get(sourceIndex));
+        enabled.growAndFill(number, enabled.getBoolean(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        enabled.remove(enabled.size() - number, number);
+        enabled.removeElements(number);
     }
 
     @Override
@@ -63,7 +59,7 @@ abstract class AbstractAutomationSystem<I extends AutomationSystem<I>> extends A
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            enabled.set(index, enabled.get(sourceIndex));
+            enabled.set(index, enabled.getBoolean(sourceIndex));
         }
     }
 }

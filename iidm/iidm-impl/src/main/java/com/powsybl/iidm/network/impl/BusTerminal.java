@@ -8,12 +8,12 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TopologyPoint;
-import com.powsybl.commons.ref.Ref;
 import com.powsybl.math.graph.TraversalType;
 
 import java.util.ArrayList;
@@ -121,7 +121,7 @@ class BusTerminal extends AbstractTerminal {
 
     // attributes depending on the variant
 
-    private final TBooleanArrayList connected;
+    private final ExtendedBooleanArrayList connected;
 
     private final ArrayList<String> connectableBusId;
 
@@ -129,10 +129,9 @@ class BusTerminal extends AbstractTerminal {
         super(network, side, terminalNumber);
         Objects.requireNonNull(connectableBusId);
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.connected = new TBooleanArrayList(variantArraySize);
+        this.connected = new ExtendedBooleanArrayList(variantArraySize, connected);
         this.connectableBusId = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.connected.add(connected);
             this.connectableBusId.add(connectableBusId);
         }
     }
@@ -167,7 +166,7 @@ class BusTerminal extends AbstractTerminal {
         if (removed) {
             throw new PowsyblException("Cannot access connectivity status of removed equipment " + connectable.id);
         }
-        return this.connected.get(getVariantManagerHolder().getVariantIndex());
+        return this.connected.getBoolean(getVariantManagerHolder().getVariantIndex());
     }
 
     @Override
@@ -222,10 +221,9 @@ class BusTerminal extends AbstractTerminal {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        connected.ensureCapacity(connected.size() + number);
+        connected.growAndFill(number, connected.getBoolean(sourceIndex));
         connectableBusId.ensureCapacity(connectableBusId.size() + number);
         for (int i = 0; i < number; i++) {
-            connected.add(connected.get(sourceIndex));
             connectableBusId.add(connectableBusId.get(sourceIndex));
         }
     }
@@ -233,8 +231,8 @@ class BusTerminal extends AbstractTerminal {
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
+        connected.removeElements(number);
         for (int i = 0; i < number; i++) {
-            connected.removeAt(connected.size() - 1);
             connectableBusId.remove(connectableBusId.size() - 1);
         }
     }
@@ -249,7 +247,7 @@ class BusTerminal extends AbstractTerminal {
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            connected.set(index, connected.get(sourceIndex));
+            connected.set(index, connected.getBoolean(sourceIndex));
             connectableBusId.set(index, connectableBusId.get(sourceIndex));
         }
     }
