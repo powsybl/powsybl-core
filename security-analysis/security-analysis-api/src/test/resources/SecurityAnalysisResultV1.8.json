@@ -1,5 +1,5 @@
 {
-  "version" : "1.9",
+  "version" : "1.8",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
