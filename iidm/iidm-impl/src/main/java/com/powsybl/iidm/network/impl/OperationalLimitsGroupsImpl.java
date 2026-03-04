@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     private static final String DEFAULT_SELECTED_OPERATIONAL_LIMITS_GROUP_ID = "DEFAULT";
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationalLimitsGroupsImpl.class);
 
     private final String attributeName;
     private final LinkedHashSet<String> selectedLimitsIds = new LinkedHashSet<>();
@@ -78,16 +81,39 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
 
     @Override
     public void addSelectedOperationalLimitsGroups(String... ids) {
+        boolean idWasNull = false;
+        boolean groupDidNotExist = false;
         for (String id : ids) {
-            Objects.requireNonNull(id);
-            OperationalLimitsGroup newSelectedLimits = getOperationalLimitsGroupOrThrow(id);
-            boolean wasAlreadySelected = selectedLimitsIds.contains(id);
-            // re-insert the element with remove -> add, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
-            selectedLimitsIds.remove(id);
-            selectedLimitsIds.add(id);
-            if (!wasAlreadySelected) {
-                notifyUpdate(null, newSelectedLimits);
+            if (id == null) {
+                idWasNull = true;
+                LOGGER.error("One of the provided ID was null");
+                continue;
             }
+            Optional<OperationalLimitsGroup> maybeGroup = getOperationalLimitsGroup(id);
+            if (maybeGroup.isPresent()) {
+                OperationalLimitsGroup newSelectedGroup = maybeGroup.get();
+                boolean wasAlreadySelected = selectedLimitsIds.contains(id);
+                // re-insert the element with remove -> add, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
+                selectedLimitsIds.remove(id);
+                selectedLimitsIds.add(id);
+                if (!wasAlreadySelected) {
+                    notifyUpdate(null, newSelectedGroup);
+                }
+            } else {
+                groupDidNotExist = true;
+                LOGGER.error("No operational limits group is associated to id {} so this id can't be part of the selected groups of {}.", id, attributeName);
+            }
+        }
+        if (idWasNull) {
+            throw new NullPointerException();
+        }
+        if (groupDidNotExist) {
+            throw new PowsyblException(
+                String.format(
+                    "One or more of the ids did not correspond to an existing group, check logs for more details. Provided ids were: %s",
+                    Arrays.toString(ids)
+                )
+            );
         }
     }
 
@@ -157,9 +183,18 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public void deselectOperationalLimitsGroups(String... ids) {
         for (String id : ids) {
-            if (selectedLimitsIds.remove(id)) {
-                notifyDeselect(id);
+            if (id == null) {
+                LOGGER.warn("One of the ID was null");
+                continue;
             }
+            if (operationalLimitsGroupById.containsKey(id)) {
+                if (selectedLimitsIds.remove(id)) {
+                    notifyDeselect(id);
+                }
+            } else {
+                LOGGER.warn("The ID {} did not correspond to any existing group of {}.", id, attributeName);
+            }
+
         }
     }
 

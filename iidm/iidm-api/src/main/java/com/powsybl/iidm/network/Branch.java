@@ -176,6 +176,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * If other groups were also selected, they are still selected</p>
      * <p>Throw a {@link com.powsybl.commons.PowsyblException} if any ID doesn't correspond to an existing group.</p>
      * <p>Throw an {@link NullPointerException} if any ID is <code>null</code>.</p>
+     * <p>Note that in the case of an error, this function will not stop at the first error but try on all groups</p>
      * To deselect a selected group, use {@link #deselectOperationalLimitsGroups(TwoSides, String...)}.
      * To deselect all the selected groups, use {@link #cancelSelectedOperationalLimitsGroup1()}
      * To have a single group selected and deselect all other groups, use {@link #setSelectedOperationalLimitsGroup1(String)}
@@ -183,7 +184,6 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @param ids the IDs of one or more {@link OperationalLimitsGroup}
      */
     void addSelectedOperationalLimitsGroups(TwoSides side, String... ids);
-    //TODO regarding exceptions, should this fail if any ID is incorrect, or should it just log an error and continue with the other IDs ? same for other similar methods
 
     /**
      * <p>Set all the existing {@link OperationalLimitsGroup} whose id match the <code>predicate</code> as selected.</p>
