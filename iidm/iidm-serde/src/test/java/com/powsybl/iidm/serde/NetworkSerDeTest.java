@@ -391,7 +391,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testValidateByVersionWhenValidNetworkInOldVersion() throws IOException {
+    void testValidateByVersionWhenMatchingOldNetwork() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_2/shuntRoundTripRef.xml")) {
             assertNotNull(is);
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_2));
@@ -399,10 +399,20 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testValidateByVersionWhenValidNetworkInRecentVersion() throws IOException {
+    void testValidateByVersionWhenMatchingRecentNetwork() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
             assertNotNull(is);
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMismatchedNetworkVersion() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_15))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.15, found namespace http://www.powsybl.org/schema/iidm/1_16");
         }
     }
 
@@ -427,6 +437,18 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml")) {
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInValidExtension() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/branchStatusWrongEnum.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
+                            "'[IN_OPERATION, PLANNED_OUTAGE, FORCED_OUTAGE]'. It must be a value from the enumeration.");
+
         }
     }
 
