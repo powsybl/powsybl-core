@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static com.powsybl.iidm.serde.AbstractTreeDataImporter.SUFFIX_MAPPING;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.IIDM_PREFIX;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.INDENT;
@@ -163,6 +164,16 @@ public final class NetworkSerDe {
         Objects.requireNonNull(is);
         Objects.requireNonNull(version);
         Objects.requireNonNull(extensionsSupplier);
+
+        // check version namespace
+        byte[] xmlBytes;
+        try {
+            xmlBytes = is.readAllBytes();
+            checkNamespace(xmlBytes, version);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        // XSD validation
         Schema schema;
         if (extensionsSupplier == DefaultExtensionsSupplier.getInstance()) {
             schema = DEFAULT_SCHEMAS_SUPPLIER.get().get(version);
@@ -173,7 +184,7 @@ public final class NetworkSerDe {
             schema = createSchema(extensionsSupplier, version);
         }
         try {
-            schema.newValidator().validate(new StreamSource(is));
+            schema.newValidator().validate(new StreamSource(new ByteArrayInputStream(xmlBytes)));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (SAXException e) {
@@ -254,8 +265,17 @@ public final class NetworkSerDe {
         return extensions;
     }
 
+    private static void checkNamespace(byte[] xmlBytes, IidmVersion validationVersion) {
+        String actualNs = readRootNamespace(xmlBytes);
+        boolean matches = actualNs.equals(validationVersion.getNamespaceURI())
+                || validationVersion.supportEquipmentValidationLevel() && actualNs.equals(validationVersion.getNamespaceURI(false));
+        if (!matches) {
+            throw new PowsyblException("Namespace mismatch: expected validation version " + validationVersion.toString(".") + ", found namespace " + actualNs);
+        }
+    }
+
     /**
-     * Extract {@code xs:import/@schemaLocation} in an XSD document
+     * Extract {@code xs:import/@schemaLocation} from XSD document
      *
      * <p>XSD document snippet:</p>
      * <pre>{@code
@@ -271,9 +291,7 @@ public final class NetworkSerDe {
      */
     private static List<String> extractSchemaLocations(byte[] xsdBytes) {
         List<String> locations = new ArrayList<>();
-        XMLInputFactory xif = XMLInputFactory.newFactory();
-        xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        XMLInputFactory xif = getXMLInputFactory();
         try {
             XMLStreamReader reader = xif.createXMLStreamReader(new ByteArrayInputStream(xsdBytes));
             while (reader.hasNext()) {
@@ -292,6 +310,33 @@ public final class NetworkSerDe {
             throw new RuntimeException(e);
         }
         return locations;
+    }
+
+    /**
+     * Read the namespace declared on {@code <network>} element
+     *
+     * @param xmlBytes XML document content as bytes
+     * @return Namespace URI
+     */
+    private static String readRootNamespace(byte[] xmlBytes) {
+        XMLInputFactory xif = getXMLInputFactory();
+        try {
+            XMLStreamReader reader = xif.createXMLStreamReader(new ByteArrayInputStream(xmlBytes));
+            while (reader.hasNext()) {
+                if (reader.next() == XMLStreamConstants.START_ELEMENT) {
+                    if (!NETWORK_ROOT_ELEMENT_NAME.equals(reader.getLocalName())) {
+                        throw new PowsyblException("Unexpected root element: " + reader.getLocalName());
+                    }
+                    String ns = reader.getNamespaceURI();
+                    reader.close();
+                    return ns;
+                }
+            }
+            reader.close();
+            throw new PowsyblException("No root element found");
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void throwExceptionIfOption(AbstractOptions<?> options, String message) {
