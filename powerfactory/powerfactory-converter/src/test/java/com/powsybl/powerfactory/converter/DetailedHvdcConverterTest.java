@@ -8,8 +8,6 @@
 
 package com.powsybl.powerfactory.converter;
 
-// import static org.mockito.Mockito.when;
-
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
@@ -33,6 +31,7 @@ public class DetailedHvdcConverterTest {
 
     @Test
     void testCreate1() {
+        // 2 VSCs directly connected by their DC. No DC line or AC network.
         Network network = importDgs("MTDC-2-VSC");
 
         VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("HVDC Converter 1");
@@ -66,6 +65,9 @@ public class DetailedHvdcConverterTest {
 
     @Test
     void testCreate2() {
+        // 2 VSCs connected by DC lines.
+        // VSC 'HVDC Converter 2' is also connected to a dangling AC line.
+        // This tests that there is no confusion between AC and DC lines.
         Network network = importDgs("MTDC-2-VSC-ACDC-links");
 
         VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("HVDC Converter 1");
@@ -110,6 +112,7 @@ public class DetailedHvdcConverterTest {
 
     @Test
     void testCreate3() {
+        // 3 VSCs connected by DC lines in a triangle configuration.
         Network network = importDgs("MTDC-3-VSC-ACDC-links");
 
         assertEquals(6, network.getDcNodeCount());

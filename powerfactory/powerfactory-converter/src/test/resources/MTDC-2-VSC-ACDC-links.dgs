@@ -1,3 +1,6 @@
+* 2 VSCs connected by DC lines.
+* VSC 'HVDC Converter 2' is also connected to a dangling AC line.
+* This tests that there is no confusion between AC and DC lines.
 $$General;ID(a:40);Descr(a:40);Val(a:40)
 1;Version;5.0
 

@@ -1,3 +1,4 @@
+* 2 VSCs directly connected by their DC. No DC line or AC network.
 $$General;ID(a:40);Descr(a:40);Val(a:40)
 1;Version;5.0
 
