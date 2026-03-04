@@ -91,6 +91,7 @@ public final class NetworkSerDe {
     private static final Supplier<Schema> DEFAULT_SCHEMA_SUPPLIER = Suppliers.memoize(() -> NetworkSerDe.createSchema(DefaultExtensionsSupplier.getInstance()));
     private static final Supplier<Map<IidmVersion, Schema>> DEFAULT_SCHEMAS_SUPPLIER = Suppliers.memoize(() -> NetworkSerDe.createDefaultSchemas(DefaultExtensionsSupplier.getInstance()));
     private static final int MAX_NAMESPACE_PREFIX_NUM = 100;
+    private static final String XSD_RESOURCE_DIR = "/xsd/";
 
     private NetworkSerDe() {
     }
@@ -144,9 +145,9 @@ public final class NetworkSerDe {
             int i = 0;
             int j = 0;
             for (IidmVersion version : IidmVersion.values()) {
-                sources[i] = new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd()));
+                sources[i] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd()));
                 if (version.supportEquipmentValidationLevel()) {
-                    sources[j + IidmVersion.values().length] = new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd(false)));
+                    sources[j + IidmVersion.values().length] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd(false)));
                     j++;
                 }
                 i++;
@@ -211,10 +212,10 @@ public final class NetworkSerDe {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             List<Source> sources = new ArrayList<>();
             // iidm: source
-            sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd())));
+            sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd())));
             // equipment: source
             if (version.supportEquipmentValidationLevel()) {
-                sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd(false))));
+                sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd(false))));
             }
             // extension: sources
             sources.addAll(getExtensionSources(extensionsSupplier, version));
@@ -241,18 +242,18 @@ public final class NetworkSerDe {
      */
     private static List<Source> getExtensionSources(ExtensionsSupplier extensionsSupplier, IidmVersion version) throws IOException {
         List<Source> sources = new ArrayList<>();
-        for (ExtensionSerDe<?, ?> extension : getSupportedExtensionsByIIdmVersion(extensionsSupplier.get().getProviders(), version)) {
+        for (ExtensionSerDe<?, ?> extension : getSupportedExtensionsByIIdmVersion(extensionsSupplier, version)) {
             byte[] extensionXsd = extension.getXsdAsStream().readAllBytes();
             extractSchemaLocations(extensionXsd)
-                    .forEach(schemaLocation -> sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + schemaLocation))));
+                    .forEach(schemaLocation -> sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + schemaLocation))));
             sources.add(new StreamSource(new ByteArrayInputStream(extensionXsd)));
         }
         return sources;
     }
 
-    private static List<ExtensionSerDe<?, ?>> getSupportedExtensionsByIIdmVersion(Collection<ExtensionSerDe> extensionSerDes, IidmVersion version) {
+    private static List<ExtensionSerDe<?, ?>> getSupportedExtensionsByIIdmVersion(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
         List<ExtensionSerDe<?, ?>> extensions = new ArrayList<>();
-        for (ExtensionSerDe<?, ?> extensionSerDe : extensionSerDes) {
+        for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
             if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> ab) {
                 if (ab.versionExists(version)) {
                     extensions.add(extensionSerDe);
@@ -307,7 +308,7 @@ public final class NetworkSerDe {
             }
             reader.close();
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException("Failed to parse XSD schema", e);
         }
         return locations;
     }
@@ -335,7 +336,7 @@ public final class NetworkSerDe {
             reader.close();
             throw new PowsyblException("No root element found");
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException("Failed to read namespace from XML", e);
         }
     }
 
