@@ -177,11 +177,11 @@ public class PowerFactoryImporter implements Importer {
         // detailed = possibly full multi-terminals DC subgrids
         if (Parameter.readBoolean(getFormat(), parameters, HVDC_IMPORT_DETAILED_PARAMETER, defaultValueConfig)) {
             hvdcConverter =
-                new MultiTerminalHvdcConverter(importContext, network, elmNets);
+                new DetailedHvdcConverter(importContext, network, elmNets);
         } else {
-            PointToPointHvdcConverter pointToPointHvdcConverter = new PointToPointHvdcConverter(importContext, network);
-            pointToPointHvdcConverter.computeConfigurations(gatherElmTerms(elmNets), gatherElmVscs(elmNets));
-            hvdcConverter = pointToPointHvdcConverter;
+            SimplifiedHvdcConverter simplifiedHvdcConverter = new SimplifiedHvdcConverter(importContext, network);
+            simplifiedHvdcConverter.computeConfigurations(gatherElmTerms(elmNets), gatherElmVscs(elmNets));
+            hvdcConverter = simplifiedHvdcConverter;
         }
 
         // process terminals

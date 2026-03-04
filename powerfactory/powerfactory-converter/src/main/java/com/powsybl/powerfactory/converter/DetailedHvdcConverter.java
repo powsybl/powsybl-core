@@ -26,7 +26,7 @@ import java.util.*;
  * Importer from the DGS data model, for multi-terminal DC grids (a.k.a.
  * detailed HVDC).
  */
-public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
+public final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHvdcConverter.class);
 
@@ -84,13 +84,13 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
 
     } // private record DcGridData
 
-    public MultiTerminalHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
+    public DetailedHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
         final int nRead = gridData.acDcConverters.size()
                 + gridData.dcElmLnes.size()
                 + gridData.dcElmTerms.size();
-        LOGGER.info("{} data objects read from the DGS file for detailed HVDC data .", nRead);
+        LOGGER.info("{} data objects read from the DGS file for detailed DC data .", nRead);
     }
 
     @Override
@@ -117,7 +117,7 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         }
 
         // create and connect converters
-        LOGGER.debug("Creating {} DC converters.", gridData.acDcConverters.size());
+        LOGGER.debug("Creating {} VSCs.", gridData.acDcConverters.size());
         for (DataObject converter : gridData.acDcConverters) {
             addConverter(converter, network, getImportContext());
         }
@@ -219,8 +219,8 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         LineTerms lineTerminals = LineTerms.findDcLineEndsPowerFactory(line);
 
         String parentComponentName = "line " + line.getId(); // only for error message purpose
-        DcNode dcNode1 = getSafeNodeForLine(lineTerminals.dcTerm1DataObject, network, parentComponentName);
-        DcNode dcNode2 = getSafeNodeForLine(lineTerminals.dcTerm2DataObject, network, parentComponentName);
+        DcNode dcNode1 = getSafeNodeForComponent(lineTerminals.dcTerm1DataObject, network, parentComponentName);
+        DcNode dcNode2 = getSafeNodeForComponent(lineTerminals.dcTerm2DataObject, network, parentComponentName);
         assert dcNode1 != null && dcNode2 != null;
 
         // Get the data from the "types"
@@ -310,7 +310,7 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
      * @param parentComponentName Name of the component where the node belong, purely for the error message.
      * @return DcNode inside the network.
      */
-    private static DcNode getSafeNodeForLine(DataObject dcTermDataObject, Network network, String parentComponentName) {
+    private static DcNode getSafeNodeForComponent(DataObject dcTermDataObject, Network network, String parentComponentName) {
         if (dcTermDataObject == null) {
             throw new PowerFactoryException(parentComponentName + " is missing a node in the DGS files.");
         }
@@ -410,8 +410,8 @@ public final class MultiTerminalHvdcConverter extends AbstractHvdcConverter {
         VscConnections vscConnections = VscConnections.findVscConnectionsPowerFactory(elmVsc);
 
         // Get corresponding DC and AC nodes in the PowSyBl network
-        DcNode dcNode1 = getSafeNodeForLine(vscConnections.dcTerminal1, network, "converter " + elmVsc.getId());
-        DcNode dcNode2 = getSafeNodeForLine(vscConnections.dcTerminal2, network, "converter " + elmVsc.getId());
+        DcNode dcNode1 = getSafeNodeForComponent(vscConnections.dcTerminal1, network, "converter " + elmVsc.getId());
+        DcNode dcNode2 = getSafeNodeForComponent(vscConnections.dcTerminal2, network, "converter " + elmVsc.getId());
 
         assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
 
