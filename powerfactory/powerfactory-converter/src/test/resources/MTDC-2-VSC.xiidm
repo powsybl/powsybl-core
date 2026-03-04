@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_15" id="MTDC-2-VSC" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="MTDC-2-VSC" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:dcNode id="4 HVDC Link_T_DC_pos1" name="4 HVDC Link_T_DC_pos1" nominalV="320.0"/>
     <iidm:dcNode id="6 HVDC Link_T_DC_neg1" name="6 HVDC Link_T_DC_neg1" nominalV="320.0"/>
     <iidm:substation id="S12">
@@ -10,11 +10,11 @@
                 <iidm:internalConnection node1="0" node2="1"/>
                 <iidm:internalConnection node1="2" node2="3"/>
             </iidm:nodeBreakerTopology>
-            <iidm:voltageSourceConverter id="HVDC Converter 1" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="600.0" node1="1" voltageRegulatorOn="true" voltageSetpoint="300.0" reactivePowerSetpoint="0.0">
+            <iidm:voltageSourceConverter id="HVDC Converter 1" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="1" voltageRegulatorOn="true" voltageSetpoint="300.0" reactivePowerSetpoint="-0.0">
                 <iidm:pccTerminal id="HVDC Converter 1" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:voltageSourceConverter>
-            <iidm:voltageSourceConverter id="HVDC Converter 2" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="0.0" targetVdc="323.1999969482422" node1="3" voltageRegulatorOn="false" reactivePowerSetpoint="100.0">
+            <iidm:voltageSourceConverter id="HVDC Converter 2" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="323.1999969482422" node1="3" voltageRegulatorOn="false" reactivePowerSetpoint="-100.0">
                 <iidm:pccTerminal id="HVDC Converter 2" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:voltageSourceConverter>

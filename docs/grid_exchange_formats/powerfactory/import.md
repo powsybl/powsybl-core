@@ -54,12 +54,12 @@ Two and three winding transformer taps definition attributes need to be added to
 
 ## Handling HVDC data
 
-### Selecting point-to-point or multi-terminal model
+### Selecting reduced or detailed model
 
-By default, the DGS file importer tries to import HVDC components as point-to-point representations. Parameter `iidm.import.dgs.HVDC-import-multiterminal` must be set to `true` to activate import of multi-terminal DC subnetworks.
+By default, the DGS file importer tries to import HVDC components as _reduced_ point-to-point representations. Parameter `iidm.import.dgs.HVDC-import-detailed` must be set to `true` to activate import of _detailed_ DC subnetworks with multi-terminal possibility.
 
-### Additional attributes (multi-terminal)
-For multi-terminal network import, the following additional attributes are also requested in the DGS file for the AC-DC converter (`ElmVsc`)
+### Additional attributes (_detailed_)
+For _detailed_ network import, the following additional attributes are also requested in the DGS file for the VSCs (`ElmVsc`)
 
 | Attribute     | Meaning                                                         |
 |---------------|-----------------------------------------------------------------|
@@ -69,11 +69,11 @@ For multi-terminal network import, the following additional attributes are also 
 | swtLossFactor | Swicthing loss factor (otherwise default to zero).              |
 | resLossFactor | Resistive loss factor (otherwise default to zero).              |
 
-No additional attribute is mandatory for ground elements (`ElmGndswt`). If any of `ciEarthed` or `on_off` is present and has value zero, the ground element is considered disconnected and it is not added to the network.
+Ground elements (`ElmGndswt`) are not exported by default by PowerFactory. Their export to the DGS file must be declared specifically if grounds are to be re-imported by PowSyBl. No additional attribute is mandatory for ground elements (`ElmGndswt`). If any of `ciEarthed` or `on_off` is present and has value zero, the ground element is considered disconnected and it is not added to the network. The switch itself is not imported to PowSyBl. The ground resistance is assumed to be zero.
 
-`ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes.
+`ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes. 
 
-### Control mode (multi-terminal)
+### Control mode (_detailed_)
 
 The following type of control mode is setup for VSCs, depending on the value of `i_acdc`:
 
@@ -85,6 +85,11 @@ The following type of control mode is setup for VSCs, depending on the value of 
 | 6        | Vdc - Vac | V_DC        | true               |
 
 Values 0, 1, 2, 7 and 8 are not supported and will raise a PowerFactoryException during the import.
+
+### Limitations (_detailed_)
+- The only supported AC-DC converters are VSCs in `ElmVsc`.
+- For now PCC control is not taken into account and the VSC is connected to a single terminal.
+- Attribute `ciEarthed` of `ElmTerm` is ignored by the importer.
 
 ## Import PowerFactory internal format
 
