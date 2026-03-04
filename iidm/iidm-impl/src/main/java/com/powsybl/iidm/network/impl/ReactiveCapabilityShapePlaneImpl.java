@@ -44,7 +44,7 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
      */
     public enum InequalityType {
        LESS_OR_EQUAL,       // ≤ gamma
-       GREATER_OR_EQUAL     // ≥  gamma
+       GREATER_OR_EQUAL     // ≥ gamma
     }
 
     /**
