@@ -1,35 +1,40 @@
 # loadflow-validation
-The `loadflow-validation` module is used by the [loadflow-validation](../itools/loadflow-validation.md) command. It defines the parameters used during the validation of load flow results.
+
+The `loadflow-validation` module is used by the [loadflow-validation](../itools/loadflow-validation.md) command and the
+[load flow validation](../../grid_features/loadflow_validation.md) feature. It defines the parameters used during the
+validation of load flow results.
 
 ## Optional properties
 
-**apply-reactance-correction**  
+**apply-reactance-correction**<br>
 The `apply-reactance-correction` property is an optional property that defines whether the too small reactance values have to be fixed to `epsilon-x` value or not. To solve numeric issues with very small reactance values, it's necessary to set the too small values to a minimal value. The default value of this property is `false`.
 
-**check-main-component-only**  
+**check-main-component-only**<br>
 The `check-main-component-only` property is an optional property that defines whether the validation checks are done only on the equipments in the main connected component or in all components. The default value of this property is `true`.
 
-**compare-results**  
+**compare-results**<br>
 Set the `compare-results` property to true to compare the results of 2 validations, i.e. print output files with data of both ones. The default value of this property is `false`.
 
-**epsilon-x**  
+**epsilon-x**<br>
 The `epsilon-x` property is an optional property that defines the value used to correct the reactance in flows validation. The default value of this property is `0.1`.
 
-**load-flow-name**  
-The `load-flow-name` property is an optional property that defines the implementation name to use for running the load flow. If this property is not set, the default load flow implementation is used. See [Loadflow Configuration](load-flow.md) to configure the default load flow.
+**load-flow-name**<br>
+The `load-flow-name` property is an optional property that defines the implementation name to use for running the load flow.
+If this property is not set, the default load flow implementation is used. See [Loadflow Configuration](../../simulation/loadflow/configuration.md#implementation)
+to configure the default load flow.
 
 **Note**: In previous PowSyBl releases (before 3.0.0), this was configured by the `load-flow-factory` property with the full classname of the implementation.
 
-**no-requirement-if-reactive-bound-inversion**  
+**no-requirement-if-reactive-bound-inversion**<br>
 The `no-requirement-if-reactive-bound-inversion` property is an optional property that defines whether the validation checks fail if there is a reactive bounds inversion (maxQ < minQ) or not. The default value of this property is `false`.
 
-**no-requirement-if-setpoint-outside-power-bounds**  
+**no-requirement-if-setpoint-outside-power-bounds**<br>
 The `no-requirement-if-setpoint-outside-power-bounds` property is an optional property that defines whether the validation checks fail if there is a setpoint outside the active power bounds (targetP < minP or targetP > maxP) or not. The default value of this property is `false`.
 
-**ok-missing-values**  
+**ok-missing-values**<br>
 The `ok-missing-values` property is an optional property that defines whether the validation checks fail if some parameters of connected components have `NaN` values or not. The default value of this property is `false`.
 
-**output-writer**  
+**output-writer**<br>
 The `output-writer` property is an optional property that defines the output format. Currently, `CSV` and `CSV_MULTILINE` are supported. The default value of this property is set to `CSV_MULTILINE`.
 
 If this property is set to `CSV`, in the output files a line contains all values of validated equipment. If the property is set to `CSV_MULTILINE`, in the output files the equipment values are split in multiple lines, one value for each line, see examples below:
@@ -51,8 +56,9 @@ CSPCH.TC1;v;238,307
 ...
 ```
 
-**table-formatter-factory:**  
-The `table-formatter-factory` property is an optional property that defines the `com.powsybl.commons.io.table.TableFormatterFactory` implementation to use for writing the output files. If this property is not set, the `com.powsybl.commons.io.table.CsvTableFormatterFactory` implementation is used.
+**table-formatter-factory:**<br>
+The `table-formatter-factory` property is an optional property that defines the `com.powsybl.commons.io.table.TableFormatterFactory` implementation to use for writing the output files.
+If this property is not set, the `com.powsybl.commons.io.table.CsvTableFormatterFactory` implementation is used.
 
 The available implementation of the `TableFormatterFactory` are:
 - `com.powsybl.commons.io.table.CsvTableFormatterFactory`: to create a CSV file
@@ -60,10 +66,10 @@ The available implementation of the `TableFormatterFactory` are:
 
 The table formatter can be configured by the [table-formatter](table-formatter.md) module.
 
-**threshold:**  
+**threshold:**<br>
 The `threshold` property is an optional property that defines the margin used for values comparison. The default value of this property is `0`.
 
-**verbose:**  
+**verbose:**<br>
 The `verbose` property is an optional property that defines whether the [loadflow-validation](../itools/loadflow-validation.md) command runs in verbose or quiet mode.
 
 If this property is set to `true`, the output files contain all the data of the validated equipment; otherwise they contain only the main data of the validated equipment.

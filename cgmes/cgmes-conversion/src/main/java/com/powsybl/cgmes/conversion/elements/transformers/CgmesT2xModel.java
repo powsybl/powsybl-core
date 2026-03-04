@@ -12,6 +12,9 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.apache.commons.math3.complex.Complex;
+
+import static com.powsybl.iidm.modification.util.TransformerUtils.impedanceConversion;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -24,6 +27,7 @@ public class CgmesT2xModel {
     final CgmesPartialEnd end1;
     final CgmesPartialEnd end2;
     final boolean x1IsZero;
+    final boolean structuralRatioAtEnd2;
     final Double ratedS;
 
     public CgmesT2xModel(PropertyBags ends, Context context) {
@@ -32,13 +36,20 @@ public class CgmesT2xModel {
 
         double x1 = bagEnd1.asDouble(CgmesNames.X);
         double x2 = bagEnd2.asDouble(CgmesNames.X);
+        double ratedU1 = bagEnd1.asDouble(CgmesNames.RATEDU);
+        double ratedU2 = bagEnd2.asDouble(CgmesNames.RATEDU);
+        this.x1IsZero = x1 == 0.0;
+        this.structuralRatioAtEnd2 = InterpretedT2xModel.structuralRatioAlternative(ratedU1, ratedU2, x1IsZero, context.config());
 
         this.r = bagEnd1.asDouble(CgmesNames.R) + bagEnd2.asDouble(CgmesNames.R);
         this.x = x1 + x2;
         this.end1 = new CgmesPartialEnd(bagEnd1, x, context);
-        this.end2 = new CgmesPartialEnd(bagEnd2, x, context);
-        this.x1IsZero = x1 == 0.0;
-
+        double xx2 = x;
+        if (structuralRatioAtEnd2) {
+            double a0 = ratedU2 / ratedU1;
+            xx2 = impedanceConversion(x, new Complex(a0, 0.0));
+        }
+        this.end2 = new CgmesPartialEnd(bagEnd2, xx2, context);
         this.ratedS = getRatedS(bagEnd1, bagEnd2);
     }
 

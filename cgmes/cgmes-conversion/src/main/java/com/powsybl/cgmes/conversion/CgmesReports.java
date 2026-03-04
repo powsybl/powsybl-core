@@ -100,6 +100,13 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void noInputsForUpdateReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.cgmes.conversion.noInputsForUpdate")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
