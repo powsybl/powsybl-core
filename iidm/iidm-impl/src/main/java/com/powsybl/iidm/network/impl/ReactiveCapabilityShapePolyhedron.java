@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import org.apache.commons.math3.optim.MaxIter;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.*;
@@ -68,10 +67,6 @@ public final class ReactiveCapabilityShapePolyhedron {
      * Upper bound for voltage in kV (default to Double.NaN for inactive)
      */
     private double maxU = Double.NaN;
-    /**
-     * Reference to the reactive limits holder
-     */
-    private ReactiveLimitsHolder reactiveLimitsHolder;
 
     /**
      * Constructor
@@ -200,7 +195,7 @@ public final class ReactiveCapabilityShapePolyhedron {
 
     /**
      * Utility method using a linear program solver to compute minimal or maximal possible values for reactive power Q
-     * @param p The fixed active power in KW
+     * @param p The fixed active power in kW
      * @param goalType Either GoalType.MINIMIZE for minimization of Q or GoalType.MAXIMIZE for maximization of Q
      * @param additionalConstraints Optional set of additional constraints
      * @return the optimal value for the reactive power Q in MVAr
@@ -353,11 +348,4 @@ public final class ReactiveCapabilityShapePolyhedron {
         return listOfPlanes.isEmpty();
     }
 
-    /**
-     * TODO
-     * @param holder
-     */
-    public void setReactiveLimitsHolder(ReactiveLimitsHolder holder) {
-        this.reactiveLimitsHolder = holder;
-    }
 }
