@@ -182,7 +182,11 @@ public final class ReactiveCapabilityShapePolyhedron {
      * This is the tightest lower bound imposed by the set of planes.
      */
     public double getMinQ(final double p, final double u) {
-        return getOptimalQ(p, GoalType.MINIMIZE, Collections.singletonList(new LinearConstraint(new double[]{0, 1.0, 0}, Relationship.EQ, u)));
+        try {
+            return getOptimalQ(p, GoalType.MINIMIZE, Collections.singletonList(new LinearConstraint(new double[]{0, 1.0, 0}, Relationship.EQ, u)));
+        } catch (NoFeasibleSolutionException e) {
+            throw new PowsyblException(String.format("Reactive envelope infeasible at P=%s MW and U=%s kV", p, u), e);
+        }
     }
 
     /**
@@ -190,7 +194,11 @@ public final class ReactiveCapabilityShapePolyhedron {
      * This is the tightest upper bound imposed by the set of planes.
      */
     public double getMaxQ(final double p, final double u) {
-        return getOptimalQ(p, GoalType.MAXIMIZE, Collections.singletonList(new LinearConstraint(new double[]{0, 1.0, 0}, Relationship.EQ, u)));
+        try {
+            return getOptimalQ(p, GoalType.MAXIMIZE, Collections.singletonList(new LinearConstraint(new double[]{0, 1.0, 0}, Relationship.EQ, u)));
+        } catch (NoFeasibleSolutionException e) {
+            throw new PowsyblException(String.format("Reactive envelope infeasible at P=%s MW and U=%s kV", p, u), e);
+        }
     }
 
     /**
