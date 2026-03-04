@@ -494,7 +494,7 @@ public final class NetworkSerDe {
         // Main case: the element has to be written
         // - if the element is directly in the network (not in one of its subnetworks)
         // - and if it's not a network itself (linked to previous corner case)
-        return element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK;
+        return n.equals(element.getParentNetwork()) && element.getType() != IdentifiableType.NETWORK;
     }
 
     private static boolean supportSubnetworksExport(NetworkSerializerContext context) {
