@@ -83,11 +83,10 @@ public class CgmesExportContext {
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
     record BaseVoltageSource(Double nominalV, String id, Source source) { }
+    record Region(String id, String name, Source source) { }
+    record SubRegion(String id, String name, String regionId) { }
     private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
-
-    record Region(String id, String name) { }
-    protected record SubRegion(String id, String name, String regionId) { }
-    private final Map<String, String> regionsNameById = new HashMap<>();
+    private final Map<String, Region> regionsById = new HashMap<>();
     private final Map<String, SubRegion> subRegionsById = new HashMap<>();
     private final Map<String, String> substationsSubRegion = new HashMap<>();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
@@ -241,36 +240,42 @@ public class CgmesExportContext {
     }
 
     private void computeSubstationMapping(Network network) {
+        // A GeographicalRegion corresponding to the sourcing actor may be defined in the reference data.
+        Region regionRef = null;
+        if (referenceDataProvider != null && referenceDataProvider.getSourcingActorRegion() != null) {
+            Pair<String, String> sourcingActorRegion = referenceDataProvider.getSourcingActorRegion();
+            regionRef = new Region(sourcingActorRegion.getLeft(), sourcingActorRegion.getRight(), Source.BOUNDARY);
+            regionsById.put(regionRef.id(), regionRef);
+        }
         for (Substation substation : network.getSubstations()) {
-            Region region = getOrCreateRegion(substation);
+            Region region = getOrCreateRegion(substation, regionRef);
             String subRegionId = getOrCreateSubRegion(substation, region);
             substationsSubRegion.put(substation.getId(), subRegionId);
         }
     }
 
-    private Region getOrCreateRegion(Substation substation) {
+    private Region getOrCreateRegion(Substation substation, Region regionRef) {
         String regionId;
-        String regionName;
+        Region region;
         String defaultRegionName = substation.hasProperty(PROPERTY_REGION_NAME) ?
                 substation.getProperty(PROPERTY_REGION_NAME) :
                 substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
+
         if (substation.hasProperty(PROPERTY_REGION_ID)) {
-            // Add this geographical region id from property if it is not already mapped.
             regionId = namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_REGION_ID);
-            regionName = regionsNameById.computeIfAbsent(regionId, k -> defaultRegionName);
+            region = new Region(regionId, defaultRegionName, Source.IGM);
+        } else if (regionRef != null) {
+            regionId = regionRef.id();
+            region = regionRef;
         } else {
-            if (referenceDataProvider != null && referenceDataProvider.getSourcingActorRegion() != null) {
-                // If not defined by a property, try to retrieve geographical region id from the reference data.
-                Pair<String, String> regionRef = referenceDataProvider.getSourcingActorRegion();
-                regionId = regionRef.getLeft();
-                regionName = regionsNameById.computeIfAbsent(regionId, k -> regionRef.getRight());
-            } else {
-                // If not in the reference data, create a new unique id.
-                regionId = namingStrategy.getCgmesId(ref(defaultRegionName), GEOGRAPHICAL_REGION);
-                regionName = regionsNameById.computeIfAbsent(regionId, k -> defaultRegionName);
-            }
+            regionId = namingStrategy.getCgmesId(ref(defaultRegionName), GEOGRAPHICAL_REGION);
+            region = new Region(regionId, defaultRegionName, Source.IGM);
         }
-        return new Region(regionId, regionName);
+
+        // Note that if regionId matches the one from the reference data,
+        // it won't be added here (it has already been added with source BOUNDARY)
+        // and as a result won't be in the EQ export (as intended since it's in the EQBD).
+        return regionsById.computeIfAbsent(regionId, k -> region);
     }
 
     private String getOrCreateSubRegion(Substation substation, Region region) {
@@ -307,15 +312,18 @@ public class CgmesExportContext {
                 } else {
                     // Try to retrieve the BaseVoltage id from reference data.
                     String baseVoltageId = null;
+                    Source source = null;
                     if (referenceDataProvider != null) {
                         baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
+                        source = Source.BOUNDARY;
                     }
                     if (baseVoltageId == null) {
                         // If not in the reference data, create a new unique id.
                         CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
                         baseVoltageId = namingStrategy.getCgmesId(vref, BASE_VOLTAGE);
+                        source = Source.IGM;
                     }
-                    bvSource = new BaseVoltageSource(nominalV, baseVoltageId, Source.IGM);
+                    bvSource = new BaseVoltageSource(nominalV, baseVoltageId, source);
                 }
                 baseVoltageMapping.put(nominalV, bvSource);
             });
@@ -485,8 +493,8 @@ public class CgmesExportContext {
         return baseVoltageMapping.get(nominalV).id();
     }
 
-    protected Map<String, String> getRegions() {
-        return new HashMap<>(regionsNameById);
+    protected Set<Region> getRegions() {
+        return new HashSet<>(regionsById.values());
     }
 
     protected Set<SubRegion> getSubRegions() {

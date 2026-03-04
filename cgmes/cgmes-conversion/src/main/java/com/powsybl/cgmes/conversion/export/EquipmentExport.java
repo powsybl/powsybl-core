@@ -194,10 +194,13 @@ public final class EquipmentExport {
     }
 
     private static void writeGeographicalRegions(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        context.getRegions().forEach((regionId, regionName) -> {
-            String cgmesRegionId = context.getNamingStrategy().getCgmesId(regionId);
-            writeGeographicalRegion(cgmesRegionId, regionName, cimNamespace, writer, context);
-        });
+        List<CgmesExportContext.Region> igmGeographicalRegions = context.getRegions().stream()
+            .filter(r -> r.source() == Source.IGM)
+            .sorted(Comparator.comparing(CgmesExportContext.Region::id))
+            .toList();
+        for (CgmesExportContext.Region igmGeographicalRegion : igmGeographicalRegions) {
+            writeGeographicalRegion(igmGeographicalRegion.id(), igmGeographicalRegion.name(), cimNamespace, writer, context);
+        }
     }
 
     private static void writeSubGeographicalRegions(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
