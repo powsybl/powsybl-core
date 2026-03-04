@@ -51,7 +51,7 @@ public class PowerFactoryImporter implements Importer {
     private static final String FORMAT = "POWER-FACTORY";
 
     // Import parameters
-    public static final String HVDC_IMPORT_MT = "iidm.import.dgs.HVDC-import-multiterminal";
+    public static final String HVDC_IMPORT_MT = "iidm.import.dgs.HVDC-import-detailed";
 
     public static final Parameter HVDC_IMPORT_DETAILED_PARAMETER = new Parameter(
             HVDC_IMPORT_MT,
