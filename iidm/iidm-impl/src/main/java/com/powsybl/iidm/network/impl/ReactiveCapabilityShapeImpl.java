@@ -53,7 +53,6 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
         return polyhedron.getMaxQ(p, v);
     }
 
-
     /**
      * Return the minimum reactive power q for a specific active power p
      * @param p the active power

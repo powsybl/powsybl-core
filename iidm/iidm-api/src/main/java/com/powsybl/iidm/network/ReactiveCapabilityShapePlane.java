@@ -34,6 +34,11 @@ public interface ReactiveCapabilityShapePlane {
     double getBeta();
 
     /**
+     * @return the delta coefficient for the reactive power Q
+     */
+    double getDelta();
+
+    /**
      * @return the gamma Right hand side
      */
     double getGamma();

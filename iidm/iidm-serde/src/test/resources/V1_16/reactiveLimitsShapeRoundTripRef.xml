@@ -16,15 +16,15 @@
             </iidm:generator>
             <iidm:generator id="G3" energySource="OTHER" maxP="20.0" minP="0.0" targetV="380.0" voltageRegulatorOn="true" targetP="10.0" bus="B" connectableBus="B">
                 <iidm:reactiveCapabilityShape>
-                    <iidm:plane alpha="5.0" beta="1.0" isGreaterOrEqual="true" gamma="10.0"/>
-                    <iidm:plane alpha="10.0" beta="-10.0" isGreaterOrEqual="false" gamma="20.0"/>
+                    <iidm:plane alpha="5.0" beta="1.0" delta="1.0" isGreaterOrEqual="true" gamma="10.0"/>
+                    <iidm:plane alpha="10.0" beta="-10.0" delta="1.0" isGreaterOrEqual="false" gamma="20.0"/>
                 </iidm:reactiveCapabilityShape>
             </iidm:generator>
             <iidm:battery id="B1" targetP="100.0" targetQ="50.0" minP="-9999.0" maxP="9999.0"  bus="B" connectableBus="B">
                 <iidm:reactiveCapabilityShape>
-                    <iidm:plane alpha="5.0" beta="1.0" isGreaterOrEqual="true" gamma="10.0"/>
-                    <iidm:plane alpha="10.0" beta="-10.0" isGreaterOrEqual="false" gamma="20.0"/>
-                    <iidm:plane alpha="20.0" beta="-20.0" isGreaterOrEqual="true" gamma="-20.0"/>
+                    <iidm:plane alpha="5.0" beta="1.0" delta="1.0" isGreaterOrEqual="true" gamma="10.0"/>
+                    <iidm:plane alpha="10.0" beta="-10.0" delta="1.0" isGreaterOrEqual="false" gamma="20.0"/>
+                    <iidm:plane alpha="20.0" beta="-20.0" delta="1.0" isGreaterOrEqual="true" gamma="-20.0"/>
                 </iidm:reactiveCapabilityShape>
             </iidm:battery>
         </iidm:voltageLevel>

@@ -23,17 +23,18 @@ public interface ReactiveCapabilityShapeAdder {
      * Add a reactive capability shape plane to the reactive capability shape
      *
      * <pre>
-     * The inequality is of the form: Q + alpha * U + beta * P  {≤, ≥}  gamma.
+     * The inequality is of the form: delta * Q + alpha * U + beta * P  {≤, ≥}  gamma.
      * P = Active Power (MW)
      * Q = Reactive Power (MVAr)
      * U = Voltage (Volts)
      * </pre>
      * @param alpha the alpha coefficient for Voltage U in Volts
      * @param beta the beta coefficient for active power P in MW
+     * @param delta the delta coefficient for reactive power Q in MVAr
      * @param gamma the gamma right hand side
      * @param isGreaterOrEqual true if the inequality is greater or equal, false if the inequality is less or equal
      * @return this
      */
-    ReactiveCapabilityShapeAdder addPlane(double alpha, double beta, double gamma, boolean isGreaterOrEqual);
+    ReactiveCapabilityShapeAdder addPlane(double alpha, double beta, double delta, boolean isGreaterOrEqual, double gamma);
 
 }

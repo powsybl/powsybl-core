@@ -31,7 +31,6 @@ public final class ReactiveLimitsTestNetworkFactory {
     }
 
     private static void addReactiveLimitCapabilityShapes(Network network) {
-
         VoltageLevel vl = network.getVoltageLevels().iterator().next();
         Generator g3 = vl.newGenerator()
                 .setId("G3")
@@ -45,8 +44,8 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setConnectableBus("B")
                 .add();
         g3.newReactiveCapabilityShape()
-                .addPlane(5.0, 1.0, 10.0, true)
-                .addPlane(10.0, -10.0, 20.0, false)
+                .addPlane(5.0, 1.0, 1.0, true, 10.0)
+                .addPlane(10.0, -10.0, 1.0, false, 20.0)
                 .add();
 
         Battery b1 = vl.newBattery().setId("B1")
@@ -59,11 +58,10 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .add();
 
         b1.newReactiveCapabilityShape()
-                .addPlane(5.0, 1.0, 10.0, true)
-                .addPlane(10.0, -10.0, 20.0, false)
-                .addPlane(20.0, -20.0, -20.0, true)
+                .addPlane(5.0, 1.0, 1.0, true, 10.0)
+                .addPlane(10.0, -10.0, 1.0, false, 20.0)
+                .addPlane(20.0, -20.0, 1.0, true, -20.0)
                 .add();
-
     }
 
     public static Network create(NetworkFactory networkFactory) {

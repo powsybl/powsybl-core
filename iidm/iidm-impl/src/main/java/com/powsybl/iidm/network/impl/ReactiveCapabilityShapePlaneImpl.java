@@ -16,7 +16,7 @@ import static org.apache.commons.math3.util.Precision.EPSILON;
 /**
  * Represents a plane (or half-space) defining one boundary of the convex polyhedron.
  * <pre>
- * The inequality is of the form: Q + alpha * U + beta * P  {≤, ≥}  gamma.
+ * The inequality is of the form: delta * Q + alpha * U + beta * P  {≤, ≥}  gamma.
  * P = Active Power (MW)
  * Q = Reactive Power (MVAr)
  * U = Voltage (KV)
@@ -34,6 +34,10 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
      * Coefficient for P (Active Power)
       */
     private final double beta;
+    /**
+     * Coefficient for Q (Reactive Power)
+     */
+    private final double delta;
     /**
      *The constant limit on the right side
       */
@@ -57,10 +61,12 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
      *
      * @param alphaU    The coefficient for U.
      * @param betaP     The coefficient for P.
+     * @param deltaQ    The coefficient for Q.
      */
-    private ReactiveCapabilityShapePlaneImpl(double alphaU, double betaP) {
+    private ReactiveCapabilityShapePlaneImpl(double alphaU, double betaP, double deltaQ) {
         this.alpha = alphaU;
         this.beta = betaP;
+        this.delta = deltaQ;
     }
 
     /**
@@ -70,7 +76,18 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
      * @param betaP     The coefficient for P.
      */
     public static ReactiveCapabilityShapePlane build(double alphaU, double betaP) {
-        return new ReactiveCapabilityShapePlaneImpl(alphaU, betaP);
+        return new ReactiveCapabilityShapePlaneImpl(alphaU, betaP, 1.0);
+    }
+
+    /**
+     * Builder for a ReactiveCapabilityShapePlane.
+     *
+     * @param alphaU    The coefficient for U.
+     * @param betaP     The coefficient for P.
+     * @param deltaQ    The coefficient for Q.
+     */
+    public static ReactiveCapabilityShapePlane build(double alphaU, double betaP, double deltaQ) {
+        return new ReactiveCapabilityShapePlaneImpl(alphaU, betaP, deltaQ);
     }
 
     /**
@@ -101,14 +118,17 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        // Always include Q since it has an implicit coefficient of 1.0 in your formula
-        sb.append("Q");
+        if (delta == 1.0) {
+            sb.append("Q");
+        } else {
+            appendIfNonZero(delta, sb, "Q");
+        }
 
         // Append U term (alpha * U)
-        appendIfNonZero(alpha, sb, " * U");
+        appendIfNonZero(alpha, sb, "U");
 
         // Append P term (beta * P)
-        appendIfNonZero(beta, sb, " * P");
+        appendIfNonZero(beta, sb, "P");
 
         // Append relation and gamma
         sb.append(" ").append(inequalityType.equals(InequalityType.LESS_OR_EQUAL) ? '≤' : '≥').append(" ");
@@ -117,10 +137,13 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
         return sb.toString();
     }
 
-    private void appendIfNonZero(double coefficient, StringBuilder sb, String str) {
-        if (Math.abs(coefficient) > EPSILON) { // Check if beta is non-zero
+    private void appendIfNonZero(double coefficient, StringBuilder sb, String variable) {
+        if (coefficient == 1.0) {
+            sb.append(" + ");
+            sb.append(variable);
+        } else if (Math.abs(coefficient) > EPSILON) {
             sb.append(coefficient > 0 ? " + " : " - ");
-            sb.append(String.format(Locale.ENGLISH, "%.3f", Math.abs(coefficient))).append(str);
+            sb.append(String.format(Locale.ENGLISH, "%.3f", Math.abs(coefficient))).append(" * ").append(variable);
         }
     }
 
@@ -142,6 +165,11 @@ public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilit
     @Override
     public double getBeta() {
         return beta;
+    }
+
+    @Override
+    public double getDelta() {
+        return delta;
     }
 
     @Override

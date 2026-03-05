@@ -139,7 +139,7 @@ public final class ReactiveCapabilityShapePolyhedron {
 
                 // Calculate the left-hand side (LHS) expression: Q + alpha * U + beta * P
                 // (Note: Using 'u' for the voltage variable from the method signature)
-                double expression = q + plane.getAlpha() * u + plane.getBeta() * p;
+                double expression = plane.getDelta() * q + plane.getAlpha() * u + plane.getBeta() * p;
 
                 // Check the constraint for '<' relation (LHS must be strictly less than gamma)
                 // The condition for OUTSIDE is: LHS > gamma
@@ -217,7 +217,7 @@ public final class ReactiveCapabilityShapePolyhedron {
             for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
                 constraints.add(
                         new LinearConstraint(
-                                new double[]{1.0, plane.getAlpha(), plane.getBeta()},
+                                new double[]{plane.getDelta(), plane.getAlpha(), plane.getBeta()},
                                 plane.isLessOrEqual() ? Relationship.LEQ : Relationship.GEQ,
                                 plane.getGamma()
                         )
@@ -327,7 +327,6 @@ public final class ReactiveCapabilityShapePolyhedron {
 
         int index = 1;
         for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
-            // Use the improved Plane.toString() method and append to the buffer
             sb.append(String.format("[%2d] %s%n", index++, plane.toString()));
         }
         sb.append(separator).append("\n");

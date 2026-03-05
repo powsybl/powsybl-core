@@ -215,6 +215,7 @@
     <xs:complexType name="Plane">
         <xs:attribute name="alpha" use="required" type="xs:double"/>
         <xs:attribute name="beta" use="required" type="xs:double"/>
+        <xs:attribute name="delta" use="required" type="xs:double"/>
         <xs:attribute name="gamma" use="required" type="xs:double"/>
         <xs:attribute name="isGreaterOrEqual" use="required" type="xs:boolean"/>
     </xs:complexType>
