@@ -31,7 +31,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="1"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.20328000273527924" x="10.99647728654783" g="0.0" b="-5.652892491049017E-4" ratedU1="208.15960693359375" ratedU2="110.0" ratedS="180.0" node1="2" voltageLevelId1="VL9" node2="2" voltageLevelId2="VL10">
+        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.20328000273527924" x="10.99647728654783" g="0.0" b="-5.652892491049017E-4" ratedU1="208.15960693359375" ratedU2="110.0" ratedS="180.0" voltageLevelId1="VL9" node1="2" voltageLevelId2="VL10" node2="2">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="14" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2197485036451494"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2008988096135902"/>
@@ -59,5 +59,5 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="lne_1_2_1" r="9.379916191101074" x="28.638273239135742" g1="0.0" b1="3.5752053070068355E-4" g2="0.0" b2="3.5752053070068355E-4" node1="1" voltageLevelId1="VL8" node2="1" voltageLevelId2="VL9"/>
+    <iidm:line id="lne_1_2_1" r="9.379916191101074" x="28.638273239135742" g1="0.0" b1="3.5752053070068355E-4" g2="0.0" b2="3.5752053070068355E-4" voltageLevelId1="VL8" node1="1" voltageLevelId2="VL9" node2="1"/>
 </iidm:network>

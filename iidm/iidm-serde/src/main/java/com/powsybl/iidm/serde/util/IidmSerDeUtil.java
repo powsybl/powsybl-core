@@ -348,10 +348,12 @@ public final class IidmSerDeUtil {
     public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
         Objects.requireNonNull(identifiables);
         Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
-                .sorted(Comparator.comparing(Identifiable::getId))
-                .collect(Collectors.toList())
-                : identifiables;
+        Comparator<Identifiable> comparator = exportOptions.isSorted()
+                ? Comparator.comparing(Identifiable::getId)
+                : Comparator.comparing(Identifiable::getSortIndex);
+        return StreamSupport.stream(identifiables.spliterator(), false)
+                .sorted(comparator)
+                .collect(Collectors.toList());
     }
 
     /**
