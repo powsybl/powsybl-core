@@ -656,7 +656,7 @@ public final class NetworkSerDe {
         return createArrayNameSingleNameBiMap(!config.withNoExtension(), extensionsSupplier).inverse();
     }
 
-    private static Map<String, String> createArrayNameToSingleNameMap(ImportOptions config, ExtensionsSupplier extensionsSupplier) {
+    public static Map<String, String> createArrayNameToSingleNameMap(ImportOptions config, ExtensionsSupplier extensionsSupplier) {
         return createArrayNameSingleNameBiMap(!config.withNoExtension(), extensionsSupplier);
     }
 
@@ -880,7 +880,7 @@ public final class NetworkSerDe {
         Objects.requireNonNull(reportNode);
 
         TreeDataHeader header = reader.readHeader();
-        IidmVersion iidmVersion = IidmVersion.of(header.rootVersion(), ".");
+        IidmVersion iidmVersion = IidmVersion.of(header.rootVersion());
         NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, header.extensionVersions());
 
         Network network = initNetwork(networkFactory, context, reader, null);
