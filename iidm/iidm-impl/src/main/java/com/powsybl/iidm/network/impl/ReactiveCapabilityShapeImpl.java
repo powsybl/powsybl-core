@@ -89,10 +89,6 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
         return new ReactiveCapabilityShapeImpl(polyhedron);
     }
 
-    public ReactiveCapabilityShapePolyhedron getPolyhedron() {
-        return this.polyhedron;
-    }
-
     @Override
     public boolean isInside(double p, double q, double u) {
         return this.polyhedron.isInside(p, q, u);

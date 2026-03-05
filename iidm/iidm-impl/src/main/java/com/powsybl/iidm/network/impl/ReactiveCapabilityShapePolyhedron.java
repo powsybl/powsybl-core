@@ -113,8 +113,6 @@ public final class ReactiveCapabilityShapePolyhedron {
      * Add lower and upper bound for voltage
      * @param minU the lower bound for the voltage in KV (can be set to Double.NaN for disabling)
      * @param maxU the upper bound for the voltage in KV (can be set to Double.NaN for disabling)
-     * @param minU the lower bound for the voltage in kV (can be set to Double.NaN for disabling)
-     * @param maxU the upper bound for the voltage in kV (can be set to Double.NaN for disabling)
      */
     public ReactiveCapabilityShapePolyhedron withVoltageBounds(final double minU, final double maxU) {
         this.minU = minU;
