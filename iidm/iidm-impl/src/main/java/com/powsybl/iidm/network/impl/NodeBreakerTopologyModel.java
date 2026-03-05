@@ -583,15 +583,6 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         if (!exceptBusBreakerView) {
             variants.get().calculatedBusBreakerTopology.invalidateCache();
             getNetwork().getBusBreakerView().invalidateCache();
-        } else {
-            /**
-             * in order to recompute equivalent terminal of calculated buses
-             *
-             * "toggling retained switch should not affect BusBreakerView buses"
-             *  means that toggling retained switch should not invalidate cache for BusBreakerTopology ?
-             */
-            variants.get().calculatedBusBreakerTopology.invalidateCache();
-            getNetwork().getBusView().invalidateCache();
         }
         variants.get().calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();
