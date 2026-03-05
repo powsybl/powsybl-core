@@ -7,9 +7,16 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.Optional;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
 
 /**
  *
@@ -18,59 +25,98 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseVoltageSourceConverter extends PsseVersioned {
 
-    @Parsed
+    private static final String STRING_REMOT = "remot";
+    private static final String STRING_VSREG = "vsreg";
+
     private int ibus;
-
-    @Parsed
     private int type;
-
-    @Parsed
     private int mode = 1;
-
-    @Parsed
     private double dcset;
-
-    @Parsed
     private double acset = 1.0;
-
-    @Parsed
     private double aloss = 0.0;
-
-    @Parsed
     private double bloss = 0.0;
-
-    @Parsed
     private double minloss = 0.0;
-
-    @Parsed
     private double smax = 0.0;
-
-    @Parsed
     private double imax = 0.0;
-
-    @Parsed
     private double pwf = 1.0;
-
-    @Parsed
     private double maxq = 9999.0;
-
-    @Parsed
     private double minq = -9999.0;
 
-    @Parsed
     @Revision(until = 33)
     private int remot = 0;
 
-    @Parsed
     private double rmpct = 100.0;
 
-    @Parsed
     @Revision(since = 35)
     private int vsreg = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int nreg = 0;
+
+    public static PsseVoltageSourceConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        return fromRecord(rec, version, headers, "");
+    }
+
+    public static PsseVoltageSourceConverter fromRecord(CsvRecord rec, PsseVersion version, String[] headers, String headerSuffix) {
+        PsseVoltageSourceConverter psseVoltageSourceConverter = new PsseVoltageSourceConverter();
+        psseVoltageSourceConverter.setIbus(parseIntFromRecord(rec, headers, "ibus" + headerSuffix));
+        psseVoltageSourceConverter.setType(parseIntFromRecord(rec, headers, "type" + headerSuffix));
+        psseVoltageSourceConverter.setMode(parseIntFromRecord(rec, 1, headers, "mode" + headerSuffix));
+        psseVoltageSourceConverter.setDcset(parseDoubleFromRecord(rec, headers, "dcset" + headerSuffix));
+        psseVoltageSourceConverter.setAcset(parseDoubleFromRecord(rec, 1.0, headers, "acset" + headerSuffix));
+        psseVoltageSourceConverter.setAloss(parseDoubleFromRecord(rec, 0.0, headers, "aloss" + headerSuffix));
+        psseVoltageSourceConverter.setBloss(parseDoubleFromRecord(rec, 0.0, headers, "bloss" + headerSuffix));
+        psseVoltageSourceConverter.setMinloss(parseDoubleFromRecord(rec, 0.0, headers, "minloss" + headerSuffix));
+        psseVoltageSourceConverter.setSmax(parseDoubleFromRecord(rec, 0.0, headers, "smax" + headerSuffix));
+        psseVoltageSourceConverter.setImax(parseDoubleFromRecord(rec, 0.0, headers, "imax" + headerSuffix));
+        psseVoltageSourceConverter.setPwf(parseDoubleFromRecord(rec, 1.0, headers, "pwf" + headerSuffix));
+        psseVoltageSourceConverter.setMaxq(parseDoubleFromRecord(rec, 9999.0, headers, "maxq" + headerSuffix));
+        psseVoltageSourceConverter.setMinq(parseDoubleFromRecord(rec, -9999.0, headers, "minq" + headerSuffix));
+        if (version.getMajorNumber() <= 33) {
+            psseVoltageSourceConverter.setRemot(parseIntFromRecord(rec, 0, headers, STRING_REMOT + headerSuffix));
+        }
+        psseVoltageSourceConverter.setRmpct(parseDoubleFromRecord(rec, 100.0, headers, "rmpct" + headerSuffix));
+        if (version.getMajorNumber() >= 35) {
+            psseVoltageSourceConverter.setVsreg(parseIntFromRecord(rec, 0, headers, STRING_VSREG + headerSuffix));
+            psseVoltageSourceConverter.setNreg(parseIntFromRecord(rec, 0, headers, "nreg" + headerSuffix));
+        }
+        return psseVoltageSourceConverter;
+    }
+
+    public static String[] toRecord(PsseVoltageSourceConverter psseVoltageSourceConverter, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            Optional<String> optionalValue = psseVoltageSourceConverter.headerToString(headers[i]);
+            if (optionalValue.isEmpty()) {
+                throw new PsseException("Unsupported header: " + headers[i]);
+            }
+            row[i] = optionalValue.get();
+        }
+        return row;
+    }
+
+    public Optional<String> headerToString(String header) {
+        return switch (header) {
+            case "ibus" -> Optional.of(String.valueOf(getIbus()));
+            case "type" -> Optional.of(String.valueOf(getType()));
+            case "mode" -> Optional.of(String.valueOf(getMode()));
+            case "dcset" -> Optional.of(String.valueOf(getDcset()));
+            case "acset" -> Optional.of(String.valueOf(getAcset()));
+            case "aloss" -> Optional.of(String.valueOf(getAloss()));
+            case "bloss" -> Optional.of(String.valueOf(getBloss()));
+            case "minloss" -> Optional.of(String.valueOf(getMinloss()));
+            case "smax" -> Optional.of(String.valueOf(getSmax()));
+            case "imax" -> Optional.of(String.valueOf(getImax()));
+            case "pwf" -> Optional.of(String.valueOf(getPwf()));
+            case "maxq" -> Optional.of(String.valueOf(getMaxq()));
+            case "minq" -> Optional.of(String.valueOf(getMinq()));
+            case STRING_REMOT -> Optional.of(String.valueOf(getRemot()));
+            case "rmpct" -> Optional.of(String.valueOf(getRmpct()));
+            case STRING_VSREG -> Optional.of(String.valueOf(getVsreg()));
+            case "nreg" -> Optional.of(String.valueOf(getNreg()));
+            default -> Optional.empty();
+        };
+    }
 
     public int getIbus() {
         return ibus;
@@ -177,7 +223,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getRemot() {
-        checkVersion("remot");
+        checkVersion(STRING_REMOT);
         return remot;
     }
 
@@ -194,7 +240,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getVsreg() {
-        checkVersion("vsreg");
+        checkVersion(STRING_VSREG);
         return vsreg;
     }
 

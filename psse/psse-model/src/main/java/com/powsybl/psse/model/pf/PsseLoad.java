@@ -7,9 +7,15 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -17,64 +23,95 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseLoad extends PsseVersioned {
 
-    @Parsed(field = {"i", "ibus"})
+    private static final String STRING_INTRPT = "intrpt";
+    private static final String STRING_DGENP = "dgenp";
+    private static final String STRING_DGENQ = "dgenq";
+    private static final String STRING_DGENM = "dgenm";
+    private static final String STRING_LOAD_TYPE = "loadtype";
+
     private int i;
-
-    @Parsed(field = {"id", "loadid"}, defaultNullRead = "1")
     private String id;
-
-    @Parsed(field = {"status", "stat"})
     private int status = 1;
-
-    @Parsed
     private int area = -1;
-
-    @Parsed
     private int zone = -1;
-
-    @Parsed
     private double pl = 0;
-
-    @Parsed
     private double ql = 0;
-
-    @Parsed
     private double ip = 0;
-
-    @Parsed
     private double iq = 0;
-
-    @Parsed
     private double yp = 0;
-
-    @Parsed
     private double yq = 0;
-
-    @Parsed
     private int owner = -1;
-
-    @Parsed
     private int scale = 1;
 
-    @Parsed
     @Revision(since = 33)
     private int intrpt = 0;
 
-    @Parsed
     @Revision(since = 35)
     private double dgenp = 0;
 
-    @Parsed
     @Revision(since = 35)
     private double dgenq = 0;
 
-    @Parsed
     @Revision(since = 35)
     private int dgenm = 0;
 
-    @Parsed(defaultNullRead = "            ")
     @Revision(since = 35)
     private String loadtype;
+
+    public static PsseLoad fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        PsseLoad psseLoad = new PsseLoad();
+        psseLoad.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseLoad.setId(parseStringFromRecord(rec, "1", headers, "id", "loadid"));
+        psseLoad.setStatus(parseIntFromRecord(rec, 1, headers, "status", "stat"));
+        psseLoad.setArea(parseIntFromRecord(rec, -1, headers, "area"));
+        psseLoad.setZone(parseIntFromRecord(rec, -1, headers, "zone"));
+        psseLoad.setPl(parseDoubleFromRecord(rec, 0d, headers, "pl"));
+        psseLoad.setQl(parseDoubleFromRecord(rec, 0d, headers, "ql"));
+        psseLoad.setIp(parseDoubleFromRecord(rec, 0d, headers, "ip"));
+        psseLoad.setIq(parseDoubleFromRecord(rec, 0d, headers, "iq"));
+        psseLoad.setYp(parseDoubleFromRecord(rec, 0d, headers, "yp"));
+        psseLoad.setYq(parseDoubleFromRecord(rec, 0d, headers, "yq"));
+        psseLoad.setOwner(parseIntFromRecord(rec, -1, headers, "owner"));
+        psseLoad.setScale(parseIntFromRecord(rec, 1, headers, "scale"));
+        if (version.getMajorNumber() >= 33) {
+            psseLoad.setIntrpt(parseIntFromRecord(rec, 0, headers, STRING_INTRPT));
+        }
+        if (version.getMajorNumber() >= 35) {
+            psseLoad.setDgenp(parseDoubleFromRecord(rec, 0d, headers, STRING_DGENP));
+            psseLoad.setDgenq(parseDoubleFromRecord(rec, 0d, headers, STRING_DGENQ));
+            psseLoad.setDgenm(parseIntFromRecord(rec, 0, headers, STRING_DGENM));
+            psseLoad.setLoadtype(parseStringFromRecord(rec, "            ", headers, STRING_LOAD_TYPE));
+        }
+        return psseLoad;
+    }
+
+    public static String[] toRecord(PsseLoad psseLoad, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseLoad.getI());
+                case "id", "loadid" -> psseLoad.getId();
+                case "status", "stat" -> String.valueOf(psseLoad.getStatus());
+                case "area" -> String.valueOf(psseLoad.getArea());
+                case "zone" -> String.valueOf(psseLoad.getZone());
+                case "pl" -> String.valueOf(psseLoad.getPl());
+                case "ql" -> String.valueOf(psseLoad.getQl());
+                case "ip" -> String.valueOf(psseLoad.getIp());
+                case "iq" -> String.valueOf(psseLoad.getIq());
+                case "yp" -> String.valueOf(psseLoad.getYp());
+                case "yq" -> String.valueOf(psseLoad.getYq());
+                case "owner" -> String.valueOf(psseLoad.getOwner());
+                case "scale" -> String.valueOf(psseLoad.getScale());
+                case STRING_INTRPT -> String.valueOf(psseLoad.getIntrpt());
+                case STRING_DGENP -> String.valueOf(psseLoad.getDgenp());
+                case STRING_DGENQ -> String.valueOf(psseLoad.getDgenq());
+                case STRING_DGENM -> String.valueOf(psseLoad.getDgenm());
+                case STRING_LOAD_TYPE -> psseLoad.getLoadtype();
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;
@@ -181,52 +218,52 @@ public class PsseLoad extends PsseVersioned {
     }
 
     public int getIntrpt() {
-        checkVersion("intrpt");
+        checkVersion(STRING_INTRPT);
         return intrpt;
     }
 
     public void setIntrpt(int intrpt) {
-        checkVersion("intrpt");
+        checkVersion(STRING_INTRPT);
         this.intrpt = intrpt;
     }
 
     public double getDgenp() {
-        checkVersion("dgenp");
+        checkVersion(STRING_DGENP);
         return dgenp;
     }
 
     public void setDgenp(double dgenp) {
-        checkVersion("dgenp");
+        checkVersion(STRING_DGENP);
         this.dgenp = dgenp;
     }
 
     public double getDgenq() {
-        checkVersion("dgenq");
+        checkVersion(STRING_DGENQ);
         return dgenq;
     }
 
     public void setDgenq(double dgenq) {
-        checkVersion("dgenq");
+        checkVersion(STRING_DGENQ);
         this.dgenq = dgenq;
     }
 
     public int getDgenm() {
-        checkVersion("dgenm");
+        checkVersion(STRING_DGENM);
         return dgenm;
     }
 
     public void setDgenm(int dgenm) {
-        checkVersion("dgenm");
+        checkVersion(STRING_DGENM);
         this.dgenm = dgenm;
     }
 
     public String getLoadtype() {
-        checkVersion("loadtype");
+        checkVersion(STRING_LOAD_TYPE);
         return loadtype;
     }
 
     public void setLoadtype(String loadtype) {
-        checkVersion("loadtype");
+        checkVersion(STRING_LOAD_TYPE);
         this.loadtype = loadtype;
     }
 
@@ -244,7 +281,6 @@ public class PsseLoad extends PsseVersioned {
         copy.iq = this.iq;
         copy.yp = this.yp;
         copy.yq = this.yq;
-        copy.owner = this.owner;
         copy.scale = this.scale;
         copy.intrpt = this.intrpt;
         copy.dgenp = this.dgenp;
