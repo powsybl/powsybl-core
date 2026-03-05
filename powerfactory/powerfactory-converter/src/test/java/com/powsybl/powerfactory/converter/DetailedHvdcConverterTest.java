@@ -233,7 +233,7 @@ public class DetailedHvdcConverterTest {
         Network network = importDgs("MTDCVscLoss2");
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
 
-        double idleLoss = 1.234 / 1000;
+        double idleLoss = 1.234 / 1000; // convert from kW to MW.
         assertEquals(idleLoss, vsc.getIdleLoss(), RELATIVE_DELTA * idleLoss);
     }
 
@@ -243,8 +243,8 @@ public class DetailedHvdcConverterTest {
         Network network = importDgs("MTDCVscLoss3");
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
 
-        double switchingLoss = 1.234; // MW
-        double resistiveLoss = 4.321; // kV
+        double switchingLoss = 1.234 / 1000; // MW / A (as opposed to kW / A in PowerFactory)
+        double resistiveLoss = 4.321; // Ohm
         assertEquals(switchingLoss, vsc.getSwitchingLoss(), RELATIVE_DELTA * switchingLoss);
         assertEquals(resistiveLoss, vsc.getResistiveLoss(), RELATIVE_DELTA * resistiveLoss);
     }
