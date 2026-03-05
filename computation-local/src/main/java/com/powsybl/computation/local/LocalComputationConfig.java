@@ -67,9 +67,8 @@ public class LocalComputationConfig {
         Path localDir = config.flatMap(c -> getTmpDir(c, "tmp-dir").or(() -> getTmpDir(c, "tmpDir")))
                 .orElse(getDefaultLocalDir(fileSystem));
         int availableCore = config.map(c -> c.getOptionalIntProperty("available-core")
-                .orElse(c.getOptionalIntProperty("availableCore").orElse(DEFAULT_AVAILABLE_CORE)))
+                        .orElse(c.getOptionalIntProperty("availableCore").orElse(DEFAULT_AVAILABLE_CORE)))
                 .orElse(DEFAULT_AVAILABLE_CORE);
-
         if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();
         }
