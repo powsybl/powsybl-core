@@ -284,15 +284,17 @@ public final class LimitViolationUtils {
     }
 
     public static PermanentLimitCheckResult checkPermanentLimit(Branch<?> branch, TwoSides side, double i, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
-        return getLimits(branch, side.toThreeSides(), type, computer)
-                .map(l -> checkPermanentLimitIfAny(l, i))
-                .orElse(new PermanentLimitCheckResult(false, Double.NaN, 1.0, ""));
+        return checkPermanentLimitIdentifiable(branch, side.toThreeSides(), computer, i, type);
     }
 
     public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
-        return getLimits(transformer, side, type, computer)
-                .map(l -> checkPermanentLimitIfAny(l, i))
-                .orElse(null);
+        return checkPermanentLimitIdentifiable(transformer, side, computer, i, type);
+    }
+
+    private static PermanentLimitCheckResult checkPermanentLimitIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
+        return getLimits(identifiable, side, type, computer)
+            .map(l -> checkPermanentLimitIfAny(l, i))
+            .orElse(new PermanentLimitCheckResult(false, Double.NaN, 1.0, ""));
     }
 
     public static double getValueForLimit(Terminal t, LimitType type) {
