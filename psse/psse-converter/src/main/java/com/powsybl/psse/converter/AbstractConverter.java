@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
@@ -219,8 +220,8 @@ public abstract class AbstractConverter {
             return false;
         } else {
             return shunt.getMaximumSectionCount() == 1
-                    && !shunt.isVoltageRegulatorOn()
-                    && Double.isNaN(shunt.getTargetV());
+                    && !shunt.isRegulatingWithMode(RegulationMode.VOLTAGE)
+                    && Double.isNaN(shunt.getRegulatingTargetV());
         }
     }
 
@@ -450,7 +451,7 @@ public abstract class AbstractConverter {
     private static boolean withLocalRegulatingControl(Generator generator) {
         Bus generatorBus = generator.getTerminal().getBusView().getBus();
         Bus regulatedBus = generator.getRegulatingTerminal().getBusView().getBus();
-        return generator.isVoltageRegulatorOn() && generatorBus != null && regulatedBus != null && generatorBus.getId().equals(regulatedBus.getId());
+        return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && generatorBus != null && regulatedBus != null && generatorBus.getId().equals(regulatedBus.getId());
     }
 
     // node numbers in psse must be between 1 and 999

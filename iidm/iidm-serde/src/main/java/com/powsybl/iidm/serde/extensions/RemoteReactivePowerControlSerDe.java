@@ -14,8 +14,8 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.removed.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
@@ -49,10 +49,17 @@ public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Gene
         boolean enabled = context.getReader().readBooleanAttribute("enabled");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
         Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, extendable.getNetwork());
-        return extendable.newExtension(RemoteReactivePowerControlAdder.class)
-                .withEnabled(enabled)
-                .withTargetQ(targetQ)
-                .withRegulatingTerminal(terminal)
-                .add();
+        if (extendable.isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+            extendable.setTargetQ(extendable.getVoltageRegulation().getTargetValue());
+        }
+        if (extendable.getVoltageRegulation() == null || extendable.getVoltageRegulation().getMode() != RegulationMode.VOLTAGE) {
+            extendable.newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withRegulating(enabled)
+                .withTargetValue(targetQ)
+                .withTerminal(terminal)
+                .build();
+        }
+        return null;
     }
 }

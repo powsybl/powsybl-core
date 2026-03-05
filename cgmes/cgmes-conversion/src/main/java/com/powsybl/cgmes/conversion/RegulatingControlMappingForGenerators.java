@@ -12,11 +12,11 @@ import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +37,6 @@ public class RegulatingControlMappingForGenerators {
         this.parent = parent;
         this.context = context;
         mapping = new HashMap<>();
-    }
-
-    public static void initialize(GeneratorAdder adder) {
-        adder.setVoltageRegulatorOn(false);
     }
 
     public void add(String generatorId, PropertyBag sm) {
@@ -97,7 +93,14 @@ public class RegulatingControlMappingForGenerators {
                 .mapForVoltageControl(control.cgmesTerminal, context)
                 .orElse(gen.getTerminal());
 
-        gen.setRegulatingTerminal(regulatingTerminal);
+        if (regulatingTerminal.getConnectable().getId().equals(gen.getId())) {
+            regulatingTerminal = null;
+        }
+        gen.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(regulatingTerminal)
+            .withRegulating(false)
+            .build();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -122,10 +125,14 @@ public class RegulatingControlMappingForGenerators {
             return false;
         }
 
-        gen.newExtension(RemoteReactivePowerControlAdder.class)
-                .withRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
-                .withEnabled(false)
-                .add();
+        VoltageRegulationBuilder voltageRegulationBuilder = gen.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withRegulating(false);
+
+        if (!mappedRegulatingTerminal.getTerminal().getConnectable().getId().equals(gen.getId())) {
+            voltageRegulationBuilder.withTerminal(mappedRegulatingTerminal.getTerminal());
+        }
+        voltageRegulationBuilder.build();
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {

@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,6 @@ import org.mockito.Mockito;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -72,12 +73,15 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(svcTerminal.getVoltageLevel()).thenReturn(voltageLevel);
 
         svc = Mockito.mock(StaticVarCompensator.class);
+        VoltageRegulation voltageRegulation = Mockito.mock(VoltageRegulation.class);
         Mockito.when(svc.getId()).thenReturn("svc");
         Mockito.when(svc.getTerminal()).thenReturn(svcTerminal);
-        Mockito.when(svc.getReactivePowerSetpoint()).thenReturn(reactivePowerSetpoint);
-        Mockito.when(svc.getVoltageSetpoint()).thenReturn(voltageSetpoint);
-        Mockito.when(svc.getRegulationMode()).thenReturn(regulationMode);
-        Mockito.when(svc.isRegulating()).thenReturn(regulating);
+        Mockito.when(svc.getVoltageRegulation()).thenReturn(voltageRegulation);
+        Mockito.when(voltageRegulation.getTargetValue()).thenReturn(voltageSetpoint);
+        Mockito.when(svc.getRegulatingTargetV()).thenReturn(voltageSetpoint);
+        Mockito.when(svc.getRegulatingTargetQ()).thenReturn(reactivePowerSetpoint);
+        Mockito.when(voltageRegulation.getMode()).thenReturn(regulationMode);
+        Mockito.when(voltageRegulation.isRegulating()).thenReturn(regulating);
         Mockito.when(svc.getBmin()).thenReturn(bMin);
         Mockito.when(svc.getBmax()).thenReturn(bMax);
     }

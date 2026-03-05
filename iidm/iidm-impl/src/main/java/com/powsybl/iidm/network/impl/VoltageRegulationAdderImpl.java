@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,48 +7,29 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.VoltageRegulation;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
-import com.powsybl.iidm.network.impl.extensions.VoltageRegulationImpl;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.regulation.*;
+
+import java.util.function.Consumer;
 
 /**
- * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
+ * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationAdderImpl extends AbstractExtensionAdder<Battery, VoltageRegulation> implements VoltageRegulationAdder {
+public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>, T> implements VoltageRegulationAdder<T> {
 
-    private Terminal regulatingTerminal;
-    private Boolean voltageRegulatorOn = null;
-    private double targetV = Double.NaN;
-
-    public VoltageRegulationAdderImpl(Battery battery) {
-        super(battery);
+    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder> holderClass, T parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
+        super(holderClass, parent, network, setVoltageRegulation);
     }
 
     @Override
-    protected VoltageRegulation createExtension(Battery battery) {
-        if (regulatingTerminal == null) {
-            regulatingTerminal = battery.getTerminal();
-        }
-        return new VoltageRegulationImpl(battery, regulatingTerminal, voltageRegulatorOn, targetV);
-    }
-
-    @Override
-    public VoltageRegulationAdder withVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        this.voltageRegulatorOn = voltageRegulatorOn;
+    protected VoltageRegulationAdder<T> self() {
         return this;
     }
 
     @Override
-    public VoltageRegulationAdder withTargetV(double targetV) {
-        this.targetV = targetV;
-        return this;
+    public T add() {
+        this.setVoltageRegulation.accept(createVoltageRegulation());
+        return parent;
     }
 
-    @Override
-    public VoltageRegulationAdder withRegulatingTerminal(Terminal terminal) {
-        this.regulatingTerminal = terminal;
-        return this;
-    }
 }

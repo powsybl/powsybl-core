@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -53,9 +54,11 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                .setTargetV(152.5)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(network.getLoad("LOAD").getTerminal())
+                    .withTargetValue(152.5)
+                    .add()
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .setCondenser(true)

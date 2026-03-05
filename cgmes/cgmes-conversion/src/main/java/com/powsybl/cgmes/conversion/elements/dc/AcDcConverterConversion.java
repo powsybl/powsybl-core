@@ -14,6 +14,8 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -137,8 +139,10 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     private void setReactivePowerControl(VoltageSourceConverterAdder adder) {
         // The default is 0 MVar reactive power at pcc terminal.
-        adder.setReactivePowerSetpoint(0.0)
-                .setVoltageRegulatorOn(false);
+        adder.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(0.0)
+            .add();
     }
 
     private void setPowerFactor(LineCommutatedConverterAdder adder) {
@@ -230,23 +234,25 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     private static void updateReactivePowerControl(VoltageSourceConverter vsc, PropertyBag cgmesData, Context context) {
         String qPccControl = cgmesData.getLocal("qPccControl");
         if (qPccControl != null && qPccControl.endsWith("voltagePcc")) {
-            double defaultVoltageSetpoint = getDefaultValue(null, vsc.getVoltageSetpoint(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);
+            double defaultVoltageSetpoint = getDefaultValue(null, vsc.getRegulatingTargetV(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);
             double voltageSetpoint = cgmesData.asDouble("targetUpcc");
             double validVoltageSetpoint = isValidTargetV(voltageSetpoint) ? voltageSetpoint : defaultVoltageSetpoint;
 
             // VoltageSetpoint must be valid before enabling regulation
-            vsc.setVoltageSetpoint(validVoltageSetpoint)
-                    .setVoltageRegulatorOn(true)
-                    .setReactivePowerSetpoint(Double.NaN);
+            VoltageRegulation voltageRegulation = vsc.getVoltageRegulation();
+            voltageRegulation.setTargetValue(validVoltageSetpoint);
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            vsc.setTargetQ(Double.NaN);
         } else if (qPccControl != null && qPccControl.endsWith("reactivePcc")) {
-            double defaultReactivePowerSetpoint = getDefaultValue(null, vsc.getReactivePowerSetpoint(), 0.0, Double.NaN, context);
+            double defaultReactivePowerSetpoint = getDefaultValue(null, vsc.getRegulatingTargetQ(), 0.0, Double.NaN, context);
             double reactivePowerSetpoint = cgmesData.asDouble("targetQpcc");
             double validReactivePowerSetpoint = isValidTargetValue(reactivePowerSetpoint) ? reactivePowerSetpoint : defaultReactivePowerSetpoint;
 
             // ReactivePowerSetpoint must be valid before enabling regulation
-            vsc.setReactivePowerSetpoint(validReactivePowerSetpoint)
-                    .setVoltageRegulatorOn(false)
-                    .setVoltageSetpoint(Double.NaN);
+            VoltageRegulation voltageRegulation = vsc.getVoltageRegulation();
+            voltageRegulation.setTargetValue(validReactivePowerSetpoint);
+            voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
+            vsc.setTargetV(Double.NaN);
         }
     }
 

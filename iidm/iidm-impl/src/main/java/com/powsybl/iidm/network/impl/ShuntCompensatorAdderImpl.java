@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     private double targetDeadband = Double.NaN;
 
     private TerminalExt regulatingTerminal;
+
+    private VoltageRegulationImpl voltageRegulation;
 
     private boolean voltageRegulatorOn = false;
 
@@ -186,6 +189,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, getNetworkRef(), this::setVoltageRegulation);
+    }
+
+    @Override
     public ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         return this;
@@ -228,14 +236,18 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
-                id, getName(), isFictitious(), modelBuilder.build(), sectionCount, solvedSectionCount, regulatingTerminal,
-                voltageRegulatorOn, targetV, targetDeadband);
+                id, getName(), isFictitious(), modelBuilder.build(), sectionCount, solvedSectionCount,
+            voltageRegulation);
 
         shunt.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(shunt);
         network.getListeners().notifyCreation(shunt);
         return shunt;
+    }
+
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
     }
 
 }

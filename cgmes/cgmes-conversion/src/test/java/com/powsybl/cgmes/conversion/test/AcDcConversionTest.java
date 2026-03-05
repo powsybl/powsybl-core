@@ -15,6 +15,7 @@ import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -146,9 +147,9 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(0.0, vsc.getTargetP());
         assertEquals(Double.NaN, vsc.getTargetVdc());
         assertEquals("PT_1_2", vsc.getPccTerminal().getConnectable().getId());
-        assertFalse(vsc.isVoltageRegulatorOn());
-        assertEquals(0.0, vsc.getReactivePowerSetpoint());
-        assertEquals(Double.NaN, vsc.getVoltageSetpoint());
+        assertFalse(vsc.isWithMode(RegulationMode.VOLTAGE));
+        assertEquals(0.0, vsc.getRegulatingTargetQ());
+        assertEquals(Double.NaN, vsc.getRegulatingTargetV());
         assertEquals("DCN_1_2P", vsc.getDcTerminal1().getDcNode().getId());
         assertEquals("DCN_1_2N", vsc.getDcTerminal2().getDcNode().getId());
         assertEquals("T_VSC_1_2_1", vsc.getAliasFromType(ALIAS_TERMINAL1).orElseThrow());
@@ -216,17 +217,17 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
         assertEquals(500.0, vsc.getTargetP());
         assertEquals(Double.NaN, vsc.getTargetVdc());
-        assertFalse(vsc.isVoltageRegulatorOn());
-        assertEquals(1.0, vsc.getReactivePowerSetpoint());
-        assertEquals(Double.NaN, vsc.getVoltageSetpoint());
+        assertFalse(vsc.isWithMode(RegulationMode.VOLTAGE));
+        assertEquals(1.0, vsc.getRegulatingTargetQ());
+        assertEquals(Double.NaN, vsc.getRegulatingTargetV());
 
         VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("VSC_2_2");
         assertEquals(AcDcConverter.ControlMode.V_DC, vsc2.getControlMode());
         assertEquals(Double.NaN, vsc2.getTargetP());
         assertEquals(497.0, vsc2.getTargetVdc());
-        assertTrue(vsc2.isVoltageRegulatorOn());
-        assertEquals(Double.NaN, vsc2.getReactivePowerSetpoint());
-        assertEquals(400.0, vsc2.getVoltageSetpoint());
+        assertTrue(vsc2.isWithMode(RegulationMode.VOLTAGE));
+        assertEquals(Double.NaN, vsc2.getRegulatingTargetQ());
+        assertEquals(400.0, vsc2.getRegulatingTargetV());
     }
 
     @Test

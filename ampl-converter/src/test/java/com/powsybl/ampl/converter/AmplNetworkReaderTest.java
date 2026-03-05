@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
@@ -253,13 +253,15 @@ class AmplNetworkReaderTest {
         Generator generator = network.getGenerator("GEN");
         VoltageLevel voltageLevel = generator.getTerminal().getVoltageLevel();
 
-        assertEquals(24.5, generator.getTargetV(), 0.0);
+        assertEquals(Double.NaN, generator.getTargetV());
+        assertEquals(24.5, generator.getRegulatingTargetV(), 0.0);
         assertEquals(607.0, generator.getTargetP(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getP()));
         assertEquals(301.0, generator.getTargetQ(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getQ()));
 
         reader.readGenerators();
+        // TODO MSA Change ampl output/input ?
 
         assertEquals(voltageLevel.getNominalV() * 1.01000, generator.getTargetV(), 0.0);
         assertEquals(300.0, generator.getTargetP(), 0.0);
@@ -456,17 +458,17 @@ class AmplNetworkReaderTest {
         VscConverterStation vc = network.getVscConverterStation("C1");
         assertEquals(100, vc.getTerminal().getP(), 0.0);
         assertEquals(50, vc.getTerminal().getQ(), 0.0);
-        assertTrue(vc.isVoltageRegulatorOn());
-        assertTrue(Double.isNaN(vc.getReactivePowerSetpoint()));
-        assertEquals(405, vc.getVoltageSetpoint(), 0.0);
+        assertTrue(vc.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(Double.isNaN(vc.getRegulatingTargetQ()));
+        assertEquals(405, vc.getRegulatingTargetV(), 0.0);
 
         reader.readVscConverterStations();
 
         assertEquals(200, vc.getTerminal().getP(), 0.0);
         assertEquals(75, vc.getTerminal().getQ(), 0.0);
-        assertTrue(vc.isVoltageRegulatorOn());
-        assertEquals(30, vc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(400 * 1.01000, vc.getVoltageSetpoint(), 0.0);
+        assertTrue(vc.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(30, vc.getRegulatingTargetQ(), 0.0);
+        assertEquals(400 * 1.01000, vc.getRegulatingTargetV(), 0.0);
     }
 
     private void testShunts(Network network, AmplNetworkReader reader) throws IOException {
@@ -484,16 +486,16 @@ class AmplNetworkReaderTest {
     private void testSvc(Network network, AmplNetworkReader reader) throws IOException {
         StaticVarCompensator sv = network.getStaticVarCompensator("SVC2");
 
-        assertEquals(RegulationMode.VOLTAGE, sv.getRegulationMode());
-        assertEquals(390.0, sv.getVoltageSetpoint(), 0.0);
+        assertEquals(RegulationMode.VOLTAGE, sv.getVoltageRegulation().getMode());
+        assertEquals(390.0, sv.getRegulatingTargetV(), 0.0);
         assertTrue(Double.isNaN(sv.getTerminal().getQ()));
 
         reader.readStaticVarcompensator();
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
-        assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
-        assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetpoint(), 0.0);
-        assertEquals(-30.0, sv2.getReactivePowerSetpoint(), 0.0);
+        assertEquals(RegulationMode.REACTIVE_POWER, sv2.getVoltageRegulation().getMode());
+        assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getRegulatingTargetV(), 0.0);
+        assertEquals(-30.0, sv2.getRegulatingTargetQ(), 0.0);
         assertEquals(30.0, sv2.getTerminal().getQ(), 0.0);
     }
 

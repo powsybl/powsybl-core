@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
  * AC/DC Voltage Source Converter
  *
@@ -129,7 +131,7 @@ package com.powsybl.iidm.network;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConverter>, ReactiveLimitsHolder {
+public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConverter>, ReactiveLimitsHolder, VoltageRegulationHolder {
 
     @Override
     default IdentifiableType getType() {
@@ -140,6 +142,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * Check if voltage regulator is on.
      * @return true if voltage regulator is on, false otherwise
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -147,12 +150,14 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @param voltageRegulatorOn the new voltage regulator status
      * @return the converter itself to allow method chaining
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverter setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
      * Get the AC voltage setpoint (kV).
      * @return the voltage setpoint
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getVoltageSetpoint();
 
     /**
@@ -160,12 +165,14 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverter setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * Get the reactive power setpoint (MVar).
      * @return the reactive power setpoint
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getReactivePowerSetpoint();
 
     /**
@@ -173,5 +180,10 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return the converter itself to allow method chaining
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
+
+    VoltageSourceConverter setTargetQ(double targetQ);
+
+    VoltageSourceConverter setTargetV(double targetV);
 }

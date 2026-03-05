@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,24 +56,24 @@ class GeneratorModificationActionTest {
     @Test
     void testTargetVAndQWithVoltageRegulatorOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(Objects.requireNonNull(getClass().getResource("/generator-modification-action.groovy")))).load(network);
-        Action action = actionDb.getAction("targetV and targetQ with voltageRegulator OFF");
+        Action action = actionDb.getAction("targetV and targetQ with voltageRegulationMode REACTIVE_POWER");
         action.run(network);
         assertEquals(20., g.getMinP(), 0.1);
         assertEquals(60., g.getMaxP(), 0.1);
         assertEquals(50., g.getTargetP(), 0.1);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertFalse(g.isVoltageRegulatorOn());
+        assertEquals(RegulationMode.REACTIVE_POWER, g.getVoltageRegulation().getMode());
     }
 
     @Test
     void testTargetVAndQWithVoltageRegulatorOn() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(Objects.requireNonNull(getClass().getResource("/generator-modification-action.groovy")))).load(network);
-        Action action = actionDb.getAction("targetV and targetQ with voltageRegulator ON");
+        Action action = actionDb.getAction("targetV and targetQ with voltageRegulationMode VOLTAGE");
         action.run(network);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertTrue(g.isVoltageRegulatorOn());
+        assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
     }
 
     static Stream<Arguments> getArguments() {
@@ -144,10 +145,13 @@ class GeneratorModificationActionTest {
         Action action = actionDb.getAction("disconnect");
         action.run(network);
         assertFalse(g.getTerminal().isConnected());
-        assertEquals(24.5, g.getTargetV(), 0.01);
+        assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
+        assertEquals(24.5, g.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(Double.NaN, g.getTargetV());
         action = actionDb.getAction("connect with targetV change");
         action.run(network);
         assertTrue(g.getTerminal().isConnected());
+        assertEquals(65.4321, g.getVoltageRegulation().getTargetValue(), 0.01);
         assertEquals(1234.56, g.getTargetV(), 0.01);
     }
 }

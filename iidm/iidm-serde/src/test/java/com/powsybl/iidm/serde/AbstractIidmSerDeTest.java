@@ -15,6 +15,7 @@ import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -111,6 +112,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_VERSION) < 0)
                 .toArray(IidmVersion[]::new));
+    }
+
+    /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
+     * equals or more recent than a given minimum IIDM version <b>and</b> strictly older than the current IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
+            .toArray(IidmVersion[]::new));
     }
 
     /**
@@ -303,7 +314,9 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         TreeDataFormat previousFormat = options.getFormat();
         options.setFormat(format);
         Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
-        try (InputStream is = Files.newInputStream(path)) {
+        try (InputStream is = Files.newInputStream(path); InputStream tmpIs = Files.newInputStream(path)) {
+
+            String actualString = new String(tmpIs.readAllBytes(), StandardCharsets.UTF_8);
             Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(format), anonymizer);
             options.setFormat(previousFormat);
             return networkOutput;

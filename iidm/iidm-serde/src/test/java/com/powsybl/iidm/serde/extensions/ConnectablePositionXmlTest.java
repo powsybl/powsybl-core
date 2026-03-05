@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.IidmVersion;
@@ -49,7 +50,7 @@ class ConnectablePositionXmlTest extends AbstractIidmSerDeTest {
                 .setMaxP(20)
                 .setTargetP(20)
                 .setTargetV(400)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId("SW")

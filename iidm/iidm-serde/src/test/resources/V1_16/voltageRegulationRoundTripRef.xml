@@ -5,8 +5,9 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NGEN"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN" p="-605.0" q="-225.0">
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="607.0" targetQ="301.0" bus="NGEN" connectableBus="NGEN" p="-605.0" q="-225.0">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+                <iidm:voltageRegulation targetValue="24.5" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -17,24 +18,20 @@
             </iidm:busBreakerTopology>
             <iidm:battery id="BAT" targetP="9999.99" targetQ="9999.99" minP="-9999.99" maxP="9999.99" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+                <iidm:voltageRegulation targetValue="100.0" mode="VOLTAGE" regulating="true"/>
             </iidm:battery>
             <iidm:battery id="BAT2" targetP="100.0" targetQ="200.0" minP="-200.0" maxP="200.0" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>
                     <iidm:point p="70.0" minQ="-54.55" maxQ="46.25"/>
                 </iidm:reactiveCapabilityCurve>
+                <iidm:voltageRegulation targetValue="100.0" mode="VOLTAGE" regulating="true">
+                    <iidm:terminal id="GEN"/>
+                </iidm:voltageRegulation>
             </iidm:battery>
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NBAT" connectableBus="NBAT"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="NHV1_NHV2_1" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NBAT" connectableBus2="NBAT" voltageLevelId2="VLBAT"/>
     <iidm:line id="NHV1_NHV2_2" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NBAT" connectableBus2="NBAT" voltageLevelId2="VLBAT"/>
-    <iidm:extension id="BAT2">
-        <vr:voltageRegulation voltageRegulatorOn="true" targetV="100.0">
-            <vr:terminalRef id="GEN"/>
-        </vr:voltageRegulation>
-    </iidm:extension>
-    <iidm:extension id="BAT">
-        <vr:voltageRegulation voltageRegulatorOn="true" targetV="100.0"/>
-    </iidm:extension>
 </iidm:network>

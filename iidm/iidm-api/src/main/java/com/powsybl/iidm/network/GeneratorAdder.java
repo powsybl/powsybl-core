@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
 /**
  * To create a generator, from a <code>VoltageLevel</code> instance call
  * the {@link VoltageLevel#newGenerator()} method to get a generator builder
@@ -33,11 +35,16 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
 
     GeneratorAdder setMinP(double minP);
 
+    /**
+     * See {@link #newVoltageRegulation()}
+     */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * Set the regulating terminal, If not set or set to null local terminal is used.
+     * See {@link #newVoltageRegulation()}
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal);
 
     GeneratorAdder setTargetP(double targetP);
@@ -54,6 +61,8 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
      * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
      */
     GeneratorAdder setCondenser(boolean isCondenser);
+
+    VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation();
 
     /**
      * Build the Generator object.

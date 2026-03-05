@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.*;
 
@@ -109,7 +110,7 @@ public final class DcDetailedNetworkFactory {
                 .setId("GEN-" + country.name())
                 .setMinP(0.0)
                 .setMaxP(4000.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
                 .setTargetV(400.0)
                 .setTargetP(2000.0)
                 .setTargetQ(0.0)
@@ -785,9 +786,8 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(frPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(200.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.0)
-                .setVoltageSetpoint(400.)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetV(400.)
                 .add();
         Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer(getTransformerId(Country.GB, X_NODE_DC_1_GB, SUFFIX_NONE)).getTerminal1();
         dcNetwork.getVoltageLevel(getVoltageLevelId(Country.GB, X_NODE_DC_1_GB, SUFFIX_150)).newVoltageSourceConverter()
@@ -799,9 +799,8 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(gbPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(-200.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.0)
-                .setVoltageSetpoint(400.)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetV(400.)
                 .add();
         return Network.merge(dcNetwork, fr, gb);
     }

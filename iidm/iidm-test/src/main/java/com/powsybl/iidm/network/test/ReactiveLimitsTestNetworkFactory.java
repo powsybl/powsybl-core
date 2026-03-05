@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 import java.util.Objects;
@@ -47,7 +49,7 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMaxP(10)
                 .setMinP(0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380).add()
                 .setTargetV(380)
                 .setTargetP(10)
                 .setBus("B")
@@ -70,7 +72,7 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMaxP(10)
                 .setMinP(0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380).add()
                 .setTargetV(380)
                 .setTargetP(10)
                 .setBus("B")

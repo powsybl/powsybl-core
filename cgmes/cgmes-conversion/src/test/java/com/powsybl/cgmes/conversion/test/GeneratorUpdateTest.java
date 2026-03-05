@@ -14,12 +14,14 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -103,15 +105,15 @@ class GeneratorUpdateTest {
     }
 
     private static void assertFirstSsh(Network network) {
-        assertSsh(network.getGenerator("SynchronousMachine"), 160.0, 0.0, 405.0, true, 0.0, 0);
-        assertSsh(network.getGenerator("ExternalNetworkInjection"), -0.0, -0.0, Double.NaN, false, 0.0, 0);
-        assertSsh(network.getGenerator("EquivalentInjection"), -184.0, 0.0, Double.NaN, false, 0.0, 0);
+        assertSsh(network.getGenerator("SynchronousMachine"), 160.0, 0.0, 405.0, RegulationMode.VOLTAGE, 0.0, 0);
+        assertSsh(network.getGenerator("ExternalNetworkInjection"), -0.0, -0.0, Double.NaN, null, 0.0, 0);
+        assertSsh(network.getGenerator("EquivalentInjection"), -184.0, 0.0, Double.NaN, RegulationMode.REACTIVE_POWER, 0.0, 0);
     }
 
     private static void assertSecondSsh(Network network) {
-        assertSsh(network.getGenerator("SynchronousMachine"), 165.0, -5.0, 410.0, true, 0.9, 1);
-        assertSsh(network.getGenerator("ExternalNetworkInjection"), -10.0, -5.0, Double.NaN, false, 0.0, 0);
-        assertSsh(network.getGenerator("EquivalentInjection"), -174.0, -5.0, Double.NaN, false, 0.0, 0);
+        assertSsh(network.getGenerator("SynchronousMachine"), 165.0, -5.0, 410.0, RegulationMode.VOLTAGE, 0.9, 1);
+        assertSsh(network.getGenerator("ExternalNetworkInjection"), -10.0, -5.0, Double.NaN, null, 0.0, 0);
+        assertSsh(network.getGenerator("EquivalentInjection"), -174.0, -5.0, Double.NaN, RegulationMode.REACTIVE_POWER, 0.0, 0);
     }
 
     private static void assertFlowsBeforeSv(Network network) {
@@ -142,21 +144,32 @@ class GeneratorUpdateTest {
         assertTrue(Double.isNaN(generator.getTargetQ()));
         assertTrue(Double.isNaN(generator.getTargetV()));
         assertNotNull(generator.getRegulatingTerminal());
-        assertFalse(generator.isVoltageRegulatorOn());
 
         String originalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
         if (originalClass.equals(CgmesNames.SYNCHRONOUS_MACHINE)) {
+            assertSame(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
             assertNotNull(generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE));
         }
     }
 
-    private static void assertSsh(Generator generator, double targetP, double targetQ, double targetV, boolean isRegulatingOn, double normalPF, int referencePriority) {
+    private static void assertSsh(Generator generator, double targetP, double targetQ, double targetV, RegulationMode regulationMode, double normalPF, int referencePriority) {
         assertNotNull(generator);
         double tol = 0.0000001;
         assertEquals(targetP, generator.getTargetP(), tol);
         assertEquals(targetQ, generator.getTargetQ(), tol);
-        assertEquals(targetV, generator.getTargetV(), tol);
-        assertEquals(isRegulatingOn, generator.isVoltageRegulatorOn());
+        double targetValue = generator.getVoltageRegulation() != null ? generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
+        if (generator.getVoltageRegulation() != null) {
+            if (generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
+                assertEquals(targetV, targetValue, tol);
+            } else if (generator.getVoltageRegulation().getMode() == RegulationMode.REACTIVE_POWER) {
+                assertEquals(targetQ, targetValue, tol);
+            }
+        }
+        if (regulationMode != null) {
+            assertEquals(regulationMode, generator.getVoltageRegulation().getMode());
+        } else {
+            assertNull(generator.getVoltageRegulation());
+        }
 
         ActivePowerControl<Generator> activePowerControl = generator.getExtension(ActivePowerControl.class);
         if (activePowerControl != null) {
