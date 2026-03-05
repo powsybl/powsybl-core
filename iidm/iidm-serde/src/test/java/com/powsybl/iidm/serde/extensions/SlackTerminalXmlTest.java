@@ -48,7 +48,7 @@ class SlackTerminalXmlTest extends AbstractIidmSerDeTest {
 
         vl.newExtension(SlackTerminalAdder.class).withTerminal(t).add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/slackTerminal.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/slackTerminal.xml");
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);
         assertNotNull(vl2);
@@ -82,7 +82,7 @@ class SlackTerminalXmlTest extends AbstractIidmSerDeTest {
         // Removing slackTerminal from current variant
         assertTrue(st.setTerminal(null).isEmpty());
 
-        Network network2 = allFormatsRoundTripTest(network, "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);
         assertNotNull(vl2);
