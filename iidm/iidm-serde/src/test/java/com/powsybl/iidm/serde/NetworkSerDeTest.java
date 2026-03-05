@@ -419,6 +419,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testValidateByVersionWhenInvalidNetwork() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml")) {
+            assertNotNull(is);
             assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
                     .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
                     .hasMessageContaining("Invalid content was found starting with element '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
@@ -429,6 +430,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testValidateByVersionWhenNetworkContainSlackTerminalExtension() throws IOException {
         // Given extension: slack_terminal, version 1.5 that require iidm version 1.8 when validate should succeed
         try (InputStream is = getClass().getResourceAsStream("/slackTerminal.xml")) {
+            assertNotNull(is);
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
         }
     }
@@ -436,6 +438,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml")) {
+            assertNotNull(is);
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
         }
     }
@@ -448,8 +451,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                     .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
                     .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
                             "'[IN_OPERATION, PLANNED_OUTAGE, FORCED_OUTAGE]'. It must be a value from the enumeration.");
-
         }
     }
-
 }
