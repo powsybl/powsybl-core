@@ -24,7 +24,6 @@ public class ReactiveLimitsSerDe {
     private static final String ATTR_MIN_Q = "minQ";
     private static final String ATTR_MAX_Q = "maxQ";
     public static final String PLANE_ROOT_ELEMENT_NAME = "plane";
-    // WHAT IS THIS?
     public static final String PLANE_ARRAY_ELEMENT_NAME = "planes";
     public static final String POINT_ARRAY_ELEMENT_NAME = "points";
     public static final String POINT_ROOT_ELEMENT_NAME = "point";

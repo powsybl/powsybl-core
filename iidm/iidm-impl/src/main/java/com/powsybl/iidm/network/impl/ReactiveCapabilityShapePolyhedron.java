@@ -135,7 +135,7 @@ public final class ReactiveCapabilityShapePolyhedron {
             // Iterate through all bounding planes
             for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
 
-                // Calculate the left-hand side (LHS) expression: Q + alpha * U + beta * P
+                // Calculate the left-hand side (LHS) expression: delta * Q + alpha * U + beta * P
                 // (Note: Using 'u' for the voltage variable from the method signature)
                 double expression = plane.getDelta() * q + plane.getAlpha() * u + plane.getBeta() * p;
 
@@ -164,7 +164,7 @@ public final class ReactiveCapabilityShapePolyhedron {
      * @param p the active power in MW
      * @param q the reactive power in MVAr
      * @param u the tension in kV
-     * @return true iff the p, q, u point is inside the polytope and respects the bound constraints
+     * @return true if the p, q, u point is inside the polytope and respects the bound constraints
      */
     private boolean isInsideBounds(final double p, final double q, final double u) {
         return (p <= maxP || Double.isNaN(maxP))
@@ -209,7 +209,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     public double getOptimalQ(final double p, final GoalType goalType, final List<LinearConstraint> additionalConstraints) {
         try {
             Collection<LinearConstraint> constraints = new ArrayList<>();
-            // Addd lower / upper bounds constraints
+            // Add lower / upper bounds constraints
             addBoundsConstraints(constraints);
             // Add the convex polytope hyperplane constraints
             for (ReactiveCapabilityShapePlane plane : listOfPlanes) {
@@ -347,7 +347,7 @@ public final class ReactiveCapabilityShapePolyhedron {
     }
 
     /**
-     * @return true iff the polyhedron contains no plane
+     * @return true if the polyhedron contains no plane
      */
     public boolean isEmpty() {
         return listOfPlanes.isEmpty();
