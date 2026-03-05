@@ -12,13 +12,10 @@ import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
-import com.univocity.parsers.csv.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.util.*;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
@@ -33,6 +30,8 @@ public class CgmesNamingStrategy implements NamingStrategy {
     protected final BiMap<String, String> idByUuid = HashBiMap.create();
     protected final Map<String, String> uuidSeed = new HashMap<>();
     protected final NameBasedGenerator nameBasedGenerator;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesNamingStrategy.class);
 
     public CgmesNamingStrategy(UUID uuidNamespace) {
         // The namespace for generating stable name-based UUIDs is also a UUID
@@ -110,49 +109,4 @@ public class CgmesNamingStrategy implements NamingStrategy {
         }
         return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
     }
-
-    @Override
-    public void debug(String baseName, DataSource ds) {
-        if (!LOG.isDebugEnabled()) {
-            return;
-        }
-        String mappingFilename = baseName + "_debug_naming_strategy.csv";
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
-            CsvWriterSettings settings = new CsvWriterSettings();
-            settings.getFormat().setLineSeparator(System.lineSeparator());
-            settings.getFormat().setDelimiter(';');
-            settings.getFormat().setQuoteEscape('"');
-            CsvWriter csvWriter = new CsvWriter(writer, settings);
-            try {
-                String[] nextLine = new String[3];
-                nextLine[0] = "CgmesUuid";
-                nextLine[1] = "IidmId";
-                nextLine[2] = "Seed";
-                csvWriter.writeRow(nextLine);
-
-                for (Map.Entry<String, String> e : idByUuid.entrySet()) {
-                    String uuid = e.getKey();
-                    nextLine[0] = uuid;
-                    nextLine[1] = e.getValue();
-                    nextLine[2] = uuidSeed.get(uuid);
-                    csvWriter.writeRow(nextLine);
-                }
-                for (Map.Entry<String, String> e : uuidSeed.entrySet()) {
-                    String uuid = e.getKey();
-                    if (!idByUuid.containsKey(uuid)) {
-                        nextLine[0] = uuid;
-                        nextLine[1] = "unknown";
-                        nextLine[2] = uuidSeed.get(uuid);
-                        csvWriter.writeRow(nextLine);
-                    }
-                }
-            } finally {
-                csvWriter.close();
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesNamingStrategy.class);
 }

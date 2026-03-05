@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.naming.mock;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
@@ -59,10 +58,5 @@ public class MockNamingStrategy implements NamingStrategy {
     @Override
     public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
         return "MOCK_" + delegate.getCgmesIdFromProperty(identifiable, propertyName);
-    }
-
-    @Override
-    public void debug(String baseName, DataSource ds) {
-        // no-op
     }
 }

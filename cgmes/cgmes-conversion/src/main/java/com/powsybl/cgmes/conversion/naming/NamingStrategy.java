@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.conversion.naming;
 
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -66,8 +65,6 @@ public interface NamingStrategy {
      * All implementations must ensure a deterministic id generation.
      */
     String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName);
-
-    void debug(String baseName, DataSource ds);
 
     /**
      * Get an array of references for the given IIDM identifiable and alias type or property name.

@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.naming;
 
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
@@ -59,10 +58,5 @@ public final class IdentityNamingStrategy implements NamingStrategy {
             return identifiable.getProperty(propertyName);
         }
         return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
-    }
-
-    @Override
-    public void debug(String baseName, DataSource ds) {
-        // do nothing
     }
 }
