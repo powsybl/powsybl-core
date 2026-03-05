@@ -56,4 +56,5 @@ public interface ReactiveCapabilityShapePlane {
      * @return this
      */
     ReactiveCapabilityShapePlane greaterOrEqual(double gamma);
+
 }
