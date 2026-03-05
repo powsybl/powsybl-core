@@ -48,9 +48,9 @@
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
             <iidm:load id="B9-L1 " loadType="UNDEFINED" p0="29.5" q0="16.6" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
+            <iidm:shuntCompensator id="B9-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="0.0015702479338842975" gPerSection="0.0" maximumSectionCount="1"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
         <iidm:threeWindingsTransformer id="T-4-9-8-1 " r1="0.0" x1="0.0029457500000000005" g1="0.0" b1="0.0" ratedU1="400.0" r2="0.0" x2="0.0026160500000000004" g2="0.0" b2="0.0" ratedU2="110.0" r3="0.0" x3="2.455500000000005E-4" g3="0.0" b3="0.0" ratedU3="110.0" ratedU0="1.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL8-9" bus2="B9" connectableBus2="B9" voltageLevelId3="VL8-9" bus3="B8" connectableBus3="B8">
             <iidm:property name="v" value="1.06152"/>
