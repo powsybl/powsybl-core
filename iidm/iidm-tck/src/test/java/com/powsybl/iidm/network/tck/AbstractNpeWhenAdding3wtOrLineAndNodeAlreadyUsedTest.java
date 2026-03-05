@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsed {
+public abstract class AbstractNpeWhenAdding3wtOrLineAndNodeAlreadyUsedTest {
 
     @Test
     public void shouldNotThrowNpe() {
