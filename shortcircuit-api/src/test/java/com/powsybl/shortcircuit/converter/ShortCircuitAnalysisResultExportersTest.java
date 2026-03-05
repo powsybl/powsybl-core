@@ -77,6 +77,12 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void roundTripJsonWithOperationalLimitsGroupId() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithOperationalLimitsGroupIdResults();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-operational-limits-group-id-v14.json");
+    }
+
+    @Test
     void readJsonFaultResultVersion10() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
