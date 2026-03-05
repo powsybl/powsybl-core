@@ -29,6 +29,7 @@ class Transformers3WValidationTest extends AbstractValidationTest {
 
     private TwtTestData twtValidationData;
 
+    @Override
     @BeforeEach
     void setUp() throws IOException {
         super.setUp();
@@ -37,14 +38,14 @@ class Transformers3WValidationTest extends AbstractValidationTest {
 
     @Test
     void checkTwts() {
-        assertFalse(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
+        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
         strictConfig.setThreshold(.3);
-        assertTrue(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
+        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
         // check NaN values
         twtValidationData.setNanLeg1P();
-        assertFalse(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
+        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
         strictConfig.setOkMissingValues(true);
-        assertTrue(Transformers3WValidation.INSTANCE.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
+        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
@@ -53,14 +54,14 @@ class Transformers3WValidationTest extends AbstractValidationTest {
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getThreeWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(twtValidationData.get3WTransformer()));
 
-        assertFalse(Transformers3WValidation.INSTANCE.checkTransformers(network, strictConfig, data));
+        assertFalse(Transformers3WValidation.checkTransformers(network, strictConfig, data));
         assertFalse(ValidationType.TWTS3W.check(network, strictConfig, tmpDir));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.INSTANCE, ValidationType.TWTS);
         assertFalse(ValidationType.TWTS3W.check(network, strictConfig, validationWriter));
 
         strictConfig.setThreshold(.3);
-        assertTrue(Transformers3WValidation.INSTANCE.checkTransformers(network, strictConfig, NullWriter.INSTANCE));
+        assertTrue(Transformers3WValidation.checkTransformers(network, strictConfig, NullWriter.INSTANCE));
     }
 
 }
