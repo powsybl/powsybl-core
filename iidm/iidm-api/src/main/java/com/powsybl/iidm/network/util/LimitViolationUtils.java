@@ -75,14 +75,7 @@ public final class LimitViolationUtils {
      * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
-        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
-        Objects.requireNonNull(branch);
-        Objects.requireNonNull(side);
-        return limitsComputer.computeLimits(branch, type, side.toThreeSides(), false)
-                .stream()
-                .map(limits -> getOverload(limits, i))
-                .flatMap(Optional::stream)
-                .toList();
+        return checkAllTemporaryLimitsIdentifiable(branch, side.toThreeSides(), limitsComputer, i, type);
     }
 
     /**
@@ -96,14 +89,18 @@ public final class LimitViolationUtils {
      * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
-        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
-        Objects.requireNonNull(transformer);
+        return checkAllTemporaryLimitsIdentifiable(transformer, side, limitsComputer, i, type);
+    }
+
+    private static Collection<Overload> checkAllTemporaryLimitsIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+        Objects.requireNonNull(identifiable);
         Objects.requireNonNull(side);
-        return limitsComputer.computeLimits(transformer, type, side, false)
-                .stream()
-                .map(limits -> getOverload(limits, i))
-                .flatMap(Optional::stream)
-                .toList();
+        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
+        return limitsComputer.computeLimits(identifiable, type, side, false)
+            .stream()
+            .map(limits -> getOverload(limits, i))
+            .flatMap(Optional::stream)
+            .toList();
     }
 
     /**
@@ -118,15 +115,7 @@ public final class LimitViolationUtils {
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
-        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
-        Objects.requireNonNull(branch);
-        Objects.requireNonNull(side);
-        return getAllLimits(branch, side.toThreeSides(), type, LimitsComputer.NO_MODIFICATIONS)
-            .stream()
-            .map(limits -> getOverload(limits, i, limitReductionValue))
-            .filter(Objects::nonNull)
-            .map(o -> (Overload) o)
-            .toList();
+        return checkAllTemporaryLimitsIdentifiable(branch, side.toThreeSides(), limitReductionValue, i, type);
     }
 
     /**
@@ -141,10 +130,14 @@ public final class LimitViolationUtils {
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
-        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
-        Objects.requireNonNull(transformer);
+        return checkAllTemporaryLimitsIdentifiable(transformer, side, limitReductionValue, i, type);
+    }
+
+    private static Collection<Overload> checkAllTemporaryLimitsIdentifiable(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, double i, LimitType type) {
+        Objects.requireNonNull(identifiable);
         Objects.requireNonNull(side);
-        return getAllLimits(transformer, side, type, LimitsComputer.NO_MODIFICATIONS)
+        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
+        return getAllLimits(identifiable, side, type, LimitsComputer.NO_MODIFICATIONS)
             .stream()
             .map(limits -> getOverload(limits, i, limitReductionValue))
             .filter(Objects::nonNull)
