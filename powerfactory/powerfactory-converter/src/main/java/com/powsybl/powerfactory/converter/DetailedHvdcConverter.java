@@ -351,15 +351,15 @@ public final class DetailedHvdcConverter extends AbstractHvdcConverter {
         double resLossFactor = elmVsc.findFloatAttributeValue("resLossFactor").orElse(0.0F);
 
         return new PowerFactoryAcDcConverterParameters(iAcdc,
-                uSetVoltageDcPu,
-                unomDc,
-                usetpPu,
-                uNom,
-                qsetp,
-                psetp,
-                pnold,
-                swtLossFactor,
-                resLossFactor);
+                uSetVoltageDcPu, // pu
+                unomDc, // kV
+                usetpPu, // pu
+                uNom, // kV
+                qsetp, // MVar
+                psetp, // MW
+                pnold, // kW (warning !)
+                swtLossFactor, // kW / A (warning !)
+                resLossFactor); // Ohm
     }
 
     /**
@@ -446,7 +446,8 @@ public final class DetailedHvdcConverter extends AbstractHvdcConverter {
         // Loss model
         double idleLoss = computeIdleLoss(controlMode, pfParams.pnold, pfParams.uSetVoltageDcPu);
         converterAdder.setIdleLoss(idleLoss);
-        converterAdder.setSwitchingLoss(pfParams.swtLossFactor);
+        double switchingLossPowSyBl = pfParams.swtLossFactor / 1000; // convert from kW / A to MW / A
+        converterAdder.setSwitchingLoss(switchingLossPowSyBl);
         converterAdder.setResistiveLoss(pfParams.resLossFactor);
 
         // AC Power and voltage regulation
@@ -470,6 +471,7 @@ public final class DetailedHvdcConverter extends AbstractHvdcConverter {
         // The PowerFactory model considers the idle loss to be equal to Ud^2, while it is constant in Open Load Flow.
         // approximation: if there is a set DC voltage, then we consider it is always met.
         // Otherwise, we consider that the DC voltage is equal to the nominal voltage.
+        // Furthermore, idleLoss is converted from kW to MW.
         if (controlMode == ControlMode.V_DC) {
             idleLoss = pnold / 1000 * usetpDcPu * usetpDcPu; // MW
         } else {
