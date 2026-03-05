@@ -66,6 +66,11 @@ public abstract class AbstractSwitchSetRetainedTest {
         assertEquals(1, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 
+    /**
+     * TODO
+     * "toggling retained switch should not affect BusBreakerView buses"
+     *  means that toggling retained switch should not invalidate cache for BusBreakerTopology ?
+     */
     @Test
     public void testCloseRetainedSwitch() {
         Network network = createNetwork();
