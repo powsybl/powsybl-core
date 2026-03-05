@@ -29,12 +29,15 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private final int[] nodes;
 
     private NodeTerminal terminalRef;
+//    private final int referenceNode;
 
     CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
         this.nodes = Objects.requireNonNull(nodes).toArray();
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
+//        this.referenceNode = nodes.isEmpty() ? -1 : nodes.getQuick(0);
+//        this.terminalRef = findTerminal();
     }
 
     /**
@@ -48,12 +51,23 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
      * @param terminals The terminals belong to this bus
      * @return The first terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
+    // TODO (to remove), replace by findTerminal() or invalidate cache when retained in busBreakerView
     private static NodeTerminal findTerminal(VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         if (!terminals.isEmpty()) {
-            return terminals.get(0);
+            return terminals.getFirst();
         }
         return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
     }
+
+//    private NodeTerminal findTerminal() {
+//        if (!terminals.isEmpty()) {
+//            return terminals.getFirst();
+//        }
+//        if (referenceNode < 0) {
+//            return null;
+//        }
+//        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, referenceNode);
+//    }
 
     private void checkValidity() {
         if (!valid) {
@@ -114,6 +128,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getV() {
         checkValidity();
+        // terminalRef = findTerminal();
         return terminalRef == null ? Double.NaN : terminalRef.getV();
     }
 
@@ -129,6 +144,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getAngle() {
         checkValidity();
+        // terminalRef = findTerminal();
         return terminalRef == null ? Double.NaN : terminalRef.getAngle();
     }
 
