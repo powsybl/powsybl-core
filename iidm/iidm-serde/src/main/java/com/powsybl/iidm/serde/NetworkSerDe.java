@@ -688,6 +688,7 @@ public final class NetworkSerDe {
                 Map.entry(NodeBreakerViewInternalConnectionSerDe.ARRAY_ELEMENT_NAME, NodeBreakerViewInternalConnectionSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(ReactiveLimitsSerDe.PLANE_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.PLANE_ROOT_ELEMENT_NAME),
                 Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
                 Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME), //For backward compatibility with IIDM versions < 1.16
                 Map.entry(AbstractShuntCompensatorSerDe.SECTION_ARRAY_ELEMENT_NAME, AbstractShuntCompensatorSerDe.SECTION_ROOT_ELEMENT_NAME),
