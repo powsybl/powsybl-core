@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
@@ -28,11 +27,8 @@ public class TransformerImpedances {
 
     private static final Map<String, PsseFieldDefinition<TransformerImpedances, ?>> FIELDS = createFields();
     private static final String[] FIELD_NAMES_IMPEDANCE_12 = {STR_R12, STR_X12, STR_SBASE12};
-    private static final String[] FIELD_NAMES_IMPEDANCE_23 = {STR_R23, STR_X23, STR_SBASE23};
-    private static final String[] FIELD_NAMES_IMPEDANCE_31 = {STR_R31, STR_X31, STR_SBASE31};
-    private static final String[] FIELD_NAMES_COMMON = {STR_VMSTAR, STR_ANSTAR};
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_IMPEDANCE_12, FIELD_NAMES_IMPEDANCE_23, FIELD_NAMES_IMPEDANCE_31, FIELD_NAMES_COMMON);
-    private static final String[] FIELD_NAMES_35_RAWX = {STR_R1_2, STR_X1_2, STR_SBASE1_2, STR_R2_3, STR_X2_3, STR_SBASE2_3, STR_R3_1, STR_X3_1, STR_SBASE3_1, STR_VMSTAR, STR_ANSTAR};
+    private static final String[] FIELD_NAMES = {STR_R12, STR_X12, STR_SBASE12, STR_R23, STR_X23, STR_SBASE23, STR_R31, STR_X31, STR_SBASE31, STR_VMSTAR, STR_ANSTAR};
+    private static final String[] FIELD_NAMES_35X = {STR_R1_2, STR_X1_2, STR_SBASE1_2, STR_R2_3, STR_X2_3, STR_SBASE2_3, STR_R3_1, STR_X3_1, STR_SBASE3_1, STR_VMSTAR, STR_ANSTAR};
 
     private double r12 = defaultDoubleFor(STR_R12, FIELDS);
     private double x12 = defaultDoubleFor(STR_X12, FIELDS);
@@ -50,12 +46,12 @@ public class TransformerImpedances {
         return FIELD_NAMES_IMPEDANCE_12;
     }
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNames35RawX() {
-        return FIELD_NAMES_35_RAWX;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static TransformerImpedances fromRecord(CsvRecord rec, String[] headers) {

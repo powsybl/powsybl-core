@@ -14,17 +14,15 @@ import de.siegmar.fastcsv.reader.CsvRecord;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.createNewField;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IMFACT;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ITABLE;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_REFACT;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TAP;
+import static com.powsybl.psse.model.io.Util.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ZCorr35X {
+
+    private static final String[] FIELD_NAMES_35X = {STR_ITABLE, STR_TAP, STR_REFACT, STR_IMFACT};
 
     private static final Map<String, PsseFieldDefinition<ZCorr35X, ?>> FIELDS = createFields();
 
@@ -32,6 +30,10 @@ public class ZCorr35X {
     private double tap;
     private double refact;
     private double imfact;
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
 
     private static Map<String, PsseFieldDefinition<ZCorr35X, ?>> createFields() {
         Map<String, PsseFieldDefinition<ZCorr35X, ?>> fields = new HashMap<>();

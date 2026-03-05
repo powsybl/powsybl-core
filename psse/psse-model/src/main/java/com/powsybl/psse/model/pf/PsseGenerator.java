@@ -21,7 +21,6 @@ import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
 import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -35,15 +34,9 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseGenerator extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseGenerator, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON_1 = {STR_PG, STR_QG, STR_QT, STR_QB, STR_VS, STR_IREG};
-    private static final String[] FIELD_NAMES_COMMON_2 = {STR_MBASE, STR_ZR, STR_ZX, STR_RT, STR_XT, STR_GTAP, STR_STAT, STR_RMPCT, STR_PT, STR_PB};
-    private static final String[] FIELD_NAMES_COMMON_3 = {STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_WMOD, STR_WPF};
-    private static final String[] FIELD_NAMES_32_33_START = {STR_I, STR_ID};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_COMMON_2, FIELD_NAMES_COMMON_3);
-    private static final String[] FIELD_NAMES_35_START = {STR_IBUS, STR_MACHID};
-    private static final String[] FIELD_NAMES_35_MIDDLE_1 = {STR_NREG};
-    private static final String[] FIELD_NAMES_35_MIDDLE_2 = {STR_BASLOD};
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_35_MIDDLE_1, FIELD_NAMES_COMMON_2, FIELD_NAMES_35_MIDDLE_2, FIELD_NAMES_COMMON_3);
+    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_ID, STR_PG, STR_QG, STR_QT, STR_QB, STR_VS, STR_IREG, STR_MBASE, STR_ZR, STR_ZX, STR_RT, STR_XT, STR_GTAP, STR_STAT, STR_RMPCT, STR_PT, STR_PB, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_WMOD, STR_WPF};
+    private static final String[] FIELD_NAMES_35 = {STR_I, STR_ID, STR_PG, STR_QG, STR_QT, STR_QB, STR_VS, STR_IREG, STR_NREG, STR_MBASE, STR_ZR, STR_ZX, STR_RT, STR_XT, STR_GTAP, STR_STAT, STR_RMPCT, STR_PT, STR_PB, STR_BASLOD, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_WMOD, STR_WPF};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_MACHID, STR_PG, STR_QG, STR_QT, STR_QB, STR_VS, STR_IREG, STR_NREG, STR_MBASE, STR_ZR, STR_ZX, STR_RT, STR_XT, STR_GTAP, STR_STAT, STR_RMPCT, STR_PT, STR_PB, STR_BASLOD, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_WMOD, STR_WPF};
 
     private int i;
     private String id;
@@ -81,6 +74,10 @@ public class PsseGenerator extends PsseVersioned {
         return FIELD_NAMES_35;
     }
 
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
     public static String[] getFieldNamesString() {
         return stringHeaders(FIELDS);
     }
@@ -112,6 +109,7 @@ public class PsseGenerator extends PsseVersioned {
         addField(fields, createNewField(STR_QB, Double.class, PsseGenerator::getQb, PsseGenerator::setQb, -9999d));
         addField(fields, createNewField(STR_VS, Double.class, PsseGenerator::getVs, PsseGenerator::setVs, 1d));
         addField(fields, createNewField(STR_IREG, Integer.class, PsseGenerator::getIreg, PsseGenerator::setIreg, 0));
+        addField(fields, createNewField(STR_NREG, Integer.class, PsseGenerator::getNreg, PsseGenerator::setNreg, 0));
         addField(fields, createNewField(STR_MBASE, Double.class, PsseGenerator::getMbase, PsseGenerator::setMbase, Double.NaN));
         addField(fields, createNewField(STR_ZR, Double.class, PsseGenerator::getZr, PsseGenerator::setZr, 0d));
         addField(fields, createNewField(STR_ZX, Double.class, PsseGenerator::getZx, PsseGenerator::setZx, 1d));
@@ -122,10 +120,9 @@ public class PsseGenerator extends PsseVersioned {
         addField(fields, createNewField(STR_RMPCT, Double.class, PsseGenerator::getRmpct, PsseGenerator::setRmpct, 100d));
         addField(fields, createNewField(STR_PT, Double.class, PsseGenerator::getPt, PsseGenerator::setPt, 9999d));
         addField(fields, createNewField(STR_PB, Double.class, PsseGenerator::getPb, PsseGenerator::setPb, -9999d));
+        addField(fields, createNewField(STR_BASLOD, Integer.class, PsseGenerator::getBaslod, PsseGenerator::setBaslod, 0));
         addField(fields, createNewField(STR_WMOD, Integer.class, PsseGenerator::getWmod, PsseGenerator::setWmod, 0));
         addField(fields, createNewField(STR_WPF, Double.class, PsseGenerator::getWpf, PsseGenerator::setWpf, 1d));
-        addField(fields, createNewField(STR_NREG, Integer.class, PsseGenerator::getNreg, PsseGenerator::setNreg, 0));
-        addField(fields, createNewField(STR_BASLOD, Integer.class, PsseGenerator::getBaslod, PsseGenerator::setBaslod, 0));
 
         return fields;
     }

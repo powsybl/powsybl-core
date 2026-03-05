@@ -11,11 +11,7 @@ import com.powsybl.psse.model.io.PsseFieldDefinition;
 import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.psse.model.io.Util.addField;
 import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;

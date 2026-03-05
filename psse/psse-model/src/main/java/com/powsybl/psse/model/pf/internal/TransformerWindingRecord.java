@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_WDGRATE2;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_WDGRATE3;
@@ -32,19 +31,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_WDGRATE9;
  */
 public class TransformerWindingRecord {
 
-    private static final String[] FIELD_NAMES_COMMON_START = {STR_WINDV, STR_NOMV, STR_ANG};
-    private static final String[] FIELD_NAMES_32_33_PART_1 = {STR_RATA, STR_RATB, STR_RATC};
-    private static final String[] FIELD_NAMES_35_PART_1 = {STR_WDGRATE1, STR_WDGRATE2, STR_WDGRATE3, STR_WDGRATE4,
-        STR_WDGRATE5, STR_WDGRATE6, STR_WDGRATE7, STR_WDGRATE8, STR_WDGRATE9, STR_WDGRATE10, STR_WDGRATE11, STR_WDGRATE12};
-    private static final String[] FIELD_NAMES_COMMON_MIDDLE = {STR_COD, STR_CONT};
-    private static final String[] FIELD_NAMES_35_PART_2 = {STR_NODE};
-    private static final String[] FIELD_NAMES_COMMON_END = {STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_COMMON_START,
-        FIELD_NAMES_32_33_PART_1, FIELD_NAMES_COMMON_MIDDLE, FIELD_NAMES_COMMON_END);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_COMMON_START,
-        FIELD_NAMES_35_PART_1, FIELD_NAMES_COMMON_MIDDLE, FIELD_NAMES_35_PART_2, FIELD_NAMES_COMMON_END);
-    static final String[] FIELD_NAMES_WINDING_35 = concatStringArrays(FIELD_NAMES_COMMON_START,
-        FIELD_NAMES_35_PART_1, FIELD_NAMES_COMMON_MIDDLE, FIELD_NAMES_35_PART_2, FIELD_NAMES_COMMON_END);
+    private static final String[] FIELD_NAMES_32_33 = {STR_WINDV, STR_NOMV, STR_ANG, STR_RATA, STR_RATB, STR_RATC, STR_COD, STR_CONT, STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
+    private static final String[] FIELD_NAMES_35 = {STR_WINDV, STR_NOMV, STR_ANG, STR_WDGRATE1, STR_WDGRATE2, STR_WDGRATE3, STR_WDGRATE4, STR_WDGRATE5, STR_WDGRATE6, STR_WDGRATE7, STR_WDGRATE8, STR_WDGRATE9, STR_WDGRATE10, STR_WDGRATE11, STR_WDGRATE12, STR_COD, STR_CONT, STR_NODE, STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
 
     private PsseTransformerWinding winding;
     private PsseRates windingRates;
@@ -55,10 +43,6 @@ public class TransformerWindingRecord {
 
     public static String[] getFieldNames35() {
         return FIELD_NAMES_35;
-    }
-
-    public static String[] getFieldNames35Wdg() {
-        return FIELD_NAMES_WINDING_35;
     }
 
     public static TransformerWindingRecord fromRecord(CsvRecord rec, String[] headers) {

@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -34,7 +33,7 @@ public class PsseTransformerWinding extends PsseVersioned {
     private static final String[] FIELD_NAMES_T2W = {STR_WINDV, STR_NOMV};
     private static final String[] FIELD_NAMES_PART_1 = {STR_WINDV, STR_NOMV, STR_ANG};
     private static final String[] FIELD_NAMES_PART_2 = {STR_COD, STR_CONT, STR_NODE, STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
-    private static final String[] FIELD_NAMES = concatStringArrays(FIELD_NAMES_PART_1, FIELD_NAMES_PART_2);
+    private static final String[] FIELD_NAMES = {STR_WINDV, STR_NOMV, STR_ANG, STR_COD, STR_CONT, STR_NODE, STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
 
     private double windv = defaultDoubleFor(STR_WINDV, FIELDS);
     private double nomv = defaultDoubleFor(STR_NOMV, FIELDS);

@@ -43,19 +43,12 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseTransformer extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseTransformer, ?>> FIELDS = createFields();
-    static final String[] FIELD_NAMES_32_33_START = {STR_I, STR_J, STR_K};
-    static final String[] FIELD_NAMES_35_START = {STR_IBUS, STR_JBUS, STR_KBUS};
-    static final String[] FIELD_NAMES_COMMON_1 = {STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2};
-    static final String[] FIELD_NAMES_32_33_MIDDLE = {STR_NMETR};
-    static final String[] FIELD_NAMES_35_MIDDLE = {STR_NMET};
-    static final String[] FIELD_NAMES_COMMON_2 = {STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4};
-    static final String[] FIELD_NAMES_33_35_END = {STR_VECGRP};
-    static final String[] FIELD_NAMES_35_END = {STR_ZCOD};
-    static final String[] FIELD_NAMES_32 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_32_33_MIDDLE, FIELD_NAMES_COMMON_2);
-    static final String[] FIELD_NAMES_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_32_33_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_33_35_END);
-    static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_35_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_33_35_END, FIELD_NAMES_35_END);
-    static final String[] FIELD_NAMES_35_RAWX = concatStringArrays(FIELD_NAMES_35,
-        TransformerImpedances.getFieldNames35RawX(),
+    private static final String[] FIELD_NAMES_32 = {STR_I, STR_J, STR_K, STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, STR_NMETR, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4};
+    private static final String[] FIELD_NAMES_33 = {STR_I, STR_J, STR_K, STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, STR_NMETR, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP};
+    private static final String[] FIELD_NAMES_35 = {STR_I, STR_J, STR_K, STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, STR_NMETR, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP, STR_ZCOD};
+    private static final String[] FIELD_NAMES_35X_MAIN = {STR_IBUS, STR_JBUS, STR_KBUS, STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, STR_NMET, STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP, STR_ZCOD};
+    private static final String[] FIELD_NAMES_35X = concatStringArrays(FIELD_NAMES_35X_MAIN,
+        TransformerImpedances.getFieldNamesX(),
         computeWindingsAndRatesHeader("1"),
         computeWindingsAndRatesHeader("2"),
         computeWindingsAndRatesHeader("3"));
@@ -100,8 +93,8 @@ public class PsseTransformer extends PsseVersioned {
         return FIELD_NAMES_35;
     }
 
-    public static String[] getFieldNames35RawX() {
-        return FIELD_NAMES_35_RAWX;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

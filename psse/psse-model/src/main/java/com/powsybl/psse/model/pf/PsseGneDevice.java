@@ -7,6 +7,7 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.PsseFieldDefinition;
 import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
@@ -30,6 +31,11 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseGneDevice {
 
     private static final Map<String, PsseFieldDefinition<PsseGneDevice, ?>> FIELDS = createFields();
+    private static final String[][] FIELD_NAMES = {
+            {STR_NAME, STR_MODEL, STR_NTERM, STR_BUS1, STR_BUS2, STR_NREAL, STR_NINTG, STR_NCHAR, STR_STATUS, STR_OWNER, STR_NMET},
+            {STR_REAL1, STR_REAL2, STR_REAL3, STR_REAL4, STR_REAL5, STR_REAL6, STR_REAL7, STR_REAL8, STR_REAL9, STR_REAL10},
+            {STR_INTG1, STR_INTG2, STR_INTG3, STR_INTG4, STR_INTG5, STR_INTG6, STR_INTG7, STR_INTG8, STR_INTG9, STR_INTG10},
+            {STR_CHAR1, STR_CHAR2, STR_CHAR3, STR_CHAR4, STR_CHAR5, STR_CHAR6, STR_CHAR7, STR_CHAR8, STR_CHAR9, STR_CHAR10}};
 
     private String name;
     private String model;
@@ -72,6 +78,13 @@ public class PsseGneDevice {
     private String char8 = defaultStringFor(STR_CHAR8, FIELDS);
     private String char9 = defaultStringFor(STR_CHAR9, FIELDS);
     private String char10 = defaultStringFor(STR_CHAR10, FIELDS);
+
+    public static String[] getFieldNames(int index) {
+        if (index < 0 || index > 3) {
+            throw new PsseException("Unexpected index: " + index);
+        }
+        return FIELD_NAMES[index];
+    }
 
     public static String[] getFieldNamesString() {
         return stringHeaders(FIELDS);

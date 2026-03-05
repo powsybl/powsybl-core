@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.stringHeaders;
@@ -34,11 +33,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_SRG;
 public class PsseSubstationRecord {
 
     private static final Map<String, PsseFieldDefinition<PsseSubstationRecord, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON = {STR_NAME, STR_LATI, STR_LONG, STR_SRG};
-    private static final String[] FIELD_NAMES_START_RAW = {STR_IS};
-    private static final String[] FIELD_NAMES_START_RAWX = {STR_ISUB};
-    private static final String[] FIELD_NAMES_RAW = concatStringArrays(FIELD_NAMES_START_RAW, FIELD_NAMES_COMMON);
-    private static final String[] FIELD_NAMES_RAWX = concatStringArrays(FIELD_NAMES_START_RAWX, FIELD_NAMES_COMMON);
+    private static final String[] FIELD_NAMES = {STR_IS, STR_NAME, STR_LATI, STR_LONG, STR_SRG};
+    private static final String[] FIELD_NAMES_35X = {STR_ISUB, STR_NAME, STR_LATI, STR_LONG, STR_SRG};
 
     private int is;
     private String name;
@@ -46,12 +42,12 @@ public class PsseSubstationRecord {
     private double longi = defaultDoubleFor(STR_LONG, FIELDS);
     private double srg = defaultDoubleFor(STR_SRG, FIELDS);
 
-    public static String[] getFieldNamesRaw() {
-        return FIELD_NAMES_RAW;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNamesRawx() {
-        return FIELD_NAMES_RAWX;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

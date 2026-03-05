@@ -15,26 +15,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.createNewField;
-import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
-import static com.powsybl.psse.model.io.Util.defaultStringFor;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_EQID;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IBUS;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ID;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_INODE;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_J;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_JBUS;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_K;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_KBUS;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NI;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TYPE;
+import static com.powsybl.psse.model.io.Util.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationEquipmentTerminal {
+
+    private static final String[] FIELD_NAMES_ONE_BUS = {STR_I, STR_NI, STR_TYPE, STR_ID};
+    private static final String[] FIELD_NAMES_TWO_BUSES = {STR_I, STR_NI, STR_TYPE, STR_J, STR_ID};
+    private static final String[] FIELD_NAMES_THREE_BUSES = {STR_I, STR_NI, STR_TYPE, STR_J, STR_K, STR_ID};
+    private static final String[] FIELD_NAMES_35X = {STR_INODE, STR_TYPE, STR_EQID, STR_IBUS, STR_JBUS, STR_KBUS};
 
     private static final Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminal, ?>> FIELDS = createFields();
 
@@ -61,6 +53,26 @@ public class PsseSubstationEquipmentTerminal {
         addField(fields, createNewField(STR_KBUS, Integer.class, PsseSubstationEquipmentTerminal::getK, PsseSubstationEquipmentTerminal::setK, 0));
 
         return fields;
+    }
+
+    public static String[] getFieldNamesOneBus() {
+        return FIELD_NAMES_ONE_BUS;
+    }
+
+    public static String[] getFieldNamesTwoBuses() {
+        return FIELD_NAMES_TWO_BUSES;
+    }
+
+    public static String[] getFieldNamesThreeBuses() {
+        return FIELD_NAMES_THREE_BUSES;
+    }
+
+    static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
     }
 
     public static PsseSubstationEquipmentTerminal fromRecord(CsvRecord rec, String[] headers) {

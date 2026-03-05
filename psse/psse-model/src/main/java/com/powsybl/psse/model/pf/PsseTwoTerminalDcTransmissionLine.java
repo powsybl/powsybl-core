@@ -37,13 +37,10 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseTwoTerminalDcTransmissionLine, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON_1 = {STR_NAME, STR_MDC, STR_RDC, STR_SETVL, STR_VSCHD, STR_VCMOD, STR_RCOMP, STR_DELTI};
-    private static final String[] FIELD_NAMES_METER_32_33 = {STR_METER};
-    private static final String[] FIELD_NAMES_METER_35 = {STR_MET};
-    private static final String[] FIELD_NAMES_COMMON_2 = {STR_DCVMIN, STR_CCCITMX, STR_CCCACC};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_METER_32_33, FIELD_NAMES_COMMON_2);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_METER_35, FIELD_NAMES_COMMON_2);
-    private static final String[] FIELD_NAMES_35_RAWX = concatStringArrays(FIELD_NAMES_35,
+    private static final String[] FIELD_NAMES = {STR_NAME, STR_MDC, STR_RDC, STR_SETVL, STR_VSCHD, STR_VCMOD, STR_RCOMP, STR_DELTI, STR_METER, STR_DCVMIN, STR_CCCITMX, STR_CCCACC};
+    private static final String[] FIELD_NAMES_35X_MAIN = {STR_NAME, STR_MDC, STR_RDC, STR_SETVL, STR_VSCHD, STR_VCMOD, STR_RCOMP, STR_DELTI, STR_MET, STR_DCVMIN, STR_CCCITMX, STR_CCCACC};
+
+    private static final String[] FIELD_NAMES_35X = concatStringArrays(FIELD_NAMES_35X_MAIN,
         addSuffixToHeaders(PsseTwoTerminalDcConverter.getFieldNames35(), STR_R),
         addSuffixToHeaders(PsseTwoTerminalDcConverter.getFieldNames35(), STR_I));
     private static final String[] FIELD_NAMES_STRING = concatStringArrays(stringHeaders(FIELDS),
@@ -65,16 +62,12 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
     private PsseTwoTerminalDcConverter rectifier = new PsseTwoTerminalDcConverter();
     private PsseTwoTerminalDcConverter inverter = new PsseTwoTerminalDcConverter();
 
-    public static String[] getFieldNames3233() {
-        return FIELD_NAMES_32_33;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
-    }
-
-    public static String[] getFieldNames35RawX() {
-        return FIELD_NAMES_35_RAWX;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

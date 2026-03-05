@@ -20,16 +20,13 @@ import com.powsybl.psse.model.pf.internal.ZCorr33;
 import com.powsybl.psse.model.pf.internal.ZCorr35First;
 import com.powsybl.psse.model.pf.internal.ZCorr35Points;
 import com.powsybl.psse.model.pf.internal.ZCorr35X;
-import de.siegmar.fastcsv.reader.CsvReader;
-import de.siegmar.fastcsv.reader.CsvRecord;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
@@ -47,8 +44,8 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         withIO(FileFormat.LEGACY_TEXT, V32, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V33, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V35, new IOLegacyText35(this));
-        withFieldNames(V32, PsseTransformerImpedanceCorrection.getFieldNames3233());
-        withFieldNames(V33, PsseTransformerImpedanceCorrection.getFieldNames3233());
+        withFieldNames(V32, ZCorr33.getFieldNames3233());
+        withFieldNames(V33, ZCorr33.getFieldNames3233());
         withIO(FileFormat.JSON, new IOJson(this));
     }
 
@@ -70,7 +67,36 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         @Override
         public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> records = reader.readRecords();
-            return super.recordGroup.readFromStrings(records, context);
+            List<ZCorr33> list33 = new ZCorr33Data().readFromStrings(records, context);
+            return list33.stream()
+                    .map(IOLegacyText33::toImpedanceCorrectionDiscardingZeroPoints)
+                    .collect(Collectors.toList());
+        }
+
+        private static PsseTransformerImpedanceCorrection toImpedanceCorrectionDiscardingZeroPoints(ZCorr33 z) {
+            PsseTransformerImpedanceCorrection result = new PsseTransformerImpedanceCorrection();
+
+            result.setI(z.getI());
+
+            addPointIfNotZero(result, z.getT1(), z.getF1());
+            addPointIfNotZero(result, z.getT2(), z.getF2());
+            addPointIfNotZero(result, z.getT3(), z.getF3());
+            addPointIfNotZero(result, z.getT4(), z.getF4());
+            addPointIfNotZero(result, z.getT5(), z.getF5());
+            addPointIfNotZero(result, z.getT6(), z.getF6());
+            addPointIfNotZero(result, z.getT7(), z.getF7());
+            addPointIfNotZero(result, z.getT8(), z.getF8());
+            addPointIfNotZero(result, z.getT9(), z.getF9());
+            addPointIfNotZero(result, z.getT10(), z.getF10());
+            addPointIfNotZero(result, z.getT11(), z.getF11());
+
+            return result;
+        }
+
+        private static void addPointIfNotZero(PsseTransformerImpedanceCorrection result, double t, double f) {
+            if (t != 0.0 || f != 0.0) {
+                result.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(t, f));
+            }
         }
 
         @Override
@@ -105,7 +131,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         private static class ZCorr33Data extends AbstractRecordGroup<ZCorr33> {
             ZCorr33Data() {
-                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, PsseTransformerImpedanceCorrection.getFieldNames3233());
+                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, ZCorr33.getFieldNames3233());
                 withQuotedFields();
             }
 
@@ -135,56 +161,55 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             List<String> records = reader.readRecords();
 
             List<PsseTransformerImpedanceCorrection> impedanceCorrectionList = new ArrayList<>();
+            ZCorr35FirstData zCorr35FirstData = new ZCorr35FirstData();
+            ZCorr35PointsData zCorr35PointsData = new ZCorr35PointsData();
 
             int i = 0;
             while (i < records.size()) {
-                boolean endPoint;
-                List<String> headers = new ArrayList<>();
-                StringBuilder fullRecord = new StringBuilder();
-                // First line always contains the field "i"
-                endPoint = addLineToRecord(fullRecord, records.get(i++), headers, PsseTransformerImpedanceCorrection.getFieldNames35(), context);
+                ZCorr35First zFirst = zCorr35FirstData.parseSingleRecord(records.get(i++), ZCorr35First.getFieldNames(), context);
+
+                PsseTransformerImpedanceCorrection psseTransformerImpedanceCorrection = new PsseTransformerImpedanceCorrection();
+                psseTransformerImpedanceCorrection.setI(zFirst.getI());
+                boolean endPoint = toImpedanceCorrectionPoints(zFirst.getPoints(), psseTransformerImpedanceCorrection);
 
                 // Then we can have an undefined number of lines
                 while (i < records.size() && !endPoint) {
-                    // Add the line to the full record
-                    endPoint = addLineToRecord(fullRecord, records.get(i++), headers, PsseTransformerImpedanceCorrectionPoint.getFieldNames35(), context);
+                    ZCorr35Points zPoints = zCorr35PointsData.parseSingleRecord(records.get(i++), ZCorr35Points.getFieldNames(), context);
+                    endPoint = toImpedanceCorrectionPoints(zPoints, psseTransformerImpedanceCorrection);
                 }
 
-                PsseTransformerImpedanceCorrection impedanceCorrection = super.recordGroup.parseSingleRecord(fullRecord.toString(), headers.toArray(headers.toArray(new String[0])), context);
-                impedanceCorrectionList.add(impedanceCorrection);
+                impedanceCorrectionList.add(psseTransformerImpedanceCorrection);
             }
 
             return impedanceCorrectionList;
         }
 
-        private boolean addLineToRecord(StringBuilder sb, String line, List<String> headerList, String[] headers, Context context) {
-            if (!sb.toString().isEmpty()) {
-                sb.append(context.getDelimiter());
+        private static boolean toImpedanceCorrectionPoints(ZCorr35Points z, PsseTransformerImpedanceCorrection psseTransformerImpedanceCorrection) {
+
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT1(), z.getRef1(), z.getImf1())) {
+                return true;
             }
-            sb.append(line);
-            headerList.addAll(Arrays.asList(headers));
-            return checkIfLastPoint(line, context);
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT2(), z.getRef2(), z.getImf2())) {
+                return true;
+            }
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT3(), z.getRef3(), z.getImf3())) {
+                return true;
+            }
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT4(), z.getRef4(), z.getImf4())) {
+                return true;
+            }
+            if (addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT5(), z.getRef5(), z.getImf5())) {
+                return true;
+            }
+            return addUntilEndPoint(psseTransformerImpedanceCorrection, z.getT6(), z.getRef6(), z.getImf6());
         }
 
-        private static boolean checkIfLastPoint(String line, Context context) {
-            try (var csv = CsvReader.builder()
-                .quoteCharacter(context.getQuote())
-                .fieldSeparator(context.getDelimiter())
-                .ofCsvRecord(new StringReader(line))) {
-                for (CsvRecord rec : csv) {
-                    if (rec.getFieldCount() < 3) {
-                        return true;
-                    }
-                    for (int i = rec.getFieldCount() - 3; i < rec.getFieldCount(); i++) {
-                        if (Double.parseDouble(rec.getField(i)) != 0.0) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            } catch (IOException e) {
+        private static boolean addUntilEndPoint(PsseTransformerImpedanceCorrection psseTransformerImpedanceCorrection, double t, double ref, double imf) {
+            if (t == 0.0 && ref == 0.0 && imf == 0) {
                 return true;
             }
+            psseTransformerImpedanceCorrection.getPoints().add(new PsseTransformerImpedanceCorrectionPoint(t, ref, imf));
+            return false;
         }
 
         @Override
@@ -198,16 +223,16 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
                 int indexPoints = 0;
                 ZCorr35First r1 = convertToRecord1(impedanceCorrection, indexPoints);
-                String[] writeHeaders = ArrayUtils.subarray(PsseTransformerImpedanceCorrection.getFieldNames35(), 0, 1 + 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                String record = record1Data.buildRecord(r1, writeHeaders, PsseTransformerImpedanceCorrection.getFieldNamesString(), context);
+                String[] writeHeaders = ArrayUtils.subarray(ZCorr35First.getFieldNames(), 0, 1 + 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
+                String record = record1Data.buildRecord(r1, writeHeaders, ZCorr35First.getFieldNamesString(), context);
                 write(record, outputStream);
 
                 indexPoints = indexPoints + 6;
                 // A (0.0, 0.0, 0.0) point must be added at the end so <=
                 while (indexPoints <= impedanceCorrection.getPoints().size()) {
                     ZCorr35Points r2 = convertToRecord2(impedanceCorrection, indexPoints);
-                    String[] writeHeadersPoints = ArrayUtils.subarray(PsseTransformerImpedanceCorrectionPoint.getFieldNames35(), 0, 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                    String recordPoints = record2Data.buildRecord(r2, writeHeadersPoints, PsseTransformerImpedanceCorrection.getFieldNamesString(), context);
+                    String[] writeHeadersPoints = ArrayUtils.subarray(ZCorr35Points.getFieldNames(), 0, 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
+                    String recordPoints = record2Data.buildRecord(r2, writeHeadersPoints, ZCorr35Points.getFieldNamesString(), context);
                     write(recordPoints, outputStream);
 
                     indexPoints = indexPoints + 6;

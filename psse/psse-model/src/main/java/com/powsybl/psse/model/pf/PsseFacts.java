@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -32,14 +31,9 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseFacts extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseFacts, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON = {STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX,
-        STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF};
-    private static final String[] FIELD_NAMES_32_33_START = {STR_NAME, STR_I, STR_J};
-    private static final String[] FIELD_NAMES_32_33_END = {STR_REMOT, STR_MNAME};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON, FIELD_NAMES_32_33_END);
-    private static final String[] FIELD_NAMES_35_START = {STR_NAME, STR_IBUS, STR_JBUS};
-    private static final String[] FIELD_NAMES_35_END = {STR_FCREG, STR_NREG, STR_MNAME};
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON, FIELD_NAMES_35_END);
+    private static final String[] FIELD_NAMES_32_33 = {STR_NAME, STR_I, STR_J, STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX, STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF, STR_REMOT, STR_MNAME};
+    private static final String[] FIELD_NAMES_35 = {STR_NAME, STR_I, STR_J, STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX, STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF, STR_FCREG, STR_NREG, STR_MNAME};
+    private static final String[] FIELD_NAMES_35X = {STR_NAME, STR_IBUS, STR_JBUS, STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX, STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF, STR_FCREG, STR_NREG, STR_MNAME};
 
     private String name;
     private int i;
@@ -78,6 +72,10 @@ public class PsseFacts extends PsseVersioned {
 
     public static String[] getFieldNames35() {
         return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -44,13 +43,9 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONE;
 public class PsseBus extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseBus, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON = {STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA};
-    private static final String[] FIELD_NAMES_32_33_START = {STR_I};
-    private static final String[] FIELD_NAMES_32 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON);
-    private static final String[] FIELD_NAMES_33_PLUS = {STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
-    private static final String[] FIELD_NAMES_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON, FIELD_NAMES_33_PLUS);
-    private static final String[] FIELD_NAMES_35_START = {STR_IBUS};
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON, FIELD_NAMES_33_PLUS);
+    private static final String[] FIELD_NAMES_32 = {STR_I, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA};
+    private static final String[] FIELD_NAMES_33_35 = {STR_I, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
 
     private int i;
     private String name;
@@ -78,12 +73,12 @@ public class PsseBus extends PsseVersioned {
         return FIELD_NAMES_32;
     }
 
-    public static String[] getFieldNames33() {
-        return FIELD_NAMES_33;
+    public static String[] getFieldNames3335() {
+        return FIELD_NAMES_33_35;
     }
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

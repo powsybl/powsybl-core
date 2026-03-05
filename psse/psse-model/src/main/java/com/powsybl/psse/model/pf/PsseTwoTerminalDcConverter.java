@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -33,11 +32,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseTwoTerminalDcConverter extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseTwoTerminalDcConverter, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON_1 = {STR_IP, STR_NB, STR_ANMX, STR_ANMN, STR_RC, STR_XC, STR_EBAS, STR_TR, STR_TAP, STR_TMX, STR_TMN, STR_STP, STR_IC};
-    private static final String[] FIELD_NAMES_COMMON_2 = {STR_IF, STR_IT, STR_ID, STR_XCAP};
-    private static final String[] FIELD_NAMES_ND = {STR_ND};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_COMMON_2);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_ND, FIELD_NAMES_COMMON_2);
+    private static final String[] FIELD_NAMES_32_33 = {STR_IP, STR_NB, STR_ANMX, STR_ANMN, STR_RC, STR_XC, STR_EBAS, STR_TR, STR_TAP, STR_TMX, STR_TMN, STR_STP, STR_IC, STR_IF, STR_IT, STR_ID, STR_XCAP};
+    private static final String[] FIELD_NAMES_35 = {STR_IP, STR_NB, STR_ANMX, STR_ANMN, STR_RC, STR_XC, STR_EBAS, STR_TR, STR_TAP, STR_TMX, STR_TMN, STR_STP, STR_IC, STR_ND, STR_IF, STR_IT, STR_ID, STR_XCAP};
 
     private int ip;
     private int nb;

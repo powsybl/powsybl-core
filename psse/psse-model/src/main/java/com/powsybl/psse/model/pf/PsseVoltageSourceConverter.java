@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -33,12 +32,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseVoltageSourceConverter extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseVoltageSourceConverter, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON_1 = {STR_IBUS, STR_TYPE, STR_MODE, STR_DCSET, STR_ACSET, STR_ALOSS, STR_BLOSS, STR_MINLOSS, STR_SMAX, STR_IMAX, STR_PWF, STR_MAXQ, STR_MINQ};
-    private static final String[] FIELD_NAMES_COMMON_2 = {STR_RMPCT};
-    private static final String[] FIELD_NAMES_MIDDLE_32_33 = {STR_REMOT};
-    private static final String[] FIELD_NAMES_MIDDLE_35 = {STR_VSREG, STR_NREG};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_MIDDLE_32_33, FIELD_NAMES_COMMON_2);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_COMMON_1, FIELD_NAMES_MIDDLE_35, FIELD_NAMES_COMMON_2);
+    private static final String[] FIELD_NAMES_32_33 = {STR_IBUS, STR_TYPE, STR_MODE, STR_DCSET, STR_ACSET, STR_ALOSS, STR_BLOSS, STR_MINLOSS, STR_SMAX, STR_IMAX, STR_PWF, STR_MAXQ, STR_MINQ, STR_REMOT, STR_RMPCT};
+    private static final String[] FIELD_NAMES_35 = {STR_IBUS, STR_TYPE, STR_MODE, STR_DCSET, STR_ACSET, STR_ALOSS, STR_BLOSS, STR_MINLOSS, STR_SMAX, STR_IMAX, STR_PWF, STR_MAXQ, STR_MINQ, STR_VSREG, STR_NREG, STR_RMPCT};
 
     private int ibus;
     private int type;

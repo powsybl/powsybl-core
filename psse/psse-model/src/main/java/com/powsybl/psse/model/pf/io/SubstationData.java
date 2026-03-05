@@ -27,7 +27,6 @@ import java.util.List;
 
 import static com.powsybl.psse.model.pf.PsseSubstation.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_INODE;
 
 /**
  *
@@ -35,13 +34,6 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_INODE;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SubstationData extends AbstractRecordGroup<PsseSubstation> {
-
-    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES = {"ni", "nj", "ckt", "name", "type", "status", "nstat", "x", "rate1", "rate2", "rate3"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS = {"i", "ni", "type", "id"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES = {"i", "ni", "type", "j", "id"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES = {"i", "ni", "type", "j", "k", "id"};
-    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_INODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rate1", "rate2", "rate3"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", STR_INODE, "type", "eqid", "ibus", "jbus", "kbus"};
 
     SubstationData() {
         super(SUBSTATION);
@@ -158,8 +150,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationNodeData extends AbstractRecordGroup<PsseSubstationNode> {
             SubstationNodeData() {
-                super(INTERNAL_SUBSTATION_NODE, PsseSubstationNode.getFieldNamesRaw());
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_NODE, PsseSubstationNode.getFieldNames());
+                withQuotedFields(PsseSubstationNode.getFieldNamesString());
             }
 
             @Override
@@ -170,8 +162,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationSwitchingDeviceData extends AbstractRecordGroup<PsseSubstationSwitchingDevice> {
             SubstationSwitchingDeviceData() {
-                super(INTERNAL_SUBSTATION_SWITCHING_DEVICE, FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES);
-                withQuotedFields(QUOTED_FIELDS_SWITCHING_DEVICES);
+                super(INTERNAL_SUBSTATION_SWITCHING_DEVICE, PsseSubstationSwitchingDevice.getFieldNames());
+                withQuotedFields(PsseSubstationSwitchingDevice.getFieldNamesString());
             }
 
             @Override
@@ -182,8 +174,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataCommonStart extends AbstractRecordGroup<PsseSubstationEquipmentTerminalCommonStart> {
             SubstationEquipmentTerminalDataCommonStart() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START, "i", "ni", "type");
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START, PsseSubstationEquipmentTerminalCommonStart.getFieldNames());
+                withQuotedFields(PsseSubstationEquipmentTerminalCommonStart.getFieldNamesString());
             }
 
             @Override
@@ -194,8 +186,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataOneBus extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataOneBus() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS);
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, PsseSubstationEquipmentTerminal.getFieldNamesOneBus());
+                withQuotedFields(PsseSubstationEquipmentTerminal.getFieldNamesString());
             }
 
             @Override
@@ -206,8 +198,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataTwoBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataTwoBuses() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES);
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesTwoBuses());
+                withQuotedFields(PsseSubstationEquipmentTerminal.getFieldNamesString());
             }
 
             @Override
@@ -218,8 +210,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataThreeBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataThreeBuses() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES);
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesThreeBuses());
+                withQuotedFields(PsseSubstationEquipmentTerminal.getFieldNamesString());
             }
 
             @Override
@@ -288,7 +280,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationNodexData extends AbstractRecordGroup<PsseSubstationNodex> {
             SubstationNodexData() {
                 super(INTERNAL_SUBSTATION_NODE);
-                withQuotedFields(QUOTED_FIELDS);
+                withQuotedFields(PsseSubstationNodex.getFieldNamesString());
             }
 
             @Override
@@ -300,7 +292,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationSwitchingDevicexData extends AbstractRecordGroup<PsseSubstationSwitchingDevicex> {
             SubstationSwitchingDevicexData() {
                 super(INTERNAL_SUBSTATION_SWITCHING_DEVICE);
-                withQuotedFields(QUOTED_FIELDS_SWITCHING_DEVICES);
+                withQuotedFields(PsseSubstationSwitchingDevicex.getFieldNamesString());
             }
 
             @Override
@@ -312,7 +304,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationEquipmentTerminalxData extends AbstractRecordGroup<PsseSubstationEquipmentTerminalx> {
             SubstationEquipmentTerminalxData() {
                 super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL);
-                withQuotedFields(QUOTED_FIELDS);
+                withQuotedFields(PsseSubstationEquipmentTerminalx.getFieldNamesString());
             }
 
             @Override
@@ -324,8 +316,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
     private static class SubstationRecordData extends AbstractRecordGroup<PsseSubstationRecord> {
         SubstationRecordData() {
-            super(SUBSTATION, PsseSubstationRecord.getFieldNamesRaw());
-            withQuotedFields(QUOTED_FIELDS);
+            super(SUBSTATION, PsseSubstationRecord.getFieldNames());
+            withQuotedFields(PsseSubstationRecord.getFieldNamesString());
         }
 
         @Override
@@ -334,6 +326,4 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         }
     }
 
-    private static final String[] QUOTED_FIELDS = {"name", "type", "id", "ckt", "eqid"};
-    private static final String[] QUOTED_FIELDS_SWITCHING_DEVICES = {"name", "ckt", "swdid"};
 }

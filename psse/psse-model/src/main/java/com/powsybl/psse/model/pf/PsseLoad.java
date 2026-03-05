@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -33,15 +32,10 @@ public class PsseLoad extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseLoad, ?>> FIELDS = createFields();
 
-    private static final String[] FIELD_NAMES_COMMON = {STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE};
-    private static final String[] FIELD_NAMES_START_32_33 = {STR_I, STR_ID, STR_STATUS};
-    private static final String[] FIELD_NAMES_START_35 = {STR_IBUS, STR_LOADID, STR_STAT};
-    private static final String[] FIELD_NAMES_COMMON_33 = {STR_INTRPT};
-    private static final String[] FIELD_NAMES_COMMON_35 = {STR_DGENP, STR_DGENQ, STR_DGENM, STR_LOADTYPE};
-    private static final String[] FIELD_NAMES_32 = concatStringArrays(FIELD_NAMES_START_32_33, FIELD_NAMES_COMMON);
-    private static final String[] FIELD_NAMES_33 = concatStringArrays(FIELD_NAMES_START_32_33, FIELD_NAMES_COMMON, FIELD_NAMES_COMMON_33);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_START_35, FIELD_NAMES_COMMON, FIELD_NAMES_COMMON_33, FIELD_NAMES_COMMON_35);
-    private static final String[] FIELD_NAMES_35_RAWX = concatStringArrays(FIELD_NAMES_START_35, FIELD_NAMES_COMMON, FIELD_NAMES_COMMON_33, FIELD_NAMES_COMMON_35);
+    private static final String[] FIELD_NAMES_32 = {STR_I, STR_ID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE};
+    private static final String[] FIELD_NAMES_33 = {STR_I, STR_ID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE, STR_INTRPT};
+    private static final String[] FIELD_NAMES_35 = {STR_I, STR_ID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE, STR_INTRPT, STR_DGENP, STR_DGENQ, STR_DGENF, STR_LOADTYPE};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_LOADID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE, STR_INTRPT, STR_DGENP, STR_DGENQ, STR_DGENM, STR_LOADTYPE};
 
     private int i;
     private String id;
@@ -84,8 +78,8 @@ public class PsseLoad extends PsseVersioned {
         return FIELD_NAMES_35;
     }
 
-    public static String[] getFieldNames35RawX() {
-        return FIELD_NAMES_35_RAWX;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {
@@ -122,6 +116,7 @@ public class PsseLoad extends PsseVersioned {
         addField(fields, createNewField(STR_INTRPT, Integer.class, PsseLoad::getIntrpt, PsseLoad::setIntrpt, 0));
         addField(fields, createNewField(STR_DGENP, Double.class, PsseLoad::getDgenp, PsseLoad::setDgenp, 0.0));
         addField(fields, createNewField(STR_DGENQ, Double.class, PsseLoad::getDgenq, PsseLoad::setDgenq, 0.0));
+        addField(fields, createNewField(STR_DGENF, Integer.class, PsseLoad::getDgenm, PsseLoad::setDgenm, 0));
         addField(fields, createNewField(STR_DGENM, Integer.class, PsseLoad::getDgenm, PsseLoad::setDgenm, 0));
         addField(fields, createNewField(STR_LOADTYPE, String.class, PsseLoad::getLoadtype, PsseLoad::setLoadtype, " ".repeat(12)));
 

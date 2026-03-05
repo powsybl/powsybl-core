@@ -14,16 +14,15 @@ import de.siegmar.fastcsv.reader.CsvRecord;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.createNewField;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NI;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TYPE;
+import static com.powsybl.psse.model.io.Util.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationEquipmentTerminalCommonStart {
+
+    private static final String[] FIELD_NAMES = {STR_I, STR_NI, STR_TYPE};
 
     private static final Map<String, PsseFieldDefinition<PsseSubstationEquipmentTerminalCommonStart, ?>> FIELDS = createFields();
 
@@ -41,12 +40,16 @@ public class PsseSubstationEquipmentTerminalCommonStart {
         return fields;
     }
 
-    public static PsseSubstationEquipmentTerminalCommonStart fromRecord(CsvRecord rec, String[] headers) {
-        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationEquipmentTerminalCommonStart::new);
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] toRecord(PsseSubstationEquipmentTerminalCommonStart psseSubstationEquipmentTerminalCommonStart, String[] headers) {
-        return Util.toRecord(psseSubstationEquipmentTerminalCommonStart, headers, FIELDS);
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseSubstationEquipmentTerminalCommonStart fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationEquipmentTerminalCommonStart::new);
     }
 
     public int getI() {

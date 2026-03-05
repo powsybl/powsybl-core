@@ -97,9 +97,9 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             int indexBus = 0;
             int indexLink = 0;
             for (PsseMultiTerminalDcTransmissionLine multiTerminal : multiTerminalList) {
-                indexConverter = addNextN(multiTerminal.getDcConverters(), converterList, multiTerminal.getNconv(), indexConverter);
-                indexBus = addNextN(multiTerminal.getDcBuses(), busList, multiTerminal.getNdcbs(), indexBus);
-                indexLink = addNextN(multiTerminal.getDcLinks(), linkList, multiTerminal.getNdcln(), indexLink);
+                indexConverter = addNextN(multiTerminal.getDcConverters(), converterList, multiTerminal.getMain().getNconv(), indexConverter);
+                indexBus = addNextN(multiTerminal.getDcBuses(), busList, multiTerminal.getMain().getNdcbs(), indexBus);
+                indexLink = addNextN(multiTerminal.getDcLinks(), linkList, multiTerminal.getMain().getNdcln(), indexLink);
             }
 
             return multiTerminalList;
@@ -160,9 +160,9 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
                 List<String> strings = new ArrayList<>();
 
                 indexMain = addNextNstrings(mainStrings, strings, 1, indexMain);
-                indexConverter = addNextNstrings(converterStrings, strings, multiTerminal.getNconv(), indexConverter);
-                indexBus = addNextNstrings(busStrings, strings, multiTerminal.getNdcbs(), indexBus);
-                indexLink = addNextNstrings(linkStrings, strings, multiTerminal.getNdcln(), indexLink);
+                indexConverter = addNextNstrings(converterStrings, strings, multiTerminal.getMain().getNconv(), indexConverter);
+                indexBus = addNextNstrings(busStrings, strings, multiTerminal.getMain().getNdcbs(), indexBus);
+                indexLink = addNextNstrings(linkStrings, strings, multiTerminal.getMain().getNdcln(), indexLink);
                 write(strings, outputStream);
             }
             writeEnd(outputStream);

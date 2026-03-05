@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -36,11 +35,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_STATUS;
 public class PsseFixedShunt {
 
     private static final Map<String, PsseFieldDefinition<PsseFixedShunt, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON = {STR_GL, STR_BL};
-    private static final String[] FIELD_NAMES_SPECIFIC_32_33 = {STR_I, STR_ID, STR_STATUS};
-    private static final String[] FIELD_NAMES_SPECIFIC_35 = {STR_IBUS, STR_SHNTID, STR_STAT};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_SPECIFIC_32_33, FIELD_NAMES_COMMON);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_SPECIFIC_35, FIELD_NAMES_COMMON);
+    private static final String[] FIELD_NAMES = {STR_I, STR_ID, STR_STATUS, STR_GL, STR_BL};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_SHNTID, STR_STAT, STR_GL, STR_BL};
 
     private int i;
     private String id;
@@ -48,12 +44,12 @@ public class PsseFixedShunt {
     private double gl = defaultDoubleFor(STR_GL, FIELDS);
     private double bl = defaultDoubleFor(STR_BL, FIELDS);
 
-    public static String[] getFieldNames3233() {
-        return FIELD_NAMES_32_33;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

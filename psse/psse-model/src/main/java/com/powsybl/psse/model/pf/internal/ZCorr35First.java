@@ -17,15 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
-import static com.powsybl.psse.model.io.Util.createNewField;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
+import static com.powsybl.psse.model.io.Util.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ZCorr35First {
+
+    private static final String[] FIELD_NAMES = concat(STR_I, ZCorr35Points.getFieldNames());
 
     private static final Map<String, PsseFieldDefinition<ZCorr35First, ?>> FIELDS = createFields();
 
@@ -38,6 +38,14 @@ public class ZCorr35First {
         addField(fields, createNewField(STR_I, Integer.class, ZCorr35First::getI, ZCorr35First::setI));
 
         return fields;
+    }
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
     }
 
     public static ZCorr35First fromRecord(CsvRecord rec, String[] headers) {

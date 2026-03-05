@@ -16,13 +16,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
 import static com.powsybl.psse.model.io.Util.stringHeaders;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISUB;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -30,16 +28,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISUB;
 public class PsseSubstationNode {
 
     private static final Map<String, PsseFieldDefinition<PsseSubstationNode, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_NAME = {STR_NAME};
-    private static final String[] FIELD_NAMES_COMMON = {STR_VM, STR_VA};
-    private static final String[] FIELD_NAMES_START_RAW = {STR_NI};
-    private static final String[] FIELD_NAMES_START_RAWX = {STR_ISUB, STR_INODE};
-    private static final String[] FIELD_NAMES_MIDDLE_RAW = {STR_I, STR_STATUS};
-    private static final String[] FIELD_NAMES_MIDDLE_RAWX = {STR_IBUS, STR_STAT};
-    private static final String[] FIELD_NAMES_RAW = concatStringArrays(FIELD_NAMES_START_RAW, FIELD_NAMES_NAME,
-        FIELD_NAMES_MIDDLE_RAW, FIELD_NAMES_COMMON);
-    private static final String[] FIELD_NAMES_RAWX = concatStringArrays(FIELD_NAMES_START_RAWX, FIELD_NAMES_NAME,
-        FIELD_NAMES_MIDDLE_RAWX, FIELD_NAMES_COMMON);
+    private static final String[] FIELD_NAMES = {STR_NI, STR_NAME, STR_I, STR_STATUS, STR_VM, STR_VA};
+    private static final String[] FIELD_NAMES_35X = {STR_INODE, STR_NAME, STR_IBUS, STR_STAT, STR_VM, STR_VA};
 
     private int ni;
     private String name;
@@ -48,12 +38,12 @@ public class PsseSubstationNode {
     private double vm = defaultDoubleFor(STR_VM, FIELDS);
     private double va = defaultDoubleFor(STR_VA, FIELDS);
 
-    public static String[] getFieldNamesRaw() {
-        return FIELD_NAMES_RAW;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNamesRawx() {
-        return FIELD_NAMES_RAWX;
+    static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

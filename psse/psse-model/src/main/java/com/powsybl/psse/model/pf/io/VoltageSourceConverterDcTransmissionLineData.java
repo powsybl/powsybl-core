@@ -35,7 +35,7 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.VOLTAGE_SOURCE_C
 class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<PsseVoltageSourceConverterDcTransmissionLine> {
 
     VoltageSourceConverterDcTransmissionLineData() {
-        super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, PsseVoltageSourceConverterDcTransmissionLine.getFieldNames35());
+        super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, PsseVoltageSourceConverterDcTransmissionLine.getFieldNames());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
         withQuotedFields("name");
     }

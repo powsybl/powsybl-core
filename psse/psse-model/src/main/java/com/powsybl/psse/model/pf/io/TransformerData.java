@@ -170,7 +170,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
         private static class PsseTransformerImpedancesRecordData extends AbstractRecordGroup<TransformerImpedances> {
             PsseTransformerImpedancesRecordData() {
-                super(INTERNAL_TRANSFORMER_IMPEDANCES, TransformerImpedances.getFieldNames35());
+                super(INTERNAL_TRANSFORMER_IMPEDANCES, TransformerImpedances.getFieldNames());
             }
 
             @Override

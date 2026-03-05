@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -28,20 +27,10 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 public class PsseSubstationSwitchingDevice {
 
+    private static final String[] FIELD_NAMES = {STR_NI, STR_NJ, STR_CKT, STR_NAME, STR_TYPE, STR_STATUS, STR_NSTAT, STR_X, STR_RATE1, STR_RATE2, STR_RATE3};
+    private static final String[] FIELD_NAMES_35X = {STR_INODE, STR_JNODE, STR_SWDID, STR_NAME, STR_TYPE, STR_STAT, STR_NSTAT, STR_XPU, STR_RATE1, STR_RATE2, STR_RATE3};
+
     private static final Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevice, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON_START = {"name", "type"};
-    private static final String[] FIELD_NAMES_COMMON_NSTAT = {STR_NSTAT};
-    private static final String[] FIELD_NAMES_COMMON_END = {"rate1", "rate2", "rate3"};
-    private static final String[] FIELD_NAMES_START_RAW = {"ni", "nj", "ckt"};
-    private static final String[] FIELD_NAMES_START_RAWX = {"isub", STR_INODE, "jnode", "swdid"};
-    private static final String[] FIELD_NAMES_MIDDLE_RAW = {STR_STATUS};
-    private static final String[] FIELD_NAMES_MIDDLE_RAWX = {STR_STAT};
-    private static final String[] FIELD_NAMES_END_RAW = {"x"};
-    private static final String[] FIELD_NAMES_END_RAWX = {"xpu"};
-    private static final String[] FIELD_NAMES_RAW = concatStringArrays(FIELD_NAMES_START_RAW, FIELD_NAMES_COMMON_START,
-        FIELD_NAMES_MIDDLE_RAW, FIELD_NAMES_COMMON_NSTAT, FIELD_NAMES_END_RAW, FIELD_NAMES_COMMON_END);
-    private static final String[] FIELD_NAMES_RAWX = concatStringArrays(FIELD_NAMES_START_RAWX, FIELD_NAMES_COMMON_START,
-        FIELD_NAMES_MIDDLE_RAWX, FIELD_NAMES_COMMON_NSTAT, FIELD_NAMES_END_RAWX, FIELD_NAMES_COMMON_END);
 
     private int ni;
     private int nj = defaultIntegerFor(STR_NJ, FIELDS);
@@ -54,30 +43,6 @@ public class PsseSubstationSwitchingDevice {
     private double rate1 = defaultDoubleFor(STR_RATE1, FIELDS);
     private double rate2 = defaultDoubleFor(STR_RATE2, FIELDS);
     private double rate3 = defaultDoubleFor(STR_RATE3, FIELDS);
-
-    public static String[] getFieldNamesRaw() {
-        return FIELD_NAMES_RAW;
-    }
-
-    public static String[] getFieldNamesRawx() {
-        return FIELD_NAMES_RAWX;
-    }
-
-    public static String[] getFieldNamesString() {
-        return stringHeaders(FIELDS);
-    }
-
-    public static PsseSubstationSwitchingDevice fromRecord(CsvRecord rec, String[] headers) {
-        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationSwitchingDevice::new);
-    }
-
-    public static void toRecord(PsseSubstationSwitchingDevice psseSubstationSwitchingDevice, String[] headers, String[] row, Set<String> unexpectedHeaders) {
-        Util.toRecord(psseSubstationSwitchingDevice, headers, FIELDS, row, unexpectedHeaders);
-    }
-
-    public static String[] toRecord(PsseSubstationSwitchingDevice psseSubstationSwitchingDevice, String[] headers) {
-        return Util.toRecord(psseSubstationSwitchingDevice, headers, FIELDS);
-    }
 
     private static Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevice, ?>> createFields() {
         Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevice, ?>> fields = new HashMap<>();
@@ -103,6 +68,30 @@ public class PsseSubstationSwitchingDevice {
         addField(fields, createNewField(STR_RSETNAM, Double.class, device -> null, (device, name) -> { }));
 
         return fields;
+    }
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseSubstationSwitchingDevice fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseSubstationSwitchingDevice::new);
+    }
+
+    public static void toRecord(PsseSubstationSwitchingDevice psseSubstationSwitchingDevice, String[] headers, String[] row, Set<String> unexpectedHeaders) {
+        Util.toRecord(psseSubstationSwitchingDevice, headers, FIELDS, row, unexpectedHeaders);
+    }
+
+    public static String[] toRecord(PsseSubstationSwitchingDevice psseSubstationSwitchingDevice, String[] headers) {
+        return Util.toRecord(psseSubstationSwitchingDevice, headers, FIELDS);
     }
 
     public int getNi() {

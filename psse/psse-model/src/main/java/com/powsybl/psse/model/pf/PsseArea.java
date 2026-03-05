@@ -33,8 +33,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_PTOL;
 public class PsseArea {
 
     private static final Map<String, PsseFieldDefinition<PsseArea, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_ISW, STR_PDES, STR_PTOL, STR_ARNAME};
-    private static final String[] FIELD_NAMES_35 = {STR_IAREA, STR_ISW, STR_PDES, STR_PTOL, STR_ARNAME};
+    private static final String[] FIELD_NAMES = {STR_I, STR_ISW, STR_PDES, STR_PTOL, STR_ARNAME};
+    private static final String[] FIELD_NAMES_35X = {STR_IAREA, STR_ISW, STR_PDES, STR_PTOL, STR_ARNAME};
 
     private int i;
     private int isw = defaultIntegerFor(STR_ISW, FIELDS);
@@ -42,12 +42,12 @@ public class PsseArea {
     private double ptol = defaultDoubleFor(STR_PTOL, FIELDS);
     private String arname;
 
-    public static String[] getFieldNames3233() {
-        return FIELD_NAMES_32_33;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

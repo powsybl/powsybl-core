@@ -35,11 +35,8 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TWO_TERMINAL_DC_
 class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTerminalDcTransmissionLine> {
 
     TwoTerminalDcTransmissionLineData() {
-        super(TWO_TERMINAL_DC_TRANSMISSION_LINE);
+        super(TWO_TERMINAL_DC_TRANSMISSION_LINE, PsseTwoTerminalDcTransmissionLine.getFieldNames());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
-        withFieldNames(V32, PsseTwoTerminalDcTransmissionLine.getFieldNames3233());
-        withFieldNames(V33, PsseTwoTerminalDcTransmissionLine.getFieldNames3233());
-        withFieldNames(V35, PsseTwoTerminalDcTransmissionLine.getFieldNames35());
         withQuotedFields(PsseTwoTerminalDcTransmissionLine.getFieldNamesString());
     }
 

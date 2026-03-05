@@ -10,10 +10,6 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseArea;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -21,10 +17,7 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
 class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
 
     AreaInterchangeData() {
-        super(PowerFlowRecordGroup.AREA_INTERCHANGE);
-        withFieldNames(V32, PsseArea.getFieldNames3233());
-        withFieldNames(V33, PsseArea.getFieldNames3233());
-        withFieldNames(V35, PsseArea.getFieldNames35());
+        super(PowerFlowRecordGroup.AREA_INTERCHANGE, PsseArea.getFieldNames());
         withQuotedFields(PsseArea.getFieldNamesString());
     }
 

@@ -22,7 +22,6 @@ import java.util.Set;
 
 import static com.powsybl.psse.model.io.Util.addField;
 import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -37,20 +36,9 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseNonTransformerBranch extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseNonTransformerBranch, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON_1 = {"ckt"};
-    private static final String[] FIELD_NAMES_COMMON_2 = {"gi", "bi", "gj", "bj"};
-    private static final String[] FIELD_NAMES_COMMON_3 = {"met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-    private static final String[] FIELD_NAMES_32_33_START = {"i", "j"};
-    private static final String[] FIELD_NAMES_32_33_MIDDLE = {"r", "x", "b", "ratea", "rateb", "ratec"};
-    private static final String[] FIELD_NAMES_32_33_END = {"st"};
-    private static final String[] FIELD_NAMES_35_START = {"ibus", "jbus"};
-    private static final String[] FIELD_NAMES_35_MIDDLE = {"rpu", "xpu", "bpu", "name",
-        "rate1", "rate2", "rate3", "rate4", "rate5", "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12"};
-    private static final String[] FIELD_NAMES_35_END = {"stat"};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON_1,
-        FIELD_NAMES_32_33_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_32_33_END, FIELD_NAMES_COMMON_3);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON_1,
-        FIELD_NAMES_35_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_35_END, FIELD_NAMES_COMMON_3);
+    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_J, STR_CKT, STR_R, STR_X, STR_B, STR_RATEA, STR_RATEB, STR_RATEC, STR_GI, STR_BI, STR_GJ, STR_BJ, STR_STAT, STR_MET, STR_LEN, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4};
+    private static final String[] FIELD_NAMES_35 = {STR_I, STR_J, STR_CKT, STR_R, STR_X, STR_B, STR_NAME, STR_RATE1, STR_RATE2, STR_RATE3, STR_RATE4, STR_RATE5, STR_RATE6, STR_RATE7, STR_RATE8, STR_RATE9, STR_RATE10, STR_RATE11, STR_RATE12, STR_GI, STR_BI, STR_GJ, STR_BJ, STR_STAT, STR_MET, STR_LEN, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_JBUS, STR_CKT, STR_RPU, STR_XPU, STR_BPU, STR_NAME, STR_RATE1, STR_RATE2, STR_RATE3, STR_RATE4, STR_RATE5, STR_RATE6, STR_RATE7, STR_RATE8, STR_RATE9, STR_RATE10, STR_RATE11, STR_RATE12, STR_GI, STR_BI, STR_GJ, STR_BJ, STR_STAT, STR_MET, STR_LEN, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4};
 
     private int i;
     private int j;
@@ -77,6 +65,10 @@ public class PsseNonTransformerBranch extends PsseVersioned {
 
     public static String[] getFieldNames35() {
         return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

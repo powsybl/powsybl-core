@@ -31,6 +31,7 @@ public final class PsseIoConstants {
     public static final String STR_BASFRQ = "basfrq";
     public static final String STR_BASLOD = "baslod";
     public static final String STR_BASKV = "baskv";
+    public static final String STR_BC = "bc";
     public static final String STR_BCODE = "bcode";
     public static final String STR_BCONST = "bconst";
     public static final String STR_BI = "bi";
@@ -72,6 +73,7 @@ public final class PsseIoConstants {
     public static final String STR_CW = "cw";
     public static final String STR_CZ = "cz";
     public static final String STR_D = "d";
+    public static final String STR_DC = "dc";
     public static final String STR_DCCKT = "dcckt";
     public static final String STR_DCNAME = "dcname";
     public static final String STR_DCODE = "dcode";
@@ -80,6 +82,7 @@ public final class PsseIoConstants {
     public static final String STR_DCSET = "dcset";
     public static final String STR_DCVMIN = "dcvmin";
     public static final String STR_DELTI = "delti";
+    public static final String STR_DGENF = "dgenf";
     public static final String STR_DGENM = "dgenm";
     public static final String STR_DGENP = "dgenp";
     public static final String STR_DGENQ = "dgenq";
@@ -231,6 +234,7 @@ public final class PsseIoConstants {
     public static final String STR_OWNAME = "owname";
     public static final String STR_OWNER = "owner";
     public static final String STR_PB = "pb";
+    public static final String STR_PC = "pc";
     public static final String STR_PCODE = "pcode";
     public static final String STR_PDES = "pdes";
     public static final String STR_PG = "pg";
@@ -312,6 +316,7 @@ public final class PsseIoConstants {
     public static final String STR_SBASE2_3 = "sbase2_3";
     public static final String STR_SBASE31 = "sbase31";
     public static final String STR_SBASE3_1 = "sbase3_1";
+    public static final String STR_SC = "sc";
     public static final String STR_SCALE = "scale";
     public static final String STR_SCODE = "scode";
     public static final String STR_SETVL = "setvl";
@@ -342,6 +347,7 @@ public final class PsseIoConstants {
     public static final String STR_S8 = "s8";
     public static final String STR_T = "t";
     public static final String STR_TAB = "tab";
+    public static final String STR_TC = "tc";
     public static final String STR_TCODE = "tcode";
     public static final String STR_TITLE1 = "title1";
     public static final String STR_TITLE2 = "title2";

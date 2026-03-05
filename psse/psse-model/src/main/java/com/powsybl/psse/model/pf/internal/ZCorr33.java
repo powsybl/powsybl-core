@@ -25,6 +25,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 public class ZCorr33 {
 
+    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_T1, STR_F1, STR_T2, STR_F2, STR_T3, STR_F3, STR_T4, STR_F4, STR_T5, STR_F5, STR_T6, STR_F6, STR_T7, STR_F7, STR_T8, STR_F8, STR_T9, STR_F9, STR_T10, STR_F10, STR_T11, STR_F11};
+
     private static final Map<String, PsseFieldDefinition<ZCorr33, ?>> FIELDS = createFields();
 
     private int i;
@@ -79,6 +81,10 @@ public class ZCorr33 {
         addField(fields, createNewField(STR_F11, Double.class, ZCorr33::getF11, ZCorr33::setF11, 0d));
 
         return fields;
+    }
+
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
     }
 
     public static ZCorr33 fromRecord(CsvRecord rec, String[] headers) {

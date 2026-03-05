@@ -27,8 +27,8 @@ class BusData extends AbstractRecordGroup<PsseBus> {
     BusData() {
         super(PowerFlowRecordGroup.BUS);
         withFieldNames(V32, PsseBus.getFieldNames32());
-        withFieldNames(V33, PsseBus.getFieldNames33());
-        withFieldNames(V35, PsseBus.getFieldNames35());
+        withFieldNames(V33, PsseBus.getFieldNames3335());
+        withFieldNames(V35, PsseBus.getFieldNames3335());
         withQuotedFields(PsseBus.getFieldNamesString());
         withIO(LEGACY_TEXT, new BusLegacyText(this));
     }

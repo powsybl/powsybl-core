@@ -17,15 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
-import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.*;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ISUB;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PsseSubstationSwitchingDevicex {
+
+    private static final String[] FIELD_NAMES_35X = concat(STR_ISUB, PsseSubstationSwitchingDevice.getFieldNamesX());
 
     private static final Map<String, PsseFieldDefinition<PsseSubstationSwitchingDevicex, ?>> FIELDS = createFields();
 
@@ -38,6 +38,14 @@ public class PsseSubstationSwitchingDevicex {
         addField(fields, createNewField(STR_ISUB, Integer.class, PsseSubstationSwitchingDevicex::getIsub, PsseSubstationSwitchingDevicex::setIsub));
 
         return fields;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return concatStringArrays(stringHeaders(FIELDS), PsseSubstationSwitchingDevice.getFieldNamesString());
     }
 
     public static PsseSubstationSwitchingDevicex fromRecord(CsvRecord rec, String[] headers) {

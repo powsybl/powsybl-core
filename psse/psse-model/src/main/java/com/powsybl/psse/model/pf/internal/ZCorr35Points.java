@@ -16,15 +16,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.createNewField;
-import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.*;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ZCorr35Points {
+
+    private static final String[] FIELD_NAMES = {STR_T1, STR_REF1, STR_IMF1, STR_T2, STR_REF2, STR_IMF2, STR_T3, STR_REF3, STR_IMF3, STR_T4, STR_REF4, STR_IMF4, STR_T5, STR_REF5, STR_IMF5, STR_T6, STR_REF6, STR_IMF6};
 
     private static final Map<String, PsseFieldDefinition<ZCorr35Points, ?>> FIELDS = createFields();
 
@@ -70,6 +70,14 @@ public class ZCorr35Points {
         addField(fields, createNewField(STR_IMF6, Double.class, ZCorr35Points::getImf6, ZCorr35Points::setImf6, 0d));
 
         return fields;
+    }
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
     }
 
     public static ZCorr35Points fromRecord(CsvRecord rec, String[] headers) {

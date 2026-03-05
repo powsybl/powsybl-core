@@ -27,18 +27,18 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseOwner {
 
     private static final Map<String, PsseFieldDefinition<PsseOwner, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_OWNAME};
-    private static final String[] FIELD_NAMES_35 = {STR_IOWNER, STR_OWNAME};
+    private static final String[] FIELD_NAMES = {STR_I, STR_OWNAME};
+    private static final String[] FIELD_NAMES_35X = {STR_IOWNER, STR_OWNAME};
 
     private int i;
     private String owname = defaultStringFor(STR_OWNAME, FIELDS);
 
-    public static String[] getFieldNames3233() {
-        return FIELD_NAMES_32_33;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {

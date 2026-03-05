@@ -210,7 +210,6 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseSubstationSwitchingDevicex.class, (MapperFrom<PsseSubstationSwitchingDevicex>) PsseSubstationSwitchingDevicex::fromRecord);
         mappers.put(PsseSwitchedShunt.class, (MapperFrom<PsseSwitchedShunt>) PsseSwitchedShunt::fromRecord);
         mappers.put(PsseTransformer.class, (MapperFrom<PsseTransformer>) PsseTransformer::fromRecord);
-        mappers.put(PsseTransformerImpedanceCorrection.class, (MapperFrom<PsseTransformerImpedanceCorrection>) PsseTransformerImpedanceCorrection::fromRecord);
         mappers.put(PsseTransformerWinding.class, (MapperFrom<PsseTransformerWinding>) PsseTransformerWinding::fromRecord);
         mappers.put(PsseTwoTerminalDcConverter.class, (MapperFrom<PsseTwoTerminalDcConverter>) PsseTwoTerminalDcConverter::fromRecord);
         mappers.put(PsseTwoTerminalDcTransmissionLine.class, (MapperFrom<PsseTwoTerminalDcTransmissionLine>) PsseTwoTerminalDcTransmissionLine::fromRecord);
@@ -251,7 +250,6 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseOwnership.class, (MapperTo<PsseOwnership>) PsseOwnership::toRecord);
         mappers.put(PsseRates.class, (MapperTo<PsseRates>) PsseRates::toRecord);
         mappers.put(PsseSubstationEquipmentTerminal.class, (MapperTo<PsseSubstationEquipmentTerminal>) PsseSubstationEquipmentTerminal::toRecord);
-        mappers.put(PsseSubstationEquipmentTerminalCommonStart.class, (MapperTo<PsseSubstationEquipmentTerminalCommonStart>) PsseSubstationEquipmentTerminalCommonStart::toRecord);
         mappers.put(PsseSubstationEquipmentTerminalx.class, (MapperTo<PsseSubstationEquipmentTerminalx>) PsseSubstationEquipmentTerminalx::toRecord);
         mappers.put(PsseSubstationNode.class, (MapperTo<PsseSubstationNode>) PsseSubstationNode::toRecord);
         mappers.put(PsseSubstationNodex.class, (MapperTo<PsseSubstationNodex>) PsseSubstationNodex::toRecord);
@@ -260,7 +258,6 @@ public abstract class AbstractRecordGroup<T> {
         mappers.put(PsseSubstationSwitchingDevicex.class, (MapperTo<PsseSubstationSwitchingDevicex>) PsseSubstationSwitchingDevicex::toRecord);
         mappers.put(PsseSwitchedShunt.class, (MapperTo<PsseSwitchedShunt>) PsseSwitchedShunt::toRecord);
         mappers.put(PsseTransformer.class, (MapperTo<PsseTransformer>) PsseTransformer::toRecord);
-        mappers.put(PsseTransformerImpedanceCorrection.class, (MapperTo<PsseTransformerImpedanceCorrection>) PsseTransformerImpedanceCorrection::toRecord);
         mappers.put(PsseTransformerWinding.class, (MapperTo<PsseTransformerWinding>) PsseTransformerWinding::toRecord);
         mappers.put(PsseTwoTerminalDcConverter.class, (MapperTo<PsseTwoTerminalDcConverter>) PsseTwoTerminalDcConverter::toRecord);
         mappers.put(PsseTwoTerminalDcTransmissionLine.class, (MapperTo<PsseTwoTerminalDcTransmissionLine>) PsseTwoTerminalDcTransmissionLine::toRecord);
@@ -342,7 +339,7 @@ public abstract class AbstractRecordGroup<T> {
             sb.append(rec);
             if (numFields < expectedNumFields) {
                 sb.append(String.valueOf(context.getDelimiter()).repeat(Math.max(0, expectedNumFields - numFields)));
-                LOGGER.info("Added {} empty fields to record {}", expectedNumFields - numFields, rec);
+                //LOGGER.info("Added {} empty fields to record {}", expectedNumFields - numFields, rec);
             }
             sb.append(System.lineSeparator());
         }

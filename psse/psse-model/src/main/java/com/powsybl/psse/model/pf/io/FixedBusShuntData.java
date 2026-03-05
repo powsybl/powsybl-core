@@ -10,10 +10,6 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseFixedShunt;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -21,10 +17,7 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
 class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
 
     FixedBusShuntData() {
-        super(PowerFlowRecordGroup.FIXED_BUS_SHUNT);
-        withFieldNames(V32, PsseFixedShunt.getFieldNames3233());
-        withFieldNames(V33, PsseFixedShunt.getFieldNames3233());
-        withFieldNames(V35, PsseFixedShunt.getFieldNames35());
+        super(PowerFlowRecordGroup.FIXED_BUS_SHUNT, PsseFixedShunt.getFieldNames());
         withQuotedFields(PsseFixedShunt.getFieldNamesString());
     }
 

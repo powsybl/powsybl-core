@@ -281,6 +281,13 @@ public final class Util {
         throw new PsseException(String.format("Column [%s] not found in record: %s", header, rec.toString()));
     }
 
+    public static String[] concat(String first, String[] rest) {
+        String[] result = new String[rest.length + 1];
+        result[0] = first;
+        System.arraycopy(rest, 0, result, 1, rest.length);
+        return result;
+    }
+
     public static String[] concatStringArrays(String[]... listOfArrays) {
         int size = 0;
         for (String[] a : listOfArrays) {

@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -30,14 +29,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseInductionMachine {
 
     private static final Map<String, PsseFieldDefinition<PsseInductionMachine, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_COMMON_1 = {STR_STAT, STR_SCODE, STR_DCODE, STR_AREA, STR_ZONE, STR_OWNER, STR_TCODE, STR_BCODE, STR_MBASE, STR_RATEKV, STR_PCODE, STR_PSET};
-    private static final String[] FIELD_NAMES_COMMON_2 = {STR_RA, STR_XA, STR_XM, STR_R1, STR_X1, STR_R2, STR_X2, STR_X3, STR_E1, STR_SE1, STR_E2, STR_SE2, STR_IA1, STR_IA2, STR_XAMULT};
-    private static final String[] FIELD_NAMES_33_START = {STR_I, STR_ID};
-    private static final String[] FIELD_NAMES_33_MIDDLE = {STR_H, STR_A, STR_B, STR_D, STR_E};
-    private static final String[] FIELD_NAMES_33 = concatStringArrays(FIELD_NAMES_33_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_33_MIDDLE, FIELD_NAMES_COMMON_2);
-    private static final String[] FIELD_NAMES_35_START = {STR_IBUS, STR_IMID};
-    private static final String[] FIELD_NAMES_35_MIDDLE = {STR_HCONST, STR_ACONST, STR_BCONST, STR_DCONST, STR_ECONST};
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_35_MIDDLE, FIELD_NAMES_COMMON_2);
+    private static final String[] FIELD_NAMES_33_35 = {STR_I, STR_ID, STR_ST, STR_SC, STR_DC, STR_AREA, STR_ZONE, STR_OWNER, STR_TC, STR_BC, STR_MBASE, STR_RATEKV, STR_PC, STR_PSET, STR_H, STR_A, STR_B, STR_D, STR_E, STR_RA, STR_XA, STR_XM, STR_R1, STR_X1, STR_R2, STR_X2, STR_X3, STR_E1, STR_SE1, STR_E2, STR_SE2, STR_IA1, STR_IA2, STR_XAMULT};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_IMID, STR_STAT, STR_SCODE, STR_DCODE, STR_AREA, STR_ZONE, STR_OWNER, STR_TCODE, STR_BCODE, STR_MBASE, STR_RATEKV, STR_PCODE, STR_PSET, STR_HCONST, STR_ACONST, STR_BCONST, STR_DCONST, STR_ECONST, STR_RA, STR_XA, STR_XM, STR_R1, STR_X1, STR_R2, STR_X2, STR_X3, STR_E1, STR_SE1, STR_E2, STR_SE2, STR_IA1, STR_IA2, STR_XAMULT};
 
     // This dataBlock is valid since version 33
     private int i;
@@ -75,12 +68,12 @@ public class PsseInductionMachine {
     private double ia2 = defaultDoubleFor(STR_IA2, FIELDS);
     private double xamult = defaultDoubleFor(STR_XAMULT, FIELDS);
 
-    public static String[] getFieldNames33() {
-        return FIELD_NAMES_33;
+    public static String[] getFieldNames3335() {
+        return FIELD_NAMES_33_35;
     }
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {
@@ -102,16 +95,22 @@ public class PsseInductionMachine {
         addField(fields, createNewField(STR_IBUS, Integer.class, PsseInductionMachine::getI, PsseInductionMachine::setI));
         addField(fields, createNewField(STR_ID, String.class, PsseInductionMachine::getId, PsseInductionMachine::setId, "1"));
         addField(fields, createNewField(STR_IMID, String.class, PsseInductionMachine::getId, PsseInductionMachine::setId, "1"));
+        addField(fields, createNewField(STR_ST, Integer.class, PsseInductionMachine::getStat, PsseInductionMachine::setStat, 1));
         addField(fields, createNewField(STR_STAT, Integer.class, PsseInductionMachine::getStat, PsseInductionMachine::setStat, 1));
+        addField(fields, createNewField(STR_SC, Integer.class, PsseInductionMachine::getScode, PsseInductionMachine::setScode, 1));
         addField(fields, createNewField(STR_SCODE, Integer.class, PsseInductionMachine::getScode, PsseInductionMachine::setScode, 1));
+        addField(fields, createNewField(STR_DC, Integer.class, PsseInductionMachine::getDcode, PsseInductionMachine::setDcode, 2));
         addField(fields, createNewField(STR_DCODE, Integer.class, PsseInductionMachine::getDcode, PsseInductionMachine::setDcode, 2));
         addField(fields, createNewField(STR_AREA, Integer.class, PsseInductionMachine::getArea, PsseInductionMachine::setArea, -1));
         addField(fields, createNewField(STR_ZONE, Integer.class, PsseInductionMachine::getZone, PsseInductionMachine::setZone, -1));
         addField(fields, createNewField(STR_OWNER, Integer.class, PsseInductionMachine::getOwner, PsseInductionMachine::setOwner, -1));
+        addField(fields, createNewField(STR_TC, Integer.class, PsseInductionMachine::getTcode, PsseInductionMachine::setTcode, 1));
         addField(fields, createNewField(STR_TCODE, Integer.class, PsseInductionMachine::getTcode, PsseInductionMachine::setTcode, 1));
+        addField(fields, createNewField(STR_BC, Integer.class, PsseInductionMachine::getBcode, PsseInductionMachine::setBcode, 1));
         addField(fields, createNewField(STR_BCODE, Integer.class, PsseInductionMachine::getBcode, PsseInductionMachine::setBcode, 1));
         addField(fields, createNewField(STR_MBASE, Double.class, PsseInductionMachine::getMbase, PsseInductionMachine::setMbase, -1.0));
         addField(fields, createNewField(STR_RATEKV, Double.class, PsseInductionMachine::getRatekv, PsseInductionMachine::setRatekv, 0.0));
+        addField(fields, createNewField(STR_PC, Integer.class, PsseInductionMachine::getPcode, PsseInductionMachine::setPcode, 1));
         addField(fields, createNewField(STR_PCODE, Integer.class, PsseInductionMachine::getPcode, PsseInductionMachine::setPcode, 1));
         addField(fields, createNewField(STR_PSET, Double.class, PsseInductionMachine::getPset, PsseInductionMachine::setPset, null));
         addField(fields, createNewField(STR_H, Double.class, PsseInductionMachine::getH, PsseInductionMachine::setH, 1.0));

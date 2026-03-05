@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
 import static com.powsybl.psse.model.io.Util.createNewField;
 import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
 import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
@@ -32,20 +31,9 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseSwitchedShunt extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseSwitchedShunt, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_32_33_START = {STR_I};
-    private static final String[] FIELD_NAMES_35_START = {STR_I, STR_ID};
-    private static final String[] FIELD_NAMES_35_RAWX_START = {STR_IBUS, STR_SHNTID};
-    private static final String[] FIELD_NAMES_COMMON_1 = {STR_MODSW, STR_ADJM, STR_STAT, STR_VSWHI, STR_VSWLO};
-    private static final String[] FIELD_NAMES_32_33_MIDDLE = {STR_SWREM};
-    private static final String[] FIELD_NAMES_35_MIDDLE = {STR_SWREG, STR_NREG};
-    private static final String[] FIELD_NAMES_COMMON_2 = {STR_RMPCT, STR_RMIDNT, STR_BINIT};
-    private static final String[] FIELD_NAMES_32_33_END = {STR_N1, STR_B1, STR_N2, STR_B2, STR_N3, STR_B3, STR_N4, STR_B4, STR_N5,
-        STR_B5, STR_N6, STR_B6, STR_N7, STR_B7, STR_N8, STR_B8};
-    private static final String[] FIELD_NAMES_35_END = {STR_S1, STR_N1, STR_B1, STR_S2, STR_N2, STR_B2, STR_S3, STR_N3, STR_B3, STR_S4,
-        STR_N4, STR_B4, STR_S5, STR_N5, STR_B5, STR_S6, STR_N6, STR_B6, STR_S7, STR_N7, STR_B7, STR_S8, STR_N8, STR_B8};
-    private static final String[] FIELD_NAMES_32_33 = concatStringArrays(FIELD_NAMES_32_33_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_32_33_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_32_33_END);
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_35_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_35_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_35_END);
-    private static final String[] FIELD_NAMES_35_RAWX = concatStringArrays(FIELD_NAMES_35_RAWX_START, FIELD_NAMES_COMMON_1, FIELD_NAMES_35_MIDDLE, FIELD_NAMES_COMMON_2, FIELD_NAMES_35_END);
+    private static final String[] FIELD_NAMES_32_33 = {STR_I, STR_MODSW, STR_ADJM, STR_STAT, STR_VSWHI, STR_VSWLO, STR_SWREM, STR_RMPCT, STR_RMIDNT, STR_BINIT, STR_N1, STR_B1, STR_N2, STR_B2, STR_N3, STR_B3, STR_N4, STR_B4, STR_N5, STR_B5, STR_N6, STR_B6, STR_N7, STR_B7, STR_N8, STR_B8};
+    private static final String[] FIELD_NAMES_35 = {STR_I, STR_ID, STR_MODSW, STR_ADJM, STR_ST, STR_VSWHI, STR_VSWLO, STR_SWREG, STR_NREG, STR_RMPCT, STR_RMIDNT, STR_BINIT, STR_S1, STR_N1, STR_B1, STR_S2, STR_N2, STR_B2, STR_S3, STR_N3, STR_B3, STR_S4, STR_N4, STR_B4, STR_S5, STR_N5, STR_B5, STR_S6, STR_N6, STR_B6, STR_S7, STR_N7, STR_B7, STR_S8, STR_N8, STR_B8};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_SHNTID, STR_MODSW, STR_ADJM, STR_STAT, STR_VSWHI, STR_VSWLO, STR_SWREG, STR_NREG, STR_RMPCT, STR_RMIDNT, STR_BINIT, STR_S1, STR_N1, STR_B1, STR_S2, STR_N2, STR_B2, STR_S3, STR_N3, STR_B3, STR_S4, STR_N4, STR_B4, STR_S5, STR_N5, STR_B5, STR_S6, STR_N6, STR_B6, STR_S7, STR_N7, STR_B7, STR_S8, STR_N8, STR_B8};
 
     private int i;
     private int modsw = defaultIntegerFor(STR_MODSW, FIELDS);
@@ -118,8 +106,8 @@ public class PsseSwitchedShunt extends PsseVersioned {
         return FIELD_NAMES_35;
     }
 
-    public static String[] getFieldNames35RawX() {
-        return FIELD_NAMES_35_RAWX;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static String[] getFieldNamesString() {
@@ -141,6 +129,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         addField(fields, createNewField(STR_IBUS, Integer.class, PsseSwitchedShunt::getI, PsseSwitchedShunt::setI));
         addField(fields, createNewField(STR_MODSW, Integer.class, PsseSwitchedShunt::getModsw, PsseSwitchedShunt::setModsw, 1));
         addField(fields, createNewField(STR_ADJM, Integer.class, PsseSwitchedShunt::getAdjm, PsseSwitchedShunt::setAdjm, 0));
+        addField(fields, createNewField(STR_ST, Integer.class, PsseSwitchedShunt::getStat, PsseSwitchedShunt::setStat, 1));
         addField(fields, createNewField(STR_STAT, Integer.class, PsseSwitchedShunt::getStat, PsseSwitchedShunt::setStat, 1));
         addField(fields, createNewField(STR_VSWHI, Double.class, PsseSwitchedShunt::getVswhi, PsseSwitchedShunt::setVswhi, 1d));
         addField(fields, createNewField(STR_VSWLO, Double.class, PsseSwitchedShunt::getVswlo, PsseSwitchedShunt::setVswlo, 1d));

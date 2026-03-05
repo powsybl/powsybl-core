@@ -37,8 +37,8 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
 
     private static final Map<String, PsseFieldDefinition<PsseVoltageSourceConverterDcTransmissionLine, ?>> FIELDS = createFields();
     private static final String[] FIELD_NAMES_SPECIFIC = {STR_NAME, STR_MDC, STR_RDC};
-    private static final String[] FIELD_NAMES_35 = concatStringArrays(FIELD_NAMES_SPECIFIC, PsseOwnership.getFieldNames());
-    private static final String[] FIELD_NAMES_35_RAWX = concatStringArrays(FIELD_NAMES_35,
+    private static final String[] FIELD_NAMES = concatStringArrays(FIELD_NAMES_SPECIFIC, PsseOwnership.getFieldNames());
+    private static final String[] FIELD_NAMES_35X = concatStringArrays(FIELD_NAMES,
         addSuffixToHeaders(PsseVoltageSourceConverter.getFieldNames35(), "1"),
         addSuffixToHeaders(PsseVoltageSourceConverter.getFieldNames35(), "2"));
 
@@ -49,12 +49,12 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
     private PsseVoltageSourceConverter converter1 = new PsseVoltageSourceConverter();
     private PsseVoltageSourceConverter converter2 = new PsseVoltageSourceConverter();
 
-    public static String[] getFieldNames35() {
-        return FIELD_NAMES_35;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
     }
 
-    public static String[] getFieldNames35RawX() {
-        return FIELD_NAMES_35_RAWX;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
     }
 
     public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(CsvRecord rec, String[] headers) {
