@@ -37,10 +37,10 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getWriter().writeDoubleAttribute("minP", g.getMinP());
         context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
         context.getWriter().writeDoubleAttribute("ratedS", g.getRatedS());
-        writeVoltageRegulatorOnByVersion(g, context);
+        writeVoltageRegulatorOn(g, context);
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
-        writeTargetVByVersion(g, context);
-        writeTargetQByVersion(g, context);
+        writeTargetV(g, context);
+        writeTargetQ(g, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
             context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
         writeEquivalentLocalTargetV(g, context);
@@ -58,12 +58,12 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         });
     }
 
-    private static void writeVoltageRegulatorOnByVersion(Generator g, NetworkSerializerContext context) {
+    private static void writeVoltageRegulatorOn(Generator g, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () ->
             context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isRegulatingWithMode(RegulationMode.VOLTAGE)));
     }
 
-    private static void writeTargetVByVersion(Generator g, NetworkSerializerContext context) {
+    private static void writeTargetV(Generator g, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
             double targetV;
             if (g.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
@@ -76,12 +76,13 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("targetV", g.getTargetV()));
     }
 
-    private static void writeTargetQByVersion(Generator g, NetworkSerializerContext context) {
+    private static void writeTargetQ(Generator g, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
             double targetQ;
             if (g.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && g.getTerminal() == g.getRegulatingTerminal()) {
                 targetQ = g.getVoltageRegulation().getTargetValue();
             } else {
+                // In distant reactive power regulation, the VoltageRegulation's targetValue is exported in the old "RemoteReactivePowerControl" extension.
                 targetQ = g.getTargetQ();
             }
             context.getWriter().writeDoubleAttribute("targetQ", targetQ);
@@ -142,11 +143,12 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     protected void readSubElements(Generator g, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case "regulatingTerminal" -> {
-                    if (g.getVoltageRegulation() != null) {
-                        TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g.getVoltageRegulation()::setTerminal);
-                    }
-                }
+                case "regulatingTerminal" ->
+                    TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), terminal -> {
+                        if (g.getVoltageRegulation() != null) {
+                            g.getVoltageRegulation().setTerminal(terminal);
+                        }
+                    });
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(g, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(g, context);
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(g, context, g.getNetwork());

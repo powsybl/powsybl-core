@@ -270,6 +270,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                         if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
                             SubElementTerminalAttributes terminalAttributes = getSubElementTerminal(context);
                             toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                                // The VoltageRegulation is not null here (was created juste before)
                                 () -> sc.getVoltageRegulation().setTerminal(TerminalRefSerDe.resolve(terminalAttributes.regId(), terminalAttributes.regSide(), terminalAttributes.regNumber(), sc.getNetwork()))));
 
                         } else {

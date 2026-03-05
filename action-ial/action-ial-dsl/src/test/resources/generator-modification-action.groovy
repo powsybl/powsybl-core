@@ -25,7 +25,6 @@ action('targetV and targetQ with voltageRegulationMode REACTIVE_POWER') {
             targetV 10.0
             targetQ 25.0
             voltageRegulationMode RegulationMode.REACTIVE_POWER
-            voltageRegulatorOn false
         }
     }
 }

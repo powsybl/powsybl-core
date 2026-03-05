@@ -17,13 +17,18 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.powsybl.cgmes.model.CgmesNames.*;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversion {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HvdcConverterConversion.class);
 
     private final PropertyBag converter;
 
@@ -107,6 +112,9 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     static void update(VscConverterStation vscConverter, PropertyBag cgmesDataConverter, double lossFactor, Context context) {
         vscConverter.setLossFactor((float) lossFactor);
 
+        if (logMissingVoltageRegulation(vscConverter, LOGGER, "converter startion", "regulation won't be updated")) {
+            return;
+        }
         RegulationMode vscRegulation = getVscRegulation(cgmesDataConverter, vscConverter, context);
         VoltageRegulation voltageRegulation = vscConverter.getVoltageRegulation();
         if (vscRegulation == RegulationMode.VOLTAGE) {

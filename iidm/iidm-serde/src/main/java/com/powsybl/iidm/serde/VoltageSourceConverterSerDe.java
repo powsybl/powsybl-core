@@ -13,8 +13,8 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeReactivePowerSetpointByVersion;
-import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeVoltageSetpointByVersion;
+import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeReactivePowerSetpoint;
+import static com.powsybl.iidm.serde.util.VoltageRegulationSerdeUtil.writeVoltageSetpoint;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -37,8 +37,8 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
         super.writeRootElementAttributes(vsc, parent, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context,
             () -> context.getWriter().writeBooleanAttribute("voltageRegulatorOn", vsc.isWithMode(RegulationMode.VOLTAGE)));
-        writeVoltageSetpointByVersion(vsc, context);
-        writeReactivePowerSetpointByVersion(vsc, context);
+        writeVoltageSetpoint(vsc, context);
+        writeReactivePowerSetpoint(vsc, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, vsc.getTargetV()));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(TARGET_Q, vsc.getTargetQ()));
         super.writeRootElementPqiAttributes(vsc, context);

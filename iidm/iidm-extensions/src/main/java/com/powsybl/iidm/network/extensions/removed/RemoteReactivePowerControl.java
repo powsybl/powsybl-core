@@ -36,6 +36,7 @@ public class RemoteReactivePowerControl implements Extension<Generator> {
                 + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
                 + getExtendable().getParentNetwork().getId() + ")");
         }
+        //TODO OPE: to remove (after the extinct extensions management is merged)
         if (generator.getVoltageRegulation() == null) {
             generator.newVoltageRegulation()
                 .withTargetValue(targetQ)

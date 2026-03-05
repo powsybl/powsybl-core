@@ -134,13 +134,19 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     // and regulation must be turned off before assigning potentially invalid values,
     // to ensure consistency with the applied checks
     private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
-        if (shuntCompensator.getVoltageRegulation() == null) {
-            shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
-        }
         VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
-        voltageRegulation.setRegulating(regulatingOn);
-        voltageRegulation.setTargetValue(targetV);
-        voltageRegulation.setTargetDeadband(targetDeadband);
+        if (voltageRegulation == null) {
+            voltageRegulation = shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
+        }
+        if (regulatingOn) {
+            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+            voltageRegulation.setRegulating(true);
+        } else {
+            voltageRegulation.setRegulating(false);
+            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+        }
     }
 
     private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {

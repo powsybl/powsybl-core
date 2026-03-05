@@ -49,8 +49,8 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        writeVoltageSetpointByVersion(svc, context, voltageSetpointName[0]);
-        writeReactivePowerSetpointByVersion(svc, context, reactivePowerSetpointName[0]);
+        writeVoltageSetpoint(svc, context, voltageSetpointName[0]);
+        writeReactivePowerSetpoint(svc, context, reactivePowerSetpointName[0]);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(TARGET_Q, svc.getTargetQ()));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, svc.getTargetV()));
 
@@ -63,29 +63,34 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
             }
         });
         IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_14, IidmVersion.V_1_15, context, () -> {
-            context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getVoltageRegulation().getMode());
-            context.getWriter().writeBooleanAttribute(REGULATING, svc.getVoltageRegulation().isRegulating());
+            if (svc.getVoltageRegulation() != null) {
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getVoltageRegulation().getMode());
+                context.getWriter().writeBooleanAttribute(REGULATING, svc.getVoltageRegulation().isRegulating());
+            } else {
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, RegulationMode.VOLTAGE); // Previous default mode in the SVC adder
+                context.getWriter().writeBooleanAttribute(REGULATING, false);
+            }
         });
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
     }
 
-    private static void writeVoltageSetpointByVersion(StaticVarCompensator svc, NetworkSerializerContext context, String voltageSetpointName) {
+    private static void writeVoltageSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String voltageSetpointName) {
         double voltageSetpoint;
-        if (svc.isWithMode(RegulationMode.REACTIVE_POWER)) {
-            voltageSetpoint = svc.getTargetV();
-        } else {
+        if (svc.isWithMode(RegulationMode.VOLTAGE)) {
             voltageSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
+        } else {
+            voltageSetpoint = svc.getTargetV();
         }
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute(voltageSetpointName, voltageSetpoint));
     }
 
-    private static void writeReactivePowerSetpointByVersion(StaticVarCompensator svc, NetworkSerializerContext context, String reactivePowerSetpointName) {
+    private static void writeReactivePowerSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String reactivePowerSetpointName) {
         double reactivePowerSetpoint;
-        if (svc.isWithMode(RegulationMode.VOLTAGE)) {
-            reactivePowerSetpoint = svc.getTargetQ();
-        } else {
+        if (svc.isWithMode(RegulationMode.REACTIVE_POWER)) {
             reactivePowerSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
+        } else {
+            reactivePowerSetpoint = svc.getTargetQ();
         }
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute(reactivePowerSetpointName, reactivePowerSetpoint));
     }
@@ -203,7 +208,11 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals(REGULATING_TERMINAL)) {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                TerminalRefSerDe.readTerminalRef(context, svc.getNetwork(), svc.getVoltageRegulation()::setTerminal);
+                TerminalRefSerDe.readTerminalRef(context, svc.getNetwork(), terminal -> {
+                    if (svc.getVoltageRegulation() != null) {
+                        svc.getVoltageRegulation().setTerminal(terminal);
+                    }
+                });
             } else if (elementName.equals(VoltageRegulationSerDe.ELEMENT_NAME)) {
                 VoltageRegulationSerDe.readVoltageRegulation(svc, context, svc.getNetwork());
             } else {

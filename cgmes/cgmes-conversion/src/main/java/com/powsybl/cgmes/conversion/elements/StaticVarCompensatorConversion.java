@@ -18,13 +18,19 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorConversion.class);
 
     public StaticVarCompensatorConversion(PropertyBag svc, Context context) {
         super(CgmesNames.STATIC_VAR_COMPENSATOR, svc, context);
@@ -80,6 +86,9 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static void updateRegulatingControl(StaticVarCompensator staticVarCompensator, double defaultQ, Boolean controlEnabled, Context context) {
+        if (logMissingVoltageRegulation(staticVarCompensator, LOGGER, "static var compensator", "regulating control won't be updated")) {
+            return;
+        }
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(staticVarCompensator, context);
 
         boolean defaultRegulatingOn = getDefaultRegulatingOn(staticVarCompensator, context);
@@ -120,7 +129,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
     private static boolean getDefaultRegulatingOn(StaticVarCompensator staticVarCompensator, Context context) {
         return getDefaultValue(null,
-                staticVarCompensator.getVoltageRegulation().isRegulating(),
+                staticVarCompensator.getVoltageRegulation() != null && staticVarCompensator.getVoltageRegulation().isRegulating(),
                 false, false, context);
     }
 }

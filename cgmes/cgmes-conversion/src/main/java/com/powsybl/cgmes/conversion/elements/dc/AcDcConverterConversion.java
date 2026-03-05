@@ -17,11 +17,14 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.elements.dc.AbstractDCConductingEquipmentConversion.isDcTerminalConnected;
 import static com.powsybl.cgmes.model.CgmesNames.VS_CONVERTER;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -30,6 +33,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     int numberOfAcTerminals;
     static final double DEFAULT_POWER_FACTOR = 1.0 / Math.hypot(1.0, 0.5);  // Default power factor calculated with Q = P / 2
+    private static final Logger LOGGER = LoggerFactory.getLogger(AcDcConverterConversion.class);
 
     public AcDcConverterConversion(PropertyBag p, Context context) {
         super(CgmesNames.ACDC_CONVERTER, p, context);
@@ -232,6 +236,9 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static void updateReactivePowerControl(VoltageSourceConverter vsc, PropertyBag cgmesData, Context context) {
+        if (logMissingVoltageRegulation(vsc, LOGGER, "converter station", "reactive power control won't be updated")) {
+            return;
+        }
         String qPccControl = cgmesData.getLocal("qPccControl");
         if (qPccControl != null && qPccControl.endsWith("voltagePcc")) {
             double defaultVoltageSetpoint = getDefaultValue(null, vsc.getRegulatingTargetV(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);

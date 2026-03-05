@@ -9,9 +9,11 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.stream.Stream;
 
@@ -81,6 +83,7 @@ public final class VoltageRegulationUtils {
             case GENERATOR -> getRegulatingGenerators(network, controlledBus)
                 .filter(g -> !g.getId().equals(regulatingElementId))
                 .map(Generator::getVoltageRegulation)
+                .filter(Objects::nonNull)
                 .map(VoltageRegulation::getTargetValue).distinct().toList();
             case SHUNT_COMPENSATOR -> getRegulatingShuntCompensators(network, controlledBus)
                 .filter(g -> !g.getId().equals(regulatingElementId))
@@ -95,4 +98,13 @@ public final class VoltageRegulationUtils {
             return OptionalDouble.of(targets.getFirst());
         }
     }
+
+    public static <A extends VoltageRegulationHolder & Identifiable<?>> boolean logMissingVoltageRegulation(A holder, Logger logger, String type, String message) {
+        if (holder != null && holder.getVoltageRegulation() == null) {
+            logger.warn("Missing VoltageRegulation in {} '{}': {}", type, holder.getId(), message);
+            return true;
+        }
+        return false;
+    }
+
 }
