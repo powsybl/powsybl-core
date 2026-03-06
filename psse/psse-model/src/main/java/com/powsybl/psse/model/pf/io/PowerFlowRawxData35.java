@@ -126,6 +126,9 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
             generator.writeEndObject(); // network
             generator.writeEndObject(); // root
             generator.flush();
+
+            // Append a newline to comply with the POSIX standard
+            outputStream.write('\n');
         }
     }
 }
