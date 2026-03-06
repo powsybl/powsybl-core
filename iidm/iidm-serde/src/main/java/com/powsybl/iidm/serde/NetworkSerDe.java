@@ -185,9 +185,6 @@ public final class NetworkSerDe {
         Schema schema;
         if (extensionsSupplier == DefaultExtensionsSupplier.getInstance()) {
             schema = DEFAULT_SCHEMAS_SUPPLIER.get().computeIfAbsent(version, v -> createSchema(DefaultExtensionsSupplier.getInstance(), v));
-            if (schema == null) {
-                throw new PowsyblException("Schema not found: version=" + version);
-            }
         } else {
             schema = createSchema(extensionsSupplier, version);
         }
@@ -292,8 +289,8 @@ public final class NetworkSerDe {
     private static List<String> extractSchemaLocations(byte[] xsdBytes) {
         List<String> locations = new ArrayList<>();
         XMLStreamReader reader = null;
-        try {
-            reader = getXMLInputFactory().createXMLStreamReader(new ByteArrayInputStream(xsdBytes));
+        try (ByteArrayInputStream in = new ByteArrayInputStream(xsdBytes)) {
+            reader = getXMLInputFactory().createXMLStreamReader(in);
             while (reader.hasNext()) {
                 int event = reader.next();
                 if (event == XMLStreamConstants.START_ELEMENT
@@ -306,7 +303,7 @@ public final class NetworkSerDe {
                 }
             }
             return locations;
-        } catch (XMLStreamException e) {
+        } catch (XMLStreamException | IOException e) {
             throw new PowsyblException("Failed to parse XSD schema", e);
         } finally {
             if (reader != null) {
@@ -327,8 +324,8 @@ public final class NetworkSerDe {
      */
     private static String readRootNamespace(byte[] xmlBytes) {
         XMLStreamReader reader = null;
-        try {
-            reader = getXMLInputFactory().createXMLStreamReader(new ByteArrayInputStream(xmlBytes));
+        try (ByteArrayInputStream in = new ByteArrayInputStream(xmlBytes)) {
+            reader = getXMLInputFactory().createXMLStreamReader(in);
             while (reader.hasNext()) {
                 if (reader.next() == XMLStreamConstants.START_ELEMENT) {
                     if (!NETWORK_ROOT_ELEMENT_NAME.equals(reader.getLocalName())) {
@@ -342,7 +339,7 @@ public final class NetworkSerDe {
                 }
             }
             throw new PowsyblException("Missing root namespace");
-        } catch (XMLStreamException e) {
+        } catch (XMLStreamException | IOException e) {
             throw new PowsyblException("Failed to read namespace from XML", e);
         } finally {
             if (reader != null) {

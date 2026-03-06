@@ -453,4 +453,15 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                             "'[IN_OPERATION, PLANNED_OUTAGE, FORCED_OUTAGE]'. It must be a value from the enumeration.");
         }
     }
+
+    @Test
+    void testValidateByVersionWhenMissingNamespace() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/network-without-namespace.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Missing root namespace");
+        }
+    }
+
 }
