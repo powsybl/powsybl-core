@@ -93,7 +93,6 @@ public final class NetworkSerDe {
 
     private static final Supplier<Schema> DEFAULT_SCHEMA_SUPPLIER = Suppliers.memoize(() -> NetworkSerDe.createSchema(DefaultExtensionsSupplier.getInstance()));
     private static final Supplier<ConcurrentMap<IidmVersion, Schema>> DEFAULT_SCHEMAS_SUPPLIER = Suppliers.memoize(ConcurrentHashMap::new);
-    private static final Supplier<Map<IidmVersion, Schema>> DEFAULT_SCHEMAS_SUPPLIER_V_TEST = Suppliers.memoize(() -> NetworkSerDe.createDefaultSchemas(DefaultExtensionsSupplier.getInstance()));
 
     private static final int MAX_NAMESPACE_PREFIX_NUM = 100;
     private static final String XSD_RESOURCE_DIR = "/xsd/";
@@ -199,15 +198,6 @@ public final class NetworkSerDe {
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
         }
-    }
-
-    private static Map<IidmVersion, Schema> createDefaultSchemas(ExtensionsSupplier extensionsSupplier) {
-        Map<IidmVersion, Schema> schemasByIIdmVersion = new EnumMap<>(IidmVersion.class);
-        for (IidmVersion version : IidmVersion.values()) {
-            Schema schema = createSchema(extensionsSupplier, version);
-            schemasByIIdmVersion.put(version, schema);
-        }
-        return schemasByIIdmVersion;
     }
 
     private static Schema createSchema(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
