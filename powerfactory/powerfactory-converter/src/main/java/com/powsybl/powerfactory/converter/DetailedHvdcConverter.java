@@ -435,7 +435,7 @@ public final class DetailedHvdcConverter extends AbstractHvdcConverter {
         if (!Double.isFinite(targetVdc) && controlMode == ControlMode.V_DC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has control mode V_DC but unspecified target V_DC.");
         }
-        converterAdder.setTargetVdc(targetVdc); // TODO manage the sign convention for DC voltage (and current)
+        converterAdder.setTargetVdc(targetVdc);
 
         double voltageSetPointAc = pfParams.usetpPu * pfParams.uNom;
         if (!Double.isFinite(voltageSetPointAc) && acVoltageRegulation) {
