@@ -20,6 +20,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 /**
  * PSSE RAW data common to all versions
@@ -60,56 +61,59 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
         throw new PsseException("Here we don't know how to write a complete data file. Specific version instance is required");
     }
 
-    protected void readBusToNonTransformerBranchData(PssePowerFlowModel model, Context context, LegacyTextReader reader) throws IOException {
-        model.addBuses(new BusData().read(reader, context));
-        model.addLoads(new LoadData().read(reader, context));
-        model.addFixedShunts(new FixedBusShuntData().read(reader, context));
-        model.addGenerators(new GeneratorData().read(reader, context));
-        model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
+    protected void readPsseData(PssePowerFlowModel model, Context context, LegacyTextReader reader, List<PsseDataClass> classes) throws IOException {
+        for (PsseDataClass psseClass : classes) {
+            switch (psseClass) {
+                case BUS_DATA -> model.addBuses(new BusData().read(reader, context));
+                case LOAD_DATA -> model.addLoads(new LoadData().read(reader, context));
+                case FIXED_BUS_SHUNT_DATA -> model.addFixedShunts(new FixedBusShuntData().read(reader, context));
+                case GENERATOR_DATA -> model.addGenerators(new GeneratorData().read(reader, context));
+                case NON_TRANSFORMER_BRANCH_DATA -> model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
+                case TRANSFORMER_DATA -> model.addTransformers(new TransformerData().read(reader, context));
+                case AREA_INTERCHANGE_DATA -> model.addAreas(new AreaInterchangeData().read(reader, context));
+                case TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA -> model.addTwoTerminalDcTransmissionLines(new TwoTerminalDcTransmissionLineData().read(reader, context));
+                case VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA -> model.addVoltageSourceConverterDcTransmissionLines(new VoltageSourceConverterDcTransmissionLineData().read(reader, context));
+                case TRANSFORMER_IMPEDANCE_CORRECTION_TABLES_DATA -> model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
+                case MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA -> model.addMultiTerminalDcTransmissionLines(new MultiTerminalDcTransmissionLineData().read(reader, context));
+                case MULTI_SECTION_LINE_GROUPING_DATA -> model.addLineGrouping(new MultiSectionLineGroupingData().read(reader, context));
+                case ZONE_DATA -> model.addZones(new ZoneData().read(reader, context));
+                case INTERAREA_TRANSFER_DATA -> model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
+                case OWNER_DATA -> model.addOwners(new OwnerData().read(reader, context));
+                case FACTS_DEVICE_DATA -> model.addFacts(new FactsDeviceData().read(reader, context));
+                case SWITCHED_SHUNT_DATA -> model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
+                case GNE_DEVICE_DATA -> model.addGneDevice(new GneDeviceData().read(reader, context));
+                case INDUCTION_MACHINE_DATA -> model.addInductionMachines(new InductionMachineData().read(reader, context));
+                case SUBSTATION_DATA -> model.addSubstations(new SubstationData().read(reader, context));
+                default -> throw new PsseException("Unknown class " + psseClass);
+            }
+        }
     }
 
-    protected void readTransformerToGneDevideData(PssePowerFlowModel model, Context context, LegacyTextReader reader) throws IOException {
-        model.addTransformers(new TransformerData().read(reader, context));
-        model.addAreas(new AreaInterchangeData().read(reader, context));
-
-        model.addTwoTerminalDcTransmissionLines(new TwoTerminalDcTransmissionLineData().read(reader, context));
-        model.addVoltageSourceConverterDcTransmissionLines(new VoltageSourceConverterDcTransmissionLineData().read(reader, context));
-        model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
-        model.addMultiTerminalDcTransmissionLines(new MultiTerminalDcTransmissionLineData().read(reader, context));
-
-        model.addLineGrouping(new MultiSectionLineGroupingData().read(reader, context));
-        model.addZones(new ZoneData().read(reader, context));
-        model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
-        model.addOwners(new OwnerData().read(reader, context));
-        model.addFacts(new FactsDeviceData().read(reader, context));
-        model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
-        model.addGneDevice(new GneDeviceData().read(reader, context));
-    }
-
-    protected void writeBusToNonTransformerBranchData(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
-        new BusData().write(model.getBuses(), context, outputStream);
-        new LoadData().write(model.getLoads(), context, outputStream);
-        new FixedBusShuntData().write(model.getFixedShunts(), context, outputStream);
-        new GeneratorData().write(model.getGenerators(), context, outputStream);
-        new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
-    }
-
-    protected void writeTransformerToGneDevideData(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
-        new TransformerData().write(model.getTransformers(), context, outputStream);
-        new AreaInterchangeData().write(model.getAreas(), context, outputStream);
-
-        new TwoTerminalDcTransmissionLineData().write(model.getTwoTerminalDcTransmissionLines(), context, outputStream);
-        new VoltageSourceConverterDcTransmissionLineData().write(model.getVoltageSourceConverterDcTransmissionLines(), context, outputStream);
-        new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
-        new MultiTerminalDcTransmissionLineData().write(model.getMultiTerminalDcTransmissionLines(), context, outputStream);
-        new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
-
-        new ZoneData().write(model.getZones(), context, outputStream);
-        new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);
-        new OwnerData().write(model.getOwners(), context, outputStream);
-
-        new FactsDeviceData().write(model.getFacts(), context, outputStream);
-        new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
-        new GneDeviceData().write(model.getGneDevice(), context, outputStream);
+    protected void writePsseData(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream, List<PsseDataClass> classes) {
+        for (PsseDataClass psseClass : classes) {
+            switch (psseClass) {
+                case BUS_DATA -> new BusData().write(model.getBuses(), context, outputStream);
+                case LOAD_DATA -> new LoadData().write(model.getLoads(), context, outputStream);
+                case FIXED_BUS_SHUNT_DATA -> new FixedBusShuntData().write(model.getFixedShunts(), context, outputStream);
+                case GENERATOR_DATA -> new GeneratorData().write(model.getGenerators(), context, outputStream);
+                case NON_TRANSFORMER_BRANCH_DATA -> new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
+                case TRANSFORMER_DATA -> new TransformerData().write(model.getTransformers(), context, outputStream);
+                case AREA_INTERCHANGE_DATA -> new AreaInterchangeData().write(model.getAreas(), context, outputStream);
+                case TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA -> new TwoTerminalDcTransmissionLineData().write(model.getTwoTerminalDcTransmissionLines(), context, outputStream);
+                case VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA -> new VoltageSourceConverterDcTransmissionLineData().write(model.getVoltageSourceConverterDcTransmissionLines(), context, outputStream);
+                case TRANSFORMER_IMPEDANCE_CORRECTION_TABLES_DATA -> new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
+                case MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA -> new MultiTerminalDcTransmissionLineData().write(model.getMultiTerminalDcTransmissionLines(), context, outputStream);
+                case MULTI_SECTION_LINE_GROUPING_DATA -> new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
+                case ZONE_DATA -> new ZoneData().write(model.getZones(), context, outputStream);
+                case INTERAREA_TRANSFER_DATA -> new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);
+                case OWNER_DATA -> new OwnerData().write(model.getOwners(), context, outputStream);
+                case FACTS_DEVICE_DATA -> new FactsDeviceData().write(model.getFacts(), context, outputStream);
+                case SWITCHED_SHUNT_DATA -> new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
+                case GNE_DEVICE_DATA -> new GneDeviceData().write(model.getGneDevice(), context, outputStream);
+                case INDUCTION_MACHINE_DATA -> new InductionMachineData().write(model.getInductionMachines(), context, outputStream);
+                case SUBSTATION_DATA -> new SubstationData().write(model.getSubstations(), context, outputStream);
+                default -> throw new PsseException("Unknown class " + psseClass);
+            }
+        }
     }
 }

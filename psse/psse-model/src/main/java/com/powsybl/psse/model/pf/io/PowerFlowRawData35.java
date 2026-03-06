@@ -7,69 +7,53 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
-import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.List;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
-import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.*;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
+import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.writeBegin;
+import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.writeEmpty;
+import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.writeEnd;
+import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.writeQ;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.BUS;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.SYSTEM_SWITCHING_DEVICE;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.SYSTEM_WIDE;
+import static com.powsybl.psse.model.pf.io.PsseDataClass.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
+public class PowerFlowRawData35 extends AbstractPowerFlowRawDataVersioned {
+
+    // Classes in the order they are written in the file
+    private static final List<PsseDataClass> PSSE_CLASSES_BUS_TO_NON_TRANSFORMER_BRANCH = List.of(
+        BUS_DATA, LOAD_DATA, FIXED_BUS_SHUNT_DATA, GENERATOR_DATA, NON_TRANSFORMER_BRANCH_DATA);
+    private static final List<PsseDataClass> PSSE_CLASSES_FROM_TRANSFORMER_BRANCH = List.of(
+        TRANSFORMER_DATA, AREA_INTERCHANGE_DATA, TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA,
+        VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA, TRANSFORMER_IMPEDANCE_CORRECTION_TABLES_DATA,
+        MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA, MULTI_SECTION_LINE_GROUPING_DATA, ZONE_DATA, INTERAREA_TRANSFER_DATA,
+        OWNER_DATA, FACTS_DEVICE_DATA, SWITCHED_SHUNT_DATA, GNE_DEVICE_DATA, INDUCTION_MACHINE_DATA,
+        SUBSTATION_DATA);
 
     @Override
-    public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
-        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext), StandardCharsets.UTF_8))) {
+    void read(PssePowerFlowModel model, Context context, LegacyTextReader reader) throws IOException {
+        reader.skip(SYSTEM_WIDE);
+        readPsseData(model, context, reader, PSSE_CLASSES_BUS_TO_NON_TRANSFORMER_BRANCH);
 
-            LegacyTextReader reader = new LegacyTextReader(bReader);
-
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
-            caseIdentification.validate();
-            PssePowerFlowModel model = new PssePowerFlowModel(caseIdentification);
-
-            reader.skip(SYSTEM_WIDE);
-            readBusToNonTransformerBranchData(model, context, reader);
-
-            reader.skip(SYSTEM_SWITCHING_DEVICE);
-            readTransformerToGneDevideData(model, context, reader);
-
-            model.addInductionMachines(new InductionMachineData().read(reader, context));
-            model.addSubstations(new SubstationData().read(reader, context));
-
-            return model;
-        }
+        reader.skip(SYSTEM_SWITCHING_DEVICE);
+        readPsseData(model, context, reader, PSSE_CLASSES_FROM_TRANSFORMER_BRANCH);
     }
 
     @Override
-    public void write(PssePowerFlowModel model, Context context, DataSource dataSource) throws IOException {
-        Objects.requireNonNull(model);
-        Objects.requireNonNull(context);
-        Objects.requireNonNull(dataSource);
-        if (context.getVersion().major() != V35) {
-            throw new PsseException("Unexpected version " + context.getVersion().getMajorNumber());
-        }
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false));) {
-            write(model, context, outputStream);
-        }
-    }
-
-    private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
+    void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
 
         new CaseIdentificationData().writeHead(model.getCaseIdentification(), context, outputStream);
 
@@ -82,14 +66,16 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
         RecordGroupIOLegacyText.write(", ", outputStream);
         writeBegin(BUS.getLegacyTextName(), outputStream);
 
-        writeBusToNonTransformerBranchData(model, context, outputStream);
+        writePsseData(model, context, outputStream, PSSE_CLASSES_BUS_TO_NON_TRANSFORMER_BRANCH);
 
         writeEmpty(SYSTEM_SWITCHING_DEVICE, outputStream);
-        writeTransformerToGneDevideData(model, context, outputStream);
-
-        new InductionMachineData().write(model.getInductionMachines(), context, outputStream);
-        new SubstationData().write(model.getSubstations(), context, outputStream);
+        writePsseData(model, context, outputStream, PSSE_CLASSES_FROM_TRANSFORMER_BRANCH);
 
         writeQ(outputStream);
+    }
+
+    @Override
+    PsseVersion.Major getVersion() {
+        return V35;
     }
 }
