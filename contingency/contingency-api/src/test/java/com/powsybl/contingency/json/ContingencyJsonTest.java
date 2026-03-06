@@ -55,6 +55,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/contingenciesWithSeveralElements.json"), fileSystem.getPath("/contingenciesWithSeveralElements.json"));
         Files.copy(getClass().getResourceAsStream("/contingenciesWith3wt.json"), fileSystem.getPath("/contingenciesWith3wt.json"));
         Files.copy(getClass().getResourceAsStream("/contingenciesWithDlAndTl.json"), fileSystem.getPath("/contingenciesWithDlAndTl.json"));
+        Files.copy(getClass().getResourceAsStream("/contingenciesWithDlAndTlV1_0.json"), fileSystem.getPath("/contingenciesWithDlAndTlV1_0.json"));
     }
 
     private static Contingency create() {
@@ -67,7 +68,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
                                              .addShuntCompensator("SC")
                                              .addStaticVarCompensator("SVC")
                                              .addBusbarSection("BBS1")
-                                             .addDanglingLine("DL1")
+                                             .addBoundaryLine("DL1")
                                              .addLine("LINE1")
                                              .addTwoWindingsTransformer("TRANSFO1")
                                              .addThreeWindingsTransformer("TWT3")
@@ -206,7 +207,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonListWithTieLineAndDanglingLineContingency() throws IOException {
+    void readJsonListWithTieLineAndBoundaryLineContingency() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/contingenciesWithDlAndTl.json"));
         assertEquals("list", contingencyList.getName());
@@ -215,11 +216,24 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals(2, contingencies.size());
         assertEquals("contingency", contingencies.get(0).getId());
         assertEquals(1, contingencies.get(0).getElements().size());
-        assertEquals(DANGLING_LINE, contingencies.get(0).getElements().get(0).getType());
+        assertEquals(BOUNDARY_LINE, contingencies.get(0).getElements().get(0).getType());
         assertEquals("contingency2", contingencies.get(1).getId());
         assertEquals(1, contingencies.get(1).getElements().size());
         assertEquals(TIE_LINE, contingencies.get(1).getElements().get(0).getType());
         roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithDlAndTl.json");
+    }
+
+    @Test
+    void readJsonListWithDanglingLineContingencyForCompatibility() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/contingenciesWithDlAndTlV1_0.json"));
+        assertEquals("list", contingencyList.getName());
+
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals("contingency", contingencies.get(0).getId());
+        assertEquals(1, contingencies.get(0).getElements().size());
+        assertEquals(BOUNDARY_LINE, contingencies.get(0).getElements().get(0).getType());
     }
 
     @Test
