@@ -155,7 +155,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         };
         FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
         String json = new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
-        return TestUtil.normalizeLineSeparator(json);
+        return TestUtil.normalizeLineSeparator(json) + "\n";
     }
 
     private static String loadReference(String path) {
