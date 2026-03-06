@@ -440,19 +440,19 @@ public final class CgmesExportUtil {
         return context.getNamingStrategy().getCgmesIdFromAlias(dcTerminal.getDcConnectable(), aliasType);
     }
 
-    public static String getDanglingLineBoundaryTerminalId(DanglingLine danglingLine, CgmesExportContext context) {
+    public static String getDanglingLineBoundaryTerminalId(BoundaryLine boundaryLine, CgmesExportContext context) {
         // Legacy: in previous versions, boundary terminal id was stored in the tie line.
-        if (danglingLine.getAliasFromType(ALIAS_TERMINAL_BOUNDARY).isEmpty()
-            && danglingLine.getTieLine().flatMap(tl -> tl.getAliasFromType(ALIAS_TERMINAL_BOUNDARY)).isPresent()) {
-            return context.getNamingStrategy().getCgmesIdFromAlias(danglingLine.getTieLine().orElseThrow(), ALIAS_TERMINAL_BOUNDARY);
+        if (boundaryLine.getAliasFromType(ALIAS_TERMINAL_BOUNDARY).isEmpty()
+            && boundaryLine.getTieLine().flatMap(tl -> tl.getAliasFromType(ALIAS_TERMINAL_BOUNDARY)).isPresent()) {
+            return context.getNamingStrategy().getCgmesIdFromAlias(boundaryLine.getTieLine().orElseThrow(), ALIAS_TERMINAL_BOUNDARY);
         }
-        return context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, ALIAS_TERMINAL_BOUNDARY);
+        return context.getNamingStrategy().getCgmesIdFromAlias(boundaryLine, ALIAS_TERMINAL_BOUNDARY);
     }
 
-    public static List<DanglingLine> getBoundaryDanglingLines(Network network) {
+    public static List<BoundaryLine> getBoundaryBoundaryLines(Network network) {
         return network.getBoundaryElements().stream()
-                .filter(DanglingLine.class::isInstance)
-                .map(DanglingLine.class::cast)
+                .filter(BoundaryLine.class::isInstance)
+                .map(BoundaryLine.class::cast)
                 .sorted(Comparator.comparing(Identifiable::getId))
                 .toList();
     }

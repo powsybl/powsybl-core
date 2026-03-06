@@ -112,8 +112,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminalForDanglingLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
+    private static void writeTerminalForBoundaryLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
             writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, cimNamespace, writer, context);
             // Terminal for boundary side of original line/switch is always connected
@@ -147,7 +147,7 @@ public final class SteadyStateHypothesisExport {
             }
         }
         writeTerminalForSwitches(network, cimNamespace, writer, context);
-        writeTerminalForDanglingLines(network, cimNamespace, writer, context);
+        writeTerminalForBoundaryLines(network, cimNamespace, writer, context);
         // If we are performing an updated export, write recorded busbar section terminals as connected
         if (!context.isExportEquipment()) {
             writeTerminalForBuses(network, cimNamespace, writer, context);
@@ -155,21 +155,21 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        // One equivalent injection for every dangling line
+        // One equivalent injection for every boundary line
         List<String> exported = new ArrayList<>();
 
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION);
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
+            String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION);
             if (!exported.contains(equivalentInjectionId)) {
                 // regulationStatus and regulationTarget are optional,
                 // but test cases contain the attributes with disabled and 0
                 boolean regulationStatus = false;
                 double regulationTarget = 0;
-                if (dl.getGeneration() != null) {
-                    regulationStatus = dl.getGeneration().isVoltageRegulationOn();
-                    regulationTarget = dl.getGeneration().getTargetV();
+                if (bl.getGeneration() != null) {
+                    regulationStatus = bl.getGeneration().isVoltageRegulationOn();
+                    regulationTarget = bl.getGeneration().getTargetV();
                 }
-                writeEquivalentInjection(equivalentInjectionId, dl.getP0(), dl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
+                writeEquivalentInjection(equivalentInjectionId, bl.getP0(), bl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
                 exported.add(equivalentInjectionId);
             }
         }
