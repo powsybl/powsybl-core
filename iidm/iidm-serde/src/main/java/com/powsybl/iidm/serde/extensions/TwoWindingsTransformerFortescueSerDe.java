@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -16,17 +15,35 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.extensions.WindingConnectionType;
+import com.powsybl.iidm.serde.IidmVersion;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class TwoWindingsTransformerFortescueSerDe extends AbstractExtensionSerDe<TwoWindingsTransformer, TwoWindingsTransformerFortescue> {
+public class TwoWindingsTransformerFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe<TwoWindingsTransformer, TwoWindingsTransformerFortescue, TwoWindingsTransformerFortescueSerDe.Version> {
+
+    public enum Version implements SerDeVersion<Version> {
+        V_1_0("/xsd/twoWindingsTransformerFortescue_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0",
+            new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_16),
+        V_1_1("/xsd/twoWindingsTransformerFortescue_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_1",
+            new VersionNumbers(1, 1), IidmVersion.V_1_0, null);
+
+        private final VersionInfo versionInfo;
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "t2f", versionNumbers,
+                minIidmVersionIncluded, maxIidmVersionExcluded, TwoWindingsTransformerFortescue.NAME);
+        }
+
+        @Override
+        public VersionInfo getVersionInfo() {
+            return versionInfo;
+        }
+    }
 
     public TwoWindingsTransformerFortescueSerDe() {
-        super("twoWindingsTransformerFortescue", "network", TwoWindingsTransformerFortescue.class,
-                "twoWindingsTransformerFortescue_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0",
-                "t2f");
+        super(TwoWindingsTransformerFortescue.NAME, TwoWindingsTransformerFortescue.class, Version.values());
     }
 
     @Override
@@ -34,6 +51,10 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractExtensionSerDe
         context.getWriter().writeDoubleAttribute("rz", twtFortescue.getRz(), Double.NaN);
         context.getWriter().writeDoubleAttribute("xz", twtFortescue.getXz(), Double.NaN);
         context.getWriter().writeBooleanAttribute("freeFluxes", twtFortescue.isFreeFluxes());
+        Version extVersion = getExtensionVersionToExport(context);
+        if (extVersion.isGreaterThan(Version.V_1_0)) {
+            context.getWriter().writeDoubleAttribute("xm", twtFortescue.getXm(), Double.NaN);
+        }
         context.getWriter().writeEnumAttribute("connectionType1", twtFortescue.getConnectionType1());
         context.getWriter().writeEnumAttribute("connectionType2", twtFortescue.getConnectionType2());
         context.getWriter().writeDoubleAttribute("groundingR1", twtFortescue.getGroundingR1(), 0);
@@ -47,6 +68,11 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractExtensionSerDe
         double rz = context.getReader().readDoubleAttribute("rz");
         double xz = context.getReader().readDoubleAttribute("xz");
         boolean freeFluxes = context.getReader().readBooleanAttribute("freeFluxes");
+        double xm = Double.NaN;
+        Version extVersion = getExtensionVersionImported(context);
+        if (extVersion.isGreaterThan(Version.V_1_0)) {
+            xm = context.getReader().readDoubleAttribute("xm");
+        }
         WindingConnectionType connectionType1 = context.getReader().readEnumAttribute("connectionType1", WindingConnectionType.class);
         WindingConnectionType connectionType2 = context.getReader().readEnumAttribute("connectionType2", WindingConnectionType.class);
         double groundingR1 = context.getReader().readDoubleAttribute("groundingR1", 0);
@@ -58,6 +84,7 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractExtensionSerDe
                 .withRz(rz)
                 .withXz(xz)
                 .withFreeFluxes(freeFluxes)
+                .withXm(xm)
                 .withConnectionType1(connectionType1)
                 .withConnectionType2(connectionType2)
                 .withGroundingR1(groundingR1)
