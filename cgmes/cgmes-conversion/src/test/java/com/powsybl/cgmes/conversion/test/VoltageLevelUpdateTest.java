@@ -7,13 +7,12 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -89,12 +88,12 @@ class VoltageLevelUpdateTest {
     private static void assertEq(VoltageLevel voltageLevel) {
         assertNotNull(voltageLevel);
 
-        assertTrue(voltageLevel.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.LOW_VOLTAGE_LIMIT));
-        assertTrue(voltageLevel.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.HIGH_VOLTAGE_LIMIT));
-        assertTrue(voltageLevel.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_" + CgmesNames.LOW_VOLTAGE_LIMIT));
-        assertTrue(voltageLevel.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT + "_" + CgmesNames.HIGH_VOLTAGE_LIMIT));
-        assertTrue(voltageLevel.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_VALUE + "_" + CgmesNames.LOW_VOLTAGE_LIMIT));
-        assertTrue(voltageLevel.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_VALUE + "_" + CgmesNames.HIGH_VOLTAGE_LIMIT));
+        assertTrue(voltageLevel.hasProperty(PROPERTY_HIGH_VOLTAGE_LIMIT));
+        assertTrue(voltageLevel.hasProperty(PROPERTY_LOW_VOLTAGE_LIMIT));
+        assertTrue(voltageLevel.hasProperty(PROPERTY_OPERATIONAL_LIMIT_HIGH_VOLTAGE_LIMIT));
+        assertTrue(voltageLevel.hasProperty(PROPERTY_OPERATIONAL_LIMIT_LOW_VOLTAGE_LIMIT));
+        assertTrue(voltageLevel.hasProperty(PROPERTY_NORMAL_VALUE_HIGH_VOLTAGE_LIMIT));
+        assertTrue(voltageLevel.hasProperty(PROPERTY_NORMAL_VALUE_LOW_VOLTAGE_LIMIT));
 
         assertSsh(voltageLevel, 396.0, 425.0);
     }
