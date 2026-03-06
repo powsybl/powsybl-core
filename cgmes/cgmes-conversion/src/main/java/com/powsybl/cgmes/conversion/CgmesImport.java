@@ -190,7 +190,12 @@ public class CgmesImport implements Importer {
     private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         CgmesModel cgmes = readCgmes(ds, p, reportNode);
         ReportNode conversionReportNode = CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName());
-        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+        Network network = new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+        if (!Parameter.readBoolean(getFormat(), p, STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER, defaultValueConfig)) {
+            // not configured to store CgmesModel as an extension, we can close the CgmesModel (and its underlying triplestore)
+            cgmes.close();
+        }
+        return network;
     }
 
     @Override
@@ -206,6 +211,7 @@ public class CgmesImport implements Importer {
                 tripleStoreOptions);
         Conversion conversion = new Conversion(cgmes, config(p));
         conversion.update(network, reportNode);
+        cgmes.close();
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
