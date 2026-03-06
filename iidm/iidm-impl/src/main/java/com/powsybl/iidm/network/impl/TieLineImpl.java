@@ -256,32 +256,32 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
-        return getDanglingLine(side).getAllSelectedOperationalLimitsGroups();
+        return getBoundaryLine(side).getAllSelectedOperationalLimitsGroups();
     }
 
     @Override
     public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
-        return getDanglingLine(side).getAllSelectedOperationalLimitsGroupIds();
+        return getBoundaryLine(side).getAllSelectedOperationalLimitsGroupIds();
     }
 
     @Override
     public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side) {
-        return getDanglingLine(side).getAllSelectedOperationalLimitsGroupIdsOrdered();
+        return getBoundaryLine(side).getAllSelectedOperationalLimitsGroupIdsOrdered();
     }
 
     @Override
     public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
-        getDanglingLine(side).addSelectedOperationalLimitsGroups(ids);
+        getBoundaryLine(side).addSelectedOperationalLimitsGroups(ids);
     }
 
     @Override
     public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
-        getDanglingLine(side).addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
+        getBoundaryLine(side).addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
     }
 
     @Override
     public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
-        getDanglingLine(side).deselectOperationalLimitsGroups(ids);
+        getBoundaryLine(side).deselectOperationalLimitsGroups(ids);
     }
 
     @Override

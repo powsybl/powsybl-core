@@ -43,7 +43,7 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         writeNodeOrBus(2, l.getTerminal2(), context);
         writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, l.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
-        IidmSerDeUtil.runBetweenVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
             writeSelectedGroupId(1, l.getSelectedOperationalLimitsGroupId1().orElse(null), context.getWriter());
             writeSelectedGroupId(2, l.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
         });
@@ -82,7 +82,7 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         Line l = adder.add();
         readOptionalPQ(1, l.getTerminal1(), context.getReader());
         readOptionalPQ(2, l.getTerminal2(), context.getReader());
-        IidmSerDeUtil.runBetweenVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
             readSelectedGroupId(1, l::setSelectedOperationalLimitsGroup1, context);
             readSelectedGroupId(2, l::setSelectedOperationalLimitsGroup2, context);
         });

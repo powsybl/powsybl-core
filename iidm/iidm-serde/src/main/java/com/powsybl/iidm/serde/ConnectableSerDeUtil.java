@@ -371,12 +371,12 @@ public final class ConnectableSerDeUtil {
     }
 
     /**
-     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>danglingLine</code> using the <code>writer</code> for serialization
-     * @param danglingLine the {@link DanglingLine} on which to get the limits group
+     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>boundaryLine</code> using the <code>writer</code> for serialization
+     * @param boundaryLine the {@link BoundaryLine} on which to get the limits group
      * @param writer to serialize the data
      */
-    static void writeAllSelectedGroupIds(DanglingLine danglingLine, TreeDataWriter writer) {
-        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS, danglingLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
+    static void writeAllSelectedGroupIds(BoundaryLine boundaryLine, TreeDataWriter writer) {
+        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS, boundaryLine.getAllSelectedOperationalLimitsGroupIdsOrdered());
     }
 
     static void readSelectedGroupId(Integer index, Consumer<String> selectedGroupIdSetter, NetworkDeserializerContext context) {
@@ -417,12 +417,12 @@ public final class ConnectableSerDeUtil {
 
     /**
      * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the dangling line
-     * @param danglingLine the {@link DanglingLine} on which to add the selected groups
+     * @param boundaryLine the {@link BoundaryLine} on which to add the selected groups
      * @param context to deserialize the data
      */
-    static void readAllSelectedGroupIds(DanglingLine danglingLine, NetworkDeserializerContext context) {
+    static void readAllSelectedGroupIds(BoundaryLine boundaryLine, NetworkDeserializerContext context) {
         Collection<String> allSelectedGroupIds = Objects.requireNonNullElse(context.getReader().readStringArrayAttribute(ALL_SELECTED_GROUP_IDS), List.of());
-        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> danglingLine.addSelectedOperationalLimitsGroups(allSelectedGroupIds.toArray(String[]::new)));
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> boundaryLine.addSelectedOperationalLimitsGroups(allSelectedGroupIds.toArray(String[]::new)));
     }
 
     static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, OperationalLimitsGroup defaultGroup, Collection<OperationalLimitsGroup> groups) {
