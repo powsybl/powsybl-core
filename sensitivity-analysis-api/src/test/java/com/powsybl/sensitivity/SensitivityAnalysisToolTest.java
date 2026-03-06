@@ -17,6 +17,7 @@ import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
@@ -112,19 +113,22 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--contingencies-file", "contingencies.json",
             "--variable-sets-file", "variableSets.json",
             "--parameters-file", "parameters.json",
-            "--output-file", "output.json"},
+            "--output-file", "output.json",
+            },
                 expectedOut);
 
         assertTrue(Files.exists(fileSystem.getPath("output.json")));
         List<SensitivityValue> values;
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> status;
+        List<SensitivityAnalysisResult.SensitivityPreContingencyStatus> statusPreContingencyStatus;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
             List<List<Object>> lists = objectMapper.readValue(reader, new TypeReference<>() { });
             values = objectMapper.convertValue(lists.get(0), new TypeReference<>() { });
             status = objectMapper.convertValue(lists.get(1), new TypeReference<>() { });
+            statusPreContingencyStatus = objectMapper.convertValue(lists.get(2), new TypeReference<>() { });
         }
         assertEquals(2, values.size());
-        SensitivityValue value0 = values.get(0);
+        SensitivityValue value0 = values.getFirst();
         assertEquals(0, value0.getFactorIndex());
         assertEquals(0, value0.getContingencyIndex());
         SensitivityValue value1 = values.get(1);
@@ -132,9 +136,14 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(0, value1.getContingencyIndex());
 
         assertEquals(1, status.size());
-        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = status.get(0);
+        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = status.getFirst();
         assertEquals("NHV1_NHV2_2", status0.getContingencyId());
         assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
+
+        assertEquals(1, statusPreContingencyStatus.size());
+        assertEquals("testStatusText", statusPreContingencyStatus.getFirst().getLoadFlowStatus().statusText());
+        assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, statusPreContingencyStatus.getFirst().getLoadFlowStatus().status());
+
     }
 
     @Test
@@ -147,7 +156,9 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--contingencies-file", "contingencies.json",
             "--parameters-file", "parameters.json",
             "--output-file", "output.csv",
-            "--output-contingency-file", "outputContingency.csv"},
+            "--output-contingency-file", "outputContingency.csv",
+            "--output-pre-contingency-file", "outputPreContingency.csv"},
+
                 expectedOut);
 
         Path outputCsvFile = fileSystem.getPath("output.csv");
@@ -164,10 +175,19 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertTrue(Files.exists(outputContingencyStatusCsvFile));
         String outputContingencyStatusCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
                 "Sensitivity analysis contingency status result",
-                "Contingency ID;Contingency Status",
-                "NHV1_NHV2_2;SUCCESS")
-                + System.lineSeparator());
+                "Contingency ID;Contingency Status;Loadflow Status;Loadflow Status Description;Connected component;Synchronous component",
+                "NHV1_NHV2_2;SUCCESS;CONVERGED;;0;0") +
+                System.lineSeparator());
         assertEquals(outputContingencyStatusCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputContingencyStatusCsvFile)));
+
+        Path outputCsvPreContingencyFile = fileSystem.getPath("outputPreContingency.csv");
+        assertTrue(Files.exists(outputCsvPreContingencyFile));
+        String outputPreContingencyReference = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
+            "Sensitivity analysis pre contingency status result",
+                "Connected component;Synchronous component;Loadflow Status;Loadflow Status Description",
+                "0;1;CONVERGED;testStatusText") +
+                System.lineSeparator());
+        assertEquals(outputPreContingencyReference, TestUtil.normalizeLineSeparator(Files.readString(outputCsvPreContingencyFile)));
 
     }
 
@@ -205,7 +225,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--factors-file", "factors.json",
             "--output-file", "output.csv",
             "--output-contingency-file", "outputContingency.json"},
-                "output-file and output-contingency-file files must have the same format (csv).");
+                "output-file and output-contingency-file and output-pre-contingency-file files must have the same format (csv).");
     }
 
     @Test
@@ -254,9 +274,15 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(0, value1.getContingencyIndex());
 
         assertEquals(1, result.getContingencyStatuses().size());
-        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = result.getContingencyStatuses().get(0);
+        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = result.getContingencyStatuses().getFirst();
         assertEquals("NHV1_NHV2_2", status0.getContingencyId());
         assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
+
+        SensitivityAnalysisResult.SensitivityPreContingencyStatus prestatus0 = result.getPreContingencyStatuses().getFirst();
+        assertEquals(1, prestatus0.getNumCC());
+        assertEquals(1, prestatus0.getNumCS());
+        assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, prestatus0.getLoadFlowStatus().status());
+        assertEquals("testStatusText", prestatus0.getLoadFlowStatus().statusText());
 
         assertEquals(2, result.getFactors().size());
         SensitivityFactor factor0 = result.getFactors().get(0);

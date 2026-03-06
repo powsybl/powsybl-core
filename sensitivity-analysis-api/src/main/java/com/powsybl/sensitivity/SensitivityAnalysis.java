@@ -113,7 +113,7 @@ public final class SensitivityAnalysis {
             SensitivityResultModelWriter resultWriter = new SensitivityResultModelWriter(runParameters.getContingencies());
 
             return provider.run(network, workingVariantId, factorReader, resultWriter, runParameters)
-                .thenApply(unused -> new SensitivityAnalysisResult(factors, resultWriter.getContingencyStatuses(), resultWriter.getValues()));
+                .thenApply(unused -> new SensitivityAnalysisResult(factors, resultWriter.getContingencyStatuses(), resultWriter.getPreContingencyStatuses(), resultWriter.getValues()));
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,

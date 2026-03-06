@@ -12,11 +12,13 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,8 +58,13 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus("NHV1_NHV2_2", SensitivityAnalysisResult.Status.SUCCESS));
         contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus("NHV2_NHV3", SensitivityAnalysisResult.Status.NO_IMPACT));
 
+        List<SensitivityAnalysisResult.SensitivityPreContingencyStatus> preContingencyStatus = new ArrayList<>();
+        preContingencyStatus.add(new SensitivityAnalysisResult.SensitivityPreContingencyStatus(
+                new SensitivityAnalysisResult.LoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED, "testConvergence"),
+                1, 1));
+
         List<SensitivityValue> values = List.of(value1, value2, value3, value4, value5);
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, preContingencyStatus, values);
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues("NHV1_NHV2_2").size());
 
@@ -116,7 +123,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<SensitivityValue> values = List.of(value1, value2, value3, value4, value5);
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.SUCCESS)));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, Collections.emptyList(), values);
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues("NHV1_NHV2_2").size());
 
@@ -171,7 +178,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<SensitivityValue> values = List.of(value1, value2, value3, value4, value5);
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.SUCCESS)));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, Collections.emptyList(), values);
         assertEquals(5, result.getValues().size());
         assertEquals(2, result.getValues("NHV1_NHV2_2").size());
 
@@ -222,7 +229,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<SensitivityValue> values = List.of(value1, value2, value3, value4);
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.SUCCESS)));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, Collections.emptyList(), values);
         assertEquals(4, result.getValues().size());
         assertEquals(1, result.getValues("NHV1_NHV2_2").size());
 
@@ -283,7 +290,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.SUCCESS)));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, Collections.emptyList(), values);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.json");
