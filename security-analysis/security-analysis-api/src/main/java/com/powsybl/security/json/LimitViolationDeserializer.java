@@ -44,6 +44,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         Boolean voltageLocationSupport = (Boolean) deserializationContext.getAttribute(VIOLATION_LOCATION_SUPPORT);
         String subjectId = null;
         String subjectName = null;
+        String operationalLimitsGroupId = null;
         LimitViolationType limitType = null;
         String limitName = null;
         int acceptableDuration = Integer.MAX_VALUE;
@@ -63,6 +64,10 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "subjectName":
                     subjectName = parser.nextTextValue();
+                    break;
+
+                case "operationalLimitsGroupId":
+                    operationalLimitsGroupId = parser.nextTextValue();
                     break;
 
                 case "limitType":
@@ -117,7 +122,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
-        LimitViolation violation = new LimitViolation(subjectId, subjectName, limitType, limitName, acceptableDuration,
+        LimitViolation violation = new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, limitType, limitName, acceptableDuration,
             limit, limitReduction, value, side, violationLocation);
         SUPPLIER.get().addExtensions(violation, extensions);
 

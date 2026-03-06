@@ -1,0 +1,30 @@
+{
+  "version" : "1.1",
+  "faultResults" : [ {
+    "status" : "SUCCESS",
+    "fault" : {
+      "type" : "BUS",
+      "id" : "id",
+      "elementId" : "BusId",
+      "r" : 0.0,
+      "x" : 0.0,
+      "connection" : "SERIES",
+      "faultType" : "THREE_PHASE"
+    },
+    "shortCircuitPower" : 0.1,
+    "currentMagnitude" : 1.0,
+    "voltageMagnitude" : 2.0,
+    "timeConstant" : "PT1S",
+    "feederResult" : [ {
+      "connectableId" : "connectableId",
+      "currentMagnitude" : 1.0
+    } ],
+    "limitViolations" : [ {
+      "subjectId" : "id",
+      "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
+      "limit" : 2000.0,
+      "limitReduction" : 1.0,
+      "value" : 2500.0
+    } ]
+  } ]
+}

@@ -8,10 +8,21 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -522,5 +533,418 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 () -> assertFalse(group.hasProperty(property1)),
                 () -> assertEquals(Set.of(), group.getPropertyNames()),
                 () -> assertNull(group.getProperty(property1)));
+    }
+
+    @Test
+    void operationalLimitsGroupOrdering() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.cancelSelectedOperationalLimitsGroup1();
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+            EurostagTutorialExample1Factory.NOT_ACTIVATED,
+            "DEFAULT"
+        );
+        line.deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED);
+        List<String> orderedGroupIds = line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE);
+        List<String> expectedOrderedIds = List.of(
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+            EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+            "DEFAULT"
+        );
+        assertEquals(expectedOrderedIds.size(), orderedGroupIds.size());
+    }
+
+    @Test
+    void getAllSelectedCurrentLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
+        Collection<CurrentLimits> currentLimits = line.getAllSelectedCurrentLimits(TwoSides.TWO);
+        Assertions.assertThat(currentLimits)
+            .hasSize(3)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                    new Tuple(500.0, Set.of()),
+                    new Tuple(200.0, Set.of(600.0, Double.MAX_VALUE)),
+                    new Tuple(300.0, Set.of(Double.MAX_VALUE))
+            );
+        line.deselectOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
+
+        currentLimits = (Collection<CurrentLimits>) line.getAllSelectedLimits(LimitType.CURRENT, TwoSides.TWO);
+
+        Assertions.assertThat(currentLimits)
+            .hasSize(2)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                new Tuple(500.0, Set.of()),
+                new Tuple(300.0, Set.of(Double.MAX_VALUE))
+            );
+    }
+
+    @Test
+    void getAllSelectedActivePowerLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
+        ThreeWindingsTransformer.Leg legThree = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
+        Collection<ActivePowerLimits> activePowerLimits = legThree.getAllSelectedActivePowerLimits();
+        Assertions.assertThat(activePowerLimits)
+            .hasSize(2)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                    new Tuple(250.0, Set.of()),
+                    new Tuple(350.0, Set.of(400.0))
+            );
+
+        //check that deselecting a non-selected group does nothing
+        legThree.newOperationalLimitsGroup(EurostagTutorialExample1Factory.NOT_ACTIVATED);
+        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.NOT_ACTIVATED);
+
+        activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
+        assertEquals(2, activePowerLimits.size());
+
+        legThree.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, "DEFAULT");
+        activePowerLimits = (Collection<ActivePowerLimits>) legThree.getAllSelectedLimits(LimitType.ACTIVE_POWER);
+        assertEquals(0, activePowerLimits.size());
+    }
+
+    @Test
+    void getAllSelectedApparentPowerLimits() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedApparentPowerLimits();
+        TwoWindingsTransformer twoWindingsTransformer = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
+        Collection<ApparentPowerLimits> apparentPowerLimits = twoWindingsTransformer.getAllSelectedApparentPowerLimits(TwoSides.TWO);
+        Assertions.assertThat(apparentPowerLimits)
+            .hasSize(2)
+            .extracting(
+                    LoadingLimits::getPermanentLimit,
+                    this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(
+                    new Tuple(230.0, Set.of(240.0)),
+                    new Tuple(240.0, Set.of(250.0))
+            );
+
+        // Shouldn't affect the group 2
+        twoWindingsTransformer.cancelSelectedOperationalLimitsGroup1();
+        apparentPowerLimits = (Collection<ApparentPowerLimits>) twoWindingsTransformer.getAllSelectedLimits(LimitType.APPARENT_POWER, TwoSides.TWO);
+        assertEquals(2, apparentPowerLimits.size());
+
+        twoWindingsTransformer.cancelSelectedOperationalLimitsGroup2();
+        apparentPowerLimits = (Collection<ApparentPowerLimits>) twoWindingsTransformer.getAllSelectedLimits(LimitType.APPARENT_POWER, TwoSides.TWO);
+        assertEquals(0, apparentPowerLimits.size());
+    }
+
+    private Set<Double> extractTemporaryLimitsSet(LoadingLimits limits) {
+        return limits.getTemporaryLimits()
+            .stream()
+            .map(LoadingLimits.TemporaryLimit::getValue)
+            .collect(Collectors.toSet());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideOverloadDurationWithMultipleSelectedOperationalLimitsGroupArguments")
+    void overloadDurationWithMultipleSelectedOperationalLimitsGroup(Network n, String lineId, double p, double q, int expectedOverloadDuration) {
+        Line line = n.getLine(lineId);
+        line.getTerminal1().setP(p).setQ(q);
+        line.getTerminal2().setP(-p).setQ(-q);
+        n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV1).setV(400);
+        n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV2).setV(400);
+        System.out.println(line.getTerminal1().getI());
+        assertEquals(expectedOverloadDuration, line.getOverloadDuration());
+    }
+
+    private static Stream<Arguments> provideOverloadDurationWithMultipleSelectedOperationalLimitsGroupArguments() {
+        String line1 = EurostagTutorialExample1Factory.NHV1_NHV2_1;
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        return Stream.of(
+            Arguments.of(n, line1, 200, 10, Integer.MAX_VALUE), // current = 289 A
+            Arguments.of(n, line1, 200, 60, 40 * 60), // 301 A
+            Arguments.of(n, line1, 350, 60, 40 * 60), // 512 A
+            Arguments.of(n, line1, 450, 60, 10 * 60), // 655 A
+            Arguments.of(n, line1, 550, 100, 30), // 806 A
+            Arguments.of(n, line1, 700, 100, 0), // 1020 A
+            Arguments.of(n, line1, 800, 200, 0), // 1190 A
+            Arguments.of(n, line1, 800, 250, 0), // 1209 A
+            Arguments.of(n, line1, 1000, 300, 0), // 1506 A
+            Arguments.of(n, line1, 1100, 300, 0) // 1645 A
+        );
+    }
+
+    @Test
+    void checkAddWithPredicate() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.cancelSelectedOperationalLimitsGroup1();
+        assertEquals(4, line.getOperationalLimitsGroups1().size());
+        assertEquals(0, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // should have activated_1_1 and activated_1_2
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> s.contains("activated_1"));
+        assertEquals(2, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // should also have not_activated now
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> s.contains("activated"));
+        assertEquals(3, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // adding with a predicate should not remove activated groups that do not match the predicate
+        line.cancelSelectedOperationalLimitsGroup1();
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO);
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, "DEFAULT"::equals);
+        assertEquals(2, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+
+        // check that all groups can be activated
+        line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> true);
+        assertEquals(4, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideUtilCheckCurrentArguments")
+    void violationUtilCheckCurrent(Identifiable<?> identifiable, ThreeSides side, double limitReduction, LimitType type, double value, Collection<ExpectedOverload> expected) {
+        Collection<Overload> overloads = switch (identifiable) {
+            case Branch<?> b -> {
+                if (limitReduction == 1) {
+                    yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), new LimitsComputer.NoModificationsImpl(), value, type);
+                } else {
+                    yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReduction, value * limitReduction, type);
+                }
+            }
+            case ThreeWindingsTransformer t -> {
+                if (limitReduction == 1) {
+                    yield LimitViolationUtils.checkAllTemporaryLimits(t, side, new LimitsComputer.NoModificationsImpl(), value, type);
+                } else {
+                    yield LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReduction, value * limitReduction, type);
+                }
+            }
+            default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
+        };
+
+        Assertions.assertThat(overloads)
+            .extracting(
+                Overload::getPreviousLimitName,
+                Overload::getOperationalLimitsGroupId,
+                Overload::getPreviousLimit,
+                o -> o.getTemporaryLimit().getAcceptableDuration()
+            )
+            .containsExactlyInAnyOrderElementsOf(expected.stream()
+                .map(r -> tuple(r.previousLimitName, r.operationalLimitsGroupId, r.limit, r.acceptableDuration))
+                .toList());
+    }
+
+    private record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
+
+    private static Stream<Arguments> provideUtilCheckCurrentArguments() {
+        Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+
+        Network network3wt = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
+        ThreeWindingsTransformer transformer = network3wt.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
+
+        return Stream.of(
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 299, List.of()), // below any permanent limit
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 310, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    300,
+                    60 * 40
+                )
+            )), // above permanent of activated_1_2
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 510, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    300,
+                    60 * 40
+                )
+            )), // above the permanent of default, but no temporary above so we don't detect anything (note : this result is strange, need to change getOverload in LimitViolationUtils)
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 701, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                )
+            )), // above first temporary of 1_2
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 1122, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1100,
+                    60 * 10
+                )
+            )), // above permanent of 1_1
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 1450, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    "10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1200,
+                    60
+                )
+            )), // above first temporary of 1_1
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 1500, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                )
+            )), // above last temporary of 1_1
+            Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 1601, List.of(
+                new ExpectedOverload(
+                    "0.5'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    1600,
+                    0
+                ),
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                )
+            )), // above last temporary of 1_2
+            Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
+            Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above, don't detect anything. Note: this behavior is strange, needs to be changed
+            Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 375, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    350,
+                    45 * 60
+                )
+            )), // above permanent of activated_3_1
+            Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 405, List.of(
+                new ExpectedOverload(
+                    "45'",
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    400,
+                    0
+                )
+            )), // above last temporary of activated_3_1
+            // exactly the same thing with limit reduction, the value given will also be reduced by the limit reduction (so basically we move everything down)
+            Arguments.of(l, ThreeSides.ONE, 0.95, LimitType.CURRENT, 299, List.of()), // below any permanent limit
+            Arguments.of(l, ThreeSides.ONE, 0.8, LimitType.CURRENT, 310, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    300,
+                    60 * 40
+                )
+            )), // above permanent of activated_1_2
+            Arguments.of(l, ThreeSides.ONE, 0.82, LimitType.CURRENT, 510, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    300,
+                    60 * 40
+                )
+            )), // above the permanent of default, but no temporary above so we don't detect anything (note : this result is strange, need to change getOverload in LimitViolationUtils)
+            Arguments.of(l, ThreeSides.ONE, 0.7, LimitType.CURRENT, 701, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                )
+            )), // above first temporary of 1_2
+            Arguments.of(l, ThreeSides.ONE, 0.92, LimitType.CURRENT, 1122, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1100,
+                    60 * 10
+                )
+            )), // above permanent of 1_1
+            Arguments.of(l, ThreeSides.ONE, 0.87, LimitType.CURRENT, 1450, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    "10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1200,
+                    60
+                )
+            )), // above first temporary of 1_1
+            Arguments.of(l, ThreeSides.ONE, 0.3, LimitType.CURRENT, 1500, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                ),
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                )
+            )), // above last temporary of 1_1
+            Arguments.of(l, ThreeSides.ONE, 0.84, LimitType.CURRENT, 1601, List.of(
+                new ExpectedOverload(
+                    "0.5'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    1600,
+                    0
+                ),
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                )
+            )), // above last temporary of 1_2
+            Arguments.of(transformer, ThreeSides.THREE, 0.99, LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
+            Arguments.of(transformer, ThreeSides.THREE, 0.96, LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above, don't detect anything. Note: this behavior is strange, needs to be changed
+            Arguments.of(transformer, ThreeSides.THREE, 0.88, LimitType.ACTIVE_POWER, 375, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    350,
+                    45 * 60
+                )
+            )), // above permanent of activated_3_1
+            Arguments.of(transformer, ThreeSides.THREE, 0.77, LimitType.ACTIVE_POWER, 405, List.of(
+                new ExpectedOverload(
+                    "45'",
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    400,
+                    0
+                )
+            )) // above last temporary of activated_3_1
+        );
     }
 }

@@ -77,6 +77,12 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void roundTripJsonWithOperationalLimitsGroupId() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithOperationalLimitsGroupIdResults();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-operational-limits-group-id-v14.json");
+    }
+
+    @Test
     void readJsonFaultResultVersion10() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
@@ -91,6 +97,33 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     void readJsonFaultResultVersion11() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version11.json"));
+        assertEquals(1, result.getFaultResults().size());
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+    }
+
+    @Test
+    void readJsonFaultResultVersion12() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+            .read(getClass().getResourceAsStream("/shortcircuit-results-version12.json"));
+        assertEquals(1, result.getFaultResults().size());
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+        assertEquals(ThreeSides.ONE, faultResult.getFeederResults().getFirst().getSide());
+    }
+
+    @Test
+    void readJsonFaultResultVersion13() {
+        //TODO this doesn't actually test that the voltageLocation is correctly read, as it is not in the file
+        //this is actually the file of V 1.1
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+            .read(getClass().getResourceAsStream("/shortcircuit-results-version13.json"));
         assertEquals(1, result.getFaultResults().size());
         MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
         assertEquals(1.0, faultResult.getCurrent(), 0);
