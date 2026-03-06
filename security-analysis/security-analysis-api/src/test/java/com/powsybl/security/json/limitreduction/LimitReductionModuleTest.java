@@ -110,7 +110,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 new TieLineCriterion(null, new TwoNominalVoltageCriterion(
                     VoltageInterval.between(350., 410., true, false),
                     null)),
-                new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
+                new BoundaryLineCriterion(null, new SingleNominalVoltageCriterion(
                     VoltageInterval.between(80., 100., true, false))));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         return LimitReduction.builder(LimitType.CURRENT, 0.9)
