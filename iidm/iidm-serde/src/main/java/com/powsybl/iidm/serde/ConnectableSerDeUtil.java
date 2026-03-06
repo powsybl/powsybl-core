@@ -416,7 +416,7 @@ public final class ConnectableSerDeUtil {
     }
 
     /**
-     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the dangling line
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the boundary line
      * @param boundaryLine the {@link BoundaryLine} on which to add the selected groups
      * @param context to deserialize the data
      */
