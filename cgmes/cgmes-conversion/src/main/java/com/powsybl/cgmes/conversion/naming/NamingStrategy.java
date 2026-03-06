@@ -79,7 +79,7 @@ public interface NamingStrategy {
     }
 
     private CgmesObjectReference[] getTerminal1References(Identifiable<?> identifiable) {
-        if (identifiable instanceof DanglingLine) {
+        if (identifiable instanceof BoundaryLine) {
             return new CgmesObjectReference[] {refTyped(identifiable), TERMINAL};
         }
         return new CgmesObjectReference[] {refTyped(identifiable), TERMINAL, ref(1)};

@@ -208,7 +208,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t);
         }
 
-        BoundaryLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newBoundaryLine()
+        BoundaryLineAdder blAdder = voltageLevel(modelSide).map(vl -> vl.newBoundaryLine()
                         .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                         .setR(r)
                         .setX(x)
@@ -216,39 +216,39 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                         .setB(bch)
                         .setPairingKey(findPairingKey(boundaryNode)))
                 .orElseThrow(() -> new CgmesModelException("Boundary line " + id + " has no container"));
-        identify(dlAdder);
-        connectWithOnlyEq(dlAdder, modelSide);
+        identify(blAdder);
+        connectWithOnlyEq(blAdder, modelSide);
         Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForBoundaryLine(context, boundaryNode, eqInstance);
-        BoundaryLine dl;
+        BoundaryLine bl;
         if (equivalentInjectionConversion.isPresent()) {
-            dl = equivalentInjectionConversion.get().convertOverBoundaryLine(dlAdder);
-            Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion.get()::convertReactiveLimits);
+            bl = equivalentInjectionConversion.get().convertOverBoundaryLine(blAdder);
+            Optional.ofNullable(bl.getGeneration()).ifPresent(equivalentInjectionConversion.get()::convertReactiveLimits);
         } else {
-            dl = dlAdder
+            bl = blAdder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .add();
         }
-        context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
-        dl.addAlias(terminalId(boundarySide), ALIAS_TERMINAL_BOUNDARY);
-        dl.setProperty(PROPERTY_TERMINAL_BOUNDARY, terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
-        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), ALIAS_TERMINAL1);
-        dl.setProperty(PROPERTY_TERMINAL, terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
+        context.terminalMapping().add(terminalId(boundarySide), bl.getBoundary(), 2);
+        bl.addAlias(terminalId(boundarySide), ALIAS_TERMINAL_BOUNDARY);
+        bl.setProperty(PROPERTY_TERMINAL_BOUNDARY, terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
+        bl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), ALIAS_TERMINAL1);
+        bl.setProperty(PROPERTY_TERMINAL, terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
 
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> {
             if (isTopologicalNodeDefinedAtBoundary(tn, boundarySide)) {
-                dl.setProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY, tn);
+                bl.setProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY, tn);
             }
         });
 
-        Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn -> dl.setProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY, cn));
-        setBoundaryNodeInfo(boundaryNode, dl);
+        Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn -> bl.setProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY, cn));
+        setBoundaryNodeInfo(boundaryNode, bl);
         // In a Boundary Line the CGMES side and the IIDM side may not be the same
         // Boundary lines in IIDM only have one terminal, one side
-        context.convertedTerminalWithOnlyEq(terminalId(modelSide), dl.getTerminal(), 1);
+        context.convertedTerminalWithOnlyEq(terminalId(modelSide), bl.getTerminal(), 1);
 
-        dl.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
-        return dl;
+        bl.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
+        return bl;
     }
 
     // A TopologicalNode is considered an official boundary node when it is defined in the TP_BD file.

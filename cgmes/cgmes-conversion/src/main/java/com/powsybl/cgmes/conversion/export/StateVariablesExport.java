@@ -297,7 +297,7 @@ public final class StateVariablesExport {
             List<String> topologicalNodeIds = new ArrayList<>();
             String busTnId = context.getNamingStrategy().getCgmesId(b);
             topologicalNodeIds.add(busTnId);
-            b.getBoundaryLines().forEach(bl -> topologicalNodeIds.add(bl.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)));
+            b.getBoundaryLines().forEach(bl -> topologicalNodeIds.add(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)));
             if (b.getSynchronousComponent() != null) {
                 String key = String.valueOf(b.getSynchronousComponent().getNum());
                 TopologicalIsland island = islands.computeIfAbsent(key, k -> TopologicalIsland.fromSynchronousComponent(k, context));
@@ -319,13 +319,13 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
-            Bus b = dl.getTerminal().getBusView().getBus();
-            String topologicalNode = context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
-            if (dl.hasProperty("v") && dl.hasProperty("angle")) {
-                writeVoltage(topologicalNode, Double.parseDouble(dl.getProperty("v", "NaN")), Double.parseDouble(dl.getProperty("angle", "NaN")), cimNamespace, writer, context);
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
+            Bus b = bl.getTerminal().getBusView().getBus();
+            String topologicalNode = context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
+            if (bl.hasProperty("v") && bl.hasProperty("angle")) {
+                writeVoltage(topologicalNode, Double.parseDouble(bl.getProperty("v", "NaN")), Double.parseDouble(bl.getProperty("angle", "NaN")), cimNamespace, writer, context);
             } else if (b != null) {
-                writeVoltage(topologicalNode, dl.getBoundary().getV(), dl.getBoundary().getAngle(), cimNamespace, writer, context);
+                writeVoltage(topologicalNode, bl.getBoundary().getV(), bl.getBoundary().getAngle(), cimNamespace, writer, context);
             } else {
                 writeVoltage(topologicalNode, 0.0, 0.0, cimNamespace, writer, context);
             }
@@ -390,14 +390,14 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        network.getBoundaryLines(BoundaryLineFilter.ALL).forEach(dl -> {
+        network.getBoundaryLines(BoundaryLineFilter.ALL).forEach(bl -> {
             // BoundaryLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
-                writeIdentifiableTerminalPowerFlow(dl, ALIAS_TERMINAL_BOUNDARY, dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
+                writeIdentifiableTerminalPowerFlow(bl, ALIAS_TERMINAL_BOUNDARY, bl.getBoundary().getP(), bl.getBoundary().getQ(), cimNamespace, writer, context);
             }
-            writeTerminalPowerFlow(dl.getTerminal(), cimNamespace, writer, context);
-            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
-            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
+            writeTerminalPowerFlow(bl.getTerminal(), cimNamespace, writer, context);
+            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -bl.getBoundary().getP() : v - bl.getBoundary().getP());
+            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -bl.getBoundary().getQ() : v - bl.getBoundary().getQ());
         });
         equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
@@ -447,8 +447,8 @@ public final class StateVariablesExport {
 
     private static void writeIdentifiableTerminalPowerFlow(Identifiable<?> c, String aliasTypeForTerminalId, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String cgmesTerminalId;
-        if (c instanceof DanglingLine dl && ALIAS_TERMINAL_BOUNDARY.equals(aliasTypeForTerminalId)) {
-            cgmesTerminalId = CgmesExportUtil.getDanglingLineBoundaryTerminalId(dl, context);
+        if (c instanceof BoundaryLine bl && ALIAS_TERMINAL_BOUNDARY.equals(aliasTypeForTerminalId)) {
+            cgmesTerminalId = CgmesExportUtil.getBoundaryLineBoundaryTerminalId(bl, context);
         } else {
             cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
         }

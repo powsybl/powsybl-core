@@ -57,7 +57,7 @@ class CgmesConformity3ConversionTest {
         assertEquals(nDlBE, nTl);
 
         for (TieLine tl : merge.getTieLines()) {
-            // The boundaryLine1 and boundaryLine1.boundary.dl must be the same object
+            // The boundaryLine1 and boundaryLine1.boundary.bl must be the same object
             // Both should correspond to objects at my level of merging
             assertEquals(tl.getBoundaryLine1(), tl.getBoundaryLine1().getBoundary().getBoundaryLine());
             assertEquals(tl.getBoundaryLine2(), tl.getBoundaryLine2().getBoundary().getBoundaryLine());

@@ -135,9 +135,9 @@ class BoundaryLineUpdateTest {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
-        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getPropertyNames().isEmpty()));
-        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getAliases().isEmpty()));
-        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(bl -> bl.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(bl -> bl.getAliases().isEmpty()));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(bl -> bl.getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
     }
 
     private static void assertEq(Network network) {

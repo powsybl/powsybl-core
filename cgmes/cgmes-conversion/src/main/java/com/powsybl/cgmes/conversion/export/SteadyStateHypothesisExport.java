@@ -113,11 +113,11 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeTerminalForBoundaryLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
-            writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, cimNamespace, writer, context);
+            writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL), true, cimNamespace, writer, context);
             // Terminal for boundary side of original line/switch is always connected
-            writeTerminal(CgmesExportUtil.getDanglingLineBoundaryTerminalId(dl, context), true, cimNamespace, writer, context);
+            writeTerminal(CgmesExportUtil.getBoundaryLineBoundaryTerminalId(bl, context), true, cimNamespace, writer, context);
         }
     }
 

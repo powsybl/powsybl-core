@@ -56,11 +56,11 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     // A boundary line has been created at the boundary node of the equivalent injection
     public BoundaryLine convertOverBoundaryLine(BoundaryLineAdder adder) {
         boolean regulationCapability = p.asBoolean(CgmesNames.REGULATION_CAPABILITY, false);
-        BoundaryLine dl;
+        BoundaryLine bl;
         if (regulationCapability) {
             // If this equivalent injection is regulating voltage,
             // map it over the boundary line 'virtual generator'
-            dl = adder
+            bl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .newGeneration()
@@ -75,24 +75,24 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         } else {
             // Map all the observed flows to the 'virtual load'
             // of the boundary line
-            dl = adder
+            bl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .add();
         }
-        // We do not call addAliasesAndProperties(dl) !
+        // We do not call addAliasesAndProperties(bl) !
         // Because we do not want to add this equivalent injection
         // terminal id as a generic "Terminal" alias of the boundary line,
         // Terminal1 and Terminal2 aliases should be used for
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(PROPERTY_EQUIVALENT_INJECTION, this.id);
+        bl.setProperty(PROPERTY_EQUIVALENT_INJECTION, this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
-            dl.setProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL, cgmesTerminal.id());
+            bl.setProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL, cgmesTerminal.id());
         }
-        return dl;
+        return bl;
     }
 
     private void convertToGenerator() {

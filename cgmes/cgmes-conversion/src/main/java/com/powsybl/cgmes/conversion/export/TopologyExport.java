@@ -103,8 +103,8 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
-            writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
+            writeBoundaryTerminal(bl, exported, cimNamespace, writer, context);
         }
     }
 

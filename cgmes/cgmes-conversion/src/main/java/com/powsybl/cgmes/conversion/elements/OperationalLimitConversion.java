@@ -129,11 +129,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param limitSubclass The subclass of the OperationalLimit.
      * @param limitSetId The set containing the OperationalLimit.
      * @param limitSetName The name of the set containing the OperationalLimit.
-     * @param dl The boundary line to which the OperationalLimit applies.
+     * @param bl The boundary line to which the OperationalLimit applies.
      */
-    private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, BoundaryLine dl) {
-        OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
-            OperationalLimitsGroup newLimitsGroup = dl.newOperationalLimitsGroup(limitSetId);
+    private void createLimitsAdder(String limitSubclass, String limitSetId, String limitSetName, BoundaryLine bl) {
+        OperationalLimitsGroup limitsGroup = bl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
+            OperationalLimitsGroup newLimitsGroup = bl.newOperationalLimitsGroup(limitSetId);
             addProperties(newLimitsGroup, limitSetId, limitSetName);
             return newLimitsGroup;
         });
@@ -188,8 +188,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
         if (identifiable instanceof Branch) {
             checkAndCreateLimitsAdderBranch((Branch<?>) identifiable, terminalNumber, limitSetId, limitSetName);
-        } else if (identifiable instanceof BoundaryLine dl) {
-            createLimitsAdder(limitSubclass, limitSetId, limitSetName, dl);
+        } else if (identifiable instanceof BoundaryLine bl) {
+            createLimitsAdder(limitSubclass, limitSetId, limitSetName, bl);
         } else if (identifiable instanceof ThreeWindingsTransformer t3w) {
             checkAndCreateLimitsAdderThreeWindingsTransformers(t3w, terminalNumber, limitSetId, limitSetName);
         } else if (identifiable instanceof Switch) {
