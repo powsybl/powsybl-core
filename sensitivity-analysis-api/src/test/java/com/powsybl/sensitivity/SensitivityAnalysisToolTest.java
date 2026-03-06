@@ -97,9 +97,11 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "output-file", true, true);
         assertOption(tool.getCommand().getOptions(), "factors-file", true, true);
         assertOption(tool.getCommand().getOptions(), "contingencies-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "operator-strategies-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "actions-file", false, true);
         assertOption(tool.getCommand().getOptions(), "variable-sets-file", false, true);
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "output-contingency-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "output-state-status-file", false, true);
     }
 
     @Test
@@ -117,7 +119,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         assertTrue(Files.exists(fileSystem.getPath("output.json")));
         List<SensitivityValue> values;
-        List<SensitivityAnalysisResult.SensitivityContingencyStatus> status;
+        List<SensitivityAnalysisResult.SensitivityStateStatus> status;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
             List<List<Object>> lists = objectMapper.readValue(reader, new TypeReference<>() { });
             values = objectMapper.convertValue(lists.get(0), new TypeReference<>() { });
@@ -132,8 +134,8 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(0, value1.getContingencyIndex());
 
         assertEquals(1, status.size());
-        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = status.get(0);
-        assertEquals("NHV1_NHV2_2", status0.getContingencyId());
+        SensitivityAnalysisResult.SensitivityStateStatus status0 = status.get(0);
+        assertEquals("NHV1_NHV2_2", status0.getState().contingencyId());
         assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
     }
 
@@ -147,25 +149,25 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--contingencies-file", "contingencies.json",
             "--parameters-file", "parameters.json",
             "--output-file", "output.csv",
-            "--output-contingency-file", "outputContingency.csv"},
+            "--output-state-status-file", "outputContingency.csv"},
                 expectedOut);
 
         Path outputCsvFile = fileSystem.getPath("output.csv");
         assertTrue(Files.exists(outputCsvFile));
         String outputCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
                "Sensitivity analysis result",
-               "Contingency ID;Factor index;Function ref value;Sensitivity value",
-               "NHV1_NHV2_2;0;0.00000;0.00000",
-               "NHV1_NHV2_2;1;0.00000;0.00000")
+               "Contingency ID;Operator strategy ID;Factor index;Function ref value;Sensitivity value",
+               "NHV1_NHV2_2;;0;0.00000;0.00000",
+               "NHV1_NHV2_2;;1;0.00000;0.00000")
                 + System.lineSeparator());
         assertEquals(outputCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputCsvFile)));
 
         Path outputContingencyStatusCsvFile = fileSystem.getPath("outputContingency.csv");
         assertTrue(Files.exists(outputContingencyStatusCsvFile));
         String outputContingencyStatusCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
-                "Sensitivity analysis contingency status result",
-                "Contingency ID;Contingency Status",
-                "NHV1_NHV2_2;SUCCESS")
+                "Sensitivity analysis status result",
+                "Contingency ID;Operator strategy ID;Status",
+                "NHV1_NHV2_2;;SUCCESS")
                 + System.lineSeparator());
         assertEquals(outputContingencyStatusCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputContingencyStatusCsvFile)));
 
@@ -204,8 +206,8 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--output-file", "output.csv",
-            "--output-contingency-file", "outputContingency.json"},
-                "output-file and output-contingency-file files must have the same format (csv).");
+            "--output-state-status-file", "outputContingency.json"},
+                "output-file and output-state-status-file files must have the same format (csv).");
     }
 
     @Test
@@ -253,9 +255,9 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(1, value1.getFactorIndex());
         assertEquals(0, value1.getContingencyIndex());
 
-        assertEquals(1, result.getContingencyStatuses().size());
-        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = result.getContingencyStatuses().get(0);
-        assertEquals("NHV1_NHV2_2", status0.getContingencyId());
+        assertEquals(1, result.getStateStatuses().size());
+        SensitivityAnalysisResult.SensitivityStateStatus status0 = result.getStateStatuses().get(0);
+        assertEquals("NHV1_NHV2_2", status0.getState().contingencyId());
         assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
 
         assertEquals(2, result.getFactors().size());
