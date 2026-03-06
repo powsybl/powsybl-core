@@ -135,6 +135,24 @@ public class DetailedHvdcConverterTest {
     }
 
     @Test
+    void testCreate4() {
+        // Test with 2 pairs of VSCs + DC lines connected by an AC line.
+        // The purpose of the test is to check that 2 DC subnetworks are indeed created.
+        // Each pair of VSCs have distinct nominal DC voltage level. We then count
+        // the number of DC voltage levels to verify there are 2 DC subnetworks.
+        Network network = importDgs("MTDC-4-VSC-ACDC-links");
+
+        assertEquals(8, network.getDcNodeCount());
+        assertEquals(4, network.getVoltageSourceConverterCount());
+        assertEquals(4, network.getDcLineCount());
+        assertEquals(0, network.getDcGroundCount());
+        assertEquals(1, network.getLineCount());
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(2, network.getDcNodeStream().map(DcNode::getNominalV).distinct().count());
+    }
+
+    @Test
     void testVsc1() {
         // check i_acdc = 3
         Network network = importDgs("MTDCVscVariants1");

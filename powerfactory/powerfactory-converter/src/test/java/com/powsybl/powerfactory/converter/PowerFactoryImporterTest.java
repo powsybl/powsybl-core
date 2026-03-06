@@ -512,6 +512,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
 
         importAndCompareXml("MTDC-3-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-4-VSC-ACDC-links", ".dgs", importParams);
         importAndCompareXml("MTDCVscVariants1", ".dgs", importParams);
         importAndCompareXml("MTDCVscVariants2", ".dgs", importParams);
         importAndCompareXml("MTDCVscVariants3", ".dgs", importParams);
@@ -519,7 +520,6 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         importAndCompareXml("MTDCVscLoss1", ".dgs", importParams);
         importAndCompareXml("MTDCVscLoss2", ".dgs", importParams);
         importAndCompareXml("MTDCVscLoss3", ".dgs", importParams);
-        importAndCompareXml("MTDC-3-VSC-ACDC-links", ".dgs", importParams);
         importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
         importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
         importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
