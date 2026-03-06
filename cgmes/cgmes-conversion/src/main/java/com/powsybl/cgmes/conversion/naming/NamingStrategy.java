@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.conversion.naming;
 
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -22,36 +21,55 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
  */
 public interface NamingStrategy {
 
+    /**
+     * Get the Name of the implemented NamingStrategy.
+     */
     String getName();
 
+    /**
+     * Get the IIDM id for the given CGMES type and id.
+     */
     String getIidmId(String type, String id);
 
+    /**
+     * Get the IIDM name for the given CGMES type and id.
+     */
     String getIidmName(String type, String name);
 
+    /**
+     * Get the CGMES id for the given IIDM identifiable.
+     * All implementations must ensure a deterministic id generation.
+     */
     String getCgmesId(Identifiable<?> identifiable);
 
-    default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        if (identifiable.getAliasFromType(aliasType).isPresent()) {
-            return getCgmesId(identifiable.getAliasFromType(aliasType).orElseThrow());
-        }
-        return getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
-    }
-
-    default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
-        if (identifiable.hasProperty(propertyName)) {
-            return getCgmesId(identifiable.getProperty(propertyName));
-        }
-        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
-    }
-
-    default String getCgmesId(String identifier) {
-        return identifier;
-    }
-
-    void debug(String baseName, DataSource ds);
-
+    /**
+     * Get the CGMES id for the given array of references.
+     * All implementations must ensure a deterministic id generation.
+     */
     String getCgmesId(CgmesObjectReference... refs);
 
+    /**
+     * Get the CGMES id for the given identifier.
+     * All implementations must ensure a deterministic id generation.
+     */
+    String getCgmesId(String identifier);
+
+    /**
+     * Get the CGMES id for the given IIDM identifiable and alias type.
+     * All implementations must ensure a deterministic id generation.
+     */
+    String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType);
+
+    /**
+     * Get the CGMES id for the given IIDM identifiable and propertyName.
+     * All implementations must ensure a deterministic id generation.
+     */
+    String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName);
+
+    /**
+     * Get an array of references for the given IIDM identifiable and alias type or property name.
+     * The array can then be used to generate a unique identifier in a deterministic way.
+     */
     default CgmesObjectReference[] getCgmesObjectReferences(Identifiable<?> identifiable, String aliasOrProperty) {
         return switch (aliasOrProperty) {
             case ALIAS_DC_TERMINAL1 -> new CgmesObjectReference[] {refTyped(identifiable), refDcTerminal(identifiable), ref(1)};
@@ -90,38 +108,5 @@ public interface NamingStrategy {
             return new CgmesObjectReference[]{ref(generator), refGeneratingUnit(generator)};
         }
         return new CgmesObjectReference[]{refTyped(identifiable), Part.GENERATING_UNIT};
-    }
-
-    final class Identity implements NamingStrategy {
-
-        @Override
-        public String getName() {
-            return NamingStrategyFactory.IDENTITY;
-        }
-
-        @Override
-        public String getIidmId(String type, String id) {
-            return id;
-        }
-
-        @Override
-        public String getCgmesId(Identifiable<?> identifiable) {
-            return identifiable.getId();
-        }
-
-        @Override
-        public String getIidmName(String type, String name) {
-            return name;
-        }
-
-        @Override
-        public void debug(String baseName, DataSource ds) {
-            // do nothing
-        }
-
-        @Override
-        public String getCgmesId(CgmesObjectReference... refs) {
-            return CgmesObjectReference.combine(refs);
-        }
     }
 }
