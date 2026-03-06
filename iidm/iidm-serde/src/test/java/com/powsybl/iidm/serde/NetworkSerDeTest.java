@@ -20,6 +20,8 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
+import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
@@ -452,5 +454,40 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                     .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
                             "'[IN_OPERATION, PLANNED_OUTAGE, FORCED_OUTAGE]'. It must be a value from the enumeration.");
         }
+    }
+
+    @Test
+    void testValidateWithCustomExtensionSupplier() throws IOException {
+        ExtensionsSupplier customExtensionsSupplier = () -> DefaultExtensionsSupplier.getInstance().get();
+        assertNotSame(DefaultExtensionsSupplier.getInstance(), customExtensionsSupplier);
+
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16, customExtensionsSupplier));
+        }
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, customExtensionsSupplier));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMissingNamespace() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/network-without-namespace.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Missing root namespace");
+        }
+    }
+
+    @Test
+    void testValidateWhenParseMalformedXml() {
+        String xml = "<iidm:network";
+        byte[] bytes = xml.getBytes(StandardCharsets.UTF_8);
+        InputStream is = new ByteArrayInputStream(bytes);
+        assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessageContaining("Failed to read namespace from XML");
     }
 }
