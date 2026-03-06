@@ -65,59 +65,59 @@ class TopologyExportTest extends AbstractSerDeTest {
     }
 
     @Test
-    void exportPairedDanglingLinesInBusBreakerModelWithoutBoundaryCim16() throws IOException {
-        Network network = createPairedDanglingLinesBusBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithoutBoundary(network, "16"));
+    void exportPairedBoundaryLinesInBusBreakerModelWithoutBoundaryCim16() throws IOException {
+        Network network = createPairedBoundaryLinesBusBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithoutBoundary(network, "16"));
     }
 
     @Test
-    void exportPairedDanglingLinesInBusBreakerModelWithBoundaryCim16() throws IOException {
-        Network network = createPairedDanglingLinesBusBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithBoundary(network, "16"));
+    void exportPairedBoundaryLinesInBusBreakerModelWithBoundaryCim16() throws IOException {
+        Network network = createPairedBoundaryLinesBusBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithBoundary(network, "16"));
     }
 
     @Test
-    void exportPairedDanglingLinesInBusBreakerModelWithoutBoundaryCim100() throws IOException {
-        Network network = createPairedDanglingLinesBusBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithoutBoundary(network, "100"));
+    void exportPairedBoundaryLinesInBusBreakerModelWithoutBoundaryCim100() throws IOException {
+        Network network = createPairedBoundaryLinesBusBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithoutBoundary(network, "100"));
     }
 
     @Test
-    void exportPairedDanglingLinesInBusBreakerModelWithBoundaryCim100() throws IOException {
-        Network network = createPairedDanglingLinesBusBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithBoundary(network, "100"));
+    void exportPairedBoundaryLinesInBusBreakerModelWithBoundaryCim100() throws IOException {
+        Network network = createPairedBoundaryLinesBusBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithBoundary(network, "100"));
     }
 
     @Test
-    void exportPairedDanglingLinesInNodeBreakerModelWithoutBoundaryCim16() throws IOException {
-        Network network = createPairedDanglingLinesNodeBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithoutBoundary(network, "16"));
+    void exportPairedBoundaryLinesInNodeBreakerModelWithoutBoundaryCim16() throws IOException {
+        Network network = createPairedBoundaryLinesNodeBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithoutBoundary(network, "16"));
     }
 
     @Test
-    void exportPairedDanglingLinesInNodeBreakerModelWithBoundaryCim16() throws IOException {
-        Network network = createPairedDanglingLinesNodeBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithBoundary(network, "16"));
+    void exportPairedBoundaryLinesInNodeBreakerModelWithBoundaryCim16() throws IOException {
+        Network network = createPairedBoundaryLinesNodeBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithBoundary(network, "16"));
     }
 
     @Test
-    void exportPairedDanglingLinesInNodeBreakerModelWithoutBoundaryCim100() throws IOException {
-        Network network = createPairedDanglingLinesNodeBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithoutBoundary(network, "100"));
+    void exportPairedBoundaryLinesInNodeBreakerModelWithoutBoundaryCim100() throws IOException {
+        Network network = createPairedBoundaryLinesNodeBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithoutBoundary(network, "100"));
     }
 
     @Test
-    void exportPairedDanglingLinesInNodeBreakerModelWithBoundaryCim100() throws IOException {
-        Network network = createPairedDanglingLinesNodeBreakerModel();
-        assertTrue(exportPairedDanglingLinesWithBoundary(network, "100"));
+    void exportPairedBoundaryLinesInNodeBreakerModelWithBoundaryCim100() throws IOException {
+        Network network = createPairedBoundaryLinesNodeBreakerModel();
+        assertTrue(exportPairedBoundaryLinesWithBoundary(network, "100"));
     }
 
-    private static boolean exportPairedDanglingLinesWithoutBoundary(Network network, String cimVersion) throws IOException {
+    private static boolean exportPairedBoundaryLinesWithoutBoundary(Network network, String cimVersion) throws IOException {
 
         ReadOnlyDataSource ds = createBoundaryReadOnlyDataSource(cimVersion);
 
-        String exportFolder = "/test-paired-dl-bus-breaker";
-        String baseName = "pairedDanglingLines_exported";
+        String exportFolder = "/test-paired-bl-bus-breaker";
+        String baseName = "pairedBoundaryLines_exported";
 
         // Export without boundary data
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
@@ -130,20 +130,20 @@ class TopologyExportTest extends AbstractSerDeTest {
             Network actual = Network.read(repackaged);
 
             assertEquals(0, actual.getTieLineCount());
-            assertEquals(0, actual.getDanglingLineCount());
+            assertEquals(0, actual.getBoundaryLineCount());
             assertEquals(2, actual.getLineCount());
-            assertEquals(actual.getLine("danglingLine1").getTerminal2().getBusBreakerView().getBus().getId(), actual.getLine("danglingLine2").getTerminal2().getBusBreakerView().getBus().getId());
+            assertEquals(actual.getLine("boundaryLine1").getTerminal2().getBusBreakerView().getBus().getId(), actual.getLine("boundaryLine2").getTerminal2().getBusBreakerView().getBus().getId());
         }
 
         return true;
     }
 
-    private static boolean exportPairedDanglingLinesWithBoundary(Network network, String cimVersion) throws IOException {
+    private static boolean exportPairedBoundaryLinesWithBoundary(Network network, String cimVersion) throws IOException {
 
         ReadOnlyDataSource ds = createBoundaryReadOnlyDataSource(cimVersion);
 
-        String exportFolder = "/test-paired-dl-bus-breaker";
-        String baseName = "pairedDanglingLines_exported";
+        String exportFolder = "/test-paired-bl-bus-breaker";
+        String baseName = "pairedBoundaryLines_exported";
 
         // Export with boundary data
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
@@ -155,12 +155,12 @@ class TopologyExportTest extends AbstractSerDeTest {
             Repackager rb;
             if (cimVersion.equals("16")) {
                 rb = new Repackager(ds)
-                        .with("pairedDanglingLines_EQ_BD.xml", Repackager::eqBd)
-                        .with("pairedDanglingLines_TP_BD.xml", Repackager::tpBd);
+                        .with("pairedBoundaryLines_EQ_BD.xml", Repackager::eqBd)
+                        .with("pairedBoundaryLines_TP_BD.xml", Repackager::tpBd);
 
             } else {
                 rb = new Repackager(ds)
-                        .with("pairedDanglingLines_EQ_BD.xml", Repackager::eqBd);
+                        .with("pairedBoundaryLines_EQ_BD.xml", Repackager::eqBd);
             }
             rb.zip(boundary);
 
@@ -175,9 +175,9 @@ class TopologyExportTest extends AbstractSerDeTest {
             Network actual = Network.read(repackaged);
 
             assertEquals(1, actual.getTieLineCount());
-            assertEquals(2, actual.getDanglingLineCount());
-            assertTrue(actual.getDanglingLine("danglingLine1").isPaired());
-            assertTrue(actual.getDanglingLine("danglingLine2").isPaired());
+            assertEquals(2, actual.getBoundaryLineCount());
+            assertTrue(actual.getBoundaryLine("boundaryLine1").isPaired());
+            assertTrue(actual.getBoundaryLine("boundaryLine2").isPaired());
             assertEquals(0, actual.getLineCount());
         }
 
@@ -185,12 +185,12 @@ class TopologyExportTest extends AbstractSerDeTest {
     }
 
     private static ReadOnlyDataSource createBoundaryReadOnlyDataSource(String cimVersion) {
-        String importDir = "/issues/export-paired-dangling-lines";
+        String importDir = "/issues/export-paired-boundary-lines";
         ReadOnlyDataSource ds;
         if (cimVersion.equals("16")) {
-            ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(importDir, "pairedDanglingLinesCim16_EQ_BD.xml", "pairedDanglingLinesCim16_TP_BD.xml"));
+            ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(importDir, "pairedBoundaryLinesCim16_EQ_BD.xml", "pairedBoundaryLinesCim16_TP_BD.xml"));
         } else {
-            ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(importDir, "pairedDanglingLinesCim100_EQ_BD.xml"));
+            ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(importDir, "pairedBoundaryLinesCim100_EQ_BD.xml"));
         }
         return ds;
     }
@@ -200,18 +200,18 @@ class TopologyExportTest extends AbstractSerDeTest {
         Repackager r;
         if (cimVersion.equals("16")) {
             r = new Repackager(ds)
-                    .with("pairedDanglingLines_exported_EQ.xml", tmpExportDir.resolve("pairedDanglingLines_exported_EQ.xml"))
-                    .with("pairedDanglingLines_exported_TP.xml", tmpExportDir.resolve("pairedDanglingLines_exported_TP.xml"))
-                    .with("pairedDanglingLines_exported_SSH.xml", tmpExportDir.resolve("pairedDanglingLines_exported_SSH.xml"))
-                    .with("pairedDanglingLines_EQ_BD.xml", Repackager::eqBd)
-                    .with("pairedDanglingLines_TP_BD.xml", Repackager::tpBd);
+                    .with("pairedBoundaryLines_exported_EQ.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_EQ.xml"))
+                    .with("pairedBoundaryLines_exported_TP.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_TP.xml"))
+                    .with("pairedBoundaryLines_exported_SSH.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_SSH.xml"))
+                    .with("pairedBoundaryLines_EQ_BD.xml", Repackager::eqBd)
+                    .with("pairedBoundaryLines_TP_BD.xml", Repackager::tpBd);
 
         } else {
             r = new Repackager(ds)
-                    .with("pairedDanglingLines_exported_EQ.xml", tmpExportDir.resolve("pairedDanglingLines_exported_EQ.xml"))
-                    .with("pairedDanglingLines_exported_TP.xml", tmpExportDir.resolve("pairedDanglingLines_exported_TP.xml"))
-                    .with("pairedDanglingLines_exported_SSH.xml", tmpExportDir.resolve("pairedDanglingLines_exported_SSH.xml"))
-                    .with("pairedDanglingLines_EQ_BD.xml", Repackager::eqBd);
+                    .with("pairedBoundaryLines_exported_EQ.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_EQ.xml"))
+                    .with("pairedBoundaryLines_exported_TP.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_TP.xml"))
+                    .with("pairedBoundaryLines_exported_SSH.xml", tmpExportDir.resolve("pairedBoundaryLines_exported_SSH.xml"))
+                    .with("pairedBoundaryLines_EQ_BD.xml", Repackager::eqBd);
 
         }
         r.zip(repackaged);
@@ -284,7 +284,7 @@ class TopologyExportTest extends AbstractSerDeTest {
         network.getBusView().getBuses().forEach(bus -> bus.setV(bus.getVoltageLevel().getNominalV()));
     }
 
-    private static Network createPairedDanglingLinesBusBreakerModel() {
+    private static Network createPairedBoundaryLinesBusBreakerModel() {
         Network network = NetworkFactory.findDefault().createNetwork("network", "busBreakerModelTest");
         Substation substation1 = createSubstation(network, "substation1", Country.FR);
         VoltageLevel voltageLevel1 = createVoltageLevel(substation1, "voltageLevel1", TopologyKind.BUS_BREAKER);
@@ -294,15 +294,15 @@ class TopologyExportTest extends AbstractSerDeTest {
         voltageLevel1.getBusBreakerView().newBus().setId("bus1").add();
         voltageLevel2.getBusBreakerView().newBus().setId("bus2").add();
 
-        DanglingLine dl1 = createDanglingLineInBusBreakerModel(voltageLevel1, "danglingLine1", "bus1");
-        DanglingLine dl2 = createDanglingLineInBusBreakerModel(voltageLevel2, "danglingLine2", "bus2");
+        BoundaryLine bl1 = createBoundaryLineInBusBreakerModel(voltageLevel1, "boundaryLine1", "bus1");
+        BoundaryLine bl2 = createBoundaryLineInBusBreakerModel(voltageLevel2, "boundaryLine2", "bus2");
 
-        createTieLine(network, dl1.getId(), dl2.getId());
+        createTieLine(network, bl1.getId(), bl2.getId());
 
         return network;
     }
 
-    private static Network createPairedDanglingLinesNodeBreakerModel() {
+    private static Network createPairedBoundaryLinesNodeBreakerModel() {
         Network network = NetworkFactory.findDefault().createNetwork("network", "nodeBreakerModelTest");
         Substation substation1 = createSubstation(network, "substation1", Country.FR);
         VoltageLevel voltageLevel1 = createVoltageLevel(substation1, "voltageLevel1", TopologyKind.NODE_BREAKER);
@@ -315,10 +315,10 @@ class TopologyExportTest extends AbstractSerDeTest {
         voltageLevel2.getNodeBreakerView().newBusbarSection().setId("bus2").setNode(2);
         voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(20).add();
 
-        DanglingLine dl1 = createDanglingLineInNodeBreakerModel(voltageLevel1, "danglingLine1", 10);
-        DanglingLine dl2 = createDanglingLineInNodeBreakerModel(voltageLevel2, "danglingLine2", 20);
+        BoundaryLine bl1 = createBoundaryLineInNodeBreakerModel(voltageLevel1, "boundaryLine1", 10);
+        BoundaryLine bl2 = createBoundaryLineInNodeBreakerModel(voltageLevel2, "boundaryLine2", 20);
 
-        createTieLine(network, dl1.getId(), dl2.getId());
+        createTieLine(network, bl1.getId(), bl2.getId());
 
         return network;
     }
@@ -338,9 +338,9 @@ class TopologyExportTest extends AbstractSerDeTest {
                 .add();
     }
 
-    private static DanglingLine createDanglingLineInBusBreakerModel(VoltageLevel voltageLevel, String danglingLineId, String busId) {
-        return voltageLevel.newDanglingLine()
-                .setId(danglingLineId)
+    private static BoundaryLine createBoundaryLineInBusBreakerModel(VoltageLevel voltageLevel, String boundaryLineId, String busId) {
+        return voltageLevel.newBoundaryLine()
+                .setId(boundaryLineId)
                 .setR(0.001)
                 .setX(0.001)
                 .setP0(0.0)
@@ -351,9 +351,9 @@ class TopologyExportTest extends AbstractSerDeTest {
                 .add();
     }
 
-    private static DanglingLine createDanglingLineInNodeBreakerModel(VoltageLevel voltageLevel, String danglingLineId, int node) {
-        return voltageLevel.newDanglingLine()
-                .setId(danglingLineId)
+    private static BoundaryLine createBoundaryLineInNodeBreakerModel(VoltageLevel voltageLevel, String boundaryLineId, int node) {
+        return voltageLevel.newBoundaryLine()
+                .setId(boundaryLineId)
                 .setR(0.001)
                 .setX(0.001)
                 .setP0(0.0)
@@ -363,11 +363,11 @@ class TopologyExportTest extends AbstractSerDeTest {
                 .add();
     }
 
-    private static void createTieLine(Network network, String danglingLineId1, String danglingLineId2) {
+    private static void createTieLine(Network network, String boundaryLineId1, String boundaryLineId2) {
         network.newTieLine()
                 .setId("tieLine")
-                .setDanglingLine1(danglingLineId1)
-                .setDanglingLine2(danglingLineId2)
+                .setBoundaryLine1(boundaryLineId1)
+                .setBoundaryLine2(boundaryLineId2)
                 .add();
     }
 }
