@@ -286,8 +286,9 @@ public final class IidmSerDeUtil {
      * @param context the context of the call
      * @param runnable what we want to execute
      */
-    public static <C extends AbstractNetworkSerDeContext> void runBetweenVersions(IidmVersion minVersion, IidmVersion maxVersion, C context, Runnable runnable) {
-        if (context.getVersion().compareTo(minVersion) >= 0 && context.getVersion().compareTo(maxVersion) <= 0) {
+    
+    public static <C extends AbstractNetworkSerDeContext> void runInBetweenTwoVersions(IidmVersion minVersion, IidmVersion maxVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(maxVersion) <= 0 && context.getVersion().compareTo(minVersion) >= 0) {
             runnable.run();
         }
     }
