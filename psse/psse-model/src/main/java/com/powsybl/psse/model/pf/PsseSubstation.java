@@ -7,6 +7,7 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.pf.internal.PsseSubstationEquipmentTerminal;
 import com.powsybl.psse.model.pf.internal.PsseSubstationNode;
@@ -23,8 +24,8 @@ import java.util.List;
  * //JsonIgnoreProperties({"record"})
  * //JsonPropertyOrder({STR_IS, STR_NAME, STR_LATI, STR_LONG, STR_SRG})
  */
-
-@JsonPropertyOrder({"record", "nodes", "switchingDevices", "equipmentTerminals"})
+@JsonIgnoreProperties({"record"})
+@JsonPropertyOrder({"is", "name", "lati", "long", "srg"})
 public class PsseSubstation {
 
     public PsseSubstation(PsseSubstationRecord substationRecord,
@@ -40,6 +41,26 @@ public class PsseSubstation {
     private final List<PsseSubstationNode> nodes;
     private final List<PsseSubstationSwitchingDevice> switchingDevices;
     private final List<PsseSubstationEquipmentTerminal> equipmentTerminals;
+
+    public int getIs() {
+        return substationRecord.getIs();
+    }
+
+    public String getName() {
+        return substationRecord.getName();
+    }
+
+    public double getLati() {
+        return substationRecord.getLati();
+    }
+
+    public double getLong() {
+        return substationRecord.getLong();
+    }
+
+    public double getSrg() {
+        return substationRecord.getSrg();
+    }
 
     public PsseSubstationRecord getRecord() {
         return substationRecord;

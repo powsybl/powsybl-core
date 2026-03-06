@@ -40,7 +40,7 @@ class SubstationConverter extends AbstractConverter {
 
             Optional<PsseSubstation> psseSubstation = nodeBreakerValidation.getTheOnlySubstation(psseBus.getI());
             if (psseSubstation.isPresent()) {
-                substation.setName(psseSubstation.get().getRecord().getName());
+                substation.setName(psseSubstation.get().getName());
             }
         }
         return substation;

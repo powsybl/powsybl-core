@@ -248,17 +248,17 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
             List<PsseSubstationNodex> nodexList = new ArrayList<>();
             substationList.forEach(substation -> substation.getNodes().forEach(node -> nodexList.add(
-                    new PsseSubstationNodex(substation.getRecord().getIs(), node))));
+                    new PsseSubstationNodex(substation.getIs(), node))));
             new SubstationNodexData().write(nodexList, context, null);
 
             List<PsseSubstationSwitchingDevicex> switchingDevicexList = new ArrayList<>();
             substationList.forEach(substation -> substation.getSwitchingDevices().forEach(switchingDevice -> switchingDevicexList.add(
-                    new PsseSubstationSwitchingDevicex(substation.getRecord().getIs(), switchingDevice))));
+                    new PsseSubstationSwitchingDevicex(substation.getIs(), switchingDevice))));
             new SubstationSwitchingDevicexData().write(switchingDevicexList, context, null);
 
             List<PsseSubstationEquipmentTerminalx> equipmentTerminalxList = new ArrayList<>();
             substationList.forEach(substation -> substation.getEquipmentTerminals().forEach(equipmentTerminal -> equipmentTerminalxList.add(
-                    new PsseSubstationEquipmentTerminalx(substation.getRecord().getIs(), equipmentTerminal))));
+                    new PsseSubstationEquipmentTerminalx(substation.getIs(), equipmentTerminal))));
             new SubstationEquipmentTerminalxData().write(equipmentTerminalxList, context, null);
         }
 

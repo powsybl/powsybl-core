@@ -198,7 +198,7 @@ final class NodeBreakerValidation {
         return buses.stream()
                 .filter(busSubstations::containsKey)
                 .flatMap(bus -> busSubstations.get(bus).stream())
-                .map(psseSubstation -> psseSubstation.getRecord().getIs())
+                .map(PsseSubstation::getIs)
                 .collect(Collectors.toSet());
     }
 

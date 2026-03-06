@@ -7,6 +7,8 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcBus;
 import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcConverter;
 import com.powsybl.psse.model.pf.internal.PsseMultiTerminalDcLink;
@@ -20,6 +22,8 @@ import java.util.List;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
+@JsonIgnoreProperties({"main"})
+@JsonPropertyOrder({"name", "nconv", "ndcbs", "ndcln", "mdc", "vconv", "vcmod", "vconvn"})
 public class PsseMultiTerminalDcTransmissionLine {
 
     public PsseMultiTerminalDcTransmissionLine(PsseMultiTerminalDcMain main) {
@@ -42,6 +46,38 @@ public class PsseMultiTerminalDcTransmissionLine {
     private final List<PsseMultiTerminalDcConverter> dcConverters;
     private final List<PsseMultiTerminalDcBus> dcBuses;
     private final List<PsseMultiTerminalDcLink> dcLinks;
+
+    public String getName() {
+        return main.getName();
+    }
+
+    public int getNconv() {
+        return main.getNconv();
+    }
+
+    public int getNdcbs() {
+        return main.getNdcbs();
+    }
+
+    public int getNdcln() {
+        return main.getNdcln();
+    }
+
+    public int getMdc() {
+        return main.getMdc();
+    }
+
+    public int getVconv() {
+        return main.getVconv();
+    }
+
+    public double getVcmod() {
+        return main.getVcmod();
+    }
+
+    public int getVconvn() {
+        return main.getVconvn();
+    }
 
     public PsseMultiTerminalDcMain getMain() {
         return main;

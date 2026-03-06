@@ -97,9 +97,9 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             int indexBus = 0;
             int indexLink = 0;
             for (PsseMultiTerminalDcTransmissionLine multiTerminal : multiTerminalList) {
-                indexConverter = addNextN(multiTerminal.getDcConverters(), converterList, multiTerminal.getMain().getNconv(), indexConverter);
-                indexBus = addNextN(multiTerminal.getDcBuses(), busList, multiTerminal.getMain().getNdcbs(), indexBus);
-                indexLink = addNextN(multiTerminal.getDcLinks(), linkList, multiTerminal.getMain().getNdcln(), indexLink);
+                indexConverter = addNextN(multiTerminal.getDcConverters(), converterList, multiTerminal.getNconv(), indexConverter);
+                indexBus = addNextN(multiTerminal.getDcBuses(), busList, multiTerminal.getNdcbs(), indexBus);
+                indexLink = addNextN(multiTerminal.getDcLinks(), linkList, multiTerminal.getNdcln(), indexLink);
             }
 
             return multiTerminalList;
@@ -160,9 +160,9 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
                 List<String> strings = new ArrayList<>();
 
                 indexMain = addNextNstrings(mainStrings, strings, 1, indexMain);
-                indexConverter = addNextNstrings(converterStrings, strings, multiTerminal.getMain().getNconv(), indexConverter);
-                indexBus = addNextNstrings(busStrings, strings, multiTerminal.getMain().getNdcbs(), indexBus);
-                indexLink = addNextNstrings(linkStrings, strings, multiTerminal.getMain().getNdcln(), indexLink);
+                indexConverter = addNextNstrings(converterStrings, strings, multiTerminal.getNconv(), indexConverter);
+                indexBus = addNextNstrings(busStrings, strings, multiTerminal.getNdcbs(), indexBus);
+                indexLink = addNextNstrings(linkStrings, strings, multiTerminal.getNdcln(), indexLink);
                 write(strings, outputStream);
             }
             writeEnd(outputStream);
@@ -246,19 +246,19 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             List<PsseMultiTerminalDcConverterx> converterxList = new ArrayList<>();
             multiTerminalList.forEach(multiTerminalDcTransmissionLine ->
                 multiTerminalDcTransmissionLine.getDcConverters().forEach(converter -> converterxList.add(
-                    new PsseMultiTerminalDcConverterx(multiTerminalDcTransmissionLine.getMain().getName(), converter))));
+                    new PsseMultiTerminalDcConverterx(multiTerminalDcTransmissionLine.getName(), converter))));
             new MultiTerminalDcConverterxData().write(converterxList, context, null);
 
             List<PsseMultiTerminalDcBusx> busxList = new ArrayList<>();
             multiTerminalList.forEach(multiTerminalDcTransmissionLine ->
                 multiTerminalDcTransmissionLine.getDcBuses().forEach(bus -> busxList.add(
-                    new PsseMultiTerminalDcBusx(multiTerminalDcTransmissionLine.getMain().getName(), bus))));
+                    new PsseMultiTerminalDcBusx(multiTerminalDcTransmissionLine.getName(), bus))));
             new MultiTerminalDcBusxData().write(busxList, context, null);
 
             List<PsseMultiTerminalDcLinkx> linkxList = new ArrayList<>();
             multiTerminalList.forEach(multiTerminalDcTransmissionLine ->
                 multiTerminalDcTransmissionLine.getDcLinks().forEach(link -> linkxList.add(
-                    new PsseMultiTerminalDcLinkx(multiTerminalDcTransmissionLine.getMain().getName(), link))));
+                    new PsseMultiTerminalDcLinkx(multiTerminalDcTransmissionLine.getName(), link))));
             new MultiTerminalDcLinkxData().write(linkxList, context, null);
         }
 

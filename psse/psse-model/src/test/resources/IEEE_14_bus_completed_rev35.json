@@ -1892,16 +1892,14 @@
     } ]
   } ],
   "multiTerminalDcTransmissionLines" : [ {
-    "main" : {
-      "name" : "MULTERM_DC_1",
-      "nconv" : 4,
-      "ndcbs" : 5,
-      "ndcln" : 4,
-      "mdc" : 1,
-      "vconv" : 212,
-      "vcmod" : 400.0,
-      "vconvn" : 0
-    },
+    "name" : "MULTERM_DC_1",
+    "nconv" : 4,
+    "ndcbs" : 5,
+    "ndcln" : 4,
+    "mdc" : 1,
+    "vconv" : 212,
+    "vcmod" : 400.0,
+    "vconvn" : 0,
     "dcConverters" : [ {
       "ib" : 20,
       "n" : 4,
