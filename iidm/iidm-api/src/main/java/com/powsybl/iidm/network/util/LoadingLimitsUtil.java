@@ -136,7 +136,7 @@ public final class LoadingLimitsUtil {
         }
     }
 
-    private static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
+    public static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
                                               Function<String, OperationalLimitsGroup> createGroup) {
         from.forEach(groupToCopy -> {
             OperationalLimitsGroup copy = createGroup.apply(groupToCopy.getId());
