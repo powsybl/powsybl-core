@@ -52,7 +52,7 @@ public abstract class AbstractPowerFlowRawDataVersioned extends PowerFlowRawData
         if (context.getVersion().major() != getVersion()) {
             throw new PsseException("Unexpected version " + context.getVersion().getMajorNumber());
         }
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false));) {
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false))) {
             write(model, context, outputStream);
         }
     }
