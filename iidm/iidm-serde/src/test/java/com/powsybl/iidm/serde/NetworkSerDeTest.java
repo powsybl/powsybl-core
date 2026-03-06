@@ -35,6 +35,7 @@ import java.time.ZonedDateTime;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -388,4 +389,79 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertEquals(2, merged.getSubnetworks().size());
         assertEquals(2, readNetwork.getSubnetworks().size());
     }
+
+    @Test
+    void testValidateByVersionWhenMatchingOldNetwork() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_2/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_2));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMatchingRecentNetwork() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMismatchedNetworkVersion() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_15))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.15, found namespace http://www.powsybl.org/schema/iidm/1_16");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInvalidNetwork() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Invalid content was found starting with element '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainSlackTerminalExtension() throws IOException {
+        // Given extension: slack_terminal, version 1.5 that require iidm version 1.8 when validate should succeed
+        try (InputStream is = getClass().getResourceAsStream("/slackTerminal.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInValidExtension() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/branchStatusWrongEnum.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
+                            "'[IN_OPERATION, PLANNED_OUTAGE, FORCED_OUTAGE]'. It must be a value from the enumeration.");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMissingNamespace() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/network-without-namespace.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Missing root namespace");
+        }
+    }
+
 }
