@@ -14,6 +14,7 @@ import com.powsybl.commons.io.TreeDataReader;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,6 +25,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -178,6 +180,21 @@ public final class XmlUtil {
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, Writer writer) throws XMLStreamException {
         XMLStreamWriter xmlWriter = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(writer);
         return initializeWriter(indent, indentString, xmlWriter);
+    }
+
+    public static SchemaFactory newSchemaFactory() {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        } catch (SAXException e) {
+            LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", XMLConstants.ACCESS_EXTERNAL_SCHEMA);
+        }
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        } catch (SAXException e) {
+            LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", XMLConstants.ACCESS_EXTERNAL_DTD);
+        }
+        return factory;
     }
 
     private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter) throws XMLStreamException {
