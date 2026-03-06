@@ -20,7 +20,7 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     List<? extends Terminal> getTerminals();
 
     /**
-     * Remove the connectable from the voltage level (dangling switches are kept).
+     * Remove the connectable from the voltage level (boundary switches are kept).
      */
     void remove();
 

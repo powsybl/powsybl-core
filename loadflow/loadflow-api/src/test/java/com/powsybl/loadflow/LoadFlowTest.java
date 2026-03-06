@@ -23,9 +23,7 @@ import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -169,4 +167,30 @@ class LoadFlowTest {
         assertTrue(result.get().getLogs().indexOf("countriesToBalance=[IT]") > 0);
     }
 
+    @Test
+    void testCheckParameters() {
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testLoadflow")
+                .build();
+        LoadFlowRunParameters runParameters = new LoadFlowRunParameters();
+        runParameters.setReportNode(reportRoot);
+        runParameters.getLoadFlowParameters().setUseReactiveLimits(false);
+        assertFalse(LoadFlow.checkParameters(runParameters));
+        assertEquals(1, reportRoot.getChildren().size());
+        assertEquals("Loadflow parameters UseReactiveLimits value False not supported",
+                reportRoot.getChildren().getFirst().getMessage());
+    }
+
+    @Test
+    void testCheckDefaultParameters() {
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testLoadflow")
+                .build();
+        assertFalse(LoadFlow.checkDefaultParameters(reportRoot));
+        assertEquals(1, reportRoot.getChildren().size());
+        assertEquals("Loadflow parameters BalanceType value PROPORTIONAL_TO_GENERATION_P_MAX not supported",
+                reportRoot.getChildren().getFirst().getMessage());
+    }
 }
