@@ -19,8 +19,6 @@ import de.siegmar.fastcsv.writer.CsvWriter;
 import de.siegmar.fastcsv.writer.LineDelimiter;
 import de.siegmar.fastcsv.writer.QuoteStrategy;
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,7 +43,6 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  */
 public abstract class AbstractRecordGroup<T> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRecordGroup.class);
     protected final RecordGroupIdentification identification;
     private final String[] fieldNames;
     private final Map<PsseVersion.Major, String[]> fieldNamesByVersionMajor = new EnumMap<>(PsseVersion.Major.class);
@@ -339,7 +336,6 @@ public abstract class AbstractRecordGroup<T> {
             sb.append(rec);
             if (numFields < expectedNumFields) {
                 sb.append(String.valueOf(context.getDelimiter()).repeat(Math.max(0, expectedNumFields - numFields)));
-                //LOGGER.info("Added {} empty fields to record {}", expectedNumFields - numFields, rec);
             }
             sb.append(System.lineSeparator());
         }
