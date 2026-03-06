@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -62,10 +61,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
+import static com.powsybl.commons.xml.XmlUtil.newSchemaFactory;
 import static com.powsybl.iidm.serde.AbstractTreeDataImporter.SUFFIX_MAPPING;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.IIDM_PREFIX;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.INDENT;
@@ -96,6 +97,11 @@ public final class NetworkSerDe {
 
     private static final int MAX_NAMESPACE_PREFIX_NUM = 100;
     private static final String XSD_RESOURCE_DIR = "/xsd/";
+    private static final Set<String> ALLOWED_IIDM_XSDS = Stream.of(IidmVersion.values())
+            .flatMap(v -> v.supportEquipmentValidationLevel()
+                    ? Stream.of(v.getXsd(), v.getXsd(false))
+                    : Stream.of(v.getXsd()))
+            .collect(Collectors.toUnmodifiableSet());
 
     private NetworkSerDe() {
     }
@@ -139,10 +145,8 @@ public final class NetworkSerDe {
         for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
         }
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaFactory factory = newSchemaFactory();
         try {
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             int length = IidmVersion.values().length + (int) Arrays.stream(IidmVersion.values())
                     .filter(IidmVersion::supportEquipmentValidationLevel).count();
             Source[] sources = new Source[additionalSchemas.size() + length];
@@ -210,10 +214,8 @@ public final class NetworkSerDe {
         Objects.requireNonNull(extensionsSupplier);
         Objects.requireNonNull(version);
 
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaFactory factory = newSchemaFactory();
         try {
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             List<Source> sources = new ArrayList<>();
             // iidm: source
             sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd())));
@@ -246,20 +248,23 @@ public final class NetworkSerDe {
      */
     private static List<Source> getExtensionSources(ExtensionsSupplier extensionsSupplier, IidmVersion version) throws IOException {
         List<Source> sources = new ArrayList<>();
-        for (ExtensionSerDe<?, ?> extension : getSupportedExtensionsByIIdmVersion(extensionsSupplier, version)) {
-            byte[] extensionXsd = extension.getXsdAsStream().readAllBytes();
+        for (ExtensionSerDe<?, ?> extension : getSupportedExtensionSerDeByIIdmVersion(extensionsSupplier, version)) {
+            InputStream in = extension.getXsdAsStream();
+            byte[] extensionXsd = in.readAllBytes();
+            //required iidm xsd in extension's xsd: source
             extractSchemaLocations(extensionXsd)
                     .forEach(schemaLocation -> sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + schemaLocation))));
+            // extension xsd: source
             sources.add(new StreamSource(new ByteArrayInputStream(extensionXsd)));
         }
         return sources;
     }
 
-    private static List<ExtensionSerDe<?, ?>> getSupportedExtensionsByIIdmVersion(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
+    private static List<ExtensionSerDe<?, ?>> getSupportedExtensionSerDeByIIdmVersion(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
         List<ExtensionSerDe<?, ?>> extensions = new ArrayList<>();
         for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
-            if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> ab) {
-                if (ab.versionExists(version)) {
+            if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> versionable) {
+                if (versionable.versionExists(version)) {
                     extensions.add(extensionSerDe);
                 }
             } else {
@@ -296,25 +301,32 @@ public final class NetworkSerDe {
      */
     private static List<String> extractSchemaLocations(byte[] xsdBytes) {
         List<String> locations = new ArrayList<>();
-        XMLInputFactory xif = getXMLInputFactory();
+        XMLStreamReader reader = null;
         try {
-            XMLStreamReader reader = xif.createXMLStreamReader(new ByteArrayInputStream(xsdBytes));
+            reader = getXMLInputFactory().createXMLStreamReader(new ByteArrayInputStream(xsdBytes));
             while (reader.hasNext()) {
                 int event = reader.next();
                 if (event == XMLStreamConstants.START_ELEMENT
                         && XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(reader.getNamespaceURI())
                         && ("import".equals(reader.getLocalName()))) {
                     String schemaLocation = reader.getAttributeValue(null, "schemaLocation");
-                    if (schemaLocation != null && !schemaLocation.isBlank() && isValidXsdFile(schemaLocation)) {
+                    if (schemaLocation != null && !schemaLocation.isBlank() && ALLOWED_IIDM_XSDS.contains(schemaLocation)) {
                         locations.add(schemaLocation);
                     }
                 }
             }
-            reader.close();
+            return locations;
         } catch (XMLStreamException e) {
             throw new PowsyblException("Failed to parse XSD schema", e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (XMLStreamException e) {
+                    LOGGER.error(e.toString(), e);
+                }
+            }
         }
-        return locations;
     }
 
     /**
@@ -324,33 +336,33 @@ public final class NetworkSerDe {
      * @return Namespace URI
      */
     private static String readRootNamespace(byte[] xmlBytes) {
-        XMLInputFactory xif = getXMLInputFactory();
+        XMLStreamReader reader = null;
         try {
-            XMLStreamReader reader = xif.createXMLStreamReader(new ByteArrayInputStream(xmlBytes));
+            reader = getXMLInputFactory().createXMLStreamReader(new ByteArrayInputStream(xmlBytes));
             while (reader.hasNext()) {
                 if (reader.next() == XMLStreamConstants.START_ELEMENT) {
                     if (!NETWORK_ROOT_ELEMENT_NAME.equals(reader.getLocalName())) {
                         throw new PowsyblException("Unexpected root element: " + reader.getLocalName());
                     }
                     String ns = reader.getNamespaceURI();
-                    reader.close();
+                    if (ns == null || ns.isBlank()) {
+                        throw new PowsyblException("Missing root namespace");
+                    }
                     return ns;
                 }
             }
-            reader.close();
-            throw new PowsyblException("No root element found");
+            throw new PowsyblException("Missing root namespace");
         } catch (XMLStreamException e) {
             throw new PowsyblException("Failed to read namespace from XML", e);
-        }
-    }
-
-    private static boolean isValidXsdFile(String shemaLocation) {
-        for (IidmVersion version :IidmVersion.values()) {
-            if (shemaLocation.equals("iidm_V" + version.toString("_") + ".xsd")) {
-                return true;
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (XMLStreamException e) {
+                    LOGGER.error(e.toString(), e);
+                }
             }
         }
-        return false;
     }
 
     private static void throwExceptionIfOption(AbstractOptions<?> options, String message) {
