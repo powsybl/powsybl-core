@@ -44,7 +44,6 @@ public final class LimitViolationUtils {
             .orElse(null);
     }
 
-     //TODO should this be deprecated for checkAllTemporaryLimits(branch, side, limitsComputer, i, type).iterator().next() for migration ?
     public static Overload checkTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
@@ -54,7 +53,6 @@ public final class LimitViolationUtils {
                 .orElse(null);
     }
 
-    //TODO should this be deprecated for checkAllTemporaryLimits(branch, side, limitsComputer, i, type).iterator().next() for migration ?
     public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(transformer);
         Objects.requireNonNull(side);
@@ -95,7 +93,6 @@ public final class LimitViolationUtils {
     private static Collection<Overload> checkAllTemporaryLimitsIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         Objects.requireNonNull(identifiable);
         Objects.requireNonNull(side);
-        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
         return limitsComputer.computeLimits(identifiable, type, side, false)
             .stream()
             .map(limits -> getOverload(limits, i))
@@ -136,7 +133,6 @@ public final class LimitViolationUtils {
     private static Collection<Overload> checkAllTemporaryLimitsIdentifiable(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, double i, LimitType type) {
         Objects.requireNonNull(identifiable);
         Objects.requireNonNull(side);
-        //TODO the return of this function is strange due to getOverload, need to change so it's consistent in all cases
         return getAllLimits(identifiable, side, type, LimitsComputer.NO_MODIFICATIONS)
             .stream()
             .map(limits -> getOverload(limits, i, limitReductionValue))
