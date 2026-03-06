@@ -72,7 +72,13 @@ class ExporterTest extends AbstractSerDeTest {
                 .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+                PostContingencyComputationStatus.CONVERGED,
+                new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
+                new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+                new ConnectivityResult(0, 0, 0., 0., Collections.emptySet()),
+                2.34
+        );
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
@@ -82,9 +88,12 @@ class ExporterTest extends AbstractSerDeTest {
         var opStrategyResult1 = new OperatorStrategyResult(
             new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
                 List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
-            PostContingencyComputationStatus.CONVERGED,
-            new LimitViolationsResult(Collections.emptyList()),
-            new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+            List.of(new OperatorStrategyResult.ConditionalActionsResult("strategyId", PostContingencyComputationStatus.CONVERGED,
+                    new LimitViolationsResult(Collections.emptyList()),
+                    new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+                    3.45)
+            )
+        );
 
         var opStrategyResult2 = new OperatorStrategyResult(
             new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
@@ -99,9 +108,9 @@ class ExporterTest extends AbstractSerDeTest {
 
         operatorStrategyResults.add(opStrategyResult1);
         operatorStrategyResults.add(opStrategyResult2);
-        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(postContingencyResult),
-                preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
+        SecurityAnalysisResult result = new SecurityAnalysisResult(
+                new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23),
+                Collections.singletonList(postContingencyResult), operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
     }
@@ -150,7 +159,8 @@ class ExporterTest extends AbstractSerDeTest {
         return Stream.of(
             Arguments.of("/SecurityAnalysisResultV1.5.json"),
             Arguments.of("/SecurityAnalysisResultV1.6.json"),
-            Arguments.of("/SecurityAnalysisResultV1.7.json")
+            Arguments.of("/SecurityAnalysisResultV1.7.json"),
+            Arguments.of("/SecurityAnalysisResultV1.8.json")
         );
     }
 

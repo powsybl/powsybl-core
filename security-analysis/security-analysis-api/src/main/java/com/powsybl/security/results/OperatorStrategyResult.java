@@ -23,21 +23,26 @@ import java.util.*;
  */
 public class OperatorStrategyResult {
 
-    public static class ConditionalActionsResult {
+    public static class ConditionalActionsResult extends AbstractContingencyResult {
 
         private final String conditionalActionsId;
         private final PostContingencyComputationStatus status;
 
-        private final LimitViolationsResult limitViolationsResult;
-
-        private final NetworkResult networkResult;
-
-        public ConditionalActionsResult(String conditionalActionsId, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
+        public ConditionalActionsResult(String conditionalActionsId,
+                                        PostContingencyComputationStatus status,
+                                        LimitViolationsResult limitViolationsResult,
                                         NetworkResult networkResult) {
+            this(conditionalActionsId, status, limitViolationsResult, networkResult, 0.);
+        }
+
+        public ConditionalActionsResult(String conditionalActionsId,
+                                        PostContingencyComputationStatus status,
+                                        LimitViolationsResult limitViolationsResult,
+                                        NetworkResult networkResult,
+                                        double distributedActivePower) {
+            super(limitViolationsResult, networkResult, distributedActivePower);
             this.conditionalActionsId = conditionalActionsId;
             this.status = Objects.requireNonNull(status);
-            this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
-            this.networkResult = Objects.requireNonNull(networkResult);
         }
 
         public String getConditionalActionsId() {
@@ -46,14 +51,6 @@ public class OperatorStrategyResult {
 
         public PostContingencyComputationStatus getStatus() {
             return status;
-        }
-
-        public LimitViolationsResult getLimitViolationsResult() {
-            return limitViolationsResult;
-        }
-
-        public NetworkResult getNetworkResult() {
-            return networkResult;
         }
     }
 
@@ -115,7 +112,7 @@ public class OperatorStrategyResult {
      */
     public ConditionalActionsResult getFinalOperatorStrategyResult() {
         if (!conditionalActionsResults.isEmpty()) {
-            return conditionalActionsResults.get(conditionalActionsResults.size() - 1);
+            return conditionalActionsResults.getLast();
         } else {
             throw new PowsyblException("No conditional action results available.");
         }

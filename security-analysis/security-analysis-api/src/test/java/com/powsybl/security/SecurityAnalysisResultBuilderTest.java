@@ -89,6 +89,7 @@ class SecurityAnalysisResultBuilderTest {
 
         builder.preContingency()
                 .addViolations(Security.checkLimits(network))
+                .setDistributedActivePower(1.23)
                 .endPreContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
@@ -101,6 +102,7 @@ class SecurityAnalysisResultBuilderTest {
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
                 .setConnectivityResult(new ConnectivityResult(1, 2, 10.0, 20.0, Set.of("branchId")))
+                .setDistributedActivePower(2.34)
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
@@ -113,6 +115,7 @@ class SecurityAnalysisResultBuilderTest {
         SecurityAnalysisResult res = builder.build();
 
         assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, res.getPreContingencyResult().getStatus());
+        assertEquals(1.23, res.getPreContingencyResult().getDistributedActivePower());
         assertEquals(4, res.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(2, res.getPostContingencyResults().size());
 
@@ -127,6 +130,7 @@ class SecurityAnalysisResultBuilderTest {
         assertEquals(10.0, res1.getConnectivityResult().getDisconnectedLoadActivePower(), 1e-3);
         assertEquals(20.0, res1.getConnectivityResult().getDisconnectedGenerationActivePower(), 1e-3);
         assertEquals(Set.of("branchId"), res1.getConnectivityResult().getDisconnectedElements());
+        assertEquals(2.34, res1.getDistributedActivePower());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();
@@ -244,6 +248,7 @@ class SecurityAnalysisResultBuilderTest {
                 .addViolation(violation)
                 .addBusResult(busResult)
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
+                .setDistributedActivePower(3.45)
                 .endConditionalActions()
                 .endOperatorStrategy();
 
@@ -257,6 +262,7 @@ class SecurityAnalysisResultBuilderTest {
 
         LimitViolationsResult violationsResult = strategyResult.getLimitViolationsResult();
         assertSame(PostContingencyComputationStatus.CONVERGED, strategyResult.getStatus());
+        assertEquals(3.45, strategyResult.getFinalOperatorStrategyResult().getDistributedActivePower());
         assertEquals(1, violationsResult.getLimitViolations().size());
         assertSame(violation, violationsResult.getLimitViolations().get(0));
         NetworkResult networkResult = strategyResult.getNetworkResult();

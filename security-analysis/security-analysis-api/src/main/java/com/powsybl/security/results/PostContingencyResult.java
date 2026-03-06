@@ -36,7 +36,16 @@ public class PostContingencyResult extends AbstractContingencyResult {
     }
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, ConnectivityResult connectivityResult) {
-        super(limitViolationsResult, networkResult);
+        this(contingency, status, limitViolationsResult, networkResult, connectivityResult, 0.);
+    }
+
+    public PostContingencyResult(Contingency contingency,
+                                 PostContingencyComputationStatus status,
+                                 LimitViolationsResult limitViolationsResult,
+                                 NetworkResult networkResult,
+                                 ConnectivityResult connectivityResult,
+                                 double distributedActivePower) {
+        super(limitViolationsResult, networkResult, distributedActivePower);
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);
         this.connectivityResult = Objects.requireNonNull(connectivityResult);
