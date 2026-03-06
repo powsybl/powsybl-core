@@ -372,6 +372,16 @@ PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `Co
 
 <span style="color: red">TODO details</span>
 
+(cgmes-fictitious-injections-export)=
+### Fictitious injections (fictitiousP0/fictitiousQ0)
+
+The fictitious injections on buses (bus-branch topology) or on nodes (node-breaker topology) are created using:
+- Bus topology: `Bus.setFictitiousP0(double)` and `Bus.setFictitiousQ0(double)`
+- Node-breaker: `VoltageLevel.getNodeBreakerView().setFictitiousP0(int node, double)` and `setFictitiousQ0(int node, double)`
+
+These fictitious injections are exported in CGMES as a `NonConformLoad` or an `EnergySource` depending on `fictitiousP0`, with values written to SSH and connectivity/topology bindings set according to the network topology and CIM version. A corresponding `SvPowerFlow` is written in SV for the terminal.
+In case of a node-breaker or CIM100 export, the terminal will refer to a `ConnectivityNode`.
+
 (cgmes-shunt-compensator-export)=
 ### Shunt compensator
 
