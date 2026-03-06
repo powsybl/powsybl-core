@@ -14,10 +14,11 @@ import java.util.Collection;
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends OperationalLimitsAdder<L, A> {
 
-    interface TemporaryLimitAdder<A> {
+    interface TemporaryLimitAdder<A> extends PropertiesHolder {
 
         TemporaryLimitAdder<A> setName(String name);
 
@@ -29,7 +30,10 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
 
         TemporaryLimitAdder<A> ensureNameUnicity();
 
+        TemporaryLimitAdder<A> addProperty(String property, String value);
+
         A endTemporaryLimit();
+
     }
 
     A setPermanentLimit(double limit);
