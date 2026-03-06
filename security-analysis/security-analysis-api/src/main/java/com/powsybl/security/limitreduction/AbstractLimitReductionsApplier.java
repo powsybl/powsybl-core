@@ -104,7 +104,8 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
         for (LimitReduction limitReduction : reductionsForThisContingency) {
             if (limitReduction.getLimitType() == limitType
                     && limitReduction.isMonitoringOnly() == monitoringOnly
-                    && isNetworkElementAffectedByLimitReduction(networkElement, side, limitReduction)) {
+                    && isNetworkElementAffectedByLimitReduction(networkElement, side, limitReduction)
+                    && isOperationalLimitsGroupAffectedByLimitReduction(limitsReducer.getLimitsGroupId(), limitReduction)) {
                 setLimitReductionsToLimitReducer(limitsReducer, limitReduction);
             }
         }
@@ -166,6 +167,12 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
                     .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
                     .map(AbstractTemporaryDurationCriterion.class::cast)
                     .anyMatch(c -> c.filter(temporaryLimitAcceptableDuration));
+    }
+
+    protected static boolean isOperationalLimitsGroupAffectedByLimitReduction(String operationalLimitsGroupId, LimitReduction limitReduction) {
+        return limitReduction.getOperationalLimitsGroupIdsSelection().isEmpty()
+            || limitReduction.getOperationalLimitsGroupIdsSelection().stream()
+            .anyMatch(operationalLimitsGroupId::equals);
     }
 
     /**

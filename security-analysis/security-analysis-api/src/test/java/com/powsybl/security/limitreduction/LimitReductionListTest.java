@@ -35,6 +35,8 @@ class LimitReductionListTest {
     private static NetworkElementCriterion networkElementCriterion4;
     private static NetworkElementCriterion networkElementCriterion5;
     private static ContingencyContext contingencyContext1;
+    private static String operationalLimitsGroupId1;
+    private static String operationalLimitsGroupId2;
 
     @BeforeAll
     static void init() {
@@ -49,11 +51,16 @@ class LimitReductionListTest {
                 null));
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
+
+        operationalLimitsGroupId1 = "default";
+        operationalLimitsGroupId2 = "activated";
+
         limitReduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
                 .withContingencyContext(contingencyContext1)
                 .withNetworkElementCriteria(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4, networkElementCriterion5)
                 .withLimitDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion())
+            .withOperationalLimitsGroupIdCriteria(operationalLimitsGroupId1, operationalLimitsGroupId2)
                 .build();
         limitReduction2 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8, true);
     }
@@ -102,6 +109,13 @@ class LimitReductionListTest {
         assertInstanceOf(PermanentDurationCriterion.class, limitReduction1.getDurationCriteria().get(0));
         assertInstanceOf(AllTemporaryDurationCriterion.class, limitReduction1.getDurationCriteria().get(1));
         assertTrue(limitReduction2.getDurationCriteria().isEmpty());
+    }
+
+    @Test
+    void operationalLimitsGroupIdSelection() {
+        assertEquals(List.of(operationalLimitsGroupId1, operationalLimitsGroupId2), limitReduction1.getOperationalLimitsGroupIdsSelection());
+        assertTrue(limitReduction2.getOperationalLimitsGroupIdsSelection().isEmpty());
+
     }
 
     @Test
