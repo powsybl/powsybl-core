@@ -111,22 +111,22 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 ZCorr33 parser33 = convertToTable(impedanceCorrection);
                 // write only the read points. Each table can have different number of points
                 String[] writeHeaders = ArrayUtils.subarray(headers, 0, 1 + 2 * impedanceCorrection.getPoints().size());
-                String record = recordData.buildRecord(parser33, writeHeaders, quotedFields, context);
-                write(record, outputStream);
+                String rec = recordData.buildRecord(parser33, writeHeaders, quotedFields, context);
+                write(rec, outputStream);
             });
             writeEnd(outputStream);
         }
 
         private static ZCorr33 convertToTable(PsseTransformerImpedanceCorrection impedanceCorrectionTable) {
 
-            ZCorr33 record = new ZCorr33();
-            record.setI(impedanceCorrectionTable.getI());
+            ZCorr33 rec = new ZCorr33();
+            rec.setI(impedanceCorrectionTable.getI());
 
             for (int i = 0; i < impedanceCorrectionTable.getPoints().size(); i++) {
-                record.setTF(i + 1, impedanceCorrectionTable.getPoints().get(i).getT(), impedanceCorrectionTable.getPoints().get(i).getF());
+                rec.setTF(i + 1, impedanceCorrectionTable.getPoints().get(i).getT(), impedanceCorrectionTable.getPoints().get(i).getF());
             }
 
-            return record;
+            return rec;
         }
 
         private static class ZCorr33Data extends AbstractRecordGroup<ZCorr33> {
@@ -224,8 +224,8 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 int indexPoints = 0;
                 ZCorr35First r1 = convertToRecord1(impedanceCorrection, indexPoints);
                 String[] writeHeaders = ArrayUtils.subarray(ZCorr35First.getFieldNames(), 0, 1 + 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                String record = record1Data.buildRecord(r1, writeHeaders, ZCorr35First.getFieldNamesString(), context);
-                write(record, outputStream);
+                String rec = record1Data.buildRecord(r1, writeHeaders, ZCorr35First.getFieldNamesString(), context);
+                write(rec, outputStream);
 
                 indexPoints = indexPoints + 6;
                 // A (0.0, 0.0, 0.0) point must be added at the end so <=
