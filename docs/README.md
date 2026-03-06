@@ -2,7 +2,7 @@
 
 These are the documentation sources for PowSyBl core features.
 
-Please keep them up to date with your developments.  
+Please keep them up to date with your developments.
 They are published on powsybl.readthedocs.io/ and pull requests are built and previewed automatically.
 
 ## Build the documentation

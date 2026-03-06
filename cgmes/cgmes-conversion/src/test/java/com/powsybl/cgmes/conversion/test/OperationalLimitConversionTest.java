@@ -116,16 +116,16 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     void limitSetsAssociatedToTerminalsTest() {
         // CGMES network:
         //   OperationalLimitSet with CurrentLimit associated to the Terminal of:
-        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
+        //   a BoundaryLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
         // IIDM network:
         //   Limits associated to terminals of lines or transformers are imported,
         //   limits associated to terminals of switch are discarded.
         Network network = readCgmesResources(DIR, "limitsets_associated_to_terminals_EQ.xml",
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
-        // OperationalLimitSet on dangling line terminal is imported smoothly.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        // OperationalLimitSet on boundary line terminal is imported smoothly.
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment terminals are imported smoothly.
         assertNotNull(network.getLine("ACL"));
@@ -147,18 +147,18 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void limitSetsAssociatedToEquipmentsTest() {
+    void limitSetsAssociatedToEquipmentsTest() throws IOException {
         // CGMES network:
         //   OperationalLimitSet with CurrentLimit associated to:
-        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
+        //   a BoundaryLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
         // IIDM network:
         //   Limits associated to lines are imported, limits associated to transformers or switches are discarded.
         Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
-        // OperationalLimitSet on dangling line is imported on its single extremity.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        // OperationalLimitSet on boundary line is imported on its single extremity.
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment is imported on its two extremities.
         assertNotNull(network.getLine("ACL"));
@@ -177,6 +177,19 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
 
         // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
         assertNotNull(network.getSwitch("SW"));
+
+        // Verify that 3 OperationalLimitSet are exported back to CGMES:
+        // 1 for the boundary line, 1 per extremity of the ACLineSegment.
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals(3, getElementCount(eqFile, "OperationalLimitSet"));
+        assertOperationalLimitSetTerminal(eqFile, "OLS_ACL", "T_ACL_1");
+        assertOperationalLimitSetTerminal(eqFile, "T_ACL_2_OLS_ACL-1_OLS", "T_ACL_2");
+        assertOperationalLimitSetTerminal(eqFile, "OLS_DL", "T_DL_2");
+    }
+
+    private void assertOperationalLimitSetTerminal(String eqFile, String limitSetId, String terminalId) {
+        String olsAcl = getElement(eqFile, "OperationalLimitSet", limitSetId);
+        assertEquals(terminalId, getResource(olsAcl, "OperationalLimitSet.Terminal"));
     }
 
     @Test

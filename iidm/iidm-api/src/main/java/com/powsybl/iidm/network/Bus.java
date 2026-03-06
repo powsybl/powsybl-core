@@ -192,27 +192,27 @@ public interface Bus extends Identifiable<Bus> {
     Stream<ShuntCompensator> getShuntCompensatorStream();
 
     /**
-     * Get dangling lines connected to the bus based on given filter.
+     * Get boundary lines connected to the bus based on given filter.
      */
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all dangling lines connected to the bus.
+     * Get all boundary lines connected to the bus.
      */
-    default Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLines(DanglingLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get dangling lines connected to the bus based on given filter.
+     * Get boundary lines connected to the bus based on given filter.
      */
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
      /**
-     * Get all dangling lines connected to the bus.
+     * Get all boundary lines connected to the bus.
      */
-    default Stream<DanglingLine> getDanglingLineStream() {
-        return getDanglingLineStream(DanglingLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
