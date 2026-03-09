@@ -22,11 +22,11 @@ import java.util.stream.Stream;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  *
- * Importer for DGS file format for the simplified HVDC lines (i.e.
+ * Importer for DGS file format for the reduced HVDC line models (i.e.
  * without details of the DC grid).
  */
 
-class SimplifiedHvdcConverter extends AbstractHvdcConverter {
+class ReducedHvdcConverter extends AbstractHvdcConverter {
 
     private final List<Configuration> configurations = new ArrayList<>();
 
@@ -35,7 +35,7 @@ class SimplifiedHvdcConverter extends AbstractHvdcConverter {
     private final Set<DataObject> dcElmTerms = new HashSet<>();
     private final Set<DataObject> usedVscs = new HashSet<>();
 
-    SimplifiedHvdcConverter(ImportContext importContext, Network network) {
+    ReducedHvdcConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
 

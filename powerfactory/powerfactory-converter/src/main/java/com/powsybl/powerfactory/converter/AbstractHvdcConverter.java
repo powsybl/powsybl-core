@@ -16,7 +16,7 @@ import com.powsybl.powerfactory.model.DataObject;
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  *
  *         Base importer from the DGS data model for DC subgrids.
- *         This enables derivation to differentiate simplified and detailed HVDC
+ *         This enables derivation to differentiate reduced and detailed HVDC
  *         subgrids.
  */
 abstract class AbstractHvdcConverter extends AbstractConverter {
