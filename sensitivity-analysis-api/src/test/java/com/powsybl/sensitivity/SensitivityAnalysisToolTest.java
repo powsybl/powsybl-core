@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.sensitivity.SensitivityFunctionType.*;
 import static com.powsybl.sensitivity.SensitivityVariableType.*;
@@ -121,9 +122,9 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         List<SensitivityValue> values;
         List<SensitivityAnalysisResult.SensitivityStateStatus> status;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
-            List<List<Object>> lists = objectMapper.readValue(reader, new TypeReference<>() { });
-            values = objectMapper.convertValue(lists.get(0), new TypeReference<>() { });
-            status = objectMapper.convertValue(lists.get(1), new TypeReference<>() { });
+            Map<String, List<Object>> map = objectMapper.readValue(reader, new TypeReference<>() { });
+            values = objectMapper.convertValue(map.get("sensitivityValues"), new TypeReference<>() { });
+            status = objectMapper.convertValue(map.get("stateStatus"), new TypeReference<>() { });
         }
         assertEquals(2, values.size());
         SensitivityValue value0 = values.get(0);

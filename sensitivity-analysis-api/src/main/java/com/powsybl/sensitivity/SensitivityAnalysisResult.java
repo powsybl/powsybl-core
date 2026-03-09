@@ -91,15 +91,19 @@ public class SensitivityAnalysisResult {
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
+            writeJson(jsonGenerator, stateStatus.state, stateStatus.status);
+        }
+
+        public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state, Status status) {
             try {
                 jsonGenerator.writeStartObject();
-                if (stateStatus.state.contingencyId() != null) {
-                    jsonGenerator.writeStringField("contingencyId", stateStatus.state.contingencyId());
+                if (state.contingencyId() != null) {
+                    jsonGenerator.writeStringField("contingencyId", state.contingencyId());
                 }
-                if (stateStatus.state.operatorStrategyId() != null) {
-                    jsonGenerator.writeStringField("operatorStrategyId", stateStatus.state.operatorStrategyId());
+                if (state.operatorStrategyId() != null) {
+                    jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
                 }
-                jsonGenerator.writeStringField("status", stateStatus.status.name());
+                jsonGenerator.writeStringField("status", status.name());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
