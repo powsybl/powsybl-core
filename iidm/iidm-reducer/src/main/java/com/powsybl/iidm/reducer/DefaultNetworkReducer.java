@@ -153,8 +153,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void reduce(Line line, VoltageLevel vl, Terminal terminal) {
-        if (options.isWithDanglingLines()) {
-            replaceLineByDanglingLine(line, vl, terminal);
+        if (options.isWithBoundaryLines()) {
+            replaceLineByBoundaryLine(line, vl, terminal);
         } else {
             replaceLineByLoad(line, vl, terminal);
         }
@@ -165,10 +165,10 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.lineReplaced(line, load));
     }
 
-    private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
+    private void replaceLineByBoundaryLine(Line line, VoltageLevel vl, Terminal terminal) {
         TwoSides side = line.getSide(terminal);
 
-        DanglingLineAdder dlAdder = vl.newDanglingLine()
+        BoundaryLineAdder dlAdder = vl.newBoundaryLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
@@ -183,7 +183,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         double q = terminal.getQ();
         line.remove();
 
-        DanglingLine dl = dlAdder.add();
+        BoundaryLine dl = dlAdder.add();
         dl.getTerminal()
                 .setP(p)
                 .setQ(q);

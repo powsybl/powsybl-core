@@ -1,0 +1,29 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.action.json;
+
+import com.powsybl.action.BoundaryLineAction;
+
+/**
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
+ */
+public class BoundaryLineActionSerializer extends AbstractLoadActionSerializer<BoundaryLineAction> {
+    public BoundaryLineActionSerializer() {
+        super(BoundaryLineAction.class);
+    }
+
+    @Override
+    protected String getElementIdAttributeName() {
+        return "boundaryLineId";
+    }
+
+    @Override
+    protected String getElementId(BoundaryLineAction action) {
+        return action.getBoundaryLineId();
+    }
+}
