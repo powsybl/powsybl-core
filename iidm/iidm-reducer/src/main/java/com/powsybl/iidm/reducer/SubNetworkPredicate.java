@@ -52,7 +52,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
 
     private static void findNextDepthVoltageLevels(VoltageLevel vl, Set<String> traversedVoltageLevelIds, Set<VoltageLevel> nextDepth) {
         vl.getLineStream().forEach(l -> visitBranch(l, traversedVoltageLevelIds, vl, nextDepth));
-        vl.getDanglingLineStream().forEach(dl -> dl.getTieLine().ifPresent(tl -> visitBranch(tl, traversedVoltageLevelIds, vl, nextDepth)));
+        vl.getBoundaryLineStream().forEach(dl -> dl.getTieLine().ifPresent(tl -> visitBranch(tl, traversedVoltageLevelIds, vl, nextDepth)));
         vl.getTwoWindingsTransformerStream().forEach(t -> visitBranch(t, traversedVoltageLevelIds, vl, nextDepth));
         vl.getThreeWindingsTransformerStream().forEach(t -> visitConnectable(t, traversedVoltageLevelIds, vl, nextDepth));
         vl.getLccConverterStationStream().forEach(t -> visitHvdc(t, traversedVoltageLevelIds, nextDepth));

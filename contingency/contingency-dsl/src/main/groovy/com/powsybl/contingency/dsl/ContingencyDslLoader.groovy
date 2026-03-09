@@ -74,8 +74,8 @@ class ContingencyDslLoader extends DslLoader {
                     builder.addShuntCompensator(equipment)
                 } else if (identifiable instanceof StaticVarCompensator) {
                     builder.addStaticVarCompensator(equipment)
-                } else if (identifiable instanceof DanglingLine) {
-                    builder.addDanglingLine(equipment)
+                } else if (identifiable instanceof BoundaryLine) {
+                    builder.addBoundaryLine(equipment)
                 } else if (identifiable instanceof ThreeWindingsTransformer) {
                     builder.addThreeWindingsTransformer(equipment)
                 } else if (identifiable instanceof TieLine) {
