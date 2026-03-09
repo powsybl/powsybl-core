@@ -15,7 +15,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
-import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -98,13 +97,15 @@ public abstract class AbstractNetworkTest {
         topology1.setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
         assertEquals(1.0, topology1.getFictitiousP0(0), 0.0);
         assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
-        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(voltageLevel1);
-        nodesByBus.forEach((busId, nodes) -> {
-            if (nodes.contains(0)) {
-                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
-                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousQ0(), 0.0);
-            }
-        });
+        assertEquals(1.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
+        assertEquals(2.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
+        topology1.getTerminal(0).getBusView().getBus().setFictitiousP0(3.0);
+        topology1.getTerminal(0).getBusView().getBus().setFictitiousQ0(4.0);
+        // here we only test that the bus has the correct total fictitious. We
+        // decided not to enforce how it is distributed on the different nodes
+        // of the bus to allow different behaviors.
+        assertEquals(3.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
+        assertEquals(4.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
 
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
@@ -450,9 +451,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformerStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(network.getBoundaryLineCount(), network.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntCompensatorStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV2).getShuntCompensatorStream()));
         assertEquals(network.getShuntCompensatorCount(), network.getShuntCompensatorStream().count());
@@ -823,7 +824,7 @@ public abstract class AbstractNetworkTest {
         Set<String> expected = Set.of(
                 id("tieLine1", ID_1),
                 id("tieLine1", ID_2),
-                TieLineUtil.buildMergedId(id("danglingLine3", ID_1), id("danglingLine3", ID_2))
+                TieLineUtil.buildMergedId(id("boundaryLine3", ID_1), id("boundaryLine3", ID_2))
         );
         assertIdentifiableStreamEqual(expected, IdentifiableType.TIE_LINE);
     }
@@ -883,16 +884,16 @@ public abstract class AbstractNetworkTest {
     }
 
     @Test
-    public void testIdentifiableStreamDanglingLine() {
+    public void testIdentifiableStreamBoundaryLine() {
         Set<String> expected = Set.of(
-                id("danglingLine1", ID_1),
-                id("danglingLine2", ID_1),
-                id("danglingLine3", ID_1),
-                id("danglingLine1", ID_2),
-                id("danglingLine2", ID_2),
-                id("danglingLine3", ID_2)
+                id("boundaryLine1", ID_1),
+                id("boundaryLine2", ID_1),
+                id("boundaryLine3", ID_1),
+                id("boundaryLine1", ID_2),
+                id("boundaryLine2", ID_2),
+                id("boundaryLine3", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.DANGLING_LINE);
+        assertIdentifiableStreamEqual(expected, IdentifiableType.BOUNDARY_LINE);
     }
 
     @Test

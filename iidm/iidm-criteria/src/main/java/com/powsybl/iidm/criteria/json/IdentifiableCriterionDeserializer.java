@@ -10,7 +10,6 @@ package com.powsybl.iidm.criteria.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.AtLeastOneCountryCriterion;
 import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
@@ -30,10 +29,8 @@ public class IdentifiableCriterionDeserializer extends AbstractNetworkElementCri
 
     @Override
     public IdentifiableCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext parsingContext = new ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                IdentifiableCriterion.TYPE, CriterionType.AT_LEAST_ONE_COUNTRY, CriterionType.AT_LEAST_ONE_NOMINAL_VOLTAGE));
-
+        ParsingContext parsingContext = fillParsingContext(parser, deserializationContext, IdentifiableCriterion.TYPE,
+                CriterionType.AT_LEAST_ONE_COUNTRY, CriterionType.AT_LEAST_ONE_NOMINAL_VOLTAGE);
         if (parsingContext.countryCriterion != null) {
             if (parsingContext.nominalVoltageCriterion != null) {
                 return new IdentifiableCriterion(parsingContext.name,
