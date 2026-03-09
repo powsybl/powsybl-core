@@ -179,9 +179,9 @@ public class PowerFactoryImporter implements Importer {
             hvdcConverter =
                 new DetailedHvdcConverter(importContext, network, elmNets);
         } else {
-            SimplifiedHvdcConverter simplifiedHvdcConverter = new SimplifiedHvdcConverter(importContext, network);
-            simplifiedHvdcConverter.computeConfigurations(gatherElmTerms(elmNets), gatherElmVscs(elmNets));
-            hvdcConverter = simplifiedHvdcConverter;
+            ReducedHvdcConverter reducedHvdcConverter = new ReducedHvdcConverter(importContext, network);
+            reducedHvdcConverter.computeConfigurations(gatherElmTerms(elmNets), gatherElmVscs(elmNets));
+            hvdcConverter = reducedHvdcConverter;
         }
 
         // process terminals
