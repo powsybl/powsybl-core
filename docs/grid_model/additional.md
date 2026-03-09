@@ -244,6 +244,18 @@ The spacing on the y axis (branch current) is not to scale.
 ![Current limits scheme_example4](img/dark_mode/current-limits-example4.svg){align=center class="only-light"}
 ![Current limits scheme_example4](img/dark_mode/current-limits-example4.svg){align=center class="only-dark"}
 
+:::{admonition} Permanent limit without any temporary limit
+:class: important
+In the case of a group containing only a permanent limit (without any temporary above), it is acceptable to stay above that permanent limit indefinitely.
+
+This is done by design. This kind of group is usually used to monitor a violation of limit, but we do not want the duration of this limit to
+trigger actions.
+
+This is especially relevant if we are searching for a duration to stay at a given intensity (or Power / Reactive Power) across all activated sets.
+Other sets will usually have a more critical duration, that will require actions. Since the most critical duration is the minimum across all activated sets,
+we use a very high value for the permanent alone so it is not the most critical limit.
+:::
+
 (phase-tap-changer)=
 ## Phase tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
