@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NodeBreakerFictitiousInjectionTest {
+class NodeBreakerFictitiousInjectionTest {
 
     @Test
     void testHasFictitiousP0AndFictitiousQ0() {
