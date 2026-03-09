@@ -33,6 +33,8 @@ import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TE
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCalculatedSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainCurve;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.DC_TERMINAL;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 import static com.powsybl.cgmes.model.CgmesNames.DC_TERMINAL1;
@@ -188,8 +190,8 @@ public final class SteadyStateHypothesisExport {
             double p = nb.getFictitiousP0(node);
             double q = nb.getFictitiousQ0(node);
             if (p != 0.0 || q != 0.0) {
-                String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, ref("NCL"), ref(node));
-                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL, ref(node));
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, ref("NCL"), ref(node));
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
                 writeFictitiousInjection(loadId, terminalId, p, q, cimNamespace, writer, context);
             }
         }
@@ -200,8 +202,8 @@ public final class SteadyStateHypothesisExport {
             double p = b.getFictitiousP0();
             double q = b.getFictitiousQ0();
             if (p != 0.0 || q != 0.0) {
-                String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, ref("NCL"));
-                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL);
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
                 writeFictitiousInjection(loadId, terminalId, p, q, cimNamespace, writer, context);
             }
         }

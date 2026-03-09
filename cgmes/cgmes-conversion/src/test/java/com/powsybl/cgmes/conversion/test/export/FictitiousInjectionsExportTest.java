@@ -43,39 +43,13 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
 
         // Set fictitious injection on node 0
         vl.getNodeBreakerView().setFictitiousP0(0, 1.1).setFictitiousQ0(0, 2.2);
-
         Properties params = new Properties();
-
-        String eqXml = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, params);
-        String sshXml = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, params);
-        String tpXml = ConversionUtil.writeCgmesProfile(network, "TP", tmpDir, params);
-        String svXml = ConversionUtil.writeCgmesProfile(network, "SV", tmpDir, params);
 
         String loadId = "VL_VL_FICT_NCL_0";
         String terminalId = "VL_VL_FICT_T_0";
 
-        // EQ: NonConformLoad exists and Terminal references ConnectivityNode
-        assertNotNull(getElement(eqXml, "NonConformLoad", loadId));
-        String terminalEq = getElement(eqXml, "Terminal", terminalId);
-        assertNotNull(terminalEq);
-        assertTrue(terminalEq.contains("<cim:Terminal.ConnectivityNode "));
-        assertEquals(loadId, getResource(terminalEq, "Terminal.ConductingEquipment"));
-
-        // TP: terminal of the fictitious load references a TopologicalNode
-        String tpTerminal = getElement(tpXml, "Terminal", terminalId);
-        assertTrue(tpTerminal.contains("<cim:Terminal.TopologicalNode"));
-
-        // SSH: values and terminal connected
-        String sshLoad = getElement(sshXml, "NonConformLoad", loadId);
-        assertNotNull(sshLoad);
-        assertEquals("1.1", getAttribute(sshLoad, "EnergyConsumer.p"));
-        assertEquals("2.2", getAttribute(sshLoad, "EnergyConsumer.q"));
-        String sshTerminal = getElement(sshXml, "Terminal", terminalId);
-        assertNotNull(sshTerminal);
-        assertEquals("true", getAttribute(sshTerminal, "ACDCTerminal.connected"));
-
-        // SV: SvPowerFlow is exported for the terminal of the fictitious load
-        assertTrue(svXml.contains(terminalId));
+        // In node/breaker, a connectivity node is exported for the load in EQ
+        validateCgmesExportOfFictitiousInjections(network, params, loadId, terminalId, true, 1.1, 2.2);
     }
 
     @Test
@@ -83,69 +57,100 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         Network network = createBbNetworkWithFictitiousOnBus();
         Properties params = new Properties();
 
-        String eqXml = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, params);
-        String tpXml = ConversionUtil.writeCgmesProfile(network, "TP", tmpDir, params);
-        String sshXml = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, params);
-        String svXml = ConversionUtil.writeCgmesProfile(network, "SV", tmpDir, params);
-
         String loadId = "BUS_TN_FICT_NCL";
         String terminalId = "BUS_TN_FICT_T";
 
-        // EQ: terminal must NOT have a ConnectivityNode
-        String terminalEq = getElement(eqXml, "Terminal", terminalId);
-        assertNotNull(terminalEq);
-        assertFalse(terminalEq.contains("<cim:Terminal.ConnectivityNode"));
-        assertEquals(loadId, getResource(terminalEq, "Terminal.ConductingEquipment"));
-
-        // TP: terminal of the fictitious load references a TopologicalNode
-        String terminalTp = getElement(tpXml, "Terminal", terminalId);
-        assertTrue(terminalTp.contains("<cim:Terminal.TopologicalNode"));
-
-        // SSH: values and terminal connected
-        String sshLoad = getElement(sshXml, "NonConformLoad", loadId);
-        assertNotNull(sshLoad);
-        assertEquals("3.3", getAttribute(sshLoad, "EnergyConsumer.p"));
-        assertEquals("4.4", getAttribute(sshLoad, "EnergyConsumer.q"));
-        String sshTerminal = getElement(sshXml, "Terminal", terminalId);
-        assertNotNull(sshTerminal);
-        assertEquals("true", getAttribute(sshTerminal, "ACDCTerminal.connected"));
-
-        // SV: SvPowerFlow is exported for the terminal of the fictitious load
-        assertTrue(svXml.contains(terminalId));
+        validateCgmesExportOfFictitiousInjections(network, params, loadId, terminalId, false, 3.3, 4.4);
     }
 
     @Test
     void busBranchExportCim100() throws IOException {
-        Network n = createBbNetworkWithFictitiousOnBus();
+        Network network = createBbNetworkWithFictitiousOnBus();
         Properties params = new Properties();
         params.put(CgmesExport.CIM_VERSION, "100");
 
-        String eqXml = ConversionUtil.writeCgmesProfile(n, "EQ", tmpDir, params);
-        String tpXml = ConversionUtil.writeCgmesProfile(n, "TP", tmpDir, params);
-        String sshXml = ConversionUtil.writeCgmesProfile(n, "SSH", tmpDir, params);
-
         String loadId = "BUS_TN_FICT_NCL";
-        String termId = "BUS_TN_FICT_T";
+        String terminalId = "BUS_TN_FICT_T";
 
-        // EQ: terminal must have a ConnectivityNode
-        String terminalEq = getElement(eqXml, "Terminal", termId);
+        validateCgmesExportOfFictitiousInjections(network, params, loadId, terminalId, true, 3.3, 4.4);
+    }
+
+    @Test
+    void busBranchExportFromNodeBreakerNetwork() throws IOException {
+        Network network = NetworkFactory.findDefault().createNetwork("TestNetworkNodeBreaker", "test");
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel()
+            .setId("VL")
+            .setNominalV(225.0)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+
+        vl.getNodeBreakerView().newBusbarSection().setId("BBS").setNode(0).add();
+        vl.getNodeBreakerView().newBusbarSection().setId("BBS2").setNode(1).add();
+        vl.getNodeBreakerView().newSwitch().setId("SW").setKind(SwitchKind.BREAKER).setNode1(0).setNode2(1).setRetained(false).setOpen(false).add();
+        vl.getNodeBreakerView().setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
+        vl.getNodeBreakerView().setFictitiousP0(1, 1.0).setFictitiousQ0(1, 2.0);
+
+        Properties params = new Properties();
+        params.put(CgmesExport.TOPOLOGY_KIND, "BUS_BRANCH");
+
+        String loadId = "VL_0_TN_FICT_NCL";
+        String terminalId = "VL_0_TN_FICT_T";
+        validateCgmesExportOfFictitiousInjections(network, params, loadId, terminalId, false, 2.0, 4.0);
+    }
+
+    private void validateCgmesExportOfFictitiousInjections(Network network, Properties params, String loadId, String terminalId, boolean connectivityNodeWritten, double expectedFictitiousP, double expectedFictitiousQ) throws IOException {
+        validateEqExport(network, params, loadId, terminalId, connectivityNodeWritten);
+        validateTpExport(network, params, terminalId);
+        validateSshExport(network, params, loadId, terminalId, expectedFictitiousP, expectedFictitiousQ);
+        valdiateSvExport(network, params, terminalId);
+    }
+
+    private void validateEqExport(Network network, Properties params, String loadId, String terminalId, boolean connectivityNodeWritten) throws IOException {
+        String eqXml = ConversionUtil.writeCgmesProfile(network, "EQ", tmpDir, params);
+
+        // In EQ, a non-conform load is exported with its terminal. If the network is a node breaker or the export is CIM100, a connectivity node is exported for the load
+        String terminalEq = getElement(eqXml, "Terminal", terminalId);
         assertNotNull(terminalEq);
-        assertTrue(terminalEq.contains("<cim:Terminal.ConnectivityNode"));
+        checkWrittenConnectivityNode(connectivityNodeWritten, terminalEq);
         assertEquals(loadId, getResource(terminalEq, "Terminal.ConductingEquipment"));
+    }
 
-        // TP: terminal of the fictitious load references a TopologicalNode
-        String terminalTp = getElement(tpXml, "Terminal", termId);
+    private static void checkWrittenConnectivityNode(boolean connectivityNodeWritten, String terminalEq) {
+        if (connectivityNodeWritten) {
+            assertTrue(terminalEq.contains("<cim:Terminal.ConnectivityNode"));
+        } else {
+            assertFalse(terminalEq.contains("<cim:Terminal.ConnectivityNode"));
+        }
+    }
+
+    private void validateTpExport(Network network, Properties params, String terminalId) throws IOException {
+        String tpXml = ConversionUtil.writeCgmesProfile(network, "TP", tmpDir, params);
+
+        // In TP, the terminal of the fictitious injection references a topologicalNode
+        String terminalTp = getElement(tpXml, "Terminal", terminalId);
         assertNotNull(terminalTp);
         assertTrue(terminalTp.contains("<cim:Terminal.TopologicalNode"));
+    }
 
-        // SSH: values and terminal connected
+    private void validateSshExport(Network network, Properties params, String loadId, String terminalId, double expectedFictitiousP, double expectedFictitiousQ) throws IOException {
+        String sshXml = ConversionUtil.writeCgmesProfile(network, "SSH", tmpDir, params);
+
+        // In SSH, the p/q of the fictitious injection are exported and the terminal status should be connected
         String sshLoad = getElement(sshXml, "NonConformLoad", loadId);
         assertNotNull(sshLoad);
-        assertEquals("3.3", getAttribute(sshLoad, "EnergyConsumer.p"));
-        assertEquals("4.4", getAttribute(sshLoad, "EnergyConsumer.q"));
-        String sshTerminal = getElement(sshXml, "Terminal", termId);
+        assertEquals(expectedFictitiousP, Double.parseDouble(getAttribute(sshLoad, "EnergyConsumer.p")));
+        assertEquals(expectedFictitiousQ, Double.parseDouble(getAttribute(sshLoad, "EnergyConsumer.q")));
+        String sshTerminal = getElement(sshXml, "Terminal", terminalId);
         assertNotNull(sshTerminal);
         assertEquals("true", getAttribute(sshTerminal, "ACDCTerminal.connected"));
+    }
+
+    private void valdiateSvExport(Network network, Properties params, String terminalId) throws IOException {
+        String svXml = ConversionUtil.writeCgmesProfile(network, "SV", tmpDir, params);
+
+        // In SV, an SvPowerFlow is exported for the terminal of the fictitious load
+        assertTrue(svXml.contains(terminalId));
     }
 
     private static Network createBbNetworkWithFictitiousOnBus() {
