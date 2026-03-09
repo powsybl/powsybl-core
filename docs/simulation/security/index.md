@@ -44,7 +44,7 @@ contingencies are:
 - Busbar section contingency for node/breaker topologies
 - Line, two-winding transformer and tie line contingencies (branch contingency)
 - Three-winding transformer contingency
-- Dangling line contingency
+- Boundary line contingency
 - HVDC line contingency
 - Battery contingency
 - Shunt Compensator contingency
@@ -76,7 +76,7 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 | Action                             | Description                                                                                                                                                                                   |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `LoadAction`                       | Change the relative or absolute `P0` and/or `Q0` of a load.                                                                                                                                   |
-| `DanglingLineAction`               | Change the relative or absolute `P0` and/or `Q0` of the load part of a dangling line.                                                                                                         |
+| `BoundaryLineAction`               | Change the relative or absolute `P0` and/or `Q0` of the load part of a boundary line.                                                                                                         |
 | `SwitchAction`                     | Open or close a switch.                                                                                                                                                                       |
 | `TerminalsConnectionAction`        | Open or close a terminal.                                                                                                                                                                     |
 | `PhaseTapChangerTapPositionAction` | Change the tap of a phase tap changer.                                                                                                                                                        |
