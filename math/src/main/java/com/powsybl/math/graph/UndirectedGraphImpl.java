@@ -13,7 +13,6 @@ import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
 import gnu.trove.set.hash.TIntHashSet;
-import org.jspecify.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -508,14 +507,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private void traverseVertex(int vToTraverse, boolean[] vEncountered, Deque<DirectedEdge> edgesToTraverse,
-                                TIntArrayList[] adjacencyList, TraversalType traversalType, @Nullable IntConsumer vertexVisitor) {
+                                TIntArrayList[] adjacencyList, TraversalType traversalType, IntConsumer vertexVisitor) {
         if (vEncountered[vToTraverse]) {
             return;
         }
         vEncountered[vToTraverse] = true;
-        if (vertexVisitor != null) {
-            vertexVisitor.accept(vToTraverse);
-        }
+
+        vertexVisitor.accept(vToTraverse);
 
         TIntArrayList adjacentEdges = adjacencyList[vToTraverse];
         for (int i = 0; i < adjacentEdges.size(); i++) {
@@ -556,10 +554,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges) {
-        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges, null);
+        return traverse(v, traversalType, traverser, encounteredVertices, encounteredEdges, vIndex -> {
+        });
     }
 
-    private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges, @Nullable IntConsumer vertexVisitor) {
+    private boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encounteredVertices, boolean[] encounteredEdges, IntConsumer vertexVisitor) {
         Objects.requireNonNull(traverser);
 
         TIntArrayList[] adjacencyList = getAdjacencyList();
@@ -594,10 +593,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public <C> List<C> computeTraversalPartitions(Traverser traverser, Supplier<C> partitionFactory, ObjIntConsumer<C> vertexConsumer) {
+    public <C> List<C> computeTraversalPartitions(Traverser traverser, Supplier<C> partitionFactory, ObjIntConsumer<C> vertexCollector) {
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(partitionFactory);
-        Objects.requireNonNull(vertexConsumer);
+        Objects.requireNonNull(vertexCollector);
 
         boolean[] encounteredVertices = new boolean[vertices.size()];
         boolean[] encounteredEdges = new boolean[edges.size()];
@@ -606,7 +605,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int v = 0; v < vertices.size(); v++) {
             if (vertices.get(v) != null && !encounteredVertices[v]) {
                 C component = partitionFactory.get();
-                boolean keepGoing = traverse(v, TraversalType.BREADTH_FIRST, traverser, encounteredVertices, encounteredEdges, visitedV -> vertexConsumer.accept(component, visitedV));
+                boolean keepGoing = traverse(v, TraversalType.BREADTH_FIRST, traverser, encounteredVertices, encounteredEdges, visitedV -> vertexCollector.accept(component, visitedV));
                 components.add(component);
                 if (!keepGoing) {
                     break;

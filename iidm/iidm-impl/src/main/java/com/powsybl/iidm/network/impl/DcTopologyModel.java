@@ -239,10 +239,7 @@ public class DcTopologyModel implements MultiVariantObject {
             List<List<DcNodeImpl>> components = graph.computeTraversalPartitions(
                 (v1, e, v2) -> {
                     DcSwitchImpl sw = graph.getEdgeObject(e);
-                    if (sw != null && sw.isOpen()) {
-                        return TraverseResult.TERMINATE_PATH;
-                    }
-                    return TraverseResult.CONTINUE;
+                    return sw.isOpen() ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
                 },
                 ArrayList::new,
                 (component, vertexIndex) -> component.add(graph.getVertexObject(vertexIndex))
