@@ -333,6 +333,7 @@ public final class NetworkSerDe {
             throw new UncheckedXmlStreamException(e);
         }
     }
+
     private static String proceedReadRootNamespace(byte[] xmlBytes) throws XMLStreamException {
         XMLStreamReader reader = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(xmlBytes)) {
