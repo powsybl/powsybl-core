@@ -83,15 +83,15 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
 
         roundTripTest(limitReductionList, LimitReductionListSerDeUtil::write,
                 LimitReductionListSerDeUtil::read,
-                "/LimitReductions.json");
+            "/LimitReductions_selected_operational_limits_group_V1.1.json");
     }
 
     @Test
     void compatibilityWithOldCriterion() throws IOException {
-        LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductions_V1.0.json"));
+        LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             LimitReductionListSerDeUtil.write(reductionList, bos);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_group_V1.1.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             // Should not happen
             fail();
