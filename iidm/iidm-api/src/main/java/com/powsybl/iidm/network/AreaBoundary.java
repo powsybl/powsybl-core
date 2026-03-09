@@ -11,7 +11,7 @@ import java.util.Optional;
 
 /**
  * An AreaBoundary is a boundary of an <code>Area</code>.
- * <p> It is composed of a terminal or a DanglingLine Boundary, associated with a boolean telling if it is an AC or DC boundary.
+ * <p> It is composed of a terminal or a BoundaryLine Boundary, associated with a boolean telling if it is an AC or DC boundary.
  * <p> To create and add an AreaBoundary, see {@link AreaAdder#addAreaBoundary(Terminal, boolean)} or {@link AreaAdder#addAreaBoundary(Boundary, boolean)}
  *
  * <p>
@@ -74,7 +74,7 @@ public interface AreaBoundary {
     Optional<Terminal> getTerminal();
 
     /**
-     * @return If the boundary is defined by a DanglingLine's Boundary, the DanglingLine's Boundary of this AreaBoundary
+     * @return If the boundary is defined by a BoundaryLine's Boundary, the BoundaryLine's Boundary of this AreaBoundary
      */
     Optional<Boundary> getBoundary();
 

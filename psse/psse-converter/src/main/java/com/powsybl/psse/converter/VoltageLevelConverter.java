@@ -267,9 +267,9 @@ class VoltageLevelConverter extends AbstractConverter {
                 .collect(Collectors.toSet()).stream().sorted(Comparator.comparing(Identifiable::getId))
                 .forEach(bus -> contextExport.getFullExport().addBusIBus(contextExport.getFullExport().getNewPsseBusI(), bus));
 
-        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
+        voltageLevel.getBoundaryLineStream().filter(boundaryLine -> !boundaryLine.isPaired())
                 .sorted(Comparator.comparing(Identifiable::getId))
-                .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
+                .forEach(boundaryLine -> contextExport.getFullExport().addBoundaryLineBusI(boundaryLine, contextExport.getFullExport().getNewPsseBusI()));
     }
 
     private static List<Bus> connectableBuses(VoltageLevel voltageLevel, Connectable<?> connectable) {
@@ -356,8 +356,8 @@ class VoltageLevelConverter extends AbstractConverter {
                     contextExport.getFullExport().addBusIBus(busI, selectedBus);
                 });
 
-        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
-                .forEach(danglingLine -> contextExport.getFullExport().addDanglingLineBusI(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
+        voltageLevel.getBoundaryLineStream().filter(boundaryLine -> !boundaryLine.isPaired())
+                .forEach(boundaryLine -> contextExport.getFullExport().addBoundaryLineBusI(boundaryLine, contextExport.getFullExport().getNewPsseBusI()));
 
         // add isolated nodes, associated with terminals not previously considered
         Set<Integer> mergedSet = connectedSetsBySwitchesAndInternalConnections.stream().flatMap(Set::stream).collect(Collectors.toSet());
@@ -633,9 +633,9 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static List<Integer> getTwoOtherBusesPreservingOrder(Identifiable<?> identifiable, List<Terminal> terminals, NodeBusR nodeBusR, ContextExport contextExport) {
         List<Integer> buses = new ArrayList<>();
-        if (identifiable.getType() == IdentifiableType.DANGLING_LINE) {
-            // busJ associated with boundary side of the dangling lines
-            buses.add(contextExport.getFullExport().getBusI((DanglingLine) identifiable).orElseThrow());
+        if (identifiable.getType() == IdentifiableType.BOUNDARY_LINE) {
+            // busJ associated with boundary side of the boundary lines
+            buses.add(contextExport.getFullExport().getBusI((BoundaryLine) identifiable).orElseThrow());
         } else {
             terminals.forEach(terminal -> {
                 if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {
