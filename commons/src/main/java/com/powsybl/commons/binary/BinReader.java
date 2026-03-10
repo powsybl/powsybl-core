@@ -27,7 +27,8 @@ public class BinReader implements TreeDataReader {
 
     private final Map<Integer, String> nodeDictionary = new HashMap<>();
 
-    private final Map<Integer, String> attrDictionary = new HashMap<>();
+    private String[] attrNames;
+    private byte[] attrTypes;
 
     private Map<String, Object> currentAttrs = Collections.emptyMap();
 
@@ -75,8 +76,11 @@ public class BinReader implements TreeDataReader {
 
     private void readAttrDictionary() throws IOException {
         int nbEntries = dis.readShort();
+        attrNames = new String[nbEntries + 1];
+        attrTypes = new byte[nbEntries + 1];
         for (int i = 0; i < nbEntries; i++) {
-            attrDictionary.put(i + 1, readString());
+            attrNames[i + 1] = readString();
+            attrTypes[i + 1] = dis.readByte();
         }
     }
 
@@ -84,11 +88,11 @@ public class BinReader implements TreeDataReader {
         currentAttrs = new HashMap<>();
         int attrIdx;
         while ((attrIdx = dis.readUnsignedByte()) != END_ATTRS) {
-            String attrName = attrDictionary.get(attrIdx);
+            String attrName = attrNames[attrIdx];
             if (attrName == null) {
-                throw new PowsyblException("Binary format: unknown attribute index " + attrIdx);
+                throw new PowsyblException("Cannot read attribute: unknown attribute name index " + attrIdx);
             }
-            byte typeTag = dis.readByte();
+            byte typeTag = attrTypes[attrIdx];
             Object value = readTypedValue(typeTag);
             currentAttrs.put(attrName, value);
         }

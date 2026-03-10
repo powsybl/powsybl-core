@@ -29,12 +29,14 @@ public class BinWriter implements TreeDataWriter {
     private Map<String, String> extensionVersions = Collections.emptyMap();
 
     private final Map<String, Integer> nodeNamesIndex = new LinkedHashMap<>();
-    private final Map<String, Integer> attrNamesIndex = new LinkedHashMap<>();
+    private final Map<AttrKey, Integer> attrNamesIndex = new LinkedHashMap<>();
+
+    private record AttrKey(String name, byte type) { }
 
     private final ByteArrayOutputStream attrBuffer = new ByteArrayOutputStream();
     private final DataOutputStream attrDos = new DataOutputStream(attrBuffer);
 
-    private boolean attrsFlushed = false;
+    private boolean attrBlockTerminated = false;
 
     public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
@@ -79,13 +81,13 @@ public class BinWriter implements TreeDataWriter {
     @Override
     public void writeStartNode(String namespace, String name) {
         if (nodeNamesIndex.isEmpty()) {
-            nodeNamesIndex.put(name, 1);
+            nodeNamesIndex.put(name, 1); // root element is not a child of another node, hence index is not expected
         } else {
             flushCurrentNodeAttrsIfNeeded();
             int index = nodeNamesIndex.computeIfAbsent(name, n -> 1 + nodeNamesIndex.size());
             writeIndex(index, tmpDos);
         }
-        attrsFlushed = false;
+        attrBlockTerminated = false;
     }
 
     @Override
@@ -95,13 +97,13 @@ public class BinWriter implements TreeDataWriter {
     }
 
     private void flushCurrentNodeAttrsIfNeeded() {
-        if (!attrsFlushed) {
+        if (!attrBlockTerminated) {
             try {
                 attrDos.flush();
                 tmpDos.write(attrBuffer.toByteArray());
                 tmpDos.writeByte(END_ATTRS);
                 attrBuffer.reset();
-                attrsFlushed = true;
+                attrBlockTerminated = true;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -109,13 +111,12 @@ public class BinWriter implements TreeDataWriter {
     }
 
     private void writeAttrIndex(String name, byte type) {
-        int index = attrNamesIndex.computeIfAbsent(name, n -> 1 + attrNamesIndex.size());
+        int index = attrNamesIndex.computeIfAbsent(new AttrKey(name, type), k -> 1 + attrNamesIndex.size());
         if (index > 255) {
-            throw new PowsyblException("Binary format: too many distinct attribute names (max 255), got index: " + index);
+            throw new PowsyblException("Binary format: too many distinct attribute (name, type) pairs (max 255)");
         }
         try {
             attrDos.writeByte(index);
-            attrDos.writeByte(type);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -181,6 +182,20 @@ public class BinWriter implements TreeDataWriter {
     @Override
     public void writeFloatAttribute(String name, float value) {
         if (Float.isNaN(value)) {
+            return;
+        }
+        writeAttrIndex(name, TYPE_FLOAT);
+        try {
+            attrDos.writeFloat(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void writeFloatAttribute(String name, float value, float absentValue) {
+        boolean isAbsent = Float.isNaN(absentValue) ? Float.isNaN(value) : value == absentValue;
+        if (isAbsent) {
             return;
         }
         writeAttrIndex(name, TYPE_FLOAT);
@@ -316,23 +331,31 @@ public class BinWriter implements TreeDataWriter {
     }
 
     private void writeHeader() throws IOException {
+        // magic number ("Binary IIDM" in ASCII)
         dos.write(binaryMagicNumber);
+
+        // iidm version
         writeString(rootVersion, dos);
 
-        // Extension versions
+        // extensions versions
         writeIndex(extensionVersions.size(), dos);
-        extensionVersions.forEach((extName, extVersion) -> {
-            writeString(extName, dos);
-            writeString(extVersion, dos);
+        extensionVersions.forEach((extensionName, extensionVersion) -> {
+            writeString(extensionName, dos);
+            writeString(extensionVersion, dos);
         });
 
         writeIndex(nodeNamesIndex.size(), dos);
         nodeNamesIndex.forEach((name, index) -> writeString(name, dos));
 
         writeIndex(attrNamesIndex.size(), dos);
-        for (String name : attrNamesIndex.keySet()) {
-            writeString(name, dos);
-        }
+        attrNamesIndex.forEach((key, index) -> {
+            writeString(key.name(), dos);
+            try {
+                attrDos.writeByte(key.type());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 
     @Override

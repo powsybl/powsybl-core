@@ -17,7 +17,6 @@ public final class BinUtil {
 
     static final int END_NODE = 0;
     static final int END_ATTRS = 0;
-    static final int NULL_ENUM = -1;
 
     static final byte TYPE_DOUBLE = 0;
     static final byte TYPE_FLOAT = 1;
@@ -28,6 +27,7 @@ public final class BinUtil {
     static final byte TYPE_INT_ARRAY = 6;
     static final byte TYPE_STRING_ARRAY = 7;
 
+    // NUL prefix ensures this name cannot collide with any real XML attribute name
     static final String CONTENT_ATTR_NAME = "\u0000content";
 
 }
