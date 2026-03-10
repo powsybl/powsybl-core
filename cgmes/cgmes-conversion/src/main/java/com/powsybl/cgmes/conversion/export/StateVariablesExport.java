@@ -31,6 +31,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS;
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TOPOLOGICAL_ISLAND;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -440,7 +442,7 @@ public final class StateVariablesExport {
             double p = nb.getFictitiousP0(node);
             double q = nb.getFictitiousQ0(node);
             if (p != 0.0 || q != 0.0) {
-                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL, ref(node));
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
                 writePowerFlow(terminalId, p, q, cimNamespace, writer, context);
             }
         }
@@ -451,7 +453,7 @@ public final class StateVariablesExport {
             double p = b.getFictitiousP0();
             double q = b.getFictitiousQ0();
             if (p != 0.0 || q != 0.0) {
-                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.FICTITIOUS, com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.TERMINAL);
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
                 writePowerFlow(terminalId, p, q, cimNamespace, writer, context);
             }
         }
