@@ -351,7 +351,7 @@ public class BinWriter implements TreeDataWriter {
         attrNamesIndex.forEach((key, index) -> {
             writeString(key.name(), dos);
             try {
-                attrDos.writeByte(key.type());
+                dos.writeByte(key.type());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
