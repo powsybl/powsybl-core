@@ -370,7 +370,7 @@
         <xs:attribute name="id" use="required" type="xs:string"/>
     </xs:complexType>
     <xs:simpleType name="selectedOperationalLimitsGroupIds">
-        <xs:list itemType="xs:string"/>
+        <xs:list itemType="iidm:nonEmptyString"/>
     </xs:simpleType>
     <xs:complexType name="BoundaryLine">
         <xs:complexContent>
