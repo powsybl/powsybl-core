@@ -459,7 +459,7 @@ public class SensitivityAnalysisResult {
     /**
      * Get the function reference associated to a given contingency Id and a given function id and type.
      *
-     * @param state the considered state. Use null to get a pre-contingency function reference value.
+     * @param state the considered state.
      * @param functionId sensitivity function id.
      * @param functionType sensitivity function type
      * @return the function reference value

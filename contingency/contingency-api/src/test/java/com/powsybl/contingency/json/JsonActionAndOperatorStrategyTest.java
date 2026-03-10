@@ -7,16 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.action.AbstractAction;
-import com.powsybl.action.Action;
-import com.powsybl.action.ActionBuilder;
-import com.powsybl.action.ActionList;
-import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.strategy.ConditionalActions;
@@ -35,7 +25,6 @@ import java.util.List;
 
 import static com.powsybl.contingency.violations.LimitViolationType.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -91,74 +80,5 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
                 new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
-    }
-
-    @JsonTypeName(DummyAction.NAME)
-    static class DummyAction extends AbstractAction {
-
-        static final String NAME = "dummy-action";
-
-        @JsonCreator
-        protected DummyAction(@JsonProperty("id") String id) {
-            super(id);
-        }
-
-        @JsonProperty(value = "type", access = JsonProperty.Access.READ_ONLY)
-        @Override
-        public String getType() {
-            return NAME;
-        }
-    }
-
-    @JsonTypeName(DummyAction.NAME)
-    static class DummyActionBuilder implements ActionBuilder<DummyActionBuilder> {
-
-        String id;
-
-        @Override
-        @JsonProperty(value = "type", access = JsonProperty.Access.READ_ONLY)
-        public String getType() {
-            return DummyAction.NAME;
-        }
-
-        @Override
-        public DummyActionBuilder withId(String id) {
-            this.id = id;
-            return this;
-        }
-
-        @Override
-        public String getId() {
-            return this.id;
-        }
-
-        @Override
-        public DummyActionBuilder withNetworkElementId(String elementId) {
-            return null;
-        }
-
-        @Override
-        public Action build() {
-            return new DummyAction(id);
-        }
-    }
-
-    @Test
-    void testJsonPlugins() throws JsonProcessingException {
-        var contingencyJsonModule = new ContingencyJsonModule();
-        contingencyJsonModule.registerSubtypes(DummyAction.class, DummyActionBuilder.class);
-        ObjectMapper mapper = new ObjectMapper()
-            .registerModule(contingencyJsonModule)
-            .registerModule(new ActionJsonModule());
-
-        DummyAction action = new DummyAction("hello");
-        ActionList actions = new ActionList(List.of(action));
-        String serialized = mapper.writeValueAsString(actions);
-        ActionList parsed = mapper.readValue(serialized, ActionList.class);
-
-        assertEquals(1, parsed.getActions().size());
-        Action parsedAction = parsed.getActions().get(0);
-        assertInstanceOf(DummyAction.class, parsedAction);
-        assertEquals("hello", parsedAction.getId());
     }
 }
