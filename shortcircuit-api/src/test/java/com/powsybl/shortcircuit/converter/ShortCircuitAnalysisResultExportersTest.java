@@ -12,6 +12,7 @@ import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.security.ViolationLocation;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisResultDeserializer;
 import org.junit.jupiter.api.Test;
@@ -120,8 +121,6 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
 
     @Test
     void readJsonFaultResultVersion13() {
-        //TODO this doesn't actually test that the voltageLocation is correctly read, as it is not in the file
-        //this is actually the file of V 1.1
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
             .read(getClass().getResourceAsStream("/shortcircuit-results-version13.json"));
         assertEquals(1, result.getFaultResults().size());
@@ -130,6 +129,9 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
         assertEquals(2.0, faultResult.getVoltage(), 0);
+        ViolationLocation location = faultResult.getLimitViolations().getFirst().getViolationLocation().orElseThrow();
+        assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
+        //TODO how do we get the ID of the bus of the location ?
     }
 
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
