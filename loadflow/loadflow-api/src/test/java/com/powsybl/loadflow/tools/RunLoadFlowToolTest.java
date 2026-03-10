@@ -105,7 +105,8 @@ class RunLoadFlowToolTest extends AbstractToolTest {
     void testLoadflow() {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network 'network.xiidm'",
-                "Loadflow tool",
+                "+ Loadflow tool",
+                "   testLoadflow",
                 "Loadflow results:",
                 "+------+--------+---------+",
                 "| Ok   | Status | Metrics |",
@@ -119,7 +120,8 @@ class RunLoadFlowToolTest extends AbstractToolTest {
     void testLoadflowWithOutputFile() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network 'network.xiidm'",
-                "Loadflow tool",
+                "+ Loadflow tool",
+                "   testLoadflow",
                 "Writing results to 'outputTest.json'" + System.lineSeparator());
         String expectedOutputFile = """
                         {
@@ -127,8 +129,7 @@ class RunLoadFlowToolTest extends AbstractToolTest {
                           "isOK" : true,
                           "metrics" : { }
                         }""";
-        assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "supportedParameters.json"
-                , "--output-file", "outputTest.json", "--output-format", "JSON"}, expectedOut);
+        assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "supportedParameters.json", "--output-file", "outputTest.json", "--output-format", "JSON"}, expectedOut);
         ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.json")));
     }
 
@@ -143,9 +144,8 @@ class RunLoadFlowToolTest extends AbstractToolTest {
                 "+------+--------+---------+",
                 "| true | FAILED | {}      |",
                 "+------+--------+---------+" + System.lineSeparator());
-        String expectedOutputFile = "Loadflow tool\n";
-        assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "supportedParameters.json",
-                "--output-log-file", "outputTest.log"}, expectedOut);
+        String expectedOutputFile = "+ Loadflow tool\n   testLoadflow\n";
+        assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "supportedParameters.json", "--output-log-file", "outputTest.log"}, expectedOut);
         ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
     }
 
@@ -166,8 +166,7 @@ class RunLoadFlowToolTest extends AbstractToolTest {
                 "Writing logs to 'outputTest.log'",
                 "Unsupported parameters found, LoadFlowMock cannot launch the loadflow" + System.lineSeparator());
         String expectedOutputFile = "+ Loadflow tool\n   testParametersNotSupported\n";
-        assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "unsupportedParameters.json",
-                "--output-log-file", "outputTest.log"}, expectedOut);
+        assertCommandSuccessful(new String[]{"loadflow", "--case-file", "network.xiidm", "--parameters-file", "unsupportedParameters.json", "--output-log-file", "outputTest.log"}, expectedOut);
         ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
     }
 }

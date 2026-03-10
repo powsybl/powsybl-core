@@ -55,8 +55,9 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
             });
         }
         ReportNode reportNode = runParameters.getReportNode();
-        if (reportNode != null && !reportNode.getMessageKey().equalsIgnoreCase("core.loadflow.loadflowTool")) {
+        if (reportNode != null) {
             reportNode.newReportNode()
+                .withStrictMode(false)
                 .withMessageTemplate("testLoadflow")
                 .withUntypedValue("variantId", workingStateId)
                 .add();
