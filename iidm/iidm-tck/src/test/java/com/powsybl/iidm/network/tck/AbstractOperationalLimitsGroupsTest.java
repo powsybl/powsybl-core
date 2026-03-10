@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -701,6 +702,29 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         // check that all groups can be activated
         line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> true);
         assertEquals(4, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+    }
+
+    @Test
+    void doNotSelectGroupsIfAnyIsNullOrDoesNotExist() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
+        ThreeWindingsTransformer.Leg leg = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
+        leg.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
+        assertEquals(1, leg.getAllSelectedOperationalLimitsGroups().size());
+        assertEquals("DEFAULT", leg.getAllSelectedOperationalLimitsGroupIds().iterator().next());
+
+        //check no group is selected if any is null
+        assertThrows(NullPointerException.class, () -> leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, null, EurostagTutorialExample1Factory.NOT_ACTIVATED));
+        assertEquals(1, leg.getAllSelectedOperationalLimitsGroups().size());
+        assertEquals("DEFAULT", leg.getAllSelectedOperationalLimitsGroupIds().iterator().next());
+
+        //check no group selected if any does not exist
+        assertThrows(PowsyblException.class, () -> leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, "not a group", EurostagTutorialExample1Factory.NOT_ACTIVATED));
+        assertEquals(1, leg.getAllSelectedOperationalLimitsGroups().size());
+        assertEquals("DEFAULT", leg.getAllSelectedOperationalLimitsGroupIds().iterator().next());
+
+        leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
+        assertEquals(2, leg.getAllSelectedOperationalLimitsGroupIds().size());
+        assertEquals(List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
     }
 
     @ParameterizedTest
