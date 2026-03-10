@@ -89,31 +89,31 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
                 LOGGER.error("One of the provided ID was null");
                 continue;
             }
-            Optional<OperationalLimitsGroup> maybeGroup = getOperationalLimitsGroup(id);
-            if (maybeGroup.isPresent()) {
-                OperationalLimitsGroup newSelectedGroup = maybeGroup.get();
-                boolean wasAlreadySelected = selectedLimitsIds.contains(id);
-                // re-insert the element with remove -> add, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
-                selectedLimitsIds.remove(id);
-                selectedLimitsIds.add(id);
-                if (!wasAlreadySelected) {
-                    notifyUpdate(null, newSelectedGroup);
-                }
-            } else {
+            if (getOperationalLimitsGroup(id).isEmpty()) {
                 groupDidNotExist = true;
                 LOGGER.error("No operational limits group is associated to id {} so this id can't be part of the selected groups of {}.", id, attributeName);
             }
         }
         if (idWasNull) {
-            throw new NullPointerException();
+            throw new NullPointerException("One or more of the provided IDs for the group selection were null, none of the provided groups were selected");
         }
         if (groupDidNotExist) {
             throw new PowsyblException(
-                String.format(
-                    "One or more of the ids did not correspond to an existing group, check logs for more details. Provided ids were: %s",
+                String.format("One or more of the IDs did not correspond to an existing group, check logs for more details. Provided IDs were: %s",
                     Arrays.toString(ids)
                 )
             );
+        }
+        for (String id : ids) {
+            // we checked just before that all ID existed and were not null
+            OperationalLimitsGroup newSelectedGroup = getOperationalLimitsGroup(id).orElseThrow();
+            boolean wasAlreadySelected = selectedLimitsIds.contains(id);
+            // re-insert the element with remove -> add, so that getSelectedOperationalLimitsGroupId returns things in the correct order (since add alone won't re-insert if already present)
+            selectedLimitsIds.remove(id);
+            selectedLimitsIds.add(id);
+            if (!wasAlreadySelected) {
+                notifyUpdate(null, newSelectedGroup);
+            }
         }
     }
 
