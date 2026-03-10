@@ -172,26 +172,35 @@ public class RunLoadFlowTool implements Tool {
                 .setComputationManager(context.getShortTimeExecutionComputationManager())
                 .setReportNode(reportNode);
 
-        LoadFlowResult result = LoadFlow.run(network, runParameters);
+        LoadFlow.Runner runner = LoadFlow.find();
+        if (runner.checkParameters(runParameters)) {
+            LoadFlowResult result = runner.run(network, runParameters);
 
+            writeLog(line, context, reportNode);
+            if (outputFile != null) {
+                exportResult(result, context, outputFile, format);
+            } else {
+                printResult(result, context);
+            }
+
+            // exports the modified network to the filesystem, if requested
+            if (outputCaseFile != null) {
+                String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
+                Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
+                network.write(outputCaseFormat, outputParams, outputCaseFile);
+            }
+        } else {
+            writeLog(line, context, reportNode);
+            context.getOutputStream().printf("Unsupported parameters found, %s cannot launch the loadflow%n", runner.getName());
+        }
+    }
+
+    private void writeLog(CommandLine line, ToolRunningContext context, ReportNode reportNode) throws IOException {
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
         if (outputLogFile != null) {
             exportLog(reportNode, context, outputLogFile);
         } else {
             printLog(reportNode, context);
-        }
-
-        if (outputFile != null) {
-            exportResult(result, context, outputFile, format);
-        } else {
-            printResult(result, context);
-        }
-
-        // exports the modified network to the filesystem, if requested
-        if (outputCaseFile != null) {
-            String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
-            Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-            network.write(outputCaseFormat, outputParams, outputCaseFile);
         }
     }
 

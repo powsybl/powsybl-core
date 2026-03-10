@@ -9,8 +9,6 @@ package com.powsybl.loadflow;
 
 import com.powsybl.commons.report.ReportNode;
 
-import java.util.Locale;
-
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
