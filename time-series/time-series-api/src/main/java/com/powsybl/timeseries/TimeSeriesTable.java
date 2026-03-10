@@ -278,7 +278,7 @@ public class TimeSeriesTable {
         return versions.indexOf(version);
     }
 
-    private void checkVersionIsInRange(int version) {
+    private void checkVersionIsInList(int version) {
         if (!versions.contains(version)) {
             throw new IllegalArgumentException("Version is out of the list " + versions);
         }
@@ -324,7 +324,7 @@ public class TimeSeriesTable {
     }
 
     public void load(int version, List<TimeSeries> timeSeriesList) {
-        checkVersionIsInRange(version);
+        checkVersionIsInList(version);
         Objects.requireNonNull(timeSeriesList);
 
         if (timeSeriesList.isEmpty()) {
@@ -366,7 +366,7 @@ public class TimeSeriesTable {
     }
 
     public double getDoubleValue(int version, int timeSeriesNum, int point) {
-        checkVersionIsInRange(version);
+        checkVersionIsInList(version);
         int doubleTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         checkPoint(point);
         long timeSeriesOffset = getTimeSeriesOffset(version, doubleTimeSeriesNum);
@@ -374,7 +374,7 @@ public class TimeSeriesTable {
     }
 
     public String getStringValue(int version, int timeSeriesNum, int point) {
-        checkVersionIsInRange(version);
+        checkVersionIsInList(version);
         int stringTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         checkPoint(point);
         long timeSeriesOffset = getTimeSeriesOffset(version, stringTimeSeriesNum);
@@ -438,7 +438,7 @@ public class TimeSeriesTable {
     }
 
     private double getStatistics(int version, int timeSeriesNum, double[] stats) {
-        checkVersionIsInRange(version);
+        checkVersionIsInList(version);
         int doubleTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         int statisticsIndex = getStatisticsIndex(version, doubleTimeSeriesNum);
 
@@ -515,7 +515,7 @@ public class TimeSeriesTable {
 
     public double[] computePpmcc(String timeSeriesName, int version) {
         int timeSeriesNum1 = doubleTimeSeriesNames.getIndex(timeSeriesName);
-        checkVersionIsInRange(version);
+        checkVersionIsInList(version);
 
         Stopwatch stopWatch = Stopwatch.createStarted();
 

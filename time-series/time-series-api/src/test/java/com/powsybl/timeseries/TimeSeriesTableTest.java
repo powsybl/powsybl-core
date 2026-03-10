@@ -8,6 +8,7 @@
 package com.powsybl.timeseries;
 
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -343,5 +344,14 @@ class TimeSeriesTableTest {
                         "1970-01-01T00:00:00.003Z;12.0;16.0;f") + System.lineSeparator(),
                 table.toCsvString(timeSeriesCsvConfig));
 
+    }
+
+    @Test
+    void testLoadingVersionNotInList() {
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(3), Duration.ofMillis(1));
+        TimeSeriesTable table = createTimeSeriesTable(index);
+
+        List<TimeSeries> timeSeriesList = List.of();
+        Assertions.assertThatThrownBy(() -> table.load(12, timeSeriesList)).isInstanceOf(IllegalArgumentException.class).hasMessage("Version is out of the list [1]");
     }
 }
