@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -120,33 +119,31 @@ public final class LimitViolationDetection {
                                     Consumer<LimitViolation> consumer) {
         Objects.requireNonNull(side);
         Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(branch, type, side.toThreeSides(), false);
-        Set<String> temporaryOverloadIds;
+        final Set<String> temporaryOverloadIds = new HashSet<>();
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            //get all the temporary overloads, and also use the consumer on them as we go
-            Collection<Overload> overloadOnTemporary = allLoadingLimits.stream()
-                    .map(limits -> LimitViolationUtils.getOverload(limits, value))
-                    .flatMap(Optional::stream)
-                    .toList();
-            overloadOnTemporary.forEach(
-                    overload -> consumer.accept(
+            //get all the temporary overloads ids, and also use the consumer on them as we go
+            allLoadingLimits.stream()
+                .map(limits -> LimitViolationUtils.getOverload(limits, value))
+                .flatMap(Optional::stream)
+                .forEach(
+                    overload -> {
+                        consumer.accept(
                             new LimitViolation(branch.getId(),
-                                    branch.getOptionalName().orElse("null"),
-                                    overload.getOperationalLimitsGroupId(),
-                                    toLimitViolationType(type),
-                                    overload.getPreviousLimitName(),
-                                    overload.getTemporaryLimit().getAcceptableDuration(),
-                                    overload.getPreviousLimit(),
-                                    overload.getLimitReductionCoefficient(),
-                                    value,
-                                    side.toThreeSides(),
-                                    null
+                                branch.getOptionalName().orElse("null"),
+                                overload.getOperationalLimitsGroupId(),
+                                toLimitViolationType(type),
+                                overload.getPreviousLimitName(),
+                                overload.getTemporaryLimit().getAcceptableDuration(),
+                                overload.getPreviousLimit(),
+                                overload.getLimitReductionCoefficient(),
+                                value,
+                                side.toThreeSides(),
+                                null
                             )
-                    )
-            );
-            temporaryOverloadIds = overloadOnTemporary.stream().map(Overload::getOperationalLimitsGroupId).collect(Collectors.toSet());
-        } else {
-            //cannot set it at start since the filter after will complain that this Set is not effectively final
-            temporaryOverloadIds = Collections.emptySet();
+                        );
+                        temporaryOverloadIds.add(overload.getOperationalLimitsGroupId());
+                    }
+                );
         }
 
         if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
@@ -214,34 +211,29 @@ public final class LimitViolationDetection {
                                     LimitType type, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
         Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(transformer, type, side, false);
-        Set<String> temporaryOverloadIds;
+        final Set<String> temporaryOverloadIds = new HashSet<>();
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
             //get all the temporary overloads and send them through the consumer
-            Collection<Overload> overloadOnTemporary = allLoadingLimits.stream()
-                    .map(limits -> LimitViolationUtils.getOverload(limits, value))
-                    .flatMap(Optional::stream)
-                    .toList();
-
-            overloadOnTemporary.forEach(
-                    overload -> consumer.accept(
-                            new LimitViolation(transformer.getId(),
-                                    transformer.getOptionalName().orElse("null"),
-                                    overload.getOperationalLimitsGroupId(),
-                                    toLimitViolationType(type),
-                                    overload.getPreviousLimitName(),
-                                    overload.getTemporaryLimit().getAcceptableDuration(),
-                                    overload.getPreviousLimit(),
-                                    overload.getLimitReductionCoefficient(),
-                                    value,
-                                    side,
-                                    null
-                            )
-                    )
-            );
-            temporaryOverloadIds = overloadOnTemporary.stream().map(Overload::getOperationalLimitsGroupId).collect(Collectors.toSet());
-        } else {
-            //cannot set it at start since the filter after will complain that this Set is not effectively final
-            temporaryOverloadIds = Collections.emptySet();
+            allLoadingLimits.stream()
+                .map(limits -> LimitViolationUtils.getOverload(limits, value))
+                .flatMap(Optional::stream)
+                .forEach(overload -> {
+                    consumer.accept(
+                        new LimitViolation(transformer.getId(),
+                            transformer.getOptionalName().orElse("null"),
+                            overload.getOperationalLimitsGroupId(),
+                            toLimitViolationType(type),
+                            overload.getPreviousLimitName(),
+                            overload.getTemporaryLimit().getAcceptableDuration(),
+                            overload.getPreviousLimit(),
+                            overload.getLimitReductionCoefficient(),
+                            value,
+                            side,
+                            null
+                        )
+                    );
+                    temporaryOverloadIds.add(overload.getOperationalLimitsGroupId());
+                });
         }
 
         if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
