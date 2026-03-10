@@ -193,20 +193,6 @@ public class BinWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeFloatAttribute(String name, float value, float absentValue) {
-        boolean isAbsent = Float.isNaN(absentValue) ? Float.isNaN(value) : value == absentValue;
-        if (isAbsent) {
-            return;
-        }
-        writeAttrIndex(name, TYPE_FLOAT);
-        try {
-            attrDos.writeFloat(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
     public void writeIntAttribute(String name, int value) {
         writeAttrIndex(name, TYPE_INT);
         try {

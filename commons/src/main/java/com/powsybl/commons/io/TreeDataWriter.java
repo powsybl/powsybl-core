@@ -31,8 +31,6 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeFloatAttribute(String name, float value);
 
-    void writeFloatAttribute(String name, float value, float absentValue);
-
     void writeDoubleAttribute(String name, double value);
 
     void writeDoubleAttribute(String name, double value, double absentValue);

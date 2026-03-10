@@ -57,7 +57,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
+    @EnumSource(TreeDataFormat.class)
     void testSkippedExtension(TreeDataFormat format) throws IOException {
         Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
         Path file = tmpDir.resolve("data");
