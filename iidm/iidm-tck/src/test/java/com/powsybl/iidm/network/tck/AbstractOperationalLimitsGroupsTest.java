@@ -727,6 +727,16 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         assertEquals(List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
     }
 
+    @Test
+    void checkGetOrCreateSetsSelected() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedApparentPowerLimits();
+        TwoWindingsTransformer transformer = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
+        assertFalse(transformer.getAllSelectedOperationalLimitsGroupIds(TwoSides.TWO).contains("DEFAULT"));
+        transformer.getOrCreateSelectedOperationalLimitsGroup2();
+        assertEquals(1, transformer.getAllSelectedOperationalLimitsGroupIds(TwoSides.TWO).size());
+        assertTrue(transformer.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.TWO).contains("DEFAULT"));
+    }
+
     @ParameterizedTest
     @MethodSource("provideUtilCheckCurrentArguments")
     void violationUtilCheckCurrent(Identifiable<?> identifiable, ThreeSides side, double limitReduction, LimitType type, double value, Collection<ExpectedOverload> expected) {
