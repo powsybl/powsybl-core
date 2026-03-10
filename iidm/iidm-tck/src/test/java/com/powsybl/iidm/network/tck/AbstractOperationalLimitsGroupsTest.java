@@ -550,10 +550,8 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         Line line2 = network.getLine("L2");
         LoadingLimitsUtil.copyOperationalLimits(line, line2);
         OperationalLimitsGroup olg3Side1 = line2.getOperationalLimitsGroup1("3").orElseThrow();
-        assertNotNull(olg3Side1.getProperty("propName1"));
         assertEquals("propValue1", olg3Side1.getProperty("propName1"));
         OperationalLimitsGroup olg1Side2 = line2.getOperationalLimitsGroup2("1").orElseThrow();
-        assertNotNull(olg1Side2.getProperty("propName2"));
         assertEquals("propValue2", olg1Side2.getProperty("propName2"));
     }
 }
