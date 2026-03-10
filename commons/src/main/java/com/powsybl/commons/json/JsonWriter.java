@@ -157,14 +157,6 @@ public class JsonWriter extends AbstractTreeDataWriter {
     }
 
     @Override
-    public void writeFloatAttribute(String name, float value, float absentValue) {
-        boolean isAbsent = Float.isNaN(absentValue) ? Float.isNaN(value) : value == absentValue;
-        if (!isAbsent) {
-            writeFloatAttribute(name, value);
-        }
-    }
-
-    @Override
     public void writeDoubleAttribute(String name, double value) {
         try {
             if (!Double.isNaN(value)) {
