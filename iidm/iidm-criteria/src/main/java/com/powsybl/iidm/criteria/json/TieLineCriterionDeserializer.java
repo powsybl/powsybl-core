@@ -9,7 +9,6 @@ package com.powsybl.iidm.criteria.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.TieLineCriterion;
 import com.powsybl.iidm.criteria.TwoCountriesCriterion;
@@ -28,9 +27,8 @@ public class TieLineCriterionDeserializer extends AbstractNetworkElementCriterio
 
     @Override
     public TieLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext parsingContext = new ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                TieLineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE));
+        ParsingContext parsingContext = fillParsingContext(parser, deserializationContext,
+                TieLineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE);
 
         return new TieLineCriterion(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,

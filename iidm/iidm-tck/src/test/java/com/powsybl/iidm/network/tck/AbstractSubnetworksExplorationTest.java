@@ -30,7 +30,7 @@ public abstract class AbstractSubnetworksExplorationTest {
 
     public static final String ID_1 = "1";
     public static final String ID_2 = "2";
-    public static final String SHARED_TIE_LINE = TieLineUtil.buildMergedId(id("danglingLine3", ID_1), id("danglingLine3", ID_2));
+    public static final String SHARED_TIE_LINE = TieLineUtil.buildMergedId(id("boundaryLine3", ID_1), id("boundaryLine3", ID_2));
     private static Network merged;
     private static Network subnetwork1;
     private static Network subnetwork2;
@@ -207,23 +207,23 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode2(14)
                 .setR(1).setX(1).setG1(0).setG2(0).setB1(0).setB2(0)
                 .add();
-        voltageLevel1.newDanglingLine()
-                .setId(id("danglingLine1", networkId))
+        voltageLevel1.newBoundaryLine()
+                .setId(id("boundaryLine1", networkId))
                 .setNode(15)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
-        voltageLevel2.newDanglingLine()
-                .setId(id("danglingLine2", networkId))
+        voltageLevel2.newBoundaryLine()
+                .setId(id("boundaryLine2", networkId))
                 .setNode(16)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .add();
         n.newTieLine()
                 .setId(id("tieLine1", networkId))
-                .setDanglingLine1(id("danglingLine1", networkId))
-                .setDanglingLine2(id("danglingLine2", networkId))
+                .setBoundaryLine1(id("boundaryLine1", networkId))
+                .setBoundaryLine2(id("boundaryLine2", networkId))
                 .add();
-        voltageLevel3.newDanglingLine()
-                .setId(id("danglingLine3", networkId))
+        voltageLevel3.newBoundaryLine()
+                .setId(id("boundaryLine3", networkId))
                 .setNode(17)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .setPairingKey("mergingKey") // when merging both networks, this key will be used to create a tie line
@@ -597,19 +597,19 @@ public abstract class AbstractSubnetworksExplorationTest {
     }
 
     @Test
-    public void testExploreDanglingLines() {
-        var expectedIdsForSubnetwork1 = List.of(id("danglingLine1", ID_1),
-                id("danglingLine2", ID_1),
-                id("danglingLine3", ID_1));
-        var expectedIdsForSubnetwork2 = List.of(id("danglingLine1", ID_2),
-                id("danglingLine2", ID_2),
-                id("danglingLine3", ID_2));
+    public void testExploreBoundaryLines() {
+        var expectedIdsForSubnetwork1 = List.of(id("boundaryLine1", ID_1),
+                id("boundaryLine2", ID_1),
+                id("boundaryLine3", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("boundaryLine1", ID_2),
+                id("boundaryLine2", ID_2),
+                id("boundaryLine3", ID_2));
 
         testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
-                Network::getDanglingLines,
-                Network::getDanglingLineStream,
-                Network::getDanglingLineCount,
-                Network::getDanglingLine);
+                Network::getBoundaryLines,
+                Network::getBoundaryLineStream,
+                Network::getBoundaryLineCount,
+                Network::getBoundaryLine);
     }
 
     @Test
@@ -667,7 +667,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("vsc1", ID_1), id("vsc2", ID_1),
                 id("threeWindingsTransformer1", ID_1),
                 id("twoWindingsTransformer1", ID_1),
-                id("danglingLine1", ID_1), id("danglingLine2", ID_1), id("danglingLine3", ID_1),
+                id("boundaryLine1", ID_1), id("boundaryLine2", ID_1), id("boundaryLine3", ID_1),
                 id("lccDetailed1", ID_1),
                 id("vscDetailed1", ID_1));
 
@@ -682,7 +682,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("vsc1", ID_2), id("vsc2", ID_2),
                 id("threeWindingsTransformer1", ID_2),
                 id("twoWindingsTransformer1", ID_2),
-                id("danglingLine1", ID_2), id("danglingLine2", ID_2), id("danglingLine3", ID_2),
+                id("boundaryLine1", ID_2), id("boundaryLine2", ID_2), id("boundaryLine3", ID_2),
                 id("lccDetailed1", ID_2),
                 id("vscDetailed1", ID_2));
 
