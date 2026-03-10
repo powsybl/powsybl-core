@@ -23,6 +23,6 @@ public interface ExtensionConfigLoader<T extends Extendable, E extends Extension
     E load(PlatformConfig platformConfig);
 
     default E load(PlatformConfig platformConfig, ReportNode reportNode) {
-        throw new UnsupportedOperationException();
+        return load(platformConfig);
     }
 }

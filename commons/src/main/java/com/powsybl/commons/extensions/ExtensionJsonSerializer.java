@@ -33,7 +33,7 @@ public interface ExtensionJsonSerializer<T extends Extendable, E extends Extensi
     E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException;
 
     default E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
-        throw new UnsupportedOperationException();
+        return deserialize(jsonParser, deserializationContext);
     }
 
     /**
@@ -47,6 +47,6 @@ public interface ExtensionJsonSerializer<T extends Extendable, E extends Extensi
     }
 
     default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E extension, ReportNode reportNode) throws IOException {
-        throw new UnsupportedOperationException();
+        return deserializeAndUpdate(jsonParser, deserializationContext, extension);
     }
 }
