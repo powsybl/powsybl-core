@@ -58,6 +58,7 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
                 .setTargetV(152.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setCondenserCapability(true)
                 .setCondenser(true)
                 .add();
 

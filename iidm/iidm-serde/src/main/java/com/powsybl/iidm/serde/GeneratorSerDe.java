@@ -37,6 +37,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
+            context.getWriter().writeBooleanAttribute("hasCondenserCapability", g.hasCondenserCapability(), false));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
                 context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_15, context, () ->
@@ -68,8 +70,15 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute("targetV");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
-                adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
+            adder.setCondenserCapability(context.getReader().readBooleanAttribute("hasCondenserCapability", false)));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () -> {
+            boolean isCondenser = context.getReader().readBooleanAttribute("isCondenser", false);
+            if (isCondenser && context.getVersion().compareTo(IidmVersion.V_1_16) < 0) {
+                adder.setCondenserCapability(true);
+            }
+            adder.setCondenser(isCondenser);
+        });
         adder.setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)
