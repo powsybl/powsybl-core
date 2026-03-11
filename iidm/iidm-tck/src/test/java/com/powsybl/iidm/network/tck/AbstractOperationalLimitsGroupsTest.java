@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractOperationalLimitsGroupsTest {
 
-    private static Network createNetworkWithLine() {
+    private static Network createNetworkWithLines() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation().setId("S1").setCountry(Country.FR).add();
         VoltageLevel vl1 = s1.newVoltageLevel()
@@ -50,11 +51,27 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 .setB1(0.0)
                 .setB2(0.0)
                 .add();
+
+        network.newLine()
+                .setId("L2")
+                .setVoltageLevel1("VL1")
+                .setConnectableBus1("B1")
+                .setBus1("B1")
+                .setVoltageLevel2("VL2")
+                .setConnectableBus2("B2")
+                .setBus2("B2")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .add();
         return network;
     }
 
     private static Network createNetworkWithOperationalLimitsGroupsOnLine() {
-        Network network = createNetworkWithLine();
+        Network network = createNetworkWithLines();
         Line l = network.getLine("L");
         l.newOperationalLimitsGroup1("1")
                 .newCurrentLimits()
@@ -134,6 +151,8 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         l.getOperationalLimitsGroup2("1")
                 .flatMap(OperationalLimitsGroup::getApparentPowerLimits)
                 .ifPresent(apl -> apl.setPermanentLimit(900.0));
+        l.getOperationalLimitsGroup1("3").orElseThrow().setProperty("propName1", "propValue1");
+        l.getOperationalLimitsGroup2("1").orElseThrow().setProperty("propName2", "propValue2");
         return network;
     }
 
@@ -522,5 +541,17 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 () -> assertFalse(group.hasProperty(property1)),
                 () -> assertEquals(Set.of(), group.getPropertyNames()),
                 () -> assertNull(group.getProperty(property1)));
+    }
+
+    @Test
+    public void testCopy() {
+        Network network = createNetworkWithOperationalLimitsGroupsOnLine();
+        Line line = network.getLine("L");
+        Line line2 = network.getLine("L2");
+        LoadingLimitsUtil.copyOperationalLimits(line, line2);
+        OperationalLimitsGroup olg3Side1 = line2.getOperationalLimitsGroup1("3").orElseThrow();
+        assertEquals("propValue1", olg3Side1.getProperty("propName1"));
+        OperationalLimitsGroup olg1Side2 = line2.getOperationalLimitsGroup2("1").orElseThrow();
+        assertEquals("propValue2", olg1Side2.getProperty("propName2"));
     }
 }
