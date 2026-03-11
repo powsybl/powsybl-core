@@ -23,11 +23,11 @@ import org.apache.commons.math3.complex.ComplexUtils;
 public class SV {
 
     /**
-     * In this class, lines, two windings transformers and dangling lines can be considered as equivalent branches.
+     * In this class, lines, two windings transformers and boundary lines can be considered as equivalent branches.
      * <p><div>
      * <object data="doc-files/SV.svg" type="image/svg+xml">
      * </object> </div>
-     * For dangling lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
+     * For boundary lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
      * @param p active power flow on the side of the branch we consider.
      * @param q reactive power flow on the side of the branch we consider
      * @param u voltage on the side of the branch we consider.
@@ -86,7 +86,7 @@ public class SV {
     }
 
     public SV otherSide(TieLine l) {
-        double zb = l.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV() * l.getDanglingLine2().getTerminal().getVoltageLevel().getNominalV();
+        double zb = l.getBoundaryLine1().getTerminal().getVoltageLevel().getNominalV() * l.getBoundaryLine2().getTerminal().getVoltageLevel().getNominalV();
         return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
     }
 
@@ -104,12 +104,12 @@ public class SV {
         }
     }
 
-    public SV otherSide(DanglingLine dl) {
+    public SV otherSide(BoundaryLine dl) {
         double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
         return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zb);
     }
 
-    public SV otherSide(DanglingLine dl, boolean splitShuntAdmittance) {
+    public SV otherSide(BoundaryLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
             double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
             return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0, zb);
@@ -122,11 +122,11 @@ public class SV {
         return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getP();
     }
 
-    public double otherSideP(DanglingLine dl) {
+    public double otherSideP(BoundaryLine dl) {
         return otherSide(dl).getP();
     }
 
-    public double otherSideP(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideP(BoundaryLine dl, boolean splitShuntAdmittance) {
         return otherSide(dl, splitShuntAdmittance).getP();
     }
 
@@ -134,11 +134,11 @@ public class SV {
         return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getQ();
     }
 
-    public double otherSideQ(DanglingLine dl) {
+    public double otherSideQ(BoundaryLine dl) {
         return otherSide(dl).getQ();
     }
 
-    public double otherSideQ(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideQ(BoundaryLine dl, boolean splitShuntAdmittance) {
         return otherSide(dl, splitShuntAdmittance).getQ();
     }
 
@@ -146,11 +146,11 @@ public class SV {
         return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getU();
     }
 
-    public double otherSideU(DanglingLine dl) {
+    public double otherSideU(BoundaryLine dl) {
         return otherSide(dl).getU();
     }
 
-    public double otherSideU(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideU(BoundaryLine dl, boolean splitShuntAdmittance) {
         return otherSide(dl, splitShuntAdmittance).getU();
     }
 
@@ -158,19 +158,19 @@ public class SV {
         return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getA();
     }
 
-    public double otherSideA(DanglingLine dl) {
+    public double otherSideA(BoundaryLine dl) {
         return otherSide(dl).getA();
     }
 
-    public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideA(BoundaryLine dl, boolean splitShuntAdmittance) {
         return otherSide(dl, splitShuntAdmittance).getA();
     }
 
-    public double otherSideI(DanglingLine dl) {
+    public double otherSideI(BoundaryLine dl) {
         return otherSide(dl).getI();
     }
 
-    public double otherSideI(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideI(BoundaryLine dl, boolean splitShuntAdmittance) {
         return otherSide(dl, splitShuntAdmittance).getI();
     }
 
