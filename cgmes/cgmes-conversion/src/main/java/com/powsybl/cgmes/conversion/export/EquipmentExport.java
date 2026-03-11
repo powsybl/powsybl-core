@@ -968,13 +968,13 @@ public final class EquipmentExport {
                     context, exportedBaseVoltagesByNominalV, exported);
         }
 
-        Set<String> pairingKeys = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).map(BoundaryLine::getPairingKey).collect(Collectors.toSet());
-        for (String pairingKey : pairingKeys) {
-            List<BoundaryLine> boundaryLineList = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).filter(boundaryLine -> pairingKey.equals(boundaryLine.getPairingKey())).toList();
-            writeUnpairedOrPairedBoundaryLines(boundaryLineList, mapTerminal2Id, cimNamespace, euNamespace,
+        Map<String, List<BoundaryLine>> boundaryLinesByPairingKey = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).collect(Collectors.groupingBy(CgmesExportUtil::getEffectivePairingKey));
+        for (Map.Entry<String, List<BoundaryLine>> entry : boundaryLinesByPairingKey.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+            writeUnpairedOrPairedBoundaryLines(entry.getValue(), mapTerminal2Id, cimNamespace, euNamespace,
                     exportedLimitTypes, writer,
                     context, exportedBaseVoltagesByNominalV, exported);
         }
+
     }
 
     private static void writeUnpairedOrPairedBoundaryLines(List<BoundaryLine> boundaryLineList, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace,
@@ -1157,7 +1157,7 @@ public final class EquipmentExport {
         BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
         String substationId = writeFictitiousSubstationFor(boundaryLine, cimNamespace, writer, context);
         String containerId = writeFictitiousVoltageLevelFor(boundaryLine, substationId, baseVoltageId, cimNamespace, writer, context);
-        boundaryLineList.forEach(dl -> context.setFictitiousContainerFor(dl, containerId));
+        boundaryLineList.forEach(bl -> context.setFictitiousContainerFor(bl, containerId));
         return containerId;
     }
 
@@ -1626,8 +1626,8 @@ public final class EquipmentExport {
     }
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
-        BoundaryLine dl = boundary.getBoundaryLine();
-        return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+        BoundaryLine bl = boundary.getBoundaryLine();
+        return context.getNamingStrategy().getCgmesIdFromAlias(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
     }
 
     private static void writeTerminals(Network network, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
