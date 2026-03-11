@@ -747,11 +747,11 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
         ThreeWindingsTransformer.Leg leg = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
         leg.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
-        assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIds());
+        assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
 
         //check no group is selected if any is null
         assertThrows(NullPointerException.class, () -> leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, null, EurostagTutorialExample1Factory.NOT_ACTIVATED));
-        assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIds());
+        assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
 
         //check no group selected if any does not exist
         String errorMessage = assertThrows(PowsyblException.class, () -> leg.addSelectedOperationalLimitsGroups(
@@ -762,7 +762,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         ).getMessage();
         assertTrue(errorMessage.contains("not a group"));
         assertTrue(errorMessage.contains("also wrong"));
-        assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIds());
+        assertEquals(List.of("DEFAULT"), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
 
         leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
         assertEquals(List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE), leg.getAllSelectedOperationalLimitsGroupIdsOrdered());
