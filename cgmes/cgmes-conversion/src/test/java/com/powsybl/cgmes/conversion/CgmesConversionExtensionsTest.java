@@ -14,16 +14,15 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CgmesConversionContextExtensionTest {
+class CgmesConversionExtensionsTest {
 
     @Test
-    void test() {
+    void testCgmesConversionContextExtension() {
         Properties properties = new Properties();
         properties.put(CgmesImport.STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION, "true");
         properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
@@ -31,5 +30,23 @@ class CgmesConversionContextExtensionTest {
         CgmesConversionContextExtension extension = network.getExtension(CgmesConversionContextExtension.class);
         assertNotNull(extension);
         assertTrue(extension.getContext().config().storeCgmesConversionContextAsNetworkExtension());
+    }
+
+    @Test
+    void testCgmesModelExtensionEnabled() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, true);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), NetworkFactory.findDefault(), properties);
+        CgmesModelExtension extension = network.getExtension(CgmesModelExtension.class);
+        assertNotNull(extension);
+    }
+
+    @Test
+    void testCgmesModelExtensionDisabled() {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, false);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), NetworkFactory.findDefault(), properties);
+        CgmesModelExtension extension = network.getExtension(CgmesModelExtension.class);
+        assertNull(extension);
     }
 }
