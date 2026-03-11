@@ -20,8 +20,8 @@ import com.powsybl.psse.model.pf.PsseInterareaTransfer;
 class InterareaTransferData extends AbstractRecordGroup<PsseInterareaTransfer> {
 
     InterareaTransferData() {
-        super(INTERAREA_TRANSFER, "arfrom", "arto", "trid", "ptran");
-        withQuotedFields("trid");
+        super(INTERAREA_TRANSFER, PsseInterareaTransfer.getFieldNames());
+        withQuotedFields(PsseInterareaTransfer.getFieldNamesString());
     }
 
     @Override

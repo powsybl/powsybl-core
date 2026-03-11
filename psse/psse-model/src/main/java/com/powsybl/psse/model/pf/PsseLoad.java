@@ -9,7 +9,20 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -17,64 +30,98 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseLoad extends PsseVersioned {
 
-    @Parsed(field = {"i", "ibus"})
+    private static final Map<String, PsseFieldDefinition<PsseLoad, ?>> FIELDS = createFields();
+
+    private static final String[] FIELD_NAMES_32 = {STR_I, STR_ID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE};
+    private static final String[] FIELD_NAMES_33 = {STR_I, STR_ID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE, STR_INTRPT};
+    private static final String[] FIELD_NAMES_35 = {STR_I, STR_ID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE, STR_INTRPT, STR_DGENP, STR_DGENQ, STR_DGENF, STR_LOADTYPE};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_LOADID, STR_STAT, STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, STR_YQ, STR_OWNER, STR_SCALE, STR_INTRPT, STR_DGENP, STR_DGENQ, STR_DGENM, STR_LOADTYPE};
+
     private int i;
-
-    @Parsed(field = {"id", "loadid"}, defaultNullRead = "1")
     private String id;
+    private int status = defaultIntegerFor(STR_STATUS, FIELDS);
+    private int area = defaultIntegerFor(STR_AREA, FIELDS);
+    private int zone = defaultIntegerFor(STR_ZONE, FIELDS);
+    private double pl = defaultDoubleFor(STR_PL, FIELDS);
+    private double ql = defaultDoubleFor(STR_QL, FIELDS);
+    private double ip = defaultDoubleFor(STR_IP, FIELDS);
+    private double iq = defaultDoubleFor(STR_IQ, FIELDS);
+    private double yp = defaultDoubleFor(STR_YP, FIELDS);
+    private double yq = defaultDoubleFor(STR_YQ, FIELDS);
+    private int owner = defaultIntegerFor(STR_OWNER, FIELDS);
+    private int scale = defaultIntegerFor(STR_SCALE, FIELDS);
 
-    @Parsed(field = {"status", "stat"})
-    private int status = 1;
-
-    @Parsed
-    private int area = -1;
-
-    @Parsed
-    private int zone = -1;
-
-    @Parsed
-    private double pl = 0;
-
-    @Parsed
-    private double ql = 0;
-
-    @Parsed
-    private double ip = 0;
-
-    @Parsed
-    private double iq = 0;
-
-    @Parsed
-    private double yp = 0;
-
-    @Parsed
-    private double yq = 0;
-
-    @Parsed
-    private int owner = -1;
-
-    @Parsed
-    private int scale = 1;
-
-    @Parsed
     @Revision(since = 33)
-    private int intrpt = 0;
+    private int intrpt = defaultIntegerFor(STR_INTRPT, FIELDS);
 
-    @Parsed
     @Revision(since = 35)
-    private double dgenp = 0;
+    private double dgenp = defaultDoubleFor(STR_DGENP, FIELDS);
 
-    @Parsed
     @Revision(since = 35)
-    private double dgenq = 0;
+    private double dgenq = defaultDoubleFor(STR_DGENQ, FIELDS);
 
-    @Parsed
     @Revision(since = 35)
-    private int dgenm = 0;
+    private int dgenm = defaultIntegerFor(STR_DGENM, FIELDS);
 
-    @Parsed(defaultNullRead = "            ")
     @Revision(since = 35)
-    private String loadtype;
+    private String loadtype = defaultStringFor(STR_LOADTYPE, FIELDS);
+
+    public static String[] getFieldNames32() {
+        return FIELD_NAMES_32;
+    }
+
+    public static String[] getFieldNames33() {
+        return FIELD_NAMES_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseLoad fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseLoad::new);
+    }
+
+    public static String[] toRecord(PsseLoad psseLoad, String[] headers) {
+        return Util.toRecord(psseLoad, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseLoad, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseLoad, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseLoad::getI, PsseLoad::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseLoad::getI, PsseLoad::setI));
+        addField(fields, createNewField(STR_ID, String.class, PsseLoad::getId, PsseLoad::setId));
+        addField(fields, createNewField(STR_LOADID, String.class, PsseLoad::getId, PsseLoad::setId));
+        addField(fields, createNewField(STR_STATUS, Integer.class, PsseLoad::getStatus, PsseLoad::setStatus, 1));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseLoad::getStatus, PsseLoad::setStatus, 1));
+        addField(fields, createNewField(STR_AREA, Integer.class, PsseLoad::getArea, PsseLoad::setArea, -1));
+        addField(fields, createNewField(STR_ZONE, Integer.class, PsseLoad::getZone, PsseLoad::setZone, -1));
+        addField(fields, createNewField(STR_PL, Double.class, PsseLoad::getPl, PsseLoad::setPl, 0.0));
+        addField(fields, createNewField(STR_QL, Double.class, PsseLoad::getQl, PsseLoad::setQl, 0.0));
+        addField(fields, createNewField(STR_IP, Double.class, PsseLoad::getIp, PsseLoad::setIp, 0.0));
+        addField(fields, createNewField(STR_IQ, Double.class, PsseLoad::getIq, PsseLoad::setIq, 0.0));
+        addField(fields, createNewField(STR_YP, Double.class, PsseLoad::getYp, PsseLoad::setYp, 0.0));
+        addField(fields, createNewField(STR_YQ, Double.class, PsseLoad::getYq, PsseLoad::setYq, 0.0));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseLoad::getOwner, PsseLoad::setOwner, -1));
+        addField(fields, createNewField(STR_SCALE, Integer.class, PsseLoad::getScale, PsseLoad::setScale, -1));
+        addField(fields, createNewField(STR_INTRPT, Integer.class, PsseLoad::getIntrpt, PsseLoad::setIntrpt, 0));
+        addField(fields, createNewField(STR_DGENP, Double.class, PsseLoad::getDgenp, PsseLoad::setDgenp, 0.0));
+        addField(fields, createNewField(STR_DGENQ, Double.class, PsseLoad::getDgenq, PsseLoad::setDgenq, 0.0));
+        addField(fields, createNewField(STR_DGENF, Integer.class, PsseLoad::getDgenm, PsseLoad::setDgenm, 0));
+        addField(fields, createNewField(STR_DGENM, Integer.class, PsseLoad::getDgenm, PsseLoad::setDgenm, 0));
+        addField(fields, createNewField(STR_LOADTYPE, String.class, PsseLoad::getLoadtype, PsseLoad::setLoadtype, " ".repeat(12)));
+
+        return fields;
+    }
 
     public int getI() {
         return i;
@@ -181,52 +228,52 @@ public class PsseLoad extends PsseVersioned {
     }
 
     public int getIntrpt() {
-        checkVersion("intrpt");
+        checkVersion(STR_INTRPT);
         return intrpt;
     }
 
     public void setIntrpt(int intrpt) {
-        checkVersion("intrpt");
+        checkVersion(STR_INTRPT);
         this.intrpt = intrpt;
     }
 
     public double getDgenp() {
-        checkVersion("dgenp");
+        checkVersion(STR_DGENP);
         return dgenp;
     }
 
     public void setDgenp(double dgenp) {
-        checkVersion("dgenp");
+        checkVersion(STR_DGENP);
         this.dgenp = dgenp;
     }
 
     public double getDgenq() {
-        checkVersion("dgenq");
+        checkVersion(STR_DGENQ);
         return dgenq;
     }
 
     public void setDgenq(double dgenq) {
-        checkVersion("dgenq");
+        checkVersion(STR_DGENQ);
         this.dgenq = dgenq;
     }
 
     public int getDgenm() {
-        checkVersion("dgenm");
+        checkVersion(STR_DGENM);
         return dgenm;
     }
 
     public void setDgenm(int dgenm) {
-        checkVersion("dgenm");
+        checkVersion(STR_DGENM);
         this.dgenm = dgenm;
     }
 
     public String getLoadtype() {
-        checkVersion("loadtype");
+        checkVersion(STR_LOADTYPE);
         return loadtype;
     }
 
     public void setLoadtype(String loadtype) {
-        checkVersion("loadtype");
+        checkVersion(STR_LOADTYPE);
         this.loadtype = loadtype;
     }
 
@@ -244,7 +291,6 @@ public class PsseLoad extends PsseVersioned {
         copy.iq = this.iq;
         copy.yp = this.yp;
         copy.yq = this.yq;
-        copy.owner = this.owner;
         copy.scale = this.scale;
         copy.intrpt = this.intrpt;
         copy.dgenp = this.dgenp;

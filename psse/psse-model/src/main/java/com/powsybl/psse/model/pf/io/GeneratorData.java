@@ -10,8 +10,8 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseGenerator;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
@@ -20,15 +20,12 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
 
-    private static final String[] FIELD_NAMES_32_33 = {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-    static final String[] FIELD_NAMES_35 = {"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-
     GeneratorData() {
         super(PowerFlowRecordGroup.GENERATOR);
-        withFieldNames(V32, FIELD_NAMES_32_33);
-        withFieldNames(V33, FIELD_NAMES_32_33);
-        withFieldNames(V35, FIELD_NAMES_35);
-        withQuotedFields("id", "machid");
+        withFieldNames(V32, PsseGenerator.getFieldNames3233());
+        withFieldNames(V33, PsseGenerator.getFieldNames3233());
+        withFieldNames(V35, PsseGenerator.getFieldNames35());
+        withQuotedFields(PsseGenerator.getFieldNamesString());
     }
 
     @Override

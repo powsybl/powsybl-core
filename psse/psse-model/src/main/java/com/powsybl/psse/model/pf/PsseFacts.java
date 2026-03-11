@@ -9,7 +9,19 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -18,77 +30,97 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseFacts extends PsseVersioned {
 
-    @Parsed(defaultNullRead = "")
+    private static final Map<String, PsseFieldDefinition<PsseFacts, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_32_33 = {STR_NAME, STR_I, STR_J, STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX, STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF, STR_REMOT, STR_MNAME};
+    private static final String[] FIELD_NAMES_35 = {STR_NAME, STR_I, STR_J, STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX, STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF, STR_FCREG, STR_NREG, STR_MNAME};
+    private static final String[] FIELD_NAMES_35X = {STR_NAME, STR_IBUS, STR_JBUS, STR_MODE, STR_PDES, STR_QDES, STR_VSET, STR_SHMX, STR_TRMX, STR_VTMN, STR_VTMX, STR_VSMX, STR_IMX, STR_LINX, STR_RMPCT, STR_OWNER, STR_SET1, STR_SET2, STR_VSREF, STR_FCREG, STR_NREG, STR_MNAME};
+
     private String name;
-
-    @Parsed(field = {"i", "ibus"})
     private int i;
+    private int j = defaultIntegerFor(STR_J, FIELDS);
+    private int mode = defaultIntegerFor(STR_MODE, FIELDS);
+    private double pdes = defaultDoubleFor(STR_PDES, FIELDS);
+    private double qdes = defaultDoubleFor(STR_QDES, FIELDS);
+    private double vset = defaultDoubleFor(STR_VSET, FIELDS);
+    private double shmx = defaultDoubleFor(STR_SHMX, FIELDS);
+    private double trmx = defaultDoubleFor(STR_TRMX, FIELDS);
+    private double vtmn = defaultDoubleFor(STR_VTMN, FIELDS);
+    private double vtmx = defaultDoubleFor(STR_VTMX, FIELDS);
+    private double vsmx = defaultDoubleFor(STR_VSMX, FIELDS);
+    private double imx = defaultDoubleFor(STR_IMX, FIELDS);
+    private double linx = defaultDoubleFor(STR_LINX, FIELDS);
+    private double rmpct = defaultDoubleFor(STR_RMPCT, FIELDS);
+    private int owner = defaultIntegerFor(STR_OWNER, FIELDS);
+    private double set1 = defaultDoubleFor(STR_SET1, FIELDS);
+    private double set2 = defaultDoubleFor(STR_SET2, FIELDS);
+    private int vsref = defaultIntegerFor(STR_VSREF, FIELDS);
 
-    @Parsed(field = {"j", "jbus"})
-    private int j = 0;
-
-    @Parsed
-    private int mode = 1;
-
-    @Parsed
-    private double pdes = 0.0;
-
-    @Parsed
-    private double qdes = 0.0;
-
-    @Parsed
-    private double vset = 1.0;
-
-    @Parsed
-    private double shmx = 9999.0;
-
-    @Parsed
-    private double trmx = 9999.0;
-
-    @Parsed
-    private double vtmn = 0.9;
-
-    @Parsed
-    private double vtmx = 1.1;
-
-    @Parsed
-    private double vsmx = 1.0;
-
-    @Parsed
-    private double imx = 0.0;
-
-    @Parsed
-    private double linx = 0.05;
-
-    @Parsed
-    private double rmpct = 100.0;
-
-    @Parsed
-    private int owner = 1;
-
-    @Parsed
-    private double set1 = 0.0;
-
-    @Parsed
-    private double set2 = 0.0;
-
-    @Parsed
-    private int vsref = 0;
-
-    @Parsed
     @Revision(until = 33)
-    private int remot = 0;
+    private int remot = defaultIntegerFor(STR_REMOT, FIELDS);
 
-    @Parsed(defaultNullRead = "")
     private String mname;
 
-    @Parsed
     @Revision(since = 35)
-    private int fcreg = 0;
+    private int fcreg = defaultIntegerFor(STR_FCREG, FIELDS);
 
-    @Parsed
     @Revision(since = 35)
-    private int nreg = 0;
+    private int nreg = defaultIntegerFor(STR_NREG, FIELDS);
+
+    public static String[] getFieldNames3233() {
+        return FIELD_NAMES_32_33;
+    }
+
+    public static String[] getFieldNames35() {
+        return FIELD_NAMES_35;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseFacts fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseFacts::new);
+    }
+
+    public static String[] toRecord(PsseFacts psseFacts, String[] headers) {
+        return Util.toRecord(psseFacts, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseFacts, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseFacts, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseFacts::getName, PsseFacts::setName));
+        addField(fields, createNewField(STR_I, Integer.class, PsseFacts::getI, PsseFacts::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseFacts::getI, PsseFacts::setI));
+        addField(fields, createNewField(STR_J, Integer.class, PsseFacts::getJ, PsseFacts::setJ, 0));
+        addField(fields, createNewField(STR_JBUS, Integer.class, PsseFacts::getJ, PsseFacts::setJ, 0));
+        addField(fields, createNewField(STR_MODE, Integer.class, PsseFacts::getMode, PsseFacts::setMode, 1));
+        addField(fields, createNewField(STR_PDES, Double.class, PsseFacts::getPdes, PsseFacts::setPdes, 0.0));
+        addField(fields, createNewField(STR_QDES, Double.class, PsseFacts::getQdes, PsseFacts::setQdes, 0.0));
+        addField(fields, createNewField(STR_VSET, Double.class, PsseFacts::getVset, PsseFacts::setVset, 1.0));
+        addField(fields, createNewField(STR_SHMX, Double.class, PsseFacts::getShmx, PsseFacts::setShmx, 9999.0));
+        addField(fields, createNewField(STR_TRMX, Double.class, PsseFacts::getTrmx, PsseFacts::setTrmx, 9999.0));
+        addField(fields, createNewField(STR_VTMN, Double.class, PsseFacts::getVtmn, PsseFacts::setVtmn, 0.9));
+        addField(fields, createNewField(STR_VTMX, Double.class, PsseFacts::getVtmx, PsseFacts::setVtmx, 1.1));
+        addField(fields, createNewField(STR_VSMX, Double.class, PsseFacts::getVsmx, PsseFacts::setVsmx, 1.0));
+        addField(fields, createNewField(STR_IMX, Double.class, PsseFacts::getImx, PsseFacts::setImx, 0.0));
+        addField(fields, createNewField(STR_LINX, Double.class, PsseFacts::getLinx, PsseFacts::setLinx, 0.05));
+        addField(fields, createNewField(STR_RMPCT, Double.class, PsseFacts::getRmpct, PsseFacts::setRmpct, 100.0));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseFacts::getOwner, PsseFacts::setOwner, 1));
+        addField(fields, createNewField(STR_SET1, Double.class, PsseFacts::getSet1, PsseFacts::setSet1, 0.0));
+        addField(fields, createNewField(STR_SET2, Double.class, PsseFacts::getSet2, PsseFacts::setSet2, 0.0));
+        addField(fields, createNewField(STR_VSREF, Integer.class, PsseFacts::getVsref, PsseFacts::setVsref, 0));
+        addField(fields, createNewField(STR_REMOT, Integer.class, PsseFacts::getRemot, PsseFacts::setRemot, 0));
+        addField(fields, createNewField(STR_MNAME, String.class, PsseFacts::getMname, PsseFacts::setMname));
+        addField(fields, createNewField(STR_FCREG, Integer.class, PsseFacts::getFcreg, PsseFacts::setFcreg, 0));
+        addField(fields, createNewField(STR_NREG, Integer.class, PsseFacts::getNreg, PsseFacts::setNreg, 0));
+
+        return fields;
+    }
 
     public String getName() {
         return name;
@@ -243,7 +275,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getRemot() {
-        checkVersion("remot");
+        checkVersion(STR_REMOT);
         return remot;
     }
 
@@ -260,7 +292,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getFcreg() {
-        checkVersion("fcreg");
+        checkVersion(STR_FCREG);
         return fcreg;
     }
 
@@ -269,7 +301,7 @@ public class PsseFacts extends PsseVersioned {
     }
 
     public int getNreg() {
-        checkVersion("nreg");
+        checkVersion(STR_NREG);
         return nreg;
     }
 
