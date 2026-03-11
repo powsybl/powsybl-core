@@ -695,26 +695,51 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         line.cancelSelectedOperationalLimitsGroup1();
-        assertEquals(4, line.getOperationalLimitsGroups1().size());
-        assertEquals(0, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+        Assertions.assertThat(line.getOperationalLimitsGroups1().stream().map(OperationalLimitsGroup::getId).toList())
+            .containsExactlyInAnyOrder(
+                "DEFAULT",
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                EurostagTutorialExample1Factory.NOT_ACTIVATED
+            );
+        assertTrue(line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).isEmpty());
 
         // should have activated_1_1 and activated_1_2
         line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> s.contains("activated_1"));
-        assertEquals(2, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+        Assertions.assertThat(line.getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE))
+            .containsExactlyInAnyOrder(
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO
+            );
 
         // should also have not_activated now
         line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> s.contains("activated"));
-        assertEquals(3, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+        Assertions.assertThat(line.getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE))
+            .containsExactlyInAnyOrder(
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                EurostagTutorialExample1Factory.NOT_ACTIVATED
+            );
 
         // adding with a predicate should not remove activated groups that do not match the predicate
         line.cancelSelectedOperationalLimitsGroup1();
         line.addSelectedOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO);
         line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, "DEFAULT"::equals);
-        assertEquals(2, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+        Assertions.assertThat(line.getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE))
+            .containsExactlyInAnyOrder(
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                "DEFAULT"
+            );
 
         // check that all groups can be activated
         line.addSelectedOperationalLimitsGroupByPredicate(TwoSides.ONE, s -> true);
-        assertEquals(4, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).size());
+        Assertions.assertThat(line.getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE))
+            .containsExactlyInAnyOrder(
+                "DEFAULT",
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                EurostagTutorialExample1Factory.NOT_ACTIVATED
+            );
     }
 
     @Test
