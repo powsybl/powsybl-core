@@ -10,8 +10,12 @@ package com.powsybl.commons.xml;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.*;
+import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -22,8 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -187,5 +190,20 @@ class XmlUtilTest {
         XMLStreamWriter writer = XmlUtil.initializeWriter(false, " ", baos, StandardCharsets.ISO_8859_1);
         writer.close();
         assertEquals("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>", baos.toString());
+    }
+
+    @Test
+    void testSchemaFactory() {
+        SchemaFactory factory = XmlUtil.newSchemaFactory();
+        assertNotNull(factory);
+        try {
+            Object value1 = factory.getProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
+            assertEquals("", value1);
+
+            Object value2 = factory.getProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
+            assertEquals("", value2);
+        } catch (SAXNotSupportedException | SAXNotRecognizedException ignored) {
+            // ignored
+        }
     }
 }
