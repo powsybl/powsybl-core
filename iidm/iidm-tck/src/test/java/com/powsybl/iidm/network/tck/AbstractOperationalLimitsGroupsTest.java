@@ -670,7 +670,6 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         line.getTerminal2().setP(-p).setQ(-q);
         n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV1).setV(400);
         n.getBusBreakerView().getBus(EurostagTutorialExample1Factory.NHV2).setV(400);
-        System.out.println(line.getTerminal1().getI());
         assertEquals(expectedOverloadDuration, line.getOverloadDuration());
     }
 
