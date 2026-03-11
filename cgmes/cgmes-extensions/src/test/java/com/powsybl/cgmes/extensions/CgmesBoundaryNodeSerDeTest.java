@@ -8,11 +8,23 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -62,5 +74,119 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
         tl.remove();
 
         allFormatsRoundTripTestVersioned(network, "/eurostag_cgmes_dangling_line_boundary_node.xml", IidmVersion.V_1_15);
+    }
+
+    @Test
+    void testAnonymizedCgmesBoundaryNodeWhenExported() {
+        //Given
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        TieLine tieLine = network.getTieLine("NHV1_NHV2_1");
+        tieLine.newExtension(CgmesLineBoundaryNodeAdder.class)
+                .setHvdc(true)
+                .setLineEnergyIdentificationCodeEic("EIC_CODE")
+                .add();
+        CgmesLineBoundaryNode lineBoundaryNode = tieLine.getExtension(CgmesLineBoundaryNode.class);
+        assertNotNull(lineBoundaryNode);
+
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            // Then check anonymized code != original code
+            String anonymizedLineEnergyIdentificationCodeEic = anonymizer.anonymizeString("EIC_CODE");
+            assertNotEquals("EIC_CODE", anonymizedLineEnergyIdentificationCodeEic);
+            // Then check xml content (contain only anonymized code)
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + anonymizedLineEnergyIdentificationCodeEic + "\""));
+            // Then import without anonymizer
+            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            // get TieLine using anonymized ID.
+            TieLine importedTieLine = importedNetwork.getTieLine(anonymizer.anonymizeString("NHV1_NHV2_1"));
+            assertNotNull(importedTieLine);
+            CgmesLineBoundaryNode importedCgmesLineBoundaryNode = importedTieLine.getExtension(CgmesLineBoundaryNode.class);
+            assertNotNull(importedCgmesLineBoundaryNode);
+            assertTrue(importedCgmesLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
+            assertEquals(anonymizedLineEnergyIdentificationCodeEic, importedCgmesLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
+        });
+    }
+
+    @Test
+    void testOldIIdmNoAnonymizedCgmesBoundaryNodeWhenExported() {
+        //Given
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        TieLine tieLine = network.getTieLine("NHV1_NHV2_1");
+        String expectedValue = "EIC_CODE";
+        tieLine.newExtension(CgmesLineBoundaryNodeAdder.class)
+                .setHvdc(true)
+                .setLineEnergyIdentificationCodeEic(expectedValue)
+                .add();
+        CgmesLineBoundaryNode lineBoundaryNode = tieLine.getExtension(CgmesLineBoundaryNode.class);
+        assertNotNull(lineBoundaryNode);
+        testForAllPreviousVersions(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            NetworkSerDe.write(network, exportOptions, os);
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            // Then check xml content (contain only origin value)
+            assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + expectedValue + "\""));
+        });
+    }
+
+    @Test
+    void testAnonymizedCgmesBoundaryLineBoundaryNodeWhenExported() {
+        //Given
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        TieLine tieLine = network.getTieLine("NHV1_NHV2_1");
+        tieLine.getBoundaryLine1().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
+                .setHvdc(false)
+                .setLineEnergyIdentificationCodeEic("EIC_CODE")
+                .add();
+        CgmesBoundaryLineBoundaryNode boundaryLineBoundaryNode = tieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
+        assertNotNull(boundaryLineBoundaryNode);
+
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            String anonymizedLineEnergyIdentificationCodeEic = anonymizer.anonymizeString("EIC_CODE");
+            assertNotEquals("EIC_CODE", anonymizedLineEnergyIdentificationCodeEic);
+            // Then check xml content (contain only anonymized code)
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + anonymizedLineEnergyIdentificationCodeEic + "\""));
+            // Then import without anonymizer
+            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            TieLine importedTieLine = importedNetwork.getTieLine(anonymizer.anonymizeString("NHV1_NHV2_1"));
+            assertNotNull(importedTieLine);
+            CgmesBoundaryLineBoundaryNode importedBoundaryLineBoundaryNode = importedTieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
+            assertNotNull(importedBoundaryLineBoundaryNode);
+            assertTrue(importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
+            assertEquals(anonymizedLineEnergyIdentificationCodeEic, importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
+        });
+    }
+
+    @Test
+    void testOldIIdmNoAnonymizedCgmesBoundaryLineBoundaryNodeWhenExported() {
+        //Given
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        TieLine tieLine = network.getTieLine("NHV1_NHV2_1");
+        String expectedValue = "EIC_CODE";
+        tieLine.getBoundaryLine1().newExtension(CgmesBoundaryLineBoundaryNodeAdder.class)
+                .setHvdc(false)
+                .setLineEnergyIdentificationCodeEic(expectedValue)
+                .add();
+        CgmesBoundaryLineBoundaryNode boundaryLineBoundaryNode = tieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
+        assertNotNull(boundaryLineBoundaryNode);
+        testForAllVersionsBetween(IidmVersion.V_1_10, IidmVersion.V_1_15, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            NetworkSerDe.write(network, exportOptions, os);
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            // Then check xml content (contain only origin value)
+            assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + expectedValue + "\""));
+        });
     }
 }
