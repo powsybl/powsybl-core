@@ -473,7 +473,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
-                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, DANGLING_LINE -> {
+                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, BOUNDARY_LINE -> {
                             branchCount++;
                             feederCount++;
                         }
@@ -877,12 +877,12 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public Stream<Switch> getSwitchStream() {
-            return graph.getEdgeObjectStream().map(Function.identity());
+            return graph.getEdgeObjectStream().filter(Objects::nonNull).map(Function.identity());
         }
 
         @Override
         public int getSwitchCount() {
-            return graph.getEdgeCount();
+            return (int) graph.getEdgeObjectStream().filter(Objects::nonNull).count();
         }
 
         @Override

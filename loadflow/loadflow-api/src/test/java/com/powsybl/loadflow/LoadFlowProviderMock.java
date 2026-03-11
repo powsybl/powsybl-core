@@ -168,4 +168,26 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
         return platformConfig.getOptionalModuleConfig("dummy-extension");
     }
+
+    @Override
+    public boolean checkParameters(LoadFlowRunParameters runParameters) {
+        LoadFlowParameters parameters = runParameters.getLoadFlowParameters();
+        if (!parameters.isUseReactiveLimits()) {
+            runParameters.getReportNode().newReportNode()
+                    .withMessageTemplate("testParameters")
+                    .withUntypedValue("parameterName", "UseReactiveLimits")
+                    .withUntypedValue("parameterValue", "False")
+                    .add();
+            return false;
+        }
+        if (parameters.getBalanceType() == LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX) {
+            runParameters.getReportNode().newReportNode()
+                    .withMessageTemplate("testParameters")
+                    .withUntypedValue("parameterName", "BalanceType")
+                    .withUntypedValue("parameterValue", parameters.getBalanceType().toString())
+                    .add();
+            return false;
+        }
+        return true;
+    }
 }

@@ -45,28 +45,28 @@ public interface GeneratorFortescue extends Extension<Generator> {
     void setGroundingX(double groundingX);
 
     /**
-     * The zero sequence resistance of the generator.
+     * The zero-sequence resistance of the generator.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The zero sequence reactance of the generator.
+     * The zero-sequence reactance of the generator.
      */
     double getXz();
 
     void setXz(double xz);
 
     /**
-     * The negative sequence resistance of the generator.
+     * The negative-sequence resistance of the generator.
      */
     double getRn();
 
     void setRn(double rn);
 
     /**
-     * The negative sequence reactance of the generator.
+     * The negative-sequence reactance of the generator.
      */
     double getXn();
 

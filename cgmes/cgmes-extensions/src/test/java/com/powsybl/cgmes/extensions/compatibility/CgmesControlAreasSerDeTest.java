@@ -61,7 +61,7 @@ class CgmesControlAreasSerDeTest {
             () -> assertFalse(boundaryOnTerminal.getBoundary().isPresent()),
             () -> assertTrue(boundaryOnBoundary.isAc()),
             () -> assertFalse(boundaryOnBoundary.getTerminal().isPresent()),
-            () -> assertEquals("DL", boundaryOnBoundary.getBoundary().orElseThrow().getDanglingLine().getId())
+            () -> assertEquals("DL", boundaryOnBoundary.getBoundary().orElseThrow().getBoundaryLine().getId())
         );
 
         Area area2 = network.getArea("areaId-2");
@@ -93,7 +93,7 @@ class CgmesControlAreasSerDeTest {
             () -> assertTrue(b3.isAc()),
             () -> assertFalse(b3.getTerminal().isPresent()),
             () -> assertTrue(b3.getBoundary().isPresent()),
-            () -> assertEquals("DL8", b3.getBoundary().orElseThrow().getDanglingLine().getId())
+            () -> assertEquals("DL8", b3.getBoundary().orElseThrow().getBoundaryLine().getId())
         );
 
         // When an Area with the same ID already exists, the CgmesControlArea is not imported (and the Area is not updated)
@@ -110,7 +110,7 @@ class CgmesControlAreasSerDeTest {
         AreaBoundary b4 = area4.getAreaBoundaries().iterator().next();
         assertAll(
             () -> assertTrue(b4.isAc()),
-            () -> assertEquals("DL0", b4.getBoundary().orElseThrow().getDanglingLine().getId()),
+            () -> assertEquals("DL0", b4.getBoundary().orElseThrow().getBoundaryLine().getId()),
             () -> assertFalse(b4.getTerminal().isPresent())
         );
     }

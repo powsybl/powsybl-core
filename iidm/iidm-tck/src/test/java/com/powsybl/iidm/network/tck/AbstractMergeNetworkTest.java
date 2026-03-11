@@ -65,7 +65,7 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         Network n0 = Network.create("n0", "rid");
         addSubstationAndVoltageLevel(n0, "s0", Country.FR, "vl0", "b0");
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
         Network merge = Network.merge(n0, n1, n2);
         assertEquals(3, merge.getSubnetworks().size());
         assertEquals(1, merge.getSubnetwork(n0.getId()).getVoltageLevelCount());
@@ -79,54 +79,54 @@ public abstract class AbstractMergeNetworkTest {
 
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network subnetwork2 = merge.getSubnetwork(N2);
-        checkDanglingLineStatusCount(merge, 0, 2);
-        checkDanglingLineStatusCount(subnetwork1, 0, 1);
-        checkDanglingLineStatusCount(subnetwork2, 0, 1);
+        checkBoundaryLineStatusCount(merge, 0, 2);
+        checkBoundaryLineStatusCount(subnetwork1, 0, 1);
+        checkBoundaryLineStatusCount(subnetwork2, 0, 1);
 
         assertEquals(merge, tieLine.getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
-        assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl1").getParentNetwork());
+        assertEquals(subnetwork2, merge.getBoundaryLine("dl2").getParentNetwork());
     }
 
     @Test
     public void testMergeAndDetach() {
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
         // merge(n1, n2)
         Network merge = Network.merge(MERGE, n1, n2);
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", tieLine.getNameOrId());
-        assertEquals("dl1", tieLine.getDanglingLine1().getId());
-        assertEquals("dl2", tieLine.getDanglingLine2().getId());
-        assertEquals(0.0, tieLine.getDanglingLine1().getP0());
-        assertEquals(0.0, tieLine.getDanglingLine1().getQ0());
-        assertEquals(0.0, tieLine.getDanglingLine2().getP0());
-        assertEquals(0.0, tieLine.getDanglingLine2().getQ0());
+        assertEquals("dl1", tieLine.getBoundaryLine1().getId());
+        assertEquals("dl2", tieLine.getBoundaryLine2().getId());
+        assertEquals(0.0, tieLine.getBoundaryLine1().getP0());
+        assertEquals(0.0, tieLine.getBoundaryLine1().getQ0());
+        assertEquals(0.0, tieLine.getBoundaryLine2().getP0());
+        assertEquals(0.0, tieLine.getBoundaryLine2().getQ0());
 
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network subnetwork2 = merge.getSubnetwork(N2);
-        checkDanglingLineStatusCount(merge, 0, 2);
-        checkDanglingLineStatusCount(subnetwork1, 0, 1);
-        checkDanglingLineStatusCount(subnetwork2, 0, 1);
+        checkBoundaryLineStatusCount(merge, 0, 2);
+        checkBoundaryLineStatusCount(subnetwork1, 0, 1);
+        checkBoundaryLineStatusCount(subnetwork2, 0, 1);
         checkSubstationAndVoltageLevelCounts(merge, 2, 2);
 
         assertEquals(merge, tieLine.getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
-        assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl1").getParentNetwork());
+        assertEquals(subnetwork2, merge.getBoundaryLine("dl2").getParentNetwork());
 
         // detach(n1)
         assertTrue(subnetwork1.isDetachable());
         Network detachedN1 = subnetwork1.detach();
-        checkDanglingLineStatusCount(merge, 1, 0);
-        checkDanglingLineStatusCount(detachedN1, 1, 0);
-        checkDanglingLineStatusCount(subnetwork2, 1, 0);
+        checkBoundaryLineStatusCount(merge, 1, 0);
+        checkBoundaryLineStatusCount(detachedN1, 1, 0);
+        checkBoundaryLineStatusCount(subnetwork2, 1, 0);
         checkSubstationAndVoltageLevelCounts(merge, 1, 1);
         checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
-        DanglingLine dl1 = detachedN1.getDanglingLine("dl1");
-        DanglingLine dl2 = merge.getDanglingLine("dl2");
-        // - P0 and Q0 of the removed tie line's underlying dangling lines were updated:
+        BoundaryLine dl1 = detachedN1.getBoundaryLine("dl1");
+        BoundaryLine dl2 = merge.getBoundaryLine("dl2");
+        // - P0 and Q0 of the removed tie line's underlying boundary lines were updated:
         assertEquals(-731.312, dl1.getP0(), 0.001);
         assertEquals(-1254.625, dl1.getQ0(), 0.001);
         assertEquals(-731.312, dl2.getP0(), 0.001);
@@ -135,9 +135,9 @@ public abstract class AbstractMergeNetworkTest {
         // detach(n2)
         assertTrue(subnetwork2.isDetachable());
         Network detachedN2 = subnetwork2.detach();
-        checkDanglingLineStatusCount(merge, 0, 0);
-        checkDanglingLineStatusCount(detachedN1, 1, 0);
-        checkDanglingLineStatusCount(detachedN2, 1, 0);
+        checkBoundaryLineStatusCount(merge, 0, 0);
+        checkBoundaryLineStatusCount(detachedN1, 1, 0);
+        checkBoundaryLineStatusCount(detachedN2, 1, 0);
         checkSubstationAndVoltageLevelCounts(merge, 0, 0);
         checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
         checkSubstationAndVoltageLevelCounts(detachedN2, 1, 1);
@@ -151,7 +151,7 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void testMergeAndFlatten() {
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
         // merge(n1, n2)
         Network network = Network.merge(MERGE, n1, n2);
         Network subnetwork1 = network.getSubnetwork(N1);
@@ -159,12 +159,12 @@ public abstract class AbstractMergeNetworkTest {
 
         // flatten
         network.flatten();
-        checkDanglingLineStatusCount(network, 0, 2);
+        checkBoundaryLineStatusCount(network, 0, 2);
         checkSubstationAndVoltageLevelCounts(network, 2, 2);
         checkSubstationAndVoltageLevelsNetworks(network, network, network);
         assertTrue(network.getSubnetworks().isEmpty());
-        checkDanglingLineStatusCount(subnetwork1, 0, 0);
-        checkDanglingLineStatusCount(subnetwork2, 0, 0);
+        checkBoundaryLineStatusCount(subnetwork1, 0, 0);
+        checkBoundaryLineStatusCount(subnetwork2, 0, 0);
         checkSubstationAndVoltageLevelCounts(subnetwork1, 0, 0);
         checkSubstationAndVoltageLevelCounts(subnetwork2, 0, 0);
 
@@ -239,8 +239,8 @@ public abstract class AbstractMergeNetworkTest {
     public void testMergeAndDetachWithExtensions() {
         n1 = EurostagTutorialExample1Factory.createWithMoreGenerators();
         addSubstationAndVoltageLevel(n2, "s2", Country.BE, "vl2", "b2");
-        addDanglingLines(n1, "VLGEN", "dl1", "code", "NGEN");
-        addDanglingLines(n2, "vl2", "dl2", "code", "b2");
+        addBoundaryLines(n1, "VLGEN", "dl1", "code", "NGEN");
+        addBoundaryLines(n2, "vl2", "dl2", "code", "b2");
 
         // Add extension at network level
         n1.newExtension(SecondaryVoltageControlAdder.class)
@@ -391,11 +391,11 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void testMerge3Networks() {
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
         Network n3 = Network.create("n3", "test");
         addSubstationAndVoltageLevel(n3, "s3", Country.DE, "vl3", "b3");
-        addDanglingLines(n1, "vl1", "dl3", "code2", "b1");
-        addDanglingLines(n3, "vl3", "dl4", "code2", "b3");
+        addBoundaryLines(n1, "vl1", "dl3", "code2", "b1");
+        addBoundaryLines(n3, "vl3", "dl4", "code2", "b3");
 
         //merge.merge(n1, n2, n3);
         Network merge = Network.merge(MERGE, n1, n2, n3);
@@ -411,30 +411,30 @@ public abstract class AbstractMergeNetworkTest {
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network subnetwork2 = merge.getSubnetwork(N2);
         Network subnetwork3 = merge.getSubnetwork("n3");
-        checkDanglingLineStatusCount(merge, 0, 4);
-        checkDanglingLineStatusCount(subnetwork1, 0, 2);
-        checkDanglingLineStatusCount(subnetwork2, 0, 1);
-        checkDanglingLineStatusCount(subnetwork3, 0, 1);
+        checkBoundaryLineStatusCount(merge, 0, 4);
+        checkBoundaryLineStatusCount(subnetwork1, 0, 2);
+        checkBoundaryLineStatusCount(subnetwork2, 0, 1);
+        checkBoundaryLineStatusCount(subnetwork3, 0, 1);
 
         assertEquals(merge, tieLine1.getParentNetwork());
         assertEquals(merge, tieLine2.getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
-        assertEquals(subnetwork1, merge.getDanglingLine("dl3").getParentNetwork());
-        assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
-        assertEquals(subnetwork3, merge.getDanglingLine("dl4").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl1").getParentNetwork());
+        assertEquals(subnetwork1, merge.getBoundaryLine("dl3").getParentNetwork());
+        assertEquals(subnetwork2, merge.getBoundaryLine("dl2").getParentNetwork());
+        assertEquals(subnetwork3, merge.getBoundaryLine("dl4").getParentNetwork());
     }
 
-    private void checkDanglingLineStatusCount(Network network, long unpairedNb, long pairedNb) {
-        assertEquals(pairedNb, network.getDanglingLineStream(DanglingLineFilter.PAIRED).count());
-        assertEquals(unpairedNb, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).count());
+    private void checkBoundaryLineStatusCount(Network network, long unpairedNb, long pairedNb) {
+        assertEquals(pairedNb, network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).count());
+        assertEquals(unpairedNb, network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).count());
     }
 
     @Test
-    public void failMergeDanglingLinesWithSameId() {
+    public void failMergeBoundaryLinesWithSameId() {
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl", null, "dl", "code");
+        addCommonBoundaryLines("dl", null, "dl", "code");
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n0, n1, n2));
-        assertTrue(e.getMessage().contains("The following object(s) of type DanglingLineImpl exist(s) in both networks: [dl]"));
+        assertTrue(e.getMessage().contains("The following object(s) of type BoundaryLineImpl exist(s) in both networks: [dl]"));
     }
 
     @Test
@@ -705,17 +705,17 @@ public abstract class AbstractMergeNetworkTest {
                 .add();
     }
 
-    private void addCommonDanglingLines(String dl1, String code1, String dl2, String code2) {
-        addDanglingLines(n1, "vl1", dl1, code1, "b1");
-        addDanglingLines(n2, "vl2", dl2, code2, "b2");
+    private void addCommonBoundaryLines(String dl1, String code1, String dl2, String code2) {
+        addBoundaryLines(n1, "vl1", dl1, code1, "b1");
+        addBoundaryLines(n2, "vl2", dl2, code2, "b2");
     }
 
-    private void addDanglingLines(Network network, String voltageLevelId, String dlId, String code, String busId) {
-        addDanglingLine(network, voltageLevelId, dlId, code, busId, busId);
+    private void addBoundaryLines(Network network, String voltageLevelId, String dlId, String code, String busId) {
+        addBoundaryLine(network, voltageLevelId, dlId, code, busId, busId);
     }
 
-    private static void addDanglingLine(Network n, String voltageLevelId, String id, String code, String connectableBus, String bus) {
-        DanglingLine dl = n.getVoltageLevel(voltageLevelId).newDanglingLine()
+    private static void addBoundaryLine(Network n, String voltageLevelId, String id, String code, String connectableBus, String bus) {
+        BoundaryLine dl = n.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(id)
                 .setName(id + "_name")
                 .setConnectableBus(connectableBus)
@@ -837,7 +837,7 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void mergeThenCloneVariantBug() {
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
         Load ld2 = n2.getVoltageLevel("vl2").newLoad()
                 .setId("ld2")
                 .setConnectableBus("b2")
@@ -854,30 +854,30 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void invertDanglingLinesWhenCreatingATieLine() {
+    public void invertBoundaryLinesWhenCreatingATieLine() {
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl2", "code", "dl1", "code");
+        addCommonBoundaryLines("dl2", "code", "dl1", "code");
         Network merge = Network.merge(n1, n2);
         assertEquals(1, merge.getTieLineCount());
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
-        assertEquals("dl1", tieLine.getDanglingLine1().getId());
-        assertEquals("dl2", tieLine.getDanglingLine2().getId());
+        assertEquals("dl1", tieLine.getBoundaryLine1().getId());
+        assertEquals("dl2", tieLine.getBoundaryLine2().getId());
     }
 
     @Test
-    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergedNetwork() {
-        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
-        // or in the network we are adding when we try to associate dangling lines.
+    public void dontCreateATieLineWithAlreadyMergedBoundaryLinesInMergedNetwork() {
+        // The code is not the same if the boundary line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate boundary lines.
         //
         // This test covers the case where the duplicate pairing key is in the CURRENT network.
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n1, "vl1", "dl3", "code", "b1", "b1");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n1, "vl1", "dl3", "code", "b1", "b1");
         n1.newTieLine()
                 .setId("dl1 + dl3")
-                .setDanglingLine1("dl1")
-                .setDanglingLine2("dl3")
+                .setBoundaryLine1("dl1")
+                .setBoundaryLine2("dl3")
                 .add();
         Network merge = Network.merge(n1, n2);
         assertNotNull(merge.getTieLine("dl1 + dl3"));
@@ -887,18 +887,18 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void dontCreateATieLineWithAlreadyMergedDanglingLinesInMergingNetwork() {
-        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
-        // or in the network we are adding when we try to associate dangling lines.
+    public void dontCreateATieLineWithAlreadyMergedBoundaryLinesInMergingNetwork() {
+        // The code is not the same if the boundary line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate boundary lines.
         //
         // This test covers the case where the duplicate pairing key is in the ADDED network.
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n2, "vl2", "dl3", "code", "b2", "b2");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n2, "vl2", "dl3", "code", "b2", "b2");
         n2.newTieLine()
                 .setId("dl2 + dl3")
-                .setDanglingLine1("dl2")
-                .setDanglingLine2("dl3")
+                .setBoundaryLine1("dl2")
+                .setBoundaryLine2("dl3")
                 .add();
         Network merge = Network.merge(n1, n2);
         assertNotNull(merge.getTieLine("dl2 + dl3"));
@@ -908,62 +908,62 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void multipleDanglingLinesInMergedNetwork() {
-        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
-        // or in the network we are adding when we try to associate dangling lines.
+    public void multipleBoundaryLinesInMergedNetwork() {
+        // The code is not the same if the boundary line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate boundary lines.
         //
         // This test covers the case where the duplicate pairing key is in the CURRENT network.
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n2, "vl2", "dl3", "code", "b2", null);
         Network merge = Network.merge(n1, n2);
-        // Since n2 has ONLY ONE connected dangling line with the pairing key, the tie line is created
+        // Since n2 has ONLY ONE connected boundary line with the pairing key, the tie line is created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
-    public void multipleConnectedDanglingLinesInMergedNetwork() {
-        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
-        // or in the network we are adding when we try to associate dangling lines.
+    public void multipleConnectedBoundaryLinesInMergedNetwork() {
+        // The code is not the same if the boundary line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate boundary lines.
         //
         // This test covers the case where the duplicate pairing key is in the CURRENT network.
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n2, "vl2", "dl3", "code", "b2", "b2");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n2, "vl2", "dl3", "code", "b2", "b2");
         Network merge = Network.merge(n1, n2);
-        // Since n2 has SEVERAL connected dangling lines with the pairing key, we don't create the tie line
+        // Since n2 has SEVERAL connected boundary lines with the pairing key, we don't create the tie line
         assertEquals(0, merge.getTieLineCount());
     }
 
     @Test
-    public void multipleDanglingLinesInMergingNetwork() {
-        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
-        // or in the network we are adding when we try to associate dangling lines.
+    public void multipleBoundaryLinesInMergingNetwork() {
+        // The code is not the same if the boundary line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate boundary lines.
         //
         // This test covers the case where the duplicate pairing key is in the ADDED network.
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n1, "vl1", "dl3", "code", "b1", null);
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n1, "vl1", "dl3", "code", "b1", null);
         Network merge = Network.merge(n1, n2);
-        // Since n1 has ONLY ONE connected dangling line with the pairing key, the tie line is created
+        // Since n1 has ONLY ONE connected boundary line with the pairing key, the tie line is created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
-    public void multipleConnectedDanglingLinesWithSamePairingKey() {
-        // The code is not the same if the dangling line with the duplicate pairing key is in the current network
-        // or in the network we are adding when we try to associate dangling lines.
+    public void multipleConnectedBoundaryLinesWithSamePairingKey() {
+        // The code is not the same if the boundary line with the duplicate pairing key is in the current network
+        // or in the network we are adding when we try to associate boundary lines.
         //
         // This test covers the case where the duplicate pairing key is in the ADDED network.
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n1, "vl1", "dl3", "code", "b1", "b1");
+        addCommonBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n1, "vl1", "dl3", "code", "b1", "b1");
         Network merge = Network.merge(n1, n2);
-        // Since n1 has SEVERAL connected dangling lines with the pairing key, we don't create the tie line
+        // Since n1 has SEVERAL connected boundary lines with the pairing key, we don't create the tie line
         assertEquals(0, merge.getTieLineCount());
     }
 }

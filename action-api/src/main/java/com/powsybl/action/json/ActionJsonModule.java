@@ -55,8 +55,9 @@ public class ActionJsonModule extends SimpleModule {
         registerActionBuilderType(LoadAction.class, LoadActionBuilder.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionBuilderBuilderDeserializer());
         registerActionBuilderType(PercentChangeLoadAction.class, PercentChangeLoadActionBuilder.class,
             PercentChangeLoadAction.NAME, new PercentChangeLoadActionSerializer(), new PercentChangeLoadActionBuilderDeserializer());
-        registerActionBuilderType(DanglingLineAction.class, DanglingLineActionBuilder.class,
-            DanglingLineAction.NAME, new DanglingLineActionSerializer(), new DanglingLineActionBuilderBuilderDeserializer());
+        registerActionBuilderType(BoundaryLineAction.class, BoundaryLineActionBuilder.class,
+            BoundaryLineAction.NAME, new BoundaryLineActionSerializer(), new BoundaryLineActionBuilderDeserializer());
+        registerSubtypes(new NamedType(BoundaryLineActionBuilder.class, "DANGLING_LINE")); // For backward compatibility with versions <= 1.2
         registerActionBuilderType(HvdcAction.class, HvdcActionBuilder.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionBuilderDeserializer());
         registerActionBuilderType(GeneratorAction.class, GeneratorActionBuilder.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionBuilderDeserializer());

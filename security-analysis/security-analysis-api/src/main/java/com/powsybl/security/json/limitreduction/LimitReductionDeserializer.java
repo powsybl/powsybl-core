@@ -30,7 +30,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     }
 
     private static final class ParsingContext {
-        float value;
+        double value;
         LimitType limitType;
         Boolean monitoringOnly;
         ContingencyContext contingencyContext;
@@ -43,7 +43,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> parseLimitReduction(parser, deserializationContext, context, fieldName));
         LimitReduction.Builder builder = LimitReduction.builder(checkAttribute(context.limitType, "limitType"),
-                        checkAttribute(context.value, "value"))
+                checkAttribute(context.value, "value"))
                 .withMonitoringOnly(checkAttribute(context.monitoringOnly, "monitoringOnly"))
                 .withContingencyContext(checkAttribute(context.contingencyContext, "contingencyContext"));
         if (context.networkElementCriteria != null) {
@@ -60,7 +60,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
         switch (fieldName) {
             case "value" -> {
                 parser.nextToken();
-                context.value = parser.readValueAs(Float.class);
+                context.value = parser.readValueAs(Double.class);
                 return true;
             }
             case "limitType" -> {

@@ -849,7 +849,7 @@ public final class TopologyModificationUtils {
         }
         // We don't remove the latter ones if more than one, as this would break the connection between them
         if (mixed.size() == 1) {
-            // If only one, we're cleaning the dangling switches and/or internal connections
+            // If only one, we're cleaning the boundary switches and/or internal connections
             cleanMixedTopology(nbv, graph, node, reportNode);
         }
     }
