@@ -393,7 +393,11 @@ public final class JsonUtil {
         return extensions;
     }
 
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser,
+                                                                             DeserializationContext context,
+                                                                             SerializerSupplier supplier,
+                                                                             Set<String> extensionsNotFound,
+                                                                             T extendable) throws IOException {
         return updateExtensions(parser, context, supplier, extensionsNotFound, extendable, ReportNode.NO_OP);
     }
 
@@ -430,8 +434,11 @@ public final class JsonUtil {
         return readExtensions(parser, context, supplier, null);
     }
 
-    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser,
+                                                                           DeserializationContext context,
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                           Set<String> extensionsNotFound,
+                                                                           ReportNode reportNode) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -441,7 +448,7 @@ public final class JsonUtil {
                     + parser.currentToken());
         }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound);
+            Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound, reportNode);
             if (extension != null) {
                 extensions.add(extension);
             }
@@ -449,12 +456,29 @@ public final class JsonUtil {
         return extensions;
     }
 
-    public static <T extends Extendable> Extension<T> readExtension(JsonParser parser, DeserializationContext context,
-                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser,
+                                                                           DeserializationContext context,
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                           Set<String> extensionsNotFound) throws IOException {
+        return readExtensions(parser, context, supplier, extensionsNotFound, ReportNode.NO_OP);
+    }
+
+    public static <T extends Extendable> Extension<T> readExtension(JsonParser parser,
+                                                                    DeserializationContext context,
+                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                    Set<String> extensionsNotFound,
+                                                                    ReportNode reportNode) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
-        return updateExtension(parser, context, supplier::findProvider, extensionsNotFound, null, ReportNode.NO_OP);
+        return updateExtension(parser, context, supplier::findProvider, extensionsNotFound, null, reportNode);
+    }
+
+    public static <T extends Extendable> Extension<T> readExtension(JsonParser parser,
+                                                                    DeserializationContext context,
+                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                    Set<String> extensionsNotFound) throws IOException {
+        return readExtension(parser, context, supplier, extensionsNotFound, ReportNode.NO_OP);
     }
 
     /**
