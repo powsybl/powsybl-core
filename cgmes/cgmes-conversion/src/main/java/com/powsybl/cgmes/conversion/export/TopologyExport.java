@@ -362,20 +362,21 @@ public final class TopologyExport {
                 .findFirst();
     }
 
-    private static String createNewTopologicalNode(BoundaryLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static String createNewTopologicalNode(BoundaryLine bl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
 
-        String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
+        String baseVoltage = context.getBaseVoltageByNominalVoltage(bl.getTerminal().getVoltageLevel().getNominalV()).getId();
         // If the EQ has also been exported, a fictitious container should have been created
-        String containerId = context.getFictitiousContainerFor(dl);
+        String containerId = context.getFictitiousContainerFor(b
+        l);
         if (containerId == null) {
             // As a last resort, we create the TN in the same container of the boundary line
             LOG.error("Boundary line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
                             " Boundary line {} is considered entirely inside voltage level {}",
-                    dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
-            containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
+                    bl.getId(), bl.getPairingKey() != null ? " linked to X-node " + bl.getPairingKey() : "", bl.getId(), bl.getTerminal().getVoltageLevel().getId());
+            containerId = context.getNamingStrategy().getCgmesId(bl.getTerminal().getVoltageLevel());
         }
-        String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(dl), TOPOLOGICAL_NODE);
-        writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
+        String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(bl), TOPOLOGICAL_NODE);
+        writeTopologicalNode(fictTopologicalNodeId, bl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
 
         return fictTopologicalNodeId;
     }
