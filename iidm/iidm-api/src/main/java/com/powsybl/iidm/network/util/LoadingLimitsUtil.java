@@ -121,7 +121,10 @@ public final class LoadingLimitsUtil {
     }
 
     /**
-     * <p>Copies every limit from each operational limits group.</p>
+     * <p>Copies every limit from each operational limits group. Adds all the selected groups on <code>copiedBranch</code> as selected
+     * on <code>branch</code>. If a group of <code>copiedBranch</code> has the same ID as a group of <code>branch</code>, then the group of
+     * <code>branch</code> will be silently overwritten.</p>
+     * <p>Groups on <code>branch</code> that were selected will be deselected prior to copying.</p>
      *
      * @param copiedBranch the copied object
      * @param branch the object on which the copied object attributes are copied
@@ -129,10 +132,12 @@ public final class LoadingLimitsUtil {
     public static <I extends Branch<I>> void copyOperationalLimits(I copiedBranch, I branch) {
         if (copiedBranch != null) {
             copyOperationalLimits(copiedBranch.getOperationalLimitsGroups1(), branch::newOperationalLimitsGroup1);
+            branch.cancelSelectedOperationalLimitsGroup1();
             Collection<String> allSelectedIds = copiedBranch.getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE);
             branch.addSelectedOperationalLimitsGroups(TwoSides.ONE, allSelectedIds.toArray(String[]::new));
 
             copyOperationalLimits(copiedBranch.getOperationalLimitsGroups2(), branch::newOperationalLimitsGroup2);
+            branch.cancelSelectedOperationalLimitsGroup2();
             allSelectedIds = copiedBranch.getAllSelectedOperationalLimitsGroupIds(TwoSides.TWO);
             branch.addSelectedOperationalLimitsGroups(TwoSides.TWO, allSelectedIds.toArray(String[]::new));
         }

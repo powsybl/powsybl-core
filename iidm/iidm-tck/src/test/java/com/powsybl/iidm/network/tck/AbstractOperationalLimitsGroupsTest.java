@@ -1003,13 +1003,37 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     @Test
     public void testCopy() {
-        Network network = createNetworkWithOperationalLimitsGroupsOnLine();
-        Line line = network.getLine("L");
-        Line line2 = network.getLine("L2");
+        String name1 = "propName1";
+        String value1 = "propValue1";
+        String name2 = "propName2";
+        String value2 = "propValue2";
+        String name3 = "propName3";
+        String value3 = "propValue3";
+
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        Line line2 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
+        line.getOperationalLimitsGroup1("DEFAULT").orElseThrow().setProperty(name1, value1);
+        line.getOperationalLimitsGroup2(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).orElseThrow().setProperty(name2, value2);
+        line.getOperationalLimitsGroup1(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO).orElseThrow().setProperty(name3, value3);
         LoadingLimitsUtil.copyOperationalLimits(line, line2);
-        OperationalLimitsGroup olg3Side1 = line2.getOperationalLimitsGroup1("3").orElseThrow();
-        assertEquals("propValue1", olg3Side1.getProperty("propName1"));
-        OperationalLimitsGroup olg1Side2 = line2.getOperationalLimitsGroup2("1").orElseThrow();
-        assertEquals("propValue2", olg1Side2.getProperty("propName2"));
+
+        //check properties are copied
+        assertEquals(value1, line2.getOperationalLimitsGroup1("DEFAULT").orElseThrow().getProperty(name1));
+        assertEquals(value2, line2.getOperationalLimitsGroup2(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).orElseThrow().getProperty(name2));
+        assertEquals(value3, line2.getOperationalLimitsGroup1(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO).orElseThrow().getProperty(name3));
+
+        //check all selected are properly set
+        Collection<String> selectedIds1 = line2.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE);
+        assertEquals(3, selectedIds1.size());
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), selectedIds1);
+
+        Collection<String> selectedIds2 = line2.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.TWO);
+        assertEquals(2, selectedIds2.size());
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.TWO), selectedIds2);
+
+        //check all groups are copied
+        assertEquals(4, line2.getOperationalLimitsGroups1().size());
+        assertEquals(4, line2.getOperationalLimitsGroups2().size());
     }
 }
