@@ -98,7 +98,22 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Collection<TerminalExt> getTerminals() {
         checkValidity();
-        return Collections.unmodifiableCollection(terminals);
+        List<TerminalExt> all = new ArrayList<>(terminals);
+        int[] nodes = voltageLevel.getNodeBreakerView().getNodes();
+        for (int n : nodes) {
+            Terminal t = voltageLevel.getNodeBreakerView().getTerminal(n);
+            if (t instanceof TerminalExt te) {
+                try {
+                    Bus connectableBus = te.getBusView().getConnectableBus();
+                    if (this.equals(connectableBus) && !all.contains(te)) {
+                        all.add(te);
+                    }
+                } catch (PowsyblException e) {
+                    // ignore removed equipments or inaccessible buses
+                }
+            }
+        }
+        return Collections.unmodifiableCollection(all);
     }
 
     @Override
