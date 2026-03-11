@@ -737,7 +737,14 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         assertEquals("DEFAULT", leg.getAllSelectedOperationalLimitsGroupIds().iterator().next());
 
         //check no group selected if any does not exist
-        assertThrows(PowsyblException.class, () -> leg.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, "not a group", EurostagTutorialExample1Factory.NOT_ACTIVATED));
+        String errorMessage = assertThrows(PowsyblException.class, () -> leg.addSelectedOperationalLimitsGroups(
+            EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+            "not a group",
+            "also wrong",
+            EurostagTutorialExample1Factory.NOT_ACTIVATED)
+        ).getMessage();
+        assertTrue(errorMessage.contains("not a group"));
+        assertTrue(errorMessage.contains("also wrong"));
         assertEquals(1, leg.getAllSelectedOperationalLimitsGroups().size());
         assertEquals("DEFAULT", leg.getAllSelectedOperationalLimitsGroupIds().iterator().next());
 

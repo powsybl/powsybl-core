@@ -82,7 +82,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public void addSelectedOperationalLimitsGroups(String... ids) {
         boolean idWasNull = false;
-        boolean groupDidNotExist = false;
+        List<String> nonExistentGroups = new ArrayList<>();
         for (String id : ids) {
             if (id == null) {
                 idWasNull = true;
@@ -90,17 +90,17 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
                 continue;
             }
             if (getOperationalLimitsGroup(id).isEmpty()) {
-                groupDidNotExist = true;
+                nonExistentGroups.add(id);
                 LOGGER.error("No operational limits group is associated to id {} so this id can't be part of the selected groups of {}.", id, attributeName);
             }
         }
         if (idWasNull) {
             throw new NullPointerException("One or more of the provided IDs for the group selection were null, none of the provided groups were selected");
         }
-        if (groupDidNotExist) {
+        if (!nonExistentGroups.isEmpty()) {
             throw new PowsyblException(
-                String.format("One or more of the IDs did not correspond to an existing group, check logs for more details. Provided IDs were: %s",
-                    Arrays.toString(ids)
+                String.format("The following IDs did not correspond to an existing group, they cannot be selected: %s",
+                    nonExistentGroups
                 )
             );
         }
