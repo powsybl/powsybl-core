@@ -568,7 +568,7 @@ public class CgmesExport implements Exporter {
         CgmesMetadataModel originalTp;
         CgmesMetadataModel originalTpBd;
 
-        public IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel originalEq, CgmesMetadataModel originalSsh,
+        IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel originalEq, CgmesMetadataModel originalSsh,
                                CgmesMetadataModel originalTp, CgmesMetadataModel originalTpBd) {
             this.updatedSsh = updatedSsh;
             this.originalEq = originalEq;

@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 

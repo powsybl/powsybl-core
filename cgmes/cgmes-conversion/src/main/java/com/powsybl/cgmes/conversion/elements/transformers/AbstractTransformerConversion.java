@@ -73,30 +73,32 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         int position = ptc.getTapPosition();
         ptca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
-        ptc.getSteps().forEach(step -> {
-            double ratio = step.getRatio();
-            double angle = step.getAngle();
-            double r = step.getR();
-            double x = step.getX();
-            if (Double.isNaN(x)) {
-                context.fixed("ptc.step.x", "ptc.step.x is undefined", x, 0.0);
-                x = 0.0;
-            }
-            double b1 = step.getB1();
-            double g1 = step.getG1();
-            // double b2 = step.getB2();
-            // double g2 = step.getG2();
-            // Only b1 and g1 instead of b1 + b2 and g1 + g2
-            ptca.beginStep()
-                    .setRho(1 / ratio)
-                    .setAlpha(-angle)
-                    .setR(r)
-                    .setX(x)
-                    .setB(b1)
-                    .setG(g1)
-                    .endStep();
-        });
+        ptc.getSteps().forEach(step -> setPhaseTapChangerStep(ptca, step, context));
         ptca.add();
+    }
+
+    private static void setPhaseTapChangerStep(PhaseTapChangerAdder ptca, TapChanger.Step step, Context context) {
+        double ratio = step.getRatio();
+        double angle = step.getAngle();
+        double r = step.getR();
+        double x = step.getX();
+        if (Double.isNaN(x)) {
+            context.fixed("ptc.step.x", "ptc.step.x is undefined", x, 0.0);
+            x = 0.0;
+        }
+        double b1 = step.getB1();
+        double g1 = step.getG1();
+        // double b2 = step.getB2();
+        // double g2 = step.getG2();
+        // Only b1 and g1 instead of b1 + b2 and g1 + g2
+        ptca.beginStep()
+            .setRho(1 / ratio)
+            .setAlpha(-angle)
+            .setR(r)
+            .setX(x)
+            .setB(b1)
+            .setG(g1)
+            .endStep();
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
@@ -263,7 +265,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         if (ptc.getRegulationTerminal() != null) {
             Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(tw, phaseTapChangerId, context);
             double defaultTargetValue = getDefaultTargetValue(ptc, context);
-            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetValue);
+            double targetValue = cgmesRegulatingControl.map(propertyBag -> findTargetValue(propertyBag, findTerminalSign(tw, end), defaultTargetValue, DefaultValueUse.NOT_DEFINED))
+                .orElse(defaultTargetValue);
 
             double defaultTargetDeadband = getDefaultTargetDeadband(ptc, context);
             double targetDeadband = cgmesRegulatingControl.map(propertyBag -> findTargetDeadband(propertyBag, defaultTargetDeadband, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetDeadband);
@@ -341,7 +344,8 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
         return tapPosition.isPresent() ? tapPosition.getAsInt() : defaultTapPosition;
     }
 
-    private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger, String tapChangerId, int closestNeutralTapPosition, Context context) {
+    private static <C extends Connectable<C>> int getDefaultTapPosition(Connectable<C> tw, com.powsybl.iidm.network.TapChanger<?, ?, ?, ?> tapChanger,
+                                                                        String tapChangerId, int closestNeutralTapPosition, Context context) {
         Integer validNormalStep = null;
         OptionalInt normalStep = getNormalStep(tw, tapChangerId);
         if (normalStep.isPresent() && isValidTapPosition(tapChanger, normalStep.getAsInt())) {

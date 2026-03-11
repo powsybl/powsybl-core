@@ -27,8 +27,8 @@ import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -74,7 +74,7 @@ class CgmesConformity1ConversionTest {
         t.setReportConsumer(line -> {
             String[] cols = line.split("\\t");
             String rowType = cols[0];
-            if (rowType.equals("TapChanger")) {
+            if ("TapChanger".equals(rowType)) {
                 String tx = cols[3];
                 TxData d = new TxData(cols[5], cols[23], cols[24], cols[25], cols[26]);
                 actual.put(tx, d);

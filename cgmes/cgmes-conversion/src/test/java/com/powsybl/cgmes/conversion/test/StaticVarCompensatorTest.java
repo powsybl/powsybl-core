@@ -49,7 +49,8 @@ class StaticVarCompensatorTest {
         assertExpectedControl(svc, StaticVarCompensator.RegulationMode.REACTIVE_POWER, Double.NaN, 10.0, true);
     }
 
-    private static void assertExpectedControl(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode defaultRegulationMode, double defaultTargetV, double defaultTargetQ, boolean regulating) {
+    private static void assertExpectedControl(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode defaultRegulationMode,
+                                              double defaultTargetV, double defaultTargetQ, boolean regulating) {
         assertNotNull(staticVarCompensator);
         assertNotNull(staticVarCompensator.getRegulatingTerminal());
         double tol = 0.0000001;

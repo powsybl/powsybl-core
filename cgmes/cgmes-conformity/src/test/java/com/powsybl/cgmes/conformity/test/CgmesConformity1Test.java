@@ -8,12 +8,11 @@
 
 package com.powsybl.cgmes.conformity.test;
 
-import java.io.IOException;
-
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.model.test.CgmesModelTester;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.cgmes.model.test.CgmesModelTester;
+import java.io.IOException;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

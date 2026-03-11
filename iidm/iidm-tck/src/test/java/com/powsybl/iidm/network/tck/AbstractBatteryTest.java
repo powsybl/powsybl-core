@@ -253,12 +253,7 @@ public abstract class AbstractBatteryTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            battery.getTargetP();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, battery::getTargetP);
     }
 
     private void createBattery(String id, double targetP, double targetQ, double minP, double maxP) {

@@ -45,7 +45,8 @@ class BoundaryLineConverter extends AbstractConverter {
             createBoundaryLineGenerator(boundaryLine, psseBus.getI(), contextExport, perUnitContext).ifPresent(psseGenerator -> psseModel.addGenerators(Collections.singletonList(psseGenerator)));
         });
         psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
-        psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
+        psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream()
+            .sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
         psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
         psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
     }

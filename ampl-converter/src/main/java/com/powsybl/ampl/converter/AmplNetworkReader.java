@@ -7,9 +7,9 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;

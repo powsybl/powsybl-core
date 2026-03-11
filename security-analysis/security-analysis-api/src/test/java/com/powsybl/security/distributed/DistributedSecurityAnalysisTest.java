@@ -9,6 +9,7 @@ package com.powsybl.security.distributed;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import org.junit.jupiter.api.AfterEach;
@@ -58,11 +59,7 @@ class DistributedSecurityAnalysisTest {
 
         assertThatNullPointerException().isThrownBy(() -> new ExternalSecurityAnalysisConfig(true, null));
 
-        try {
-            new ExternalSecurityAnalysisConfig(true, "");
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(ConfigurationException.class, () -> new ExternalSecurityAnalysisConfig(true, ""));
     }
 
     /**

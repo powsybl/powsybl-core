@@ -72,8 +72,10 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // Transformer ends of power transformers
         // Tap changers of power transformers
         String id;
-        if (identifiable instanceof BoundaryLine dl) {
-            id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+        if (identifiable instanceof BoundaryLine bl) {
+            id = identifiable.getAliasFromType(aliasType)
+                .or(() -> bl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType)))
+                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         } else {
             id = identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         }

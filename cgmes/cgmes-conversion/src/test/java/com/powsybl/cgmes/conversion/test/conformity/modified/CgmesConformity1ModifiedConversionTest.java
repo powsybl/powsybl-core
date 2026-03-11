@@ -22,9 +22,9 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -707,7 +707,9 @@ class CgmesConformity1ModifiedConversionTest {
         CgmesImport importer = new CgmesImport(platformConfig);
         NetworkFactory networkFactory = NetworkFactory.findDefault();
         PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(ds, networkFactory, importParams));
-        assertEquals("2 windings transformer 'ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51': the 2 windings of the transformer shall belong to the substation '183d126d-2522-4ff2-a8cd-c5016cf09c1b_S' ('183d126d-2522-4ff2-a8cd-c5016cf09c1b_S', 'd6056127-34f1-43a9-b029-23fddb913bd5')",
+        assertEquals("2 windings transformer 'ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51': the 2 windings of the " +
+                "transformer shall belong to the substation '183d126d-2522-4ff2-a8cd-c5016cf09c1b_S' ('183d126d-2522-4ff2-a8cd-c5016cf09c1b_S', " +
+                "'d6056127-34f1-43a9-b029-23fddb913bd5')",
             e.getMessage());
     }
 

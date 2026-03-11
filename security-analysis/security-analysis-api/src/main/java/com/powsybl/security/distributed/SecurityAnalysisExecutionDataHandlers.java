@@ -68,7 +68,9 @@ public final class SecurityAnalysisExecutionDataHandlers {
         }
     }
 
-    public static void distributedOptions(Path workingDir, AbstractSecurityAnalysisCommandOptions<? extends AbstractSecurityAnalysisCommandOptions<?>> options, int taskCount, boolean withLogs, String taskCmdId) {
+    public static void distributedOptions(Path workingDir,
+                                          AbstractSecurityAnalysisCommandOptions<? extends AbstractSecurityAnalysisCommandOptions<?>> options,
+                                          int taskCount, boolean withLogs, String taskCmdId) {
         options.id(taskCmdId);
         options.outputFile(i -> getOutputPathForTask(workingDir, i), "JSON");
         options.task(i -> new Partition(i + 1, taskCount));

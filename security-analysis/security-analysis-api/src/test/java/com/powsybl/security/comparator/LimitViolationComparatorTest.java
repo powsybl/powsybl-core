@@ -7,17 +7,16 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.powsybl.iidm.network.TwoSides;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *

@@ -55,6 +55,7 @@ class CompletableFutureTaskTest {
         Exception exception = null;
         CountDownLatch waitForDone;
 
+        @SuppressWarnings("checkstyle:IllegalCatchWarning")
         @Override
         public void execute(Runnable command) {
             (new Thread() {

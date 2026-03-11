@@ -12,6 +12,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.action.Action;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -20,8 +22,6 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.action.Action;
-import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
@@ -315,24 +315,16 @@ class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setWithLogs(true);
         ExecutionHandler<SecurityAnalysisReport> handler2 = SecurityAnalysisExecutionHandlers.distributed(input, 2);
-        try {
-            handler2.after(workingDir, new DefaultExecutionReport(workingDir));
-            fail();
-        } catch (ComputationException ce) {
-            assertEquals("logs", ce.getErrLogs().get("security-analysis-task_0.err"));
-            assertEquals("logs", ce.getErrLogs().get("security-analysis-task_1.err"));
-            assertEquals("logs", ce.getOutLogs().get("security-analysis-task_0.out"));
-            assertEquals("logs", ce.getOutLogs().get("security-analysis-task_1.out"));
-        }
+        DefaultExecutionReport executionReport1 = new DefaultExecutionReport(workingDir);
+        ComputationException computationException = assertThrows(ComputationException.class, () -> handler2.after(workingDir, executionReport1));
+        assertEquals("logs", computationException.getErrLogs().get("security-analysis-task_0.err"));
+        assertEquals("logs", computationException.getErrLogs().get("security-analysis-task_1.err"));
+        assertEquals("logs", computationException.getOutLogs().get("security-analysis-task_0.out"));
+        assertEquals("logs", computationException.getOutLogs().get("security-analysis-task_1.out"));
 
-        try {
-            Command cmd = Mockito.mock(Command.class);
-            handler2.after(workingDir, new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42))));
-            fail();
-        } catch (Exception e) {
-            // ignored
-            assertInstanceOf(ComputationException.class, e);
-        }
+        Command cmd = Mockito.mock(Command.class);
+        DefaultExecutionReport executionReport2 = new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42)));
+        assertThrows(ComputationException.class, () -> handler2.after(workingDir, executionReport2));
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
             exporter.export(resultForContingency("c1"), writer);

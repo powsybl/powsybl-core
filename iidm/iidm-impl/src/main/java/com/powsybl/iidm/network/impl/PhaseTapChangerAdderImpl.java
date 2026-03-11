@@ -98,8 +98,14 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     @Override
-    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband) {
-        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition,
+                                               List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
+                                               Integer tapPosition, Integer solvedTapPosition, boolean regulating,
+                                               boolean loadTapChangingCapabilities, double regulationValue,
+                                               double targetDeadband) {
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal,
+            loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue,
+            targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }

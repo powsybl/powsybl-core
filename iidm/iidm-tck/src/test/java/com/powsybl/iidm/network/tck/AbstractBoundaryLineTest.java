@@ -242,12 +242,7 @@ public abstract class AbstractBoundaryLineTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            boundaryLine.getQ0();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, boundaryLine::getQ0);
     }
 
     @Test

@@ -25,11 +25,11 @@ class ScalableAdapter extends AbstractScalable {
         this.maxValue = maxValue;
     }
 
-    public ScalableAdapter(String id) {
+    ScalableAdapter(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
-    public ScalableAdapter(Injection<?> injection) {
+    ScalableAdapter(Injection<?> injection) {
         Objects.requireNonNull(injection);
         this.id = injection.getId();
     }

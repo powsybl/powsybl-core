@@ -360,19 +360,27 @@ public final class CgmesExportUtil {
 
     // tap changer is exported as it is modelled in IIDM, always at end 1
     static void addUpdateCgmesTapChangerExtension(TwoWindingsTransformer twt, CgmesExportContext context) {
-        twt.getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
+        twt.getOptionalRatioTapChanger()
+            .ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getOptionalPhaseTapChanger()
+            .ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
     }
 
     static void addUpdateCgmesTapChangerExtension(ThreeWindingsTransformer twt, CgmesExportContext context) {
-        twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 1, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 1, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
+        twt.getLeg1().getOptionalRatioTapChanger()
+            .ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 1, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getLeg1().getOptionalPhaseTapChanger()
+            .ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 1, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 2, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 2, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
+        twt.getLeg2().getOptionalRatioTapChanger()
+            .ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 2, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getLeg2().getOptionalPhaseTapChanger()
+            .ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 2, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
 
-        twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 3, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
-        twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 3, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
+        twt.getLeg3().getOptionalRatioTapChanger()
+            .ifPresent(rtc -> addTapChangerExtension(twt, RATIO_TAP_CHANGER, getTapChangerId(twt, RATIO_TAP_CHANGER, 3, context), rtc.getTapPosition(), regulatingControlIsDefined(rtc), context));
+        twt.getLeg3().getOptionalPhaseTapChanger()
+            .ifPresent(ptc -> addTapChangerExtension(twt, PHASE_TAP_CHANGER, getTapChangerId(twt, PHASE_TAP_CHANGER, 3, context), ptc.getTapPosition(), regulatingControlIsDefined(ptc), context));
     }
 
     // If we had alias only for tc1, it will be at end 1
@@ -426,7 +434,8 @@ public final class CgmesExportUtil {
         return !Double.isNaN(targetDeadband) && targetDeadband >= 0.0;
     }
 
-    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String cgmesTapChangerTag, String tapChangerId, int tapPosition, boolean regulatingControlIsDefined, CgmesExportContext context) {
+    private static <C extends Connectable<C>> void addTapChangerExtension(C twt, String cgmesTapChangerTag, String tapChangerId,
+                                                                          int tapPosition, boolean regulatingControlIsDefined, CgmesExportContext context) {
 
         CgmesTapChangers<C> cgmesTapChangers = twt.getExtension(CgmesTapChangers.class);
         if (cgmesTapChangers == null) {

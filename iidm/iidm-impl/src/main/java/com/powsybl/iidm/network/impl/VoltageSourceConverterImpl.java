@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.VoltageSourceConverter;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**

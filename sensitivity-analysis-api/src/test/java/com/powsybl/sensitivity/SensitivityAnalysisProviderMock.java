@@ -14,6 +14,7 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
@@ -31,40 +32,16 @@ import java.util.stream.IntStream;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, SensitivityAnalysisRunParameters runParameters) {
+    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader,
+                                       SensitivityResultWriter resultWriter, SensitivityAnalysisRunParameters runParameters) {
         List<Contingency> contingencies = runParameters.getContingencies();
         List<SensitivityVariableSet> variableSets = runParameters.getVariableSets();
         SensitivityAnalysisParameters parameters = runParameters.getSensitivityAnalysisParameters();
         ComputationManager computationManager = runParameters.getComputationManager();
         ReportNode reportNode = runParameters.getReportNode();
         int[] factorIndex = new int[1];
-        factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
-            switch (contingencyContext.getContextType()) {
-                case NONE:
-                    resultWriter.writeSensitivityValue(factorIndex[0]++, -1, 0.0, 0.0);
-                    break;
-
-                case ALL:
-                    for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-                        resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
-                    }
-                    break;
-
-                case SPECIFIC:
-                    int contingencyIndex = IntStream.range(0, contingencies.size())
-                            .filter(i -> contingencies.get(i).getId().equals(contingencyContext.getContingencyId()))
-                            .findFirst()
-                            .orElseThrow();
-                    resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
-                    break;
-            }
-            if (reportNode != null) {
-                reportNode.newReportNode()
-                    .withMessageTemplate("testSensitivityFactors")
-                    .withUntypedValue("functionId", functionId)
-                    .add();
-            }
-        });
+        factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) ->
+            readSensitivityFactor(resultWriter, contingencies, factorIndex, reportNode, functionId, contingencyContext));
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
             resultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
         }
@@ -126,5 +103,34 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
     @Override
     public Optional<Extension<SensitivityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
         return Optional.of(new SensitivityAnalysisParametersTest.DummyExtension());
+    }
+
+    private void readSensitivityFactor(SensitivityResultWriter resultWriter, List<Contingency> contingencies, int[] factorIndex,
+                                       ReportNode reportNode, String functionId, ContingencyContext contingencyContext) {
+        switch (contingencyContext.getContextType()) {
+            case NONE:
+                resultWriter.writeSensitivityValue(factorIndex[0]++, -1, 0.0, 0.0);
+                break;
+
+            case ALL:
+                for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
+                    resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                }
+                break;
+
+            case SPECIFIC:
+                int contingencyIndex = IntStream.range(0, contingencies.size())
+                    .filter(i -> contingencies.get(i).getId().equals(contingencyContext.getContingencyId()))
+                    .findFirst()
+                    .orElseThrow();
+                resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                break;
+        }
+        if (reportNode != null) {
+            reportNode.newReportNode()
+                .withMessageTemplate("testSensitivityFactors")
+                .withUntypedValue("functionId", functionId)
+                .add();
+        }
     }
 }

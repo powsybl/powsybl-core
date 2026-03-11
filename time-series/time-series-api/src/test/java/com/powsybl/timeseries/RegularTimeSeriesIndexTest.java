@@ -177,9 +177,12 @@ class RegularTimeSeriesIndexTest {
     @Test
     void testPointCountHuge() {
         // 1 data every 30 seconds for ~30years, ~30years+30s, ~30years+60s
-        assertEquals(30 * 365 * 24 * 120 + 1, new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
-        assertEquals(30 * 365 * 24 * 120 + 2, new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000 + 30 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
-        assertEquals(30 * 365 * 24 * 120 + 3, new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000 + 2 * 30 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 1,
+            new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 2,
+            new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000 + 30 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 3,
+            new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(30L * 365 * 24 * 60 * 60 * 1000 + 2 * 30 * 1000), Duration.ofMillis(30 * 1000)).getPointCount());
     }
 
     private static Stream<String> provideWrongJson() {

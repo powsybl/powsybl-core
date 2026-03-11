@@ -10,8 +10,8 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseLoad;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
@@ -21,7 +21,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 class LoadData extends AbstractRecordGroup<PsseLoad> {
 
-    static final String[] FIELD_NAMES_LOAD_35 = {"ibus", "loadid", "stat", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE, "intrpt", "dgenp", "dgenq", "dgenm", "loadtype"};
+    static final String[] FIELD_NAMES_LOAD_35 = {"ibus", "loadid", "stat", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP,
+        "yq", STR_OWNER, STR_SCALE, "intrpt", "dgenp", "dgenq", "dgenm", "loadtype"};
 
     LoadData() {
         super(PowerFlowRecordGroup.LOAD);

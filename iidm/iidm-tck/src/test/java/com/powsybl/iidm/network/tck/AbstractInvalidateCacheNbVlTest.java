@@ -8,8 +8,9 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu BAGUE {@literal <mathieu.bague at rte-france.com>}

@@ -8,18 +8,17 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.iidm.network.Area;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Properties;
 

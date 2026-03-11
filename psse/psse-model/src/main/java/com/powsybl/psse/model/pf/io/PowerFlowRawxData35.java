@@ -85,7 +85,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         if (context.getVersion().major() != V35) {
             throw new PsseException("Unexpected version " + context.getVersion().getMajorNumber());
         }
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "rawx", false));) {
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "rawx", false))) {
             write(model, context, outputStream);
         }
     }

@@ -399,8 +399,10 @@ public final class StateVariablesExport {
             }
             writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer, context);
             context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL);
-            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
-            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
+            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL),
+                (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
+            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL),
+                (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
         });
         equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
@@ -424,8 +426,10 @@ public final class StateVariablesExport {
         SwitchesFlow swflows = new SwitchesFlow(vl, slackTerminal);
         vl.getSwitches().forEach(sw -> {
             if (context.isExportedEquipment(sw)) {
-                writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer, context);
-                writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()), cimNamespace, writer, context);
+                writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1,
+                    swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer, context);
+                writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2,
+                    swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()), cimNamespace, writer, context);
             }
         });
     }
@@ -435,7 +439,8 @@ public final class StateVariablesExport {
         writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
     }
 
-    private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
+    private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer,
+                                                                           CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
         getInjectionStream.apply(network).forEach(i -> {
             if (context.isExportedEquipment(i)) {
                 writePowerFlow(i.getTerminal(), cimNamespace, writer, context);
@@ -585,7 +590,8 @@ public final class StateVariablesExport {
         }
     }
 
-    private static <C extends Connectable<C>> void writeSvTapStepHidden(Connectable<C> eq, String tcId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writeSvTapStepHidden(Connectable<C> eq, String tcId, String cimNamespace,
+                                                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
         // If we are exporting equipment definitions the hidden tap changer will not be exported
         // because it has been included in the model for the only tap changer left in IIDM
@@ -663,7 +669,8 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeConverter(String className, String converterId, double poleLossP, double idc, double udc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeConverter(String className, String converterId, double poleLossP, double idc, double udc,
+                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(className, converterId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
         writer.writeCharacters(CgmesExportUtil.format(poleLossP));

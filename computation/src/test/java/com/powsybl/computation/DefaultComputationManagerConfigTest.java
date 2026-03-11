@@ -66,12 +66,14 @@ class DefaultComputationManagerConfigTest {
     void test() {
         DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(FirstComputationManagerFactory.class,
                                                                                      SecondComputationManagerFactory.class);
-        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory, longTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$SecondComputationManagerFactory)", config.toString());
+        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory, " +
+            "longTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$SecondComputationManagerFactory)", config.toString());
         assertNotNull(config.createShortTimeExecutionComputationManager());
         assertNotNull(config.createLongTimeExecutionComputationManager());
 
         config = new DefaultComputationManagerConfig(FirstComputationManagerFactory.class, null);
-        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory, longTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory)", config.toString());
+        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory, " +
+            "longTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory)", config.toString());
         assertNotNull(config.createShortTimeExecutionComputationManager());
         assertNotNull(config.createLongTimeExecutionComputationManager());
 

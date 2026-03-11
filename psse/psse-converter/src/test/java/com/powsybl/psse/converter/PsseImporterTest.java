@@ -364,7 +364,8 @@ class PsseImporterTest extends AbstractSerDeTest {
 
     @Test
     void importTestTransformersWithVoltageControlAndNotDefinedControlledBusV33() {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("TransformersWithVoltageControlAndNotDefinedControlledBus", new ResourceSet("/", "TransformersWithVoltageControlAndNotDefinedControlledBus.raw"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("TransformersWithVoltageControlAndNotDefinedControlledBus",
+            new ResourceSet("/", "TransformersWithVoltageControlAndNotDefinedControlledBus.raw"));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), new Properties());
 
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("T-1-4-1 ");
@@ -408,7 +409,7 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     public static class DummyRecordGroup extends AbstractRecordGroup<DummyRecord> {
-        public DummyRecordGroup() {
+        DummyRecordGroup() {
             super(new RecordGroupIdentification() {
                 @Override
                 public String getDataName() {

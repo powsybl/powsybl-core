@@ -18,9 +18,7 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
- *
  */
-
 class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder, Network> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineSerDe.class);
@@ -173,52 +171,60 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
 
     @Override
     protected void readSubElements(TieLine tl, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case LIMITS_GROUP_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tl.getBoundaryLine1(), LIMITS_GROUP_1, context));
-                }
-                case ACTIVE_POWER_LIMITS_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
-                }
-                case APPARENT_POWER_LIMITS_1 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
-                }
-                case "currentLimits1" -> {
-                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    readCurrentLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
-                }
-                case LIMITS_GROUP_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tl.getBoundaryLine2(), LIMITS_GROUP_2, context));
-                }
-                case ACTIVE_POWER_LIMITS_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
-                }
-                case APPARENT_POWER_LIMITS_2 -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
-                }
-                case "currentLimits2" -> {
-                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
-                    readCurrentLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
-                }
-                default -> readSubElement(elementName, tl, context);
+        context.getReader().readChildNodes(elementName -> readChildNode(tl, context, elementName));
+    }
+
+    private void readChildNode(TieLine tl, NetworkDeserializerContext context, String elementName) {
+        switch (elementName) {
+            case LIMITS_GROUP_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(tl.getBoundaryLine1(), LIMITS_GROUP_1, context));
             }
-        });
+            case ACTIVE_POWER_LIMITS_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readActivePowerLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS_1 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readApparentPowerLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+            }
+            case "currentLimits1" -> {
+                IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
+                readCurrentLimits(tl.getBoundaryLine1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+            }
+            case LIMITS_GROUP_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context,
+                    () -> readLoadingLimitsGroups(tl.getBoundaryLine2(), LIMITS_GROUP_2, context));
+            }
+            case ACTIVE_POWER_LIMITS_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readActivePowerLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS_2 -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context,
+                    () -> readApparentPowerLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+            }
+            case "currentLimits2" -> {
+                IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_9, context);
+                readCurrentLimits(tl.getBoundaryLine2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+            }
+            default -> readSubElement(elementName, tl, context);
+        }
     }
 
     private static void checkBoundaryValue(double imported, double calculated, String name, String ucteXnodeCode) {
         if (!Double.isNaN(imported) && imported != calculated) {
-            LOGGER.info("{} of the TieLine with ucteXnodeCode {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, ucteXnodeCode, imported, calculated);
+            LOGGER.info("{} of the TieLine with ucteXnodeCode {} is recalculated. Its imported value is not used " +
+                "(imported value = {}; calculated value = {})", name, ucteXnodeCode, imported, calculated);
         }
     }
 }

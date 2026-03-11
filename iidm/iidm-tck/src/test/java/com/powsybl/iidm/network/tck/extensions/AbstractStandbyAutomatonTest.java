@@ -57,16 +57,8 @@ public abstract class AbstractStandbyAutomatonTest {
         assertEquals(386, standbyAutomaton.getLowVoltageThreshold(), 0.0);
         standbyAutomaton.setHighVoltageThreshold(406f);
         assertEquals(406, standbyAutomaton.getHighVoltageThreshold(), 0.0);
-        try {
-            standbyAutomaton.setB0(Float.NaN);
-            fail();
-        } catch (Exception ignored) {
-        }
-        try {
-            standbyAutomaton.setHighVoltageThreshold(200f);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(PowsyblException.class, () -> standbyAutomaton.setB0(Float.NaN));
+        assertThrows(PowsyblException.class, () -> standbyAutomaton.setHighVoltageThreshold(200f));
 
         // when standby is false do not throw error on inconsistent low and high voltage thresholds use case
         standbyAutomaton.setStandby(false);

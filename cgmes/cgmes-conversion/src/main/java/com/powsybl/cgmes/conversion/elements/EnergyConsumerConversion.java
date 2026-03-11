@@ -30,7 +30,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     @Override
     public void convert() {
         LoadType loadType;
-        if (loadKind.equals("StationSupply")) {
+        if ("StationSupply".equals(loadKind)) {
             loadType = LoadType.AUXILIARY;
         } else if (id.contains("fict")) {
             loadType = LoadType.FICTITIOUS;
@@ -117,14 +117,14 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private static void setLoadDetail(String type, Load newLoad, double pFixed, double qFixed) {
-        if (type.equals("ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
+        if ("ConformLoad".equals(type)) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
             newLoad.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower(0)
                     .withFixedReactivePower(0)
                     .withVariableActivePower((float) pFixed)
                     .withVariableReactivePower((float) qFixed)
                     .add();
-        } else if (type.equals("NonConformLoad")) { // does not participate in scaling
+        } else if ("NonConformLoad".equals(type)) { // does not participate in scaling
             newLoad.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower((float) pFixed)
                     .withFixedReactivePower((float) qFixed)
@@ -164,10 +164,10 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         if (loadDetail == null) {
             return;
         }
-        if (type.equals("ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
+        if ("ConformLoad".equals(type)) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
             loadDetail.setVariableActivePower(Double.isFinite(load.getP0()) ? load.getP0() : pFixed)
                     .setVariableReactivePower(Double.isFinite(load.getQ0()) ? load.getQ0() : qFixed);
-        } else if (type.equals("NonConformLoad")) { // does not participate in scaling
+        } else if ("NonConformLoad".equals(type)) { // does not participate in scaling
             loadDetail.setFixedActivePower(Double.isFinite(load.getP0()) ? load.getP0() : pFixed)
                     .setFixedReactivePower(Double.isFinite(load.getQ0()) ? load.getQ0() : qFixed);
         }

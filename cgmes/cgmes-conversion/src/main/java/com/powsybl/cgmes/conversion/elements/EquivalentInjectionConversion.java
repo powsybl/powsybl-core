@@ -188,7 +188,8 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             double defaultTargetV = getDefaultTargetV(boundaryLine.getGeneration(), context);
             double targetV = cgmesEquivalentInjection.map(propertyBag -> findTargetV(propertyBag, CgmesNames.REGULATION_TARGET, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
             boolean defaultRegulatingOn = getDefaultRegulatingOn(boundaryLine.getGeneration(), context);
-            boolean regulatingOn = cgmesEquivalentInjection.map(propertyBag -> findRegulatingOn(propertyBag, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
+            boolean regulatingOn = cgmesEquivalentInjection.map(propertyBag -> findRegulatingOn(propertyBag, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED))
+                .orElse(defaultRegulatingOn);
 
             boundaryLine.setP0(0.0);
             boundaryLine.setQ0(0.0);

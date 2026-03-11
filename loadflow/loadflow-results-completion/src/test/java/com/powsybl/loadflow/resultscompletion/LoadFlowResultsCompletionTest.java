@@ -7,12 +7,11 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *

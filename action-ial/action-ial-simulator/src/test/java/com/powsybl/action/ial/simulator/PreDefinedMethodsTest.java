@@ -11,7 +11,7 @@ package com.powsybl.action.ial.simulator;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {
     @Override
@@ -32,11 +32,6 @@ class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     void test() throws Exception {
-        try {
-            engine.start(actionDb);
-        } catch (Exception e) {
-            // Should not happen
-            fail();
-        }
+        assertDoesNotThrow(() -> engine.start(actionDb));
     }
 }

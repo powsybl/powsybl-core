@@ -162,7 +162,8 @@ public final class TestingResultFactory {
         FortescueFeederResult feederResult = new FortescueFeederResult("id2", new FortescueValue(1.0, 10));
         feederResults.add(feederResult);
         List<FaultResult> faultResults = new ArrayList<>();
-        FortescueFaultResult faultResult = new FortescueFaultResult(fault, 1.0, feederResults, limitViolations, new FortescueValue(1.0, 10), new FortescueValue(50, 50), busResults, Duration.ofSeconds(1), SUCCESS);
+        FortescueFaultResult faultResult = new FortescueFaultResult(fault, 1.0, feederResults, limitViolations, new FortescueValue(1.0, 10),
+            new FortescueValue(50, 50), busResults, Duration.ofSeconds(1), SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);

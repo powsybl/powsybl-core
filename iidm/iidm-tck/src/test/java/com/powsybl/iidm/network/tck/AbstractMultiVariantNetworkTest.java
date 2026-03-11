@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -119,12 +120,7 @@ public abstract class AbstractMultiVariantNetworkTest {
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
-            try {
-                network.getGenerator("GEN").getTargetP();
-                fail();
-            } catch (Exception ignored) {
-                // ignore
-            }
+            assertThrows(PowsyblException.class, () -> network.getGenerator("GEN").getTargetP());
         });
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
@@ -138,12 +134,8 @@ public abstract class AbstractMultiVariantNetworkTest {
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
-            try {
-                manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-                network.getGenerator("GEN").getTargetP();
-            } catch (Exception e) {
-                fail();
-            }
+            manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+            assertThrows(PowsyblException.class, () -> network.getGenerator("GEN").getTargetP());
         });
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
