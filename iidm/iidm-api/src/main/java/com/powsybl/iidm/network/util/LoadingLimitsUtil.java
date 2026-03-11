@@ -133,12 +133,12 @@ public final class LoadingLimitsUtil {
         if (copiedBranch != null) {
             copyOperationalLimits(copiedBranch.getOperationalLimitsGroups1(), branch::newOperationalLimitsGroup1);
             branch.cancelSelectedOperationalLimitsGroup1();
-            Collection<String> allSelectedIds = copiedBranch.getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE);
+            Collection<String> allSelectedIds = copiedBranch.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE);
             branch.addSelectedOperationalLimitsGroups(TwoSides.ONE, allSelectedIds.toArray(String[]::new));
 
             copyOperationalLimits(copiedBranch.getOperationalLimitsGroups2(), branch::newOperationalLimitsGroup2);
             branch.cancelSelectedOperationalLimitsGroup2();
-            allSelectedIds = copiedBranch.getAllSelectedOperationalLimitsGroupIds(TwoSides.TWO);
+            allSelectedIds = copiedBranch.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.TWO);
             branch.addSelectedOperationalLimitsGroups(TwoSides.TWO, allSelectedIds.toArray(String[]::new));
         }
     }
