@@ -760,6 +760,9 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 if (limitReduction == 1) {
                     yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), new LimitsComputer.NoModificationsImpl(), value, type);
                 } else {
+                    //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
+                    //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                    //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
                     yield LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReduction, value * limitReduction, type);
                 }
             }
@@ -767,6 +770,9 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 if (limitReduction == 1) {
                     yield LimitViolationUtils.checkAllTemporaryLimits(t, side, new LimitsComputer.NoModificationsImpl(), value, type);
                 } else {
+                    //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
+                    //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                    //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
                     yield LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReduction, value * limitReduction, type);
                 }
             }
