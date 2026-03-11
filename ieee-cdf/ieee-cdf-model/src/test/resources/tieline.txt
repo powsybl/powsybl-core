@@ -1,5 +1,5 @@
  11/14/19 TIELINE TEST         100.0  2019 W POWSYBL TEST CASE
-TIE LINES FOLLOWS                     0 ITEMS
+TIE LINES FOLLOWS                     1 ITEMS
 1     2   3     4   5
 -999
 END OF DATA
