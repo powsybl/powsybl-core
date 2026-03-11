@@ -24,7 +24,6 @@ import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.Command;
@@ -59,6 +58,8 @@ public class SensitivityAnalysisTool implements Tool {
     private static final String VARIABLE_SETS_FILE_OPTION = "variable-sets-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_CONTINGENCY_STATUS_FILE_OPTION = "output-contingency-file";
+    private static final String OUTPUT_PRE_CONTINGENCY_STATUS_FILE_OPTION = "output-pre-contingency-file";
+
     private static final String SINGLE_OUTPUT = "single-output";
 
     @Override
@@ -115,6 +116,11 @@ public class SensitivityAnalysisTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_PRE_CONTINGENCY_STATUS_FILE_OPTION)
+                        .desc("pre contingency status output path (csv only)")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(Option.builder().longOpt(SINGLE_OUTPUT)
                     .desc("Output sensitivity analysis results in a single json file using output file option (values, factors and contingency status).")
                     .build());
@@ -150,33 +156,50 @@ public class SensitivityAnalysisTool implements Tool {
         return outputFile.replace(".csv", "_contingency_status.csv");
     }
 
+    private static String buildPreContingencyStatusPath(String outputFile) {
+        return outputFile.replace(".csv", "_pre_contingency_status.csv");
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
         boolean csv = isCsv(outputFile);
         Path outputFileStatus = null;
-
+        Path outputFilePreContingencyStatus = null;
         if (csv) {
             if (line.hasOption(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)) {
                 outputFileStatus = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION));
             } else {
                 outputFileStatus = context.getFileSystem().getPath(buildContingencyStatusPath(line.getOptionValue(OUTPUT_FILE_OPTION)));
             }
+            if (line.hasOption(OUTPUT_PRE_CONTINGENCY_STATUS_FILE_OPTION)) {
+                outputFilePreContingencyStatus = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_PRE_CONTINGENCY_STATUS_FILE_OPTION));
+            } else {
+                outputFilePreContingencyStatus = context.getFileSystem().getPath(buildPreContingencyStatusPath(line.getOptionValue(OUTPUT_FILE_OPTION)));
+            }
             boolean contingencyCsv = isCsv(outputFileStatus);
             if (!contingencyCsv) {
-                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " files must have the same format (csv).");
+                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " and " + OUTPUT_PRE_CONTINGENCY_STATUS_FILE_OPTION + " files must have the same format (csv).");
             }
 
             if (line.hasOption(SINGLE_OUTPUT)) {
                 throw new PowsyblException("Unsupported " + SINGLE_OUTPUT + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
+            }
+        } else {
+            // json format
+            if (line.hasOption(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)) {
+                throw new PowsyblException(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " file is not supported in json");
+            }
+            if (line.hasOption(OUTPUT_PRE_CONTINGENCY_STATUS_FILE_OPTION)) {
+                throw new PowsyblException(OUTPUT_PRE_CONTINGENCY_STATUS_FILE_OPTION + " file is not supported in json");
             }
         }
 
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Properties inputParams = readProperties(line, OptionType.IMPORT, context);
         Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
@@ -210,7 +233,7 @@ public class SensitivityAnalysisTool implements Tool {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager()) {
             SensitivityAnalysisParametersRecord parametersRecord = new SensitivityAnalysisParametersRecord(factorsReader, params, network, contingencies,
-                variableSets, computationManager, outputFile, outputFileStatus, csv);
+                variableSets, computationManager, outputFile, outputFileStatus, outputFilePreContingencyStatus, csv);
             run(line, parametersRecord);
         }
         context.getOutputStream().println("Analysis done in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
@@ -224,6 +247,7 @@ public class SensitivityAnalysisTool implements Tool {
                                                        ComputationManager computationManager,
                                                        Path outputFile,
                                                        Path outputFileStatus,
+                                                       Path outputFilePreContingencyStatus,
                                                        boolean csv) {
     }
 
@@ -243,10 +267,15 @@ public class SensitivityAnalysisTool implements Tool {
         } else {
             if (parametersRecord.csv) {
                 try (Writer writer = Files.newBufferedWriter(parametersRecord.outputFile, StandardCharsets.UTF_8);
-                     Writer writerStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
+                     Writer writerComponentsStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
+                     Writer writerPreContingencyStatuses = Files.newBufferedWriter(parametersRecord.outputFilePreContingencyStatus, StandardCharsets.UTF_8);
                      TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
-                     TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
-                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, parametersRecord.contingencies);
+                     TableFormatter formatterComponentsStatus = SensitivityResultCsvWriter.createContingencyStatusComponentsTableFormatter(writerComponentsStatuses);
+                     TableFormatter formatterPreContingency = SensitivityResultCsvWriter.createPreContingencyStatusTableFormatter(writerPreContingencyStatuses)
+                ) {
+
+                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterComponentsStatus,
+                            formatterPreContingency, parametersRecord.contingencies);
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, parametersRecord.contingencies, parametersRecord.variableSets, parametersRecord.params,
                         parametersRecord.computationManager, ReportNode.NO_OP);
