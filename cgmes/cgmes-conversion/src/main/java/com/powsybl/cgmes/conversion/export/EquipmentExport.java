@@ -1190,7 +1190,7 @@ public final class EquipmentExport {
     }
 
     private static String createFictitiousContainerFor(List<BoundaryLine> boundaryLineList, String baseVoltageId,
-        String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                                           String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
         String substationId = writeFictitiousSubstationFor(boundaryLine, cimNamespace, writer, context);
         String containerId = writeFictitiousVoltageLevelFor(boundaryLine, substationId, baseVoltageId, cimNamespace, writer, context);

@@ -847,7 +847,7 @@ public final class CgmesConformity1NetworkCatalog {
     public static Network microBaseCaseBE() {
         String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
         Network network = microBE(modelId);
-        Boundaryline be1 = network.getBoundaryline(BOUNDARY_LINE_ID_1);
+        BoundaryLine be1 = network.getBoundaryLine(BOUNDARY_LINE_ID_1);
         be1.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits().setPermanentLimit(1443)
                 .beginTemporaryLimit()
                     .setName("CL-4")
@@ -1054,10 +1054,10 @@ public final class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .add();
 
-        network.getBoundaryline("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
+        network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
                 .setP0(-86.814383)
                 .setQ0(4.958972);
-        network.getBoundaryline(BOUNDARY_LINE_ID_1)
+        network.getBoundaryLine(BOUNDARY_LINE_ID_1)
                 .setP0(-89.462903)
                 .setQ0(1.519011)
                 .getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits()
@@ -1073,13 +1073,13 @@ public final class CgmesConformity1NetworkCatalog {
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
                 .add();
-        network.getBoundaryline("78736387-5f60-4832-b3fe-d50daf81b0a6")
+        network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6")
                 .setP0(-16.452662)
                 .setQ0(64.018020);
-        network.getBoundaryline("b18cd1aa-7808-49b9-a7cf-605eaf07b006")
+        network.getBoundaryLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006")
                 .setP0(-31.579291)
                 .setQ0(120.813763);
-        network.getBoundaryline("ed0c5d75-4a54-43c8-b782-b20d7431630b")
+        network.getBoundaryLine("ed0c5d75-4a54-43c8-b782-b20d7431630b")
                 .setP0(-11.518776)
                 .setQ0(67.377544);
 

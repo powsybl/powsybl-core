@@ -128,7 +128,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
         // TODO support in the boundaryLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        danglingLine = convertToBoundaryLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel),
+        boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel),
             getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
     }
 

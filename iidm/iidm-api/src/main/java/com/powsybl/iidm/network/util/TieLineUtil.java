@@ -84,7 +84,7 @@ public final class TieLineUtil {
         dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
     }
 
-    private static void mergeProperty(DanglingLine dl1, DanglingLine dl2, Properties properties, ReportNode reportNode, String prop) {
+    private static void mergeProperty(BoundaryLine dl1, BoundaryLine dl2, Properties properties, ReportNode reportNode, String prop) {
         if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
             properties.setProperty(prop, dl1.getProperty(prop));
         } else if (dl1.getProperty(prop).isEmpty()) {
