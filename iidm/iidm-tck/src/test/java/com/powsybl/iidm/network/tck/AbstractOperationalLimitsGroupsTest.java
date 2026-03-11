@@ -578,34 +578,34 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         assertEquals(expectedOrderedIds.size(), orderedGroupIds.size());
     }
 
+    private <L extends LoadingLimits> void assertLimits(Collection<L> actualLimits, Tuple... expectedLimitValues) {
+        Assertions.assertThat(actualLimits)
+            .hasSize(expectedLimitValues.length)
+            .extracting(
+                LoadingLimits::getPermanentLimit,
+                this::extractTemporaryLimitsSet
+            ).containsExactlyInAnyOrder(expectedLimitValues);
+    }
+
     @Test
     void getAllSelectedCurrentLimits() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
         Collection<CurrentLimits> currentLimits = line.getAllSelectedCurrentLimits(TwoSides.TWO);
-        Assertions.assertThat(currentLimits)
-            .hasSize(3)
-            .extracting(
-                LoadingLimits::getPermanentLimit,
-                this::extractTemporaryLimitsSet
-            ).containsExactlyInAnyOrder(
-                    new Tuple(500.0, Set.of()),
-                    new Tuple(200.0, Set.of(600.0, Double.MAX_VALUE)),
-                    new Tuple(300.0, Set.of(Double.MAX_VALUE))
-            );
+        assertLimits(currentLimits,
+            new Tuple(500.0, Set.of()),
+            new Tuple(200.0, Set.of(600.0, Double.MAX_VALUE)),
+            new Tuple(300.0, Set.of(Double.MAX_VALUE))
+        );
+
         line.deselectOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
 
         currentLimits = (Collection<CurrentLimits>) line.getAllSelectedLimits(LimitType.CURRENT, TwoSides.TWO);
 
-        Assertions.assertThat(currentLimits)
-            .hasSize(2)
-            .extracting(
-                LoadingLimits::getPermanentLimit,
-                this::extractTemporaryLimitsSet
-            ).containsExactlyInAnyOrder(
-                new Tuple(500.0, Set.of()),
-                new Tuple(300.0, Set.of(Double.MAX_VALUE))
-            );
+        assertLimits(currentLimits,
+            new Tuple(500.0, Set.of()),
+            new Tuple(300.0, Set.of(Double.MAX_VALUE))
+        );
     }
 
     @Test
@@ -613,15 +613,10 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
         ThreeWindingsTransformer.Leg legThree = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
         Collection<ActivePowerLimits> activePowerLimits = legThree.getAllSelectedActivePowerLimits();
-        Assertions.assertThat(activePowerLimits)
-            .hasSize(2)
-            .extracting(
-                LoadingLimits::getPermanentLimit,
-                this::extractTemporaryLimitsSet
-            ).containsExactlyInAnyOrder(
-                    new Tuple(250.0, Set.of()),
-                    new Tuple(350.0, Set.of(400.0))
-            );
+        assertLimits(activePowerLimits,
+            new Tuple(250.0, Set.of()),
+            new Tuple(350.0, Set.of(400.0))
+        );
 
         //check that deselecting a non-selected group does nothing
         legThree.newOperationalLimitsGroup(EurostagTutorialExample1Factory.NOT_ACTIVATED);
