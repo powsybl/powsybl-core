@@ -221,11 +221,11 @@ PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section)
 
 <span style="color: red">TODO details</span>
 
-(cgmes-dangling-line-export)=
-### DanglingLine
+(cgmes-boundary-line-export)=
+### BoundaryLine
 
-PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) is exported as several CGMES network objects.
-Each dangling line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
+PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line) is exported as several CGMES network objects.
+Each boundary line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
 
 <span style="color: red">TODO details</span>
 
@@ -477,7 +477,7 @@ PowSyBl [`VoltageLevel`](../../grid_model/network_subnetwork.md#voltage-level) i
 (cgmes-control-areas-export)=
 ### Control areas
 
-PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as several `ControlArea`.
+PowSyBl [`ControlAreas`](import.md#control-areas) are exported as several `ControlArea`.
 
 <span style="color: red">TODO details</span>
 

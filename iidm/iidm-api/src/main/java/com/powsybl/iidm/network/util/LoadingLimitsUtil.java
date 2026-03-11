@@ -143,6 +143,7 @@ public final class LoadingLimitsUtil {
             groupToCopy.getCurrentLimits().ifPresent(limit -> copy.newCurrentLimits(limit).add());
             groupToCopy.getActivePowerLimits().ifPresent(limit -> copy.newActivePowerLimits(limit).add());
             groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy.newApparentPowerLimits(limit).add());
+            groupToCopy.getPropertyNames().forEach(propertyName -> copy.setProperty(propertyName, groupToCopy.getProperty(propertyName)));
         });
     }
 }

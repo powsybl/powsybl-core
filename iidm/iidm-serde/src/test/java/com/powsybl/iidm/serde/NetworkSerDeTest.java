@@ -296,7 +296,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         vl1.getBusBreakerView().newBus()
                 .setId(busId)
                 .add();
-        network.getVoltageLevel(voltageLevelId).newDanglingLine()
+        network.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(dlId)
                 .setName(dlId + "_name")
                 .setConnectableBus(busId)
@@ -357,5 +357,35 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
             assertEquals("", readNetwork.getSourceFormat());
         });
+    }
+
+    @Test
+    void testExportWithFlatten() {
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        Path xmlFile = tmpDir.resolve("flattenedNetwork.xml");
+
+        Network merged = Network.merge("Merged", n1, n2);
+
+        ExportOptions options = new ExportOptions().setFlatten(true);
+        NetworkSerDe.write(merged, options, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
+        assertEquals(0, readNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    void testExportWithoutFlatten() {
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        Path xmlFile = tmpDir.resolve("networkWithSubnetworks.xml");
+
+        Network merged = Network.merge("Merged", n1, n2);
+
+        ExportOptions options = new ExportOptions();
+        NetworkSerDe.write(merged, options, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
+        assertEquals(2, readNetwork.getSubnetworks().size());
     }
 }
