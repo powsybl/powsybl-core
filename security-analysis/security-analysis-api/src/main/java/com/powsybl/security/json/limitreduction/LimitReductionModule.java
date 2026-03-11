@@ -45,9 +45,10 @@ public class LimitReductionModule extends SimpleModule {
         registerNamedSubtype(TieLineCriterion.class, TieLineCriterion.TYPE.getName(),
                 new NetworkElementEquipmentCriterionSerializer<>(TieLineCriterion.class),
                 new TieLineCriterionDeserializer());
-        registerNamedSubtype(DanglingLineCriterion.class, DanglingLineCriterion.TYPE.getName(),
-                new NetworkElementEquipmentCriterionSerializer<>(DanglingLineCriterion.class),
-                new DanglingLineCriterionDeserializer());
+        registerSubtypes(new NamedType(BoundaryLineCriterion.class, "danglingLineCriterion")); // For backward-compatibility with IIDM versions < 1.16
+        registerNamedSubtype(BoundaryLineCriterion.class, BoundaryLineCriterion.TYPE.getName(),
+                new NetworkElementEquipmentCriterionSerializer<>(BoundaryLineCriterion.class),
+                new BoundaryLineCriterionDeserializer());
         registerNamedSubtype(IdentifiableCriterion.class, IdentifiableCriterion.TYPE.getName(),
                 new NetworkElementEquipmentCriterionSerializer<>(IdentifiableCriterion.class),
                 new IdentifiableCriterionDeserializer());
