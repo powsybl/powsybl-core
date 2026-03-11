@@ -822,7 +822,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     300,
                     60 * 40
                 )
-            )), // above the permanent of default, but no temporary above so we don't detect anything (note : this result is strange, need to change getOverload in LimitViolationUtils)
+            )), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
             Arguments.of(l, ThreeSides.ONE, 1, LimitType.CURRENT, 701, List.of(
                 new ExpectedOverload(
                     "40'",
@@ -888,7 +888,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 )
             )), // above last temporary of 1_2
             Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
-            Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`)
+            Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
             Arguments.of(transformer, ThreeSides.THREE, 1, LimitType.ACTIVE_POWER, 375, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
@@ -922,7 +922,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     300,
                     60 * 40
                 )
-            )), // above the permanent of default, but no temporary above so we don't detect anything (note : this result is strange, need to change getOverload in LimitViolationUtils)
+            )), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
             Arguments.of(l, ThreeSides.ONE, 0.7, LimitType.CURRENT, 701, List.of(
                 new ExpectedOverload(
                     "40'",
@@ -988,7 +988,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 )
             )), // above last temporary of 1_2
             Arguments.of(transformer, ThreeSides.THREE, 0.99, LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
-            Arguments.of(transformer, ThreeSides.THREE, 0.96, LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above, don't detect anything. Note: this behavior is strange, needs to be changed
+            Arguments.of(transformer, ThreeSides.THREE, 0.96, LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
             Arguments.of(transformer, ThreeSides.THREE, 0.88, LimitType.ACTIVE_POWER, 375, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
