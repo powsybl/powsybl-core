@@ -43,7 +43,7 @@ public final class RegulatingTerminalMapper {
                         // As a last resource, rely on the "find" method of terminal mapping:
                         // Bus/branch models may define remote voltage controls that point to busbar sections
                         // Since busbar sections are not mapped to IIDM, we look for an equivalent IIDM terminal
-                        // is connected to the busbar section via switches
+                        // that is connected to the busbar section via switches
                         .or(() -> Optional.ofNullable(context.terminalMapping()
                                 .findFromTopologicalNode(context.terminalMapping().getTopologicalNode(cgmesTerminalId)))
                                 .or(() -> findEquivalentTerminalForVoltageRegulatingTerminalDefinedAtBusbarSection(cgmesTerminalId, context)));

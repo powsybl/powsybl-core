@@ -93,9 +93,7 @@ class RegulatingTerminalConversionTest {
     void voltageRegulatingTerminalAtBusbarSectionNodeBreakerTest() {
         Network network = readCgmesResources("/issues/voltage-regulating-terminal-at-busbar-section",
                 "issue_3560_CGMES_EQ.xml",
-                "issue_3560_CGMES_SSH.xml",
-                "issue_3560_CGMES_SV.xml",
-                "issue_3560_CGMES_TP.xml");
+                "issue_3560_CGMES_SSH.xml");
 
         Generator generator = network.getGenerator("GEN");
         assertNotNull(generator);
@@ -112,7 +110,6 @@ class RegulatingTerminalConversionTest {
                 "/issues/voltage-regulating-terminal-at-busbar-section",
                 "issue_3560_CGMES_EQ.xml",
                 "issue_3560_CGMES_SSH.xml",
-                "issue_3560_CGMES_SV.xml",
                 "issue_3560_CGMES_TP.xml");
 
         Generator generator = network.getGenerator("GEN");
