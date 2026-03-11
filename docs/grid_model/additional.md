@@ -246,14 +246,10 @@ The spacing on the y axis (branch current) is not to scale.
 
 :::{admonition} Permanent limit without any temporary limit
 :class: important
-In the case of a group containing only a permanent limit (without any temporary above), it is acceptable to stay above that permanent limit indefinitely.
+In the case of a group containing only a permanent limit (without any temporary above), there is no information available for the acceptable duration. The default acceptable duration
+has been chosen as infinite.
 
-This is done by design. This kind of group is usually used to monitor a violation of limit, but we do not want the duration of this limit to
-trigger actions.
-
-This is especially relevant if we are searching for a duration to stay at a given intensity (or Power / Reactive Power) across all activated sets.
-Other sets will usually have a more critical duration, that will require actions. Since the most critical duration is the minimum across all activated sets,
-we use a very high value for the permanent alone so it is not the most critical limit.
+If you wish to have an acceptable duration of 0 instead, create a temporary limit with an acceptable duration of 0 and a value of Double.MAX_VALUE.
 :::
 
 (phase-tap-changer)=
