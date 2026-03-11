@@ -1000,6 +1000,8 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             )) // above last temporary of activated_3_1
         );
     }
+
+    @Test
     public void testCopy() {
         Network network = createNetworkWithOperationalLimitsGroupsOnLine();
         Line line = network.getLine("L");
