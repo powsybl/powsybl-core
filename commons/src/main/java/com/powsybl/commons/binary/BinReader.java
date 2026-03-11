@@ -14,10 +14,8 @@ import com.powsybl.commons.io.TreeDataReader;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Supplier;
 
-import static com.powsybl.commons.binary.BinUtil.END_NODE;
-import static com.powsybl.commons.binary.BinUtil.NULL_ENUM;
+import static com.powsybl.commons.binary.BinUtil.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -25,8 +23,14 @@ import static com.powsybl.commons.binary.BinUtil.NULL_ENUM;
 public class BinReader implements TreeDataReader {
 
     private final DataInputStream dis;
-    private final Map<Integer, String> dictionary = new HashMap<>();
     private final byte[] binaryMagicNumber;
+
+    private final Map<Integer, String> nodeDictionary = new HashMap<>();
+
+    private String[] attrNames;
+    private byte[] attrTypes;
+
+    private Map<String, Object> currentAttrs = Collections.emptyMap();
 
     public BinReader(InputStream is, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = binaryMagicNumber;
@@ -38,7 +42,9 @@ public class BinReader implements TreeDataReader {
         try {
             readMagicNumber();
             TreeDataHeader header = new TreeDataHeader(readString(), readExtensionVersions());
-            readDictionary();
+            readNodeDictionary();
+            readAttrDictionary();
+            preReadCurrentNodeAttributes();
             return header;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -61,11 +67,67 @@ public class BinReader implements TreeDataReader {
         return versions;
     }
 
-    private void readDictionary() throws IOException {
+    private void readNodeDictionary() throws IOException {
         int nbEntries = dis.readShort();
         for (int i = 0; i < nbEntries; i++) {
-            dictionary.put(i + 1, readString());
+            nodeDictionary.put(i + 1, readString());
         }
+    }
+
+    private void readAttrDictionary() throws IOException {
+        int nbEntries = dis.readShort();
+        attrNames = new String[nbEntries + 1];
+        attrTypes = new byte[nbEntries + 1];
+        for (int i = 0; i < nbEntries; i++) {
+            attrNames[i + 1] = readString();
+            attrTypes[i + 1] = dis.readByte();
+        }
+    }
+
+    private void preReadCurrentNodeAttributes() throws IOException {
+        currentAttrs = new HashMap<>();
+        int attrIdx;
+        while ((attrIdx = dis.readUnsignedByte()) != END_ATTRS) {
+            String attrName = attrNames[attrIdx];
+            if (attrName == null) {
+                throw new PowsyblException("Cannot read attribute: unknown attribute name index " + attrIdx);
+            }
+            byte typeTag = attrTypes[attrIdx];
+            Object value = readTypedValue(typeTag);
+            currentAttrs.put(attrName, value);
+        }
+    }
+
+    private Object readTypedValue(byte typeTag) throws IOException {
+        return switch (typeTag) {
+            case TYPE_DOUBLE -> dis.readDouble();
+            case TYPE_FLOAT -> dis.readFloat();
+            case TYPE_INT -> dis.readInt();
+            case TYPE_BOOLEAN -> dis.readBoolean();
+            case TYPE_STRING -> readString();
+            case TYPE_ENUM -> (int) dis.readShort();
+            case TYPE_INT_ARRAY -> readIntArrayRaw();
+            case TYPE_STRING_ARRAY -> readStringArrayRaw();
+            default -> throw new PowsyblException("Binary format: unknown attribute type tag " + typeTag);
+        };
+    }
+
+    private List<Integer> readIntArrayRaw() throws IOException {
+        int count = dis.readShort();
+        List<Integer> list = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            list.add(dis.readInt());
+        }
+        return list;
+    }
+
+    private List<String> readStringArrayRaw() throws IOException {
+        int count = dis.readShort();
+        List<String> list = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            list.add(readString());
+        }
+        return list;
     }
 
     private String readString() {
@@ -76,7 +138,6 @@ public class BinReader implements TreeDataReader {
             }
             byte[] stringBytes = dis.readNBytes(stringNbBytes);
             if (stringBytes.length != stringNbBytes) {
-                // this may happen when the attribute wasn't written in the first place, causing string length to be an aberrant number
                 throw new PowsyblException("Cannot read the full string, bytes missing: " + (stringNbBytes - stringBytes.length));
             }
             return new String(stringBytes, StandardCharsets.UTF_8);
@@ -85,159 +146,119 @@ public class BinReader implements TreeDataReader {
         }
     }
 
-    private double readDouble() {
-        try {
-            return dis.readDouble();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private float readFloat() {
-        try {
-            return dis.readFloat();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private int readInt() {
-        try {
-            return dis.readInt();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private boolean readBoolean() {
-        try {
-            return dis.readBoolean();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private <T extends Enum<T>> T readEnum(Class<T> clazz) {
-        try {
-            short ordinal = dis.readShort();
-            return ordinal != NULL_ENUM ? clazz.getEnumConstants()[ordinal] : null;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private <T> List<T> readArray(Supplier<T> valueReader) {
-        try {
-            int nbValues = dis.readShort();
-            List<T> values = new ArrayList<>(nbValues);
-            for (int i = 0; i < nbValues; i++) {
-                values.add(valueReader.get());
-            }
-            return values;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     @Override
     public double readDoubleAttribute(String name) {
-        return readDouble();
+        Object val = currentAttrs.get(name);
+        return val instanceof Double d ? d : Double.NaN;
     }
 
     @Override
     public double readDoubleAttribute(String name, double defaultValue) {
-        return readDouble();
+        Object val = currentAttrs.get(name);
+        return val instanceof Double d ? d : defaultValue;
     }
 
     @Override
     public OptionalDouble readOptionalDoubleAttribute(String name) {
-        if (!readBoolean()) {
-            return OptionalDouble.empty();
-        }
-        return OptionalDouble.of(readDouble());
+        Object val = currentAttrs.get(name);
+        return val instanceof Double d ? OptionalDouble.of(d) : OptionalDouble.empty();
     }
 
     @Override
     public float readFloatAttribute(String name) {
-        return readFloat();
+        Object val = currentAttrs.get(name);
+        return val instanceof Float f ? f : Float.NaN;
     }
 
     @Override
     public float readFloatAttribute(String name, float defaultValue) {
-        return readFloat();
+        Object val = currentAttrs.get(name);
+        return val instanceof Float f ? f : defaultValue;
     }
 
     @Override
     public String readStringAttribute(String name) {
-        return readString();
+        Object val = currentAttrs.get(name);
+        return val instanceof String s ? s : null;
     }
 
     @Override
     public int readIntAttribute(String name) {
-        return readInt();
-    }
-
-    @Override
-    public OptionalInt readOptionalIntAttribute(String name) {
-        if (!readBoolean()) {
-            return OptionalInt.empty();
-        }
-        return OptionalInt.of(readInt());
+        Object val = currentAttrs.get(name);
+        return val instanceof Integer i ? i : 0;
     }
 
     @Override
     public int readIntAttribute(String name, int defaultValue) {
-        return readInt();
+        Object val = currentAttrs.get(name);
+        return val instanceof Integer i ? i : defaultValue;
+    }
+
+    @Override
+    public OptionalInt readOptionalIntAttribute(String name) {
+        Object val = currentAttrs.get(name);
+        return val instanceof Integer i ? OptionalInt.of(i) : OptionalInt.empty();
     }
 
     @Override
     public boolean readBooleanAttribute(String name) {
-        return readBoolean();
+        Object val = currentAttrs.get(name);
+        return val instanceof Boolean b ? b : false;
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
-        return readBoolean();
+        Object val = currentAttrs.get(name);
+        return val instanceof Boolean b ? b : defaultValue;
     }
 
     @Override
     public Optional<Boolean> readOptionalBooleanAttribute(String name) {
-        if (!readBoolean()) {
-            return Optional.empty();
-        }
-        return Optional.of(readBoolean());
+        Object val = currentAttrs.get(name);
+        return val instanceof Boolean b ? Optional.of(b) : Optional.empty();
     }
 
     @Override
     public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz) {
-        return readEnum(clazz);
+        return readEnumAttribute(name, clazz, null);
     }
 
     @Override
     public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
-        return readEnum(clazz);
+        Object val = currentAttrs.get(name);
+        if (val instanceof Integer ordinal) {
+            T[] constants = clazz.getEnumConstants();
+            if (ordinal >= 0 && ordinal < constants.length) {
+                return constants[ordinal];
+            }
+        }
+        return defaultValue;
     }
 
     @Override
     public String readContent() {
-        String content = readString();
+        String content = (String) currentAttrs.get(BinUtil.CONTENT_ATTR_NAME);
         readEndNode();
         return content;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Integer> readIntArrayAttribute(String name) {
-        return readArray(this::readInt);
+        Object val = currentAttrs.get(name);
+        return val instanceof List<?> list ? (List<Integer>) list : Collections.emptyList();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> readStringArrayAttribute(String name) {
-        return readArray(this::readString);
+        Object val = currentAttrs.get(name);
+        return val instanceof List<?> list ? (List<String>) list : Collections.emptyList();
     }
 
     @Override
     public void skipNode() {
-        throw new PowsyblException("Binary format does not support skipping child nodes");
+        readChildNodes(nodeName -> skipNode());
     }
 
     @Override
@@ -245,10 +266,11 @@ public class BinReader implements TreeDataReader {
         try {
             int nodeNameIndex;
             while ((nodeNameIndex = dis.readShort()) != END_NODE) {
-                String nodeName = dictionary.get(nodeNameIndex);
+                String nodeName = nodeDictionary.get(nodeNameIndex);
                 if (nodeName == null) {
-                    throw new PowsyblException("Cannot read child node: unknown element name index " + nodeNameIndex);
+                    throw new PowsyblException("Cannot read child node: unknown node name index " + nodeNameIndex);
                 }
+                preReadCurrentNodeAttributes();
                 childNodeReader.onStartNode(nodeName);
             }
         } catch (IOException e) {
