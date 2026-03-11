@@ -402,4 +402,21 @@ public final class NetworkReports {
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
     }
+
+    public static void lineNominalVoltageDifferent(ReportNode reportNode,
+                                                  String lineId,
+                                                  String voltageLevelId1, double nominalV1,
+                                                  String voltageLevelId2, double nominalV2,
+                                                  double gapPercent) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.network.lineNominalVoltageDifferent")
+                .withTypedValue("lineId", lineId, TypedValue.ID)
+                .withTypedValue("voltageLevelId1", voltageLevelId1, TypedValue.ID)
+                .withTypedValue("nominalV1", nominalV1, TypedValue.VOLTAGE)
+                .withTypedValue("voltageLevelId2", voltageLevelId2, TypedValue.ID)
+                .withTypedValue("nominalV2", nominalV2, TypedValue.VOLTAGE)
+                .withUntypedValue("gapPercent", gapPercent)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
 }
