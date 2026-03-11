@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface ZipLoadModelAdder {
+public interface ZipLoadModelAdder extends PropertiesHolder {
 
     double SUM_EPSILON = 1E-8; // tolerance on coefficient sum
 
