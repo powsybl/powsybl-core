@@ -352,9 +352,7 @@ public final class ConnectableSerDeUtil {
      * @param writer to serialize the data
      */
     static void writeAllSelectedGroupIds(Branch<?> branch, TwoSides side, TreeDataWriter writer) {
-        Objects.requireNonNull(side);
-        String suffix = String.valueOf(side.getNum());
-        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, branch.getAllSelectedOperationalLimitsGroupIdsOrdered(side));
+        writeAllSelectedGroupIds(side.getNum(), branch.getAllSelectedOperationalLimitsGroupIdsOrdered(side), writer);
     }
 
     /**
@@ -365,9 +363,13 @@ public final class ConnectableSerDeUtil {
      * @param writer      to serialize the data
      */
     static void writeAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, TreeDataWriter writer) {
-        Objects.requireNonNull(side);
-        String suffix = String.valueOf(side.getNum());
-        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, transformer.getLeg(side).getAllSelectedOperationalLimitsGroupIdsOrdered());
+        writeAllSelectedGroupIds(side.getNum(), transformer.getLeg(side).getAllSelectedOperationalLimitsGroupIdsOrdered(), writer);
+    }
+
+    static void writeAllSelectedGroupIds(Integer index, Collection<String> ids, TreeDataWriter writer) {
+        Objects.requireNonNull(index);
+        String suffix = String.valueOf(index);
+        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, ids);
     }
 
     /**
