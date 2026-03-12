@@ -258,8 +258,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideUtilCheckCurrentArguments")
-    void checkLimitViolationCurrentTest(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedLimitViolation> expected) {
+    @MethodSource("provideUtilCheckLimitViolationArguments")
+    void checkLimitViolationMultipleActiveGroupsTest(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedLimitViolation> expected) {
         for (double limitReduction : limitReductions) {
             Collection<LimitViolation> violations = new ArrayList<>();
             switch (identifiable) {
@@ -301,7 +301,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
 
     private record ExpectedLimitViolation(String limitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
 
-    private static Stream<Arguments> provideUtilCheckCurrentArguments() {
+    private static Stream<Arguments> provideUtilCheckLimitViolationArguments() {
         Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
 

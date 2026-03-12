@@ -778,8 +778,8 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideUtilCheckCurrentArguments")
-    void violationUtilCheckCurrent(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedOverload> expected) {
+    @MethodSource("provideUtilCheckTemporaryLimitsArguments")
+    void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedOverload> expected) {
         for (double limitReduction : limitReductions) {
             Collection<Overload> overloads = switch (identifiable) {
                 case Branch<?> b -> {
@@ -820,7 +820,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     private record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
 
-    private static Stream<Arguments> provideUtilCheckCurrentArguments() {
+    private static Stream<Arguments> provideUtilCheckTemporaryLimitsArguments() {
         Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
 
