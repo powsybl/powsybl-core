@@ -246,18 +246,11 @@ public class Conversion {
         if (config.debugTopology()) {
             debugTopology(context);
         }
-        boolean closeCgmesModel = true;
         if (config.storeCgmesModelAsNetworkExtension()) {
             network.newExtension(CgmesModelExtensionAdder.class).withModel(cgmes).add();
-            closeCgmesModel = false;
         }
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
-            closeCgmesModel = false;
-        }
-        if (closeCgmesModel) {
-            // not configured to store CgmesModel nor CgmesConversionContext as an extension, we can close the CgmesModel (and its underlying triplestore)
-            cgmes.close();
         }
 
         ReportNode postProcessorsNode = CgmesReports.applyingPostprocessorsReport(reportNode);
@@ -271,6 +264,11 @@ public class Conversion {
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
 
         updateWithAllInputs(network, reportNode, context);
+
+        if (config.storeCgmesModelAsNetworkExtension() || config.storeCgmesConversionContextAsNetworkExtension()) {
+            // not configured to store CgmesModel nor CgmesConversionContext as an extension, we can close the CgmesModel (and its underlying triplestore)
+            cgmes.close();
+        }
 
         return network;
     }
