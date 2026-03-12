@@ -265,7 +265,7 @@ public class Conversion {
 
         updateWithAllInputs(network, reportNode, context);
 
-        if (config.storeCgmesModelAsNetworkExtension() || config.storeCgmesConversionContextAsNetworkExtension()) {
+        if (!config.storeCgmesModelAsNetworkExtension() && !config.storeCgmesConversionContextAsNetworkExtension()) {
             // not configured to store CgmesModel nor CgmesConversionContext as an extension, we can close the CgmesModel (and its underlying triplestore)
             cgmes.close();
         }
