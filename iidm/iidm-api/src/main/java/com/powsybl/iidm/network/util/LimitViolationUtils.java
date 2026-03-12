@@ -135,7 +135,7 @@ public final class LimitViolationUtils {
                                                double previousLimit,
                                                String previousLimitName,
                                                LimitsContainer<LoadingLimits> limitsContainer,
-                                               boolean isFirstTemporaryLimit,
+                                               boolean isBelowFirstTemporaryLimit,
                                                int previousAcceptableDuration,
                                                double limitReductionValue) {
         double limit = previousLimit;
@@ -145,7 +145,7 @@ public final class LimitViolationUtils {
             operationalLimitsGroupId = limitsContainer.getOperationalLimitsGroupId();
             if (limitsContainer.isDistinct()) {
                 AbstractDistinctLimitsContainer<?, ?> container = (AbstractDistinctLimitsContainer<?, ?>) limitsContainer;
-                if (isFirstTemporaryLimit) {
+                if (isBelowFirstTemporaryLimit) {
                     limit = container.getOriginalPermanentLimit();
                     reduction = container.getPermanentLimitReduction();
                 } else {
@@ -181,20 +181,20 @@ public final class LimitViolationUtils {
         String previousLimitName = PERMANENT_LIMIT_NAME;
         double previousLimit = permanentLimit;
         int previousAcceptableDuration = 0; // never mind initialisation it will be overridden with first loop
-        boolean isFirstTemporaryLimit = true;
+        boolean isBelowFirstTemporaryLimit = true;
         LoadingLimits.TemporaryLimit lastTemporaryLimit = null;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
             if (i >= previousLimit * limitReductionValue && i < tl.getValue() * limitReductionValue) {
-                return createOverload(tl, previousLimit, previousLimitName, limitsContainer, isFirstTemporaryLimit, previousAcceptableDuration, limitReductionValue);
+                return createOverload(tl, previousLimit, previousLimitName, limitsContainer, isBelowFirstTemporaryLimit, previousAcceptableDuration, limitReductionValue);
             }
-            isFirstTemporaryLimit = false;
+            isBelowFirstTemporaryLimit = false;
             previousLimitName = tl.getName();
             previousLimit = tl.getValue();
             previousAcceptableDuration = tl.getAcceptableDuration();
             lastTemporaryLimit = tl;
         }
         if (lastTemporaryLimit != null && i >= limitReductionValue * lastTemporaryLimit.getValue()) {
-            return createOverload(null, previousLimit, previousLimitName, limitsContainer, temporaryLimits.size() == 1, previousAcceptableDuration, limitReductionValue);
+            return createOverload(null, previousLimit, previousLimitName, limitsContainer, isBelowFirstTemporaryLimit, previousAcceptableDuration, limitReductionValue);
         }
         return null;
     }

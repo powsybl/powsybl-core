@@ -7,7 +7,6 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
@@ -243,14 +242,13 @@ public final class LimitViolationDetection {
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
                     .forEach(permanentLimitCheckResult -> {
-                        double limit = transformer.getLeg(side).getLimits(type).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
                         consumer.accept(new LimitViolation(transformer.getId(),
                                 transformer.getOptionalName().orElse(null),
                                 permanentLimitCheckResult.operationalLimitsGroupId(),
                                 toLimitViolationType(type),
                                 LimitViolationUtils.PERMANENT_LIMIT_NAME,
                                 Integer.MAX_VALUE,
-                                limit,
+                                permanentLimitCheckResult.permanentLimitValue(),
                                 permanentLimitCheckResult.limitReductionValue(),
                                 value,
                                 side,
