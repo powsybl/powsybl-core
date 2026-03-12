@@ -258,7 +258,7 @@ public class Conversion {
             // FIXME generic cgmes models may not have an underlying triplestore
             // TODO maybe pass the properties to the post processors
             CgmesReports.applyingProcessorReport(postProcessorsNode, postProcessor.getName());
-            postProcessor.process(network, cgmes.tripleStore());
+            postProcessor.process(network, cgmes);
         }
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
@@ -1104,7 +1104,7 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private boolean storeCgmesModelAsNetworkExtension = true;
+        private boolean storeCgmesModelAsNetworkExtension = false;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
         private boolean createActivePowerControlExtension = false;
 
