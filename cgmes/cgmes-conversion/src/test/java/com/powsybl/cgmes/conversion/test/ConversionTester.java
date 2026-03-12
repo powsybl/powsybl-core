@@ -119,7 +119,7 @@ public class ConversionTester {
     private void testConversion(Network expected, GridModelReference gm, ComparisonConfig config, String impl)
         throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
-        iparams.put("storeCgmesModelAsNetworkExtension", "true");
+        iparams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         iparams.put("powsyblTripleStore", impl);
         // This is to be able to easily compare the topology computed
         // by powsybl against the topology present in the CGMES model
@@ -158,6 +158,7 @@ public class ConversionTester {
         CgmesImport i = new CgmesImport();
         ReadOnlyDataSource ds = gm.dataSource();
         LOG.info("Importer.exists() == {}", i.exists(ds));
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, true);
         Network n = i.importData(ds, new NetworkFactoryImpl(), importParams);
         CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         new Conversion(m).report(reportConsumer);

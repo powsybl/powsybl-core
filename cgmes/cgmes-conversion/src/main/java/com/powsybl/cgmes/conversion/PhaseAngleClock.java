@@ -43,14 +43,9 @@ public class PhaseAngleClock implements CgmesImportPostProcessor {
     public void process(Network network, TripleStore tripleStore) {
         CgmesModelExtension cgmesExtension = network.getExtension(CgmesModelExtension.class);
         if (cgmesExtension == null) {
-            LOG.warn("PhaseAngleClock-PostProcessor: Unexpected null cgmesExtension pointer");
-            return;
+            throw new PowsyblException("CgmesModelExtension is required by the PhaseAngleClock PostProcessor");
         }
         CgmesModel cgmes = cgmesExtension.getCgmesModel();
-        if (cgmes == null) {
-            LOG.warn("PhaseAngleClock-PostProcessor: Unexpected null cgmesModel pointer");
-            return;
-        }
         Map<String, PropertyBags> groupedTransformerEnds = new HashMap<>();
         cgmes.transformerEnds()
                 .forEach(p -> groupedTransformerEnds

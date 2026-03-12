@@ -11,8 +11,6 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Generator;
@@ -54,16 +52,10 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmes3GeneratorShortCircuitData() {
+        Properties p = new Properties();
+        p.put(CgmesImport.POST_PROCESSORS, List.of("shortcircuit"));
         Network network = new CgmesImport().importData(Cgmes3Catalog.miniGrid().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
-
-        CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
-        assertNotNull(cgmesModelExtension);
-        CgmesModel cgmesModel = cgmesModelExtension.getCgmesModel();
-        assertNotNull(cgmesModel);
-
-        CgmesShortCircuitModel cgmesScModel = new CgmesShortCircuitModel(cgmesModel.tripleStore());
-        new CgmesShortCircuitImporter(cgmesScModel, network).importShortcircuitData();
+                NetworkFactory.findDefault(), p);
 
         Generator generator = network.getGenerator("ca67be42-750e-4ebf-bfaa-24d446e59a22");
         assertNotNull(generator);
@@ -79,21 +71,15 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmesBranchModelBusbarSectionShortCircuitData() {
+        Properties p = new Properties();
+        p.put(CgmesImport.POST_PROCESSORS, List.of("shortcircuit"));
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallGridBusBranchWithBusbarSectionsAndIpMax().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
-
-        CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
-        assertNotNull(cgmesModelExtension);
-        CgmesModel cgmesModel = cgmesModelExtension.getCgmesModel();
-        assertNotNull(cgmesModel);
-
-        CgmesShortCircuitModel cgmesScModel = new CgmesShortCircuitModel(cgmesModel.tripleStore());
-        new CgmesShortCircuitImporter(cgmesScModel, network).importShortcircuitData();
+                NetworkFactory.findDefault(), p);
 
         Bus bus = network.getBusBreakerView().getBus("0472a783-c766-11e1-8775-005056c00008");
         assertNotNull(bus);
 
-        IdentifiableShortCircuit busShortCircuit = bus.getExtension(IdentifiableShortCircuit.class);
+        IdentifiableShortCircuit<Bus> busShortCircuit = bus.getExtension(IdentifiableShortCircuit.class);
         assertNotNull(busShortCircuit);
 
         assertTrue(Double.isNaN(busShortCircuit.getIpMin()));
@@ -102,44 +88,31 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmesBusbarSectionShortCircuitData() {
+        Properties p = new Properties();
+        p.put(CgmesImport.POST_PROCESSORS, List.of("shortcircuit"));
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
-
-        CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
-        assertNotNull(cgmesModelExtension);
-        CgmesModel cgmesModel = cgmesModelExtension.getCgmesModel();
-        assertNotNull(cgmesModel);
-
-        CgmesShortCircuitModel cgmesScModel = new CgmesShortCircuitModel(cgmesModel.tripleStore());
-        new CgmesShortCircuitImporter(cgmesScModel, network).importShortcircuitData();
+                NetworkFactory.findDefault(), p);
 
         BusbarSection busbarSection = network.getBusbarSection("d9f23c01-d924-4040-ab48-d5c36ccdf1a3");
         assertNotNull(busbarSection);
 
-        IdentifiableShortCircuit busbarSectionShortCircuit = busbarSection.getExtension(IdentifiableShortCircuit.class);
+        IdentifiableShortCircuit<BusbarSection> busbarSectionShortCircuit = busbarSection.getExtension(IdentifiableShortCircuit.class);
         assertNull(busbarSectionShortCircuit);
     }
 
     @Test
     void testImportCgmes3BusbarSectionShortCircuitData() {
         Properties importParams = new Properties();
+        importParams.put(CgmesImport.POST_PROCESSORS, List.of("shortcircuit"));
         // Avoid importing assembled micro grid as subnetworks, to have access to whole CGMES model
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = new CgmesImport().importData(Cgmes3Catalog.microGrid().dataSource(),
                 NetworkFactory.findDefault(), importParams);
 
-        CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
-        assertNotNull(cgmesModelExtension);
-        CgmesModel cgmesModel = cgmesModelExtension.getCgmesModel();
-        assertNotNull(cgmesModel);
-
-        CgmesShortCircuitModel cgmesScModel = new CgmesShortCircuitModel(cgmesModel.tripleStore());
-        new CgmesShortCircuitImporter(cgmesScModel, network).importShortcircuitData();
-
         BusbarSection busbarSection = network.getBusbarSection("364c9ca2-0d1d-4363-8f46-e586f8f66a8c");
         assertNotNull(busbarSection);
 
-        IdentifiableShortCircuit busbarSectionShortCircuit = busbarSection.getExtension(IdentifiableShortCircuit.class);
+        IdentifiableShortCircuit<BusbarSection> busbarSectionShortCircuit = busbarSection.getExtension(IdentifiableShortCircuit.class);
         assertNotNull(busbarSectionShortCircuit);
 
         assertTrue(Double.isNaN(busbarSectionShortCircuit.getIpMin()));

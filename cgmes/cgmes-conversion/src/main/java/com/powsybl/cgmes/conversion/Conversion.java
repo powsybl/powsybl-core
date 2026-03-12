@@ -1104,7 +1104,7 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private boolean storeCgmesModelAsNetworkExtension = true;
+        private boolean storeCgmesModelAsNetworkExtension = false;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
         private boolean createActivePowerControlExtension = false;
 

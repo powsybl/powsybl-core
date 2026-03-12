@@ -336,6 +336,7 @@ class TransformerConversionTest {
     @Test
     void miniBusBranchPhaseAngleClock() {
         Conversion.Config config = new Conversion.Config();
+        config.setStoreCgmesModelAsNetworkExtension(true);
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 
@@ -350,6 +351,7 @@ class TransformerConversionTest {
     @Test
     void miniBusBranchPhaseAngleClockZero() {
         Conversion.Config config = new Conversion.Config();
+        config.setStoreCgmesModelAsNetworkExtension(true);
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 
@@ -364,6 +366,7 @@ class TransformerConversionTest {
     @Test
     void miniBusBranchT2xPhaseAngleClock1NonZero() {
         Conversion.Config config = new Conversion.Config();
+        config.setStoreCgmesModelAsNetworkExtension(true);
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 
@@ -376,6 +379,7 @@ class TransformerConversionTest {
     @Test
     void miniBusBranchT3xAllPhaseAngleClockNonZero() {
         Conversion.Config config = new Conversion.Config();
+        config.setStoreCgmesModelAsNetworkExtension(true);
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 

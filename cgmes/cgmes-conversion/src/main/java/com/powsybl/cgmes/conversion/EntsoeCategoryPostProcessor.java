@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -46,7 +47,11 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
     public void process(Network network, TripleStore tripleStore) {
         Objects.requireNonNull(network);
         LOG.info("Execute {} post processor on network {}", getName(), network.getId());
-        for (PropertyBag sm : network.getExtension(CgmesModelExtension.class).getCgmesModel().synchronousMachinesGenerators()) {
+        CgmesModelExtension cgmes = network.getExtension(CgmesModelExtension.class);
+        if (cgmes == null) {
+            throw new PowsyblException("CgmesModelExtension is required by the EntsoeCategoryPostProcessor");
+        }
+        for (PropertyBag sm : cgmes.getCgmesModel().synchronousMachinesGenerators()) {
             String generatingUnitId = sm.getId("GeneratingUnit");
             if (generatingUnitId != null) {
                 processGenerator(network, sm, generatingUnitId);
