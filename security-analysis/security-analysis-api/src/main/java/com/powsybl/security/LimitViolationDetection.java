@@ -241,7 +241,7 @@ public final class LimitViolationDetection {
                     .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
-                    .forEach(permanentLimitCheckResult -> {
+                    .forEach(permanentLimitCheckResult ->
                         consumer.accept(new LimitViolation(transformer.getId(),
                                 transformer.getOptionalName().orElse(null),
                                 permanentLimitCheckResult.operationalLimitsGroupId(),
@@ -253,8 +253,9 @@ public final class LimitViolationDetection {
                                 value,
                                 side,
                                 null
-                        ));
-                    });
+                        )
+                    )
+                );
         }
     }
 
