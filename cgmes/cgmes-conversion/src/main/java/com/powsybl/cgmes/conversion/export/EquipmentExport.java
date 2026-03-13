@@ -1170,7 +1170,7 @@ public final class EquipmentExport {
         if (context.isExportAllLimitsGroup()) {
             limitsGroups1.addAll(branch.getOperationalLimitsGroups1());
         } else {
-            branch.getSelectedOperationalLimitsGroup1().ifPresent(limitsGroups1::add);
+            limitsGroups1.addAll(branch.getAllSelectedOperationalLimitsGroups(TwoSides.ONE));
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups1) {
             writeLimitsGroup(limitsGroup, terminalId1, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
@@ -1180,7 +1180,7 @@ public final class EquipmentExport {
         if (context.isExportAllLimitsGroup()) {
             limitsGroups2.addAll(branch.getOperationalLimitsGroups2());
         } else {
-            branch.getSelectedOperationalLimitsGroup2().ifPresent(limitsGroups2::add);
+            limitsGroups2.addAll(branch.getAllSelectedOperationalLimitsGroups(TwoSides.TWO));
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups2) {
             writeLimitsGroup(limitsGroup, terminalId2, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
@@ -1192,7 +1192,7 @@ public final class EquipmentExport {
         if (context.isExportAllLimitsGroup()) {
             limitsGroups.addAll(holder.getOperationalLimitsGroups());
         } else {
-            holder.getSelectedOperationalLimitsGroup().ifPresent(limitsGroups::add);
+            limitsGroups.addAll(holder.getAllSelectedOperationalLimitsGroups());
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups) {
             writeLimitsGroup(limitsGroup, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);

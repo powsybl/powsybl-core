@@ -51,10 +51,10 @@ class ExporterTest extends AbstractSerDeTest {
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", null, "activated_1_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, ThreeSides.ONE, null);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
 
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, TwoSides.TWO);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", null, "activated_2_1", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, ThreeSides.TWO, null);
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 
