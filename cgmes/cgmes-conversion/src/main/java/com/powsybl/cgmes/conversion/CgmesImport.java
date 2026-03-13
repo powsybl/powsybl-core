@@ -206,6 +206,7 @@ public class CgmesImport implements Importer {
                 tripleStoreOptions);
         Conversion conversion = new Conversion(cgmes, config(p));
         conversion.update(network, reportNode);
+        cgmes.close();
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
