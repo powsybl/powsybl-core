@@ -7,13 +7,12 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -21,31 +20,34 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CgmesConversionExtensionsTest {
 
+    private static final String DIR = "/issues/";
+
     @Test
     void testCgmesConversionContextExtension() {
         Properties properties = new Properties();
         properties.put(CgmesImport.STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION, "true");
-        properties.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), NetworkFactory.findDefault(), properties);
+        Network network = readCgmesResources(properties, DIR, "empty_EQ.xml");
         CgmesConversionContextExtension extension = network.getExtension(CgmesConversionContextExtension.class);
         assertNotNull(extension);
         assertTrue(extension.getContext().config().storeCgmesConversionContextAsNetworkExtension());
+        assertTrue(extension.getContext().cgmes().isNodeBreaker());
     }
 
     @Test
     void testCgmesModelExtensionEnabled() {
         Properties properties = new Properties();
         properties.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, true);
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), NetworkFactory.findDefault(), properties);
+        Network network = readCgmesResources(properties, DIR, "empty_EQ.xml");
         CgmesModelExtension extension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(extension);
+        assertTrue(extension.getCgmesModel().isNodeBreaker());
     }
 
     @Test
     void testCgmesModelExtensionDisabled() {
         Properties properties = new Properties();
         properties.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, false);
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), NetworkFactory.findDefault(), properties);
+        Network network = readCgmesResources(properties, DIR, "empty_EQ.xml");
         CgmesModelExtension extension = network.getExtension(CgmesModelExtension.class);
         assertNull(extension);
     }

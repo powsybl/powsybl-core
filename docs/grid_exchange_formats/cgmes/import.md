@@ -729,6 +729,16 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 This extension provides access to the PowSyBl CGMES Network Model implemented with a triplestore.
 
+Note that in order for this extension to be present, the corresponding property
+`iidm.import.cgmes.store-cgmes-model-as-network-extension` must be set to true.
+
+Exemple of code to read the extension and retrieve the substations in the CGMES input files:
+
+```java
+CgmesModelExtension cgmesModel = network.getExtension(CgmesModelExtension.class);
+PropertyBags substationBags = cgmesModel.getCgmesModel().substations();
+```
+
 This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
 
 (cgmes-conversion-context-import)=
@@ -737,6 +747,16 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesConversionContextExtension.html)
 
 This extension is useful for external validation of the mapping made between CGMES and IIDM.
+
+Note that in order for this extension to be present, the corresponding property
+`iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension` must be set to true.
+
+Exemple of code to read the extension and retrieve the naming strategy:
+
+```java
+CgmesConversionContextExtension cgmesConversionContext = network.getExtension(CgmesConversionContextExtension.class);
+NamingStrategy namingStrategy = cgmesConversionContext.getContext().namingStrategy();
+```
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
 
