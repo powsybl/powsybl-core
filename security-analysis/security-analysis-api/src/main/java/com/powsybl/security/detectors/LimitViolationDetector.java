@@ -10,10 +10,11 @@ package com.powsybl.security.detectors;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.security.LimitViolationDetection;
-import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 import java.util.Set;
 import java.util.function.Consumer;
