@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import org.junit.jupiter.api.BeforeAll;
