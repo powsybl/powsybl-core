@@ -7,7 +7,6 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
