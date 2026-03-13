@@ -16,12 +16,14 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
@@ -104,8 +106,8 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
-            writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
+            writeBoundaryTerminal(bl, exported, cimNamespace, writer, context);
         }
     }
 
@@ -277,10 +279,10 @@ public final class TopologyExport {
         writer.writeEndElement();
     }
 
-    private static void writeBoundaryTerminal(BoundaryLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
-        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-        String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+    private static void writeBoundaryTerminal(BoundaryLine bl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+        String topologicalNode = bl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
         // Topological nodes of boundaries are published by external entities and should be ok,
         // we do not make an additional effort to ensure a valid CGMES id has been assigned
         // If not defined it has already been created above so topological node is never null
@@ -307,26 +309,74 @@ public final class TopologyExport {
     }
 
     private static void writeBoundaryLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.ALL)) {
-            String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            if (topologicalNodeId == null) {
-                // If no information about original boundary has been preserved in the IIDM model,
-                // we will create a new TopologicalNode
-                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
-                // If the EQ has also been exported, a fictitious container should have been created
-                String containerId = context.getFictitiousContainerFor(dl);
-                if (containerId == null) {
-                    // As a last resort, we create the TN in the same container of the boundary line
-                    LOG.error("Boundary line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
-                                    " Boundary line {} is considered entirely inside voltage level {}",
-                            dl.getId(), dl.getPairingKey() != null ? " linked to X-node " + dl.getPairingKey() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
-                    containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
-                }
-                String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(dl), TOPOLOGICAL_NODE);
-                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
-                writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
-            }
+        for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            writeBoundaryLineTopologicalNodes(Collections.singletonList(boundaryLine), cimNamespace, writer, context);
         }
+
+        Map<String, List<BoundaryLine>> boundaryLinesByPairingKey = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).collect(Collectors.groupingBy(CgmesExportUtil::getEffectivePairingKey));
+        for (Map.Entry<String, List<BoundaryLine>> entry : boundaryLinesByPairingKey.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+            writeBoundaryLineTopologicalNodes(entry.getValue(), cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeBoundaryLineTopologicalNodes(List<BoundaryLine> boundaryLineList, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (boundaryLineList.isEmpty()) {
+            return;
+        }
+        // If no information about original boundary has been preserved in the IIDM model,
+        // we first try to find the TopologicalNodeId in the reference data provider, and as a last option,
+        // we will create a new TopologicalNode.
+        String topologicalNodeId;
+        Optional<String> optionalTopologicalNodeId = getDefinedTopologicalNode(boundaryLineList);
+        if (optionalTopologicalNodeId.isPresent()) {
+            topologicalNodeId = optionalTopologicalNodeId.get();
+        } else {
+            optionalTopologicalNodeId = findTopologicalNodeId(boundaryLineList.getFirst().getPairingKey(), context);
+            topologicalNodeId = optionalTopologicalNodeId.isPresent() ? optionalTopologicalNodeId.get() : createNewTopologicalNode(boundaryLineList.getFirst(), cimNamespace, writer, context);
+        }
+
+        boundaryLineList.forEach(bl -> bl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, topologicalNodeId));
+    }
+
+    private static Optional<String> getDefinedTopologicalNode(List<BoundaryLine> boundaryLineList) {
+        return boundaryLineList.stream()
+                .map(bl -> bl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static Optional<String> findTopologicalNodeId(String pairingKey, CgmesExportContext context) {
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (pairingKey == null || referenceDataProvider == null) {
+            return Optional.empty();
+        }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Optional.empty();
+        }
+        return boundaryNodes.stream()
+                .filter(propertyBag -> pairingKey.equals(propertyBag.getId("name")))
+                .map(propertyBag1 -> propertyBag1.getId("TopologicalNode"))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static String createNewTopologicalNode(BoundaryLine bl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+
+        String baseVoltage = context.getBaseVoltageByNominalVoltage(bl.getTerminal().getVoltageLevel().getNominalV()).getId();
+        // If the EQ has also been exported, a fictitious container should have been created
+        String containerId = context.getFictitiousContainerFor(bl);
+        if (containerId == null) {
+            // As a last resort, we create the TN in the same container of the boundary line
+            LOG.error("Boundary line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
+                            " Boundary line {} is considered entirely inside voltage level {}",
+                    bl.getId(), bl.getPairingKey() != null ? " linked to X-node " + bl.getPairingKey() : "", bl.getId(), bl.getTerminal().getVoltageLevel().getId());
+            containerId = context.getNamingStrategy().getCgmesId(bl.getTerminal().getVoltageLevel());
+        }
+        String fictTopologicalNodeId = context.getNamingStrategy().getCgmesId(refTyped(bl), TOPOLOGICAL_NODE);
+        writeTopologicalNode(fictTopologicalNodeId, bl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer, context);
+
+        return fictTopologicalNodeId;
     }
 
     private static void writeBusTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

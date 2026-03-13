@@ -589,4 +589,9 @@ public final class CgmesExportUtil {
     public static boolean isMinusOrMaxValue(double value) {
         return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
+
+    static String getEffectivePairingKey(BoundaryLine bl) {
+        String pairingKey = bl.getPairingKey();
+        return pairingKey != null ? pairingKey : bl.getTieLine().orElseThrow().getId();
+    }
 }
