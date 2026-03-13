@@ -211,6 +211,7 @@ The following example is a result of a security analysis with remedial action, e
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
+        "operationalLimitsGroupId" : "activated_1_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
         "limitReduction" : 0.95,
@@ -286,6 +287,7 @@ The following example is a result of a security analysis with remedial action, e
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",
+        "operationalLimitsGroupId" : "activated_2_1",
         "limitType" : "CURRENT",
         "limitName" : "20'",
         "acceptableDuration" : 1200,
