@@ -12,13 +12,10 @@ import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
-import com.univocity.parsers.csv.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.util.*;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
@@ -28,15 +25,22 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
+public class CgmesNamingStrategy implements NamingStrategy {
 
     protected final BiMap<String, String> idByUuid = HashBiMap.create();
     protected final Map<String, String> uuidSeed = new HashMap<>();
     protected final NameBasedGenerator nameBasedGenerator;
 
-    protected AbstractCgmesAliasNamingStrategy(UUID uuidNamespace) {
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesNamingStrategy.class);
+
+    public CgmesNamingStrategy(UUID uuidNamespace) {
         // The namespace for generating stable name-based UUIDs is also a UUID
         this.nameBasedGenerator = uuidNamespace == null ? Generators.nameBasedGenerator() : Generators.nameBasedGenerator(uuidNamespace);
+    }
+
+    @Override
+    public String getName() {
+        return NamingStrategyFactory.CGMES;
     }
 
     @Override
@@ -64,6 +68,17 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
+    public String getCgmesId(CgmesObjectReference... refs) {
+        String seed = "_" + combine(refs);
+        String uuid = nameBasedGenerator.generate(seed).toString();
+        if (uuidSeed.containsKey(uuid)) {
+            LOG.debug("Unique ID for seed {} called multiple times ", seed);
+        }
+        uuidSeed.put(uuid, seed);
+        return uuid;
+    }
+
+    @Override
     public String getCgmesId(String identifier) {
         if (idByUuid.containsValue(identifier)) {
             return idByUuid.inverse().get(identifier);
@@ -80,58 +95,18 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     }
 
     @Override
-    public void debug(String baseName, DataSource ds) {
-        if (!LOG.isDebugEnabled()) {
-            return;
+    public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
+        if (identifiable.getAliasFromType(aliasType).isPresent()) {
+            return getCgmesId(identifiable.getAliasFromType(aliasType).orElseThrow());
         }
-        String mappingFilename = baseName + "_debug_naming_strategy.csv";
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ds.newOutputStream(mappingFilename, false)))) {
-            CsvWriterSettings settings = new CsvWriterSettings();
-            settings.getFormat().setLineSeparator(System.lineSeparator());
-            settings.getFormat().setDelimiter(';');
-            settings.getFormat().setQuoteEscape('"');
-            CsvWriter csvWriter = new CsvWriter(writer, settings);
-            try {
-                String[] nextLine = new String[3];
-                nextLine[0] = "CgmesUuid";
-                nextLine[1] = "IidmId";
-                nextLine[2] = "Seed";
-                csvWriter.writeRow(nextLine);
-
-                for (Map.Entry<String, String> e : idByUuid.entrySet()) {
-                    String uuid = e.getKey();
-                    nextLine[0] = uuid;
-                    nextLine[1] = e.getValue();
-                    nextLine[2] = uuidSeed.get(uuid);
-                    csvWriter.writeRow(nextLine);
-                }
-                for (Map.Entry<String, String> e : uuidSeed.entrySet()) {
-                    String uuid = e.getKey();
-                    if (!idByUuid.containsKey(uuid)) {
-                        nextLine[0] = uuid;
-                        nextLine[1] = "unknown";
-                        nextLine[2] = uuidSeed.get(uuid);
-                        csvWriter.writeRow(nextLine);
-                    }
-                }
-            } finally {
-                csvWriter.close();
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return getCgmesId(getCgmesObjectReferences(identifiable, aliasType));
     }
 
     @Override
-    public String getCgmesId(CgmesObjectReference... refs) {
-        String seed = "_" + combine(refs);
-        String uuid = nameBasedGenerator.generate(seed).toString();
-        if (uuidSeed.containsKey(uuid)) {
-            LOG.debug("Unique ID for seed {} called multiple times ", seed);
+    public String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
+        if (identifiable.hasProperty(propertyName)) {
+            return getCgmesId(identifiable.getProperty(propertyName));
         }
-        uuidSeed.put(uuid, seed);
-        return uuid;
+        return getCgmesId(getCgmesObjectReferences(identifiable, propertyName));
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesAliasNamingStrategy.class);
 }
