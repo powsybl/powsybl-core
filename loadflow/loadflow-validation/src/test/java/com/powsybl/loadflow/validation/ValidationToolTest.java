@@ -9,9 +9,14 @@ package com.powsybl.loadflow.validation;
 
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.test.AbstractToolTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,6 +28,12 @@ class ValidationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "loadflow-validation";
     private final ValidationTool tool = new ValidationTool();
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        super.setUp();
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/network.xiidm")), fileSystem.getPath("network.xiidm"));
+    }
 
     @Override
     protected Iterable<Tool> getTools() {
@@ -46,5 +57,12 @@ class ValidationToolTest extends AbstractToolTest {
     @Test
     void testCommand() {
         assertCommand();
+    }
+
+    @Test
+    @Disabled
+    void test() throws IOException {
+        //TODO  File network.xiidm does not exist !!!!!
+        assertCommandErrorMatch(new String[]{"loadflow-validation", "--case-file", "network.xiidm", "--output-folder", "result"}, "");
     }
 }
