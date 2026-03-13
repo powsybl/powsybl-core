@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:voltageLevel id="VL3" nominalV="380.0" topologyKind="NODE_BREAKER">
+    <iidm:voltageLevel id="VLTEST" nominalV="380.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology>
-            <iidm:busbarSection id="bbs3" node="0"/>
-            <iidm:switch id="breaker3" name="breaker3" kind="BREAKER" retained="false" open="true" node1="0" node2="1"/>
+            <iidm:busbarSection id="bbs" node="0"/>
+            <iidm:switch id="CJ_BREAKER" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+            <iidm:switch id="CJ_DISCONNECTOR_2_0" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="0"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
-    <iidm:voltageLevel id="VL4" nominalV="380.0" topologyKind="NODE_BREAKER">
+    <iidm:voltageLevel id="CJ_VL" fictitious="true" nominalV="225.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology>
-            <iidm:busbarSection id="bbs4" node="0"/>
-            <iidm:switch id="breaker4" name="breaker4" kind="BREAKER" retained="false" open="true" node1="0" node2="1"/>
+            <iidm:internalConnection node1="0" node2="1"/>
+            <iidm:internalConnection node1="1" node2="2"/>
+            <iidm:internalConnection node1="1" node2="3"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="A" country="FR">
@@ -128,12 +130,18 @@
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="LINE34" r="0.1" x="0.1" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL3" node1="1" voltageLevelId2="VL4" node2="1"/>
-    <iidm:line id="CJ_NEW" r="0.009999999" x="0.10000002400000002" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="C" node1="4" voltageLevelId2="N" node2="5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+    <iidm:line id="CJ_1" r="0.0049999995" x="0.05000001200000001" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="C" node1="4" voltageLevelId2="CJ_VL" node2="0" selectedOperationalLimitsGroupId1="group1" selectedOperationalLimitsGroupId2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0">
-                <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
-                <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
+            <iidm:currentLimits permanentLimit="931.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup1 id="group1">
+            <iidm:currentLimits permanentLimit="100.0">
+                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
+            </iidm:currentLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup1 id="group2">
+            <iidm:currentLimits permanentLimit="110.0">
+                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="130.0"/>
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
@@ -143,4 +151,26 @@
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
+    <iidm:line id="CJ_2" r="0.0049999995" x="0.05000001200000001" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="CJ_VL" node1="2" voltageLevelId2="N" node2="5" selectedOperationalLimitsGroupId1="group1" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup1 id="group1">
+            <iidm:currentLimits permanentLimit="100.0">
+                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
+            </iidm:currentLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup1 id="group2">
+            <iidm:currentLimits permanentLimit="110.0">
+                <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="130.0"/>
+            </iidm:currentLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="931.0">
+                <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
+                <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
+            </iidm:currentLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="testLine" r="0.009999999" x="0.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="CJ_VL" node1="3" voltageLevelId2="VLTEST" node2="1"/>
 </iidm:network>
