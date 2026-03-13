@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.validation.extension.ExtensionsValidation;
 import com.powsybl.loadflow.validation.io.ValidationWriters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -53,6 +54,7 @@ public class ValidationTool implements Tool {
     private static final String COMPARE_RESULTS = "compare-results";
     private static final String RUN_COMPUTATION = "run-computation";
     private static final String COMPARE_CASE_FILE = "compare-case-file";
+    public static final String WITH_EXTENSIONS_OPTION = "with-extensions";
 
     private static final Command COMMAND = new Command() {
 
@@ -120,6 +122,11 @@ public class ValidationTool implements Tool {
                     .build());
             options.addOption(createImportParametersFileOption());
             options.addOption(createImportParameterOption());
+            options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
+                    .desc("enable extension validation")
+                    .hasArg(false)
+                    .argName("EXTENSIONS")
+                    .build());
             return options;
         }
 
@@ -149,6 +156,7 @@ public class ValidationTool implements Tool {
         if (line.hasOption(OUTPUT_FORMAT)) {
             config.setValidationOutputWriter(ValidationOutputWriter.valueOf(line.getOptionValue(OUTPUT_FORMAT)));
         }
+
         ComparisonType comparisonType = null;
         if (line.hasOption(COMPARE_RESULTS)) {
             config.setCompareResults(true);
@@ -161,6 +169,10 @@ public class ValidationTool implements Tool {
                                     .collect(Collectors.toSet());
         }
         Network network = loadNetwork(caseFile, line, context);
+        if (line.hasOption(WITH_EXTENSIONS_OPTION)) {
+            ExtensionsValidation extensionsValidation = new ExtensionsValidation();
+            extensionsValidation.runExtensionValidations(network, config, outputFolder, context);
+        }
         try (ValidationWriters validationWriters = new ValidationWriters(network.getId(), validationTypes, outputFolder, config)) {
             if (config.isCompareResults() && ComparisonType.COMPUTATION.equals(comparisonType)) {
                 Preconditions.checkArgument(line.hasOption(LOAD_FLOW) || line.hasOption(RUN_COMPUTATION),
