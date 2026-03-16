@@ -10,10 +10,8 @@ package com.powsybl.loadflow.validation;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.test.AbstractToolTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Objects;
@@ -29,6 +27,7 @@ class ValidationToolTest extends AbstractToolTest {
     private static final String COMMAND_NAME = "loadflow-validation";
     private final ValidationTool tool = new ValidationTool();
 
+    @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
@@ -51,7 +50,7 @@ class ValidationToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "output-folder", true, true);
         assertOption(tool.getCommand().getOptions(), "load-flow", false, false);
         assertOption(tool.getCommand().getOptions(), "types", false, true);
-        assertOption(tool.getCommand().getOptions(), "with-extensions", false, false);
+        assertOption(tool.getCommand().getOptions(), "with-extensions-validation", false, false);
     }
 
     @Test
@@ -60,9 +59,31 @@ class ValidationToolTest extends AbstractToolTest {
     }
 
     @Test
-    @Disabled
-    void test() throws IOException {
-        //TODO  File network.xiidm does not exist !!!!!
-        assertCommandErrorMatch(new String[]{"loadflow-validation", "--case-file", "network.xiidm", "--output-folder", "result"}, "");
+    void loadFlowValidationShouldSucceedWithRequiredOption() {
+        String expectedOut = String.join(System.lineSeparator(),
+                "Loading case network.xiidm",
+                "Validate load-flow results of network network - validation type: FLOWS - result: success",
+                "Validate load-flow results of network network - validation type: GENERATORS - result: success",
+                "Validate load-flow results of network network - validation type: BUSES - result: success",
+                "Validate load-flow results of network network - validation type: SVCS - result: success",
+                "Validate load-flow results of network network - validation type: SHUNTS - result: success",
+                "Validate load-flow results of network network - validation type: TWTS - result: success",
+                "Validate load-flow results of network network - validation type: TWTS3W - result: success" + System.lineSeparator());
+        assertCommandSuccessfulMatch(new String[]{"loadflow-validation", "--case-file", "network.xiidm", "--output-folder", "test"}, expectedOut);
+    }
+
+    @Test
+    void loadFlowValidationShouldComputePrivateValidation() {
+        String expectedOut = String.join(System.lineSeparator(),
+                "Loading case network.xiidm",
+                "Validate load-flow results of network network - validation type: FLOWS - result: success",
+                "Validate load-flow results of network network - validation type: GENERATORS - result: success",
+                "Validate load-flow results of network network - validation type: BUSES - result: success",
+                "Validate load-flow results of network network - validation type: SVCS - result: success",
+                "Validate load-flow results of network network - validation type: SHUNTS - result: success",
+                "Validate load-flow results of network network - validation type: TWTS - result: success",
+                "Validate load-flow results of network network - validation type: TWTS3W - result: success",
+                "Validate load-flow results of network network - validation type: Extension/extensionValidationMock1 - result: success" + System.lineSeparator());
+        assertCommandSuccessfulMatch(new String[]{"loadflow-validation", "--case-file", "network.xiidm", "--output-folder", "test", "--with-extensions-validation"}, expectedOut);
     }
 }

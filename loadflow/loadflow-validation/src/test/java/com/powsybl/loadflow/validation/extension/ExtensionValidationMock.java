@@ -5,12 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.loadflow.validation.extension; import com.google.auto.service.AutoService;
+package com.powsybl.loadflow.validation.extension;
+import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.validation.ValidationConfig;
-
-import java.io.IOException;
-import java.nio.file.Path;
 
 /**
  *
@@ -20,17 +18,13 @@ import java.nio.file.Path;
 public class ExtensionValidationMock implements ExtensionValidation {
 
     @Override
-    public String getType() {
-        return "private1";
-    }
-
-    @Override
     public String getName() {
         return "extensionValidationMock1";
     }
 
     @Override
-    public boolean check(Network network, ValidationConfig config, Path outputFile) throws IOException {
+    public boolean check(Network network, ValidationConfig config) {
         return true;
     }
+
 }
