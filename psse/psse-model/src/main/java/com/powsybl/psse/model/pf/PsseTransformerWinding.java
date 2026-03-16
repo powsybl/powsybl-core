@@ -32,8 +32,10 @@ public class PsseTransformerWinding extends PsseVersioned {
     private static final Map<String, PsseFieldDefinition<PsseTransformerWinding, ?>> FIELDS = createFields();
     private static final String[] FIELD_NAMES_T2W = {STR_WINDV, STR_NOMV};
     private static final String[] FIELD_NAMES_PART_1 = {STR_WINDV, STR_NOMV, STR_ANG};
-    private static final String[] FIELD_NAMES_PART_2 = {STR_COD, STR_CONT, STR_NODE, STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
-    private static final String[] FIELD_NAMES = {STR_WINDV, STR_NOMV, STR_ANG, STR_COD, STR_CONT, STR_NODE, STR_RMA, STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
+    private static final String[] FIELD_NAMES_PART_2 = {STR_COD, STR_CONT, STR_NODE, STR_RMA, STR_RMI, STR_VMA, STR_VMI,
+        STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
+    private static final String[] FIELD_NAMES = {STR_WINDV, STR_NOMV, STR_ANG, STR_COD, STR_CONT, STR_NODE, STR_RMA,
+        STR_RMI, STR_VMA, STR_VMI, STR_NTP, STR_TAB, STR_CR, STR_CX, STR_CNXA};
 
     private double windv = defaultDoubleFor(STR_WINDV, FIELDS);
     private double nomv = defaultDoubleFor(STR_NOMV, FIELDS);

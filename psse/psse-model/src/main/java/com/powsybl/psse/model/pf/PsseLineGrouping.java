@@ -29,8 +29,10 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseLineGrouping {
 
     private static final Map<String, PsseFieldDefinition<PsseLineGrouping, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES = {STR_I, STR_J, STR_ID, STR_MET, STR_DUM1, STR_DUM2, STR_DUM3, STR_DUM4, STR_DUM5, STR_DUM6, STR_DUM7, STR_DUM8, STR_DUM9};
-    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_JBUS, STR_MSLID, STR_MET, STR_DUM1, STR_DUM2, STR_DUM3, STR_DUM4, STR_DUM5, STR_DUM6, STR_DUM7, STR_DUM8, STR_DUM9};
+    private static final String[] FIELD_NAMES = {STR_I, STR_J, STR_ID, STR_MET, STR_DUM1, STR_DUM2, STR_DUM3, STR_DUM4,
+        STR_DUM5, STR_DUM6, STR_DUM7, STR_DUM8, STR_DUM9};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_JBUS, STR_MSLID, STR_MET, STR_DUM1, STR_DUM2, STR_DUM3,
+        STR_DUM4, STR_DUM5, STR_DUM6, STR_DUM7, STR_DUM8, STR_DUM9};
 
     private int i;
     private int j;

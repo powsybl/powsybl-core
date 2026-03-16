@@ -37,8 +37,10 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseTwoTerminalDcTransmissionLine, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES = {STR_NAME, STR_MDC, STR_RDC, STR_SETVL, STR_VSCHD, STR_VCMOD, STR_RCOMP, STR_DELTI, STR_METER, STR_DCVMIN, STR_CCCITMX, STR_CCCACC};
-    private static final String[] FIELD_NAMES_35X_MAIN = {STR_NAME, STR_MDC, STR_RDC, STR_SETVL, STR_VSCHD, STR_VCMOD, STR_RCOMP, STR_DELTI, STR_MET, STR_DCVMIN, STR_CCCITMX, STR_CCCACC};
+    private static final String[] FIELD_NAMES = {STR_NAME, STR_MDC, STR_RDC, STR_SETVL, STR_VSCHD, STR_VCMOD,
+        STR_RCOMP, STR_DELTI, STR_METER, STR_DCVMIN, STR_CCCITMX, STR_CCCACC};
+    private static final String[] FIELD_NAMES_35X_MAIN = {STR_NAME, STR_MDC, STR_RDC, STR_SETVL, STR_VSCHD, STR_VCMOD,
+        STR_RCOMP, STR_DELTI, STR_MET, STR_DCVMIN, STR_CCCITMX, STR_CCCACC};
 
     private static final String[] FIELD_NAMES_35X = concatStringArrays(FIELD_NAMES_35X_MAIN,
         addSuffixToHeaders(PsseTwoTerminalDcConverter.getFieldNames35(), STR_R),

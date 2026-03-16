@@ -43,9 +43,12 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONE;
 public class PsseBus extends PsseVersioned {
 
     private static final Map<String, PsseFieldDefinition<PsseBus, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES_32 = {STR_I, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA};
-    private static final String[] FIELD_NAMES_33_35 = {STR_I, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
-    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
+    private static final String[] FIELD_NAMES_32 = {STR_I, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER,
+        STR_VM, STR_VA};
+    private static final String[] FIELD_NAMES_33_35 = {STR_I, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER,
+        STR_VM, STR_VA, STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER,
+        STR_VM, STR_VA, STR_NVHI, STR_NVLO, STR_EVHI, STR_EVLO};
 
     private int i;
     private String name;
