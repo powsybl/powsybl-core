@@ -264,7 +264,7 @@ class VoltageLevelConverter extends AbstractConverter {
     private static void createBusBranchContextExportForFullExport(VoltageLevel voltageLevel, ContextExport contextExport) {
         // If only the buses defined in BusView were considered, certain de-energized configurations could lead to terminals lacking an associated bus reference
         voltageLevel.getConnectableStream().flatMap(connectable -> connectableBuses(voltageLevel, connectable).stream())
-                .collect(Collectors.toSet()).stream().sorted(Comparator.comparing(Identifiable::getId))
+                .distinct().sorted(Comparator.comparing(Identifiable::getId))
                 .forEach(bus -> contextExport.getFullExport().addBusIBus(contextExport.getFullExport().getNewPsseBusI(), bus));
 
         voltageLevel.getBoundaryLineStream().filter(boundaryLine -> !boundaryLine.isPaired())
