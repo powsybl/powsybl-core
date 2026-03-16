@@ -104,6 +104,15 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         return gridData.dcElmLnes.contains(elmLne);
     }
 
+    /**
+     * Record representation of the StaCubic content.
+     * @param elmTerm    // connection terminal.
+     * @param busIndexIn // obj_bud in the DGS file - connector id for the equipment.
+     * @param dcNodeId   // id of the DcNode in the PowSyBl DC network.
+     */
+    private record DcNodeRef(DataObject elmTerm, int busIndexIn, String dcNodeId) {
+    }
+
     @Override
     void create() {
 
@@ -115,37 +124,71 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
         // Create nodes
         LOGGER.debug("Creating {} DC nodes.", gridData.dcElmTerms.size());
-        List<DataObject> dcElmTermsSorted = gridData.dcElmTerms.stream().sorted(Comparator.comparing(DataObject::getId))
-                                                                .toList();
-        for (DataObject terminal : dcElmTermsSorted) {
-            addDcNode(terminal, network);
-        }
+        gridData.dcElmTerms.stream()
+                .sorted(Comparator.comparing(DataObject::getId))
+                .forEachOrdered(terminal -> addDcNode(terminal, network));
+
+        // Map: id of the equipment in the DGS file
+        // -> list of connections to terminals (in DGS) and DC nodes (in PowSyBl), by bus.
+        // This makes it possible to compute the map once for all components, and then use it to establish connections
+        // everywhere.
+        final Map<Long, List<DcNodeRef>> objIdDcNodeRef = mapConnectedObjToDcNode(getImportContext(), gridData);
+        // TODO decide if it is necessary to do a sanity check on the map here
 
         // create and connect converters
         LOGGER.debug("Creating {} VSCs.", gridData.acDcConverters.size());
-        List<DataObject> acDcConvertersSorted = gridData.acDcConverters.stream().sorted(Comparator.comparing(DataObject::getId))
-                .toList();
-        for (DataObject converter : acDcConvertersSorted) {
-            addAcDcConverter(converter, network, getImportContext());
-        }
+        gridData.acDcConverters.stream()
+                .sorted(Comparator.comparing(DataObject::getId))
+                .forEachOrdered(converter -> addAcDcConverter(converter, network, objIdDcNodeRef));
 
         // create and connect lines
         LOGGER.debug("Creating {} DC lines.", gridData.dcElmLnes.size());
-        List<DataObject> dcElmLnesSorted = gridData.dcElmLnes.stream().sorted(Comparator.comparing(DataObject::getId))
-                .toList();
-        for (DataObject line : dcElmLnesSorted) {
-            addDcLine(line, network);
-        }
+        gridData.dcElmLnes.stream()
+                .sorted(Comparator.comparing(DataObject::getId))
+                .forEachOrdered(line -> addDcLine(line, network, objIdDcNodeRef));
 
         // create and connect grounds
         LOGGER.debug("Creating {} DC grounds.", 0);
-        List<DataObject> elmGndswtSorted = gridData.elmGndswt.stream().sorted(Comparator.comparing(DataObject::getId))
-                .toList();
-        for (DataObject gnd : elmGndswtSorted) {
-            addDcGround(gnd, network);
-        }
+        gridData.elmGndswt.stream()
+                .sorted(Comparator.comparing(DataObject::getId))
+                .forEachOrdered(gnd -> addDcGround(gnd, network, objIdDcNodeRef));
 
         LOGGER.debug("DC subnetworks created.");
+    }
+
+    private static Map<Long, List<DcNodeRef>> mapConnectedObjToDcNode(ImportContext importContext, DcGridData dcGridData) {
+
+        // Map: id of the equipment in the DGS file
+        // -> list of connections to terminals (in DGS) and DC nodes (in PowSyBl), by bus.
+        Map<Long, List<DcNodeRef>> objIdDcNodeRef = new HashMap<>();
+
+        for (DataObject elmTerm : dcGridData.dcElmTerms) {
+            for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
+                DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
+                        .flatMap(DataObjectRef::resolve)
+                        .orElse(null);
+
+                if (connectedObj == null) {
+                    importContext.cubiclesObjectNotFound.add(staCubic);
+                    continue;
+                }
+
+                if (isDcConnectedObj(dcGridData, connectedObj)) {
+                    int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
+                    String dcNodeId = idInNetworkString(elmTerm);
+                    objIdDcNodeRef.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>()).add(new DcNodeRef(elmTerm, busIndexIn, dcNodeId));
+                }
+            }
+        }
+
+        return objIdDcNodeRef;
+    }
+
+    // Filter only DC equipment
+    private static boolean isDcConnectedObj(DcGridData dcGridData, DataObject connectedObj) {
+        return dcGridData.acDcConverters().contains(connectedObj)
+                || dcGridData.dcElmLnes().contains(connectedObj)
+                || dcGridData.elmGndswt().contains(connectedObj);
     }
 
     /**
@@ -153,7 +196,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param elmGndswt PowerFactory data object.
      * @param network network to amend.
      */
-    private static void addDcGround(DataObject elmGndswt, Network network) {
+    private static void addDcGround(DataObject elmGndswt, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
 
         int onOff = elmGndswt.findIntAttributeValue("on_off").orElse(1);
         int ciEarthed = elmGndswt.findIntAttributeValue("ciEarthed").orElse(1);
@@ -163,15 +206,13 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         }
 
         String gndId = idInNetworkString(elmGndswt);
+        assert gndId != null;
 
         // Find terminal connected to ground
-        String elmId = getGroundNodeId(elmGndswt);
-
-        assert gndId != null;
-        assert elmId != null;
+        List<DcNodeRef> dcNodesRef = getAndCheckDcNodes(elmGndswt, 1, objIdDcNodeRef);
 
         network.newDcGround().setId(gndId)
-                .setDcNode(elmId)
+                .setDcNode(dcNodesRef.getFirst().dcNodeId())
                 .add();
     }
 
@@ -215,6 +256,17 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         }
     }
 
+
+    // TODO remove and rely directly on dcNodeRef.busIndexIn
+    private static List<DcNodeRef> getAndCheckDcNodes(DataObject obj, int expectedNumDcNodes, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
+        List<DcNodeRef> dcNodeRefs = objIdDcNodeRef.get(obj.getId());
+        if (dcNodeRefs == null || dcNodeRefs.size() != expectedNumDcNodes) {
+            throw new PowerFactoryException("Inconsistent number (" + (dcNodeRefs != null ? dcNodeRefs.size() : 0) + ") of dcNodes for '" + obj.getId() + "'");
+        }
+        return dcNodeRefs.stream().sorted(Comparator.comparing(dcNodeRef -> dcNodeRef.busIndexIn)).toList();
+    }
+
+
     /**
      * Create DC line in the network, retrieving endpoints and resistance
      * from the PowerFactory data model.
@@ -225,20 +277,19 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      *                We suppose DC nodes have been created previously in the
      *                network.
      */
-    private static void addDcLine(DataObject line, Network network) {
+    private static void addDcLine(DataObject line, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
         // Find the nodes
-        LineTerms lineTerminals = LineTerms.findDcLineEndsPowerFactory(line);
-
-        String parentComponentName = "line " + line.getId(); // only for error message purpose
-        DcNode dcNode1 = getSafeNodeForComponent(lineTerminals.dcTerm1DataObject, network, parentComponentName);
-        DcNode dcNode2 = getSafeNodeForComponent(lineTerminals.dcTerm2DataObject, network, parentComponentName);
-        assert dcNode1 != null && dcNode2 != null;
+        List<DcNodeRef> dcNodesRef = getAndCheckDcNodes(line, 2, objIdDcNodeRef);
 
         // Get the data from the "types"
         double lineResistance = getLineResistance(line);
 
         // Create the line in the DC subnetwork
-        network.newDcLine().setId(idInNetworkString(line)).setDcNode1(dcNode1.getId()).setDcNode2(dcNode2.getId()).setR(lineResistance).add();
+        network.newDcLine()
+                .setId(idInNetworkString(line))
+                .setDcNode1(dcNodesRef.getFirst().dcNodeId())
+                .setDcNode2(dcNodesRef.getLast().dcNodeId())
+                .setR(lineResistance).add();
     }
 
     /**
@@ -380,7 +431,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param network       PowSyBl network with all DC nodes already added.
      * @param importContext Import context with mapping object id -> corresponding nodes
      */
-    private static void addAcDcConverter(DataObject elmVsc, Network network, ImportContext importContext) {
+    private void addAcDcConverter(DataObject elmVsc, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
 
         assert "ElmVsc".equals(elmVsc.getDataClassName());
         assert network.getDcNodeCount() > 0;
@@ -413,27 +464,21 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 throw new PowerFactoryException("Unsupported value " + pfParams.iAcdc + " for VSC " + elmVsc.getId() + ".");
         }
 
-        // Get the terminals on the PowerFactory side (DataObjects)
-        VscConnections vscConnections = VscConnections.findVscConnectionsPowerFactory(elmVsc);
-
-        // Get corresponding DC and AC nodes in the PowSyBl network
-        DcNode dcNode1 = getSafeNodeForComponent(vscConnections.dcTerminal1, network, "converter " + elmVsc.getId());
-        DcNode dcNode2 = getSafeNodeForComponent(vscConnections.dcTerminal2, network, "converter " + elmVsc.getId());
-
-        assert dcNode1 != null && dcNode2 != null : "DC nodes should be initialized first";
+        List<DcNodeRef> dcNodesRef = getAndCheckDcNodes(elmVsc, 2, objIdDcNodeRef);
 
         // From the list of terminals related to the elmVsc in the importContext
-        List<NodeRef> acNodeRefList = importContext.objIdToNode.get(elmVsc.getId());
-        NodeRef acNodeRef = acNodeRefList.stream().filter(noderef -> noderef.busIndexIn == 0).findFirst().orElseThrow(() -> new PowerFactoryException("Missing AC terminal for Vsc " + elmVsc.getId() + "."));
+        NodeRef acNodeRef = findNodes(elmVsc).stream().filter(noderef -> noderef.busIndexIn == 0)
+                .findFirst()
+                .orElseThrow(() -> new PowerFactoryException("Missing AC terminal for Vsc " + elmVsc.getId() + "."));
 
         VoltageLevel voltageLevel = network.getVoltageLevel(acNodeRef.voltageLevelId);
         VoltageSourceConverterAdder converterAdder = voltageLevel.newVoltageSourceConverter().setId(idInNetworkString(elmVsc));
 
         // Connect
         converterAdder.setNode1(acNodeRef.node);
-        checkSameNominalVoltage(dcNode1, dcNode2);
-        converterAdder.setDcNode1(dcNode1.getId());
-        converterAdder.setDcNode2(dcNode2.getId());
+        checkSameNominalVoltage(network.getDcNode(dcNodesRef.getFirst().dcNodeId()), network.getDcNode(dcNodesRef.getLast().dcNodeId()));
+        converterAdder.setDcNode1(dcNodesRef.getFirst().dcNodeId());
+        converterAdder.setDcNode2(dcNodesRef.getLast().dcNodeId());
 
         converterAdder.setControlMode(controlMode);
         converterAdder.setVoltageRegulatorOn(acVoltageRegulation);
