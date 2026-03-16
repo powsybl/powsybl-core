@@ -187,7 +187,7 @@ public class XmlWriter extends AbstractTreeDataWriter {
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
         if (!values.isEmpty()) {
-            CSVFormat format = CSVFormat.DEFAULT;
+            CSVFormat format = CSVFormat.DEFAULT.builder().setRecordSeparator("").get();
             StringWriter arrayWriter = new StringWriter();
             try (CSVPrinter printer = new CSVPrinter(arrayWriter, format)) {
                 printer.printRecord(values);
@@ -195,13 +195,7 @@ public class XmlWriter extends AbstractTreeDataWriter {
                 //Shouldn't happen, StringWriter doesn't throw
                 throw new UncheckedIOException(e);
             }
-            String valuesString = arrayWriter.toString();
-            String newlineCharacter = format.getRecordSeparator();
-            //remove newline characters
-            if (valuesString.endsWith(newlineCharacter)) {
-                valuesString = valuesString.substring(0, valuesString.length() - newlineCharacter.length());
-            }
-            writeStringAttribute(name, valuesString);
+            writeStringAttribute(name, arrayWriter.toString());
         }
     }
 
