@@ -33,6 +33,9 @@ public final class CgmesNames {
     public static final String SUPERSEDES = "Model.Supersedes";
     public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
+    public static final String REGION_ID = "regionId";
+    public static final String REGION_NAME = "regionName";
+    public static final String SUB_REGION_ID = "subRegionId";
     public static final String CONNECTIVITY_NODE = "ConnectivityNode";
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
@@ -46,6 +49,9 @@ public final class CgmesNames {
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";
+    public static final String TRANSFORMER_END1 = "TransformerEnd1";
+    public static final String TRANSFORMER_END2 = "TransformerEnd2";
+    public static final String TRANSFORMER_END3 = "TransformerEnd3";
     public static final String TAP_CHANGER = "TapChanger";
     public static final String CONTINUOUS_POSITION = "continuousPosition";
     public static final String POSITION = "position";
@@ -80,7 +86,13 @@ public final class CgmesNames {
     public static final String R = "r";
     public static final String X = "x";
     public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
+    public static final String RATIO_TAP_CHANGER1 = "RatioTapChanger1";
+    public static final String RATIO_TAP_CHANGER2 = "RatioTapChanger2";
+    public static final String RATIO_TAP_CHANGER3 = "RatioTapChanger3";
     public static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
+    public static final String PHASE_TAP_CHANGER1 = "PhaseTapChanger1";
+    public static final String PHASE_TAP_CHANGER2 = "PhaseTapChanger2";
+    public static final String PHASE_TAP_CHANGER3 = "PhaseTapChanger3";
     public static final String RATEDU = "ratedU";
     public static final String RATEDS = "ratedS";
     public static final String G = "g";
@@ -160,6 +172,9 @@ public final class CgmesNames {
     public static final String P_FIXED = "pFixed";
     public static final String Q_FIXED = "qFixed";
     public static final String TERMINAL_SIGN = "terminalSign";
+    public static final String TERMINAL_SIGN1 = "terminalSign1";
+    public static final String TERMINAL_SIGN2 = "terminalSign2";
+    public static final String TERMINAL_SIGN3 = "terminalSign3";
     public static final String GENERATING_UNIT = "GeneratingUnit";
     public static final String NORMAL_PF = "normalPF";
     public static final String REGULATION_CAPABILITY = "regulationCapability";
