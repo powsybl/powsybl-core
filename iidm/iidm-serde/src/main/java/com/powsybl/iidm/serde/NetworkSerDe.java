@@ -212,9 +212,12 @@ public final class NetworkSerDe {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e ->
-                            isExtensionIncluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
-                            canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
+                    .filter(e -> {
+                        ExtensionSerDe extensionSerDe = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
+                        return isExtensionIncluded(extensionSerDe, context.getOptions())
+                            && canTheExtensionBeWritten(extensionSerDe, context.getVersion(), context.getOptions())
+                            && extensionSerDe.isSerializable(e, context);
+                    })
                     .toList();
 
             if (!extensions.isEmpty()) {
@@ -567,7 +570,7 @@ public final class NetworkSerDe {
         // Main case: the element has to be written
         // - if the element is directly in the network (not in one of its subnetworks)
         // - and if it's not a network itself (linked to previous corner case)
-        return element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK;
+        return n.equals(element.getParentNetwork()) && element.getType() != IdentifiableType.NETWORK;
     }
 
     private static boolean supportSubnetworksExport(NetworkSerializerContext context) {

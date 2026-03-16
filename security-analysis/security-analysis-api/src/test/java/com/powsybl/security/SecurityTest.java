@@ -10,6 +10,10 @@ package com.powsybl.security;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationFilter;
+import com.powsybl.contingency.violations.LimitViolationHelper;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -228,5 +232,59 @@ class SecurityTest {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
             assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         });
+    }
+
+    private static List<Country> getCountries(Network n, List<LimitViolation> violations) {
+        return violations.stream()
+                .map(v -> LimitViolationHelper.getCountry(v, n))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    @Test
+    void testCountry() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<Country> expectedCountries = Arrays.asList(Country.FR, Country.BE, Country.FR, Country.BE, Country.FR);
+        List<Country> countries = getCountries(network, violations);
+
+        assertEquals(expectedCountries, countries);
+    }
+
+    @Test
+    void emptyCountry() {
+        network.getSubstation("P2").setCountry(null);
+
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<Country> expectedCountries = Arrays.asList(Country.FR, Country.FR, Country.FR);
+        List<Country> countries = getCountries(network, violations);
+
+        assertEquals(expectedCountries, countries);
+    }
+
+    @Test
+    void testNominalVoltages() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<Double> expectedVoltages = Arrays.asList(380.0, 380.0, 380.0, 380.0, 380.0);
+        List<Double> voltages = violations.stream()
+                .map(v -> LimitViolationHelper.getNominalVoltage(v, network))
+                .toList();
+
+        assertEquals(expectedVoltages, voltages);
+    }
+
+    @Test
+    void testVoltageLevelIds() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<String> expectedVoltageLevelIds = Arrays.asList("VLHV1", "VLHV2", "VLHV1", "VLHV2", "VLHV1");
+        List<String> voltages = violations.stream()
+                .map(v -> LimitViolationHelper.getVoltageLevelId(v, network))
+                .toList();
+
+        assertEquals(expectedVoltageLevelIds, voltages);
     }
 }
