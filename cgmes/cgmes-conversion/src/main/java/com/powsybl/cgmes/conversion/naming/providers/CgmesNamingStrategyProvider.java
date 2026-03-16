@@ -8,10 +8,10 @@
 package com.powsybl.cgmes.conversion.naming.providers;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.conversion.naming.CgmesNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyProvider;
-import com.powsybl.cgmes.conversion.naming.SimpleCgmesAliasNamingStrategy;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ import java.util.UUID;
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 @AutoService(NamingStrategyProvider.class)
-public class SimpleCgmesNamingStrategyProvider implements NamingStrategyProvider {
+public class CgmesNamingStrategyProvider implements NamingStrategyProvider {
 
     @Override
     public String getName() {
@@ -28,6 +28,6 @@ public class SimpleCgmesNamingStrategyProvider implements NamingStrategyProvider
 
     @Override
     public NamingStrategy create(UUID uuidNamespace) {
-        return new SimpleCgmesAliasNamingStrategy(uuidNamespace);
+        return new CgmesNamingStrategy(uuidNamespace);
     }
 }
