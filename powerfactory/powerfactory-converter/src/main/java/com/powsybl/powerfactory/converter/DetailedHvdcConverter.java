@@ -106,11 +106,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     /**
      * Record representation of the StaCubic content.
-     * @param elmTerm    // connection terminal.
      * @param busIndexIn // obj_bud in the DGS file - connector id for the equipment.
      * @param dcNodeId   // id of the DcNode in the PowSyBl DC network.
      */
-    private record DcNodeRef(DataObject elmTerm, int busIndexIn, String dcNodeId) {
+    private record DcNodeRef(int busIndexIn, String dcNodeId) {
     }
 
     @Override
@@ -176,7 +175,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 if (isDcConnectedObj(dcGridData, connectedObj)) {
                     int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
                     String dcNodeId = idInNetworkString(elmTerm);
-                    objIdDcNodeRef.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>()).add(new DcNodeRef(elmTerm, busIndexIn, dcNodeId));
+                    objIdDcNodeRef.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>()).add(new DcNodeRef(busIndexIn, dcNodeId));
                 }
             }
         }
@@ -209,10 +208,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         assert gndId != null;
 
         // Find terminal connected to ground
-        List<DcNodeRef> dcNodesRef = getAndCheckDcNodes(elmGndswt, 1, objIdDcNodeRef);
+        List<String> dcNodesId = getAndCheckDcNodes(elmGndswt, 1, objIdDcNodeRef);
 
         network.newDcGround().setId(gndId)
-                .setDcNode(dcNodesRef.getFirst().dcNodeId())
+                .setDcNode(dcNodesId.getFirst())
                 .add();
     }
 
@@ -256,16 +255,24 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         }
     }
 
-
-    // TODO remove and rely directly on dcNodeRef.busIndexIn
-    private static List<DcNodeRef> getAndCheckDcNodes(DataObject obj, int expectedNumDcNodes, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
-        List<DcNodeRef> dcNodeRefs = objIdDcNodeRef.get(obj.getId());
+    /**
+     * Fetch the ids of DcNodes in the network, ordered by bus id.
+     * We use this opportunity to check that the correct number of terminals is present in the DGS file.
+     * @param elm equipment in the DGS file.
+     * @param expectedNumDcNodes number of expected terminals.
+     * @param objIdDcNodeRef map equipment -> (bus_id, node id)
+     * @return list of dc node ids (in network), sorted by bus_id.
+     */
+    private static List<String> getAndCheckDcNodes(DataObject elm, int expectedNumDcNodes, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
+        List<DcNodeRef> dcNodeRefs = objIdDcNodeRef.get(elm.getId());
         if (dcNodeRefs == null || dcNodeRefs.size() != expectedNumDcNodes) {
-            throw new PowerFactoryException("Inconsistent number (" + (dcNodeRefs != null ? dcNodeRefs.size() : 0) + ") of dcNodes for '" + obj.getId() + "'");
+            throw new PowerFactoryException("Inconsistent number (" + (dcNodeRefs != null ? dcNodeRefs.size() : 0) + ") of dcNodes for '" + elm.getId() + "'");
         }
-        return dcNodeRefs.stream().sorted(Comparator.comparing(dcNodeRef -> dcNodeRef.busIndexIn)).toList();
+        return dcNodeRefs.stream()
+                .sorted(Comparator.comparing(dcNodeRef -> dcNodeRef.busIndexIn))
+                .map(DcNodeRef::dcNodeId)
+                .toList();
     }
-
 
     /**
      * Create DC line in the network, retrieving endpoints and resistance
@@ -279,7 +286,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      */
     private static void addDcLine(DataObject line, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
         // Find the nodes
-        List<DcNodeRef> dcNodesRef = getAndCheckDcNodes(line, 2, objIdDcNodeRef);
+        List<String> dcNodesIds = getAndCheckDcNodes(line, 2, objIdDcNodeRef);
 
         // Get the data from the "types"
         double lineResistance = getLineResistance(line);
@@ -287,8 +294,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         // Create the line in the DC subnetwork
         network.newDcLine()
                 .setId(idInNetworkString(line))
-                .setDcNode1(dcNodesRef.getFirst().dcNodeId())
-                .setDcNode2(dcNodesRef.getLast().dcNodeId())
+                .setDcNode1(dcNodesIds.getFirst())
+                .setDcNode2(dcNodesIds.getLast())
                 .setR(lineResistance).add();
     }
 
@@ -429,7 +436,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      *
      * @param elmVsc        Converter to add (PowerFactory data model)
      * @param network       PowSyBl network with all DC nodes already added.
-     * @param importContext Import context with mapping object id -> corresponding nodes
      */
     private void addAcDcConverter(DataObject elmVsc, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
 
@@ -464,7 +470,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 throw new PowerFactoryException("Unsupported value " + pfParams.iAcdc + " for VSC " + elmVsc.getId() + ".");
         }
 
-        List<DcNodeRef> dcNodesRef = getAndCheckDcNodes(elmVsc, 2, objIdDcNodeRef);
+        List<String> dcNodesIds = getAndCheckDcNodes(elmVsc, 2, objIdDcNodeRef);
 
         // From the list of terminals related to the elmVsc in the importContext
         NodeRef acNodeRef = findNodes(elmVsc).stream().filter(noderef -> noderef.busIndexIn == 0)
@@ -476,9 +482,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
         // Connect
         converterAdder.setNode1(acNodeRef.node);
-        checkSameNominalVoltage(network.getDcNode(dcNodesRef.getFirst().dcNodeId()), network.getDcNode(dcNodesRef.getLast().dcNodeId()));
-        converterAdder.setDcNode1(dcNodesRef.getFirst().dcNodeId());
-        converterAdder.setDcNode2(dcNodesRef.getLast().dcNodeId());
+        checkSameNominalVoltage(network.getDcNode(dcNodesIds.getFirst()), network.getDcNode(dcNodesIds.getLast()));
+        converterAdder.setDcNode1(dcNodesIds.getFirst());
+        converterAdder.setDcNode2(dcNodesIds.getLast());
 
         converterAdder.setControlMode(controlMode);
         converterAdder.setVoltageRegulatorOn(acVoltageRegulation);
