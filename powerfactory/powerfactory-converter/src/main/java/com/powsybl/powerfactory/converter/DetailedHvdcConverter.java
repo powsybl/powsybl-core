@@ -9,10 +9,12 @@
 package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.AcDcConverter.ControlMode;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VoltageSourceConverterAdder;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
-import com.powsybl.powerfactory.model.DataObjectIndex;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.slf4j.Logger;
@@ -241,27 +243,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     }
 
     /**
-     * Fetch the node id corresponding to the ground element in ElmGndswt.
-     * @param elmGndswt ground element in PowerFactory data model.
-     * @return node name in the PowSyBl data model.
-     */
-    private static String getGroundNodeId(DataObject elmGndswt) {
-        DataObjectIndex indexDataObjects = elmGndswt.getIndex();
-        for (DataObject cubicle : indexDataObjects.getDataObjectsByClass("StaCubic")) {
-            Optional<DataObjectRef> elmGndswtRef = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
-            if (elmGndswtRef.isPresent() && elmGndswtRef.get().getId() == elmGndswt.getId()) {
-                DataObjectRef elmTermRef = cubicle.getObjectAttributeValue("fold_id");
-                DataObject elmTerm = elmTermRef.resolve()
-                        .orElseThrow(() -> new PowerFactoryException("Cannot find terminal " + elmTermRef.getId()
-                                + " corresponding to ElmGndswt " + elmGndswt.getId()));
-                return idInNetworkString(elmTerm);
-            }
-        }
-
-        throw new PowerFactoryException("No cubicle corresponding to ElmGndswt " + elmGndswt.getId());
-    }
-
-    /**
      * Create Dc node in network. Not connected.
      *
      * @param terminal terminal to create DcNode from.
@@ -325,54 +306,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     }
 
     /**
-     * Return type for findDcLineEndsPowerFactory.
-     *
-     * @param dcTerm1DataObject first terminal of the line in the PowerFactory data model.
-     * @param dcTerm2DataObject second terminal of the line in the PowerFactory data model.
-     */
-    private record LineTerms(DataObject dcTerm1DataObject, DataObject dcTerm2DataObject) {
-        /**
-         * Find both ends of a line in the PowerFactory data model.
-         *
-         * @param line DC line for which to find both nodes (terminals).
-         * @return Ends of the line.
-         */
-        static LineTerms findDcLineEndsPowerFactory(DataObject line) {
-            DataObject dcTerm1DataObject = null;
-            DataObject dcTerm2DataObject = null;
-
-            DataObjectIndex indexDataObjects = line.getIndex();
-            for (DataObject cubicle : indexDataObjects.getDataObjectsByClass("StaCubic")) {
-                Optional<DataObjectRef> elmLneRef = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
-                if (elmLneRef.isPresent() && elmLneRef.get().getId() == line.getId()) {
-
-                    DataObject tempTerminal = cubicle.getObjectAttributeValue("fold_id").resolve().orElseThrow(() -> new PowerFactoryException("Error getting terminal for line " + line.getId() + " cubicle " + cubicle.getId()));
-                    int objBus = cubicle.getIntAttributeValue("obj_bus");
-
-                    if (objBus != 0 && objBus != 1) {
-                        throw new PowerFactoryException("Invalid value " + objBus + " for obj_bus in cubicle related to DC line " + line.getId() + ". Expected 0 or 1");
-                    }
-
-                    if (objBus == 0 && dcTerm1DataObject == null) {
-                        dcTerm1DataObject = tempTerminal;
-                    } else if (objBus == 1 && dcTerm2DataObject == null) {
-                        dcTerm2DataObject = tempTerminal;
-                    } else {
-                        throw new PowerFactoryException("Multiple cubicles with obj_bus = " + objBus + " related to DC line " + line.getId() + ".");
-                    }
-
-                }
-            }
-
-            if (dcTerm1DataObject == null || dcTerm2DataObject == null) {
-                throw new PowerFactoryException("Missing terminal for line " + line.getId() + ".");
-            }
-
-            return new LineTerms(dcTerm1DataObject, dcTerm2DataObject);
-        }
-    }
-
-    /**
      * Compute the line resistance from the line object and its line type in the PowerFactory data model.
      *
      * @param line powerline we want to compute the resistance of.
@@ -394,26 +327,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         double rline = lineType.getFloatAttributeValue("rline"); // Ohm / km
 
         return rline * lineLength / numberOfParallelLines; // Ohm
-    }
-
-    /**
-     * Convert from PowerFactory terminal to DcNode in the PowSyBl network.
-     *
-     * @param dcTermDataObject    terminal to find as DC node.
-     * @param network             PowSyBl network.
-     * @param parentComponentName Name of the component where the node belong, purely for the error message.
-     * @return DcNode inside the network.
-     */
-    private static DcNode getSafeNodeForComponent(DataObject dcTermDataObject, Network network, String parentComponentName) {
-        if (dcTermDataObject == null) {
-            throw new PowerFactoryException(parentComponentName + " is missing a node in the DGS files.");
-        }
-        String idInNetwork = idInNetworkString(dcTermDataObject);
-        DcNode result = network.getDcNode(idInNetwork);
-        if (result == null) {
-            throw new PowerFactoryException("Missing node " + idInNetwork + " in network. Is terminal " + dcTermDataObject.getId() + " in the ElmTerm table? This is for " + parentComponentName);
-        }
-        return result;
     }
 
     private record PowerFactoryAcDcConverterParameters(int iAcdc,
@@ -550,117 +463,15 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     }
 
     private static double computeIdleLoss(ControlMode controlMode, double pnold, double usetpDcPu) {
-        double idleLoss = 0.0; // MW
         // The PowerFactory model considers the idle loss to be equal to Ud^2, while it is constant in Open Load Flow.
         // approximation: if there is a set DC voltage, then we consider it is always met.
         // Otherwise, we consider that the DC voltage is equal to the nominal voltage.
         // Furthermore, idleLoss is converted from kW to MW.
         if (controlMode == ControlMode.V_DC) {
-            idleLoss = pnold / 1000 * usetpDcPu * usetpDcPu; // MW
+            return pnold / 1000 * usetpDcPu * usetpDcPu; // MW
         } else {
-            idleLoss = pnold / 1000; // MW
+            return pnold / 1000; // MW
         }
-        return idleLoss;
-    }
-
-    /**
-     * Convenience routine to safely fetch the terminal of a cubicle
-     *
-     * @param elmVsc  converter (for error message only)
-     * @param cubicle to get the parent terminal of.
-     * @return parent terminal.
-     */
-    private static DataObject getParentTerminal(DataObject elmVsc, DataObject cubicle) {
-        DataObject tempTerminal;
-        try {
-            tempTerminal = cubicle.getParent();
-        } catch (NoSuchElementException e) {
-            final String error = "When fetching a terminal of VSC (id " + elmVsc.getId() + "):" + "cubicle " + cubicle.getId() + " has no corresponding terminal.";
-            throw new PowerFactoryException(error);
-        }
-        assert tempTerminal != null;
-        return tempTerminal;
-    }
-
-    /**
-     * Small record as return type of findVscConnectionsPowerFactory
-     * meant to represent the AC node and DC nodes which are
-     * terminals for an AC/DC converter.
-     *
-     * @param dcTerminal1   DC connection terminal 1.
-     * @param dcTerminal2   DC connection terminal 2.
-     * @param dcNode1IsPlus true iff dcTerminal1 has polarity greater than dcTerminal2
-     *                      (i.e. + over 0 or -, or 0 over -).
-     */
-    private record VscConnections(DataObject dcTerminal1, DataObject dcTerminal2, boolean dcNode1IsPlus) {
-        /**
-         * Fetch the connection terminals for the AC/DC converter.
-         *
-         * @param elmVsc PowerFactory AC/DC converter.
-         * @return VscConnections with connection data.
-         * Helper routine for addConverter.
-         */
-        static VscConnections findVscConnectionsPowerFactory(DataObject elmVsc) {
-            assert "ElmVsc".equals(elmVsc.getDataClassName());
-
-            DataObject dcTerminal1 = null;
-            DataObject dcTerminal2 = null;
-
-            // figure out the DC terminal 1 and DC terminal 2 of the converter.
-            // for this we need to find 2 cubicles that reference the VSC
-            // find all cubicles where Obj_id(p) is equal to the VSC id
-            // with obj_id = 1 and 2.
-
-            for (DataObject cubicle : elmVsc.getIndex().getDataObjectsByClass("StaCubic")) {
-                Optional<DataObjectRef> objId = cubicle.findObjectAttributeValue(DataAttributeNames.OBJ_ID);
-                if (objId.isPresent() && objId.get().getId() == elmVsc.getId()) {
-                    int objBus = cubicle.findIntAttributeValue("obj_bus").orElseThrow(() -> new PowerFactoryException("DGS Cubicle " + cubicle.getId() + " without obj_bus field."));
-                    switch (objBus) {
-                        case 0:
-                            break;
-                        case 1:
-                            if (dcTerminal1 != null) {
-                                throw new PowerFactoryException("Multiple DC cubicles 1 for VSC " + elmVsc.getId() + ".");
-                            }
-                            dcTerminal1 = getParentTerminal(elmVsc, cubicle);
-                            break;
-                        case 2:
-                            if (dcTerminal2 != null) {
-                                throw new PowerFactoryException("Multiple DC cubicles 2 for VSC " + elmVsc.getId() + ".");
-                            }
-                            dcTerminal2 = getParentTerminal(elmVsc, cubicle);
-                            break;
-                        default:
-                            throw new PowerFactoryException("Invalid value " + objBus + " for obj_bus in cubicle " + cubicle.getId() + ".");
-                    }
-                }
-            } // for (DataObject cubicle : elmVsc.getIndex().getDataObjectsByClass("StaCubic"))
-
-            if (dcTerminal1 == null || dcTerminal2 == null) {
-                throw new PowerFactoryException("Missing DC terminal for AC-DC converter " + elmVsc.getId() + ".");
-            }
-
-            // check which DC node is + and which is - (or neutral). This makes it possible
-            // to get the sign of the DC command volatge.
-            int iMinus1 = Integer.MIN_VALUE;
-            int iMinus2 = Integer.MIN_VALUE;
-            try {
-                iMinus1 = dcTerminal1.getIntAttributeValue("iminus");
-                iMinus2 = dcTerminal2.getIntAttributeValue("iminus");
-            } catch (PowerFactoryException e) {
-                throw new PowerFactoryException("Missing iminus field in $$ElmTerm table for DC terminal.");
-            }
-
-            if (iMinus1 == iMinus2) {
-                throw new PowerFactoryException("Converter " + elmVsc.getId() + " has 2 DC terminals with the same polarities.");
-            }
-
-            boolean dcNode1IsPlus = iMinus1 == 2 && iMinus2 == 1 || iMinus1 == 0;
-
-            return new VscConnections(dcTerminal1, dcTerminal2, dcNode1IsPlus);
-
-        }
-
     }
 
     private static void checkSameNominalVoltage(DcNode dcNode1, DcNode dcNode2) {
@@ -670,7 +481,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     }
 
     /**
-     * Unique string Id in network from DataObject in DGS file. This guarantees some
+     * Unique string id in network from DataObject in DGS file. This guarantees some
      * consistency.
      *
      * @param component Component we want the id of.
