@@ -13,6 +13,7 @@ import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -466,6 +467,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     }
 
     @Override
+    public void addSelectedOperationalLimitsGroups(String... ids) {
+        operationalLimitsGroups.addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
     public void removeOperationalLimitsGroup(String id) {
         operationalLimitsGroups.removeOperationalLimitsGroup(id);
     }
@@ -478,6 +484,26 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     @Override
     public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
         return operationalLimitsGroups.getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroupIdsOrdered();
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+        return operationalLimitsGroups.getAllSelectedOperationalLimitsGroups();
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(String... ids) {
+        operationalLimitsGroups.deselectOperationalLimitsGroups(ids);
     }
 
     /**

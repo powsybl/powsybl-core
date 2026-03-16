@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_WIND_GEN_UNIT_TYPE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,9 +34,9 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         assertEquals(EnergySource.HYDRO, network.getGenerator("hgu_sm").getEnergySource());
         assertEquals(EnergySource.NUCLEAR, network.getGenerator("ngu_sm").getEnergySource());
         assertEquals(EnergySource.WIND, network.getGenerator("offshore_wgu_sm").getEnergySource());
-        assertEquals("offshore", network.getGenerator("offshore_wgu_sm").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
+        assertEquals("offshore", network.getGenerator("offshore_wgu_sm").getProperty(PROPERTY_WIND_GEN_UNIT_TYPE));
         assertEquals(EnergySource.WIND, network.getGenerator("onshore_wgu_sm").getEnergySource());
-        assertEquals("onshore", network.getGenerator("onshore_wgu_sm").getProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE));
+        assertEquals("onshore", network.getGenerator("onshore_wgu_sm").getProperty(PROPERTY_WIND_GEN_UNIT_TYPE));
         assertEquals(EnergySource.SOLAR, network.getGenerator("sgu_sm").getEnergySource());
     }
 

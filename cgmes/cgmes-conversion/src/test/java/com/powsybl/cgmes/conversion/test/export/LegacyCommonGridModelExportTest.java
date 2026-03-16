@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.Conversion.CGMES_PREFIX_ALIAS_PROPERTIES;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -66,12 +65,14 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         // This is the legacy way of preparing dependencies for SV externally,
         // It was used by projects in the FARAO community
         // The support for this way of preparing dependencies has been dropped
-        network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID", network::hasProperty), "ssh-updated-dep1");
-        network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID", network::hasProperty), "ssh-updated-dep2");
-        network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID", network::hasProperty), "ssh-updated-dep3");
-        network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "TP_ID", network::hasProperty), "tp-initial-dep1");
-        network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "TP_ID", network::hasProperty), "tp-initial-dep2");
-        network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "TP_ID", network::hasProperty), "tp-initial-dep3");
+        String sshIdPropertyName = "CGMES.SSH_ID";
+        String tpIdPropertyName = "CGMES.TP_ID";
+        network.setProperty(Identifiables.getUniqueId(sshIdPropertyName, network::hasProperty), "ssh-updated-dep1");
+        network.setProperty(Identifiables.getUniqueId(sshIdPropertyName, network::hasProperty), "ssh-updated-dep2");
+        network.setProperty(Identifiables.getUniqueId(sshIdPropertyName, network::hasProperty), "ssh-updated-dep3");
+        network.setProperty(Identifiables.getUniqueId(tpIdPropertyName, network::hasProperty), "tp-initial-dep1");
+        network.setProperty(Identifiables.getUniqueId(tpIdPropertyName, network::hasProperty), "tp-initial-dep2");
+        network.setProperty(Identifiables.getUniqueId(tpIdPropertyName, network::hasProperty), "tp-initial-dep3");
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, "SV");

@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -21,6 +20,8 @@ import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,8 +67,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
 
         // The CGMES id/name have been preserved in a property.
-        assertEquals("OLS_3", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
-        assertEquals("Winter", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
+        assertEquals("OLS_3", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
+        assertEquals("Winter", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
     }
 
     @Test
@@ -97,6 +98,16 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(0, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
         assertEquals(6, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
+
+        // Two selected on side 2, check that both are correctly exported
+        network.getLine("LN").addSelectedOperationalLimitsGroups(TwoSides.TWO, "OLS_3");
+        eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
+        assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(3, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
+        assertEquals(9, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
+        // revert to original situation
+        network.getLine("LN").deselectOperationalLimitsGroups(TwoSides.TWO, "OLS_3");
 
         // Export all 3 limits groups, regardless of selected (default value of the parameter).
         eqFile = writeCgmesProfile(network, "EQ", tmpDir);
