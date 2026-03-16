@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static com.powsybl.security.json.LimitViolationDeserializer.VIOLATION_LOCATION_SUPPORT;
+import static com.powsybl.contingency.json.LimitViolationDeserializer.VIOLATION_LOCATION_SUPPORT;
 
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}

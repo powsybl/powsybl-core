@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -25,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.function.Predicate;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElementCount;
 import static org.junit.jupiter.api.Assertions.*;
@@ -245,7 +245,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setQ0(0.0)
                 .setLoadType(LoadType.AUXILIARY)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.STATION_SUPPLY);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.STATION_SUPPLY);
 
         // Create Substation 2 with a BusbarSection, a Load and a GroundDisconnector
         Substation substation2 = network.newSubstation()
@@ -287,14 +287,14 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setP0(1.0)
                 .setQ0(0.0)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.CONFORM_LOAD);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.CONFORM_LOAD);
         voltageLevel2.newLoad()
                 .setId("LD_NC")
                 .setNode(4)
                 .setP0(0.0)
                 .setQ0(1.0)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.NONCONFORM_LOAD);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.NONCONFORM_LOAD);
         voltageLevel2.getNodeBreakerView().newSwitch()
                 .setId("GRDIS")
                 .setNode1(3)
@@ -303,7 +303,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setOpen(false)
                 .setRetained(true)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "GroundDisconnector");
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "GroundDisconnector");
 
         // Create a Line between substations 1 and 2
         Line line = network.newLine()

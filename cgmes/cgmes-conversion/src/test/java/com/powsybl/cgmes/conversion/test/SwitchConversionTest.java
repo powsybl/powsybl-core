@@ -8,13 +8,14 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,13 +73,13 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("JUM").getKind());
 
         // For all the switches, the CGMES original class is stored.
-        assertEquals("Breaker", network.getSwitch("BR").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertEquals("Disconnector", network.getSwitch("DIS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertEquals("LoadBreakSwitch", network.getSwitch("LBS").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertEquals("Switch", network.getSwitch("SW").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertEquals("ProtectedSwitch", network.getSwitch("PSW").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertEquals("GroundDisconnector", network.getSwitch("GRD").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertEquals("Jumper", network.getSwitch("JUM").getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Breaker", network.getSwitch("BR").getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Disconnector", network.getSwitch("DIS").getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("LoadBreakSwitch", network.getSwitch("LBS").getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Switch", network.getSwitch("SW").getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("ProtectedSwitch", network.getSwitch("PSW").getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("GroundDisconnector", network.getSwitch("GRD").getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Jumper", network.getSwitch("JUM").getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
 
         // Correct class is restored in CGMES EQ and SSH export.
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
@@ -109,7 +110,7 @@ class SwitchConversionTest extends AbstractSerDeTest {
         // The Switch is imported with kind breaker, and its original CGMES class is stored.
         Switch disconnector = network.getSwitch("DIS");
         assertEquals(SwitchKind.BREAKER, disconnector.getKind());
-        assertEquals("Disconnector", disconnector.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertEquals("Disconnector", disconnector.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
 
         // The Switch is retained in IIDM, even though it is not in the original CGMES file.
         assertTrue(disconnector.isRetained());
@@ -149,7 +150,7 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertNotNull(fictitiousSwitch);
         assertTrue(fictitiousSwitch.isFictitious());
         assertTrue(fictitiousSwitch.isOpen());
-        assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
+        assertEquals("true", fictitiousSwitch.getProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
 
         // The fictitious switch isn't present in the EQ export and the terminal is disconnected in the SSH.
         String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
