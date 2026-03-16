@@ -25,12 +25,12 @@ public class BinReader implements TreeDataReader {
     private final DataInputStream dis;
     private final byte[] binaryMagicNumber;
 
-    private final Map<Integer, String> nodeDictionary = new HashMap<>();
+    private String[] nodeNames;
 
     private String[] attrNames;
     private byte[] attrTypes;
 
-    private Map<String, Object> currentAttrs = Collections.emptyMap();
+    private int nextAttrIdx = END_ATTRS;
 
     public BinReader(InputStream is, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = binaryMagicNumber;
@@ -44,7 +44,7 @@ public class BinReader implements TreeDataReader {
             TreeDataHeader header = new TreeDataHeader(readString(), readExtensionVersions());
             readNodeDictionary();
             readAttrDictionary();
-            preReadCurrentNodeAttributes();
+            nextAttrIdx = dis.readUnsignedByte();
             return header;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -69,8 +69,9 @@ public class BinReader implements TreeDataReader {
 
     private void readNodeDictionary() throws IOException {
         int nbEntries = dis.readShort();
+        nodeNames = new String[nbEntries + 1];
         for (int i = 0; i < nbEntries; i++) {
-            nodeDictionary.put(i + 1, readString());
+            nodeNames[i + 1] = readString();
         }
     }
 
@@ -84,17 +85,31 @@ public class BinReader implements TreeDataReader {
         }
     }
 
-    private void preReadCurrentNodeAttributes() throws IOException {
-        currentAttrs = new HashMap<>();
-        int attrIdx;
-        while ((attrIdx = dis.readUnsignedByte()) != END_ATTRS) {
-            String attrName = attrNames[attrIdx];
-            if (attrName == null) {
-                throw new PowsyblException("Cannot read attribute: unknown attribute name index " + attrIdx);
+    private Object readAttrValue(String name) {
+        try {
+            if (nextAttrIdx == END_ATTRS) {
+                return null;
             }
-            byte typeTag = attrTypes[attrIdx];
+            String attrName = attrNames[nextAttrIdx];
+            if (attrName == null) {
+                throw new PowsyblException("Cannot read attribute: unknown attribute name index " + nextAttrIdx);
+            }
+            if (!name.equals(attrName)) {
+                return null;
+            }
+            byte typeTag = attrTypes[nextAttrIdx];
             Object value = readTypedValue(typeTag);
-            currentAttrs.put(attrName, value);
+            nextAttrIdx = dis.readUnsignedByte();
+            return value;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private void skipRemainingAttributes() throws IOException {
+        while (nextAttrIdx != END_ATTRS) {
+            readTypedValue(attrTypes[nextAttrIdx]);
+            nextAttrIdx = dis.readUnsignedByte();
         }
     }
 
@@ -148,73 +163,73 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public double readDoubleAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Double d ? d : Double.NaN;
     }
 
     @Override
     public double readDoubleAttribute(String name, double defaultValue) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Double d ? d : defaultValue;
     }
 
     @Override
     public OptionalDouble readOptionalDoubleAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Double d ? OptionalDouble.of(d) : OptionalDouble.empty();
     }
 
     @Override
     public float readFloatAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Float f ? f : Float.NaN;
     }
 
     @Override
     public float readFloatAttribute(String name, float defaultValue) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Float f ? f : defaultValue;
     }
 
     @Override
     public String readStringAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof String s ? s : null;
     }
 
     @Override
     public int readIntAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Integer i ? i : 0;
     }
 
     @Override
     public int readIntAttribute(String name, int defaultValue) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Integer i ? i : defaultValue;
     }
 
     @Override
     public OptionalInt readOptionalIntAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Integer i ? OptionalInt.of(i) : OptionalInt.empty();
     }
 
     @Override
     public boolean readBooleanAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Boolean b ? b : false;
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Boolean b ? b : defaultValue;
     }
 
     @Override
     public Optional<Boolean> readOptionalBooleanAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof Boolean b ? Optional.of(b) : Optional.empty();
     }
 
@@ -225,7 +240,7 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         if (val instanceof Integer ordinal) {
             T[] constants = clazz.getEnumConstants();
             if (ordinal >= 0 && ordinal < constants.length) {
@@ -237,22 +252,22 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public String readContent() {
-        String content = (String) currentAttrs.get(BinUtil.CONTENT_ATTR_NAME);
+        Object val = readAttrValue(BinUtil.CONTENT_ATTR_NAME);
         readEndNode();
-        return content;
+        return val instanceof String s ? s : null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Integer> readIntArrayAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof List<?> list ? (List<Integer>) list : Collections.emptyList();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<String> readStringArrayAttribute(String name) {
-        Object val = currentAttrs.get(name);
+        Object val = readAttrValue(name);
         return val instanceof List<?> list ? (List<String>) list : Collections.emptyList();
     }
 
@@ -264,13 +279,14 @@ public class BinReader implements TreeDataReader {
     @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
         try {
+            skipRemainingAttributes();
             int nodeNameIndex;
             while ((nodeNameIndex = dis.readShort()) != END_NODE) {
-                String nodeName = nodeDictionary.get(nodeNameIndex);
+                String nodeName = nodeNames[nodeNameIndex];
                 if (nodeName == null) {
                     throw new PowsyblException("Cannot read child node: unknown node name index " + nodeNameIndex);
                 }
-                preReadCurrentNodeAttributes();
+                nextAttrIdx = dis.readUnsignedByte();
                 childNodeReader.onStartNode(nodeName);
             }
         } catch (IOException e) {
@@ -281,6 +297,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public void readEndNode() {
         try {
+            skipRemainingAttributes();
             int nextIndex = dis.readShort();
             if (nextIndex != END_NODE) {
                 throw new PowsyblException("Binary parsing: expected end node but got " + nextIndex);

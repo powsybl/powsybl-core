@@ -76,17 +76,18 @@ class BinWriterReaderTest {
     }
 
     @Test
-    void testAttributeReadOrderIsIndependentOfWriteOrder() {
+    void testAbsentAttributesReturnDefault() {
+        // Writer writes only "a" and "c", skipping "b" (optional/default value)
         BinReader reader = roundTrip(writer -> {
-            writer.writeIntAttribute("c", 3);
-            writer.writeDoubleAttribute("a", 1.0);
-            writer.writeStringAttribute("b", "hello");
+            writer.writeIntAttribute("a", 1);
+            writer.writeStringAttribute("c", "hello");
         });
 
-        // Read in an order different from write order
-        assertEquals("hello", reader.readStringAttribute("b"));
-        assertEquals(3, reader.readIntAttribute("c"));
-        assertEquals(1.0, reader.readDoubleAttribute("a"), 1e-9);
+        assertEquals(1, reader.readIntAttribute("a"));
+        // "b" was not written: next attr is "c", name mismatch → default returned, stream not consumed
+        assertNull(reader.readStringAttribute("b"));
+        // "c" is still available
+        assertEquals("hello", reader.readStringAttribute("c"));
 
         reader.readEndNode();
         reader.close();
