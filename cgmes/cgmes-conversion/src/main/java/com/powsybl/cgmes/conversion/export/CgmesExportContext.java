@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export;
 import com.fasterxml.uuid.Generators;
 import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
+import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
@@ -44,7 +45,7 @@ public class CgmesExportContext {
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
     private ReportNode reportNode = ReportNode.NO_OP;
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
-    private NamingStrategy namingStrategy = new NamingStrategy.Identity();
+    private NamingStrategy namingStrategy = new IdentityNamingStrategy();
     private String modelingAuthoritySet = null;
     private String modelDescription = null;
     private String modelVersion = null;
