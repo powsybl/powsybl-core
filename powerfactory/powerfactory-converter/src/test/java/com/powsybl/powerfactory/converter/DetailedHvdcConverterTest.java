@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, SuperGrid Institute (https://www.supergrid-institute.com)
+ * Copyright (c) 2026, SuperGrid Institute (https://www.supergrid-institute.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DetailedHvdcConverterTest {
 
     // test tolerance for double values.
-    // Only makes sense for values that are neither too big or too small.
+    // Only makes sense for values that are neither too big nor too small.
     // This is twice machine epsilon for single precision
     static final double ABSOLUTE_DELTA = 1.2e-7;
     static final double RELATIVE_DELTA = 1.2e-7;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, SuperGrid Institute (https://www.supergrid-institute.com)
+ * Copyright (c) 2026, SuperGrid Institute (https://www.supergrid-institute.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -26,9 +26,9 @@ import java.util.*;
  * Importer from the DGS data model, for multi-terminal DC grids (a.k.a.
  * detailed HVDC).
  */
-public final class DetailedHvdcConverter extends AbstractHvdcConverter {
+final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHvdcConverter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DetailedHvdcConverter.class);
 
     private final DcGridData gridData;
 
@@ -84,7 +84,7 @@ public final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     } // private record DcGridData
 
-    public DetailedHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
+    DetailedHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
         final int nRead = gridData.acDcConverters.size()
@@ -322,16 +322,16 @@ public final class DetailedHvdcConverter extends AbstractHvdcConverter {
         return result;
     }
 
-    private static record PowerFactoryAcDcConverterParameters(int iAcdc,
-                                                              double uSetVoltageDcPu,
-                                                              double unomDc,
-                                                              double usetpPu,
-                                                              double uNom,
-                                                              double qsetp,
-                                                              double psetp,
-                                                              double pnold,
-                                                              double swtLossFactor,
-                                                              double resLossFactor) {
+    private record PowerFactoryAcDcConverterParameters(int iAcdc,
+                                                       double uSetVoltageDcPu,
+                                                       double unomDc,
+                                                       double usetpPu,
+                                                       double uNom,
+                                                       double qsetp,
+                                                       double psetp,
+                                                       double pnold,
+                                                       double swtLossFactor,
+                                                       double resLossFactor) {
     }
 
     private static PowerFactoryAcDcConverterParameters fetchPowerFactoryAcDcConverterParameters(DataObject elmVsc) {
@@ -397,11 +397,7 @@ public final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 controlMode = ControlMode.V_DC;
                 acVoltageRegulation = true;
                 break;
-            case 0: // 0, 1, 2, 7 and 8 are supported in PowerFactory but not yet in PowSyBl
-            case 1:
-            case 2:
-            case 7:
-            case 8:
+            case 0, 1, 2, 7, 8: // 0, 1, 2, 7 and 8 are supported in PowerFactory but not yet in PowSyBl
             default:
                 throw new PowerFactoryException("Unsupported value " + pfParams.iAcdc + " for VSC " + elmVsc.getId() + ".");
         }

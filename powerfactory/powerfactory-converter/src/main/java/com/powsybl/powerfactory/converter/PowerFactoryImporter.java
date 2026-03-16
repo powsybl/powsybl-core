@@ -10,14 +10,14 @@ package com.powsybl.powerfactory.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Importer;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -51,7 +51,7 @@ public class PowerFactoryImporter implements Importer {
     private static final String FORMAT = "POWER-FACTORY";
 
     // Import parameters
-    public static final String HVDC_IMPORT_MT = "iidm.import.dgs.HVDC-import-detailed";
+    public static final String HVDC_IMPORT_MT = "powerfactory.import.dgs.HVDC-import-detailed";
 
     public static final Parameter HVDC_IMPORT_DETAILED_PARAMETER = new Parameter(
             HVDC_IMPORT_MT,
@@ -60,14 +60,9 @@ public class PowerFactoryImporter implements Importer {
         Boolean.FALSE
     );
 
-    private final ParameterDefaultValueConfig defaultValueConfig;
-
-    public PowerFactoryImporter(PlatformConfig platformConfig) {
-        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
-    }
-
-    public PowerFactoryImporter() {
-        this(PlatformConfig.defaultConfig());
+    @Override
+    public List<Parameter> getParameters() {
+        return ConfiguredParameter.load(Collections.singletonList(HVDC_IMPORT_DETAILED_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override
@@ -123,11 +118,6 @@ public class PowerFactoryImporter implements Importer {
         });
     }
 
-    @Override
-    public List<Parameter> getParameters() {
-        return Collections.singletonList(HVDC_IMPORT_DETAILED_PARAMETER);
-    }
-
     static class ImportContext {
 
         final ContainersMapping containerMapping;
@@ -160,7 +150,7 @@ public class PowerFactoryImporter implements Importer {
         ZonedDateTime caseDate = ZonedDateTime.ofInstant(studyCase.getTime(), ZoneId.systemDefault());
         network.setCaseDate(caseDate);
 
-        List<DataObject> elmTerms = gatherElmTerms(studyCase.getElmNets());
+        List<DataObject> elmTerms = gatherElmTerms(elmNets);
 
         LOGGER.info("Creating containers...");
 
@@ -175,12 +165,12 @@ public class PowerFactoryImporter implements Importer {
         AbstractHvdcConverter hvdcConverter;
         // simplified HVDC = lines only
         // detailed = possibly full multi-terminals DC subgrids
-        if (Parameter.readBoolean(getFormat(), parameters, HVDC_IMPORT_DETAILED_PARAMETER, defaultValueConfig)) {
-            hvdcConverter =
-                new DetailedHvdcConverter(importContext, network, elmNets);
+        boolean isDetailedHvdcImportEnabled = Parameter.readBoolean(FORMAT, parameters, HVDC_IMPORT_DETAILED_PARAMETER, ParameterDefaultValueConfig.INSTANCE);
+        if (isDetailedHvdcImportEnabled) {
+            hvdcConverter = new DetailedHvdcConverter(importContext, network, elmNets);
         } else {
             ReducedHvdcConverter reducedHvdcConverter = new ReducedHvdcConverter(importContext, network);
-            reducedHvdcConverter.computeConfigurations(gatherElmTerms(elmNets), gatherElmVscs(elmNets));
+            reducedHvdcConverter.computeConfigurations(elmTerms, gatherElmVscs(elmNets));
             hvdcConverter = reducedHvdcConverter;
         }
 

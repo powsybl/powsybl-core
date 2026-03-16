@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
 class PowerFactoryImporterTest extends AbstractSerDeTest {
 

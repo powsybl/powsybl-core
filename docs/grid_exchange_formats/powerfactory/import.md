@@ -56,7 +56,7 @@ Two and three winding transformer taps definition attributes need to be added to
 
 ### Selecting reduced or detailed model
 
-By default, the DGS file importer tries to import HVDC components as _reduced_ point-to-point representations. Parameter `iidm.import.dgs.HVDC-import-detailed` must be set to `true` to activate import of _detailed_ DC subnetworks with multi-terminal possibility.
+By default, the DGS file importer tries to import HVDC components as _reduced_ point-to-point representations. Parameter `powerfactory.import.dgs.HVDC-import-detailed` must be set to `true` to activate import of _detailed_ DC subnetworks with multi-terminal possibility.
 
 ### Additional attributes (_detailed_)
 For _detailed_ network import, the following additional attributes are also requested in the DGS file for the VSCs (`ElmVsc`)
