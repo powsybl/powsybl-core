@@ -268,6 +268,18 @@ public class DetailedHvdcConverterTest {
     }
 
     @Test
+    void testVscDanglingTerminal() {
+        // Check that we get an error in case of dangling DC terminal (i.e. there is a node referenced by StaCubic but
+        // not in the list of terminals.
+        try {
+            importDgs("MTDCVscDanglingTerminal");
+            fail("Expected exception not thrown");
+        } catch (PowerFactoryException e) {
+            assertEquals("Detected unsupported terminal count (2) for object ElmVsc 6.", e.getMessage());
+        }
+    }
+
+    @Test
     void testGround() {
         Network network = importDgs("MTDC-ElmGndswt");
 

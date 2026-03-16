@@ -35,8 +35,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     // Small record that directly transcribes the DC data from the PowerFactory data
     // model for a connected subgrid
-    private record DcGridData(Set<DataObject> dcElmLnes, Set<DataObject> dcElmTerms,
-                              Set<DataObject> acDcConverters, Set<DataObject> elmGndswt) {
+    private record DcGridData(Set<DataObject> dcElmLnes,
+                              Set<DataObject> dcElmTerms,
+                              Set<DataObject> acDcConverters,
+                              Set<DataObject> elmGndswt) {
 
         /**
          * Create the data model by reading from the PowerFactory data models.
@@ -132,7 +134,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         // This makes it possible to compute the map once for all components, and then use it to establish connections
         // everywhere.
         final Map<Long, List<DcNodeRef>> objIdDcNodeRef = mapConnectedObjToDcNode(getImportContext(), gridData);
-        // TODO decide if it is necessary to do a sanity check on the map here
+        objIdDcNodeRefSanityCheck(objIdDcNodeRef, network, gridData.dcElmTerms);
 
         // create and connect converters
         LOGGER.debug("Creating {} VSCs.", gridData.acDcConverters.size());
@@ -155,10 +157,16 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         LOGGER.debug("DC subnetworks created.");
     }
 
+    /**
+     * Compute map equipment id -> (bus_id, DcNode id)
+     * @param importContext to store unfound objects in StaCubic.
+     * @param dcGridData where to fetch the ElmTerm.
+     * @return map.
+     */
     private static Map<Long, List<DcNodeRef>> mapConnectedObjToDcNode(ImportContext importContext, DcGridData dcGridData) {
 
         // Map: id of the equipment in the DGS file
-        // -> list of connections to terminals (in DGS) and DC nodes (in PowSyBl), by bus.
+        // -> list of connections to DC nodes (in network), by bus.
         Map<Long, List<DcNodeRef>> objIdDcNodeRef = new HashMap<>();
 
         for (DataObject elmTerm : dcGridData.dcElmTerms) {
@@ -172,22 +180,39 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                     continue;
                 }
 
-                if (isDcConnectedObj(dcGridData, connectedObj)) {
-                    int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
-                    String dcNodeId = idInNetworkString(elmTerm);
-                    objIdDcNodeRef.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>()).add(new DcNodeRef(busIndexIn, dcNodeId));
-                }
+                int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
+                String dcNodeId = idInNetworkString(elmTerm);
+                objIdDcNodeRef.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>()).add(new DcNodeRef(busIndexIn, dcNodeId));
             }
         }
 
         return objIdDcNodeRef;
     }
 
-    // Filter only DC equipment
-    private static boolean isDcConnectedObj(DcGridData dcGridData, DataObject connectedObj) {
-        return dcGridData.acDcConverters().contains(connectedObj)
-                || dcGridData.dcElmLnes().contains(connectedObj)
-                || dcGridData.elmGndswt().contains(connectedObj);
+    /**
+     * Check that all referenced nodes from the map actually exist in the network.
+     * If this is not the case, point out the missing terminal, which is likely missing in the DGS file.
+     * This should most likely be caught before, but we should not rely on it.
+     * @param objIdDcNodeRef map to check.
+     * @param network where the nodes should be present.
+     * @param elmTerms set of terminals, to look up the terminal in the DGS file.
+     * @throws PowerFactoryException if a referenced node is absent from the network.
+     */
+    private static void objIdDcNodeRefSanityCheck(Map<Long, List<DcNodeRef>> objIdDcNodeRef, Network network, Set<DataObject> elmTerms) {
+        assert elmTerms != null;
+        assert elmTerms.isEmpty() || "ElmTerm".equals(elmTerms.iterator().next().getDataClassName());
+        for (var entry : objIdDcNodeRef.entrySet()) {
+            for (DcNodeRef nodeRef : entry.getValue()) {
+                if (network.getDcNode(nodeRef.dcNodeId()) == null) {
+                    DataObject elmTerm = elmTerms.stream().filter(term -> idInNetworkString(term).equals(nodeRef.dcNodeId())).findFirst().orElse(null);
+                    assert elmTerm != null;
+                    throw new PowerFactoryException("ElmTerm "
+                            + elmTerm.getId() + " is referenced by equipment "
+                            + entry.getKey()
+                            + " but was not created in the network. ");
+                }
+            }
+        }
     }
 
     /**
