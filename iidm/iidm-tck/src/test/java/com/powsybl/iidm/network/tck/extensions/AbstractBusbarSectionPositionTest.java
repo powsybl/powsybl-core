@@ -40,7 +40,7 @@ public abstract class AbstractBusbarSectionPositionTest {
         assertEquals(5, busbarSectionPosition.getSectionIndex());
     }
 
-    protected BusbarSection busbarSection() {
+    private BusbarSection busbarSection() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")

@@ -51,17 +51,13 @@ public abstract class AbstractLoadDetailTest {
         // extends load
         Load load = network.getLoad("L");
         assertNotNull(load);
-        addLoadDetail(load);
-        return network;
-    }
-
-    private static void addLoadDetail(Load load) {
         load.newExtension(LoadDetailAdder.class)
                 .withFixedActivePower(40f)
                 .withFixedReactivePower(20f)
                 .withVariableActivePower(60f)
                 .withVariableReactivePower(30f)
                 .add();
+        return network;
     }
 
     @Test

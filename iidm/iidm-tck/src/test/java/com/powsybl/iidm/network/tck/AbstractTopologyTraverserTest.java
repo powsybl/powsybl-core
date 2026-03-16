@@ -267,7 +267,7 @@ public abstract class AbstractTopologyTraverserTest {
         assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited3);
 
         Terminal startLBbv = network.getLoad("LD2").getTerminal();
-        List<Pair<String, Integer>>visited4 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        List<Pair<String, Integer>> visited4 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
         assertEquals(List.of(Pair.of("LD2", 0)), visited4);
 
         List<Pair<String, Integer>> visited5 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE,
