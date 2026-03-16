@@ -49,6 +49,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private BusBranchVoltageLevelIncompatibilityBehavior busBranchVoltageLevelIncompatibilityBehavior = BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION;
 
+    private boolean flatten = false;
+
     private String version;
 
     private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
@@ -93,6 +95,12 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
                          IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, iidmVersionIncompatibilityBehavior, false);
+
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean flatten) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -101,6 +109,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.sorted = sorted;
         this.version = version;
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
+        this.flatten = flatten;
     }
 
     public boolean isWithBranchSV() {
@@ -256,6 +265,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setWithAutomationSystems(boolean withAutomationSystems) {
         this.withAutomationSystems = withAutomationSystems;
+        return this;
+    }
+
+    public boolean isFlatten() {
+        return flatten;
+    }
+
+    public ExportOptions setFlatten(boolean flatten) {
+        this.flatten = flatten;
         return this;
     }
 }

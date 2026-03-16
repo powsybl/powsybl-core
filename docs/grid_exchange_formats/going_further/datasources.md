@@ -11,23 +11,23 @@ For importers and exporters, datasources are used to access files corresponding 
 
 ## Types of datasources
 
-Multiple types of datasources exist, depending on whether it shall be writable or not, the kind of storage used, 
+Multiple types of datasources exist, depending on whether it shall be writable or not, the kind of storage used,
 data location, data compression, etc.
 
 
 (readonlydatasources)=
 ### Read-Only DataSource
 
-`ReadOnlyDataSource` is the most basic datasource interface available. As you can tell by the name, it only provides 
+`ReadOnlyDataSource` is the most basic datasource interface available. As you can tell by the name, it only provides
 reading features.
 It has two parameters:
-- a base name, which is a prefix that can be used to consider only files with names starting with this prefix (while 
+- a base name, which is a prefix that can be used to consider only files with names starting with this prefix (while
 reading) or as a prefix for the output file name (while writing),
-- (optionally) a data extension, mainly used to disambiguate identically named data of different type. 
+- (optionally) a data extension, mainly used to disambiguate identically named data of different type.
 Note: this does not apply to compression extensions.
 
 _**Example:**
-For a file named `europe.west.xiidm`, the base name could be `europe.west` for instance (or `europe` or `europe.w` 
+For a file named `europe.west.xiidm`, the base name could be `europe.west` for instance (or `europe` or `europe.w`
 or ...), while the data extension would be `xiidm`._
 
 The main methods `ReadOnlyDataSource` provides are:
@@ -48,9 +48,9 @@ The classes inheriting directly `ReadOnlyDataSource` are:
 (writabledatasources)=
 ### DataSource
 
-The `DataSource` interface extends `ReadOnlyDataSource` by adding writing features through the methods 
+The `DataSource` interface extends `ReadOnlyDataSource` by adding writing features through the methods
 `newOutputStream(String fileName, boolean append)` and `newOutputStream(String suffix, String ext, boolean append)`.
-Those methods allow the user to write in a new file (if `append==false`) or at the end of an existing one (if 
+Those methods allow the user to write in a new file (if `append==false`) or at the end of an existing one (if
 `append==true`).
 
 This interface also provides two static convenience methods (`fromPath(Path file)` and
@@ -63,13 +63,13 @@ the datasource.
 Two classes implement the `DataSource` interface:
 - `MemDataSource`: extension of `ReadOnlyMemDataSource` implementing the writing features of `DataSource`
 - `AbstractFileSystemDataSource`: abstract class used to define datasources based on files present in the file system,
-either directly (see below the DirectoryDataSource class and its children) or in an archive (see below the 
+either directly (see below the DirectoryDataSource class and its children) or in an archive (see below the
 AbstractArchiveDataSource class and its children).
 
 (directorydatasources)=
 ### Directory DataSource
 
-`DirectoryDataSource` are datasources based on files located in a specific directory directly in the file system. 
+`DirectoryDataSource` are datasources based on files located in a specific directory directly in the file system.
 
 Files stored and used via this type of datasource may be all compressed or not at all. Compression formats available are
 defined in the class `CompressionFormat`. As of today, the following single-file compressions are available:
@@ -82,23 +82,23 @@ BZIP2, GZIP, XZ and ZSTD. Each one of those compression format has a correspondi
 be a good base name if your files are `network.xiidm`, `network_mapping.csv`, etc.
 - The data extension is the last extension of your main files, excluding the compression extension if they have one.
 It usually corresponds to the data format extension: `csv`, `xml`, `json`, `xiidm`, etc. This extension is used
-to disambiguate the files to use in the datasource: just like you can create two different datasources selecting a 
-different subset of files in a folder based on a different base name (e.g. `france.xiidm` and `europe.xiidm`), you can 
-use the data extension to select either `france.xiidm` or `france.uct`. 
+to disambiguate the files to use in the datasource: just like you can create two different datasources selecting a
+different subset of files in a folder based on a different base name (e.g. `france.xiidm` and `europe.xiidm`), you can
+use the data extension to select either `france.xiidm` or `france.uct`.
 
 Even if `DirectoryDataSource` integrates the notions of base name and data extension in the methods with
-`(String suffix, String ext)` as parameters, you still have the possibility to use files that do not correspond to the 
-base name and data extension by using the methods with `(String filename)` as parameter, excluding the compression 
+`(String suffix, String ext)` as parameters, you still have the possibility to use files that do not correspond to the
+base name and data extension by using the methods with `(String filename)` as parameter, excluding the compression
 extension if there is one.
 
-Note that in directory datasources, there are two behaviours for the method `listNames(String regex)`, which is used 
-to filter the files within the datasource. In addition to the filtering using the regex parameter, it can also 
-filter filenames to only keep those starting with the base name. This behaviour basename-filtering only occurs if 
+Note that in directory datasources, there are two behaviours for the method `listNames(String regex)`, which is used
+to filter the files within the datasource. In addition to the filtering using the regex parameter, it can also
+filter filenames to only keep those starting with the base name. This behaviour basename-filtering only occurs if
 `allFiles` is set to `false` in the datasource.
-Setting `allFiles` to `true` is  for example very useful for the CGMES use case, in which a network is defined by 
+Setting `allFiles` to `true` is  for example very useful for the CGMES use case, in which a network is defined by
 several files (TP, EQ, SV, SSH, GL, ...), often without a common prefix (base name). This makes the
 `DirectoryDataSource` behave just like an `ArchiveDataSource`.
-Such a directory datasource is created if the user gives an existing folder as path in either one of the `Network::read` 
+Such a directory datasource is created if the user gives an existing folder as path in either one of the `Network::read`
 or one of the `Network::write` methods.
 
 (archivedatasources)=
@@ -114,7 +114,7 @@ on the archive format:
 
 Just like `DirectoryDataSource`, the archive datasources integrate the notions of base name and data extension. If not
 given as a parameter in the datasource constructor, the archive file name is even defined using the base name and the
-data extension, as `<directory>/<basename>.<dataExtension>.<archiveExtension>.<compressionExtension>` with the 
+data extension, as `<directory>/<basename>.<dataExtension>.<archiveExtension>.<compressionExtension>` with the
 compression extension being optional depending on the archive format. For example `network.xiidm.zip` contains
 `network.xiidm`.
 
@@ -126,14 +126,14 @@ filenames only by the regex and not by the base name.
 Let's consider a directory containing the following files:
 
 ```
-directory              
-├── network              
-├── network.south              
-├── network.xiidm.gz    
+directory
+├── network
+├── network.south
+├── network.xiidm.gz
 ├── network.v3.xiidm.gz
 ├── network_mapping.csv.gz
-├── network.gz         
-└── toto.xiidm.gz  
+├── network.gz
+└── toto.xiidm.gz
 ```
 
 A datasource on this directory could be used this way:
