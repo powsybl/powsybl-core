@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -18,6 +17,9 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.OptionalInt;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_SECTIONS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -69,7 +71,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
         convertedTerminalsWithOnlyEq(shunt.getTerminal());
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
-        shunt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS, String.valueOf(normalSections));
+        shunt.setProperty(PROPERTY_NORMAL_SECTIONS, String.valueOf(normalSections));
     }
 
     public static void update(ShuntCompensator shuntCompensator, PropertyBag cgmesData, Context context) {
@@ -88,7 +90,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static Integer getNormalSections(ShuntCompensator shuntCompensator) {
-        String property = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_SECTIONS);
+        String property = shuntCompensator.getProperty(PROPERTY_NORMAL_SECTIONS);
         return property != null ? Integer.parseInt(property) : null;
     }
 
@@ -157,7 +159,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static boolean isDefaultRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled) {
-        String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
+        String regulatingControlId = shuntCompensator.getProperty(PROPERTY_REGULATING_CONTROL);
         return regulatingControlId == null && controlEnabled;
     }
 

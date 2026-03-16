@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -17,6 +16,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -55,11 +56,11 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     // A boundary line has been created at the boundary node of the equivalent injection
     public BoundaryLine convertOverBoundaryLine(BoundaryLineAdder adder) {
         boolean regulationCapability = p.asBoolean(CgmesNames.REGULATION_CAPABILITY, false);
-        BoundaryLine dl;
+        BoundaryLine bl;
         if (regulationCapability) {
             // If this equivalent injection is regulating voltage,
             // map it over the boundary line 'virtual generator'
-            dl = adder
+            bl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .newGeneration()
@@ -74,24 +75,24 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         } else {
             // Map all the observed flows to the 'virtual load'
             // of the boundary line
-            dl = adder
+            bl = adder
                     .setP0(Double.NaN)
                     .setQ0(Double.NaN)
                     .add();
         }
-        // We do not call addAliasesAndProperties(dl) !
+        // We do not call addAliasesAndProperties(bl) !
         // Because we do not want to add this equivalent injection
         // terminal id as a generic "Terminal" alias of the boundary line,
         // Terminal1 and Terminal2 aliases should be used for
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, this.id);
+        bl.setProperty(PROPERTY_EQUIVALENT_INJECTION, this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
-            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
+            bl.setProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL, cgmesTerminal.id());
         }
-        return dl;
+        return bl;
     }
 
     private void convertToGenerator() {
@@ -112,14 +113,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag propertyBag) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
-        generator.setProperty(Conversion.PROPERTY_CGMES_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
+        generator.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
+        generator.setProperty(PROPERTY_REGULATION_CAPABILITY, propertyBag.getOrDefault(CgmesNames.REGULATION_CAPABILITY, "false"));
     }
 
     public static void update(Generator generator, PropertyBag cgmesData, Context context) {
         updateTerminals(generator, context, generator.getTerminal());
 
-        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
+        boolean regulationCapability = Boolean.parseBoolean(generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS + CgmesNames.REGULATION_CAPABILITY));
 
         PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
 
@@ -210,7 +211,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static Optional<PropertyBag> getCgmesEquivalentInjection(BoundaryLine boundaryLine, Context context) {
-        String equivalentInjectionId = boundaryLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
+        String equivalentInjectionId = boundaryLine.getProperty(PROPERTY_EQUIVALENT_INJECTION);
         return equivalentInjectionId != null ? Optional.ofNullable(context.equivalentInjection(equivalentInjectionId)) : Optional.empty();
     }
 
