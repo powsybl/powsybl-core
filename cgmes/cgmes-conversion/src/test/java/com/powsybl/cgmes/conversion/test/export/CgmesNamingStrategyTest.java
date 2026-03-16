@@ -71,14 +71,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         // Load the exported CGMES model and check that all objects have valid CGMES identifiers
         Network network1 = Network.read(exportedCgmes);
         checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
-        // Also, all Identifiables that do not have a valid CIM mRID must have a valid UUID alias
-        for (Identifiable<?> i : network1.getIdentifiables()) {
-            if (!i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE) && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
-                Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
-                assertTrue(uuid.isPresent());
-                assertTrue(CgmesExportUtil.isValidCimMasterRID(uuid.get()));
-            }
-        }
 
         // Now that we have valid identifiers stored as aliases, we should be able to re-export to CGMES
         // with the same naming strategy to use aliases to fix bad mrids

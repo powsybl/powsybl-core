@@ -8,9 +8,9 @@
 package com.powsybl.security.results;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
-import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
 
