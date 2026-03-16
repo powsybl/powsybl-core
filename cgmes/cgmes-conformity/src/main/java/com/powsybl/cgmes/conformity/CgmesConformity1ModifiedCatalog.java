@@ -983,22 +983,6 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReference microGridBaseCaseAssembledBadIds() {
-        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_Assembled_v2_bad_ids/";
-        return new GridModelReferenceResources("MicroGrid-BaseCase-Assembled-bad-ids",
-                null,
-                new ResourceSet(baseModified,
-                        MICRO_GRID_BE_EQ,
-                        MICRO_GRID_BE_SSH,
-                        MICRO_GRID_BE_TP,
-                        MICRO_GRID_NL_EQ,
-                        MICRO_GRID_NL_SSH,
-                        MICRO_GRID_NL_TP
-                ),
-                microGridBaseCaseBoundaries());
-    }
-
     public static GridModelReference microGridBaseCaseNLMultipleReferencePriorities() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_multiple_generators_with_reference_priority/";
