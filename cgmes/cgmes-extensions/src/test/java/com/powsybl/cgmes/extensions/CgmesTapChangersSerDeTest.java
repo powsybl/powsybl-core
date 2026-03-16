@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.ImportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
@@ -88,16 +89,22 @@ class CgmesTapChangersSerDeTest extends AbstractCgmesExtensionTest {
             String xmlContent = os.toString(StandardCharsets.UTF_8);
             assertTrue(xmlContent.contains("id=\"" + anonymizedId + "\""));
             assertTrue(xmlContent.contains("controlId=\"" + anonymizedControlId + "\""));
-            // Then import without anonymizer
-            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            // Get TwoWT using anonymized ID.
-            TwoWindingsTransformer importedTwoWT = importedNetwork.getTwoWindingsTransformer(anonymizer.anonymizeString("NGEN_NHV1"));
-            assertNotNull(importedTwoWT);
-            CgmesTapChangers importedCgmesTapChangers = importedTwoWT.getExtension(CgmesTapChangers.class);
-            assertNotNull(importedCgmesTapChangers);
-            CgmesTapChanger importedCgmesTapChanger = (CgmesTapChanger) importedCgmesTapChangers.getTapChangers().iterator().next();
-            assertEquals(anonymizedId, importedCgmesTapChanger.getId());
-            assertEquals(anonymizedControlId, importedCgmesTapChanger.getControlId());
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImport(importedNetwork1, anonymizer.anonymizeString("NGEN_NHV1"), anonymizedId, anonymizedControlId);
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImport(importedNetwork2, "NGEN_NHV1", "tc1", "control1");
         });
+    }
+
+    private void assertWhenImport(Network importedNetwork, String twtName, String expectedId, String expectedControlId) {
+        TwoWindingsTransformer importedTWT = importedNetwork.getTwoWindingsTransformer(twtName);
+        assertNotNull(importedTWT);
+        CgmesTapChangers importedCgmesTapChangers = importedTWT.getExtension(CgmesTapChangers.class);
+        assertNotNull(importedCgmesTapChangers);
+        CgmesTapChanger importedCgmesTapChanger = (CgmesTapChanger) importedCgmesTapChangers.getTapChangers().iterator().next();
+        assertEquals(expectedId, importedCgmesTapChanger.getId());
+        assertEquals(expectedControlId, importedCgmesTapChanger.getControlId());
     }
 }

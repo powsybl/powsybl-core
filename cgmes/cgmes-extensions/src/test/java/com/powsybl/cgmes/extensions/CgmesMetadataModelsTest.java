@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.ImportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
@@ -135,15 +136,28 @@ class CgmesMetadataModelsTest extends AbstractCgmesExtensionTest {
             assertFalse(xmlContent.contains("dependentOnModel>ssh-dependency2<"));
             assertTrue(xmlContent.contains("supersedesModel>" + anonymizedSupersedes + "<"));
             assertFalse(xmlContent.contains("AA SSH previous ID"));
-            //Then import without anonymizer
-            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            CgmesMetadataModels importedCgmesMetadataModels = importedNetwork.getExtension(CgmesMetadataModels.class);
-            assertEquals(anonymizedSSHId, importedCgmesMetadataModels.getModels().iterator().next().getId());
-            assertEquals(anonymizedModelingAuthoritySet, importedCgmesMetadataModels.getModels().iterator().next().getModelingAuthoritySet());
-            assertEquals(Set.of(anonymizedDependentOn1, anonymizedDependentOn2),
-                    importedCgmesMetadataModels.getModels().iterator().next().getDependentOn());
-            assertEquals(Set.of(anonymizedSupersedes), importedCgmesMetadataModels.getModels().iterator().next().getSupersedes());
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImport(importedNetwork1, new MetadataModelData(anonymizedSSHId, anonymizedModelingAuthoritySet,
+                    Set.of(anonymizedDependentOn1, anonymizedDependentOn2), Set.of(anonymizedSupersedes)));
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImport(importedNetwork2, new MetadataModelData("sshId", "RTE",
+                    Set.of("ssh-dependency1", "ssh-dependency2"), Set.of("AA SSH previous ID")));
+
         });
+    }
+
+    private void assertWhenImport(Network importedNetwork, MetadataModelData metadataModelData) {
+        CgmesMetadataModels importedCgmesMetadataModels = importedNetwork.getExtension(CgmesMetadataModels.class);
+        assertEquals(metadataModelData.sshId(), importedCgmesMetadataModels.getModels().iterator().next().getId());
+        assertEquals(metadataModelData.modelingAuthoritySet(), importedCgmesMetadataModels.getModels().iterator().next().getModelingAuthoritySet());
+        assertEquals(metadataModelData.DependentOn(), importedCgmesMetadataModels.getModels().iterator().next().getDependentOn());
+        assertEquals(metadataModelData.supersedes(), importedCgmesMetadataModels.getModels().iterator().next().getSupersedes());
+    }
+
+    private record MetadataModelData(String sshId, String modelingAuthoritySet, Set<String> DependentOn, Set<String> supersedes) {
+
     }
 
 }

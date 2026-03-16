@@ -104,15 +104,22 @@ class MeasurementsXmlTest extends AbstractIidmSerDeTest {
             String xmlContent = os.toString(StandardCharsets.UTF_8);
             assertTrue(xmlContent.contains("id=\"" + anonymizedMeasurementId + "\""));
             assertFalse(xmlContent.contains("id=\"Measurement_ID\""));
-            //Then import without anonymizer
-            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            Load importedLoad = importedNetwork.getLoad(anonymizer.anonymizeString("LOAD"));
-            Measurements importedMeasurements = importedLoad.getExtension(Measurements.class);
-            assertNotNull(importedMeasurements);
-            assertEquals(1, importedMeasurements.getMeasurements().size());
-            Measurement importedDiscreteMeasurement = (Measurement) importedMeasurements.getMeasurements().stream().findFirst().get();
-            assertEquals(anonymizedMeasurementId, importedDiscreteMeasurement.getId());
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImport(importedNetwork1, anonymizer.anonymizeString("LOAD"), anonymizedMeasurementId);
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImport(importedNetwork2, "LOAD", "Measurement_ID");
         });
+    }
+
+    private void assertWhenImport(Network importedNetwork, String loadID, String expectedMeasurementId) {
+        Load importedLoad = importedNetwork.getLoad(loadID);
+        Measurements importedMeasurements = importedLoad.getExtension(Measurements.class);
+        assertNotNull(importedMeasurements);
+        assertEquals(1, importedMeasurements.getMeasurements().size());
+        Measurement importedDiscreteMeasurement = (Measurement) importedMeasurements.getMeasurements().stream().findFirst().get();
+        assertEquals(expectedMeasurementId, importedDiscreteMeasurement.getId());
     }
 
     @Test

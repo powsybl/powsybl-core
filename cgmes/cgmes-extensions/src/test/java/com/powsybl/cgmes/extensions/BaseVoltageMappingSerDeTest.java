@@ -69,12 +69,19 @@ class BaseVoltageMappingSerDeTest extends AbstractCgmesExtensionTest {
             assertTrue(xmlContent.contains("id=\"" + anonymizedId380 + "\""));
             assertFalse(xmlContent.contains("id=\"id_400\""));
             assertFalse(xmlContent.contains("id=\"id_380\""));
-            // Then import without anonymizer
-            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            BaseVoltageMapping importedBaseVoltageMapping = importedNetwork.getExtension(BaseVoltageMapping.class);
-            assertEquals(anonymizedId400, importedBaseVoltageMapping.getBaseVoltage(400).getId());
-            assertEquals(anonymizedId380, importedBaseVoltageMapping.getBaseVoltage(380).getId());
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImport(importedNetwork1, anonymizedId400, anonymizedId380);
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImport(importedNetwork2, "id_400", "id_380");
         });
+    }
+
+    private void assertWhenImport(Network importedNetwork, String expectedId400, String expectedId380) {
+        BaseVoltageMapping importedBaseVoltageMapping = importedNetwork.getExtension(BaseVoltageMapping.class);
+        assertEquals(expectedId400, importedBaseVoltageMapping.getBaseVoltage(400).getId());
+        assertEquals(expectedId380, importedBaseVoltageMapping.getBaseVoltage(380).getId());
     }
 
     @Test

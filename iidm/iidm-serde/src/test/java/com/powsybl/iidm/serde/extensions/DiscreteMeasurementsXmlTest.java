@@ -88,18 +88,24 @@ class DiscreteMeasurementsXmlTest extends AbstractIidmSerDeTest {
             String anonymizedDiscreteMeasurementId = anonymizer.anonymizeString("discreteMeasurementId");
             assertNotEquals("discreteMeasurementId", anonymizedDiscreteMeasurementId);
             // Then check xml content (contain only anonymized id)
-            byte[] anonymizedXml = os.toByteArray();
-            String xmlContent = new String(anonymizedXml, StandardCharsets.UTF_8);
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
             assertTrue(xmlContent.contains("id=\"" + anonymizedDiscreteMeasurementId + "\""));
             assertFalse(xmlContent.contains("id=\"discreteMeasurementId\""));
-            //Then import without anonymizer
-            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            DiscreteMeasurements importedDiscreteMeasurements = importedNetwork.getExtension(DiscreteMeasurements.class);
-            assertNotNull(importedDiscreteMeasurements);
-            assertEquals(1, discreteMeasurements.getDiscreteMeasurements().size());
-            DiscreteMeasurement importedDiscreteMeasurement = (DiscreteMeasurement) importedDiscreteMeasurements.getDiscreteMeasurements().stream().findFirst().get();
-            assertEquals(anonymizedDiscreteMeasurementId, importedDiscreteMeasurement.getId());
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImport(importedNetwork1, anonymizedDiscreteMeasurementId);
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImport(importedNetwork2, "discreteMeasurementId");
         });
+    }
+
+    private void assertWhenImport(Network importedNetwork, String anonymizedDiscreteMeasurementId) {
+        DiscreteMeasurements importedDiscreteMeasurements = importedNetwork.getExtension(DiscreteMeasurements.class);
+        assertNotNull(importedDiscreteMeasurements);
+        assertEquals(1, importedDiscreteMeasurements.getDiscreteMeasurements().size());
+        DiscreteMeasurement importedDiscreteMeasurement = (DiscreteMeasurement) importedDiscreteMeasurements.getDiscreteMeasurements().stream().findFirst().get();
+        assertEquals(anonymizedDiscreteMeasurementId, importedDiscreteMeasurement.getId());
     }
 
     @Test
