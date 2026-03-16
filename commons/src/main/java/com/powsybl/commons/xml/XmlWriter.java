@@ -10,11 +10,16 @@ package com.powsybl.commons.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.csv.CSVFormat;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -182,7 +187,21 @@ public class XmlWriter extends AbstractTreeDataWriter {
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
         if (!values.isEmpty()) {
-            writeStringAttribute(name, String.join(",", values));
+            CSVFormat format = CSVFormat.DEFAULT;
+            StringWriter arrayWriter = new StringWriter();
+            try (CSVPrinter printer = new CSVPrinter(arrayWriter, format)) {
+                printer.printRecord(values);
+            } catch (IOException e) {
+                //Shouldn't happen, StringWriter doesn't throw
+                throw new UncheckedIOException(e);
+            }
+            String valuesString = arrayWriter.toString();
+            String newlineCharacter = format.getRecordSeparator();
+            //remove newline characters
+            if (valuesString.endsWith(newlineCharacter)) {
+                valuesString = valuesString.substring(0, valuesString.length() - newlineCharacter.length());
+            }
+            writeStringAttribute(name, valuesString);
         }
     }
 

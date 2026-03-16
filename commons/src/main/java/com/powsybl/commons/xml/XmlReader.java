@@ -11,11 +11,16 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.AbstractTreeDataReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -149,7 +154,13 @@ public class XmlReader extends AbstractTreeDataReader {
         if (arrayString == null) {
             return new String[0];
         }
-        return arrayString.split(",");
+        try (CSVParser parser = CSVParser.parse(new StringReader(arrayString), CSVFormat.DEFAULT)) {
+            //get single csv value
+            return parser.iterator().next().values();
+        } catch (IOException e) {
+            // should not happen as StringReader doesn't throw
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
