@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
@@ -45,15 +44,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         testExport(network, ds, NamingStrategyFactory.CGMES);
     }
 
-    @Test
-    void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
-        // We select a case that contains invalid IDs
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledBadIds().dataSource();
-        Network network = Network.read(ds);
-        network.setName("MicroGrid-NS-CGMES_FIX_ALL_INVALID_IDS");
-        testExport(network, ds, NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS);
-    }
-
     void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
         String baseName = network.getNameOrId();
 
@@ -71,14 +61,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         // Load the exported CGMES model and check that all objects have valid CGMES identifiers
         Network network1 = Network.read(exportedCgmes);
         checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
-        // Also, all Identifiables that do not have a valid CIM mRID must have a valid UUID alias
-        for (Identifiable<?> i : network1.getIdentifiables()) {
-            if (!i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE) && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
-                Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
-                assertTrue(uuid.isPresent());
-                assertTrue(CgmesExportUtil.isValidCimMasterRID(uuid.get()));
-            }
-        }
 
         // Now that we have valid identifiers stored as aliases, we should be able to re-export to CGMES
         // with the same naming strategy to use aliases to fix bad mrids

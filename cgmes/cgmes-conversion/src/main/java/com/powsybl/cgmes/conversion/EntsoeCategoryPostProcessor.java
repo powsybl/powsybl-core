@@ -71,7 +71,7 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
         }
         try {
             int code = Integer.parseInt(description1);
-            if (code > 0) {
+            if (code >= 0) {
                 g.newExtension(GeneratorEntsoeCategoryAdder.class)
                         .withCode(code)
                         .add();
