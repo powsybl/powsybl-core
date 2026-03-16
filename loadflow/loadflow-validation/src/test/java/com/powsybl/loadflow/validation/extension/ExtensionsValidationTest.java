@@ -16,10 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileSystem;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +32,6 @@ class ExtensionsValidationTest {
 
     ExtensionsValidation extensionsValidation = new ExtensionsValidation();
     private final Network network = EurostagTutorialExample1Factory.create();
-    private final Path outputFolder = mock(Path.class);
 
     @Test
     void getExtensionsShouldSucceed() {
@@ -42,7 +39,7 @@ class ExtensionsValidationTest {
     }
 
     @Test
-    void getExtensionsNamesShouldSucceed() {
+    void getExtensionsNamesShouldReturnExistingExtension() {
         assertEquals(List.of("extensionValidationMock1"), ExtensionsValidation.getExtensionsNames());
     }
 
@@ -50,13 +47,10 @@ class ExtensionsValidationTest {
     void getExtensionShouldReturnExistingExtension() {
         assertTrue(ExtensionsValidation.getExtension("extensionValidationMock1").isPresent());
         assertEquals("extensionValidationMock1", ExtensionsValidation.getExtension("extensionValidationMock1").get().getName());
-        assertEquals("private1", ExtensionsValidation.getExtension("extensionValidationMock1").get().getType());
-        when(outputFolder.resolve(anyString())).thenReturn(outputFolder);
-        assertNotNull(ExtensionsValidation.getExtension("extensionValidationMock1").get().getOutputFile(outputFolder));
     }
 
     @Test
-    void testRunExtensionValidationsShouldSucceed() throws IOException {
+    void runExtensionValidationsShouldSucceed() {
         //Given
         ValidationConfig config = ValidationConfig.load();
         ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), mock(FileSystem.class), mock(ComputationManager.class), mock(ComputationManager.class));
@@ -64,29 +58,25 @@ class ExtensionsValidationTest {
         ExtensionValidation extension1 = mock(ExtensionValidation.class);
         ExtensionValidation extension2 = mock(ExtensionValidation.class);
 
-        when(extension1.getType()).thenReturn("type1");
-        when(extension1.getOutputFile(outputFolder)).thenReturn(mock(Path.class));
-        when(extension1.check(any(), any(), any())).thenReturn(true);
+        when(extension1.getName()).thenReturn("ExtensionName1");
+        when(extension1.check(any(), any())).thenReturn(true);
 
-        when(extension2.getType()).thenReturn("type2");
-        when(extension2.getOutputFile(outputFolder)).thenReturn(mock(Path.class));
-        when(extension2.check(any(), any(), any())).thenReturn(false);
+        when(extension2.getName()).thenReturn("ExtensionName2");
+        when(extension2.check(any(), any())).thenReturn(false);
 
         try (MockedStatic<ExtensionsValidation> mocked = mockStatic(ExtensionsValidation.class)) {
             mocked.when(ExtensionsValidation::getExtensions).thenReturn(List.of(extension1, extension2));
             // When
-            extensionsValidation.runExtensionValidations(network, config, outputFolder, context);
+            extensionsValidation.runExtensionValidations(network, config, context);
             // Then
-
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
             verify(context.getOutputStream(), times(2)).println(captor.capture());
             List<String> messages = captor.getAllValues();
-            assertTrue(messages.get(0).contains("success"));
-            assertTrue(messages.get(1).contains("fail"));
-
-            // check() was called on extensions
-            verify(extension1, times(1)).check(eq(network), eq(config), any());
-            verify(extension2, times(1)).check(eq(network), eq(config), any());
+            assertTrue(messages.get(0).contains("validation type: Extension/ExtensionName1 - result: success"));
+            assertTrue(messages.get(1).contains("validation type: Extension/ExtensionName2 - result: fail"));
+            // check method was called on extensions
+            verify(extension1, times(1)).check(network, config);
+            verify(extension2, times(1)).check(network, config);
         }
     }
 }
