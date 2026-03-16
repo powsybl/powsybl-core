@@ -860,7 +860,7 @@ public final class EquipmentExport {
             int normalStep = getNormalStep(eq, cgmesTapChangerId).orElse(neutralStep);
             String tapChangerControlId = null;
             if (CgmesExportUtil.tapChangerControlIsDefined(ptc)) {
-                tapChangerControlId = getTapChangerControlId(eq, PHASE_TAP_CHANGER, cgmesTapChangerId, context);
+                tapChangerControlId = getTapChangerControlId(eq, PHASE_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String mode = RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
                     String controlName = twtName + "_PTC_RC";
@@ -937,7 +937,7 @@ public final class EquipmentExport {
             if (CgmesExportUtil.tapChangerControlIsDefined(rtc)) {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
-                tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, cgmesTapChangerId, context);
+                tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String tccMode = CgmesExportUtil.getTcMode(rtc);
                     if (tccMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
@@ -1148,7 +1148,7 @@ public final class EquipmentExport {
         if (context.isExportAllLimitsGroup()) {
             limitsGroups1.addAll(branch.getOperationalLimitsGroups1());
         } else {
-            branch.getSelectedOperationalLimitsGroup1().ifPresent(limitsGroups1::add);
+            limitsGroups1.addAll(branch.getAllSelectedOperationalLimitsGroups(TwoSides.ONE));
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups1) {
             writeLimitsGroup(limitsGroup, terminalId1, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
@@ -1158,7 +1158,7 @@ public final class EquipmentExport {
         if (context.isExportAllLimitsGroup()) {
             limitsGroups2.addAll(branch.getOperationalLimitsGroups2());
         } else {
-            branch.getSelectedOperationalLimitsGroup2().ifPresent(limitsGroups2::add);
+            limitsGroups2.addAll(branch.getAllSelectedOperationalLimitsGroups(TwoSides.TWO));
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups2) {
             writeLimitsGroup(limitsGroup, terminalId2, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
@@ -1170,7 +1170,7 @@ public final class EquipmentExport {
         if (context.isExportAllLimitsGroup()) {
             limitsGroups.addAll(holder.getOperationalLimitsGroups());
         } else {
-            holder.getSelectedOperationalLimitsGroup().ifPresent(limitsGroups::add);
+            limitsGroups.addAll(holder.getAllSelectedOperationalLimitsGroups());
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups) {
             writeLimitsGroup(limitsGroup, terminalId, cimNamespace, euNamespace, exportedLimitTypes, writer, context);
