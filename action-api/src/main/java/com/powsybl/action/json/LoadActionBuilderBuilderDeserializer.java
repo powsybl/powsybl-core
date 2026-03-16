@@ -29,8 +29,9 @@ public class LoadActionBuilderBuilderDeserializer extends AbstractLoadActionBuil
     @Override
     public LoadActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         LoadActionBuilder builder = new LoadActionBuilder();
+        String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, builder, name);
+            boolean found = deserializeCommonAttributes(jsonParser, builder, name, version);
             if (found) {
                 return true;
             }
