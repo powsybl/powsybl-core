@@ -348,12 +348,12 @@ public final class CgmesExportUtil {
                 && ptc.getRegulationTerminal() != null;
     }
 
-    static <C extends Connectable<C>> String getTapChangerControlId(C transformer, Part part, String cgmesTapChangerId, CgmesExportContext context) {
+    static <C extends Connectable<C>> String getTapChangerControlId(C transformer, Part part, int endNumber, String cgmesTapChangerId, CgmesExportContext context) {
         String cgmesTapChangerControlId = getCgmesTapChanger(transformer, cgmesTapChangerId).map(CgmesTapChanger::getControlId).orElse(null);
         if (cgmesTapChangerControlId != null) {
             return context.getNamingStrategy().getCgmesId(cgmesTapChangerControlId);
         }
-        return context.getNamingStrategy().getCgmesId(ref(transformer), part, REGULATING_CONTROL);
+        return context.getNamingStrategy().getCgmesId(ref(transformer), part, ref(endNumber), REGULATING_CONTROL);
     }
 
     static <C extends Connectable<C>> Optional<CgmesTapChanger> getHiddenCombinedTapChanger(C transformer, String cgmesTapChangerId) {
