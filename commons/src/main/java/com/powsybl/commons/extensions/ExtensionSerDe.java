@@ -111,6 +111,16 @@ public interface ExtensionSerDe<T extends Extendable, E extends Extension<T>> ex
     }
 
     /**
+     * Check if an extension can be serialized or not.
+     * @param extension the extension to check
+     * @param context the serialization context
+     * @return true if the extension can be serialized, false otherwise
+     */
+    default boolean isSerializable(E extension, SerializerContext context) {
+        return isSerializable(extension);
+    }
+
+    /**
      * Provides the map whose keys are the array field names and whose values are the single element field names.
      * This is used to deduce the name of an element inside and array.
      */

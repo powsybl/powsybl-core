@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 
@@ -17,14 +18,14 @@ import java.util.stream.Stream;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
-public class LoadingLimitsMapping {
+public class LimitsMapping {
 
     private final Context context;
     private final Map<OperationalLimitsGroup, CurrentLimitsAdder> currentLimitsAdders;
     private final Map<OperationalLimitsGroup, ActivePowerLimitsAdder> activePowerLimitsAdders;
     private final Map<OperationalLimitsGroup, ApparentPowerLimitsAdder> apparentPowerLimitsAdders;
 
-    LoadingLimitsMapping(Context context) {
+    LimitsMapping(Context context) {
         this.context = Objects.requireNonNull(context);
         this.currentLimitsAdders = new HashMap<>();
         this.activePowerLimitsAdders = new HashMap<>();
@@ -53,6 +54,7 @@ public class LoadingLimitsMapping {
      * This method shall be called after all the CGMES OperationalLimit have been converted.
      */
     void addAll() {
+        // Add all loading limits.
         Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders)
                 .flatMap(m -> m.values().stream())
                 .filter(adder -> !Double.isNaN(adder.getPermanentLimit()) || adder.hasTemporaryLimits())
@@ -60,5 +62,8 @@ public class LoadingLimitsMapping {
                         .add());
 
         Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders).forEach(Map::clear);
+
+        // Add all voltage limits.
+        context.network().getVoltageLevelStream().forEach(vl -> OperationalLimitConversion.setNormalVoltageLimit(vl, context));
     }
 }
