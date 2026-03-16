@@ -288,12 +288,12 @@ public class PsseGenerator extends PsseVersioned {
     }
 
     public int getNreg() {
-        checkVersion("nreg");
+        checkVersion(STR_NREG);
         return nreg;
     }
 
     public void setNreg(int nreg) {
-        checkVersion("nreg");
+        checkVersion(STR_NREG);
         this.nreg = nreg;
     }
 

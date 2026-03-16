@@ -187,42 +187,42 @@ public class PsseBus extends PsseVersioned {
     }
 
     public double getNvhi() {
-        checkVersion("nvhi");
+        checkVersion(STR_NVHI);
         return nvhi;
     }
 
     public void setNvhi(double nvhi) {
-        checkVersion("nvhi");
+        checkVersion(STR_NVHI);
         this.nvhi = nvhi;
     }
 
     public double getNvlo() {
-        checkVersion("nvlo");
+        checkVersion(STR_NVLO);
         return nvlo;
     }
 
     public void setNvlo(double nvlo) {
-        checkVersion("nvlo");
+        checkVersion(STR_NVLO);
         this.nvlo = nvlo;
     }
 
     public double getEvhi() {
-        checkVersion("evhi");
+        checkVersion(STR_EVHI);
         return evhi;
     }
 
     public void setEvhi(double evhi) {
-        checkVersion("evhi");
+        checkVersion(STR_EVHI);
         this.evhi = evhi;
     }
 
     public double getEvlo() {
-        checkVersion("evlo");
+        checkVersion(STR_EVLO);
         return evlo;
     }
 
     public void setEvlo(double evlo) {
-        checkVersion("evlo");
+        checkVersion(STR_EVLO);
         this.evlo = evlo;
     }
 

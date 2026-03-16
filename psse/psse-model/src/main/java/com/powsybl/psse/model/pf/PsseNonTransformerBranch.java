@@ -230,12 +230,12 @@ public class PsseNonTransformerBranch extends PsseVersioned {
     }
 
     public String getName() {
-        checkVersion("name");
+        checkVersion(STR_NAME);
         return name;
     }
 
     public void setName(String name) {
-        checkVersion("name");
+        checkVersion(STR_NAME);
         this.name = Objects.requireNonNull(name);
     }
 

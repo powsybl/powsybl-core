@@ -276,7 +276,7 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public int getZcod() {
-        checkVersion("zcod");
+        checkVersion(STR_ZCOD);
         return zcod;
     }
 

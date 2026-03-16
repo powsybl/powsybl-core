@@ -253,7 +253,7 @@ public class PsseTwoTerminalDcConverter extends PsseVersioned {
     }
 
     public int getNd() {
-        checkVersion("nd");
+        checkVersion(STR_ND);
         return nd;
     }
 

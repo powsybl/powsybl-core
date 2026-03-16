@@ -248,7 +248,7 @@ public class PsseVoltageSourceConverter extends PsseVersioned {
     }
 
     public int getNreg() {
-        checkVersion("nreg");
+        checkVersion(STR_NREG);
         return nreg;
     }
 

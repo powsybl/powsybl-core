@@ -138,7 +138,7 @@ public class PsseTransformerWinding extends PsseVersioned {
     }
 
     public int getNode() {
-        checkVersion("node");
+        checkVersion(STR_NODE);
         return node;
     }
 

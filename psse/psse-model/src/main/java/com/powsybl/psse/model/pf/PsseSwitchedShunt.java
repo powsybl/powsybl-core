@@ -379,7 +379,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public String getId() {
-        checkVersion("id");
+        checkVersion(STR_ID);
         return id;
     }
 
@@ -397,7 +397,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getNreg() {
-        checkVersion("nreg");
+        checkVersion(STR_NREG);
         return nreg;
     }
 
@@ -406,7 +406,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS1() {
-        checkVersion("s1");
+        checkVersion(STR_S1);
         return s1;
     }
 
@@ -415,7 +415,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS2() {
-        checkVersion("s2");
+        checkVersion(STR_S2);
         return s2;
     }
 
@@ -424,7 +424,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS3() {
-        checkVersion("s3");
+        checkVersion(STR_S3);
         return s3;
     }
 
@@ -433,7 +433,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS4() {
-        checkVersion("s4");
+        checkVersion(STR_S4);
         return s4;
     }
 
@@ -442,7 +442,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS5() {
-        checkVersion("s5");
+        checkVersion(STR_S5);
         return s5;
     }
 
@@ -451,7 +451,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS6() {
-        checkVersion("s6");
+        checkVersion(STR_S6);
         return s6;
     }
 
@@ -460,7 +460,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS7() {
-        checkVersion("s7");
+        checkVersion(STR_S7);
         return s7;
     }
 
@@ -469,7 +469,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
     }
 
     public int getS8() {
-        checkVersion("s8");
+        checkVersion(STR_S8);
         return s8;
     }
 

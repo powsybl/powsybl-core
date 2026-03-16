@@ -107,32 +107,32 @@ public class PsseTransformerImpedanceCorrectionPoint extends PsseVersioned {
     }
 
     public double getF() {
-        checkVersion("f");
+        checkVersion(STR_F);
         return f;
     }
 
     public void setF(double f) {
-        checkVersion("f");
+        checkVersion(STR_F);
         this.f = f;
     }
 
     public double getRef() {
-        checkVersion("ref");
+        checkVersion(STR_REF);
         return ref;
     }
 
     public void setRef(double ref) {
-        checkVersion("ref");
+        checkVersion(STR_REF);
         this.ref = ref;
     }
 
     public double getImf() {
-        checkVersion("imf");
+        checkVersion(STR_IMF);
         return imf;
     }
 
     public void setImf(double imf) {
-        checkVersion("imf");
+        checkVersion(STR_IMF);
         this.imf = imf;
     }
 
