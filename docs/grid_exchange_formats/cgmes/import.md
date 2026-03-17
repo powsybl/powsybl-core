@@ -840,7 +840,7 @@ Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID
 
 **iidm.import.cgmes.store-cgmes-model-as-network-extension**<br>
 Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model) of the IIDM output network.
-The default value is `true`.
+The default value is `false`.
 
 The CGMES model triplestore is not closed after CGMES import when this option is enabled.
 To reclaim memory, manually close the triplestore via the extension.
