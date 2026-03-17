@@ -225,9 +225,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     private static void addDcGround(DataObject elmGndswt, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
 
         int onOff = elmGndswt.findIntAttributeValue("on_off").orElse(1);
-        int ciEarthed = elmGndswt.findIntAttributeValue("ciEarthed").orElse(1);
+        // ciEarthed is disregarded.
 
-        if (onOff == 0 || ciEarthed == 0) {
+        if (onOff == 0) {
             return;
         }
 

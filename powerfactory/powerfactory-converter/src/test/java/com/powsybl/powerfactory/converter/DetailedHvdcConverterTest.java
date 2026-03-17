@@ -283,7 +283,7 @@ public class DetailedHvdcConverterTest {
     void testGround() {
         Network network = importDgs("MTDC-ElmGndswt");
 
-        assertEquals(2, network.getDcGroundCount());
+        assertEquals(3, network.getDcGroundCount());
 
         DcGround ground25 = network.getDcGround("Grounding Switch grounded");
 
@@ -298,7 +298,9 @@ public class DetailedHvdcConverterTest {
         assertNull(ground27);
 
         DcGround ground28 = network.getDcGround("Grounding not grounded");
-        assertNull(ground28);
+        assertNotNull(ground28);
+        assertEquals(0.0, ground28.getR());
+        assertEquals("Node_dc_r_ground 8", ground28.getDcTerminal().getDcNode().getId());
 
         DcGround ground29 = network.getDcGround("Grounding Switch default values");
         assertNotNull(ground29);

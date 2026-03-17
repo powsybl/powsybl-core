@@ -69,7 +69,7 @@ For _detailed_ network import, the following additional attributes are also requ
 | swtLossFactor | Swicthing loss factor (otherwise default to zero).              |
 | resLossFactor | Resistive loss factor (otherwise default to zero).              |
 
-Ground elements (`ElmGndswt`) are not exported by default by PowerFactory. Their export to the DGS file must be declared specifically if grounds are to be re-imported by PowSyBl. No additional attribute is mandatory for ground elements (`ElmGndswt`). If any of `ciEarthed` or `on_off` is present and has value zero, the ground element is considered disconnected and it is not added to the network. The switch itself is not imported to PowSyBl. The ground resistance is assumed to be zero.
+Ground elements (`ElmGndswt`) are not exported by default by PowerFactory. Their export to the DGS file must be declared specifically if grounds are to be re-imported by PowSyBl. No additional attribute is mandatory for ground elements (`ElmGndswt`). If `on_off` is present and has value zero, the ground element is considered disconnected and it is not added to the network. `ciEarthed` is disregarded by the importer. The switch itself is not imported to PowSyBl. The ground resistance is assumed to be zero.
 
 `ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes. 
 
