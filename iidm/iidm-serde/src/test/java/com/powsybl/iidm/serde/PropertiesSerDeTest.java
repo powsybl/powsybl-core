@@ -8,7 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.Test;
@@ -262,9 +262,9 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testPowerLimits() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+        Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("BL");
         OperationalLimitsGroup operationalLimitsGroup = dl.getOrCreateSelectedOperationalLimitsGroup();
         ActivePowerLimits activePowerLimit = createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
         ApparentPowerLimits apparentPowerLimit = createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
@@ -278,7 +278,7 @@ class PropertiesSerDeTest extends AbstractIidmSerDeTest {
         currentLimits.setProperty(TEST_PROPERTY, "valueCurrentLimits");
         ExportOptions options = new ExportOptions();
         Network network2 = NetworkSerDeTest.writeAndRead(network, options);
-        DanglingLine dl2 = network2.getDanglingLine("DL");
+        BoundaryLine dl2 = network2.getBoundaryLine("BL");
         assertEquals("valueActivePowerLimits", dl2.getActivePowerLimits().orElseThrow().getProperty(TEST_PROPERTY));
         assertEquals("valueApparentPowerLimits", dl2.getApparentPowerLimits().orElseThrow().getProperty(TEST_PROPERTY));
         assertEquals("valueCurrentLimits", dl2.getCurrentLimits().orElseThrow().getProperty(TEST_PROPERTY));
