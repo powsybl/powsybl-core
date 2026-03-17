@@ -1253,7 +1253,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     boolean disconnect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
-        return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER);
+        return disconnect(terminal, SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
     @Override

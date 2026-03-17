@@ -59,7 +59,9 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         }
 
         // Load the exported CGMES model and check that all objects have valid CGMES identifiers
-        Network network1 = Network.read(exportedCgmes);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
+        Network network1 = Network.read(exportedCgmes, importParams);
         checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
 
         // Now that we have valid identifiers stored as aliases, we should be able to re-export to CGMES

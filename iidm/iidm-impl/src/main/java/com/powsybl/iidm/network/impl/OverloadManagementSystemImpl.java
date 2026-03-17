@@ -19,7 +19,7 @@ import java.util.*;
  */
 class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadManagementSystem> implements OverloadManagementSystem {
 
-    abstract static class AbstractTrippingImpl implements Tripping, Validable {
+    abstract static class AbstractTrippingImpl extends AbstractPropertiesHolder implements Tripping, Validable {
         private final String overloadManagementSystemId;
         private final String key;
         private String name;
@@ -108,6 +108,7 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
             this.switchToOperateId = Objects.requireNonNull(switchToOperateId);
             return this;
         }
+
     }
 
     static class BranchTrippingImpl extends AbstractTrippingImpl implements OverloadManagementSystem.BranchTripping {
