@@ -37,13 +37,6 @@ public class OperatorStrategyResult {
         public ConditionalActionsResult(String conditionalActionsId,
                                         PostContingencyComputationStatus status,
                                         LimitViolationsResult limitViolationsResult,
-                                        NetworkResult networkResult) {
-            this(conditionalActionsId, status, limitViolationsResult, networkResult, Double.NaN);
-        }
-
-        public ConditionalActionsResult(String conditionalActionsId,
-                                        PostContingencyComputationStatus status,
-                                        LimitViolationsResult limitViolationsResult,
                                         NetworkResult networkResult,
                                         double distributedActivePower) {
             this.conditionalActionsId = conditionalActionsId;
@@ -76,17 +69,11 @@ public class OperatorStrategyResult {
 
     private final OperatorStrategy operatorStrategy;
 
-    private List<ConditionalActionsResult> conditionalActionsResults = new ArrayList<>();
-
-    public OperatorStrategyResult(OperatorStrategy operatorStrategy, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
-                                  NetworkResult networkResult) {
-        this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
-        this.conditionalActionsResults.add(new ConditionalActionsResult(operatorStrategy.getId(), status, limitViolationsResult, networkResult));
-    }
+    private final List<ConditionalActionsResult> conditionalActionsResults;
 
     public OperatorStrategyResult(OperatorStrategy operatorStrategy, List<ConditionalActionsResult> conditionalActionsResults) {
         this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
-        this.conditionalActionsResults = conditionalActionsResults;
+        this.conditionalActionsResults = Objects.requireNonNull(conditionalActionsResults);
     }
 
     /**

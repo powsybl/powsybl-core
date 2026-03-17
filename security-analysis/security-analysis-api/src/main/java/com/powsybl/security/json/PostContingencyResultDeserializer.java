@@ -86,8 +86,8 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                     commonParsingContext.networkResult, parsingContext.connectivityResult, commonParsingContext.distributedActivePower);
         } else {
             return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults,
-                    parsingContext.connectivityResult);
+                    new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults),
+                    parsingContext.connectivityResult, Double.NaN);
         }
     }
 }

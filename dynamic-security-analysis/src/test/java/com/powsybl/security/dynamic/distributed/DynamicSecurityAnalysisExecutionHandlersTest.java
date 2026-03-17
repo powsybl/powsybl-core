@@ -27,6 +27,8 @@ import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecutionInput;
 import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -264,8 +266,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
 
     private static SecurityAnalysisResult resultForContingency(String id) {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(new PostContingencyResult(new Contingency(id), PostContingencyComputationStatus.CONVERGED,
-                        LimitViolationsResult.empty())));
+                Collections.singletonList(new PostContingencyResult(new Contingency(id), PostContingencyComputationStatus.CONVERGED, LimitViolationsResult.empty(), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()), Double.NaN)));
     }
 
     @Test
