@@ -15,6 +15,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
@@ -92,6 +93,18 @@ class ExtensionTest extends AbstractSerDeTest {
         assertNull(foo.getExtension(BarExt.class));
     }
 
+    @Test
+    void testReadJsonWithReportNode() throws IOException {
+        final ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root_message").build();
+        Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/extensions.json"), reportNode);
+        assertEquals(1, foo.getExtensions().size());
+        assertNotNull(foo.getExtension(FooExt.class));
+        assertNull(foo.getExtension(BarExt.class));
+        assertEquals(1, reportNode.getChildren().size());
+        assertTrue(reportNode.getMessage().contains("root_message"));
+        assertTrue(reportNode.getChildren().getFirst().getMessage().contains("deserialize"));
+    }
+
     private void assertBadExtensionJsonThrows(Executable runnable) {
         PowsyblException exception = assertThrows(PowsyblException.class, runnable);
         assertTrue(exception.getMessage().contains("\"extensions\""),
@@ -134,6 +147,20 @@ class ExtensionTest extends AbstractSerDeTest {
         FooDeserializer.update(getClass().getResourceAsStream("/extensionsUpdate.json"), foo);
         assertTrue(foo.getExtension(FooExt.class).getValue());
         assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
+    }
+
+    @Test
+    void testUpdateAndDeserializeWithReportNode() throws IOException {
+        final ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root_message").build();
+        Foo foo = new Foo();
+        FooExt fooExt = new FooExt(false, "Hello");
+        foo.addExtension(FooExt.class, fooExt);
+        FooDeserializer.update(getClass().getResourceAsStream("/extensionsUpdate.json"), foo, reportNode);
+        assertTrue(foo.getExtension(FooExt.class).getValue());
+        assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
+        assertEquals(1, reportNode.getChildren().size());
+        assertTrue(reportNode.getMessage().contains("root_message"));
+        assertTrue(reportNode.getChildren().getFirst().getMessage().contains("deserialize_and_update"));
     }
 
     @Test

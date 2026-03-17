@@ -8,6 +8,8 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.PostContingencyResult;

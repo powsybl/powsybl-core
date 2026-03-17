@@ -27,7 +27,12 @@ class CgmesMetadataModelsTest {
     void test() {
         Network network = NetworkTest1Factory.create();
         network.newExtension(CgmesMetadataModelsAdder.class)
-                .newModel()
+            .newModel()
+                .setSubset(CgmesSubset.EQUIPMENT)
+                .setModelingAuthoritySet("http://powsybl.org")
+                .addProfile("http://equipment-core")
+                .add()
+            .newModel()
                 .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setId("sshId")
                 .setDescription("SSH description")
@@ -37,7 +42,7 @@ class CgmesMetadataModelsTest {
                 .addDependentOn("ssh-dependency1")
                 .addDependentOn("ssh-dependency2")
                 .add()
-                .newModel()
+            .newModel()
                 .setSubset(CgmesSubset.STATE_VARIABLES)
                 .setId("svId")
                 .setDescription("SV description")
@@ -46,10 +51,18 @@ class CgmesMetadataModelsTest {
                 .addProfile("http://state-variables")
                 .addDependentOn("sv-dependency")
                 .add()
-                .add();
+            .add();
 
         CgmesMetadataModels extension = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(extension);
+
+        CgmesMetadataModel eq = extension.getModelForSubset(CgmesSubset.EQUIPMENT).orElseThrow();
+        assertNull(eq.getId());
+        assertNull(eq.getDescription());
+        assertEquals("http://powsybl.org", eq.getModelingAuthoritySet());
+        assertEquals(0, eq.getVersion());
+        assertTrue(eq.getDependentOn().isEmpty());
+        assertTrue(eq.getSupersedes().isEmpty());
 
         CgmesMetadataModel ssh = extension.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
         assertEquals("SSH description", ssh.getDescription());
