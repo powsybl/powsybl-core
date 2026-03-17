@@ -51,4 +51,16 @@ class TableFormatterConfigTest {
             testConfig(config, Locale.US, '\t', "NaN", false, false);
         }
     }
+
+    @Test
+    void testLoadDefaultsNoModule() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            // Given
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+            // When
+            TableFormatterConfig config = TableFormatterConfig.load(platformConfig);
+            // Then
+            testConfig(config, Locale.ENGLISH, ';', "inv", true, true);
+        }
+    }
 }

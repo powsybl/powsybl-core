@@ -14,6 +14,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -49,9 +50,13 @@ abstract class AbstractCgmesTapChangerBuilder {
         lowStep = p.asInt(CgmesNames.LOW_STEP);
         highStep = p.asInt(CgmesNames.HIGH_STEP);
         addSteps();
+        tapChanger.setLowTapPosition(lowStep);
+
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
-        int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        tapChanger.setLowTapPosition(lowStep).setTapPosition(normalStep);
+        int validNeutralStep = isValidTapPosition(neutralStep) ? neutralStep : getClosestNeutralStep();
+        int normalStep = p.asInt(CgmesNames.NORMAL_STEP, validNeutralStep);
+        int validNormalStep = isValidTapPosition(normalStep) ? normalStep : validNeutralStep;
+        tapChanger.setTapPosition(validNormalStep);
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
@@ -87,5 +92,25 @@ abstract class AbstractCgmesTapChangerBuilder {
             return defaultValue;
         }
         return value;
+    }
+
+    private boolean isValidTapPosition(int tapPosition) {
+        return lowStep <= tapPosition && tapPosition <= highStep;
+    }
+
+    private int getClosestNeutralStep() {
+        if (tapChanger.getSteps().isEmpty()) {
+            throw new PowsyblException("Unexpected tapChanger without steps: " + tapChanger.getId());
+        }
+
+        Comparator<TapChanger.Step> comparator =
+                Comparator.comparingDouble((TapChanger.Step step) -> Math.abs(step.getRatio() - 1.0)) // closest ratio to 1.0
+                        .thenComparingDouble(step -> Math.abs(step.getAngle())); // closest angle to 0.0
+
+        TapChanger.Step bestStep = tapChanger.getSteps().stream()
+                .min(comparator)
+                .orElse(tapChanger.getSteps().getFirst());
+
+        return tapChanger.getSteps().indexOf(bestStep) + lowStep;
     }
 }

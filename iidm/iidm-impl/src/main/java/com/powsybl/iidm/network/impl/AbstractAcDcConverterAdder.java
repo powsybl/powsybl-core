@@ -161,7 +161,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        ValidationUtil.checkAcDcConverterPccTerminal(this, hasTwoAcTerminals(), pccTerminal, voltageLevel);
+        ValidationUtil.checkAcDcConverterPccTerminal(this, pccTerminal, voltageLevel);
     }
 
     private boolean hasTwoAcTerminals() {
@@ -176,8 +176,8 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         Optional<TerminalExt> terminal2 = checkAndGetTerminal2();
         dcConverter.addTerminal(terminal1);
         voltageLevel.getTopologyModel().attach(terminal1, false);
-        if (pccTerminal == null && terminal2.isEmpty()) {
-            // default to use terminal1 as pccTerminal, only if converter has only 1 AC Terminal
+        if (pccTerminal == null) {
+            // default to use terminal1 as pccTerminal
             dcConverter.setPccTerminal(terminal1);
         }
         terminal2.ifPresent(terminal -> {

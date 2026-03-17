@@ -111,6 +111,11 @@ public interface Importer {
         public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
             importer.copy(fromDataSource, toDataSource);
         }
+
+        @Override
+        public void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+            importer.update(network, dataSource, parameters, reportNode);
+        }
     }
 
     /**

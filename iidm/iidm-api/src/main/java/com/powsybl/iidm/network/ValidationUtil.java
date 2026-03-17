@@ -19,6 +19,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.powsybl.iidm.network.ComponentConstants.MAX_RATE;
+import static com.powsybl.iidm.network.ComponentConstants.MIN_RATE;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
 
@@ -180,6 +182,13 @@ public final class ValidationUtil {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
+    public static void checkRate(Validable validable, String validableType, double rate, String fieldName) {
+        if (!Double.isNaN(rate) && (rate < MIN_RATE || rate > MAX_RATE)) {
+            throw new ValidationException(validable, "Unexpected value for " + fieldName + " of " + validableType + " : "
+                    + rate + " is not included in [" + MIN_RATE + ", " + MAX_RATE + "]");
+        }
+    }
+
     public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, checkValidationActionOnError(validationLevel), reportNode);
     }
@@ -221,6 +230,12 @@ public final class ValidationUtil {
             return ValidationLevel.EQUIPMENT;
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    public static void checkEquivalentLocalTargetV(Validable validable, double equivalentLocalTargetV) {
+        if (!Double.isNaN(equivalentLocalTargetV) && equivalentLocalTargetV < 0) {
+            throw createInvalidValueException(validable, equivalentLocalTargetV, "equivalentLocalTargetV", "must be positive");
+        }
     }
 
     public static void checkRatedS(Validable validable, double ratedS) {
@@ -675,18 +690,13 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static void checkAcDcConverterPccTerminal(Validable validable, boolean twoAcTerminals, Terminal pccTerminal, VoltageLevel voltageLevel) {
-        if (twoAcTerminals && pccTerminal == null) {
-            throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not set");
-        }
+    public static void checkAcDcConverterPccTerminal(Validable validable, Terminal pccTerminal, VoltageLevel voltageLevel) {
         if (pccTerminal != null) {
             var c = pccTerminal.getConnectable();
-            if (twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer)) {
-                throw new ValidationException(validable, "converter has two AC terminals and pccTerminal is not a line or transformer terminal");
-            } else if (!twoAcTerminals && !(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
-                throw new ValidationException(validable, "pccTerminal is not a line or transformer or the converter terminal");
+            if (!(c instanceof Branch<?> || c instanceof ThreeWindingsTransformer || c instanceof AcDcConverter<?>)) {
+                throw new ValidationException(validable, "pccTerminal is not a line or transformer or converter terminal");
             }
-            if (!twoAcTerminals && c instanceof AcDcConverter<?> && c != validable) {
+            if (c instanceof AcDcConverter<?> && c != validable) {
                 throw new ValidationException(validable, "pccTerminal cannot be the terminal of another converter");
             }
             if (c.getParentNetwork() != voltageLevel.getParentNetwork()) {
@@ -848,11 +858,11 @@ public final class ValidationUtil {
             if (identifiable instanceof Battery battery) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getTargetP(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getTargetQ(), actionOnError, reportNode));
-            } else if (identifiable instanceof DanglingLine danglingLine) {
-                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), actionOnError, reportNode));
-                validationLevel = checkGenerationOnDanglingLine(validationLevel, validable, danglingLine, actionOnError, reportNode);
-                validationLevel = checkOperationalLimitsGroups(validable, danglingLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
+            } else if (identifiable instanceof BoundaryLine boundaryLine) {
+                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, boundaryLine.getP0(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, boundaryLine.getQ0(), actionOnError, reportNode));
+                validationLevel = checkGenerationOnBoundaryLine(validationLevel, validable, boundaryLine, actionOnError, reportNode);
+                validationLevel = checkOperationalLimitsGroups(validable, boundaryLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), actionOnError, reportNode));
@@ -882,9 +892,9 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    private static ValidationLevel checkGenerationOnDanglingLine(ValidationLevel previous, Validable validable, DanglingLine danglingLine, ActionOnError actionOnError, ReportNode reportNode) {
+    private static ValidationLevel checkGenerationOnBoundaryLine(ValidationLevel previous, Validable validable, BoundaryLine boundaryLine, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = previous;
-        DanglingLine.Generation generation = danglingLine.getGeneration();
+        BoundaryLine.Generation generation = boundaryLine.getGeneration();
         if (generation != null) {
             validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), actionOnError, reportNode));
             validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), actionOnError, reportNode));

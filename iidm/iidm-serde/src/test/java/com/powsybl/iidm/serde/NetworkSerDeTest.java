@@ -56,6 +56,26 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
+    @Test
+    void roundTripTestMultipleSelectedOperationalLimitsGroup() throws IOException {
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(), "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility : in versions older than IIDM 1.16 we only export the last selected limits group
+        // no need to test before 1.12 as OperationalLimitsGroup did not exist before
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml", IidmVersion.V_1_12, IidmVersion.V_1_16);
+    }
+
+    @Test
+    void writeMultipleSelectedOperationalLimitsGroupToOlderFormat() throws IOException {
+        testWriteVersionedXmlBetweenVersions(
+            EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(),
+            new ExportOptions(),
+            "eurostag-tutorial-multiple-selected-op-lim-group.xml",
+            IidmVersion.V_1_12,
+            IidmVersion.V_1_15
+        );
+    }
+
     @ParameterizedTest
     @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
     void testSkippedExtension(TreeDataFormat format) throws IOException {
@@ -296,7 +316,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         vl1.getBusBreakerView().newBus()
                 .setId(busId)
                 .add();
-        network.getVoltageLevel(voltageLevelId).newDanglingLine()
+        network.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(dlId)
                 .setName(dlId + "_name")
                 .setConnectableBus(busId)
@@ -357,5 +377,35 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
             assertEquals("", readNetwork.getSourceFormat());
         });
+    }
+
+    @Test
+    void testExportWithFlatten() {
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        Path xmlFile = tmpDir.resolve("flattenedNetwork.xml");
+
+        Network merged = Network.merge("Merged", n1, n2);
+
+        ExportOptions options = new ExportOptions().setFlatten(true);
+        NetworkSerDe.write(merged, options, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
+        assertEquals(0, readNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    void testExportWithoutFlatten() {
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        Path xmlFile = tmpDir.resolve("networkWithSubnetworks.xml");
+
+        Network merged = Network.merge("Merged", n1, n2);
+
+        ExportOptions options = new ExportOptions();
+        NetworkSerDe.write(merged, options, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
+        assertEquals(2, readNetwork.getSubnetworks().size());
     }
 }

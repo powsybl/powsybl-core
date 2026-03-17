@@ -173,6 +173,8 @@ public interface CgmesModel {
 
     PropertyBags dcTerminals();
 
+    PropertyBags dcNodes();
+
     default PropertyBags tieFlows() {
         return new PropertyBags();
     }
@@ -250,6 +252,10 @@ public interface CgmesModel {
     PropertyBags modelProfiles();
 
     default void setQueryCatalog(String s) {
+        // Do nothing
+    }
+
+    default void close() {
         // Do nothing
     }
 }

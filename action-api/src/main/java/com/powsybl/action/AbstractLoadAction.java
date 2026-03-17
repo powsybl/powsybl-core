@@ -13,8 +13,8 @@ import java.util.OptionalDouble;
 /**
  * An action to:
  * <ul>
- *     <li>change the P0 of a load or a dangling line , either by specifying a new absolute value (MW) or a relative change (MW).</li>
- *     <li>change the Q0 of a load or a dangling line, either by specifying a new absolute value (MVar) or a relative change (MVar).</li>
+ *     <li>change the P0 of a load or a boundary line , either by specifying a new absolute value (MW) or a relative change (MW).</li>
+ *     <li>change the Q0 of a load or a boundary line, either by specifying a new absolute value (MVar) or a relative change (MVar).</li>
  * </ul>
  *
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}

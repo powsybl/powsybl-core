@@ -7,14 +7,14 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,6 +71,25 @@ class SwitchUpdateTest {
         assertEqSsh(network);
     }
 
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "switch_EQ.xml", "switch_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "switch_EQ.xml", "switch_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getSwitchStream().allMatch(sw -> sw != null && sw.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getSwitchStream().allMatch(sw -> sw != null && sw.getAliases().isEmpty()));
+    }
+
     private static void assertEq(Network network) {
         assertEq(network.getSwitch("SeriesCompensator"));
         assertEq(network.getSwitch("Breaker"));
@@ -104,8 +123,8 @@ class SwitchUpdateTest {
 
     private static void assertEq(Switch sw) {
         assertNotNull(sw);
-        assertNotNull(sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertNotNull(sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN));
+        assertNotNull(sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertNotNull(sw.getProperty(PROPERTY_NORMAL_OPEN));
     }
 
     private static void assertSsh(Switch sw, boolean isOpen) {

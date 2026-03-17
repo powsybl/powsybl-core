@@ -14,6 +14,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisReport;
@@ -26,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A {@link com.powsybl.security.dynamic.DynamicSecurityAnalysisProvider} is a power system computation which computes,
  * for a {@link com.powsybl.iidm.network.Network Network} on which a {@link com.powsybl.dynamicsimulation.DynamicSimulation} is run,
- * the {@link com.powsybl.security.LimitViolation LimitViolations} on N-situation
+ * the {@link LimitViolation LimitViolations} on N-situation
  * and the ones caused by a specified list of {@link com.powsybl.contingency.Contingency Contingencies}.
  *
  * <p>Computation results are provided asynchronously as a {@link SecurityAnalysisResult}.

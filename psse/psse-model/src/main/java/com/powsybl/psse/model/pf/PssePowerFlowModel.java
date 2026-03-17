@@ -156,6 +156,11 @@ public class PssePowerFlowModel {
         return Collections.unmodifiableList(areas);
     }
 
+    public void replaceAllAreas(List<PsseArea> areas) {
+        this.areas.clear();
+        this.areas.addAll(areas);
+    }
+
     public void addTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines) {
         this.twoTerminalDcTransmissionLines.addAll(modelled(twoTerminalDcTransmissionLines));
     }

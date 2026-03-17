@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -18,6 +17,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -74,7 +75,26 @@ class GeneratorUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterSv(network);
+        assertFlowsAfterEmptySv(network);
+    }
+
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "generator_EQ.xml", "generator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "generator_EQ.xml", "generator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getGeneratorStream().allMatch(generator -> generator.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getGeneratorStream().allMatch(generator -> generator.getAliases().isEmpty()));
     }
 
     private static void assertEq(Network network) {
@@ -102,9 +122,19 @@ class GeneratorUpdateTest {
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getGenerator("SynchronousMachine").getTerminal(), 100.0, -50.0);
-        assertFlows(network.getGenerator("ExternalNetworkInjection").getTerminal(), 250.0, -30.0);
-        assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), 150.0, 50.0);
+        assertFlows(network, 100.0, -50.0, 250.0, -30.0, 150.0, 50.0);
+    }
+
+    private static void assertFlowsAfterEmptySv(Network network) {
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    private static void assertFlows(Network network, double synchronousMachineP, double synchronousMachineQ,
+                                    double externalNetworkInjectionP, double externalNetworkInjectionQ,
+                                    double equivalentInjectionP, double equivalentInjectionQ) {
+        assertFlows(network.getGenerator("SynchronousMachine").getTerminal(), synchronousMachineP, synchronousMachineQ);
+        assertFlows(network.getGenerator("ExternalNetworkInjection").getTerminal(), externalNetworkInjectionP, externalNetworkInjectionQ);
+        assertFlows(network.getGenerator("EquivalentInjection").getTerminal(), equivalentInjectionP, equivalentInjectionQ);
     }
 
     private static void assertEq(Generator generator) {
@@ -115,9 +145,9 @@ class GeneratorUpdateTest {
         assertNotNull(generator.getRegulatingTerminal());
         assertFalse(generator.isVoltageRegulatorOn());
 
-        String originalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        String originalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);
         if (originalClass.equals(CgmesNames.SYNCHRONOUS_MACHINE)) {
-            assertNotNull(generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE));
+            assertNotNull(generator.getProperty(PROPERTY_MODE));
         }
     }
 

@@ -101,8 +101,8 @@ public class ContingencyBuilder {
         return this;
     }
 
-    public ContingencyBuilder addDanglingLine(String id) {
-        elements.add(new DanglingLineContingency(id));
+    public ContingencyBuilder addBoundaryLine(String id) {
+        elements.add(new BoundaryLineContingency(id));
         return this;
     }
 
@@ -151,6 +151,31 @@ public class ContingencyBuilder {
 
     public ContingencyBuilder addName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public ContingencyBuilder addVoltageSourceConverter(String id) {
+        elements.add(new VoltageSourceConverterContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id, String dcNodeId) {
+        elements.add(new DcLineContingency(id, dcNodeId));
+        return this;
+    }
+
+    public ContingencyBuilder addDcLine(String id) {
+        elements.add(new DcLineContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcGround(String id) {
+        elements.add(new DcGroundContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addDcNode(String id) {
+        elements.add(new DcNodeContingency(id));
         return this;
     }
 }

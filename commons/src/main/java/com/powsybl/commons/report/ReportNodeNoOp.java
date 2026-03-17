@@ -164,7 +164,12 @@ public class ReportNodeNoOp implements ReportNode {
         }
 
         @Override
-        public ReportNodeAdder withMessageTemplate(String key, String bundleBaseName) {
+        public ReportNodeAdder withResourceBundles(String... bundleBaseNames) {
+            return this;
+        }
+
+        @Override
+        public ReportNodeAdder withStrictMode(boolean strictMode) {
             return this;
         }
 

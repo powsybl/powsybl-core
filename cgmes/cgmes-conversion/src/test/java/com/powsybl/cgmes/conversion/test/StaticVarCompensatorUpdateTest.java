@@ -7,8 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
@@ -16,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,7 +56,7 @@ class StaticVarCompensatorUpdateTest {
         readCgmesResources(network, DIR, "staticVarCompensator_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         readCgmesResources(network, DIR, "staticVarCompensator_SV.xml");
         assertFlowsAfterSv(network);
     }
@@ -72,7 +72,26 @@ class StaticVarCompensatorUpdateTest {
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertFirstSsh(network);
-        assertFlowsAfterSv(network);
+        assertUnassignedFlows(network);
+    }
+
+    @Test
+    void removeAllPropertiesAndAliasesTest() {
+        Network network = readCgmesResources(DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, false);
+
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.remove-properties-and-aliases-after-import", "true");
+        network = readCgmesResources(properties, DIR, "staticVarCompensator_EQ.xml", "staticVarCompensator_SSH.xml");
+        assertPropertiesAndAliasesEmpty(network, true);
+    }
+
+    private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
+        assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
+        assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
+
+        assertEquals(expected, network.getStaticVarCompensatorStream().allMatch(svc -> svc.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getStaticVarCompensatorStream().allMatch(svc -> svc.getAliases().isEmpty()));
     }
 
     private static void assertEq(Network network) {
@@ -90,14 +109,17 @@ class StaticVarCompensatorUpdateTest {
         assertSsh(network.getStaticVarCompensator("StaticVarCompensator-Q"), 215.0, Double.NaN, false);
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), Double.NaN, Double.NaN);
+    private static void assertUnassignedFlows(Network network) {
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), 0.0, -50.0);
-        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), 0.0, -200.0);
+        assertFlows(network, 0.0, -50.0, 0.0, -200.0);
+    }
+
+    private static void assertFlows(Network network, double staticVarCompensatorVP, double staticVarCompensatorVQ, double staticVarCompensatorQP, double staticVarCompensatorQQ) {
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-V").getTerminal(), staticVarCompensatorVP, staticVarCompensatorVQ);
+        assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), staticVarCompensatorQP, staticVarCompensatorQQ);
     }
 
     private static void assertEq(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode regulationMode) {
@@ -109,9 +131,9 @@ class StaticVarCompensatorUpdateTest {
         assertFalse(staticVarCompensator.isRegulating());
 
         if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
-            assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN));
+            assertNotNull(staticVarCompensator.getProperty(PROPERTY_TERMINAL_SIGN));
         }
-        assertNotNull(staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL));
+        assertNotNull(staticVarCompensator.getProperty(PROPERTY_REGULATING_CONTROL));
     }
 
     private static void assertSsh(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, boolean regulating) {

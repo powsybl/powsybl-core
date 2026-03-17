@@ -8,6 +8,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_LINE_SEGMENT2;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,8 +24,6 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
-
-import com.powsybl.cgmes.conversion.Conversion;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -104,7 +103,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertContainsHvdcLine(network, "DCL_34N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 34N", "VSC_3", "VSC_4", 9.92, 0.0, 0.0);
 
         // The other DCLineSegment identifier is kept as an alias.
-        assertEquals("DCL_34P", network.getHvdcLine("DCL_34N").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+        assertEquals("DCL_34P", network.getHvdcLine("DCL_34N").getAliasFromType(ALIAS_DC_LINE_SEGMENT2).orElse(""));
     }
 
     @Test
@@ -174,7 +173,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertContainsHvdcLine(network, "DCL_12N", SIDE_1_RECTIFIER_SIDE_2_INVERTER, "DC line 12N", "CSC_1N", "CSC_2N", 4.64, 0.0, 0.0);
 
         // The dedicated metallic return line identifier is kept as an alias.
-        assertEquals("DCL_12G", network.getHvdcLine("DCL_12N").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+        assertEquals("DCL_12G", network.getHvdcLine("DCL_12N").getAliasFromType(ALIAS_DC_LINE_SEGMENT2).orElse(""));
     }
 
     @Test
@@ -196,7 +195,7 @@ class HvdcConversionTest extends AbstractSerDeTest {
                 .filter(l -> HvdcConverterStation.HvdcType.VSC.equals(l.getConverterStation1().getHvdcType()))
                 .count());
 
-        assertEquals("DCL_G", network.getHvdcLine("DCL_1").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCLineSegment2").orElse(""));
+        assertEquals("DCL_G", network.getHvdcLine("DCL_1").getAliasFromType(ALIAS_DC_LINE_SEGMENT2).orElse(""));
     }
 
     @Test
@@ -206,7 +205,6 @@ class HvdcConversionTest extends AbstractSerDeTest {
         //   - Some connections are missing so that there is 2 DCIsland.
         //     o The biggest island has a 1 converter / 1 dc line / 2 converters configuration.
         //     o The smallest island has a 1 converter / 1 dc line configuration.
-        //   - There are different converter types on each side of the bipole.
         //   - There is a completely isolated dc switch.
         // IIDM network:
         //   Neither HvdcConverterStation nor HvdcLine are created when DCConfiguration is invalid.
@@ -229,8 +227,6 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertTrue(logs.contains("DCEquipment DCSW is discarded as it couldn't be attached to any DCIsland."));
         assertTrue(logs.contains("DCIsland made of ACDCConverters: CSC_1N, CSC_1P, VSC_2P has a POINT_TO_POINT configuration " +
                 "but doesn't have the same number of converters of same type on each side."));
-        assertTrue(logs.contains("DCLineSegment: DCL_12N is not in 2 DCIslandEnd."));
-        assertTrue(logs.contains("DCIsland made of ACDCConverters: VSC_2N has unsupported BACK_TO_BACK DCConfiguration."));
     }
 
     @Test

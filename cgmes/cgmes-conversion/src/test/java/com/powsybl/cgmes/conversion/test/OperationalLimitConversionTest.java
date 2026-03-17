@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -21,6 +20,8 @@ import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,8 +67,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
 
         // The CGMES id/name have been preserved in a property.
-        assertEquals("OLS_3", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
-        assertEquals("Winter", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
+        assertEquals("OLS_3", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
+        assertEquals("Winter", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
     }
 
     @Test
@@ -98,6 +99,16 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertEquals(0, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
         assertEquals(6, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
 
+        // Two selected on side 2, check that both are correctly exported
+        network.getLine("LN").addSelectedOperationalLimitsGroups(TwoSides.TWO, "OLS_3");
+        eqFile = writeCgmesProfile(network, "EQ", tmpDir, exportParams);
+        assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_TYPE).size());
+        assertEquals(3, getUniqueMatches(eqFile, ACTIVE_POWER_LIMIT).size());
+        assertEquals(9, getUniqueMatches(eqFile, CURRENT_LIMIT).size());
+        // revert to original situation
+        network.getLine("LN").deselectOperationalLimitsGroups(TwoSides.TWO, "OLS_3");
+
         // Export all 3 limits groups, regardless of selected (default value of the parameter).
         eqFile = writeCgmesProfile(network, "EQ", tmpDir);
         assertEquals(3, getUniqueMatches(eqFile, OPERATIONAL_LIMIT_SET).size());
@@ -116,16 +127,16 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     void limitSetsAssociatedToTerminalsTest() {
         // CGMES network:
         //   OperationalLimitSet with CurrentLimit associated to the Terminal of:
-        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
+        //   a BoundaryLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
         // IIDM network:
         //   Limits associated to terminals of lines or transformers are imported,
         //   limits associated to terminals of switch are discarded.
         Network network = readCgmesResources(DIR, "limitsets_associated_to_terminals_EQ.xml",
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
-        // OperationalLimitSet on dangling line terminal is imported smoothly.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        // OperationalLimitSet on boundary line terminal is imported smoothly.
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment terminals are imported smoothly.
         assertNotNull(network.getLine("ACL"));
@@ -147,18 +158,18 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void limitSetsAssociatedToEquipmentsTest() {
+    void limitSetsAssociatedToEquipmentsTest() throws IOException {
         // CGMES network:
         //   OperationalLimitSet with CurrentLimit associated to:
-        //   a DanglingLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
+        //   a BoundaryLine DL, a Line ACL, a Switch SW, a TwoWindingTransformer PT2, a ThreeWindingTransformer PT3.
         // IIDM network:
         //   Limits associated to lines are imported, limits associated to transformers or switches are discarded.
         Network network = readCgmesResources(DIR, "limitsets_associated_to_equipments_EQ.xml",
                 "limitsets_EQBD.xml", "limitsets_TPBD.xml");
 
-        // OperationalLimitSet on dangling line is imported on its single extremity.
-        assertNotNull(network.getDanglingLine("DL"));
-        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+        // OperationalLimitSet on boundary line is imported on its single extremity.
+        assertNotNull(network.getBoundaryLine("DL"));
+        assertTrue(network.getBoundaryLine("DL").getCurrentLimits().isPresent());
 
         // OperationalLimitSet on ACLineSegment is imported on its two extremities.
         assertNotNull(network.getLine("ACL"));
@@ -177,6 +188,19 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
 
         // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
         assertNotNull(network.getSwitch("SW"));
+
+        // Verify that 3 OperationalLimitSet are exported back to CGMES:
+        // 1 for the boundary line, 1 per extremity of the ACLineSegment.
+        String eqFile = writeCgmesProfile(network, "EQ", tmpDir);
+        assertEquals(3, getElementCount(eqFile, "OperationalLimitSet"));
+        assertOperationalLimitSetTerminal(eqFile, "OLS_ACL", "T_ACL_1");
+        assertOperationalLimitSetTerminal(eqFile, "T_ACL_2_OLS_ACL-1_OLS", "T_ACL_2");
+        assertOperationalLimitSetTerminal(eqFile, "OLS_DL", "T_DL_2");
+    }
+
+    private void assertOperationalLimitSetTerminal(String eqFile, String limitSetId, String terminalId) {
+        String olsAcl = getElement(eqFile, "OperationalLimitSet", limitSetId);
+        assertEquals(terminalId, getResource(olsAcl, "OperationalLimitSet.Terminal"));
     }
 
     @Test
@@ -212,15 +236,17 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     @Test
     void voltageLimitTest() {
         // CGMES network:
-        //   2 BusbarSection BBS_1, BBS_2 in 400 kV VoltageLevel VL_1, VL_2, with high/lowVoltageLimit 420/380 kV.
-        //   BBS_1 has an OperationalLimitSet with 2 VoltageLimits 410/390 kV.
-        //   BBS_2 has an OperationalLimitSet with 2 VoltageLimits 430/370 kV.
+        //   3 BusbarSection in 3 VoltageLevel:
+        //   VL_1 has 420/380 kV high/lowVoltageLimit, BBS_1 has 410/390 kV high/low VoltageLimit.
+        //   VL_2 has 420/380 kV high/lowVoltageLimit, BBS_2 has 430/370 kV high/low VoltageLimit.
+        //   VL_3 has 380/420 kV high/lowVoltageLimit, BBS_3 has 420/380 kV high/low VoltageLimit.
         // IIDM network:
         //   The IIDM VoltageLevel's limit is the most restrictive one between
-        //   the CGMES VoltageLevel's limit and the CGMES OperationalLimit value.
+        //   the CGMES VoltageLevel's limit and the CGMES VoltageLimit value.
+        //   Inconsistent limits (low > high) aren't imported.
         Network network = readCgmesResources(DIR, "voltage_limits.xml");
 
-        // The most restrictive limits for VL_1 are the OperationalLimit (VoltageLimit) values.
+        // The most restrictive limits for VL_1 are the VoltageLimit values.
         VoltageLevel vl1 = network.getVoltageLevel("VL_1");
         assertNotNull(vl1);
         assertEquals(410.0, vl1.getHighVoltageLimit());
@@ -231,6 +257,12 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertNotNull(vl2);
         assertEquals(420.0, vl2.getHighVoltageLimit());
         assertEquals(380.0, vl2.getLowVoltageLimit());
+
+        // The only applicable limits for VL_3 are the VoltageLimit values.
+        VoltageLevel vl3 = network.getVoltageLevel("VL_3");
+        assertNotNull(vl3);
+        assertEquals(420.0, vl3.getHighVoltageLimit());
+        assertEquals(380.0, vl3.getLowVoltageLimit());
     }
 
     @Test
