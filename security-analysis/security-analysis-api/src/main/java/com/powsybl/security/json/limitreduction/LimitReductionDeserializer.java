@@ -93,7 +93,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
             builder.withLimitDurationCriteria(context.durationCriteria);
         }
         if (context.operationalLimitsGroupIdsSelection != null) {
-            builder.withOperationalLimitsGroupIdCriteria(context.operationalLimitsGroupIdsSelection);
+            builder.withOperationalLimitsGroupIdSelection(context.operationalLimitsGroupIdsSelection);
         }
         return builder.build();
     }

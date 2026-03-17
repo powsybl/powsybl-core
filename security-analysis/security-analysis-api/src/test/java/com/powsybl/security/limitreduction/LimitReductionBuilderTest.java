@@ -54,8 +54,8 @@ class LimitReductionBuilderTest {
                 .withNetworkElementCriteria(nec1, nec2) // replace previously defined NetworkElementCriteria
                 .withLimitDurationCriteria(ldc0)
                 .withLimitDurationCriteria(ldc1) // replace previously defined LimitDurationCriterion
-                .withOperationalLimitsGroupIdCriteria("incorrect", "also incorrect")
-                .withOperationalLimitsGroupIdCriteria("correct", "good", "also good")
+                .withOperationalLimitsGroupIdSelection("incorrect", "also incorrect")
+                .withOperationalLimitsGroupIdSelection("correct", "good", "also good")
                 .build();
         assertEquals(LimitType.CURRENT, limitReduction.getLimitType());
         assertEquals(0.9, limitReduction.getValue(), 0.01);

@@ -32,7 +32,7 @@ import java.util.Objects;
  *         <li><code>networkElementCriteria</code>: criteria a network element should respect for the limit reduction to be applied on its limits;</li>
  *         <li><code>limitDurationCriteria</code>: criteria based on limit overload acceptable durations. Through these criteria, we can define if
  *         the reduction is applied on the permanent limit and/or on a temporary limit and if its acceptable duration is within a specific range.</li>
- *         <li><code>operationalLimitsGroupIdCriteria</code>: define which groups the reduction should be applied to by specifying their ID</li>
+ *         <li><code>operationalLimitsGroupIdSelection</code>: define which groups the reduction should be applied to by specifying their ID</li>
  *     </ul>
  * </p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -96,7 +96,7 @@ public class LimitReduction {
      *         <li><code>contingencyContext</code>: {@link ContingencyContext#all()}. The limit reduction is used on pre-contingency state and after each contingency state.</li>
      *         <li><code>networkElementCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied on each network element (that holds a limit on this type).</li>
      *         <li><code>limitDurationCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied for all permanent and temporary limits.</li>
-     *         <li><code>operationalLimitsGroupIdCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied to all selected groups.</li>
+     *         <li><code>operationalLimitsGroupIdSelection</code>: {@link Collections#emptyList()}. The limit reduction is applied to all selected groups.</li>
      *     </ul>
      * </p>
      */
@@ -189,24 +189,24 @@ public class LimitReduction {
         }
 
         /**
-         * <p>Define criteria on the ID of the {@link com.powsybl.iidm.network.OperationalLimitsGroup}</p>
-         * <p>By default, the limit reduction is applied to all selected groups.</p>
-         * <p>This method is not cumulative and clean previous definitions.</p>
-         * @param operationalLimitsGroupIdsSelection criteria to restrict the limit reduction to specified IDs
+         * <p>Define the IDs of the {@link com.powsybl.iidm.network.OperationalLimitsGroup} that this reduction should apply to.</p>
+         * <p>By default, the limit reduction is applied to all selected groups. This corresponds to an empty selection.</p>
+         * <p>This method is not cumulative and cleans previous definitions.</p>
+         * @param operationalLimitsGroupIdsSelection restrict the limit reduction to those specified IDs
          * @return the current {@link Builder}
          */
-        public Builder withOperationalLimitsGroupIdCriteria(String... operationalLimitsGroupIdsSelection) {
-            return withOperationalLimitsGroupIdCriteria(List.of(operationalLimitsGroupIdsSelection));
+        public Builder withOperationalLimitsGroupIdSelection(String... operationalLimitsGroupIdsSelection) {
+            return withOperationalLimitsGroupIdSelection(List.of(operationalLimitsGroupIdsSelection));
         }
 
         /**
-         * <p>Define criteria on the ID of the {@link com.powsybl.iidm.network.OperationalLimitsGroup}</p>
-         * <p>By default, the limit reduction is applied to all selected groups.</p>
-         * <p>This method is not cumulative and clean previous definitions.</p>
-         * @param operationalLimitsGroupIdsSelection criteria to restrict the limit reduction to specified IDs
+         * <p>Define the IDs of groups of the {@link com.powsybl.iidm.network.OperationalLimitsGroup} that this reduction should apply to.</p>
+         * <p>By default, the limit reduction is applied to all selected groups. This corresponds to an empty selection.</p>
+         * <p>This method is not cumulative and cleans previous definitions.</p>
+         * @param operationalLimitsGroupIdsSelection restrict the limit reduction to those specified IDs
          * @return the current {@link Builder}
          */
-        public Builder withOperationalLimitsGroupIdCriteria(List<String> operationalLimitsGroupIdsSelection) {
+        public Builder withOperationalLimitsGroupIdSelection(List<String> operationalLimitsGroupIdsSelection) {
             this.operationalLimitsGroupIdsSelection = operationalLimitsGroupIdsSelection;
             return this;
         }

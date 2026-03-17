@@ -148,7 +148,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
     private LimitReduction getLimitReduction5() {
         return LimitReduction.builder(LimitType.ACTIVE_POWER, 0.88)
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1", "NHV1_NHV2_2")))
-            .withOperationalLimitsGroupIdCriteria("DEFAULT", "activated_1_3", "activated_2_1")
+            .withOperationalLimitsGroupIdSelection("DEFAULT", "activated_1_3", "activated_2_1")
             .build();
     }
 }

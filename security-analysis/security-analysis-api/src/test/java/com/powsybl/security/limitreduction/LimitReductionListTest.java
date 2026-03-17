@@ -60,7 +60,7 @@ class LimitReductionListTest {
                 .withNetworkElementCriteria(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4, networkElementCriterion5)
                 .withLimitDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion())
-            .withOperationalLimitsGroupIdCriteria(operationalLimitsGroupId1, operationalLimitsGroupId2)
+            .withOperationalLimitsGroupIdSelection(operationalLimitsGroupId1, operationalLimitsGroupId2)
                 .build();
         limitReduction2 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8, true);
     }

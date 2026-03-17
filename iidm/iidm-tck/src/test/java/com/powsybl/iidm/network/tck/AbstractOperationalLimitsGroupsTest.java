@@ -956,24 +956,13 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         transformer.getLeg(ThreeSides.THREE).addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.NOT_ACTIVATED);
 
         return Stream.of(
-            Arguments.of(l, ThreeSides.ONE, 0.9, List.of("DEFAULT"), LimitType.CURRENT, 299, List.of()), // below any permanent limit
-            Arguments.of(l, ThreeSides.ONE, 0.9, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 299, List.of(
-                new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    300,
-                    60 * 40
-                )
-            )), // over activated_1_2 with the limitReduction
-            Arguments.of(l, ThreeSides.ONE, 0.27, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE), LimitType.CURRENT, 299, List.of(
+            Arguments.of(l, ThreeSides.ONE, 0.31, List.of(), LimitType.CURRENT, 350, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
                     1100,
                     60 * 10
-                )
-            )), // over activated_1_1 with the limitReduction but not activated_1_2 or not_activated
-            Arguments.of(l, ThreeSides.ONE, 0.8, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 595, List.of(
+                ),
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -981,56 +970,48 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     30
                 ),
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
-                    400,
-                    30 * 60
-                )
-            )), // above permanent of not_activated and over first temporary of activated_1_2 with limit reduction
-            Arguments.of(l, ThreeSides.ONE, 0.1, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE), LimitType.CURRENT, 650, List.of(
-                new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    300,
-                    60 * 40
-                ),
-                new ExpectedOverload(
                     "30'",
                     EurostagTutorialExample1Factory.NOT_ACTIVATED,
                     600,
                     0
-                ),
+                )
+            )), // apply to all groups
+            Arguments.of(l, ThreeSides.ONE, 0.45, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 350, List.of(
+                new ExpectedOverload(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    700,
+                    30
+                )
+            )), // apply only to not_activated
+            Arguments.of(l, ThreeSides.ONE, 0.17, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 350, List.of(
                 new ExpectedOverload(
                     "1'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
                     1500,
                     0
-                )
-            )), // above last temporary of activated_1_1 and of not_activated, above permanent of activated_1_2
-            Arguments.of(l, ThreeSides.ONE, 0.5, List.of(
-                EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
-                EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                EurostagTutorialExample1Factory.NOT_ACTIVATED
-            ), LimitType.CURRENT, 699, List.of(
-                new ExpectedOverload(
-                    "10'",
-                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
-                    1200,
-                    60
                 ),
                 new ExpectedOverload(
-                    "40'",
+                    "0.5'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    700,
-                    30
-                ),
-                new ExpectedOverload(
-                    "30'",
-                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
-                    600,
+                    1600,
                     0
                 )
-            )), // above first temporary of 1_1 and of activated_1_2, above last temporary of not_activated
+            )), // apply to only 2 two groups out of 3 (Default won't report anything as it has only a permanent without any temporary limit)
+            Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(), LimitType.ACTIVE_POWER, 290, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    350,
+                    45 * 60
+                ),
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
+                    300,
+                    25 * 60
+                )
+            )), //apply to all groups
             Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE), LimitType.ACTIVE_POWER, 290, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
@@ -1038,49 +1019,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     350,
                     45 * 60
                 )
-            )), //above permanent of activated_3_1
-            Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED), LimitType.ACTIVE_POWER, 290, List.of(
-                new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
-                    350,
-                    45 * 60
-                ),
-                new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
-                    300,
-                    25 * 60
-                )
-            )), //above permanent of activated_3_1 and not_activated
-            Arguments.of(transformer, ThreeSides.THREE, 0.7, List.of(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED), LimitType.ACTIVE_POWER, 290, List.of(
-                new ExpectedOverload(
-                    "45'",
-                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
-                    400,
-                    0
-                ),
-                new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
-                    300,
-                    25 * 60
-                )
-            )), //above first (and last) temporary of activated_3_1 and permanent of not_activated
-            Arguments.of(transformer, ThreeSides.THREE, 0.5, List.of(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED), LimitType.ACTIVE_POWER, 290, List.of(
-                new ExpectedOverload(
-                    "45'",
-                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
-                    400,
-                    0
-                ),
-                new ExpectedOverload(
-                    "25'",
-                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
-                    550,
-                    0
-                )
-            )) //above first (and last) temporary of activated_3_1 and of not_activated
+            )) // only reduce activated_3_1
         );
     }
 

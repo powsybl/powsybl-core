@@ -475,7 +475,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             .withMonitoringOnly(false)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of(EurostagTutorialExample1Factory.NHV1_NHV2_1)))
-            .withOperationalLimitsGroupIdCriteria("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
+            //apply to default and activated_1_2 but not to activated_1_1
+            .withOperationalLimitsGroupIdSelection("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
             .build();
         List<LimitReduction> limitReductionList = new ArrayList<>();
         limitReductionList.add(reduction1);
