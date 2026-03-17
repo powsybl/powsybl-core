@@ -1070,7 +1070,7 @@ public final class EquipmentExport {
 
     private static Optional<String> findConnectivityNodeId(String pairingKey, CgmesExportContext context) {
         ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
-        if (referenceDataProvider == null) {
+        if (pairingKey == null || referenceDataProvider == null) {
             return Optional.empty();
         }
         PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
