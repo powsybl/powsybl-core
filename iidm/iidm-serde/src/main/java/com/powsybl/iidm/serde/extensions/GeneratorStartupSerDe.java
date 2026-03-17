@@ -65,7 +65,7 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
         Version extensionVersionImported = getExtensionVersionImported(context);
         double plannedActivePowerSetpoint = context.getReader().readDoubleAttribute(getPlannedActivePowerSetpointName(extensionVersionImported));
         double startUpCost = context.getReader().readDoubleAttribute(getStartupCostName(extensionVersionImported));
-        double marginalCost = context.getReader().readDoubleAttribute("marginalCost");
+        double marginalCost = context.getReader().readDoubleAttribute("marginalCost", 0.0);
         double plannedOutageRate = readOutageRate(context, "plannedOutageRate");
         double forcedOutageRate = readOutageRate(context, "forcedOutageRate");
         context.getReader().readEndNode();

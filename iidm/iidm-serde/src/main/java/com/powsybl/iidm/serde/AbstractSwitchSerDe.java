@@ -29,8 +29,10 @@ abstract class AbstractSwitchSerDe<A extends IdentifiableAdder<Switch, A>> exten
     @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeEnumAttribute("kind", s.getKind());
-        context.getWriter().writeBooleanAttribute("retained", s.isRetained());
-        context.getWriter().writeBooleanAttribute("open", s.isOpen());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeBooleanAttribute("retained", s.isRetained()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeBooleanAttribute("retained", s.isRetained(), false));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeBooleanAttribute("open", s.isOpen()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeBooleanAttribute("open", s.isOpen(), false));
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> context.getWriter().writeBooleanAttribute("fictitious", s.isFictitious(), false));
     }
