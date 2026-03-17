@@ -115,7 +115,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         assertEquals(type + "generatorOrCondenser", getResource(battery2Eq, "SynchronousMachine.type"));
         String battery2Ssh = getElement(sshXml, "SynchronousMachine", "BAT2");
         assertNotNull(battery2Ssh);
-        assertEquals(operatingMode + "generator", getResource(battery2Ssh, "SynchronousMachine.operatingMode"));
+        assertEquals(operatingMode + "condenser", getResource(battery2Ssh, "SynchronousMachine.operatingMode"));
     }
 
     private Network createNetwork() {
