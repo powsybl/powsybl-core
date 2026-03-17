@@ -271,8 +271,6 @@ public class CgmesExport implements Exporter {
             String fileName = baseName + "_" + subset.getIdentifier() + ".xml";
             subsetExport(network, subset, fileName, dataSource, context, subsetModels.get(subset));
         }
-
-        context.getNamingStrategy().debug(baseName, dataSource);
     }
 
     /**

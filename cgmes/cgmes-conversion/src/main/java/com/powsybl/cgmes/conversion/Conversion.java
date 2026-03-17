@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.dc.DCConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.*;
@@ -230,7 +231,7 @@ public class Conversion {
         context.popReportNode();
 
         convert(cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT, context);
-        context.loadingLimitsMapping().addAll();
+        context.limitsMapping().addAll();
         setSelectedOperationalLimitsGroup(context);
 
         if (config.importControlAreas()) {
@@ -1115,7 +1116,7 @@ public class Conversion {
         private boolean importNodeBreakerAsBusBreaker = false;
         private boolean disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected = true;
 
-        private NamingStrategy namingStrategy = new NamingStrategy.Identity();
+        private NamingStrategy namingStrategy = new IdentityNamingStrategy();
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;

@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
@@ -43,15 +42,6 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         Network network = Network.read(ds);
         network.setName("MicroGrid-NS-CGMES");
         testExport(network, ds, NamingStrategyFactory.CGMES);
-    }
-
-    @Test
-    void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
-        // We select a case that contains invalid IDs
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledBadIds().dataSource();
-        Network network = Network.read(ds);
-        network.setName("MicroGrid-NS-CGMES_FIX_ALL_INVALID_IDS");
-        testExport(network, ds, NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS);
     }
 
     void testExport(Network network, ReadOnlyDataSource originalDataSource, String namingStrategy) throws IOException {
