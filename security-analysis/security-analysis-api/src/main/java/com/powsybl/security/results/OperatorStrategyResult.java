@@ -23,10 +23,16 @@ import java.util.*;
  */
 public class OperatorStrategyResult {
 
-    public static class ConditionalActionsResult extends AbstractContingencyResult {
+    public static class ConditionalActionsResult {
 
         private final String conditionalActionsId;
         private final PostContingencyComputationStatus status;
+
+        private final LimitViolationsResult limitViolationsResult;
+
+        private final NetworkResult networkResult;
+
+        private final double distributedActivePower;
 
         public ConditionalActionsResult(String conditionalActionsId,
                                         PostContingencyComputationStatus status,
@@ -40,9 +46,11 @@ public class OperatorStrategyResult {
                                         LimitViolationsResult limitViolationsResult,
                                         NetworkResult networkResult,
                                         double distributedActivePower) {
-            super(limitViolationsResult, networkResult, distributedActivePower);
             this.conditionalActionsId = conditionalActionsId;
             this.status = Objects.requireNonNull(status);
+            this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
+            this.networkResult = Objects.requireNonNull(networkResult);
+            this.distributedActivePower = distributedActivePower;
         }
 
         public String getConditionalActionsId() {
@@ -51,6 +59,18 @@ public class OperatorStrategyResult {
 
         public PostContingencyComputationStatus getStatus() {
             return status;
+        }
+
+        public LimitViolationsResult getLimitViolationsResult() {
+            return limitViolationsResult;
+        }
+
+        public NetworkResult getNetworkResult() {
+            return networkResult;
+        }
+
+        public double getDistributedActivePower() {
+            return distributedActivePower;
         }
     }
 
