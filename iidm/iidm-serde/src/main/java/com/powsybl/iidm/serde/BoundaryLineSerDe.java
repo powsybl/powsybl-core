@@ -37,6 +37,8 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
 
     static final String ROOT_ELEMENT_NAME = "boundaryLine";
     static final String ARRAY_ELEMENT_NAME = "boundaryLines";
+    private static final String GENERATION_CONSTANT = ".generation";
+    private static final String REACTIVE_LIMITS = "reactiveLimits";
 
     @Override
     protected String getRootElementName() {
@@ -187,12 +189,16 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
                 }
                 case CURRENT_LIMITS -> readCurrentLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE -> {
+                    IidmSerDeUtil.assertMinimumVersion(getRootElementName() + GENERATION_CONSTANT, REACTIVE_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+                    ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(dl.getGeneration(), context);
+                }
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> {
-                    IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+                    IidmSerDeUtil.assertMinimumVersion(getRootElementName() + GENERATION_CONSTANT, REACTIVE_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                     ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(dl.getGeneration(), context);
                 }
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> {
-                    IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+                    IidmSerDeUtil.assertMinimumVersion(getRootElementName() + GENERATION_CONSTANT, REACTIVE_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                     ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(dl.getGeneration(), context);
                 }
                 default -> readSubElement(elementName, dl, context);
