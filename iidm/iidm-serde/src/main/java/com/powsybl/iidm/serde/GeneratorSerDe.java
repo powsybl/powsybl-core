@@ -30,10 +30,12 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeEnumAttribute("energySource", g.getEnergySource());
-        context.getWriter().writeDoubleAttribute("minP", g.getMinP());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("minP", g.getMinP()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute("minP", g.getMinP(), 0.0));
         context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
         context.getWriter().writeDoubleAttribute("ratedS", g.getRatedS());
-        context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn());
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn(), false));
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
@@ -61,10 +63,10 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         EnergySource energySource = context.getReader().readEnumAttribute("energySource", EnergySource.class);
-        double minP = context.getReader().readDoubleAttribute("minP");
+        double minP = context.getReader().readDoubleAttribute("minP", 0.0);
         double maxP = context.getReader().readDoubleAttribute("maxP");
         double ratedS = context.getReader().readDoubleAttribute("ratedS");
-        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn", false);
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute("targetV");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
