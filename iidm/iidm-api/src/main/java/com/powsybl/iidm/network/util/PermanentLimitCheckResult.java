@@ -13,5 +13,5 @@ package com.powsybl.iidm.network.util;
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public record PermanentLimitCheckResult(boolean isOverload, double limitReductionValue) {
+public record PermanentLimitCheckResult(boolean isOverload, double permanentLimitValue, double limitReductionValue, String operationalLimitsGroupId) {
 }

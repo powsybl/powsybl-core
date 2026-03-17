@@ -7,8 +7,9 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.contingency.violations.LoadingLimitType;
 import com.powsybl.iidm.network.*;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -148,7 +149,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
 
     @Test
     void detectPermanentActivePowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkPermanentLimit(tieLine1, TwoSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -163,7 +164,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
 
     @Test
     void detectPermanentApparentPowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkPermanentLimit(tieLine1, TwoSides.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -179,7 +180,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
 
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkTemporary(tieLine1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -194,7 +195,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
 
     @Test
     void detectTemporaryApparentPowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         detector.checkTemporary(tieLine1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 

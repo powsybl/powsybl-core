@@ -179,7 +179,20 @@ This extension enables to replace the operational limits of a DC line in AC emul
 (generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
 
-<span style="color: red">TODO</span>
+This extension enables to store the entso-e category code of a given generator, which represents a combination of fuel and type.
+For instance category 26 is for hydro run-of-river generating units. It is mainly used in TYNDP works.
+This extension is attached to a [generator](network_subnetwork.md#generator).
+
+| Attribute | Type | Unit | Required | Default value | Description          |
+|-----------|------|------|----------|---------------|----------------------|
+| code      | int  | -    | yes      | -             | The entso-e category |
+
+Here is how to add a generator entsoe-e category extension to a generator:
+```java
+generator.newExtension(GeneratorEntsoeCategoryAdder.class)
+    .withCode(4)
+    .add();
+```
 
 (generator-startup)=
 ## Generator startup
@@ -539,7 +552,7 @@ The Measurement class characteristics are the following:
 ## Operating status
 
 This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
-three-winding transformers, HVDC line and a dangling line. The status could be:
+three-winding transformers, HVDC line and a boundary line. The status could be:
 - `IN_OPERATION`: equipment in service.
 - `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
 - `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.

@@ -201,7 +201,7 @@ class GeneratorConverter extends AbstractConverter {
 
     private static double getQ(Generator gen) {
         if (Double.isNaN(gen.getTerminal().getQ())) {
-            return gen.getTargetQ();
+            return Double.isNaN(gen.getTargetQ()) ? 0.0 : gen.getTargetQ();
         } else {
             return -gen.getTerminal().getQ();
         }
