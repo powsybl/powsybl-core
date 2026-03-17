@@ -556,7 +556,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    void operationalLimitsGroupOrdering() {
+    public void operationalLimitsGroupOrdering() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         line.cancelSelectedOperationalLimitsGroup1();
@@ -588,7 +588,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    void getAllSelectedCurrentLimits() {
+    public void getAllSelectedCurrentLimits() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
         Collection<CurrentLimits> currentLimits = line.getAllSelectedCurrentLimits(TwoSides.TWO);
@@ -609,7 +609,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    void getAllSelectedActivePowerLimits() {
+    public void getAllSelectedActivePowerLimits() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
         ThreeWindingsTransformer.Leg legThree = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
         Collection<ActivePowerLimits> activePowerLimits = legThree.getAllSelectedActivePowerLimits();
@@ -631,7 +631,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    void getAllSelectedApparentPowerLimits() {
+    public void getAllSelectedApparentPowerLimits() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedApparentPowerLimits();
         TwoWindingsTransformer twoWindingsTransformer = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
         Collection<ApparentPowerLimits> apparentPowerLimits = twoWindingsTransformer.getAllSelectedApparentPowerLimits(TwoSides.TWO);
@@ -664,7 +664,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     @ParameterizedTest
     @MethodSource("provideOverloadDurationWithMultipleSelectedOperationalLimitsGroupArguments")
-    void overloadDurationWithMultipleSelectedOperationalLimitsGroup(Network n, String lineId, double p, double q, int expectedOverloadDuration) {
+    public void overloadDurationWithMultipleSelectedOperationalLimitsGroup(Network n, String lineId, double p, double q, int expectedOverloadDuration) {
         Line line = n.getLine(lineId);
         line.getTerminal1().setP(p).setQ(q);
         line.getTerminal2().setP(-p).setQ(-q);
@@ -691,7 +691,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    void checkAddWithPredicate() {
+    public void checkAddWithPredicate() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         line.cancelSelectedOperationalLimitsGroup1();
@@ -743,7 +743,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    void doNotSelectGroupsIfAnyIsNullOrDoesNotExist() {
+    public void doNotSelectGroupsIfAnyIsNullOrDoesNotExist() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
         ThreeWindingsTransformer.Leg leg = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1).getLeg(ThreeSides.THREE);
         leg.deselectOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
@@ -769,7 +769,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    void checkGetOrCreateSetsSelected() {
+    public void checkGetOrCreateSetsSelected() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedApparentPowerLimits();
         TwoWindingsTransformer transformer = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
         assertFalse(transformer.getAllSelectedOperationalLimitsGroupIds(TwoSides.TWO).contains("DEFAULT"));
@@ -779,7 +779,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     @ParameterizedTest
     @MethodSource("provideUtilCheckTemporaryLimitsArguments")
-    void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedOverload> expected) {
+    public void violationUtilCheckTemporaryLimits(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedOverload> expected) {
         for (double limitReduction : limitReductions) {
             Collection<Overload> overloads = switch (identifiable) {
                 case Branch<?> b -> {
@@ -818,7 +818,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         }
     }
 
-    private record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
+    public record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
 
     private static Stream<Arguments> provideUtilCheckTemporaryLimitsArguments() {
         Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
