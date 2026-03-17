@@ -7,15 +7,26 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -28,6 +39,13 @@ class ReactiveCapabilityCurveImplTest {
             map.put(pt.getP(), pt);
         }
         return new ReactiveCapabilityCurveImpl(map, "ReactiveCapabilityCurve owner");
+    }
+
+    private static boolean checkReportNode(String expected, ReportNode reportNode) throws IOException {
+        StringWriter sw = new StringWriter();
+        reportNode.print(sw);
+        assertEquals(expected, sw.toString());
+        return true;
     }
 
     @Test
@@ -51,6 +69,62 @@ class ReactiveCapabilityCurveImplTest {
         assertEquals(300.0, curve.getMaxQ(0.0), 0.0);
         assertEquals(300.0, curve.getMinQ(1000.0), 0.0);
         assertEquals(400.0, curve.getMaxQ(1000.0), 0.0);
+    }
+
+    @Test
+    void testReactiveCapabilityCurveRevertedMinQMaxQ() throws IOException {
+
+        Network network = FictitiousSwitchFactory.create();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("key1")
+                .build();
+        network.getReportNodeContext().pushReportNode(reportNode);
+
+        Generator generator = network.getGenerator("CB");
+
+        ReactiveCapabilityCurve reactiveCapabilityCurve1 = generator.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(1.0)
+                .setMaxQ(5.0)
+                .setMinQ(1.0)
+                .endPoint()
+                .beginPoint()
+                .setP(100.0)
+                .setMaxQ(2.0) // here minQ > maxQ : this is incorrect
+                .setMinQ(10.0)
+                .endPoint()
+                .add();
+
+        assertEquals(1.0, reactiveCapabilityCurve1.getMinQ(1.0), 0.0);
+        assertEquals(5.0, reactiveCapabilityCurve1.getMaxQ(1.0), 0.0);
+        // reversed minQ and maxQ remain unchanged :
+        assertEquals(10.0, reactiveCapabilityCurve1.getMinQ(100.0), 0.0);
+        assertEquals(2.0, reactiveCapabilityCurve1.getMaxQ(100.0), 0.0);
+
+        network.setProperty("iidm.import.xml.check-minqmaxq-inversion", "true");
+
+        ReactiveCapabilityCurve reactiveCapabilityCurve2 = generator.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(1.0)
+                .setMaxQ(5.0)
+                .setMinQ(1.0)
+                .endPoint()
+                .beginPoint()
+                .setP(100.0)
+                .setMaxQ(2.0) // here minQ > maxQ : this is incorrect
+                .setMinQ(10.0)
+                .endPoint()
+                .add();
+
+        assertEquals(1.0, reactiveCapabilityCurve2.getMinQ(1.0), 0.0);
+        assertEquals(5.0, reactiveCapabilityCurve2.getMaxQ(1.0), 0.0);
+        // reversed minQ and maxQ values have been put in the right order and this information is mentioned in the report node :
+        assertEquals(2.0, reactiveCapabilityCurve2.getMinQ(100.0), 0.0);
+        assertEquals(10.0, reactiveCapabilityCurve2.getMaxQ(100.0), 0.0);
+        assertTrue(checkReportNode("+ name1" + System.lineSeparator() +
+                "   Reactive capability curve for CB : minQ > maxQ values have been swapped." + System.lineSeparator(), network.getReportNodeContext().getReportNode()));
     }
 
     @ParameterizedTest
