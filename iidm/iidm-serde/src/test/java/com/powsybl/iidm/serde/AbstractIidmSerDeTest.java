@@ -180,6 +180,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a given test for all IIDM versions between <code>minVersion</code> and <code>maxVersion</code> (both included)
+     */
+    protected void testForAllVersionsBetween(IidmVersion minVersion, IidmVersion maxVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0
+                        && v.compareTo(maxVersion) <= 0)
+                .forEach(test);
+    }
+
+    /**
      * Execute a write test for the given network, for all IIDM versions strictly older than a given maximum IIDM
      * version, and compare to the given versioned xml reference test resource.
      */

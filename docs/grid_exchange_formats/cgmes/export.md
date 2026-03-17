@@ -316,7 +316,7 @@ The `SynchronousMachine.operatingMode` is exported in the SSH profile depending 
 power of the generator or battery and on fact that it is regulating or not:
 - if the target active power is positive, then the generator or battery will be exported as `generator`,
 - if the target active power is negative, then the generator or battery will be exported as `motor`,
-- if the target active power is zero and the generator or battery is regulating, then the operating mode will be `condenser`.
+- if the target active power is zero and the generator or battery is regulating, then the operating mode will be `condenser` if it is allowed by its `SynchronousMachine.type`.
 - otherwise, the generator or battery will be exported as `generator` if is allowed by its `SynchronousMachine.type`,
 otherwise `motor` and otherwise `condenser`.
 To know if the generator or battery is behaving as a condenser, its `targetV`, `targetQ` and `voltageRegulatorOn` attributes are used.
