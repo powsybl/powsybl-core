@@ -956,18 +956,18 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         transformer.getLeg(ThreeSides.THREE).addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.NOT_ACTIVATED);
 
         return Stream.of(
-            Arguments.of(l, ThreeSides.ONE, 0.31, List.of(), LimitType.CURRENT, 350, List.of(
+            Arguments.of(l, ThreeSides.ONE, 0.01, List.of(), LimitType.CURRENT, 250, List.of(
                 new ExpectedOverload(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    "1'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
-                    1100,
-                    60 * 10
+                    1500,
+                    0
                 ),
                 new ExpectedOverload(
-                    "40'",
+                    "0.5'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    700,
-                    30
+                    1600,
+                    0
                 ),
                 new ExpectedOverload(
                     "30'",
@@ -976,15 +976,15 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     0
                 )
             )), // apply to all groups
-            Arguments.of(l, ThreeSides.ONE, 0.45, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 350, List.of(
+            Arguments.of(l, ThreeSides.ONE, 0.01, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 250, List.of(
                 new ExpectedOverload(
-                    "40'",
+                    "0.5'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    700,
-                    30
+                    1600,
+                    0
                 )
             )), // apply only to activated_one_two
-            Arguments.of(l, ThreeSides.ONE, 0.17, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 350, List.of(
+            Arguments.of(l, ThreeSides.ONE, 0.01, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 250, List.of(
                 new ExpectedOverload(
                     "1'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
@@ -997,7 +997,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     1600,
                     0
                 )
-            )), // apply to only 2 two groups out of 3 (Default won't report anything as it has only a permanent without any temporary limit)
+            )), // apply to only 2 groups out of 4
             Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(), LimitType.ACTIVE_POWER, 290, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
