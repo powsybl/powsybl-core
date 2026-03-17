@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.ImportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
@@ -99,16 +100,22 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
             // Then check xml content (contain only anonymized code)
             String xmlContent = os.toString(StandardCharsets.UTF_8);
             assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + anonymizedLineEnergyIdentificationCodeEic + "\""));
-            // Then import without anonymizer
-            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            // get TieLine using anonymized ID.
-            TieLine importedTieLine = importedNetwork.getTieLine(anonymizer.anonymizeString("NHV1_NHV2_1"));
-            assertNotNull(importedTieLine);
-            CgmesLineBoundaryNode importedCgmesLineBoundaryNode = importedTieLine.getExtension(CgmesLineBoundaryNode.class);
-            assertNotNull(importedCgmesLineBoundaryNode);
-            assertTrue(importedCgmesLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
-            assertEquals(anonymizedLineEnergyIdentificationCodeEic, importedCgmesLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImportCgmesLineBoundaryNode(importedNetwork1, anonymizer.anonymizeString("NHV1_NHV2_1"), anonymizedLineEnergyIdentificationCodeEic);
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImportCgmesLineBoundaryNode(importedNetwork2, "NHV1_NHV2_1", "EIC_CODE");
         });
+    }
+
+    private void assertWhenImportCgmesLineBoundaryNode(Network importedNetwork, String tiLineId, String identificationCodeEic) {
+        TieLine importedTieLine = importedNetwork.getTieLine(tiLineId);
+        assertNotNull(importedTieLine);
+        CgmesLineBoundaryNode importedCgmesLineBoundaryNode = importedTieLine.getExtension(CgmesLineBoundaryNode.class);
+        assertNotNull(importedCgmesLineBoundaryNode);
+        assertTrue(importedCgmesLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
+        assertEquals(identificationCodeEic, importedCgmesLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
     }
 
     @Test
@@ -156,15 +163,22 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
             // Then check xml content (contain only anonymized code)
             String xmlContent = os.toString(StandardCharsets.UTF_8);
             assertTrue(xmlContent.contains("lineEnergyIdentificationCodeEic=\"" + anonymizedLineEnergyIdentificationCodeEic + "\""));
-            // Then import without anonymizer
-            Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-            TieLine importedTieLine = importedNetwork.getTieLine(anonymizer.anonymizeString("NHV1_NHV2_1"));
-            assertNotNull(importedTieLine);
-            CgmesBoundaryLineBoundaryNode importedBoundaryLineBoundaryNode = importedTieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
-            assertNotNull(importedBoundaryLineBoundaryNode);
-            assertTrue(importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
-            assertEquals(anonymizedLineEnergyIdentificationCodeEic, importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImportCgmesBoundaryLineBoundaryNode(importedNetwork1, anonymizer.anonymizeString("NHV1_NHV2_1"), anonymizedLineEnergyIdentificationCodeEic);
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImportCgmesBoundaryLineBoundaryNode(importedNetwork2, "NHV1_NHV2_1", "EIC_CODE");
         });
+    }
+
+    private void assertWhenImportCgmesBoundaryLineBoundaryNode(Network importedNetwork, String tiLineId, String identificationCodeEic) {
+        TieLine importedTieLine = importedNetwork.getTieLine(tiLineId);
+        assertNotNull(importedTieLine);
+        CgmesBoundaryLineBoundaryNode importedBoundaryLineBoundaryNode = importedTieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
+        assertNotNull(importedBoundaryLineBoundaryNode);
+        assertTrue(importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().isPresent());
+        assertEquals(identificationCodeEic, importedBoundaryLineBoundaryNode.getLineEnergyIdentificationCodeEic().get());
     }
 
     @Test
