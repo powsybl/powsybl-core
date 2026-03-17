@@ -10,6 +10,7 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.PostContingencyResult;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class PostContingencyResultSerializer extends StdSerializer<PostContingen
         serializerProvider.defaultSerializeField("limitViolationsResult", postContingencyResult.getLimitViolationsResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("networkResult", postContingencyResult.getNetworkResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("connectivityResult", postContingencyResult.getConnectivityResult(), jsonGenerator);
-        jsonGenerator.writeNumberField("distributedActivePower", postContingencyResult.getDistributedActivePower());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "distributedActivePower", postContingencyResult.getDistributedActivePower());
         jsonGenerator.writeEndObject();
     }
 }

@@ -41,7 +41,7 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
         PostContingencyComputationStatus status = null;
-        double distributedActivePower = 0.;
+        double distributedActivePower = Double.NaN;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "conditionalActionsId" -> {

@@ -146,7 +146,7 @@ public class SecurityAnalysisResultBuilder {
 
         protected final SecurityAnalysisResultContext resultContext;
 
-        protected double distributedActivePower = 0.0;
+        protected double distributedActivePower = Double.NaN;
 
         /**
          * Initiates a result builder with a {@link SecurityAnalysisResultContext}.

@@ -36,7 +36,7 @@ public class PostContingencyResult extends AbstractContingencyResult {
     }
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, ConnectivityResult connectivityResult) {
-        this(contingency, status, limitViolationsResult, networkResult, connectivityResult, 0.);
+        this(contingency, status, limitViolationsResult, networkResult, connectivityResult, Double.NaN);
     }
 
     public PostContingencyResult(Contingency contingency,

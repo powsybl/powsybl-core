@@ -29,7 +29,7 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
     protected static class ParsingContext {
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
-        double distributedActivePower;
+        double distributedActivePower = Double.NaN;
         List<BranchResult> branchResults = Collections.emptyList();
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();

@@ -32,7 +32,7 @@ public class OperatorStrategyResult {
                                         PostContingencyComputationStatus status,
                                         LimitViolationsResult limitViolationsResult,
                                         NetworkResult networkResult) {
-            this(conditionalActionsId, status, limitViolationsResult, networkResult, 0.);
+            this(conditionalActionsId, status, limitViolationsResult, networkResult, Double.NaN);
         }
 
         public ConditionalActionsResult(String conditionalActionsId,

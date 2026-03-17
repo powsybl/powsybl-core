@@ -255,8 +255,7 @@
         "branchResults" : [ ],
         "busResults" : [ ],
         "threeWindingsTransformerResults" : [ ]
-      },
-      "distributedActivePower" : 0.0
+      }
     } ]
   } ]
 }
