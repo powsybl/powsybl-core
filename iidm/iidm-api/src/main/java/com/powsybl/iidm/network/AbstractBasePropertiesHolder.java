@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public abstract class AbstractBasePropertiesHolder implements BasePropertiesHolder {
 
-    protected final HashMap<String, String> properties = new LinkedHashMap<>();
+    protected final Map<String, String> properties = new LinkedHashMap<>();
 
     @Override
     public boolean hasProperty() {
@@ -26,11 +26,6 @@ public abstract class AbstractBasePropertiesHolder implements BasePropertiesHold
     @Override
     public String getProperty(String key) {
         return properties.get(key);
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        return properties.getOrDefault(key, defaultValue);
     }
 
     @Override

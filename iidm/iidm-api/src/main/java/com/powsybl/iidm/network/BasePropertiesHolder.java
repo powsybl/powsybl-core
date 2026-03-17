@@ -26,11 +26,6 @@ public interface BasePropertiesHolder {
     String getProperty(String key);
 
     /**
-     * Get property associated to specified key, with default value.
-     */
-    String getProperty(String key, String defaultValue);
-
-    /**
      * Set property value associated to specified key.
      */
     String setProperty(String key, String value);
