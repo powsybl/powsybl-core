@@ -154,7 +154,7 @@ public class XmlReader extends AbstractTreeDataReader {
             return new String[0];
         }
         try (CSVParser parser = XmlUtil.getCsvFormat().parse(new StringReader(arrayString))) {
-            //get single csv value
+            // Get a single CSV value, since our values are serialized as a single string
             return parser.iterator().next().values();
         } catch (IOException e) {
             // Should not happen as StringReader doesn't throw
