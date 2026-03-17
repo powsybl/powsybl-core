@@ -8,7 +8,6 @@
 
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
@@ -37,23 +36,21 @@ class TieLineSerDeTest extends AbstractIidmSerDeTest {
     void importNetworkWithTiLineAndAnonymizeShouldSucceed() {
         Network network = EurostagTutorialExample1Factory.createWithTieLinesAndAreas();
         testForAllVersionsSince(IidmVersion.V_1_16, version -> {
-            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
             // Export (with Anonymize option)
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
             // Import (with Anonymize)
-            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
-            assertEquals("AC tie Line 'NHV1_NHV2_1': J and/or Q are not boundary lines in the network", e.getMessage());
+            assertDoesNotThrow(() -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
         });
 
         testForAllVersionsBetween(IidmVersion.V_1_10, IidmVersion.V_1_15, version -> {
-            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
             // Export (with Anonymize option)
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
             // Import (with Anonymize)
-            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
-            assertEquals("AC tie Line 'NHV1_NHV2_1': J and/or Q are not boundary lines in the network", e.getMessage());
+            assertDoesNotThrow(() -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
         });
     }
 
