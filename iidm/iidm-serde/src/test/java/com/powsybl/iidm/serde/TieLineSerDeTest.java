@@ -9,6 +9,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
@@ -17,10 +18,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static com.powsybl.iidm.network.test.EurostagTutorialExample1Factory.NHV1_NHV2_1;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class TieLineSerDeTest extends AbstractIidmSerDeTest {
 
@@ -33,15 +36,19 @@ class TieLineSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void importNetworkWithTiLineAndAnonymizeShouldSucceed() {
+    void importNetworkWithTieLineAndAnonymizeShouldSucceed() {
         Network network = EurostagTutorialExample1Factory.createWithTieLinesAndAreas();
         testForAllVersionsSince(IidmVersion.V_1_16, version -> {
             // Export (with Anonymize option)
             ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            TieLine tieLine = network.getTieLine(NHV1_NHV2_1);
+            assertNotNull(tieLine);
             // Import (with Anonymize)
-            assertDoesNotThrow(() -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
+            Network importedNetwork = assertDoesNotThrow(() -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
+            TieLine importedTieLine = importedNetwork.getTieLine(NHV1_NHV2_1);
+            assertNotNull(importedTieLine);
         });
 
         testForAllVersionsBetween(IidmVersion.V_1_10, IidmVersion.V_1_15, version -> {
@@ -49,8 +56,12 @@ class TieLineSerDeTest extends AbstractIidmSerDeTest {
             ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            TieLine tieLine = network.getTieLine(NHV1_NHV2_1);
+            assertNotNull(tieLine);
             // Import (with Anonymize)
-            assertDoesNotThrow(() -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
+            Network importedNetwork = assertDoesNotThrow(() -> NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer));
+            TieLine importedTieLine = importedNetwork.getTieLine(NHV1_NHV2_1);
+            assertNotNull(importedTieLine);
         });
     }
 
