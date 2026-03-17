@@ -21,7 +21,7 @@ abstract class AbstractTapChangerAdderImpl<
         A extends AbstractTapChangerAdderImpl<A, H, T, S>,
         H extends TapChangerParent,
         T extends TapChanger<T, ?, ?, ?>,
-        S extends TapChangerStepImpl<S>> extends AbstractPropertiesHolder {
+        S extends TapChangerStepImpl<S>> extends AbstractBasePropertiesHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTapChangerAdderImpl.class);
 

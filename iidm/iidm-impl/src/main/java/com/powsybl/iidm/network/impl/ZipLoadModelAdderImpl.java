@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ZipLoadModelAdder;
 
@@ -17,7 +18,7 @@ import static com.powsybl.iidm.network.impl.ZipLoadModelImpl.checkCoefficient;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ZipLoadModelAdderImpl extends AbstractPropertiesHolder implements ZipLoadModelAdder {
+public class ZipLoadModelAdderImpl extends AbstractBasePropertiesHolder implements ZipLoadModelAdder {
 
     private final LoadAdderImpl parentAdder;
 

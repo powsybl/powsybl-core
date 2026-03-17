@@ -19,7 +19,7 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
-    class StepAdderImpl extends AbstractPropertiesHolder implements PhaseTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 

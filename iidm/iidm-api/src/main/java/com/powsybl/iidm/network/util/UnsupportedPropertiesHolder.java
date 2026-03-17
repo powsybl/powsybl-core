@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.BasePropertiesHolder;
 import com.powsybl.iidm.network.PropertiesHolder;
 
 import java.util.Set;
@@ -42,11 +43,16 @@ public class UnsupportedPropertiesHolder implements PropertiesHolder {
 
     @Override
     public boolean removeProperty(String key) {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
     public Set<String> getPropertyNames() {
         return Set.of();
+    }
+
+    @Override
+    public void copyPropertiesTo(BasePropertiesHolder propertiesHolder) {
+        throw new UnsupportedOperationException();
     }
 }

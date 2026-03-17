@@ -20,7 +20,7 @@ import static java.lang.Integer.MAX_VALUE;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends AbstractPropertiesHolder implements LoadingLimitsAdder<L, A> {
+abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends AbstractBasePropertiesHolder implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     protected final Validable validable;
@@ -30,7 +30,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
-    public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> extends AbstractPropertiesHolder implements TemporaryLimitAdder<B> {
+    public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> extends AbstractBasePropertiesHolder implements TemporaryLimitAdder<B> {
 
         private String name;
 

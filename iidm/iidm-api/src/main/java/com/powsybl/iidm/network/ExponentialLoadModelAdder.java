@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface ExponentialLoadModelAdder extends PropertiesHolder {
+public interface ExponentialLoadModelAdder extends BasePropertiesHolder {
 
     ExponentialLoadModelAdder setNp(double np);
 

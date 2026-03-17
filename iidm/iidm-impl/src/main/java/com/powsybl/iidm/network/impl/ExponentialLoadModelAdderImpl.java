@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.ExponentialLoadModelAdder;
 
 import java.util.Objects;
@@ -16,7 +17,7 @@ import static com.powsybl.iidm.network.impl.ExponentialLoadModelImpl.checkExpone
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ExponentialLoadModelAdderImpl extends AbstractPropertiesHolder implements ExponentialLoadModelAdder {
+public class ExponentialLoadModelAdderImpl extends AbstractBasePropertiesHolder implements ExponentialLoadModelAdder {
 
     private final LoadAdderImpl parentAdder;
 

@@ -170,7 +170,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         }
     }
 
-    private static void readProperty(PropertiesHolder adder, NetworkDeserializerContext context) {
+    private static void readProperty(BasePropertiesHolder adder, NetworkDeserializerContext context) {
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
         context.getReader().readEndNode();

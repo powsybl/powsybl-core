@@ -49,7 +49,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     }
 
-    class ShuntCompensatorLinearModelAdderImpl extends AbstractPropertiesHolder implements ShuntCompensatorLinearModelAdder, ShuntCompensatorModelBuilder {
+    class ShuntCompensatorLinearModelAdderImpl extends AbstractBasePropertiesHolder implements ShuntCompensatorLinearModelAdder, ShuntCompensatorModelBuilder {
 
         private double bPerSection = Double.NaN;
 
@@ -97,11 +97,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
     }
 
-    class ShuntCompensatorNonLinearModelAdderImpl extends AbstractPropertiesHolder implements ShuntCompensatorNonLinearModelAdder, ShuntCompensatorModelBuilder {
+    class ShuntCompensatorNonLinearModelAdderImpl extends AbstractBasePropertiesHolder implements ShuntCompensatorNonLinearModelAdder, ShuntCompensatorModelBuilder {
 
         private final List<SectionAdderImpl> sectionAdders = new ArrayList<>();
 
-        class SectionAdderImpl extends AbstractPropertiesHolder implements SectionAdder {
+        class SectionAdderImpl extends AbstractBasePropertiesHolder implements SectionAdder {
 
             private double b = Double.NaN;
 

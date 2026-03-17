@@ -16,7 +16,7 @@ import com.powsybl.commons.ref.Ref;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class VoltageAngleLimitAdderImpl extends AbstractPropertiesHolder implements VoltageAngleLimitAdder, Validable {
+class VoltageAngleLimitAdderImpl extends AbstractBasePropertiesHolder implements VoltageAngleLimitAdder, Validable {
 
     private final NetworkImpl network;
     private final String subnetwork;

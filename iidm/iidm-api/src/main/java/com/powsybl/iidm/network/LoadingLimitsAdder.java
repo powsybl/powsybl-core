@@ -18,7 +18,7 @@ import java.util.Collection;
  */
 public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends OperationalLimitsAdder<L, A> {
 
-    interface TemporaryLimitAdder<A> extends PropertiesHolder {
+    interface TemporaryLimitAdder<A> extends BasePropertiesHolder {
 
         TemporaryLimitAdder<A> setName(String name);
 

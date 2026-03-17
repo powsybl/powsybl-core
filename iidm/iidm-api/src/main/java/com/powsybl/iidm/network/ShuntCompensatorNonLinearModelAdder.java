@@ -10,9 +10,9 @@ package com.powsybl.iidm.network;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public interface ShuntCompensatorNonLinearModelAdder extends PropertiesHolder {
+public interface ShuntCompensatorNonLinearModelAdder extends BasePropertiesHolder {
 
-    interface SectionAdder extends PropertiesHolder {
+    interface SectionAdder extends BasePropertiesHolder {
 
         /**
          * Set the accumulated susceptance in S when the section to be added is the last section in service.

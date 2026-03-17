@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
 class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<OverloadManagementSystemAdderImpl>
         implements OverloadManagementSystemAdder {
 
-    abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> extends AbstractPropertiesHolder implements Validable, TrippingAdder<I> {
+    abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> extends AbstractBasePropertiesHolder implements Validable, TrippingAdder<I> {
         protected String key = null;
         protected String name = null;
         protected double currentLimit = Double.NaN;
