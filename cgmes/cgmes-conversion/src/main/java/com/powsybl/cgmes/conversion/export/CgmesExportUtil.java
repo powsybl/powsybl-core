@@ -443,7 +443,7 @@ public final class CgmesExportUtil {
     public static String getBoundaryLineBoundaryTerminalId(BoundaryLine boundaryLine, CgmesExportContext context) {
         // Legacy: in previous versions, boundary terminal id was stored in the tie line.
         if (boundaryLine.getAliasFromType(ALIAS_TERMINAL_BOUNDARY).isEmpty()
-                && boundaryLine.getTieLine().flatMap(tl -> tl.getAliasFromType(ALIAS_TERMINAL_BOUNDARY)).isPresent()) {
+            && boundaryLine.getTieLine().flatMap(tl -> tl.getAliasFromType(ALIAS_TERMINAL_BOUNDARY)).isPresent()) {
             return context.getNamingStrategy().getCgmesIdFromAlias(boundaryLine.getTieLine().orElseThrow(), ALIAS_TERMINAL_BOUNDARY);
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(boundaryLine, ALIAS_TERMINAL_BOUNDARY);
@@ -589,14 +589,14 @@ public final class CgmesExportUtil {
             return true;
         } else if (connectable instanceof Generator generator) {
             return generator.getExtension(RemoteReactivePowerControl.class) != null
-                    || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
+                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
         } else if (connectable instanceof ShuntCompensator shuntCompensator) {
             return CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
-                    || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable());
+                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable());
         } else if (connectable instanceof StaticVarCompensator staticVarCompensator) {
             return CgmesExportUtil.isValidReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint())
-                    || CgmesExportUtil.isValidVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
-                    || !Objects.equals(staticVarCompensator, staticVarCompensator.getRegulatingTerminal().getConnectable());
+                || CgmesExportUtil.isValidVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
+                || !Objects.equals(staticVarCompensator, staticVarCompensator.getRegulatingTerminal().getConnectable());
         }
         return false;
     }

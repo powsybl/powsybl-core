@@ -272,7 +272,6 @@ public final class TopologyExport {
     private static void writeBoundaryTerminal(BoundaryLine bl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String boundaryId = CgmesExportUtil.getBoundaryLineBoundaryTerminalId(bl, context);
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
-        //String topologicalNode = context.getNamingStrategy().getCgmesIdFromProperty(bl, PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
         String topologicalNode = getTopologicalNodeId(bl, context);
 
         // Topological nodes of boundaries are published by external entities and should be ok,
