@@ -10,16 +10,11 @@ package com.powsybl.commons.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.csv.CSVFormat;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -187,15 +182,7 @@ public class XmlWriter extends AbstractTreeDataWriter {
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
         if (!values.isEmpty()) {
-            CSVFormat format = CSVFormat.DEFAULT.builder().setRecordSeparator("").get();
-            StringWriter arrayWriter = new StringWriter();
-            try (CSVPrinter printer = new CSVPrinter(arrayWriter, format)) {
-                printer.printRecord(values);
-            } catch (IOException e) {
-                //Shouldn't happen, StringWriter doesn't throw
-                throw new UncheckedIOException(e);
-            }
-            writeStringAttribute(name, arrayWriter.toString());
+            writeStringAttribute(name, XmlUtil.getCsvFormat().format(values.toArray()));
         }
     }
 

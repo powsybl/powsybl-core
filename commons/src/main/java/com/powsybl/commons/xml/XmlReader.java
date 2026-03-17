@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.AbstractTreeDataReader;
-import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 
 import javax.xml.stream.XMLStreamConstants;
@@ -154,7 +153,7 @@ public class XmlReader extends AbstractTreeDataReader {
         if (arrayString == null) {
             return new String[0];
         }
-        try (CSVParser parser = CSVParser.parse(new StringReader(arrayString), CSVFormat.DEFAULT)) {
+        try (CSVParser parser = XmlUtil.getCsvFormat().parse(new StringReader(arrayString))) {
             //get single csv value
             return parser.iterator().next().values();
         } catch (IOException e) {
