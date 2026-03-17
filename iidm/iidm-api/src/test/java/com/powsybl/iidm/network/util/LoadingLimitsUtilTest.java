@@ -99,7 +99,7 @@ class LoadingLimitsUtilTest {
         assertEquals(1000., adder.getPermanentLimit(), 0.001);
         assertEquals(1, adder.getTemporaryLimitToCreateList().size());
         List<TemporaryLimitToCreate> temps = adder.getTemporaryLimitToCreateList().stream().toList();
-        assertEquals(1200., temps.get(0).value());
+        assertEquals(1200., temps.getFirst().value());
 
         LoggedData loggedData = customLogger.getLoggedData();
         assertEquals("Operational Limits of ownerId", loggedData.what());
