@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
@@ -219,7 +220,7 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmTerms(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.isEmpty() || DataAttributeNames.ELMNET.equals(elmNets.getFirst().getDataClassName());
+        assert elmNets.isEmpty() || ELMNET.equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream()).toList();
     }
@@ -232,7 +233,7 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmVscs(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.isEmpty() || DataAttributeNames.ELMNET.equals(elmNets.getFirst().getDataClassName());
+        assert elmNets.isEmpty() || ELMNET.equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream()).toList();
     }
@@ -307,7 +308,7 @@ public class PowerFactoryImporter implements Importer {
                 new CommonImpedanceConverter(importContext, network).create(obj);
                 break;
 
-            case "ElmNet", "ElmSubstat", "ElmTrfstat", "StaCubic", "StaSwitch", DataAttributeNames.ELMTERM:
+            case "ElmNet", "ElmSubstat", "ElmTrfstat", "StaCubic", "StaSwitch", ELMTERM:
                 // already processed
                 break;
 
