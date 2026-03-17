@@ -180,34 +180,34 @@ public final class SteadyStateHypothesisExport {
             if (twt.hasPhaseTapChanger()) {
                 String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
                     ALIAS_PHASE_TAP_CHANGER2 : ALIAS_PHASE_TAP_CHANGER1;
-                writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, CgmesNames.PHASE_TAP_CHANGER_TABULAR, twt.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
+                writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, 1, CgmesNames.PHASE_TAP_CHANGER_TABULAR, twt.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
             }
             if (twt.hasRatioTapChanger()) {
                 String aliasType = twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_RATIO_TAP_CHANGER1).isEmpty() ?
                     ALIAS_RATIO_TAP_CHANGER2 : ALIAS_RATIO_TAP_CHANGER1;
-                writeTapChanger(twt, aliasType, RATIO_TAP_CHANGER, CgmesNames.RATIO_TAP_CHANGER, twt.getRatioTapChanger(), regulatingControlViews, cimNamespace, writer, context);
+                writeTapChanger(twt, aliasType, RATIO_TAP_CHANGER, 1, CgmesNames.RATIO_TAP_CHANGER, twt.getRatioTapChanger(), regulatingControlViews, cimNamespace, writer, context);
             }
         }
 
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
-                String endNumber = Integer.toString(leg.getSide().getNum());
+                int endNumber = leg.getSide().getNum();
                 if (leg.hasPhaseTapChanger()) {
-                    String aliasType = getPhaseTapChangerAliasType(endNumber);
-                    writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, CgmesNames.PHASE_TAP_CHANGER_TABULAR, leg.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
+                    String aliasType = getPhaseTapChangerAliasType(Integer.toString(endNumber));
+                    writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, endNumber, CgmesNames.PHASE_TAP_CHANGER_TABULAR, leg.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
                 }
                 if (leg.hasRatioTapChanger()) {
-                    String aliasType = getRatioTapChangerAliasType(endNumber);
-                    writeTapChanger(twt, aliasType, RATIO_TAP_CHANGER, CgmesNames.RATIO_TAP_CHANGER, leg.getRatioTapChanger(), regulatingControlViews, cimNamespace, writer, context);
+                    String aliasType = getRatioTapChangerAliasType(Integer.toString(endNumber));
+                    writeTapChanger(twt, aliasType, RATIO_TAP_CHANGER, endNumber, CgmesNames.RATIO_TAP_CHANGER, leg.getRatioTapChanger(), regulatingControlViews, cimNamespace, writer, context);
                 }
             }
         }
     }
 
-    private static <C extends Connectable<C>> void writeTapChanger(C twt, String aliasType, Part part, String defaultType, TapChanger<?, ?, ?, ?> tc, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writeTapChanger(C twt, String aliasType, Part part, int endNumber, String defaultType, TapChanger<?, ?, ?, ?> tc, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
         String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
-        String tapChangerControlId = getTapChangerControlId(twt, part, cgmesTapChangerId, context);
+        String tapChangerControlId = getTapChangerControlId(twt, part, endNumber, cgmesTapChangerId, context);
         String type = defaultType;
         if (tc instanceof PhaseTapChanger && !context.isExportEquipment()) {
             type = getPhaseTapChangerType(twt, cgmesTapChangerId);
