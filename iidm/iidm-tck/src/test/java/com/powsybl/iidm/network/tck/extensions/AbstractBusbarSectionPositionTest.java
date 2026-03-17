@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public abstract class AbstractBusbarSectionPositionTest {
 
     @Test
-    void testExtension() {
+    public void testExtension() {
         BusbarSectionPosition busbarSectionPosition = busbarSection().newExtension(BusbarSectionPositionAdder.class)
                 .withBusbarIndex(1)
                 .withSectionIndex(2)

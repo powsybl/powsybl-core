@@ -140,7 +140,7 @@ public abstract class AbstractLoadDetailTest {
     }
 
     @Test
-    void checkVoltageConfigTest() {
+    public void checkVoltageConfigTest() {
         Network network = createTestNetwork();
         Load load = network.getLoad("L");
         assertNotNull(load);

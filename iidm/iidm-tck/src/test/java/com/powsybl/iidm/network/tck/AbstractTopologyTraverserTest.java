@@ -253,7 +253,7 @@ public abstract class AbstractTopologyTraverserTest {
     }
 
     @Test
-    void testTerminateTraverser() {
+    public void testTerminateTraverser() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal startGNbv = network.getGenerator("G").getTerminal();
         List<Pair<String, Integer>> visited1 = getVisitedList(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
