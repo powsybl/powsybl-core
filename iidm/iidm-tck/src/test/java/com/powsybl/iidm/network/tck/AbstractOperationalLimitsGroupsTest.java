@@ -983,7 +983,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     700,
                     30
                 )
-            )), // apply only to not_activated
+            )), // apply only to activated_one_two
             Arguments.of(l, ThreeSides.ONE, 0.17, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 350, List.of(
                 new ExpectedOverload(
                     "1'",
