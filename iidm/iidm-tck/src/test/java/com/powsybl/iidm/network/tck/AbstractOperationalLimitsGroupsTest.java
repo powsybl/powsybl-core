@@ -818,7 +818,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         }
     }
 
-    private record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
+    public record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
 
     private static Stream<Arguments> provideUtilCheckTemporaryLimitsArguments() {
         Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
