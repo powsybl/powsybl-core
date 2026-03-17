@@ -64,8 +64,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
         if (commonParsingContext.networkResult != null) {
             return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult, commonParsingContext.networkResult, commonParsingContext.distributedActivePower);
         } else {
-            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults);
+            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult, new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults), Double.NaN);
         }
     }
 }
