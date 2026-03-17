@@ -157,7 +157,7 @@ public class XmlReader extends AbstractTreeDataReader {
             //get single csv value
             return parser.iterator().next().values();
         } catch (IOException e) {
-            // should not happen as StringReader doesn't throw
+            // Should not happen as StringReader doesn't throw
             throw new UncheckedIOException(e);
         }
     }
