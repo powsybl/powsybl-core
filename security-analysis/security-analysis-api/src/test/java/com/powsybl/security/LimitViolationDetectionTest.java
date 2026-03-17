@@ -472,7 +472,6 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         double reductionValue = 0.75;
         LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, reductionValue)
-            .withMonitoringOnly(false)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of(EurostagTutorialExample1Factory.NHV1_NHV2_1)))
             //apply to default and activated_1_2 but not to activated_1_1

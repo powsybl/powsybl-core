@@ -155,6 +155,7 @@ public final class LimitViolationUtils {
     private static Collection<Overload> checkAllTemporaryLimitsIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double limitReductionValue, Collection<String> groupsToApplyLimitReductionValue, double i, LimitType type) {
         Objects.requireNonNull(identifiable);
         Objects.requireNonNull(side);
+        Objects.requireNonNull(groupsToApplyLimitReductionValue);
         return limitsComputer.computeLimits(identifiable, type, side, false)
             .stream()
             .map(limits -> getOverloadSelectGroup(limits, i, limitReductionValue, groupsToApplyLimitReductionValue))
