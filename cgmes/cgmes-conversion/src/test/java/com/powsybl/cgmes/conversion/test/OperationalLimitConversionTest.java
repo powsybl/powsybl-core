@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -21,6 +20,8 @@ import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -66,8 +67,8 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
 
         // The CGMES id/name have been preserved in a property.
-        assertEquals("OLS_3", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
-        assertEquals("Winter", winterLimits.get().getProperty(Conversion.PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
+        assertEquals("OLS_3", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_RDFID));
+        assertEquals("Winter", winterLimits.get().getProperty(PROPERTY_OPERATIONAL_LIMIT_SET_NAME));
     }
 
     @Test
@@ -235,15 +236,17 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
     @Test
     void voltageLimitTest() {
         // CGMES network:
-        //   2 BusbarSection BBS_1, BBS_2 in 400 kV VoltageLevel VL_1, VL_2, with high/lowVoltageLimit 420/380 kV.
-        //   BBS_1 has an OperationalLimitSet with 2 VoltageLimits 410/390 kV.
-        //   BBS_2 has an OperationalLimitSet with 2 VoltageLimits 430/370 kV.
+        //   3 BusbarSection in 3 VoltageLevel:
+        //   VL_1 has 420/380 kV high/lowVoltageLimit, BBS_1 has 410/390 kV high/low VoltageLimit.
+        //   VL_2 has 420/380 kV high/lowVoltageLimit, BBS_2 has 430/370 kV high/low VoltageLimit.
+        //   VL_3 has 380/420 kV high/lowVoltageLimit, BBS_3 has 420/380 kV high/low VoltageLimit.
         // IIDM network:
         //   The IIDM VoltageLevel's limit is the most restrictive one between
-        //   the CGMES VoltageLevel's limit and the CGMES OperationalLimit value.
+        //   the CGMES VoltageLevel's limit and the CGMES VoltageLimit value.
+        //   Inconsistent limits (low > high) aren't imported.
         Network network = readCgmesResources(DIR, "voltage_limits.xml");
 
-        // The most restrictive limits for VL_1 are the OperationalLimit (VoltageLimit) values.
+        // The most restrictive limits for VL_1 are the VoltageLimit values.
         VoltageLevel vl1 = network.getVoltageLevel("VL_1");
         assertNotNull(vl1);
         assertEquals(410.0, vl1.getHighVoltageLimit());
@@ -254,6 +257,12 @@ class OperationalLimitConversionTest extends AbstractSerDeTest {
         assertNotNull(vl2);
         assertEquals(420.0, vl2.getHighVoltageLimit());
         assertEquals(380.0, vl2.getLowVoltageLimit());
+
+        // The only applicable limits for VL_3 are the VoltageLimit values.
+        VoltageLevel vl3 = network.getVoltageLevel("VL_3");
+        assertNotNull(vl3);
+        assertEquals(420.0, vl3.getHighVoltageLimit());
+        assertEquals(380.0, vl3.getLowVoltageLimit());
     }
 
     @Test
