@@ -860,7 +860,7 @@ public final class EquipmentExport {
             int normalStep = getNormalStep(eq, cgmesTapChangerId).orElse(neutralStep);
             String tapChangerControlId = null;
             if (CgmesExportUtil.tapChangerControlIsDefined(ptc)) {
-                tapChangerControlId = getTapChangerControlId(eq, PHASE_TAP_CHANGER, cgmesTapChangerId, context);
+                tapChangerControlId = getTapChangerControlId(eq, PHASE_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String mode = RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
                     String controlName = twtName + "_PTC_RC";
@@ -937,7 +937,7 @@ public final class EquipmentExport {
             if (CgmesExportUtil.tapChangerControlIsDefined(rtc)) {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
-                tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, cgmesTapChangerId, context);
+                tapChangerControlId = getTapChangerControlId(eq, RATIO_TAP_CHANGER, endNumber, cgmesTapChangerId, context);
                 if (!regulatingControlsWritten.contains(tapChangerControlId)) {
                     String tccMode = CgmesExportUtil.getTcMode(rtc);
                     if (tccMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
