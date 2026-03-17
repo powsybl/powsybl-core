@@ -51,10 +51,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
          * Selection is done based on the systp attribute of ElmTerm and of TypLne.
          */
         static DcGridData createGridData(List<DataObject> elmNets) {
-            assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
+            assert elmNets.isEmpty() || DataAttributeNames.ELMNET.equals(elmNets.getFirst().getDataClassName());
 
             List<DataObject> elmTerms = PowerFactoryImporter.gatherElmTerms(elmNets);
-            assert elmTerms.isEmpty() || "ElmTerm".equals(elmTerms.getFirst().getDataClassName());
+            assert elmTerms.isEmpty() || DataAttributeNames.ELMTERM.equals(elmTerms.getFirst().getDataClassName());
             List<DataObject> elmVscs = PowerFactoryImporter.gatherElmVscs(elmNets);
             assert elmVscs.isEmpty() || "ElmVsc".equals(elmVscs.getFirst().getDataClassName());
 
@@ -202,7 +202,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      */
     private static void objIdDcNodeRefSanityCheck(Map<Long, List<DcNodeRef>> objIdDcNodeRef, Network network, Set<DataObject> elmTerms) {
         assert elmTerms != null;
-        assert elmTerms.isEmpty() || "ElmTerm".equals(elmTerms.iterator().next().getDataClassName());
+        assert elmTerms.isEmpty() || DataAttributeNames.ELMTERM.equals(elmTerms.iterator().next().getDataClassName());
         for (var entry : objIdDcNodeRef.entrySet()) {
             for (DcNodeRef nodeRef : entry.getValue()) {
                 if (network.getDcNode(nodeRef.dcNodeId()) == null) {
@@ -250,7 +250,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      */
     private static void addDcNode(DataObject terminal, Network network) {
 
-        assert "ElmTerm".equals(terminal.getDataClassName());
+        assert DataAttributeNames.ELMTERM.equals(terminal.getDataClassName());
 
         network.newDcNode().setId(idInNetworkString(terminal)).setName(terminal.getLocName()).setNominalV(terminal.getFloatAttributeValue("uknom")).add();
 

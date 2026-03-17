@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
-public class DetailedHvdcConverterTest {
+class DetailedHvdcConverterTest {
 
     // test tolerance for double values.
     // Only makes sense for values that are neither too big nor too small.

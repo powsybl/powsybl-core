@@ -194,7 +194,7 @@ public class PowerFactoryImporter implements Importer {
         List<DataObject> slackObjects = new ArrayList<>();
 
         // Create main equipment
-        convertEquipment(studyCase, importContext, hvdcConverter, network, slackObjects);
+        convertAcEquipments(studyCase, importContext, hvdcConverter, network, slackObjects);
 
         // Create HVDC subgrids in the network
         hvdcConverter.create();
@@ -219,7 +219,7 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmTerms(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
+        assert elmNets.isEmpty() || DataAttributeNames.ELMNET.equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream()).toList();
     }
@@ -232,7 +232,7 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmVscs(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.isEmpty() || "ElmNet".equals(elmNets.getFirst().getDataClassName());
+        assert elmNets.isEmpty() || DataAttributeNames.ELMNET.equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream()).toList();
     }
@@ -257,161 +257,104 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
-    private static void convertEquipment(StudyCase studyCase, ImportContext importContext, AbstractHvdcConverter hvdcConverter,
-        Network network, List<DataObject> slackObjects) {
-        var objs = studyCase.getElmNets().stream()
-            .flatMap(elmNet -> elmNet.search(".*").stream())
-            .toList();
-        for (DataObject obj : objs) {
-            switch (obj.getDataClassName()) {
-                case "ElmCoup":
-                    new SwitchConverter(importContext, network).createFromElmCoup(obj);
-                    break;
+    /**
+     * Process any object relevant to AC networks.
+     * @param importContext ?
+     * @param hvdcConverter to disregard HVDC objects, which are processed otherwise.
+     * @param network where to create AC network objects.
+     * @param slackObjects list of slack buses to be filled.
+     * @param obj equipment to process.
+     */
+    private static void processEquipment(ImportContext importContext, AbstractHvdcConverter hvdcConverter,
+                                         Network network, List<DataObject> slackObjects, DataObject obj) {
+        switch (obj.getDataClassName()) {
+            case "ElmCoup":
+                new SwitchConverter(importContext, network).createFromElmCoup(obj);
+                break;
 
-                case "ElmSym":
-                case "ElmAsm":
-                case "ElmGenstat":
-                    new GeneratorConverter(importContext, network).create(obj);
-                    if (GeneratorConverter.isSlack(obj)) {
-                        slackObjects.add(obj);
-                    }
-                    break;
+            case "ElmSym", "ElmAsm", "ElmGenstat":
+                new GeneratorConverter(importContext, network).create(obj);
+                if (GeneratorConverter.isSlack(obj)) {
+                    slackObjects.add(obj);
+                }
+                break;
 
-                case "ElmLod":
-                    new LoadConverter(importContext, network).create(obj);
-                    break;
+            case "ElmLod":
+                new LoadConverter(importContext, network).create(obj);
+                break;
 
-                case "ElmShnt":
-                    new ShuntConverter(importContext, network).create(obj);
-                    break;
+            case "ElmShnt":
+                new ShuntConverter(importContext, network).create(obj);
+                break;
 
-                case "ElmLne":
-                    if (!hvdcConverter.isDcLink(obj)) {
-                        new LineConverter(importContext, network).create(obj);
-                    }
-                    break;
-                case "ElmTow":
-                    new LineConverter(importContext, network).createTower(obj);
-                    break;
+            case "ElmLne":
+                if (!hvdcConverter.isDcLink(obj)) {
+                    new LineConverter(importContext, network).create(obj);
+                }
+                break;
+            case "ElmTow":
+                new LineConverter(importContext, network).createTower(obj);
+                break;
 
-                case "ElmTr2":
-                    new TransformerConverter(importContext, network).createTwoWindings(obj);
-                    break;
+            case "ElmTr2":
+                new TransformerConverter(importContext, network).createTwoWindings(obj);
+                break;
 
-                case "ElmTr3":
-                    new TransformerConverter(importContext, network).createThreeWindings(obj);
-                    break;
-                case "ElmZpu":
-                    new CommonImpedanceConverter(importContext, network).create(obj);
-                    break;
+            case "ElmTr3":
+                new TransformerConverter(importContext, network).createThreeWindings(obj);
+                break;
+            case "ElmZpu":
+                new CommonImpedanceConverter(importContext, network).create(obj);
+                break;
 
-                case "ElmNet":
-                case "ElmSubstat":
-                case "ElmTrfstat":
-                case "StaCubic":
-                case "StaSwitch":
-                case DataAttributeNames.ELMTERM:
-                    // already processed
-                    break;
+            case "ElmNet", "ElmSubstat", "ElmTrfstat", "StaCubic", "StaSwitch", DataAttributeNames.ELMTERM:
+                // already processed
+                break;
 
-                case "TypLne":
-                case "TypSym":
-                case "TypLod":
-                case "TypTr2":
-                case "TypTr3":
-                    // Referenced by other objects
-                    break;
+            case "TypLne", "TypSym", "TypLod", "TypTr2", "TypTr3":
+                // Referenced by other objects
+                break;
 
-                case "BlkDef":
-                case "ChaRef":
-                case "ChaVec":
+            case "BlkDef", "ChaRef", "ChaVec":
 
-                case "ElmArea":
-                case "ElmBmu":
-                case "ElmBoundary":
-                case "ElmBranch":
-                case "ElmComp":
-                case "ElmDcubi":
-                case "ElmDsl":
-                case "ElmFile":
-                case "ElmPhi__pll":
-                case "ElmRelay":
-                case "ElmSecctrl":
-                case "ElmSite":
-                case "ElmStactrl":
-                case "ElmValve":
-                case "ElmVsc": // Managed in DC part
-                case "ElmZone":
-                case "ElmGndswt": // Only for MTDC
+            case "ElmArea", "ElmBmu", "ElmBoundary", "ElmBranch", "ElmComp", "ElmDcubi", "ElmDsl",
+                 "ElmFile", "ElmPhi__pll", "ElmRelay", "ElmSecctrl", "ElmSite", "ElmStactrl", "ElmValve":
+            case "ElmVsc": // Managed in DC part
+            case "ElmZone":
+            case "ElmGndswt": // Only for MTDC
 
-                case "IntCalcres":
-                case "IntCondition":
-                case "IntEvt":
-                case "IntEvtrel":
-                case "IntFolder":
-                case "IntForm":
-                case "IntGate":
-                case "IntGrf":
-                case "IntGrfcon":
-                case "IntGrflayer":
-                case "IntGrfnet":
+            case "IntCalcres", "IntCondition", "IntEvt", "IntEvtrel", "IntFolder", "IntForm", "IntGate",
+                 "IntGrf", "IntGrfcon", "IntGrflayer", "IntGrfnet", "IntMat", "IntMon", "IntQlim", "IntRas",
+                 "IntRef", "IntTemplate", "IntWdt": // related to interface
 
-                case "IntMat":
-                case "IntMon":
-                case "IntQlim":
-                case "IntRas":
-                case "IntRef":
-                case "IntTemplate":
-                case "IntWdt":
+            case "OptElmgenstat", "OptElmrecmono", "OptElmsym":
 
-                case "OptElmgenstat":
-                case "OptElmrecmono":
-                case "OptElmsym":
+            case "RelChar", "RelDir", "RelDisdir", "RelDisloadenc", "RelDismho", "RelDispoly", "RelDispspoly",
+                 "RelFdetabb", "RelFdetaegalst", "RelFdetect", "RelFdetsie", "RelFmeas", "RelFrq", "RelIoc",
+                 "RelLogdip", "RelLogic", "RelLslogic", "RelMeasure", "RelRecl", "RelSeldir", "RelTimer",
+                 "RelToc", "RelUlim", "RelZpol":
 
-                case "RelChar":
-                case "RelDir":
-                case "RelDisdir":
-                case "RelDisloadenc":
-                case "RelDismho":
-                case "RelDispoly":
-                case "RelDispspoly":
-                case "RelFdetabb":
-                case "RelFdetaegalst":
-                case "RelFdetect":
-                case "RelFdetsie":
-                case "RelFmeas":
-                case "RelFrq":
-                case "RelIoc":
-                case "RelLogdip":
-                case "RelLogic":
-                case "RelLslogic":
+            case "StaCt", "StaPqmea", "StaVmea", "StaVt":
 
-                case "RelMeasure":
-                case "RelRecl":
-                case "RelSeldir":
-                case "RelTimer":
-                case "RelToc":
-                case "RelUlim":
-                case "RelZpol":
+            case "TypChatoc", "TypCon", "TypCt", "TypRelay", "TypVt":
 
-                case "StaCt":
-                case "StaPqmea":
-                case "StaVmea":
-                case "StaVt":
+                // irrelevant to PowSyBl
+                break;
 
-                case "TypChatoc":
-                case "TypCon":
-                case "TypCt":
-                case "TypRelay":
-                case "TypVt":
-
-                    // not interesting
-                    break;
-
-                default:
-                    LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj);
-            }
+            default:
+                LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj);
         }
+    }
+
+    private static void convertAcEquipments(StudyCase studyCase,
+                                            ImportContext importContext,
+                                            AbstractHvdcConverter hvdcConverter,
+                                            Network network,
+                                            List<DataObject> slackObjects) {
+        assert slackObjects.isEmpty();
+        studyCase.getElmNets().stream()
+            .flatMap(elmNet -> elmNet.search(".*").stream())
+            .forEach(obj -> processEquipment(importContext, hvdcConverter, network, slackObjects, obj));
     }
 
     private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
