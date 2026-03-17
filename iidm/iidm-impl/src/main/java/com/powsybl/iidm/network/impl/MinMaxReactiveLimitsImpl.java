@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.ReactiveLimitsKind;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class MinMaxReactiveLimitsImpl implements MinMaxReactiveLimits {
+class MinMaxReactiveLimitsImpl extends AbstractPropertiesHolder implements MinMaxReactiveLimits {
 
     private final double minQ;
 
