@@ -54,8 +54,10 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmes3GeneratorShortCircuitData() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network = new CgmesImport().importData(Cgmes3Catalog.miniGrid().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);
@@ -79,8 +81,10 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmesBranchModelBusbarSectionShortCircuitData() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallGridBusBranchWithBusbarSectionsAndIpMax().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);
@@ -102,8 +106,10 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmesBusbarSectionShortCircuitData() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);
@@ -123,6 +129,7 @@ class CgmesImporterTest {
     @Test
     void testImportCgmes3BusbarSectionShortCircuitData() {
         Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         // Avoid importing assembled micro grid as subnetworks, to have access to whole CGMES model
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = new CgmesImport().importData(Cgmes3Catalog.microGrid().dataSource(),

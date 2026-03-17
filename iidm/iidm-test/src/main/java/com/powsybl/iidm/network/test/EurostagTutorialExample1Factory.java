@@ -687,7 +687,12 @@ public final class EurostagTutorialExample1Factory {
 
         legThree.newOperationalLimitsGroup(NOT_ACTIVATED)
             .newActivePowerLimits()
-            .setPermanentLimit(10)
+            .setPermanentLimit(300)
+            .beginTemporaryLimit()
+            .setName("25'")
+            .setValue(550)
+            .setAcceptableDuration(25 * 60)
+            .endTemporaryLimit()
             .add();
 
         return network;

@@ -21,6 +21,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 
+import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -258,13 +260,16 @@ public final class ConnectableSerDeUtil {
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
                 boolean fictitious = reader.readBooleanAttribute("fictitious", false);
-                reader.readEndNode();
-                adder.beginTemporaryLimit()
+                LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
+                readProperties(context, tempLimitAdder);
+                tempLimitAdder
                         .setName(name)
                         .setAcceptableDuration(acceptableDuration)
                         .setValue(value)
                         .setFictitious(fictitious)
                         .endTemporaryLimit();
+            } else if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(elementName)) {
+                PropertiesSerDe.read(adder, context);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
@@ -326,12 +331,14 @@ public final class ConnectableSerDeUtil {
             writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
             writer.writeStartNodes();
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
             for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
                 writer.writeEndNode();
             }
             writer.writeEndNodes();
