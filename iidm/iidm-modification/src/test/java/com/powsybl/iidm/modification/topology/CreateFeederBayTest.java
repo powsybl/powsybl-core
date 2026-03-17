@@ -673,7 +673,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         ConnectablePosition<Generator> position = generator.getExtension(ConnectablePosition.class);
         assertNotNull(position);
         assertEquals(BOTTOM, position.getFeeder().getDirection());
-        assertEquals(Optional.of(65), position.getFeeder().getOrder());
+        assertEquals(Optional.of(55), position.getFeeder().getOrder());
     }
 
     private static Network createNetworkWithInternalLine() {
