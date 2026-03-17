@@ -337,7 +337,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
-        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Generator gen && gen.isCondenser());
+        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Battery || i instanceof Generator gen && gen.isCondenser());
         return obtainOperatingMode(targetP, i, calculatedKind);
     }
 
@@ -347,7 +347,7 @@ public final class SteadyStateHypothesisExport {
         } else if (targetP > 0) {
             return OPERATING_MODE_GENERATOR;
         } else {
-            if (isOperatingAsACondenser(injection)) {
+            if (isOperatingAsACondenser(injection) && calculatedKind.toLowerCase().contains(OPERATING_MODE_CONDENSER)) {
                 return OPERATING_MODE_CONDENSER;
             } else {
                 if (calculatedKind.toLowerCase().contains(OPERATING_MODE_GENERATOR)) {
