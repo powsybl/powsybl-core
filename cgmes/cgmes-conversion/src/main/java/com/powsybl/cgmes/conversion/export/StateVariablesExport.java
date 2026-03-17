@@ -276,17 +276,11 @@ public final class StateVariablesExport {
             }
 
             boolean isInAccordance;
-            if (bus.getFictitiousP0() != 0.0
-                || bus.getFictitiousQ0() != 0.0
-                || BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ)) {
-                double sumP = BusTools.sum(busViewBus, Terminal::getP) + bus.getFictitiousP0();
-                double sumQ = BusTools.sum(busViewBus, Terminal::getQ) + bus.getFictitiousQ0();
-                isInAccordance = Math.abs(sumP) <= maxPMismatchConverged && Math.abs(sumQ) <= maxQMismatchConverged;
-                if (!isInAccordance && LOG.isInfoEnabled()) {
-                    LOG.info("Bus {} is not in accordance with Kirchhoff's first law. Mismatch = {}", bus, String.format("(%.4f, %.4f)", sumP, sumQ));
-                    BusTools.logDetail(busViewBus);
-                    LOG.debug(String.format("  %7.2f  %7.2f  Sum", sumP, sumQ));
-                }
+
+            boolean hasFictitious = isValidFictitiousPQ(bus.getFictitiousP0()) || isValidFictitiousPQ(bus.getFictitiousQ0());
+            boolean hasAnyFinitePQ = BusTools.hasAnyFinite(busViewBus, Terminal::getP) && BusTools.hasAnyFinite(busViewBus, Terminal::getQ);
+            if (hasFictitious || hasAnyFinitePQ) {
+                isInAccordance = checkKirchhoffBalance(bus, busViewBus);
             } else {
                 isInAccordance = false;
                 LOG.info("Bus {} is not in accordance with Kirchhoff's first law. All connected terminals have invalid values", bus);
@@ -294,6 +288,29 @@ public final class StateVariablesExport {
             }
             checkedBusViewBuses.put(busViewBus, isInAccordance);
             return isInAccordance;
+        }
+
+        private boolean checkKirchhoffBalance(Bus bus, Bus busViewBus) {
+            boolean isInAccordance;
+            double sumP = BusTools.sum(busViewBus, Terminal::getP);
+            if (isValidFictitiousPQ(bus.getFictitiousP0())) {
+                sumP += bus.getFictitiousP0();
+            }
+            double sumQ = BusTools.sum(busViewBus, Terminal::getQ);
+            if (isValidFictitiousPQ(bus.getFictitiousQ0())) {
+                sumQ += bus.getFictitiousQ0();
+            }
+            isInAccordance = Math.abs(sumP) <= maxPMismatchConverged && Math.abs(sumQ) <= maxQMismatchConverged;
+            if (!isInAccordance && LOG.isInfoEnabled()) {
+                LOG.info("Bus {} is not in accordance with Kirchhoff's first law. Mismatch = {}", bus, String.format("(%.4f, %.4f)", sumP, sumQ));
+                BusTools.logDetail(busViewBus);
+                LOG.debug(String.format("  %7.2f  %7.2f  Sum", sumP, sumQ));
+            }
+            return isInAccordance;
+        }
+
+        private static boolean isValidFictitiousPQ(double pOrQ) {
+            return Double.isFinite(pOrQ) && pOrQ != 0.0;
         }
     }
 
