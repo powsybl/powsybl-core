@@ -70,15 +70,21 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     .setTopologyKind(
                             context.nodeBreaker()
                                     ? TopologyKind.NODE_BREAKER
-                                    : TopologyKind.BUS_BREAKER)
-                    .setLowVoltageLimit(lowVoltageLimit)
-                    .setHighVoltageLimit(highVoltageLimit);
+                                    : TopologyKind.BUS_BREAKER);
             identify(adder);
             VoltageLevel vl = adder.add();
             addAliases(vl);
 
-            vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
-            vl.setProperty(PROPERTY_LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
+            // Check voltage limit consistency.
+            if (lowVoltageLimit <= highVoltageLimit) {
+                vl.setHighVoltageLimit(highVoltageLimit);
+                vl.setLowVoltageLimit(lowVoltageLimit);
+                vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
+                vl.setProperty(PROPERTY_LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
+            } else {
+                ignored("high/low voltage limits",
+                    () -> String.format("lowVoltageLimit (%f) is greater than highVoltageLimit (%f).", lowVoltageLimit, highVoltageLimit));
+            }
         }
     }
 
