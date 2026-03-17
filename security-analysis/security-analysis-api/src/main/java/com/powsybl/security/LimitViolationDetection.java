@@ -7,18 +7,17 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
-import com.powsybl.security.detectors.LoadingLimitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -33,7 +32,7 @@ public final class LimitViolationDetection {
 
     /**
      * Checks whether the current and voltage values on all equipments
-     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *
      * @param network           The network on which physical values must be checked.
@@ -53,7 +52,7 @@ public final class LimitViolationDetection {
 
     /**
      * Checks whether the current and voltage values on all equipments
-     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * of the specified {@link Network} should be considered as {@link com.powsybl.contingency.violations.LimitViolation}s.
      * In case it should, feeds the consumer with it.
      * In this DC power flow mode, the current is computed using the DC power factor if necessary.
      *
@@ -103,39 +102,67 @@ public final class LimitViolationDetection {
                 : terminal.getI();
     }
 
-    static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, LimitType type,
+    /**
+     * Checks all the selected {@link OperationalLimitsGroup} of the <code>side</code> of the <code>branch</code>.
+     * It will check for the limits of the given <code>type</code>, using the <code>value</code> as the value to check against the limits.
+     * @param branch the branch on which to check the limits
+     * @param side the side of the branch to check
+     * @param value what to check against the limits (value in A for intensity, in MW for active power, in MVar for reactive power)
+     * @param type the type of the limit to check
+     * @param currentLimitTypes check for permanent, temporary or both
+     * @param limitsComputer how to calculate the limits
+     * @param consumer what to do with the violations that are detected (log, store, etc...)
+     */
+    public static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, LimitType type,
                                     Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
-        boolean overloadOnTemporary = false;
+        Objects.requireNonNull(side);
+        Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(branch, type, side.toThreeSides(), false);
+        final Set<String> temporaryOverloadIds = new HashSet<>();
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitsComputer, value, type);
-            if (overload != null) {
-                consumer.accept(new LimitViolation(branch.getId(),
-                        branch.getOptionalName().orElse("null"),
-                        toLimitViolationType(type),
-                        overload.getPreviousLimitName(),
-                        overload.getTemporaryLimit().getAcceptableDuration(),
-                        overload.getPreviousLimit(),
-                        overload.getLimitReductionCoefficient(),
-                        value,
-                        side));
-                overloadOnTemporary = true;
-            }
+            //get all the temporary overloads ids, and also use the consumer on them as we go
+            allLoadingLimits.stream()
+                .map(limits -> LimitViolationUtils.getOverload(limits, value))
+                .flatMap(Optional::stream)
+                .forEach(
+                    overload -> {
+                        consumer.accept(
+                            new LimitViolation(branch.getId(),
+                                branch.getOptionalName().orElse("null"),
+                                overload.getOperationalLimitsGroupId(),
+                                toLimitViolationType(type),
+                                overload.getPreviousLimitName(),
+                                overload.getTemporaryLimit().getAcceptableDuration(),
+                                overload.getPreviousLimit(),
+                                overload.getLimitReductionCoefficient(),
+                                value,
+                                side.toThreeSides(),
+                                null
+                            )
+                        );
+                        temporaryOverloadIds.add(overload.getOperationalLimitsGroupId());
+                    }
+                );
         }
-        if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            PermanentLimitCheckResult overload = LimitViolationUtils.checkPermanentLimit(branch, side, value, type, limitsComputer);
-            if (overload.isOverload()) {
-                double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
-                consumer.accept(new LimitViolation(branch.getId(),
-                    branch.getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    Integer.MAX_VALUE,
-                    limit,
-                    overload.limitReductionValue(),
-                    value,
-                    side));
-            }
+
+        if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+            //do the same on the permanent, only for the groups on which we don't have an overload on a temporary
+            allLoadingLimits.stream()
+                    .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
+                    .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
+                    .filter(PermanentLimitCheckResult::isOverload)
+                    .forEach(permanentLimitCheckResult -> consumer.accept(new LimitViolation(branch.getId(),
+                            branch.getOptionalName().orElse(null),
+                            permanentLimitCheckResult.operationalLimitsGroupId(),
+                            toLimitViolationType(type),
+                            LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                            Integer.MAX_VALUE,
+                            permanentLimitCheckResult.permanentLimitValue(),
+                            permanentLimitCheckResult.limitReductionValue(),
+                            value,
+                            side.toThreeSides(),
+                            null
+                    )));
         }
     }
 
@@ -168,39 +195,67 @@ public final class LimitViolationDetection {
         checkLimitViolation(transformer, side, i, LimitType.CURRENT, currentLimitTypes, limitsComputer, consumer);
     }
 
-    static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
+    /**
+     * Checks all the selected {@link OperationalLimitsGroup} of the <code>side</code> of the <code>transformer</code>.
+     * It will check for the limits of the given <code>type</code>, using the <code>value</code> as the value to check against the limits.
+     * @param transformer the three-winding transformer on which to check the limits
+     * @param side the side of the transformer to check
+     * @param value what to check against the limits (value in A for intensity, in MW for active power, in MVar for reactive power)
+     * @param type the type of the limit to check
+     * @param currentLimitTypes check for permanent, temporary or both
+     * @param limitsComputer how to calculate the limits
+     * @param consumer what to do with the violations that are detected (log, store, etc...)
+     */
+    public static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
                                     LimitType type, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
                                     Consumer<LimitViolation> consumer) {
-        boolean overloadOnTemporary = false;
+        Collection<LimitsContainer<LoadingLimits>> allLoadingLimits = limitsComputer.computeLimits(transformer, type, side, false);
+        final Set<String> temporaryOverloadIds = new HashSet<>();
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitsComputer, value, type);
-            if (overload != null) {
-                consumer.accept(new LimitViolation(transformer.getId(),
-                        transformer.getOptionalName().orElse(null),
-                        toLimitViolationType(type),
-                        overload.getPreviousLimitName(),
-                        overload.getTemporaryLimit().getAcceptableDuration(),
-                        overload.getPreviousLimit(),
-                        overload.getLimitReductionCoefficient(),
-                        value,
-                        side));
-                overloadOnTemporary = true;
-            }
+            //get all the temporary overloads and send them through the consumer
+            allLoadingLimits.stream()
+                .map(limits -> LimitViolationUtils.getOverload(limits, value))
+                .flatMap(Optional::stream)
+                .forEach(overload -> {
+                    consumer.accept(
+                        new LimitViolation(transformer.getId(),
+                            transformer.getOptionalName().orElse("null"),
+                            overload.getOperationalLimitsGroupId(),
+                            toLimitViolationType(type),
+                            overload.getPreviousLimitName(),
+                            overload.getTemporaryLimit().getAcceptableDuration(),
+                            overload.getPreviousLimit(),
+                            overload.getLimitReductionCoefficient(),
+                            value,
+                            side,
+                            null
+                        )
+                    );
+                    temporaryOverloadIds.add(overload.getOperationalLimitsGroupId());
+                });
         }
-        if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            PermanentLimitCheckResult overload = LimitViolationUtils.checkPermanentLimit(transformer, side, limitsComputer, value, type);
-            if (overload.isOverload()) {
-                double limit = transformer.getLeg(side).getLimits(type).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
-                consumer.accept(new LimitViolation(transformer.getId(),
-                    transformer.getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    Integer.MAX_VALUE,
-                    limit,
-                    overload.limitReductionValue(),
-                    value,
-                    side));
-            }
+
+        if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+            //do the same on the permanent, only for the groups on which we don't have an overload on a temporary
+            allLoadingLimits.stream()
+                    .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
+                    .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
+                    .filter(PermanentLimitCheckResult::isOverload)
+                    .forEach(permanentLimitCheckResult ->
+                        consumer.accept(new LimitViolation(transformer.getId(),
+                                transformer.getOptionalName().orElse(null),
+                                permanentLimitCheckResult.operationalLimitsGroupId(),
+                                toLimitViolationType(type),
+                                LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                                Integer.MAX_VALUE,
+                                permanentLimitCheckResult.permanentLimitValue(),
+                                permanentLimitCheckResult.limitReductionValue(),
+                                value,
+                                side,
+                                null
+                        )
+                    )
+                );
         }
     }
 

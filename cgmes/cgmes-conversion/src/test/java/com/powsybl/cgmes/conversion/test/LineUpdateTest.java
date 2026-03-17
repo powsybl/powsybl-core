@@ -7,12 +7,12 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -153,7 +153,7 @@ class LineUpdateTest {
 
     private static void assertEq(Line line) {
         assertNotNull(line);
-        assertNotNull(line.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertNotNull(line.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
     }
 
     private static void assertSsh(Line line) {

@@ -41,9 +41,13 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         writeNodeOrBus(2, twt.getTerminal2(), context);
         writeOptionalPQ(1, twt.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
         writeOptionalPQ(2, twt.getTerminal2(), context.getWriter(), context.getOptions()::isWithBranchSV);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
             writeSelectedGroupId(1, twt.getSelectedOperationalLimitsGroupId1().orElse(null), context.getWriter());
             writeSelectedGroupId(2, twt.getSelectedOperationalLimitsGroupId2().orElse(null), context.getWriter());
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+            writeAllSelectedGroupIds(twt, TwoSides.ONE, context.getWriter());
+            writeAllSelectedGroupIds(twt, TwoSides.TWO, context.getWriter());
         });
     }
 
@@ -85,9 +89,13 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         TwoWindingsTransformer twt = adder.add();
         readOptionalPQ(1, twt.getTerminal1(), context.getReader());
         readOptionalPQ(2, twt.getTerminal2(), context.getReader());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
             readSelectedGroupId(1, twt::setSelectedOperationalLimitsGroup1, context);
             readSelectedGroupId(2, twt::setSelectedOperationalLimitsGroup2, context);
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+            readAllSelectedGroupIds(twt, TwoSides.ONE, context);
+            readAllSelectedGroupIds(twt, TwoSides.TWO, context);
         });
         return twt;
     }
