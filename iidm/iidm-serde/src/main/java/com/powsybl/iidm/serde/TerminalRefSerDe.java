@@ -40,26 +40,16 @@ public final class TerminalRefSerDe {
     public static void writeTerminalRef(Terminal t, NetworkSerializerContext context, String namespace, String elementName, TreeDataWriter writer) {
         if (t != null) {
             writer.writeStartNode(namespace, elementName);
-            writeTerminalRefAttribute(t, context, elementName, writer);
+            writeTerminalRefAttribute(t, context, writer);
             writer.writeEndNode();
         }
     }
 
-    @Deprecated(since = "7.2.0")
     public static void writeTerminalRefAttribute(Terminal t, NetworkSerializerContext context) {
         writeTerminalRefAttribute(t, context, context.getWriter());
     }
 
-    public static void writeTerminalRefAttribute(Terminal t, NetworkSerializerContext context, String parentElementName) {
-        writeTerminalRefAttribute(t, context, parentElementName, context.getWriter());
-    }
-
-    @Deprecated(since = "7.2.0")
     public static void writeTerminalRefAttribute(Terminal terminal, NetworkSerializerContext context, TreeDataWriter writer) {
-        writeTerminalRefAttribute(terminal, context, null, writer);
-    }
-
-    public static void writeTerminalRefAttribute(Terminal terminal, NetworkSerializerContext context, String parentElementName, TreeDataWriter writer) {
 
         String connectableId = Optional.ofNullable(terminal)
                 .map(t -> {
