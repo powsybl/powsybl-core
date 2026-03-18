@@ -21,15 +21,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class NodeBreakerFictitiousInjectionTest {
 
     @Test
-    void testSetFictitiousP0AndFictitiousQ0() {
-        // Testing setFictitious with multiple variants (initialState has fictitious values and duplicateState has no fictitious values)
+    void testGetFictitiousP0AndFictitiousQ0() {
         Network network = NetworkTest1Factory.create();
+        Bus bus = network.getVoltageLevel("voltageLevel1").getBusBreakerView().getBus("voltageLevel1_0");
+
+        // Initial state
+        assertEquals(0, bus.getFictitiousP0());
+        assertEquals(0, bus.getFictitiousQ0());
+
+        // Create a new variant
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         String duplicateVariantId = "duplicateState";
         network.getVariantManager().cloneVariant(initialVariantId, duplicateVariantId);
-        Bus bus = network.getVoltageLevel("voltageLevel1").getBusBreakerView().getBus("voltageLevel1_0");
 
-        // Testing setFictitious in initialState, with fictitious injections
+        // Testing getFictitious in initialState, with fictitious injections
         network.getVariantManager().setWorkingVariant(initialVariantId);
         bus.setFictitiousP0(10);
         bus.setFictitiousQ0(20);
@@ -45,17 +50,25 @@ class NodeBreakerFictitiousInjectionTest {
         assertEquals(5, bus.getFictitiousP0());
         assertEquals(10, bus.getFictitiousQ0());
 
-        // Testing setFictitious in duplicateState, which has no fictitiousInjections (but fictitiousInjectionsByNode is not empty)
+        // Testing getFictitious in duplicateState, which has no fictitiousInjections (but fictitiousInjectionsByNode is not empty)
         network.getVariantManager().setWorkingVariant(duplicateVariantId);
         assertEquals(0, bus.getFictitiousP0());
         assertEquals(0, bus.getFictitiousQ0());
 
-        // Testing setFictitious back in initialState, after removing fictitiousInjections
+        // Testing getFictitious back in initialState, after removing fictitiousInjections
         network.getVariantManager().setWorkingVariant(initialVariantId);
         assertEquals(10, bus.getFictitiousP0());
         assertEquals(20, bus.getFictitiousQ0());
         bus.setFictitiousP0(0.0);
         bus.setFictitiousQ0(0.0);
+        assertEquals(0, bus.getFictitiousP0());
+        assertEquals(0, bus.getFictitiousQ0());
+
+        // Testing after deleting a variant and creating a new one
+        network.getVariantManager().removeVariant(otherDuplicateVariantId);
+        String anotherDuplicateVariantId = "anotherDuplicateVariantId";
+        network.getVariantManager().cloneVariant(duplicateVariantId, anotherDuplicateVariantId);
+        network.getVariantManager().setWorkingVariant(anotherDuplicateVariantId);
         assertEquals(0, bus.getFictitiousP0());
         assertEquals(0, bus.getFictitiousQ0());
     }
