@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import static java.lang.Integer.MAX_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -99,7 +99,7 @@ class LoadingLimitsUtilTest {
         assertEquals(1000., adder.getPermanentLimit(), 0.001);
         assertEquals(1, adder.getTemporaryLimitToCreateList().size());
         List<TemporaryLimitToCreate> temps = adder.getTemporaryLimitToCreateList().stream().toList();
-        assertEquals(1200., temps.get(0).value());
+        assertEquals(1200., temps.getFirst().value());
 
         LoggedData loggedData = customLogger.getLoggedData();
         assertEquals("Operational Limits of ownerId", loggedData.what());
@@ -112,7 +112,7 @@ class LoadingLimitsUtilTest {
     private record TemporaryLimitToCreate(String name, int acceptableDuration, double value) {
     }
 
-    private static class LimitsAdder<L extends LoadingLimits, A extends LimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
+    private static class LimitsAdder<L extends LoadingLimits, A extends LimitsAdder<L, A>> extends AbstractBasePropertiesHolder implements LoadingLimitsAdder<L, A> {
         private final String ownerId;
         private final List<TemporaryLimitToCreate> temporaryLimitToCreateList;
         private double permanentLimit;
