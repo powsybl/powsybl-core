@@ -1,0 +1,66 @@
+* Test with 2 pairs of VSCs + DC lines connected by an AC line.
+* The purpose of the test is to check that 2 DC subnetworks are indeed created.
+* Each pair of VSCs have distinct nominal DC voltage level. We then count
+* the number of DC voltage levels to verify there are 2 DC subnetworks.
+
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+1;Version;5.0
+
+$$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
+9;1 aux_1;;;60;
+
+$$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);rline(r);xline(r);systp(i)
+11;DC Cable Type 320kV;9;320;17.49546;0.1;0.309789;1
+12;AC Cable Type 320kV;9;320;17.49546;0.1;0.309789;0
+
+$$ElmLne;ID(a:40);loc_name(a:40);fold_id(p);typ_id(p);dline(r)
+21;lne_1_3_1;9;12;52
+22;DC-Line_left_pos;9;11;50
+23;DC-Line_left_neg;9;11;50
+24;DC-Line_right_pos;9;11;50
+25;DC-Line_right_neg;9;11;50
+
+$$ElmVsc;ID(a:40);loc_name(a:40);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r);i_acdc(i);usetpdc(r);Unomdc(r)
+31;left HVDC Converter 1;9;300;1.0;600;0;10000;900;4;;320
+32;left HVDC Converter 2;9;300;;0;100;10000;900;3;1.01;320
+33;right HVDC Converter 3;9;300;1.0;600;0;10000;900;4;;525
+34;right HVDC Converter 4;9;300;;0;100;10000;900;3;1.01;525
+
+$$ElmTerm;ID(a:40);loc_name(a:40);fold_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i)
+41;1 Bus 3;9;0;0;165;95.26279;0
+42;2 Bus 2;9;0;0;165;95.26279;0
+43;3 Bus 2-Load;9;0;0;165;95.26279;0
+44;4 HVDC Link_T_DC_pos1;9;1;0;320;320.0;0
+45;5 HVDC Link_T_DC_pos2;9;1;0;320;320.0;0
+46;6 HVDC Link_T_DC_neg1;9;1;0;320;320.0;1
+47;7 HVDC Link_T_DC_neg2;9;1;0;320;320.0;1
+48;8 HVDC Link_T_DC_pos3;9;1;0;525;525.0;0
+49;9 HVDC Link_T_DC_pos4;9;1;0;525;525.0;0
+50;10 HVDC Link_T_DC_neg3;9;1;0;525;525.0;1
+51;11 HVDC Link_T_DC_neg4;9;1;0;525;525.0;1
+52;12 Bus AC right;9;0;0;165;95.26279;0
+
+$$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);obj_bus(i);obj_id(p);it2p1(i);it2p2(i);it2p3(i)
+101;HVDC Converter 1 AC Node;42;0;31;0;1;2
+102;HVDC Converter 2 AC Node;43;0;32;0;1;2
+103;HVDC Converter 1 DC Node-1;44;1;31;0;1;2
+104;HVDC Converter 1 DC Node-2;46;2;31;0;1;2
+105;HVDC Converter 2 DC Node-1;45;1;32;0;1;2
+106;HVDC Converter 2 DC Node-2;47;2;32;0;1;2
+107;HVDC line 2 Node 1;44;0;22;0;1;2
+108;HVDC line 2 Node 2;45;1;22;0;1;2
+109;HVDC line 3 Node 1;46;0;23;0;1;2
+110;HVDC line 3 Node 2;47;1;23;0;1;2
+111;AC line Node 1;43;0;21;0;1;2
+112;AC line Node 2;41;1;21;0;1;2
+113;HVDC Converter 3 AC Node;41;0;33;0;1;2
+114;HVDC Converter 4 AC Node;52;0;34;0;1;2
+115;HVDC Converter 3 DC Node-1;48;1;33;0;1;2
+116;HVDC Converter 3 DC Node-2;50;2;33;0;1;2
+117;HVDC Converter 4 DC Node-1;49;1;34;0;1;2
+118;HVDC Converter 4 DC Node-2;50;2;34;0;1;2
+119;HVDC line 4 Node 1;48;0;24;0;1;2
+120;HVDC line 4 Node 2;49;1;24;0;1;2
+121;HVDC line 5 Node 1;50;0;25;0;1;2
+122;HVDC line 5 Node 2;51;1;25;0;1;2
+
