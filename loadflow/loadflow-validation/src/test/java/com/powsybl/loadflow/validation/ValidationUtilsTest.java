@@ -7,10 +7,9 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -62,12 +61,49 @@ class ValidationUtilsTest extends AbstractValidationTest {
     }
 
     @Test
-    void isMainComponent() {
+    void isMainComponentShouldSucceed() {
         assertTrue(ValidationUtils.isMainComponent(looseConfig, true));
         assertFalse(ValidationUtils.isMainComponent(looseConfig, false));
 
         looseConfig.setCheckMainComponentOnly(false);
         assertTrue(ValidationUtils.isMainComponent(looseConfig, true));
         assertTrue(ValidationUtils.isMainComponent(looseConfig, false));
+    }
+
+    @Test
+    void isUndefinedOrZeroShouldSucceed() {
+        assertTrue(ValidationUtils.isUndefinedOrZero(Double.NaN, 0.01));
+        assertTrue(ValidationUtils.isUndefinedOrZero(0.0, 0.01));
+        assertTrue(ValidationUtils.isUndefinedOrZero(0.01, 0.02));
+        assertFalse(ValidationUtils.isUndefinedOrZero(0.02, 0.01));
+    }
+
+    @Test
+    void isOutsideToleranceShouldSucceed() {
+        assertFalse(ValidationUtils.isOutsideTolerance(10.0, 10.001, 0.01));
+        assertFalse(ValidationUtils.isOutsideTolerance(10, 11, 1));
+        assertTrue(ValidationUtils.isOutsideTolerance(10.0, 10.02, 0.01));
+    }
+
+    @Test
+    void isOutsideOrAtToleranceShouldSucceed() {
+        assertFalse(ValidationUtils.isOutsideOrAtTolerance(10.0, 10.001, 0.01));
+        assertTrue(ValidationUtils.isOutsideOrAtTolerance(10, 11, 1));
+        assertTrue(ValidationUtils.isOutsideOrAtTolerance(10.0, 10.02, 0.01));
+    }
+
+    @Test
+    void isConnectedAndValidatedShouldSucceed() {
+        // Given (config parameter CheckMainComponentOnly true)
+        // config parameter CheckMainComponentOnly true
+        // When Then
+        assertTrue(ValidationUtils.isConnectedAndMainComponent(true, true, looseConfig));
+        assertFalse(ValidationUtils.isConnectedAndMainComponent(true, false, looseConfig));
+        assertFalse(ValidationUtils.isConnectedAndMainComponent(false, true, looseConfig));
+        //Given (config parameter CheckMainComponentOnly false)
+        looseConfig.setCheckMainComponentOnly(false);
+        // When Then
+        assertTrue(ValidationUtils.isConnectedAndMainComponent(true, false, looseConfig));
+        assertFalse(ValidationUtils.isConnectedAndMainComponent(false, false, looseConfig));
     }
 }

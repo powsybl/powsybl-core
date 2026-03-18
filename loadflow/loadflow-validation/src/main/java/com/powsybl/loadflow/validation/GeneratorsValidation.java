@@ -19,14 +19,27 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
+import static com.powsybl.loadflow.validation.ValidationUtils.*;
+
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
+ *
+ * Rules for valid results :<br/>
+ * Rule 1: A validation error should be detected if there is both a voltage and a target but no p or q <br/>
+ * Rule 2: If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK. <br/>
+ * Rule 3: Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK <br/>
+ * Rule 4: Active power p matches expected setpoint <br/>
+ * Rule 5: If voltage regulator is disabled, reactive power Q matches targetQ <br/>
+ * Rule 6: If voltage regulator is enabled, reactive power q follow V/targetV logic<br/>
+ *   - qGen ~ minQ if V > targetV + threshold <br/>
+ *   - qGen ~ maxQ if V < targetV - threshold <br/>
+ *   - else qGen within [minQ, maxQ])
  */
 public final class GeneratorsValidation {
 
@@ -89,7 +102,6 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(generatorsWriter);
         double p = gen.getTerminal().getP();
         double q = gen.getTerminal().getQ();
-        Bus bus = gen.getTerminal().getBusView().getBus();
         double targetP = gen.getTargetP();
         double targetQ = gen.getTargetQ();
         double targetV = gen.getTargetV();
@@ -98,11 +110,10 @@ public final class GeneratorsValidation {
         double maxP = gen.getMaxP();
         double minQ = gen.getReactiveLimits().getMinQ(targetP);
         double maxQ = gen.getReactiveLimits().getMaxQ(targetP);
-        double v = bus != null ? bus.getV() : Double.NaN;
-        boolean connected = bus != null;
-        Bus connectableBus = gen.getTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        TerminalState terminalState = getTerminalState(gen.getTerminal());
+        double v = terminalState.v();
+        boolean connected = terminalState.connected();
+        boolean mainComponent = terminalState.mainComponent();
         return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected,
                                mainComponent, config, generatorsWriter, guesser);
     }
@@ -131,12 +142,12 @@ public final class GeneratorsValidation {
         boolean validated = true;
 
         double expectedP = getExpectedP(guesser, id, p, targetP, minP, maxP, config.getThreshold());
-        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
-            if (Double.isNaN(p) || Double.isNaN(q)) {
-                validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
-            } else if (checkReactiveBoundInversion(minQ, maxQ, config)) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
+        if (isConnectedAndMainComponent(connected, mainComponent, config)) {
+            if (areNaN(p, q)) {
+                validated = validateMissingPQRule(id, p, q, targetP, targetQ);
+            } else if (isGenReactiveBoundInverted(minQ, maxQ, config.getThreshold(), config.isNoRequirementIfReactiveBoundInversion())) {
                 validated = true;
-            } else if (checkSetpointOutsidePowerBounds(targetP, minP, maxP, config)) { // when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds return true
+            } else if (isGenSetpointOutsidePowerBounds(targetP, minP, maxP, config.getThreshold(), config.isNoRequirementIfSetpointOutsidePowerBounds())) {
                 validated = true;
             } else {
                 validated = checkGeneratorsValues(id, p, q, v, expectedP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
@@ -168,59 +179,87 @@ public final class GeneratorsValidation {
         }
     }
 
-    private static boolean checkGeneratorsNaNValues(String id, double p, double q, double targetP, double targetQ) {
-        // a validation error should be detected if there is both a voltage and a target but no p or q
-        if (!Double.isNaN(targetP) && targetP != 0
-                || !Double.isNaN(targetQ) && targetQ != 0) {
-            LOGGER.warn("{} {}: {}: P={} targetP={} - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP, q, targetQ);
-            return false;
-        }
-        return true;
-    }
-
     private static boolean checkGeneratorsValues(String id, double p, double q, double v, double expectedP, double targetQ, double targetV,
                                                  boolean voltageRegulatorOn, double minQ, double maxQ, ValidationConfig config) {
         boolean validated = true;
-        // active power should be equal to setpoint
-        if (ValidationUtils.areNaN(config, expectedP) || Math.abs(p + expectedP) > config.getThreshold()) {
+        double threshold = config.getThreshold();
+        // Rule 4: Active power p matches expected setpoint
+        if (areNaN(config, expectedP) || isGenActivePowerInconsistent(p, expectedP, threshold)) {
             LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
             validated = false;
         }
-        // if voltageRegulatorOn="false" then reactive power should be equal to setpoint
-        if (!voltageRegulatorOn && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > config.getThreshold())) {
+
+        //Rule 5: If voltage regulator is disabled, Reactive power Q matches targetQ
+        if (!voltageRegulatorOn && (areNaN(config, targetQ) || isGenReactivePowerInconsistent(q, targetQ, threshold))) {
             LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;
         }
-        // if voltageRegulatorOn="true" then
-        // either q is equal to g.getReactiveLimits().getMinQ(p) and V is higher than g.getTargetV()
-        // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is lower than g.getTargetV()
-        // or V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
+
         double qGen = -q;
-        if (voltageRegulatorOn
-            && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
-                || v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold()
-                || v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold()
-                || Math.abs(v - targetV) <= config.getThreshold() && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
+        // Rule 6: If voltage regulator is enabled, reactive power q follow V/targetV logic
+        // - qGen ~ minQ if V > targetV + threshold
+        // - qGen ~ maxQ if V < targetV - threshold
+        // - else qGen within [minQ, maxQ])
+        if (voltageRegulatorOn && (ValidationUtils.areNaN(config, minQ, maxQ, targetV) || isGenVoltageRegulationInconsistent(qGen, v, targetV, minQ, maxQ, threshold))) {
             LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
             validated = false;
         }
         return validated;
     }
 
-    private static double getMaxQ(double minQ, double maxQ) {
-        return maxQ < minQ ? minQ : maxQ;
+    /**
+     * Rule 1: a validation error should be detected if there is both a voltage and a target but no p or q
+     */
+    private static boolean validateMissingPQRule(String id, double p, double q, double targetP, double targetQ) {
+        if (!Double.isNaN(targetP) && targetP != 0 || !Double.isNaN(targetQ) && targetQ != 0) {
+            LOGGER.warn("{} {}: {}: P={} targetP={} - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP, q, targetQ);
+            return false;
+        }
+        return true;
     }
 
-    private static double getMinQ(double minQ, double maxQ) {
-        return maxQ < minQ ? maxQ : minQ;
+    /**
+     * Rule 2: rule for valid result: if reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK.
+     */
+    private static boolean isGenReactiveBoundInverted(double minQ, double maxQ, double threshold, boolean isNoRequirementIfReactiveBoundInversion) {
+        return maxQ < minQ - threshold && isNoRequirementIfReactiveBoundInversion;
     }
 
-    private static boolean checkReactiveBoundInversion(double minQ, double maxQ, ValidationConfig config) {
-        return maxQ < minQ - config.getThreshold() && config.isNoRequirementIfReactiveBoundInversion();
+    /**
+     * Rule 3: rule for valid result: active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK
+     */
+    private static boolean isGenSetpointOutsidePowerBounds(double targetP, double minP, double maxP, double threshold, boolean isNoRequirementIfSetpointOutsidePowerBounds) {
+        return (targetP < minP - threshold || targetP > maxP + threshold) && isNoRequirementIfSetpointOutsidePowerBounds;
     }
 
-    private static boolean checkSetpointOutsidePowerBounds(double targetP, double minP, double maxP, ValidationConfig config) {
-        return (targetP < minP - config.getThreshold() || targetP > maxP + config.getThreshold()) && config.isNoRequirementIfSetpointOutsidePowerBounds();
+    /**
+     * Rule 4: rule for valid result: Active power p matches expected setpoint
+     */
+    private static boolean isGenActivePowerInconsistent(double p, double expectedP, double threshold) {
+        return isOutsideTolerance(p, -expectedP, threshold);
+    }
+
+    /**
+     * Rule 5: rule for valid result: Reactive power Q matches targetQ
+     */
+    private static boolean isGenReactivePowerInconsistent(double q, double targetQ, double threshold) {
+        return isOutsideOrAtTolerance(q, -targetQ, threshold);
+    }
+
+    /**
+     * Rule 6: rule for valid result:</p>
+     * <code> targetV - V < threshold && |Q - minQ| <= threshold</code></p>
+     * <code> V - targetV < threshold && |Q - maxQ| <= threshold</code></p>
+     * <code> |V - targetV|  < threshold && minQ <= Q <= maxQ </code>
+     */
+    private static boolean isGenVoltageRegulationInconsistent(double qGen, double v, double targetV, double minQ, double maxQ, double threshold) {
+
+        // When V is higher than g.getTargetV() then q must equal to g.getReactiveLimits().getMinQ(p)
+        // When V is lower than g.getTargetV() q must equal to g.getReactiveLimits().getMaxQ(p)
+        // When V is equal to g.getTargetV() then q (reactive bounds) must satisfy
+        return v > targetV + threshold && Math.abs(qGen - Math.min(minQ, maxQ)) > threshold
+                || v < targetV - threshold && Math.abs(qGen - Math.max(minQ, maxQ)) > threshold
+                || Math.abs(v - targetV) <= threshold && !boundedWithin(minQ, maxQ, qGen, threshold);
     }
 
 }
