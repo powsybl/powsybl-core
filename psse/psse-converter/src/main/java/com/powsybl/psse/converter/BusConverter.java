@@ -47,19 +47,21 @@ class BusConverter extends AbstractConverter {
         List<PsseBus> buses = new ArrayList<>();
         contextExport.getFullExport().getBusISet().forEach(busI -> {
             // bus and type is always present when a psseBus is created
-            Bus busViewBus = contextExport.getFullExport().getBusView(busI).orElse(null);
-            int type = findBusViewBusType(busViewBus);
+            Bus bus = contextExport.getFullExport().getBus(busI).orElse(null);
             String busName;
             double nominalV;
-            if (busViewBus != null) {
-                busName = fixBusName(busViewBus.getNameOrId());
-                nominalV = busViewBus.getVoltageLevel().getNominalV();
+            if (bus != null) {
+                busName = fixBusName(bus.getNameOrId());
+                nominalV = bus.getVoltageLevel().getNominalV();
             } else {
                 VoltageLevel voltageLevel = contextExport.getFullExport().getVoltageLevel(busI).orElseThrow();
                 int node = contextExport.getFullExport().getNode(busI).orElseThrow();
                 busName = fixBusName(voltageLevel.getNameOrId() + "-" + node);
                 nominalV = voltageLevel.getNominalV();
             }
+            // bus could be either a busView or a busBreaker
+            Bus busViewBus = bus != null ? bus.getVoltageLevel().getBusView().getBus(bus.getId()) : null;
+            int type = findBusViewBusType(busViewBus);
             buses.add(createBus(busViewBus, busI, busName, nominalV, type));
         });
         psseModel.addBuses(buses);

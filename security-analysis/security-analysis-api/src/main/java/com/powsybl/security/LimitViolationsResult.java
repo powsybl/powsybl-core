@@ -7,6 +7,8 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.contingency.violations.LimitViolation;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
