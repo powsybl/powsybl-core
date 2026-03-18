@@ -33,13 +33,13 @@ class PostContingencyResultComparatorTest {
     void compare() {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        PostContingencyResult result1 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList(), Collections.emptyList()), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult result1 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList(), Collections.emptyList()), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency2.getId()).thenReturn("contingency2");
-        PostContingencyResult result2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList(), Collections.emptyList()), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult result2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList(), Collections.emptyList()), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         Contingency contingency3 = Mockito.mock(Contingency.class);
         Mockito.when(contingency3.getId()).thenReturn("contingency3");
-        PostContingencyResult result3 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList(), Collections.emptyList()), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult result3 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList(), Collections.emptyList()), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
         List<PostContingencyResult> results = Arrays.asList(result3, result1, result2);
         Collections.sort(results, new PostContingencyResultComparator());

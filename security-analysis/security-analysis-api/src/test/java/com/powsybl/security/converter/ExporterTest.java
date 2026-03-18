@@ -76,7 +76,7 @@ class ExporterTest extends AbstractSerDeTest {
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
                 PostContingencyComputationStatus.CONVERGED,
                 new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
-                new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+                NetworkResult.empty(),
                 ConnectivityResult.empty(),
                 2.34
         );
@@ -91,7 +91,7 @@ class ExporterTest extends AbstractSerDeTest {
                 List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
             List.of(new OperatorStrategyResult.ConditionalActionsResult("strategyId", PostContingencyComputationStatus.CONVERGED,
                     new LimitViolationsResult(Collections.emptyList()),
-                    new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+                    NetworkResult.empty(),
                     3.45)
             )
         );
@@ -106,7 +106,7 @@ class ExporterTest extends AbstractSerDeTest {
                             new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE), List.of("actionId3")),
                             new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1", AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE), List.of("actionId3")),
                             new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
-                            new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))).getId(), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList()), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), Double.NaN)));
+                            new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))).getId(), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList()), NetworkResult.empty(), Double.NaN)));
 
         operatorStrategyResults.add(opStrategyResult1);
         operatorStrategyResults.add(opStrategyResult2);

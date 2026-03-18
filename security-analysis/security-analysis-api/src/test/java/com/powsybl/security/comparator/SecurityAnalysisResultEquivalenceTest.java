@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
@@ -61,13 +60,13 @@ class SecurityAnalysisResultEquivalenceTest {
 
         // similar pre and post contingency results
         LimitViolationsResult preContingencyResult1 = new LimitViolationsResult(Arrays.asList(line1Violation1));
-        PostContingencyResult postContingencyResult11 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line1Violation2)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
-        PostContingencyResult postContingencyResult12 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line2Violation)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult postContingencyResult11 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line1Violation2)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult postContingencyResult12 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line2Violation)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         SecurityAnalysisResult result1 = new SecurityAnalysisResult(preContingencyResult1, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult11, postContingencyResult12));
 
         LimitViolationsResult preContingencyResult2 = new LimitViolationsResult(Arrays.asList(similarLine1Violation1));
-        PostContingencyResult postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine1Violation2)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
-        PostContingencyResult postContingencyResult22 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine2Violation)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine1Violation2)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult postContingencyResult22 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine2Violation)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         SecurityAnalysisResult result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21));
 
         assertTrue(resultEquivalence.equivalent(result1, result2));
@@ -80,20 +79,20 @@ class SecurityAnalysisResultEquivalenceTest {
 
         // similar pre contingency results, different post contingency results
         preContingencyResult2 = new LimitViolationsResult(Arrays.asList(similarLine1Violation1));
-        postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, differentLine1Violation2)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, differentLine1Violation2)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, different post contingency results: more contingencies at the end of result2
-        postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine1Violation2)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
-        PostContingencyResult postContingencyResult23 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine3Violation)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine1Violation2)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult postContingencyResult23 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine3Violation)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21, postContingencyResult23));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, different post contingency results: more contingencies in result2
-        PostContingencyResult postContingencyResult13 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line3Violation)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult postContingencyResult13 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line3Violation)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         result1 = new SecurityAnalysisResult(preContingencyResult1, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult13, postContingencyResult12));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
@@ -110,7 +109,7 @@ class SecurityAnalysisResultEquivalenceTest {
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, similar post contingency results: more contingencies in result1, but small
-        postContingencyResult12 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(smallLine1Violation1, smallLine2Violation)), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
+        postContingencyResult12 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(smallLine1Violation1, smallLine2Violation)), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         result1 = new SecurityAnalysisResult(preContingencyResult1, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult13, postContingencyResult11, postContingencyResult12));
 
         assertTrue(resultEquivalence.equivalent(result1, result2));

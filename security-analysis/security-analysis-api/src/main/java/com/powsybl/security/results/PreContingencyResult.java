@@ -20,7 +20,7 @@ public class PreContingencyResult extends AbstractContingencyResult {
     private final LoadFlowResult.ComponentResult.Status status;
 
     public PreContingencyResult() {
-        this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), Double.NaN);
+        this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, NetworkResult.empty(), Double.NaN);
     }
 
     public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, double distributedActivePower) {

@@ -29,14 +29,14 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final List<OperatorStrategyResult> operatorStrategyResults;
 
     public static SecurityAnalysisResult empty() {
-        return new SecurityAnalysisResult(new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), Double.NaN),
+        return new SecurityAnalysisResult(new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), NetworkResult.empty(), Double.NaN),
                 Collections.emptyList(), Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), Double.NaN),
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, NetworkResult.empty(), Double.NaN),
                 postContingencyResults, Collections.emptyList());
     }
 
