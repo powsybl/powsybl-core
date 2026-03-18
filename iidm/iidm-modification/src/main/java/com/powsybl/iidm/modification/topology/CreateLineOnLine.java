@@ -164,10 +164,6 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-        Optional<String> selectedOperationalLimitsGroup1 = line.getSelectedOperationalLimitsGroupId1();
-        Optional<String> selectedOperationalLimitsGroup2 = line.getSelectedOperationalLimitsGroupId2();
-        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
-        Collection<OperationalLimitsGroup> operationalLimitsGroups2 = line.getOperationalLimitsGroups2();
 
         // Remove the existing line
         String originalLineId = line.getId();
