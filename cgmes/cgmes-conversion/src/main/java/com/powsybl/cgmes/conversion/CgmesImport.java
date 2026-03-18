@@ -206,6 +206,7 @@ public class CgmesImport implements Importer {
                 tripleStoreOptions);
         Conversion conversion = new Conversion(cgmes, config(p));
         conversion.update(network, reportNode);
+        cgmes.close();
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
@@ -763,7 +764,7 @@ public class CgmesImport implements Importer {
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
             "Store the initial CGMES model as a network extension",
-            Boolean.TRUE)
+            Boolean.FALSE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
     private static final Parameter SOURCE_FOR_IIDM_ID_PARAMETER = new Parameter(
             SOURCE_FOR_IIDM_ID,

@@ -17,8 +17,8 @@ import java.util.Optional;
  */
 public class DefaultReducedLimitsContainer extends AbstractDistinctLimitsContainer<AbstractReducedLoadingLimits, LoadingLimits> {
 
-    public DefaultReducedLimitsContainer(AbstractReducedLoadingLimits limits, LoadingLimits originalLimits) {
-        super(limits, originalLimits);
+    public DefaultReducedLimitsContainer(AbstractReducedLoadingLimits limits, LoadingLimits originalLimits, String operationalLimitsGroupId) {
+        super(limits, originalLimits, operationalLimitsGroupId);
     }
 
     @Override
