@@ -58,7 +58,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                     // If it is a boundary Terminal we are not able to convert it
                     Boundary boundary = context.terminalMapping().findBoundary(terminalId);
                     if (boundary != null) {
-                        notAssigned(boundary.getDanglingLine());
+                        notAssigned(boundary.getBoundaryLine());
                         return;
                     }
                 }
