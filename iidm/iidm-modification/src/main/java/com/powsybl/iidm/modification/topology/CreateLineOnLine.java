@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,6 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
-import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
  * Connect an existing voltage level (in practice a voltage level where we have some loads or generations) to an
@@ -175,14 +175,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        copyOperationalLimits(operationalLimitsGroups1, line1::newOperationalLimitsGroup1);
-        copyOperationalLimits(operationalLimitsGroups2, line1::newOperationalLimitsGroup2);
-        copyOperationalLimits(operationalLimitsGroups1, line2::newOperationalLimitsGroup1);
-        copyOperationalLimits(operationalLimitsGroups2, line2::newOperationalLimitsGroup2);
-        selectedOperationalLimitsGroup1.ifPresent(line1::setSelectedOperationalLimitsGroup1);
-        selectedOperationalLimitsGroup2.ifPresent(line1::setSelectedOperationalLimitsGroup2);
-        selectedOperationalLimitsGroup1.ifPresent(line2::setSelectedOperationalLimitsGroup1);
-        selectedOperationalLimitsGroup2.ifPresent(line2::setSelectedOperationalLimitsGroup2);
+        LoadingLimitsUtil.copyOperationalLimits(line, line1);
+        LoadingLimitsUtil.copyOperationalLimits(line, line2);
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()

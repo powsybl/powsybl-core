@@ -121,7 +121,7 @@ public final class LoadingLimitsUtil {
     }
 
     /**
-     * <p>Copies every limit from each operational limits group. Adds all the selected groups on <code>copiedBranch</code> as selected
+     * <p>Copies each operational limits group from <code>copiedBranch</code> to <code>branch</code>. Adds all the selected groups on <code>copiedBranch</code> as selected
      * on <code>branch</code>. If a group of <code>copiedBranch</code> has the same ID as a group of <code>branch</code>, then the group of
      * <code>branch</code> will be silently overwritten.</p>
      * <p>Groups on <code>branch</code> that were selected will be deselected prior to copying.</p>
@@ -143,7 +143,7 @@ public final class LoadingLimitsUtil {
         }
     }
 
-    public static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
+    private static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
                                               Function<String, OperationalLimitsGroup> createGroup) {
         from.forEach(groupToCopy -> {
             OperationalLimitsGroup copy = createGroup.apply(groupToCopy.getId());
