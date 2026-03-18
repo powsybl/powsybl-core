@@ -25,75 +25,75 @@ public class TieLineUtilTest {
 
     public static final String PAIRING_KEY = "key";
     private static Network network;
-    private static DanglingLine dlConnected1;
-    private static DanglingLine dlConnected2;
-    private static DanglingLine dlDisconnected1;
-    private static DanglingLine dlDisconnected2;
+    private static BoundaryLine dlConnected1;
+    private static BoundaryLine dlConnected2;
+    private static BoundaryLine dlDisconnected1;
+    private static BoundaryLine dlDisconnected2;
 
     @BeforeAll
     public static void setup() {
         network = mock(Network.class);
-        dlConnected1 = createDanglingLine("connected1", true);
-        dlConnected2 = createDanglingLine("connected2", true);
-        dlDisconnected1 = createDanglingLine("disconnected1", false);
-        dlDisconnected2 = createDanglingLine("disconnected2", false);
+        dlConnected1 = createBoundaryLine("connected1", true);
+        dlConnected2 = createBoundaryLine("connected2", true);
+        dlDisconnected1 = createBoundaryLine("disconnected1", false);
+        dlDisconnected2 = createBoundaryLine("disconnected2", false);
     }
 
     @Test
-    void testFindCandidateDanglingLinesWithNoConnected() {
+    void testFindCandidateBoundaryLinesWithNoConnected() {
         // 0 connected, 0 disconnected
-        configureDanglingLines();
+        configureBoundaryLines();
         Assertions.assertTrue(getCandidate().isEmpty());
 
         // 0 connected, 1 disconnected
-        configureDanglingLines(dlDisconnected1);
+        configureBoundaryLines(dlDisconnected1);
         Assertions.assertEquals(dlDisconnected1, getCandidate().orElse(null));
 
         // 0 connected, several disconnected
-        configureDanglingLines(dlDisconnected1, dlDisconnected2);
+        configureBoundaryLines(dlDisconnected1, dlDisconnected2);
         Assertions.assertTrue(getCandidate().isEmpty());
     }
 
     @Test
-    void testFindCandidateDanglingLinesWithOneConnected() {
+    void testFindCandidateBoundaryLinesWithOneConnected() {
         // 1 connected, 0 disconnected
-        configureDanglingLines(dlConnected1);
+        configureBoundaryLines(dlConnected1);
         Assertions.assertEquals(dlConnected1, getCandidate().orElse(null));
 
         // 1 connected, 1 disconnected
-        configureDanglingLines(dlConnected1, dlDisconnected1);
+        configureBoundaryLines(dlConnected1, dlDisconnected1);
         Assertions.assertEquals(dlConnected1, getCandidate().orElse(null));
 
         // 1 connected, several disconnected
-        configureDanglingLines(dlConnected1, dlDisconnected1, dlDisconnected2);
+        configureBoundaryLines(dlConnected1, dlDisconnected1, dlDisconnected2);
         Assertions.assertEquals(dlConnected1, getCandidate().orElse(null));
     }
 
     @Test
-    void testFindCandidateDanglingLinesWithSeveralConnected() {
+    void testFindCandidateBoundaryLinesWithSeveralConnected() {
         // several connected, 0 disconnected
-        configureDanglingLines(dlConnected1, dlConnected2);
+        configureBoundaryLines(dlConnected1, dlConnected2);
         Assertions.assertTrue(getCandidate().isEmpty());
 
         // several connected, 1 disconnected
-        configureDanglingLines(dlConnected1, dlConnected2, dlDisconnected1);
+        configureBoundaryLines(dlConnected1, dlConnected2, dlDisconnected1);
         Assertions.assertTrue(getCandidate().isEmpty());
 
         // several connected, several disconnected
-        configureDanglingLines(dlConnected1, dlConnected2, dlDisconnected1, dlDisconnected2);
+        configureBoundaryLines(dlConnected1, dlConnected2, dlDisconnected1, dlDisconnected2);
         Assertions.assertTrue(getCandidate().isEmpty());
     }
 
-    private static void configureDanglingLines(DanglingLine... danglingLines) {
-        when(network.getDanglingLines(DanglingLineFilter.UNPAIRED)).thenReturn(Arrays.asList(danglingLines));
+    private static void configureBoundaryLines(BoundaryLine... boundaryLines) {
+        when(network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)).thenReturn(Arrays.asList(boundaryLines));
     }
 
-    private static Optional<DanglingLine> getCandidate() {
-        return TieLineUtil.findCandidateDanglingLines(network, k -> false).stream().findFirst();
+    private static Optional<BoundaryLine> getCandidate() {
+        return TieLineUtil.findCandidateBoundaryLines(network, k -> false).stream().findFirst();
     }
 
-    private static DanglingLine createDanglingLine(String id, boolean connected) {
-        DanglingLine dl = mock(DanglingLine.class);
+    private static BoundaryLine createBoundaryLine(String id, boolean connected) {
+        BoundaryLine dl = mock(BoundaryLine.class);
         when(dl.getId()).thenReturn(id);
         when(dl.getPairingKey()).thenReturn(PAIRING_KEY);
         Terminal terminal = mock(Terminal.class);

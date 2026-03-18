@@ -18,9 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -139,5 +137,24 @@ public abstract class AbstractLoadDetailTest {
         } catch (PowsyblException e) {
             assertEquals("Variant index not set", e.getMessage());
         }
+    }
+
+    @Test
+    public void checkVoltageConfigTest() {
+        Network network = createTestNetwork();
+        Load load = network.getLoad("L");
+        assertNotNull(load);
+
+        // Builder
+        LoadDetailAdder loadDetailAdder = load.newExtension(LoadDetailAdder.class)
+                .withFixedActivePower(40f)
+                .withFixedReactivePower(20f)
+                .withVariableActivePower(60f)
+                .withVariableReactivePower(Double.NaN);
+
+        // VariableReactivePower invalid
+        IllegalArgumentException e0 = assertThrows(IllegalArgumentException.class, loadDetailAdder::add);
+        assertEquals("Invalid variableReactivePower (NaN) for load L",
+                e0.getMessage());
     }
 }

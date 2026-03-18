@@ -21,7 +21,7 @@ An uncompressed JSON data chunk looks like:
   "values" : [ 1.0, 1.0, 1.0, 3.0 ]
 }
 ```
-An uncompressed data chunk is modeled with a double (or String) array and an offset. 
+An uncompressed data chunk is modeled with a double (or String) array and an offset.
 It defines values associated to instants of the time index from `offset` to `offset + values.length`.
 
 It is possible to compress the data chunks, using, for example, the [RLE](https://fr.wikipedia.org/wiki/Run-length_encoding).
@@ -53,7 +53,7 @@ Starting from a double time series, it is possible to create calculated time ser
 script.
 
 For instance, let us consider the following example.
-Let's say we have created a first double time series named `dts` in a script, it is then possible 
+Let's say we have created a first double time series named `dts` in a script, it is then possible
 to create new time series `a` and `b` by writing:
 
 ```groovy
@@ -86,7 +86,7 @@ The time series `a` and `b`, serialized in JSON format, then look like:
   }
 } ]
 ```
-The calculated time series are evaluated on the fly during array conversion or iteration 
+The calculated time series are evaluated on the fly during array conversion or iteration
 (through iterators or streams): only the arithmetic expression is stored.
 
 Here is the list of supported vector operations:

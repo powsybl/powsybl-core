@@ -1,0 +1,49 @@
+* 3 VSCs connected by DC lines in a triangle configuration.
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+1;Version;5.0
+
+$$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
+100;1 aux_1;;;60;
+
+$$ElmTerm;ID(a:40);loc_name(a:40);fold_id(p);systype(i);uknom(r);unknom(r);iminus(i);iUsage(i)
+1;AC node 1;100;0;500;500;;0
+2;AC node 2;100;0;500;500;;0
+3;AC node 3;100;0;500;500;;0
+11;DC pos VSC 31;100;1;500;500;0;1
+12;DC neutral VSC 31;100;1;500;500;2;1
+13;DC neutral VSC 32;100;1;500;500;2;1
+14;DC neg VSC 32;100;1;500;500;1;1
+15;DC neg VSC 33;100;1;500;500;1;1
+16;DC pos VSC 33;100;1;500;500;0;1
+
+$$ElmLne;ID(a:40);loc_name(a:40);fold_id(p);typ_id(p);dline(r)
+21;DC line 0 31-32;100;41;50
+22;DC line - 32-33;100;41;50
+23;DC line + 31-33;100;41;50
+
+$$ElmVsc;ID(a:40);loc_name(a:40);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r);i_acdc(i);usetpdc(r);Unomdc(r)
+31;HVDC Converter 1;100;425;1.0;600;0;10000;900;4;;500
+32;HVDC Converter 2;100;425;0.8;0;100;10000;900;6;1.2;500
+33;HVDC Converter 3;100;425;;600;100;10000;900;5;;500
+
+$$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);obj_bus(i);obj_id(p)
+101;AC node 1 VSC 31;1;0;31
+102;AC node 2 VSC 32;2;0;32
+103;AC node 3 VSC 33;3;0;33
+104;DC node 11 pos VSC 31;11;1;31
+105;DC node 12 0 VSC 31;12;2;31
+106;DC node 13 0 VSC 32;13;1;32
+107;DC node 14 neg VSC 32;14;2;32
+108;DC node 15 neg VSC 33;15;1;33
+109;DC node 16 pos VSC 33;16;2;33
+110;line 21 node 1;12;0;21
+111;line 21 node 2;13;1;21
+112;line 22 node 1;14;0;22
+113;line 22 node 2;15;1;22
+114;line 23 node 1;16;0;23
+115;line 23 node 2;11;1;23
+
+$$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);rline(r);xline(r);systp(i)
+41;DC Cable Type 320kV;9;320;17.49546;0.1;0.309789;1
+42;AC Cable Type 320kV;9;320;17.49546;0.1;0.309789;0
+

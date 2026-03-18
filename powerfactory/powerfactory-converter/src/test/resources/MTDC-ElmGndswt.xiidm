@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="MTDC-ElmGndswt" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="Node_dc_r_ground 5" name="Node_dc_r_ground 5" nominalV="500.0"/>
+    <iidm:dcNode id="Node_dc_r_ground 6" name="Node_dc_r_ground 6" nominalV="500.0"/>
+    <iidm:dcNode id="Node_dc_r_ground 7" name="Node_dc_r_ground 7" nominalV="500.0"/>
+    <iidm:dcNode id="Node_dc_r_ground 8" name="Node_dc_r_ground 8" nominalV="500.0"/>
+    <iidm:dcNode id="Node_dc_r_ground 9" name="Node_dc_r_ground 9" nominalV="500.0"/>
+    <iidm:dcGround id="Grounding Switch grounded" dcNode="Node_dc_r_ground 5" r="0.0" connected="true"/>
+    <iidm:dcGround id="Grounding not grounded" dcNode="Node_dc_r_ground 8" r="0.0" connected="true"/>
+    <iidm:dcGround id="Grounding Switch default values" dcNode="Node_dc_r_ground 9" r="0.0" connected="true"/>
+</iidm:network>

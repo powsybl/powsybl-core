@@ -107,15 +107,15 @@ When defining the model, the user has to specify how the different pieces of equ
 An Area is a geographical zone of a given type.
 
 An Area is composed of a collection of [voltage levels](#voltage-level), and a collection of area boundaries.
-Area boundaries can be terminals of equipments or `Boundary` objects from [dangling lines](#dangling-line).
+Area boundaries can be terminals of equipments or `Boundary` objects from [boundary lines](#boundary-line).
 
 The area type is used to distinguish between various area concepts of different granularity. For instance: control areas, bidding zones, countries...
 
 A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of a different type.
 
-The area boundaries define how interchange is to be calculated for the area.  
+The area boundaries define how interchange is to be calculated for the area.
 Area interchange is calculated by summing the active power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
-for DC part only (considering only DC boundaries) and in total (AC+DC).  
+for DC part only (considering only DC boundaries) and in total (AC+DC).
 Note that if the Area has no boundary explicitly defined, the interchange is considered 0MW.
 
 For area types that are meant to be used for area interchange control, e.g., in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
@@ -134,18 +134,18 @@ All area interchange values use the load sign convention: positive values indica
 **Characteristics of an AreaBoundary**
 
 An area boundary is modeled by an `AreaBoundary` instance.
-It is composed of either DanglingLine Boundary or a Terminal, and boolean telling if the area boundary
+It is composed of either BoundaryLine Boundary or a Terminal, and boolean telling if the area boundary
 is to be considered as AC or DC.
 
 The `Ac` flag is informative and is present to support the use case where boundaries are defined on AC components even though
-the boundary is related to an HVDC link. An example for this is a DanglingLine (which is an AC equipment) that may actually represent
+the boundary is related to an HVDC link. An example for this is a BoundaryLine (which is an AC equipment) that may actually represent
 an HVDC interconnection that is not explicitly described in the network model. This information is used when computing area interchanges,
 which are then separated for AC and DC parts.
 
 | Attribute  | Unit | Description                                                                 |
 |------------|------|-----------------------------------------------------------------------------|
 | $Area$     |      | The area of this boundary                                                   |
-| $Boundary$ |      | Boundary of a DanglingLine (mutually exclusive with the Terminal attribute) |
+| $Boundary$ |      | Boundary of a BoundaryLine (mutually exclusive with the Terminal attribute) |
 | $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)   |
 | $Ac$       |      | True if AreaBoundary is to be considered AC, false otherwise                |
 
@@ -227,21 +227,21 @@ In the grid model, loads comprise the following metadata:
     - `FICTITIOUS`
 - The load model, which can be:
     - `ZIP` (or polynomial), following equations:
-  
-      $$P = P0 * (c0p + c1p \times (v / v_0) + c2p \times (v / v_0)^2)$$  
 
-      $$Q = Q0 * (c0q + c1q \times (v / v_0) + c2q \times (v / v_0)^2)$$  
+      $$P = P0 * (c0p + c1p \times (v / v_0) + c2p \times (v / v_0)^2)$$
 
-      with $v_0$ the nominal voltage.  
-      Sum of $c0p$, $c1p$ and $c2p$ must be equal to 1.  
+      $$Q = Q0 * (c0q + c1q \times (v / v_0) + c2q \times (v / v_0)^2)$$
+
+      with $v_0$ the nominal voltage.
+      Sum of $c0p$, $c1p$ and $c2p$ must be equal to 1.
       Sum of $c0q$, $c1q$ and $c2q$ must be equal to 1.
-    - `EXPONENTIAL`, following equations:  
+    - `EXPONENTIAL`, following equations:
 
-      $$P = P0 \times (v / v_0)^{n_p}$$  
+      $$P = P0 \times (v / v_0)^{n_p}$$
 
-      $$Q = Q0 \times (v / v_0)^{n_q}$$  
+      $$Q = Q0 \times (v / v_0)^{n_q}$$
 
-      with $v_0$ the nominal voltage.  
+      with $v_0$ the nominal voltage.
       $n_p$ and $n_q$ are expected to be positive.
 
 **Available extensions**
@@ -295,20 +295,20 @@ a [reactive capability curve](./additional.md#reactive-capability-curve).
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-(dangling-line)=
-## Dangling line
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DanglingLine.html)
+(boundary-line)=
+## Boundary line
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BoundaryLine.html)
 
-A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a dangling line, which represents the part of that boundary line which is located in it. A dangling line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
+A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a boundary line, which represents the part of that boundary line which is located in it. A boundary line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
 
-![Dangling line model](img/dangling-line.svg){width="50%" align=center class="only-light"}
-![Dangling line model](img/dark_mode/dangling-line.svg){width="50%" align=center class="only-dark"}
+![Boundary line model](img/boundary-line.svg){width="50%" align=center class="only-light"}
+![Boundary line model](img/dark_mode/boundary-line.svg){width="50%" align=center class="only-dark"}
 
-A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the dangling line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
+A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the boundary line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the boundary line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the boundary line follows the classical generator sign convention.
 
-Resulting flows at the dangling line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
+Resulting flows at the boundary line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
-Dangling lines are key objects for merging networks. Merging will be described soon [here](TODO).
+Boundary lines are key objects for merging networks. Merging will be described soon [here](TODO).
 
 **Characteristics**
 
@@ -337,19 +337,31 @@ Optional:
 
 - $P0$ and $Q0$ are the active and reactive power setpoints
 - $R$, $X$, $G$ and $B$ correspond to a fraction of the original line and have to be consistent with the declared length of the
-  dangling line.
+  boundary line (see example below).
 
-In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined beside the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line for both UCTE or CIM-CGMES formats.
+**_Example:_**
+Considering a line $D$ of length $L$, composed of two boundary lines $D_1$ and $D_2$ of lengths $L_1 = k_1L$
+and $L_2 = k_2L$ such as $L = L_1 + L_2$. Then the characteristics of the boundary lines are:
+- $R_1 = k_1R$ and $R_2 = k_2R$,
+- $X_1 = k_1X$ and $X_2 = k_2X$,
+- $G_1 = k_1G$ and $G_2 = k_2G$,
+- $B_1 = k_1B$ and $B_2 = k_2B$,
 
-A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
+_Note that if we had only $D_1$ without $D_2$, the previous relation between $D$ and $D_1$ would still hold._
+
+In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined
+beside the characteristics of the table. It is a key to match two boundary lines and reconstruct the full boundary line,
+as a [TieLine](#tie-line), for both UCTE or CIM-CGMES formats.
+
+A boundary line has a `Boundary` object that emulates a terminal located at boundary side. A boundary line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
-are automatically computed using information from the terminal of the dangling line.  
+are automatically computed using information from the terminal of the boundary line.  
 
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-dangling-line-boundary-node)
+- [CGMES Boundary Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-boundary-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -378,7 +390,7 @@ Shunt compensators follow a passive-sign convention:
 |-----------------------|------|--------------------------------------------------------------------------------|
 | $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on                         |
 | $SectionCount$        | -    | The current number of sections that are switched on (input of the calculation) |
-| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     | 
+| $SolvedSectionCount$  | -    | The calculated number of sections that are switched on (after a load flow)     |
 | $B$                   | S    | The susceptance of the shunt compensator in its current state                  |
 | $G$                   | S    | The conductance of the shunt compensator in its current state                  |
 | $TargetV$             | kV   | The voltage target                                                             |
@@ -452,8 +464,8 @@ Static VAR compensators follow a passive-sign convention:
 
 **Specifications**
 
-- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator is determined by:  
-  
+- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator is determined by:
+
   $$Qmin = -Bmin \times V^2$$
 
   $$Qmax = -Bmax \times V^2$$
@@ -550,10 +562,10 @@ $$
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TieLine.html)
 
 A tie line is an AC line sharing power between two neighbouring regional grids.
-It is created by pairing two [dangling lines](#dangling-line) with the same pairing key.
-It has line characteristics, with $R$ (resp. $X$) being the sum of the series resistances (resp. reactances) of the two dangling lines.
-$G1$ (resp. $B1$) is equal to the first dangling line's $G1$ (resp. $B1$).
-$G2$ (resp. $B2$) is equal to the second dangling line's $G2$ (resp. $B2$).
+It is created by pairing two [boundary lines](#boundary-line) with the same pairing key.
+It has line characteristics, with $R$ (resp. $X$) being the sum of the series resistances (resp. reactances) of the two boundary lines.
+$G1$ (resp. $B1$) is equal to the first boundary line's $G1$ (resp. $B1$).
+$G2$ (resp. $B2$) is equal to the second boundary line's $G2$ (resp. $B2$).
 
 **Characteristics**
 
@@ -566,7 +578,7 @@ $G2$ (resp. $B2$) is equal to the second dangling line's $G2$ (resp. $B2$).
 | $G2$      | S        | The second side shunt conductance |
 | $B2$      | S        | The second side shunt susceptance |
 
-A tie line is not a connectable. It is just a container of two underlying dangling lines with the same pairing key. When connected together, each dangling line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free dangling lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
+A tie line is not a connectable. It is just a container of two underlying boundary lines with the same pairing key. When connected together, each boundary line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free boundary lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
 
 ## Transformers
 
@@ -975,7 +987,7 @@ When the `ControlMode` of the converter is set to `V_DC`, the converter controls
 No explicit attribute specifies whether the DC is a symmetrical or asymmetrical scheme.
 The scheme symmetrical or asymmetrical is derived implicitly by either the presence or absence of a DC Ground connected to the DC system:
 - If a DC Ground is connected, the configuration is asymmetrical, and the converter imposes the target voltage difference
-between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc` 
+between the converter DC Node 1 and the DC Node 2 to be equal to `TargetVdc`
 - If no DC Ground is present, the configuration is symmetrical, in this case the converter provides internally an implicit DC Ground and imposes:
   - `+TargetVdc / 2` at the converter DC Node 1
   - `-TargetVdc / 2` at the converter DC Node 2
@@ -984,14 +996,14 @@ When the `ControlMode` of the converter is set to `P_PCC_DROOP`, the converter c
 for normal load flow, but when a security analysis in run, the converter controls the relation between DC Voltage and DC Power:
 $P_{DC} - P_{REF} = -k * (V_{DC} - V_{REF})$
 Where:
-- $k$ is the droop coefficient of the actual droop segment. 
-- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint. 
+- $k$ is the droop coefficient of the actual droop segment.
+- $P_{REF}$ is the power which was calculated during the base loadflow, at DC side, so it is not equal to targetP which is the AC setpoint.
 It represents the operating point before the security analysis starts.
 - $V_{REF}$ is the DC voltage which was calculated during the base loadflow. The droop control is only used for P controlled converters, so they should not have a targetVdc.
 - $P_{DC}$ is the actual power at DC side during the security analysis, which is determined by Newton Raphson.
 - $V_{DC}$ is the actual DC voltage during the security analysis, which is determined by Newton Raphson.
 
-Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual 
+Each droop segment in the `DroopCurve` is defined with minimal and maximal voltage, and a droop coefficient. The actual
 droop segment should be the one which verifies:
 $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 
@@ -1040,8 +1052,8 @@ hence a PowerFactor of 0.89443.
 
 DC equipment connectivity may be modified in two ways:
 - By changing the `connected` attribute of a `DcTerminal` of a DC Line, or a DC Ground, or an AC/DC Converter:
-  - When `connected = true`, the DC terminal is connected to its associated DC Node. 
-  - When `connected = false` the DC terminal is disconnected from its associated DC Node. 
+  - When `connected = true`, the DC terminal is connected to its associated DC Node.
+  - When `connected = false` the DC terminal is disconnected from its associated DC Node.
 - By changing the `open` attribute of a `DcSwitch`.
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
@@ -1062,8 +1074,8 @@ The IIDM API provides methods for navigating the network topology, for example:
 - getting all DC Components/Islands of a network or a subnetwork
 - getting all DC Buses part of a DC Component or a Connected Component
 - etc.
- 
-Please refer to the javadoc for an exhaustive list of the available methods. 
+
+Please refer to the javadoc for an exhaustive list of the available methods.
 
 #### DC Equipment containment in main network and subnetworks
 
