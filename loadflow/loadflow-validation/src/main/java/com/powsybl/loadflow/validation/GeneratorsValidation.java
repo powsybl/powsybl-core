@@ -178,29 +178,43 @@ public final class GeneratorsValidation {
         return true;
     }
 
+    /**
+     * Rule1: Active power (p) must match setpoint (expectedP) (within threshold)
+     * Rule2: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
+     * Rule3: if voltageRegulatorOn="true"
+     * Rule3.1: (minQ/maxQ/targetV) are not NaN
+     * Rule3.2: If V > targetV + threshold, generator (Qgen) must be at min reactive limit
+     * Rule3.3: If V < targetV - threshold, generator (Qgen) must be at max reactive limit
+     * Rule3.4: If |V-targetV| <= threshold, generator (Qgen) must be within [minQ, maxQ]
+     */
     private static boolean checkGeneratorsValues(String id, double p, double q, double v, double expectedP, double targetQ, double targetV,
                                                  boolean voltageRegulatorOn, double minQ, double maxQ, ValidationConfig config) {
         boolean validated = true;
-        // active power should be equal to setpoint
-        if (ValidationUtils.areNaN(config, expectedP) || Math.abs(p + expectedP) > config.getThreshold()) {
+        double threshold = config.getThreshold();
+        // Rule1: Active power (p) must match setpoint (expectedP) (within threshold)
+        if (ValidationUtils.areNaN(config, expectedP) || Math.abs(p + expectedP) > threshold) {
             LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
             validated = false;
         }
-        // if voltageRegulatorOn="false" then reactive power should be equal to setpoint
-        if (!voltageRegulatorOn && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > config.getThreshold())) {
+        //Rule2: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
+        if (!voltageRegulatorOn && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > threshold)) {
             LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;
         }
+        // Rule3, then
+        // either Rule3.1, Rule3.2, Rule3.3 or Rule3.4
+        //
         // if voltageRegulatorOn="true" then
-        // either q is equal to g.getReactiveLimits().getMinQ(p) and V is higher than g.getTargetV()
+        // either if minQ/maxQ/targetV are not NaN,
+        // or q is equal to g.getReactiveLimits().getMinQ(p) and V is higher than g.getTargetV()
         // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is lower than g.getTargetV()
         // or V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
         double qGen = -q;
         if (voltageRegulatorOn
             && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
-                || v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold()
-                || v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold()
-                || Math.abs(v - targetV) <= config.getThreshold() && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
+                || v > targetV + threshold && Math.abs(qGen - getMinQ(minQ, maxQ)) > threshold
+                || v < targetV - threshold && Math.abs(qGen - getMaxQ(minQ, maxQ)) > threshold
+                || Math.abs(v - targetV) <= threshold && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, threshold))) {
             LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
             validated = false;
         }
@@ -208,11 +222,11 @@ public final class GeneratorsValidation {
     }
 
     private static double getMaxQ(double minQ, double maxQ) {
-        return maxQ < minQ ? minQ : maxQ;
+        return Math.max(maxQ, minQ);
     }
 
     private static double getMinQ(double minQ, double maxQ) {
-        return maxQ < minQ ? maxQ : minQ;
+        return Math.min(maxQ, minQ);
     }
 
     private static boolean checkReactiveBoundInversion(double minQ, double maxQ, ValidationConfig config) {
