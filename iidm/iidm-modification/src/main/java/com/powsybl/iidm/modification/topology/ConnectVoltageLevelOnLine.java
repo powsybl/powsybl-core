@@ -12,16 +12,14 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
-import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
  * This method cuts an existing line in two lines that will be created and connected to an existing voltage level
@@ -72,10 +70,6 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, voltageLevel.getId(), line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-        Optional<String> selectedOperationalLimitsGroup1 = line.getSelectedOperationalLimitsGroupId1();
-        Optional<String> selectedOperationalLimitsGroup2 = line.getSelectedOperationalLimitsGroupId2();
-        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
-        Collection<OperationalLimitsGroup> operationalLimitsGroups2 = line.getOperationalLimitsGroups2();
 
         // Create the topology inside the existing voltage level
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
@@ -126,14 +120,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
-        copyOperationalLimits(operationalLimitsGroups1, line1::newOperationalLimitsGroup1);
-        copyOperationalLimits(operationalLimitsGroups2, line1::newOperationalLimitsGroup2);
-        copyOperationalLimits(operationalLimitsGroups1, line2::newOperationalLimitsGroup1);
-        copyOperationalLimits(operationalLimitsGroups2, line2::newOperationalLimitsGroup2);
-        selectedOperationalLimitsGroup1.ifPresent(line1::setSelectedOperationalLimitsGroup1);
-        selectedOperationalLimitsGroup2.ifPresent(line1::setSelectedOperationalLimitsGroup2);
-        selectedOperationalLimitsGroup1.ifPresent(line2::setSelectedOperationalLimitsGroup1);
-        selectedOperationalLimitsGroup2.ifPresent(line2::setSelectedOperationalLimitsGroup2);
+        LoadingLimitsUtil.copyOperationalLimits(line, line1);
+        LoadingLimitsUtil.copyOperationalLimits(line, line2);
         LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevel.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.connectVoltageLevelToLines(reportNode, voltageLevel.getId(), line1Id, line2Id, originalLineId);
     }
