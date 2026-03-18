@@ -10,6 +10,10 @@ package com.powsybl.security.converter;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
+import com.powsybl.contingency.strategy.ConditionalActions;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.condition.*;
+import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
@@ -17,14 +21,11 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.condition.*;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
-import com.powsybl.security.strategy.ConditionalActions;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,10 +51,10 @@ class ExporterTest extends AbstractSerDeTest {
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", null, "activated_1_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, ThreeSides.ONE, null);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
 
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, TwoSides.TWO);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", null, "activated_2_1", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, ThreeSides.TWO, null);
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 
@@ -150,7 +151,8 @@ class ExporterTest extends AbstractSerDeTest {
         return Stream.of(
             Arguments.of("/SecurityAnalysisResultV1.5.json"),
             Arguments.of("/SecurityAnalysisResultV1.6.json"),
-            Arguments.of("/SecurityAnalysisResultV1.7.json")
+            Arguments.of("/SecurityAnalysisResultV1.7.json"),
+            Arguments.of("/SecurityAnalysisResultV1.8.json")
         );
     }
 

@@ -11,7 +11,43 @@ The CIM-CGMES importer supports reading CIM/XML profile files from one of the fo
 - a folder containing the zipped profile files, each one being in a separate zip file
 - a zipped file containing all profile files
 
-To describe the conversion from CGMES to PowSyBl, we first introduce some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
+To describe the conversion from CGMES to PowSyBl, we first introduce several ways of using the importer. We then present some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
+
+(cgmes-import-update)=
+## Import / Update
+
+In CGMES, the power system model is described using data organized into different profiles. 
+This structure allows the equipment in the network and its physical characteristics to be defined in one profile (EQ), while operational data is provided in other profiles (SSH, TP and SV). 
+As a result, it is common to have a single EQ file and multiple SSH files, for example, one for each of the 24 hours of the day.
+
+To handle these cases properly, the importer supports subsequent updates to the initially imported model. 
+You can use the `Network.read` method to perform the initial import, and then apply further updates with `network.update`, where network refers to the originally imported model.
+Next, we present four use cases to illustrate how both methods can be applied:
+
+**Import the entire model in a single step** 
+You need to use the `Network.read` method, providing all the CGMES profiles.
+
+**Import the complete model in two steps**
+In the first step, only the EQ profile is imported using the `Network.read` method. 
+Then, the operational data is imported using the `network.update` method, providing all or part of the following profiles: SSH, TP, and SV. 
+The `network.update` method cannot be used with EQ profiles.
+
+**Import one EQ file and 24 partial SSH files**
+In this case, the 00 SSH file is the only complete file and contains data for all equipment. 
+The remaining SSH files are partial, including only the changes relative to the preceding SSH file.
+In the first step, we can import the EQ and 00 SSH files using the `Network.read` method. 
+Then, we can perform one update for each of the remaining SSH files using the `network.update` method. 
+Before performing the updates, the property `iidm.import.cgmes.use-previous-values-during-update` must be set to `true` to fill in any missing data in the partial SSH files using the values previously recorded in the model.
+
+PowSyBl uses variants to record operational data. In this case, we are performing the update on the same variant, so at the end, PowSyBl will only contain the operational data corresponding to the last hour.
+
+**Import one EQ file and 24 SSH files, using a different variant for each SSH file**
+In this case, all the SSH files contain data for all the equipment, but we want to record each SSH file on a different variant.
+To do that, we first import the EQ and 00 SSH files using the `Network.read` method, recording the data in the default initial variant. 
+Then, we perform an update for each of the remaining SSH files using the `network.update` method. 
+However, before each update, we must create a new variant by cloning the initial one and set it as the working variant.
+At the end, PowSyBl will contain the operational data for all 24 hours, with each hour recorded in a different variant.
+
 
 (cgmes-import-level-of-detail)=
 ## Levels of detail: node/breaker and bus/branch
@@ -136,10 +172,10 @@ The mapping of an `EquivalentInjection` depends on its location relative to the 
 
 If the `EquivalentInjection` is outside the boundary area, it will be mapped to a PowSyBl `Generator`.
 
-If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `DanglingLine` created at the boundary point and its values for `P`, `Q` will be used to define the DanglingLine `P0`, `Q0`. Please note that the said `DanglingLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector-jumper),
+If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `BoundaryLine` created at the boundary point and its values for `P`, `Q` will be used to define the BoundaryLine `P0`, `Q0`. Please note that the said `BoundaryLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector-jumper),
 an [`EquivalentBranch`](#equivalentbranch) or a [`PowerTransformer`](#powertransformer).
 
-Attributes of the PowSyBl generator or of the PowSyBl dangling line generation are created as such:
+Attributes of the PowSyBl generator or of the PowSyBl boundary line generation are created as such:
 - `MinP`/`MaxP` are copied from CGMES `minP`/`maxP` if defined, otherwise they are set to `-Double.MAX_VALUE`/`Double.MAX_VALUE`.
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`.
 - `TargetV` The `regulationTarget` property is copied if it is not equal to zero. Otherwise, the nominal voltage associated to the connected terminal of the `equivalentInjection` is assigned. For CGMES Equivalent Injections, the voltage regulation is allowed only at the point of connection.
@@ -156,12 +192,12 @@ If the `ACLineSegment` is outside the boundary area, it will be mapped to a PowS
 If the `ACLineSegment` is completely inside the boundary area, if the boundaries are not imported, it is ignored. Otherwise, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line).
 
 If the `ACLineSegment` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `ACLineSegments` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `ACLineSegments` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
 
 If the `ACLineSegment` is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line):
 - `R` is copied from CGMES `r`
@@ -171,7 +207,7 @@ If the `ACLineSegment` is mapped to a PowSyBl [`Line`](../../grid_model/network_
 - `B1` is calculated as half of CGMES `bch`
 - `B2` is calculated as half of CGMES `bch`
 
-If the `ACLineSegment` is mapped to an unpaired PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `ACLineSegment` is mapped to an unpaired PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G` is copied from CGMES `gch` if defined, `0.0` otherwise
@@ -180,13 +216,13 @@ If the `ACLineSegment` is mapped to an unpaired PowSyBl [`DanglingLine`](../../g
 - `P0` is copied from CGMES `P` of the terminal at boundary side
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
-If the `ACLineSegment` is mapped to a paired PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `ACLineSegment` is mapped to a paired PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
-- `G1` is `0.0` is the dangling line is on side `ONE` of the Tie Line. If the dangling line is on side `TWO` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
-- `G2` is `0.0` is the dangling line is on side `TWO` of the Tie Line. If the dangling line is on side `ONE` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
-- `B1` is `0.0` is the dangling line is on side `ONE` of the Tie Line. If the dangling line is on side `TWO` of the Tie Line, it is copied from CGMES `bch`.
-- `B2` is `0.0` is the dangling line is on side `TWO` of the Tie Line. If the dangling line is on side `ONE` of the Tie Line, it is copied from CGMES `bch`.
+- `G1` is `0.0` is the boundary line is on side `ONE` of the Tie Line. If the boundary line is on side `TWO` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
+- `G2` is `0.0` is the boundary line is on side `TWO` of the Tie Line. If the boundary line is on side `ONE` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
+- `B1` is `0.0` is the boundary line is on side `ONE` of the Tie Line. If the boundary line is on side `TWO` of the Tie Line, it is copied from CGMES `bch`.
+- `B2` is `0.0` is the boundary line is on side `TWO` of the Tie Line. If the boundary line is on side `ONE` of the Tie Line, it is copied from CGMES `bch`.
 - `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries
 
 (cgmes-equivalent-branch-import)=
@@ -199,12 +235,12 @@ If the `EquivalentBranch` is outside the boundary area, it will be mapped to a P
 If the `EquivalentBranch` is completely inside the boundary area, if the boundaries are not imported, it is ignored. Otherwise, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line).
 
 If the `EquivalentBranch` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches connected with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches connected with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
 
 If the `EquivalentBranch` is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line):
 - `R` is copied from CGMES `r`
@@ -214,7 +250,7 @@ If the `EquivalentBranch` is mapped to a PowSyBl [`Line`](../../grid_model/netwo
 - `B1` is `0.0`
 - `B2` is `0.0`
 
-If the `EquivalentBranch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `EquivalentBranch` is mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G` is `0.0`
@@ -322,8 +358,8 @@ OperationalLimits model a specification of limits associated with equipments.
 
 A CGMES `OperationalLimitSet` is a set of `OperationalLimit` associated with equipment or terminal. It is mapped to a PowSyBl [`OperationalLimitsGroup`](../../grid_model/additional.md#limit-group-collection).
 
-Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every
-[`Line`](../../grid_model/network_subnetwork.md#line) side, [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
+Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every 
+[`Line`](../../grid_model/network_subnetwork.md#line) side, [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
 
 The same way a CGMES `OperationalLimitSet` may contain `OperationalLimit` of different subclasses, a PowSyBl `OperationalLimitsGroup` may have multipe non-null `LoadingLimits`.
 
@@ -359,21 +395,21 @@ Please note that in this case, if `PowerTransformerEnds` are in different substa
 If a `PowerTransformer` has two `PowerTransformerEnds`, both completely inside the boundary area, and if the boundary area is not imported, the `PowerTransformer` is ignored. Otherwise, it is mapped to a PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer).
 
 If the `PowerTransformer` has one `PowerTransformerEnd` inside the boundary area and the other outside the boundary area, the importer checks if another branch is connected to the same [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other connected to this `TopologicalNode`, it is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is one or more other branches connected to this `TopologicalNode` and they are all in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other connected to this `TopologicalNode`, it is mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there is one or more other branches connected to this `TopologicalNode` and they are all in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
 
 In every case, a `PowerTransformer` with two `PowerTransformerEnds` is mapped to an intermediary model that corresponds to a PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer).
 For more information about this conversion, please look at the classes [`InterpretedT2xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/elements/transformers/InterpretedT2xModel.java)
 and [`ConvertedT2xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/elements/transformers/ConvertedT2xModel.java).
 
-If the `PowerTransformer` is finally mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line), its structural attributes (`R`, `X`, `G` and `B`) are calculated from the intermediary model's attributes, and the ratio from its ratio tap changer and/or its phase tap changer.
+If the `PowerTransformer` is finally mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line), its structural attributes (`R`, `X`, `G` and `B`) are calculated from the intermediary model's attributes, and the ratio from its ratio tap changer and/or its phase tap changer.
 `P0` and `Q0` are set from CGMES `P` and `Q` values at boundary side; `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries.
 
-If the `PowerTransformer` is finally mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line), its attributes are calculated using a standard $$\pi$$ model with distributed parameters.
+If the `PowerTransformer` is finally mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line), its attributes are calculated using a standard $$\pi$$ model with distributed parameters.
 
 #### PowerTransformer with three PowerTransformerEnds
 
@@ -427,14 +463,14 @@ If the CGMES `Switch` has its ends in different voltage levels inside the same I
 The created PowSyBl `Switch` has its attributes defined as described above.
 
 If the `Switch` has one side inside the boundary area and the other side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#topologicalnode) in the boundary area.
-- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
+- If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
-  - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected and in different `SubGeographicalRegion`, they will both mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
+  - Otherwise, they will all be mapped to PowSyBl [`BoundaryLines`](../../grid_model/network_subnetwork.md#boundary-line).
 
-If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line), its attributes are as described below:
+If the CGMES `Switch` is mapped to a PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line), its attributes are as described below:
 - `R`, `X`, `G`, `B` are `0.0`;
 - `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries;
 - `P0` is copied from CGMES `P` of the terminal at boundary side;
@@ -447,8 +483,8 @@ CGMES control areas (objects of class `ControlArea`) are mapped directly to PowS
 
 The control area CGMES `type` is copied as a string in the `areaType` attribute of the PowSyBl `Area`. The CGMES `netInterchange` is copied to the PowSyBl `interchangeTarget`. If CGMES `pTolerance` is defined, its value is copied to a new property named `pTolerance`. Finally, if an attribute `entsoe:IdentifiedObject.energyIdentCodeEic` is found for the CGMES control area, it is added as an alias with `aliasType == "energyIdentCodeEic"`.
 
-The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items.
-Boundary items can be terminals (if the corresponding CGMES point can be mapped to a PowSyBl `Terminal`) or boundaries, when the corresponding CGMES point is the boundary side of a dangling line in PowSyBl.
+The CGMES control area tie flows (objects of class `TieFlow`) are mapped to PowSyBl `Area` boundary items. 
+Boundary items can be terminals (if the corresponding CGMES point can be mapped to a PowSyBl `Terminal`) or boundaries, when the corresponding CGMES point is the boundary side of a boundary line in PowSyBl.
 
 (cgmes-reduced-dc-model-import)=
 ### Reduced DC model
@@ -603,10 +639,10 @@ Specific `VsConverter` attributes are mapped as follows:
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data that are needed to export a network in CIM-CGMES format are stored in several extensions.
 
-(cgmes-dangling-line-boundary-node-import)=
-### CGMES dangling line boundary node
+(cgmes-boundary-line-boundary-node-import)=
+### CGMES boundary line boundary node
 
-This extension is used to add some CIM-CGMES characteristics to dangling lines.
+This extension is used to add some CIM-CGMES characteristics to boundary lines.
 
 
 | Attribute                             | Type    | Unit | Required | Default value | Description                                                         |
@@ -686,8 +722,65 @@ CgmesTopologyKind topologyKind = cimCharacteristics.getTopologyKind();
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
+(cgmes-base-voltage-mapping-import)=
+### Base voltage mapping
+
+This extension is attached to a network and is used to store information about BaseVoltage of the imported CGMES dataset.
+The extension consists of a collection of `BaseVoltageSource` objects, indexed by nominal voltage, with the following attributes:
+
+| Attribute | Type   | Unit | Required | Default value      | Description                                                                    |
+|-----------|--------|------|----------|--------------------|--------------------------------------------------------------------------------|
+| id        | String | -    | yes      | -                  | The rdf:ID of the CGMES BaseVoltage                                            |
+| nominalV  | double | kV   | yes      | -                  | The CGMES BaseVoltage's nominal voltage                                        |
+| source    | Source | -    | yes      | -                  | The kind of grid model containing the BaseVoltage definition (IGM or BOUNDARY) |
+
+Example of code to read the extension and retrieve the source of the 400kV base voltage assuming the network has been imported from a CGMES datasource:
+
+```java
+BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
+BaseVoltageMapping.BaseVoltageSource bvSource = bvMapping.getBaseVoltages().get(400.0);
+Source source = bvSource.getSource();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
+
 (cgmes-model-import)=
 ### CGMES model
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesModelExtension.html)
+
+This extension provides access to the PowSyBl CGMES Network Model implemented with a triplestore.
+
+Note that in order for this extension to be present, the corresponding property
+`iidm.import.cgmes.store-cgmes-model-as-network-extension` must be set to true.
+
+Exemple of code to read the extension and retrieve the substations in the CGMES input files:
+
+```java
+CgmesModelExtension cgmesModel = network.getExtension(CgmesModelExtension.class);
+PropertyBags substationBags = cgmesModel.getCgmesModel().substations();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
+
+(cgmes-conversion-context-import)=
+### CGMES conversion context
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesConversionContextExtension.html)
+
+This extension is useful for external validation of the mapping made between CGMES and IIDM.
+
+Note that in order for this extension to be present, the corresponding property
+`iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension` must be set to true.
+
+Exemple of code to read the extension and retrieve the naming strategy:
+
+```java
+CgmesConversionContextExtension cgmesConversionContext = network.getExtension(CgmesConversionContextExtension.class);
+NamingStrategy namingStrategy = cgmesConversionContext.getContext().namingStrategy();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
 
 (cgmes-import-options)=
 ## Options
@@ -746,10 +839,19 @@ Optional property that defines which Triplestore implementation is used. Current
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
 **iidm.import.cgmes.store-cgmes-model-as-network-extension**<br>
-Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model). The default value is `true`.
+Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model) of the IIDM output network.
+The default value is `false`.
+
+The CGMES model triplestore is not closed after CGMES import when this option is enabled.
+To reclaim memory, manually close the triplestore via the extension.
 
 **iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**<br>
-Optional property that defines if the CGMES conversion context is stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
+Optional property that defines if the CGMES conversion context is stored as an [extension](import.md#cgmes-conversion-context) of the IIDM output network.
+It is useful for external validation of the mapping made between CGMES and IIDM.
+Its default value is `false`.
+
+The CGMES model triplestore is not closed after CGMES import when this option is enabled.
+To reclaim memory, manually close the triplestore via the extension.
 
 **iidm.import.cgmes.use-detailed-dc-model**<br>
 Optional property that defines which IIDM DC model should be populated at import. Set to `true` to import DC objects into the detailed DC model, `false` to import into the reduced DC model. The default value is `false`.
@@ -757,8 +859,8 @@ Optional property that defines which IIDM DC model should be populated at import
 **iidm.import.cgmes.import-node-breaker-as-bus-breaker**<br>
 Optional property that forces CGMES model to be in topology bus/breaker in IIDM. This is a key feature when some models do not have all the breakers to connect and disconnect equipments in IIDM. In bus/breaker topology, connect and disconnect equipment only rely on terminal statuses and not on breakers. Its default value is `false`.
 
-**iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected**<br>
-Optional property used at CGMES import that disconnects the IIDM dangling line if in the CGMES model the line is open at the boundary side. As IIDM does not have any equivalence for that, this is an approximation. Its default value is `false`.
+**iidm.import.cgmes.disconnect-boundary-line-if-boundary-side-is-disconnected**  
+Optional property used at CGMES import that disconnects the IIDM boundary line if in the CGMES model the line is open at the boundary side. As IIDM does not have any equivalence for that, this is an approximation. Its default value is `false`.
 
 **iidm.import.cgmes.missing-permanent-limit-percentage**<br>
 Optional property used when in operational limits, temporary limits are present and the permanent limit is missing as it is forbidden in IIDM. The missing permanent limit is equal to a percentage of the lowest temporary limit, with the percentage defined by the value of this property if present, `100` by default.
@@ -778,8 +880,8 @@ If it is set to `false`, only one fictitious voltage level is created for each l
 **iidm.import.cgmes.use-previous-values-during-update**<br>
 Optional property that defines whether the CGMES importer should use previous values to fill in missing SSH attributes during an update.
 When EQ and one or more SSH files are imported separately, and this property is set to `true`, the importer will use values from previously imported SSH files to complete missing attributes in the SSH file currently being imported.
-If set to `false`, missing SSH attributes will be filled using default values.
-This property does not apply to SV data. SV data is handled as a complete dataset, with no support for incremental updates of the SV file.
+If set to `false`, missing SSH attributes will be filled using default values. 
+This property does not apply to SV data. SV data is handled as a complete dataset, with no support for partial updates of the SV file.
 `false` by default.
 
 **iidm.import.cgmes.remove-properties-and-aliases-after-import**<br>
