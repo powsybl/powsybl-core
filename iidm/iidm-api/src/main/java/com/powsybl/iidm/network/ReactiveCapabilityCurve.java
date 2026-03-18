@@ -41,7 +41,7 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
      * A point of the reactive capability curve, for a given active power the
      * minimal and the maximal value for the reactive power.
      */
-    public interface Point {
+    interface Point extends PropertiesHolder {
 
         double getP();
 
