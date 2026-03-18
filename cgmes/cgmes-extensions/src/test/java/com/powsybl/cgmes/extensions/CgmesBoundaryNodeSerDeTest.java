@@ -109,8 +109,8 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
         });
     }
 
-    private void assertWhenImportCgmesLineBoundaryNode(Network importedNetwork, String tiLineId, String identificationCodeEic) {
-        TieLine importedTieLine = importedNetwork.getTieLine(tiLineId);
+    private void assertWhenImportCgmesLineBoundaryNode(Network importedNetwork, String tieLineId, String identificationCodeEic) {
+        TieLine importedTieLine = importedNetwork.getTieLine(tieLineId);
         assertNotNull(importedTieLine);
         CgmesLineBoundaryNode importedCgmesLineBoundaryNode = importedTieLine.getExtension(CgmesLineBoundaryNode.class);
         assertNotNull(importedCgmesLineBoundaryNode);
@@ -172,8 +172,8 @@ class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
         });
     }
 
-    private void assertWhenImportCgmesBoundaryLineBoundaryNode(Network importedNetwork, String tiLineId, String identificationCodeEic) {
-        TieLine importedTieLine = importedNetwork.getTieLine(tiLineId);
+    private void assertWhenImportCgmesBoundaryLineBoundaryNode(Network importedNetwork, String tieLineId, String identificationCodeEic) {
+        TieLine importedTieLine = importedNetwork.getTieLine(tieLineId);
         assertNotNull(importedTieLine);
         CgmesBoundaryLineBoundaryNode importedBoundaryLineBoundaryNode = importedTieLine.getBoundaryLine1().getExtension(CgmesBoundaryLineBoundaryNode.class);
         assertNotNull(importedBoundaryLineBoundaryNode);
