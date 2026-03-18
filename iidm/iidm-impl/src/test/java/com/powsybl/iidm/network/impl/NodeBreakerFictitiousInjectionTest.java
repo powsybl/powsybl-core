@@ -36,6 +36,15 @@ class NodeBreakerFictitiousInjectionTest {
         assertEquals(10, bus.getFictitiousP0());
         assertEquals(20, bus.getFictitiousQ0());
 
+        // Testing on a new variant
+        String otherDuplicateVariantId = "otherDuplicateState";
+        network.getVariantManager().cloneVariant(initialVariantId, otherDuplicateVariantId);
+        network.getVariantManager().setWorkingVariant(otherDuplicateVariantId);
+        bus.setFictitiousP0(5);
+        bus.setFictitiousQ0(10);
+        assertEquals(5, bus.getFictitiousP0());
+        assertEquals(10, bus.getFictitiousQ0());
+
         // Testing setFictitious in duplicateState, which has no fictitiousInjections (but fictitiousInjectionsByNode is not empty)
         network.getVariantManager().setWorkingVariant(duplicateVariantId);
         assertEquals(0, bus.getFictitiousP0());
