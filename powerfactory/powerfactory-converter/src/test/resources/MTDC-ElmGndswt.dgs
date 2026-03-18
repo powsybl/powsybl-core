@@ -1,0 +1,27 @@
+$$General;ID(a:40);Descr(a:40);Val(a:255)
+1;Version;5.0
+
+$$ElmGndswt;ID(a:40);loc_name(a:80);fold_id(p);on_off(i);ciEarthed(i)
+25;Grounding Switch grounded;4;1;1
+26;Grounding Switch not grounded not off;4;0;0
+27;Grounding Switch off;4;0;1
+28;Grounding not grounded;4;1;0
+29;Grounding Switch default values;4;;
+
+$$ElmNet;ID(a:40);loc_name(a:80);for_name(a:100);fold_id(p);frnom(r);pDiagram(p)
+4;Grid;;;50;15
+
+$$ElmTerm;ID(a:40);loc_name(a:80);fold_id(p);systype(i);uknom(r);unknom(r);iminus(i)
+5;Node_dc_r_ground 5;4;1;500;500;2
+6;Node_dc_r_ground 6;4;1;500;500;2
+7;Node_dc_r_ground 7;4;1;500;500;2
+8;Node_dc_r_ground 8;4;1;500;500;2
+9;Node_dc_r_ground 9;4;1;500;500;2
+
+$$StaCubic;ID(a:40);loc_name(a:80);fold_id(p);obj_bus(i);obj_id(p)
+15;Cub_5;5;0;25
+16;Cub_6;6;0;26
+17;Cub_7;7;0;27
+18;Cub_8;8;0;28
+19;Cub_9;9;0;29
+
