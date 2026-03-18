@@ -76,14 +76,25 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             addAliases(vl);
 
             // Check voltage limit consistency.
-            if (lowVoltageLimit <= highVoltageLimit) {
-                vl.setHighVoltageLimit(highVoltageLimit);
-                vl.setLowVoltageLimit(lowVoltageLimit);
-                vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
-                vl.setProperty(PROPERTY_LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
-            } else {
+            double effectiveLowVoltageLimit;
+            double effectiveHighVoltageLimit;
+            if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit) && lowVoltageLimit > highVoltageLimit) {
                 ignored("high/low voltage limits",
-                    () -> String.format("lowVoltageLimit (%f) is greater than highVoltageLimit (%f).", lowVoltageLimit, highVoltageLimit));
+                        () -> String.format("lowVoltageLimit (%f) is greater than highVoltageLimit (%f).", lowVoltageLimit, highVoltageLimit));
+                effectiveLowVoltageLimit = Double.NaN;
+                effectiveHighVoltageLimit = Double.NaN;
+            } else {
+                effectiveLowVoltageLimit = lowVoltageLimit;
+                effectiveHighVoltageLimit = highVoltageLimit;
+            }
+
+            if (!Double.isNaN(effectiveLowVoltageLimit)) {
+                vl.setLowVoltageLimit(lowVoltageLimit);
+                vl.setProperty(PROPERTY_LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
+            }
+            if (!Double.isNaN(effectiveHighVoltageLimit)) {
+                vl.setHighVoltageLimit(highVoltageLimit);
+                vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
             }
         }
     }
