@@ -104,5 +104,10 @@
             <artifactId>powsybl-tools-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-serde</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
