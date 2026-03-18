@@ -65,11 +65,11 @@ class NodeBreakerFictitiousInjectionTest {
         assertEquals(0, bus.getFictitiousQ0());
 
         // Testing after deleting a variant and creating a new one
-        network.getVariantManager().removeVariant(otherDuplicateVariantId);
+        network.getVariantManager().removeVariant(duplicateVariantId);
         String anotherDuplicateVariantId = "anotherDuplicateVariantId";
-        network.getVariantManager().cloneVariant(duplicateVariantId, anotherDuplicateVariantId);
+        network.getVariantManager().cloneVariant(otherDuplicateVariantId, anotherDuplicateVariantId);
         network.getVariantManager().setWorkingVariant(anotherDuplicateVariantId);
-        assertEquals(0, bus.getFictitiousP0());
-        assertEquals(0, bus.getFictitiousQ0());
+        assertEquals(5, bus.getFictitiousP0());
+        assertEquals(10, bus.getFictitiousQ0());
     }
 }
