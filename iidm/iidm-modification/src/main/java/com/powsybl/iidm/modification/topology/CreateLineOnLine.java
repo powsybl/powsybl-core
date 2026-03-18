@@ -13,7 +13,6 @@ import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
-import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
