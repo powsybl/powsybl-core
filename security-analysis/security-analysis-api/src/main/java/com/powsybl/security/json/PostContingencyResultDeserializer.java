@@ -80,13 +80,10 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
         }
-        if (commonParsingContext.networkResult != null) {
-            return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.networkResult, parsingContext.connectivityResult, commonParsingContext.distributedActivePower);
-        } else {
-            return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
-                    new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults),
-                    parsingContext.connectivityResult, Double.NaN);
-        }
+        return new PostContingencyResult(
+                parsingContext.contingency, parsingContext.status,
+                commonParsingContext.limitViolationsResult,
+                Objects.requireNonNullElseGet(commonParsingContext.networkResult, () -> new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
+                parsingContext.connectivityResult, commonParsingContext.distributedActivePower);
     }
 }
