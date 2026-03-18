@@ -81,7 +81,10 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                 ignored("high/low voltage limits",
                         () -> String.format("lowVoltageLimit (%f) is greater than highVoltageLimit (%f).", lowVoltageLimit, highVoltageLimit));
             } else {
-                // either only one limit is defined, or both limits are defined and they are consistent
+                // either:
+                // - no limits defined
+                // - or, only one limit is defined
+                // - or, both limits are defined and they are consistent
                 if (!Double.isNaN(highVoltageLimit)) {
                     vl.setHighVoltageLimit(highVoltageLimit);
                     vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
