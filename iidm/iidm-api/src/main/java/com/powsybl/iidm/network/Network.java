@@ -1028,40 +1028,40 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines corresponding to given filter.
+     * Get all boundary lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all dangling lines.
+     * Get all boundary lines.
      */
-    default Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLines(DanglingLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling lines corresponding to given filter.
+     * Get the boundary lines corresponding to given filter.
      */
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all the dangling lines.
+     * Get all the boundary lines.
      */
-    default Stream<DanglingLine> getDanglingLineStream() {
-        return getDanglingLineStream(DanglingLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling line count.
+     * Get the boundary line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
-     * Get a dangling line.
+     * Get a boundary line.
      *
-     * @param id the id or an alias of the dangling line
+     * @param id the id or an alias of the boundary line
      */
-    DanglingLine getDanglingLine(String id);
+    BoundaryLine getBoundaryLine(String id);
 
     /**
      * Get all static var compensators.
@@ -1773,12 +1773,20 @@ public interface Network extends Container<Network> {
         return this;
     }
 
+    /**
+     *
+     * @param identifiableType The type of the Identifiable you want the steam of inside the network.
+     * @see com.powsybl.iidm.network.IdentifiableType
+     * @return a Stream of elements of the network that are of the type {@code identifiableType}.
+     * In the case of {@link com.powsybl.iidm.network.IdentifiableType#NETWORK}, the stream starts with the Network itself, followed by its subnetworks, if any exist.
+     */
     default Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         return switch (identifiableType) {
+            case NETWORK -> Stream.concat(Stream.of(getNetwork()), getSubnetworks().stream()).map(Function.identity());
             case SWITCH -> getSwitchStream().map(Function.identity());
             case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformerStream().map(Function.identity());
             case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformerStream().map(Function.identity());
-            case DANGLING_LINE -> getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
+            case BOUNDARY_LINE -> getBoundaryLineStream(BoundaryLineFilter.ALL).map(Function.identity());
             case LINE -> getLineStream().map(Function.identity());
             case TIE_LINE -> getTieLineStream().map(Function.identity());
             case LOAD -> getLoadStream().map(Function.identity());
@@ -1800,7 +1808,7 @@ public interface Network extends Container<Network> {
             case DC_SWITCH -> getDcSwitchStream().map(Function.identity());
             case LINE_COMMUTATED_CONVERTER -> getLineCommutatedConverterStream().map(Function.identity());
             case VOLTAGE_SOURCE_CONVERTER -> getVoltageSourceConverterStream().map(Function.identity());
-            default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
+            default -> throw new PowsyblException("can't get a stream of " + identifiableType + " from a network.");
         };
     }
 

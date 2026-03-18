@@ -1,0 +1,67 @@
+{
+  "version" : "1.16",
+  "id" : "shuntTestCase",
+  "caseDate" : "2019-09-30T16:29:18.263+02:00",
+  "forecastDistance" : 0,
+  "sourceFormat" : "test",
+  "minimumValidationLevel" : "STEADY_STATE_HYPOTHESIS",
+  "substations" : [ {
+    "id" : "S1",
+    "country" : "FR",
+    "voltageLevels" : [ {
+      "id" : "VL1",
+      "nominalV" : 380.0,
+      "topologyKind" : "BUS_BREAKER",
+      "busBreakerTopology" : {
+        "buses" : [ {
+          "id" : "B1"
+        } ]
+      },
+      "shuntCompensators" : [ {
+        "id" : "SHUNT",
+        "sectionCount" : 1,
+        "voltageRegulatorOn" : true,
+        "targetV" : 200.0,
+        "targetDeadband" : 5.0,
+        "bus" : "B1",
+        "connectableBus" : "B1",
+        "p" : 1.0,
+        "aliases" : [ {
+          "content" : "Alias"
+        } ],
+        "properties" : [ {
+          "name" : "test",
+          "value" : "test"
+        } ],
+        "shuntLinearModel" : {
+          "bPerSection" : 1.0E-5,
+          "maximumSectionCount" : 1
+        },
+        "regulatingTerminal" : {
+          "id" : "LOAD"
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "S2",
+    "country" : "FR",
+    "voltageLevels" : [ {
+      "id" : "VL2",
+      "nominalV" : 220.0,
+      "topologyKind" : "BUS_BREAKER",
+      "busBreakerTopology" : {
+        "buses" : [ {
+          "id" : "B2"
+        } ]
+      },
+      "loads" : [ {
+        "id" : "LOAD",
+        "loadType" : "UNDEFINED",
+        "p0" : 100.0,
+        "q0" : 50.0,
+        "bus" : "B2",
+        "connectableBus" : "B2"
+      } ]
+    } ]
+  } ]
+}

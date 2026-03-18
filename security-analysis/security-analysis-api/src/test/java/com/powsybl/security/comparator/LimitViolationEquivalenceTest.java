@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 /**
  *
