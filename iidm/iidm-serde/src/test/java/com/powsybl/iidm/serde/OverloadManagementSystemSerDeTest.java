@@ -161,7 +161,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
         Assertions.assertEquals(expectedNbAutomationSystem, networkOutput.getOverloadManagementSystemCount());
     }
 
-    private static Network createNetwork() {
+    static Network createNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("fictitious", "test");
         network.setCaseDate(ZonedDateTime.parse("2024-01-02T15:00:00.000+01:00"));
         network.setForecastDistance(0);

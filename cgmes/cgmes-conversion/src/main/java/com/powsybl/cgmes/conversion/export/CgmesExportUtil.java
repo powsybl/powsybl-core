@@ -614,4 +614,10 @@ public final class CgmesExportUtil {
         }
         return false;
     }
+
+    static String getEffectivePairingKey(BoundaryLine bl) {
+        String pairingKey = bl.getPairingKey();
+        return pairingKey != null ? pairingKey : bl.getTieLine().orElseThrow().getId();
+
+    }
 }

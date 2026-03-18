@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1023,17 +1024,15 @@ public final class EquipmentExport {
 
         for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             writeUnpairedOrPairedBoundaryLines(Collections.singletonList(boundaryLine), cimNamespace, euNamespace,
-                    exportedLimitTypes, writer,
-                    context, exported);
+                    exportedLimitTypes, writer, context, exported);
         }
 
-        Set<String> pairingKeys = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).map(BoundaryLine::getPairingKey).collect(Collectors.toSet());
-        for (String pairingKey : pairingKeys) {
-            List<BoundaryLine> boundaryLineList = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).filter(boundaryLine -> pairingKey.equals(boundaryLine.getPairingKey())).toList();
-            writeUnpairedOrPairedBoundaryLines(boundaryLineList, cimNamespace, euNamespace,
-                    exportedLimitTypes, writer,
-                    context, exported);
+        Map<String, List<BoundaryLine>> boundaryLinesByPairingKey = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).collect(Collectors.groupingBy(CgmesExportUtil::getEffectivePairingKey));
+        for (Map.Entry<String, List<BoundaryLine>> entry : boundaryLinesByPairingKey.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+            writeUnpairedOrPairedBoundaryLines(entry.getValue(), cimNamespace, euNamespace,
+                    exportedLimitTypes, writer, context, exported);
         }
+
     }
 
     private static void writeUnpairedOrPairedBoundaryLines(List<BoundaryLine> boundaryLineList, String cimNamespace, String euNamespace,
@@ -1119,17 +1118,41 @@ public final class EquipmentExport {
             connectivityNodeId = connectevityNodeIdSet.iterator().next();
         } else {
             // If no information about original boundary has been preserved in the IIDM model,
-            // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
+            // we first try to find the ConnectivityNodeId in the reference data provider, and as a last option,
+            // we create a new ConnectivityNode in a fictitious Substation and VoltageLevel.
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Boundary line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
-            }
-            BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
-            connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(boundaryLine), CONNECTIVITY_NODE);
-
-            String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
-            ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
+            Optional<String> optionalConnectivityNodeId = findConnectivityNodeId(boundaryLineList.getFirst().getPairingKey(), context);
+            connectivityNodeId = optionalConnectivityNodeId.isPresent() ? optionalConnectivityNodeId.get() : createNewConnectivityNode(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
         }
+        return connectivityNodeId;
+    }
+
+    private static Optional<String> findConnectivityNodeId(String pairingKey, CgmesExportContext context) {
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (pairingKey == null || referenceDataProvider == null) {
+            return Optional.empty();
+        }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Optional.empty();
+        }
+        return boundaryNodes.stream()
+                .filter(propertyBag -> pairingKey.equals(propertyBag.getId("name")))
+                .map(propertyBag1 -> propertyBag1.getId("ConnectivityNode"))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static String createNewConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Boundary line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
+        }
+        BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
+        String connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(boundaryLine), CONNECTIVITY_NODE);
+
+        String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+        ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
+
         return connectivityNodeId;
     }
 
