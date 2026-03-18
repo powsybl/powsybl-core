@@ -143,7 +143,13 @@ public final class LoadingLimitsUtil {
         }
     }
 
-    private static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
+    /**
+     * Copy all {@link OperationalLimitsGroup} to the group created from <code>createGroup</code> with the same ID as the original group.
+     * This does not perform group selection.
+     * @param from the groups that will be copied.
+     * @param createGroup how to create each new group to copy the original group on
+     */
+    public static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
                                               Function<String, OperationalLimitsGroup> createGroup) {
         from.forEach(groupToCopy -> {
             OperationalLimitsGroup copy = createGroup.apply(groupToCopy.getId());

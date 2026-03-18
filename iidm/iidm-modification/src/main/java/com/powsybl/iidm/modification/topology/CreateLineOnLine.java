@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
@@ -163,14 +164,18 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
+        BranchOperationalLimitsGroupsCopy groupsCopy = new BranchOperationalLimitsGroupsCopy(line);
+
         // Remove the existing line
         String originalLineId = line.getId();
         line.remove();
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        LoadingLimitsUtil.copyOperationalLimits(line, line1);
-        LoadingLimitsUtil.copyOperationalLimits(line, line2);
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopy.applyGroupsToBranch(line1, TwoSides.values());
+        groupsCopy.applyGroupsToBranch(line2, TwoSides.values());
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()
