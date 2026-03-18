@@ -76,25 +76,20 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             addAliases(vl);
 
             // Check voltage limit consistency.
-            double effectiveLowVoltageLimit;
-            double effectiveHighVoltageLimit;
-            if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit) && lowVoltageLimit > highVoltageLimit) {
+            if (highVoltageLimit < lowVoltageLimit) {
+                // this code path is never reached if either of the values is NaN, i.e. not provided in input
                 ignored("high/low voltage limits",
                         () -> String.format("lowVoltageLimit (%f) is greater than highVoltageLimit (%f).", lowVoltageLimit, highVoltageLimit));
-                effectiveLowVoltageLimit = Double.NaN;
-                effectiveHighVoltageLimit = Double.NaN;
             } else {
-                effectiveLowVoltageLimit = lowVoltageLimit;
-                effectiveHighVoltageLimit = highVoltageLimit;
-            }
-
-            if (!Double.isNaN(effectiveLowVoltageLimit)) {
-                vl.setLowVoltageLimit(lowVoltageLimit);
-                vl.setProperty(PROPERTY_LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
-            }
-            if (!Double.isNaN(effectiveHighVoltageLimit)) {
-                vl.setHighVoltageLimit(highVoltageLimit);
-                vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
+                // either only one limit is defined, or both limits are defined and they are consistent
+                if (!Double.isNaN(highVoltageLimit)) {
+                    vl.setHighVoltageLimit(highVoltageLimit);
+                    vl.setProperty(PROPERTY_HIGH_VOLTAGE_LIMIT, String.valueOf(highVoltageLimit));
+                }
+                if (!Double.isNaN(lowVoltageLimit)) {
+                    vl.setLowVoltageLimit(lowVoltageLimit);
+                    vl.setProperty(PROPERTY_LOW_VOLTAGE_LIMIT, String.valueOf(lowVoltageLimit));
+                }
             }
         }
     }
