@@ -59,7 +59,7 @@ class SecurityTest {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
         line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()), Double.NaN);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN);
 
         result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }

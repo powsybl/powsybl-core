@@ -266,7 +266,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
 
     private static SecurityAnalysisResult resultForContingency(String id) {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(new PostContingencyResult(new Contingency(id), PostContingencyComputationStatus.CONVERGED, LimitViolationsResult.empty(), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()), Double.NaN)));
+                Collections.singletonList(new PostContingencyResult(new Contingency(id), PostContingencyComputationStatus.CONVERGED, LimitViolationsResult.empty(), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN)));
     }
 
     @Test

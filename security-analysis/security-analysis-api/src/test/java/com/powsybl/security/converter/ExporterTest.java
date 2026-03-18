@@ -77,7 +77,7 @@ class ExporterTest extends AbstractSerDeTest {
                 PostContingencyComputationStatus.CONVERGED,
                 new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
                 new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
-                new ConnectivityResult(0, 0, 0., 0., Collections.emptySet()),
+                ConnectivityResult.empty(),
                 2.34
         );
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),

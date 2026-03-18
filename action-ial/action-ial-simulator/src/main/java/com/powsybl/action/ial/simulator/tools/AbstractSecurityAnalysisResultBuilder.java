@@ -56,7 +56,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
             preContingencyStatus = LoadFlowResult.ComponentResult.Status.FAILED;
         } else {
             Objects.requireNonNull(runningContext.getContingency());
-            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), PostContingencyComputationStatus.FAILED, new LimitViolationsResult(Collections.emptyList(), getPostContingencyActions(runningContext.getContingency())), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()), Double.NaN));
+            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), PostContingencyComputationStatus.FAILED, new LimitViolationsResult(Collections.emptyList(), getPostContingencyActions(runningContext.getContingency())), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN));
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
             preContingencyStatus = LoadFlowResult.ComponentResult.Status.CONVERGED;
         } else {
             Objects.requireNonNull(runningContext.getContingency());
-            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(violations, getPostContingencyActions(runningContext.getContingency())), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()), Double.NaN));
+            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(violations, getPostContingencyActions(runningContext.getContingency())), new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), ConnectivityResult.empty(), Double.NaN));
         }
     }
 
