@@ -17,5 +17,5 @@ import com.powsybl.security.limitreduction.AbstractLimitReductionsApplier;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public interface AbstractLimitsReducerCreator<L, R extends AbstractLimitsReducer<L>> {
-    R create(String networkElementId, L originalLimits);
+    R create(String networkElementId, String limitsGroupId, L originalLimits);
 }

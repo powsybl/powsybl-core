@@ -56,6 +56,26 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
+    @Test
+    void roundTripTestMultipleSelectedOperationalLimitsGroup() throws IOException {
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(), "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility : in versions older than IIDM 1.16 we only export the last selected limits group
+        // no need to test before 1.12 as OperationalLimitsGroup did not exist before
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml", IidmVersion.V_1_12, IidmVersion.V_1_16);
+    }
+
+    @Test
+    void writeMultipleSelectedOperationalLimitsGroupToOlderFormat() throws IOException {
+        testWriteVersionedXmlBetweenVersions(
+            EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(),
+            new ExportOptions(),
+            "eurostag-tutorial-multiple-selected-op-lim-group.xml",
+            IidmVersion.V_1_12,
+            IidmVersion.V_1_15
+        );
+    }
+
     @ParameterizedTest
     @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
     void testSkippedExtension(TreeDataFormat format) throws IOException {
@@ -194,10 +214,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         }
     }
 
-    private static Network writeAndRead(Network network, ExportOptions options) throws IOException {
+    static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkSerDe.write(network, options, os);
-
             try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
                 return NetworkSerDe.read(is);
             }
