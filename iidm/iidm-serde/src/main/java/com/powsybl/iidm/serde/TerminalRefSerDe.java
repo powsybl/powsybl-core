@@ -76,13 +76,7 @@ public final class TerminalRefSerDe {
 
         writer.writeStringAttribute(ID, connectableId);
         writer.writeEnumAttribute(SIDE, tSide);
-        if (context.getVersion().compareTo(IidmVersion.V_1_15) >= 0 || tNumber != null) {
-            //TODO This allow to export the terminal number when present in IIDM versions < 1.15 with
-            // the "iidmVersionIncompatibilityBehavior" export option set to LOG_ERROR.
-            // But this may cause problem in this specific case with BIIDM format
-            // (the number is set in the file but won't be read => invalid file)
-            IidmSerDeUtil.assertMinimumVersion(parentElementName != null ? parentElementName : "terminalRef", NUMBER,
-                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+        if (context.getVersion().compareTo(IidmVersion.V_1_15) >= 0) {
             writer.writeEnumAttribute(NUMBER, tNumber);
         }
     }
