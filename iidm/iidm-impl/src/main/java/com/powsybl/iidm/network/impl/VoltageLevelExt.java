@@ -17,7 +17,7 @@ import com.powsybl.commons.ref.Ref;
  */
 interface VoltageLevelExt extends VoltageLevel, MultiVariantObject, Validable {
 
-    interface NodeBreakerViewExt extends NodeBreakerView {
+    interface NodeBreakerViewExt extends NodeBreakerView, MultiVariantObject {
 
     }
 
