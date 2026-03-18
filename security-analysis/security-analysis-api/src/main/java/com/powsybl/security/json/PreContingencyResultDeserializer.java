@@ -62,9 +62,18 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
         }
         if (commonParsingContext.networkResult != null) {
-            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult, commonParsingContext.networkResult, commonParsingContext.distributedActivePower);
+            return new PreContingencyResult(
+                    parsingContext.status,
+                    commonParsingContext.limitViolationsResult,
+                    commonParsingContext.networkResult,
+                    commonParsingContext.distributedActivePower
+            );
         } else {
-            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult, new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults), Double.NaN);
+            return new PreContingencyResult(
+                    parsingContext.status,
+                    commonParsingContext.limitViolationsResult,
+                    new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults),
+                    Double.NaN);
         }
     }
 }

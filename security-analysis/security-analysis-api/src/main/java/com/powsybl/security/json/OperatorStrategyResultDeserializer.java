@@ -101,11 +101,22 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                     throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
             }
         }
+        Objects.requireNonNull(operatorStrategy);
         if (version.compareTo("1.3") < 0) {
             Objects.requireNonNull(limitViolationsResult);
-            return new OperatorStrategyResult(operatorStrategy, List.of(new OperatorStrategyResult.ConditionalActionsResult(operatorStrategy.getId(), limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED, limitViolationsResult, networkResult, Double.NaN)));
+            return new OperatorStrategyResult(operatorStrategy, List.of(
+                    new OperatorStrategyResult.ConditionalActionsResult(
+                            operatorStrategy.getId(),
+                            limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED,
+                            limitViolationsResult, networkResult, Double.NaN
+                    )));
         } else if (version.compareTo("1.6") < 0) {
-            return new OperatorStrategyResult(operatorStrategy, List.of(new OperatorStrategyResult.ConditionalActionsResult(operatorStrategy.getId(), status, limitViolationsResult, networkResult, Double.NaN)));
+            return new OperatorStrategyResult(operatorStrategy, List.of(
+                    new OperatorStrategyResult.ConditionalActionsResult(
+                            operatorStrategy.getId(),
+                            status,
+                            limitViolationsResult, networkResult, Double.NaN
+                    )));
         } else {
             return new OperatorStrategyResult(operatorStrategy, conditionalActionsResultList);
         }
