@@ -96,6 +96,7 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
 
         String loadId = "VL_0_TN_FICT_NCL";
         String terminalId = "VL_0_TN_FICT_T";
+        // Multiple node fictitious injections collapse onto a single bus in bus-branch export
         validateCgmesExportOfFictitiousInjections(network, params, loadId, terminalId, false, 2.0, 4.0);
     }
 

@@ -384,6 +384,8 @@ with values written to SSH and connectivity/topology bindings set according to t
 A corresponding 'SvPowerFlow' is written for the terminal in the SV.
 In case of a node-breaker or CIM100 export, the terminal will refer to a `ConnectivityNode`.
 
+If the EQ profile is not exported and the network contains fictitious injections, note that the references to equipment in the SSH and SV will be invalid.
+
 (cgmes-shunt-compensator-export)=
 ### Shunt compensator
 
