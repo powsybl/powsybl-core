@@ -952,12 +952,12 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         private double getFictitiousInjection(ArrayList<TIntDoubleMap> fictitiousValueByNodes, int node) {
-            TIntDoubleMap fictitiousP0Variant = fictitiousValueByNodes.get(getNetwork().getVariantIndex());
-            if (fictitiousP0Variant == null || fictitiousP0Variant.isEmpty()) {
+            TIntDoubleMap fictitiousValueVariant = fictitiousValueByNodes.get(getNetwork().getVariantIndex());
+            if (fictitiousValueVariant == null || fictitiousValueVariant.isEmpty()) {
                 return 0.0;
             }
             // Return the value corresponding to the node, or 0.0 if the node is not in the keyset (default in TIntDoubleHashMap)
-            return fictitiousP0Variant.get(node);
+            return fictitiousValueVariant.get(node);
         }
 
         private void setFictitiousInjection(ArrayList<TIntDoubleMap> fictitiousValueByNodes, int node, double value,
@@ -965,16 +965,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             int variantIndex = getNetwork().getVariantIndex();
 
             // Get the map corresponding to the current variant from the array
-            TIntDoubleMap fictitiousP0Variant = fictitiousValueByNodes.get(variantIndex);
+            TIntDoubleMap fictitiousValueVariant = fictitiousValueByNodes.get(variantIndex);
 
             // If it does not exist yet, create a new one
-            if (fictitiousP0Variant == null) {
-                fictitiousP0Variant = new TIntDoubleHashMap();
-                fictitiousValueByNodes.set(variantIndex, fictitiousP0Variant);
+            if (fictitiousValueVariant == null) {
+                fictitiousValueVariant = new TIntDoubleHashMap();
+                fictitiousValueByNodes.set(variantIndex, fictitiousValueVariant);
             }
 
             // Save the value in the map or remove if the value is 0.0
-            double oldValue = value == 0.0 ? fictitiousP0Variant.remove(node) : fictitiousP0Variant.put(node, value);
+            double oldValue = value == 0.0 ? fictitiousValueVariant.remove(node) : fictitiousValueVariant.put(node, value);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
             getNetwork().getListeners().notifyUpdate(voltageLevel, modifiedVariable, variantId, oldValue, value);
         }
