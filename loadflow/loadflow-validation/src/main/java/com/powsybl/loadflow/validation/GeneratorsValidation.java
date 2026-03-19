@@ -19,7 +19,6 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
@@ -89,7 +88,6 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(generatorsWriter);
         double p = gen.getTerminal().getP();
         double q = gen.getTerminal().getQ();
-        Bus bus = gen.getTerminal().getBusView().getBus();
         double targetP = gen.getTargetP();
         double targetQ = gen.getTargetQ();
         double targetV = gen.getTargetV();
@@ -98,11 +96,10 @@ public final class GeneratorsValidation {
         double maxP = gen.getMaxP();
         double minQ = gen.getReactiveLimits().getMinQ(targetP);
         double maxQ = gen.getReactiveLimits().getMaxQ(targetP);
-        double v = bus != null ? bus.getV() : Double.NaN;
-        boolean connected = bus != null;
-        Bus connectableBus = gen.getTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        ValidationUtils.TerminalState terminalState = ValidationUtils.getTerminalState(gen.getTerminal());
+        double v = terminalState.v();
+        boolean connected = terminalState.connected();
+        boolean mainComponent = terminalState.mainComponent();
         return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected,
                                mainComponent, config, generatorsWriter, guesser);
     }

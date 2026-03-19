@@ -97,17 +97,12 @@ public final class StaticVarCompensatorsValidation {
         double bMax = svc.getBmax();
         double nominalVcontroller = svc.getTerminal().getVoltageLevel().getNominalV();
         double vController = bus != null ? bus.getV() : Double.NaN;
-        double vControlled;
-        if (svc.getRegulatingTerminal() != null) {
-            Bus controlledBus = svc.getRegulatingTerminal().getBusView().getBus();
-            vControlled = controlledBus != null ? controlledBus.getV() : Double.NaN;
-        } else {
-            vControlled = vController;
-        }
-        boolean connected = bus != null;
-        Bus connectableBus = svc.getTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        double vControlled = svc.getRegulatingTerminal() != null
+                ? ValidationUtils.getTerminalState(svc.getRegulatingTerminal()).v()
+                : vController;
+        ValidationUtils.TerminalState terminalState = ValidationUtils.getTerminalState(svc.getTerminal());
+        boolean connected = terminalState.connected();
+        boolean mainComponent = terminalState.mainComponent();
         return checkSVCs(svc.getId(), p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
     }
 

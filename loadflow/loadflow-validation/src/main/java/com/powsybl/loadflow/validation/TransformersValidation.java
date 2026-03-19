@@ -97,12 +97,11 @@ public final class TransformersValidation extends AbstractTransformersValidation
             }
             return true;
         }
-        Bus bus = ratioTapChanger.getRegulationTerminal().getBusView().getBus();
-        double v = bus != null ? bus.getV() : Double.NaN;
-        boolean connected = bus != null;
-        Bus connectableBus = ratioTapChanger.getRegulationTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        ValidationUtils.TerminalState terminalState = ValidationUtils.getTerminalState(ratioTapChanger.getRegulationTerminal());
+        double v = terminalState.v();
+        boolean connected = terminalState.connected();
+        boolean mainComponent = terminalState.mainComponent();
+
         return checkTransformer(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
                                  targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
     }

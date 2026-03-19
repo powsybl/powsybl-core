@@ -8,6 +8,8 @@
 package com.powsybl.loadflow.validation;
 
 import com.powsybl.commons.config.ConfigurationException;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
 
@@ -87,6 +89,19 @@ public final class ValidationUtils {
     public static boolean isMainComponent(ValidationConfig config, boolean mainComponent) {
         Objects.requireNonNull(config);
         return !config.isCheckMainComponentOnly() || mainComponent;
+    }
+
+    public record TerminalState(double v, boolean connected, boolean mainComponent) { }
+
+    public static TerminalState getTerminalState(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+        Bus bus = terminal.getBusView().getBus();
+        Bus connectableBus = terminal.getBusView().getConnectableBus();
+        boolean connected = bus != null;
+        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
+        boolean mainComponent = connected ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        double v = connected ? bus.getV() : Double.NaN;
+        return new TerminalState(v, connected, mainComponent);
     }
 
 }
