@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.TwoSides;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,12 +64,14 @@ class LimitViolationBuilderTest {
                 .reduction(0.9)
                 .side2()
                 .duration(60)
+                .operationalLimitsGroupId("group1")
                 .build();
         assertEquals(TwoSides.TWO, violation2.getSideAsTwoSides());
         assertEquals("name", violation2.getSubjectName());
         assertEquals("limitName", violation2.getLimitName());
         assertEquals(0.9, violation2.getLimitReduction(), 0);
         assertEquals(60, violation2.getAcceptableDuration(), 0);
+        assertEquals("group1", violation2.getOperationalLimitsGroupId());
     }
 
     @Test
@@ -86,6 +89,21 @@ class LimitViolationBuilderTest {
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
         assertEquals(1.0, violation.getLimitReduction(), 0);
+    }
+
+    @Test
+    void buildHighVoltageViolationWithLocation() {
+        ViolationLocation location = new BusBreakerViolationLocation(List.of("BUS1"));
+        LimitViolation violation = LimitViolations.highVoltage()
+                .subject("id")
+                .limit(420)
+                .value(450)
+                .violationLocation(location)
+                .build();
+        assertEquals("id", violation.getSubjectId());
+        assertSame(LimitViolationType.HIGH_VOLTAGE, violation.getLimitType());
+        assertTrue(violation.getViolationLocation().isPresent());
+        assertSame(location, violation.getViolationLocation().get());
     }
 
     @Test
