@@ -42,6 +42,7 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -298,7 +299,10 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                             String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
             String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
             Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
-            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal);
+            LongSupplier equivalentTerminalVersion = getBusChecker() == CALCULATED_BUS_BREAKER_CHECKER
+                            ? () -> variants.get().calculatedBusBreakerTopology.getEquivalentTerminalVersion()
+                            : () -> -1L;
+            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal, equivalentTerminalVersion);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
                 node2bus[nodes.getQuick(i)] = bus;
@@ -391,6 +395,16 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
      * Bus breaker topology calculated from node breaker topology
      */
     class CalculatedBusBreakerTopology extends CalculatedBusTopology {
+
+        private long equivalentTerminalVersion = 0L;
+
+        long getEquivalentTerminalVersion() {
+            return equivalentTerminalVersion;
+        }
+
+        void markEquivalentTerminalToVerify() {
+            equivalentTerminalVersion++;
+        }
 
         @Override
         protected void updateCache() {
@@ -587,6 +601,9 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         if (!exceptBusBreakerView) {
             variants.get().calculatedBusBreakerTopology.invalidateCache();
             getNetwork().getBusBreakerView().invalidateCache();
+        } else {
+            // recompute equivalent terminal of calculated bus breaker topology computed from node breaker topology.
+            variants.get().calculatedBusBreakerTopology.markEquivalentTerminalToVerify();
         }
         variants.get().calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();
