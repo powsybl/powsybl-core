@@ -37,6 +37,10 @@ class NodeBreakerFictitiousInjectionTest {
 
         // Testing hasFictitious back in initialState, after removing fictitiousInjections
         network.getVariantManager().setWorkingVariant(initialVariantId);
+        assertTrue(vl.getNodeBreakerView().hasFictitiousP0());
+        assertTrue(vl.getNodeBreakerView().hasFictitiousQ0());
+        assertEquals(10, bus.getFictitiousP0());
+        assertEquals(20, bus.getFictitiousQ0());
         bus.setFictitiousP0(0.0);
         bus.setFictitiousQ0(0.0);
         assertFalse(vl.getNodeBreakerView().hasFictitiousP0());
