@@ -277,4 +277,30 @@ class DoubleDataChunkTest {
         assertInstanceOf(UncompressedDoubleDataChunk.class, doubleChunks.get(0));
         assertArrayEquals(new double[] {1d, Double.NaN, Double.NaN}, ((UncompressedDoubleDataChunk) doubleChunks.get(0)).getValues(), 0d);
     }
+
+    @Test
+    void test_issue1619(){
+        // Offset          [0, 1, 2, 3, 4, 5]
+        // DoubleDataChunk [0, 0, 0, 1, 1, 1]
+        // Chunks (steps)  [3*0, 3*1]
+        CompressedDoubleDataChunk compressedChunk = new CompressedDoubleDataChunk(0, 6, new double[]{0d, 1d}, new int[]{3, 3});
+        //When
+        DataChunk.Split<DoublePoint, DoubleDataChunk> split = compressedChunk.splitAt(3);
+
+        assertEquals(0, split.getChunk1().getOffset());
+        assertEquals(3, split.getChunk1().getLength());
+
+        assertEquals(3, split.getChunk2().getOffset());
+        assertEquals(3, split.getChunk2().getLength());
+
+        CompressedDoubleDataChunk chunk1 = (CompressedDoubleDataChunk) split.getChunk1();
+        assertArrayEquals(new int[]{3, 0}, chunk1.getStepLengths()); //stepLengths sizes = [3, 0]
+        assertArrayEquals(new double[]{0d, 1d}, chunk1.getStepValues()); // FIXME stepValues = [0d, 1d] => 3 is the sizes of 0d, 0 is the size of 1d (issue: creating a zero length step)
+
+        assertInstanceOf(CompressedDoubleDataChunk.class, split.getChunk2());
+        CompressedDoubleDataChunk chunk2 = (CompressedDoubleDataChunk) split.getChunk2();
+        assertArrayEquals(new int[]{3}, chunk2.getStepLengths()); //stepLengths sizes = [3]
+        assertArrayEquals(new double[]{1d}, chunk2.getStepValues()); // stepValues values = [1d] => 3 is the sizes of 1d (No zero length step)
+    }
+
 }
