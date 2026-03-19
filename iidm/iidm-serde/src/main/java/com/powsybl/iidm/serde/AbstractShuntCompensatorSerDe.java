@@ -230,11 +230,9 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     }
 
     private static void readRegulatingTerminal(List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
-        String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
-        ThreeSides regSide = context.getReader().readEnumAttribute("side", ThreeSides.class);
-        TerminalNumber regNumber = context.getReader().readEnumAttribute("number", TerminalNumber.class);
-        context.getReader().readEndNode();
-        toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> sc.setRegulatingTerminal(TerminalRefSerDe.resolve(regId, regSide, regNumber, sc.getNetwork()))));
+        TerminalRefSerDe.TerminalData data = TerminalRefSerDe.readTerminalData(context);
+        toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                () -> sc.setRegulatingTerminal(TerminalRefSerDe.resolve(data.id(), data.side(), data.number(), sc.getNetwork()))));
     }
 
     private void readShuntNonLinearModel(String id, ShuntCompensatorAdder adder, NetworkDeserializerContext context) {
