@@ -1,5 +1,17 @@
 ### Rules / Config Threshold
-#### Generator
+
+#### ShuntCompensator
+
+- doc: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#shunt-compensator
+
+* Rule1: if disconnected, q must be NaN or 0
+* Rule2: if connected, p must be NaN
+* Rule3: if connected, q must match expectedQ (within threshold)
+
+#### Generator TODO
+
+- doc: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#generator
+
 * Rule1: Active power (p) must match setpoint (expectedP) (within threshold)
 * Rule2: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
 * Rule3: if voltageRegulatorOn="true"

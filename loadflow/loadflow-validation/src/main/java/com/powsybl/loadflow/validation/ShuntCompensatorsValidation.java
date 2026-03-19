@@ -124,18 +124,19 @@ public final class ShuntCompensatorsValidation {
                                ValidationWriter shuntsWriter) {
         boolean validated = true;
 
-        if (!connected && !Double.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0
+        if (!connected && !Double.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0 => Rule1: if the shunt is disconnected, q should be NaN or 0
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }
         // “q” = - bPerSection * currentSectionCount * v^2
-        double expectedQ = -bPerSection * currentSectionCount * v * v;
+        double expectedQ = -bPerSection * currentSectionCount * v * v; //TODO define this rule
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
-            // “p” is always NaN
+            // “p” is always NaN => Rule2: if connected, p must be NaN
             if (!Double.isNaN(p)) {
                 LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
                 validated = false;
             }
+            // Rule3: if connected, q must match expectedQ (within threshold)
             if (ValidationUtils.areNaN(config, q, expectedQ) || Math.abs(q - expectedQ) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
                 validated = false;
