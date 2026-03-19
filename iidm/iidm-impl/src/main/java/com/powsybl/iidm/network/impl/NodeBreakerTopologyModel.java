@@ -645,6 +645,58 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
         private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
 
+        private static void allocateVariantArrayElementForFictitiousValues(TIntObjectMap<TDoubleArrayList> fictitiousValueByNode,
+                                                                           int[] indexes, int sourceIndex) {
+            for (int node : fictitiousValueByNode.keys()) {
+                TDoubleArrayList fictitiousValueByVariant = fictitiousValueByNode.get(node);
+                for (int index : indexes) {
+                    fictitiousValueByVariant.set(index, fictitiousValueByVariant.get(sourceIndex));
+                }
+            }
+        }
+
+        private static void extendVariantArraySizeForFictitiousValues(TIntObjectMap<TDoubleArrayList> fictitiousValueByNode,
+                                                                      int number, int sourceIndex) {
+            for (int node : fictitiousValueByNode.keys()) {
+                TDoubleArrayList fictitiousValueByVariant = fictitiousValueByNode.get(node);
+                fictitiousValueByVariant.ensureCapacity(fictitiousValueByVariant.size() + number);
+                for (int i = 0; i < number; i++) {
+                    fictitiousValueByVariant.add(fictitiousValueByVariant.get(sourceIndex));
+                }
+            }
+        }
+
+        private static void reduceVariantArraySizeForFictitiousValues(TIntObjectMap<TDoubleArrayList> fictitiousValueByNode,
+                                                                      int number) {
+            for (int node : fictitiousValueByNode.keys()) {
+                TDoubleArrayList fictitiousValueByVariant = fictitiousValueByNode.get(node);
+                fictitiousValueByVariant.remove(fictitiousValueByVariant.size() - number, number);
+            }
+        }
+
+        @Override
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+            extendVariantArraySizeForFictitiousValues(fictitiousP0ByNode, number, sourceIndex);
+            extendVariantArraySizeForFictitiousValues(fictitiousQ0ByNode, number, sourceIndex);
+        }
+
+        @Override
+        public void reduceVariantArraySize(int number) {
+            reduceVariantArraySizeForFictitiousValues(fictitiousP0ByNode, number);
+            reduceVariantArraySizeForFictitiousValues(fictitiousQ0ByNode, number);
+        }
+
+        @Override
+        public void deleteVariantArrayElement(int index) {
+            // Nothing to do
+        }
+
+        @Override
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+            allocateVariantArrayElementForFictitiousValues(fictitiousP0ByNode, indexes, sourceIndex);
+            allocateVariantArrayElementForFictitiousValues(fictitiousQ0ByNode, indexes, sourceIndex);
+        }
+
         @Override
         public double getFictitiousP0(int node) {
             TDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
@@ -1391,21 +1443,25 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         variants.push(number, VariantImpl::new);
+        nodeBreakerView.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         variants.pop(number);
+        nodeBreakerView.reduceVariantArraySize(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         variants.delete(index);
+        nodeBreakerView.deleteVariantArrayElement(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, VariantImpl::new);
+        nodeBreakerView.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
     @Override
