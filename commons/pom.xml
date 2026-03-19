@@ -93,6 +93,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons-csv.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.ow2.sirocco</groupId>
             <artifactId>sirocco-text-table-formatter</artifactId>
