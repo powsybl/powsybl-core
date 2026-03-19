@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Sylvestre Prabakaran {@literal <sylvestre.prabakaran at rte-france.com>}
+ */
 class NodeBreakerFictitiousInjectionTest {
 
     @Test
