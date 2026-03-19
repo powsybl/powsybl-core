@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+/*
+ * Copyright (c) 2016-2026, RTE (https://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -26,14 +26,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private boolean valid = true;
 
     private final List<NodeTerminal> terminals;
-    private final Function<Integer, Bus> getBusFromNode;
+    private final int[] nodes;
 
     private NodeTerminal terminalRef;
 
-    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals, Function<Integer, Bus> getBusFromNode) {
+    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
-        this.getBusFromNode = Objects.requireNonNull(getBusFromNode);
+        this.nodes = Objects.requireNonNull(nodes).toArray();
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 
@@ -145,11 +145,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     private IntStream getCalculatedBusNodes() {
-        return IntStream.of(voltageLevel.getNodeBreakerView().getNodes())
-                .filter(node -> {
-                    Bus b = getBusFromNode.apply(node);
-                    return b != null && id.equals(b.getId());
-                });
+        return IntStream.of(nodes);
     }
 
     @Override
