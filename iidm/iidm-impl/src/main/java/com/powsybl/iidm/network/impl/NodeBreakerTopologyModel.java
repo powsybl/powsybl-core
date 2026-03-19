@@ -682,6 +682,8 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         @Override
         public void deleteVariantArrayElement(int index) {
             // Nothing to do
+            fictitiousP0ByNodeAndVariant.set(index, null);
+            fictitiousQ0ByNodeAndVariant.set(index, null);
         }
 
         @Override
