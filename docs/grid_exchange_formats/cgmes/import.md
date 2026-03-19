@@ -897,13 +897,17 @@ thereby improving performance. This option is suitable when the user does not ne
 or does not intend to perform further network updates.
 `false` by default.
 
-**iidm.import.cgmes.log-unassigned-operational-limits**  
-Optional property that defines whether a warning log should be issued for cim:OperationalLimit-s which could not be
-imported into IIDM.  
-If the option is set to `true`, a warning is issued for not imported limits.  
-If the option is set to `false`, no warning is issued for not imported limits.  
-cim:OperationalLimit-s of type CurrentLimit, ActivePowerLimit and ApparentPowerLimit can be imported in IIDM only
-if they relate to Branches (Lines, Tie-Lines, Two Windings Transformers), Dangling Lines (at network side,
-limits at boundary side can not be imported), and Three Windings Transformers. For all other equipment types,
-no convertion is done. This is the case for example for Switches, Generators, Loads, etc...  
+**iidm.import.cgmes.silence-frequent-issues-warnings**  
+Optional property that defines whether a warning log should be issued for the following issues that happen frequently on real cases:
+- cim:OperationalLimit-s which could not be imported into IIDM:
+  - cim:OperationalLimit-s of type CurrentLimit, ActivePowerLimit and ApparentPowerLimit can be imported in
+    IIDM only if they relate to Branches (Lines, Tie-Lines, Two Windings Transformers), Three Windings Transformers,
+    and Boundary Lines (at network side, limits at boundary side can not be imported).
+  - For all other equipment types, no convertion is done. This is the case for example for Switches, Generators, Loads, etc...
+- cim:Switch-es not imported because the import is Bus/Breaker and the switch from Bus and to Bus are the same Bus 
+- missing minQ/maxQ for cim:EquivalentInjection-s and cim:SynchronousMachine-s 
+
+If the option is set to `false`, a warning is logged for every occurrence of the above issues, which may lead to excessive logging in real cases.  
+If the option is set to `true`, no warning is logged for any of the above issues.  
+ 
 `false` by default.

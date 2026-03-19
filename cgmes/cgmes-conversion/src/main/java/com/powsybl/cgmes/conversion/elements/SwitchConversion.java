@@ -42,7 +42,9 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             return false;
         }
         if (busId(1).equals(busId(2))) {
-            ignored("end buses are the same bus " + busId(1));
+            if (!context.config().isSilenceFrequentIssuesWarnings()) {
+                ignored("end buses are the same bus " + busId(1));
+            }
             return false;
         }
         if ((isBoundary(1) || isBoundary(2)) && LOG.isDebugEnabled()) {
