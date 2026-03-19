@@ -8,12 +8,17 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.powsybl.cgmes.conformity.ReliCapGridCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.elements.SwitchConversion;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -30,6 +35,14 @@ class ReliCapGridTest {
     void setUp() {
         importParams = new Properties();
         importParams.put(CgmesImport.SILENCE_FREQUENT_ISSUES_WARNINGS, "true"); // for coverage of this option
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger(SwitchConversion.class).setLevel(Level.DEBUG); // for coverage of boundary switch debug log
+    }
+
+    @AfterEach
+    void restoreLogger() {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger(SwitchConversion.class).setLevel(null);
     }
 
     @Test
