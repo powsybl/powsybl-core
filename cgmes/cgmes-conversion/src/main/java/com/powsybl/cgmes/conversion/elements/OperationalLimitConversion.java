@@ -229,11 +229,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public boolean valid() {
+        if (notAssigned) {
+            // a "not assigned" log was already issued
+            return false;
+        }
         if (vl == null && olga == null
                 && olga1 == null
                 && olga2 == null
                 && olga3 == null) {
-            missing(String.format("Terminal %s or Equipment %s", terminalId, equipmentId));
+            if (!context.config().isSilenceFrequentIssuesWarnings()) {
+                missing(String.format("Terminal %s or Equipment %s", terminalId, equipmentId));
+            }
             return false;
         }
         return true;
@@ -461,19 +467,26 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void notAssigned(Identifiable<?> eq) {
-        String type = p.getLocal(LIMIT_TYPE);
-        String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
-        String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        Supplier<String> reason = () -> String.format(
-                "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
-                eq != null ? className(eq) : "",
-                eq != null ? eq.getId() : "",
-                id,
-                type,
-                typeName,
-                subclass,
-                terminalId);
-        context.pending(OPERATIONAL_LIMIT, reason);
+        notAssigned(eq != null ? className(eq) : "", eq != null ? eq.getId() : "");
+    }
+
+    private void notAssigned(String className, String id) {
+        this.notAssigned = true;
+        if (!context.config().isSilenceFrequentIssuesWarnings()) {
+            String type = p.getLocal(LIMIT_TYPE);
+            String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
+            String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
+            Supplier<String> reason = () -> String.format(
+                    "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
+                    className != null ? className : "",
+                    id != null ? id : "",
+                    id,
+                    type,
+                    typeName,
+                    subclass,
+                    terminalId);
+            context.pending(OPERATIONAL_LIMIT, reason);
+        }
     }
 
     private static String className(Identifiable<?> o) {
@@ -483,6 +496,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             s = s.substring(dot + 1);
         }
         s = s.replace("Impl", "");
+        s = s.replace("BoundaryLine", "BoundaryLine at boundary side");
         return s;
     }
 
@@ -586,6 +600,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private final String terminalId;
     private final String equipmentId;
     private final String limitSubclass;
+
+    private boolean notAssigned = false;
 
     private OLGA olga;
     private OLGA olga1;
