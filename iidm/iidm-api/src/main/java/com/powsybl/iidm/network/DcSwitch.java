@@ -60,6 +60,14 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">Open status of the DC Switch</td>
  *         </tr>
+ *         <tr>
+ *              <td style="border: 1px solid black">r</td>
+ *              <td style="border: 1px solid black">double</td>
+ *              <td style="border: 1px solid black"> Ohm </td>
+ *              <td style="border: 1px solid black">No</td>
+ *              <td style="border: 1px solid black">0.0</td>
+ *              <td style="border: 1px solid black">Resistance of the DC Switch</td>
+ *          </tr>
  *     </tbody>
  * </table>
  *
@@ -102,4 +110,8 @@ public interface DcSwitch extends Identifiable<DcSwitch> {
      * Remove the DC Switch from the network
      */
     void remove();
+
+    double getR();
+
+    DcSwitch setR(double r);
 }

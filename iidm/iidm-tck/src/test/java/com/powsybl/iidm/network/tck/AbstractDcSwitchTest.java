@@ -51,6 +51,7 @@ public abstract class AbstractDcSwitchTest {
         assertSame(dcNode1, dcSwitch1.getDcNode1());
         assertSame(dcNode2, dcSwitch1.getDcNode2());
         assertEquals(1, network.getDcSwitchCount());
+        assertEquals(0.0, dcSwitch1.getR()); // default value for R.
 
         String dcSwitch2Id = "dcSwitch2";
         DcSwitch dcSwitch2 = network.newDcSwitch()
@@ -58,6 +59,7 @@ public abstract class AbstractDcSwitchTest {
                 .setKind(DcSwitchKind.BREAKER)
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
+                .setR(1.1)
                 .setOpen(true)
                 .add();
         assertEquals(dcSwitch2Id, dcSwitch2.getId());
@@ -65,6 +67,7 @@ public abstract class AbstractDcSwitchTest {
         assertSame(DcSwitchKind.BREAKER, dcSwitch2.getKind());
         assertSame(dcNode1, dcSwitch2.getDcNode1());
         assertSame(dcNode2, dcSwitch2.getDcNode2());
+        assertEquals(1.1, dcSwitch2.getR());
 
         List<DcSwitch> dcSwitchList = List.of(dcSwitch1, dcSwitch2);
 
@@ -84,10 +87,24 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(true)
+                .setR(1.1)
                 .add();
+
         assertTrue(dcSwitch.isOpen());
         dcSwitch.setOpen(false);
         assertFalse(dcSwitch.isOpen());
+
+        assertEquals(1.1, dcSwitch.getR());
+        dcSwitch.setR(1.2);
+        assertEquals(1.2, dcSwitch.getR());
+        dcSwitch.setR(0.0);
+        assertEquals(0.0, dcSwitch.getR());
+
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> dcSwitch.setR(Double.NaN));
+        assertEquals("DC Switch 'dcSwitch': r is invalid", e1.getMessage());
+
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> dcSwitch.setR(-1.0));
+        assertEquals("DC Switch 'dcSwitch': r is invalid", e2.getMessage());
     }
 
     @Test
@@ -146,6 +163,12 @@ public abstract class AbstractDcSwitchTest {
 
         PowsyblException e4 = assertThrows(PowsyblException.class, dcSwitch1::getDcNode2);
         assertEquals("Cannot access dcNode2 of removed equipment dcSwitch1", e4.getMessage());
+
+        PowsyblException e5 = assertThrows(PowsyblException.class, dcSwitch1::getR);
+        assertEquals("Cannot access r of removed equipment dcSwitch1", e5.getMessage());
+
+        PowsyblException e6 = assertThrows(PowsyblException.class, () -> dcSwitch1.setR(0.0));
+        assertEquals("Cannot modify r of removed equipment dcSwitch1", e6.getMessage());
     }
 
     @Test
@@ -178,6 +201,14 @@ public abstract class AbstractDcSwitchTest {
         adder.setKind(DcSwitchKind.DISCONNECTOR);
         PowsyblException e7 = assertThrows(PowsyblException.class, adder::add);
         assertEquals("DC Switch 'dcSwitch': open is not set", e7.getMessage());
+
+        adder.setR(Double.NaN);
+        PowsyblException e8 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': r is invalid", e8.getMessage());
+
+        adder.setR(-1.1);
+        PowsyblException e9 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("DC Switch 'dcSwitch': r is invalid", e9.getMessage());
     }
 
     @Test
@@ -288,6 +319,7 @@ public abstract class AbstractDcSwitchTest {
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
+                .setR(1.1)
                 .setOpen(false)
                 .add();
 
