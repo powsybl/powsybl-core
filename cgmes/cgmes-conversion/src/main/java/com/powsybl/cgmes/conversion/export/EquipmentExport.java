@@ -10,8 +10,8 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.elements.dc.DCEquipment;
-import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -22,8 +22,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
-
 import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +39,11 @@ import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransfo
 import static com.powsybl.cgmes.conversion.elements.transformers.AbstractTransformerConversion.getNormalStep;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.*;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
+import static com.powsybl.cgmes.model.CgmesNames.NONCONFORM_LOAD;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -90,6 +91,7 @@ public final class EquipmentExport {
             writeVoltageLevels(network, cimNamespace, writer, context);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, loadGroups, cimNamespace, writer, context);
+            writeFictitiousInjections(network, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
             String loadAreaId = writeLoadGroups(network, loadGroups.found(), cimNamespace, writer, context);
             writeGenerators(network, regulatingControlsWritten, cimNamespace, writer, context);
             writeBatteries(network, cimNamespace, writer, context);
@@ -285,6 +287,64 @@ public final class EquipmentExport {
         return loadAreaId;
     }
 
+    private static void writeFictitiousInjections(Network network, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
+                                                  String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
+                writeNodeBreakerFictitiousInjections(vl, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
+            } else {
+                writeBusBranchFictitiousInjections(vl, loadGroups, mapNodeKey2NodeId, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeNodeBreakerFictitiousInjections(VoltageLevel vl, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
+                                                   String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
+        for (int node : nb.getNodes()) {
+            double p = nb.getFictitiousP0(node);
+            double q = nb.getFictitiousQ0(node);
+            if (p != 0.0 || q != 0.0) {
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, ref("NCL"), ref(node));
+                String loadName = vl.getNameOrId() + "_FICT_NCL_" + node;
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
+                String cnId = mapNodeKey2NodeId.get(buildNodeKey(vl, node));
+
+                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl, loadGroups, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeBusBranchFictitiousInjections(VoltageLevel vl, LoadGroups loadGroups, Map<String, String> mapNodeKey2NodeId,
+                                                  String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Bus b : vl.getBusBreakerView().getBuses()) {
+            double p = b.getFictitiousP0();
+            double q = b.getFictitiousQ0();
+            if (p != 0.0 || q != 0.0) {
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
+                String loadName = b.getNameOrId() + "_FICT_NCL";
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
+                String cnId = mapNodeKey2NodeId.get(buildNodeKey(b));
+
+                writeFictitiousInjection(p, loadId, loadName, terminalId, cnId, vl, loadGroups, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeFictitiousInjection(double p, String loadId, String loadName, String terminalId, String cnId,
+                                                 VoltageLevel vl, LoadGroups loadGroups, String cimNamespace,
+                                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String equipmentContainerId = context.getNamingStrategy().getCgmesId(vl);
+        if (p <= 0) {
+            writeEnergySource(loadId, loadName, equipmentContainerId, cimNamespace, writer, context);
+        } else {
+            String loadGroup = loadGroups.groupFor(NONCONFORM_LOAD, context);
+            EnergyConsumerEq.write(NONCONFORM_LOAD, loadId, loadName, loadGroup, equipmentContainerId, null, cimNamespace, writer, context);
+        }
+
+        TerminalEq.write(terminalId, loadId, cnId, 1, cimNamespace, writer, context);
+    }
+
     private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
@@ -294,7 +354,7 @@ public final class EquipmentExport {
                     case CgmesNames.ASYNCHRONOUS_MACHINE ->
                         writeAsynchronousMachine(loadId, load.getNameOrId(), cimNamespace, writer, context);
                     case CgmesNames.ENERGY_SOURCE -> writeEnergySource(loadId, load.getNameOrId(), context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
-                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, CgmesNames.NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
+                    case CgmesNames.ENERGY_CONSUMER, CgmesNames.CONFORM_LOAD, NONCONFORM_LOAD, CgmesNames.STATION_SUPPLY -> {
                         String loadGroup = loadGroups.groupFor(className, context);
                         String loadResponseCharacteristicId = writeLoadResponseCharacteristic(load, cimNamespace, writer, context);
                         EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), loadResponseCharacteristicId, cimNamespace, writer, context);
@@ -964,17 +1024,15 @@ public final class EquipmentExport {
 
         for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             writeUnpairedOrPairedBoundaryLines(Collections.singletonList(boundaryLine), cimNamespace, euNamespace,
-                    exportedLimitTypes, writer,
-                    context, exported);
+                    exportedLimitTypes, writer, context, exported);
         }
 
-        Set<String> pairingKeys = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).map(BoundaryLine::getPairingKey).collect(Collectors.toSet());
-        for (String pairingKey : pairingKeys) {
-            List<BoundaryLine> boundaryLineList = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).filter(boundaryLine -> pairingKey.equals(boundaryLine.getPairingKey())).toList();
-            writeUnpairedOrPairedBoundaryLines(boundaryLineList, cimNamespace, euNamespace,
-                    exportedLimitTypes, writer,
-                    context, exported);
+        Map<String, List<BoundaryLine>> boundaryLinesByPairingKey = network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).collect(Collectors.groupingBy(CgmesExportUtil::getEffectivePairingKey));
+        for (Map.Entry<String, List<BoundaryLine>> entry : boundaryLinesByPairingKey.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList()) {
+            writeUnpairedOrPairedBoundaryLines(entry.getValue(), cimNamespace, euNamespace,
+                    exportedLimitTypes, writer, context, exported);
         }
+
     }
 
     private static void writeUnpairedOrPairedBoundaryLines(List<BoundaryLine> boundaryLineList, String cimNamespace, String euNamespace,
@@ -1060,17 +1118,41 @@ public final class EquipmentExport {
             connectivityNodeId = connectevityNodeIdSet.iterator().next();
         } else {
             // If no information about original boundary has been preserved in the IIDM model,
-            // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
+            // we first try to find the ConnectivityNodeId in the reference data provider, and as a last option,
+            // we create a new ConnectivityNode in a fictitious Substation and VoltageLevel.
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Boundary line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
-            }
-            BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
-            connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(boundaryLine), CONNECTIVITY_NODE);
-
-            String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
-            ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
+            Optional<String> optionalConnectivityNodeId = findConnectivityNodeId(boundaryLineList.getFirst().getPairingKey(), context);
+            connectivityNodeId = optionalConnectivityNodeId.isPresent() ? optionalConnectivityNodeId.get() : createNewConnectivityNode(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
         }
+        return connectivityNodeId;
+    }
+
+    private static Optional<String> findConnectivityNodeId(String pairingKey, CgmesExportContext context) {
+        ReferenceDataProvider referenceDataProvider = context.getReferenceDataProvider();
+        if (pairingKey == null || referenceDataProvider == null) {
+            return Optional.empty();
+        }
+        PropertyBags boundaryNodes = referenceDataProvider.getBoundaryNodes();
+        if (boundaryNodes == null) {
+            return Optional.empty();
+        }
+        return boundaryNodes.stream()
+                .filter(propertyBag -> pairingKey.equals(propertyBag.getId("name")))
+                .map(propertyBag1 -> propertyBag1.getId("ConnectivityNode"))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static String createNewConnectivityNode(List<BoundaryLine> boundaryLineList, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Boundary line(s) not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created: {}", boundaryLinesId(boundaryLineList));
+        }
+        BoundaryLine boundaryLine = boundaryLineList.stream().min(Comparator.comparing(Identifiable::getId)).orElseThrow();
+        String connectivityNodeId = context.getNamingStrategy().getCgmesId(refTyped(boundaryLine), CONNECTIVITY_NODE);
+
+        String connectivityNodeContainerId = createFictitiousContainerFor(boundaryLineList, baseVoltageId, cimNamespace, writer, context);
+        ConnectivityNodeEq.write(connectivityNodeId, boundaryLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
+
         return connectivityNodeId;
     }
 

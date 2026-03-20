@@ -116,6 +116,13 @@ class GeneratorConversionTest extends AbstractSerDeTest {
         String battery2Ssh = getElement(sshXml, "SynchronousMachine", "BAT2");
         assertNotNull(battery2Ssh);
         assertEquals(operatingMode + "condenser", getResource(battery2Ssh, "SynchronousMachine.operatingMode"));
+
+        String generator4Eq = getElement(eqXml, "SynchronousMachine", "GEN4");
+        assertNotNull(generator4Eq);
+        assertEquals(type + "generator", getResource(generator4Eq, "SynchronousMachine.type"));
+        String generator4Ssh = getElement(sshXml, "SynchronousMachine", "GEN4");
+        assertNotNull(generator4Ssh);
+        assertEquals(operatingMode + "generator", getResource(generator4Ssh, "SynchronousMachine.operatingMode"));
     }
 
     private Network createNetwork() {
@@ -212,6 +219,20 @@ class GeneratorConversionTest extends AbstractSerDeTest {
                 .withVoltageRegulatorOn(true)
                 .add();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
+
+        // Will be exported as a generator and operating as a generator because isCondenser is false
+        Generator generator4 = voltageLevel1.newGenerator()
+            .setId("GEN4")
+            .setNode(6)
+            .setMinP(0.0)
+            .setMaxP(100.0)
+            .setTargetP(0.0)
+            .setTargetQ(10.0)
+            .setVoltageRegulatorOn(false)
+            .setCondenser(false)
+            .add();
+        generator4.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(6).add();
 
         return network;
     }

@@ -259,12 +259,17 @@ public class Conversion {
             // FIXME generic cgmes models may not have an underlying triplestore
             // TODO maybe pass the properties to the post processors
             CgmesReports.applyingProcessorReport(postProcessorsNode, postProcessor.getName());
-            postProcessor.process(network, cgmes.tripleStore());
+            postProcessor.process(network, cgmes);
         }
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
 
         updateWithAllInputs(network, reportNode, context);
+
+        if (!config.storeCgmesModelAsNetworkExtension() && !config.storeCgmesConversionContextAsNetworkExtension()) {
+            // not configured to store CgmesModel nor CgmesConversionContext as an extension, we can close the CgmesModel (and its underlying triplestore)
+            cgmes.close();
+        }
 
         return network;
     }
@@ -1096,11 +1101,20 @@ public class Conversion {
             return this;
         }
 
+        public boolean isSilenceFrequentIssuesWarnings() {
+            return this.silenceFrequentIssuesWarnings;
+        }
+
+        public Config setSilenceFrequentIssuesWarnings(boolean silenceFrequentIssuesWarnings) {
+            this.silenceFrequentIssuesWarnings = silenceFrequentIssuesWarnings;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private boolean storeCgmesModelAsNetworkExtension = true;
+        private boolean storeCgmesModelAsNetworkExtension = false;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
         private boolean createActivePowerControlExtension = false;
 
@@ -1128,6 +1142,7 @@ public class Conversion {
         private boolean usePreviousValuesDuringUpdate = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
+        private boolean silenceFrequentIssuesWarnings = false;
     }
 
     private final CgmesModel cgmes;
