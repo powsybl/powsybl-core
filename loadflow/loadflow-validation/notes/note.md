@@ -22,6 +22,29 @@
 | Condition2 | \| q + #sections * B * v^2 \| < ε | if (ValidationUtils.areNaN(config, q, expectedQ) \| Math.abs(q - expectedQ) > config.getThreshold()) return false | if connected, q must match expectedQ (within threshold) <br/> expectedQ = #sections * B * v^2 |                                                                         - |
 | Condition3 |                 -                 |                                                        if (!connected && !Double.isNaN(q) && q != 0) return false |                                      if the shunt is disconnected, q should be undefined or 0 |                                              - `add this rule in the doc` |
 
+
+#### Examples 
+- Doc: A section of a shunt compensator is an individual capacitor or reactor: if its reactive power (Q) is negative, it is a capacitor; if it is positive, it is a reactor.
+1. shunt compensator as capacitor 
+    - Example
+        - bPerSection = 1 > 0
+        - currentSectionCount = 1
+        - Bus (v = 1)
+        - Rule: Q = -bPerSection * currentSectionCount * terminalState.v() * terminalState.v();
+        - SLD 
+
+    ![shunt capacitor](../notes/diagram/shunt_capacitor.svg)
+
+2. shunt compensator as reactor 
+    - Example
+        - bPerSection = -1 < 0
+        - currentSectionCount = 1
+        - Bus (v = 1){ width: 200px; }
+        - Rule: Q = -bPerSection * currentSectionCount * terminalState.v() * terminalState.v();
+        - SLD 
+
+    ![shunt reactor](../notes/diagram/shunt_reactor.svg)
+
 ### Generator validation TODO
 
 #### Doc
