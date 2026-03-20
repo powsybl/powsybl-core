@@ -103,7 +103,9 @@ class LimitViolationBuilderTest {
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.HIGH_VOLTAGE, violation.getLimitType());
         assertTrue(violation.getViolationLocation().isPresent());
-        assertSame(location, violation.getViolationLocation().get());
+        assertEquals(ViolationLocation.Type.BUS_BREAKER, violation.getViolationLocation().get().getType());
+        BusBreakerViolationLocation castedLocation = (BusBreakerViolationLocation) violation.getViolationLocation().get();
+        assertEquals(List.of("BUS1"), castedLocation.getBusIds());
     }
 
     @Test
