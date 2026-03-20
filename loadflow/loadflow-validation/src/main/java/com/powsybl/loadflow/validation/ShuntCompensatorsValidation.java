@@ -117,24 +117,30 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
+    /**
+     * Rule1: |p| < e : p must be undefined </br>
+     * Rule2: | q + #sections * B * v^2 | < e : q must match expectedQ (within threshold) </br>
+     * Rule3: if the shunt is disconnected, q should be undefined or 0 </br>
+     */
     public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                                double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                ValidationWriter shuntsWriter) {
         boolean validated = true;
 
-        if (!connected && !Double.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0 => Rule1: if the shunt is disconnected, q should be NaN or 0
+        if (!connected && !Double.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0 => Rule3: if the shunt is disconnected, q should be NaN or 0
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }
         // “q” = - bPerSection * currentSectionCount * v^2
-        double expectedQ = -bPerSection * currentSectionCount * v * v; //TODO define this rule
+        double expectedQ = -bPerSection * currentSectionCount * v * v;
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
-            // “p” is always NaN => Rule2: if connected, p must be NaN
+            // “p” is always NaN => Rule1: p must be NaN or 0  (|p| < e)
+            // TODO add (or) p != 0 in this condition
             if (!Double.isNaN(p)) {
                 LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
                 validated = false;
             }
-            // Rule3: if connected, q must match expectedQ (within threshold)
+            // Rule2: q must match expectedQ (within threshold)
             if (ValidationUtils.areNaN(config, q, expectedQ) || Math.abs(q - expectedQ) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
                 validated = false;
