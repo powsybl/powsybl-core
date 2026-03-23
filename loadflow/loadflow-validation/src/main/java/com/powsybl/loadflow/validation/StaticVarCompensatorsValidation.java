@@ -120,6 +120,23 @@ public final class StaticVarCompensatorsValidation {
         }
     }
 
+     /**
+     *
+     * Rule1: active power (p) (within threshold) should be equal to 0 <br/>
+     * Rule2: **reactivePowerSetpoint** must be undefined or equal to 0 if NO (**p** or **q**)<br/>
+     * - TODO (doc states that p should be equal to 0, if so **reactivePowerSetpoint** must be undefined or equal to 0)<br/>
+     * - Suggestion => check only if (q undefined or equal to 0 then **reactivePowerSetpoint** must be 0)<br/><br/>
+     * Rule3: **regulationMode = REACTIVE_POWER** then same condition as generator without voltage regulation<br/>
+     * - Rule3.1: => (config, reactivePowerSetpoint, qMin, qMax) not defined => OK<br/>
+     * - Rule3.2: => q must match reactivePowerSetpoint (within threshold)<br/><br/>
+     * Rule4: **regulationMode = VOLTAGE** then same condition as generator with voltage regulation<br/>
+     * - Rule4.1: => (config, qMin, qMax, vControlled, voltageSetpoint) not defined => OK<br/>
+     * - Rule4.2: => V is lower than voltageSetpoint (within threshold) AND q must match qMax (within threshold)<br/>
+     * - Rule4.3: => V is higher than voltageSetpoint (within threshold) AND q must match Qmin (within threshold)<br/>
+     * - Rule4.4: => V is at the controlled bus (within threshold) AND q is bounded within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]<br/><br/>
+     * Rule5: if regulating is false then reactive power (q) should be equal to 0<br/>
+     *
+     */
     public boolean checkSVCs(String id, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                                     RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, ValidationWriter svcsWriter) {
@@ -130,8 +147,10 @@ public final class StaticVarCompensatorsValidation {
 
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Double.isNaN(p) || Double.isNaN(q)) {
+                // Rule2 : TODO
                 validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
             } else {
+                // Rule1, Rule3, Rule4, Rule5
                 validated = checkSVCsValues(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, config);
             }
         }
@@ -156,7 +175,7 @@ public final class StaticVarCompensatorsValidation {
         double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
         RegulationMode regulationMode, boolean regulating, double bMin, double bMax, ValidationConfig config) {
         boolean validated = true;
-        // active power should be equal to 0
+        // Rule1: active power should be equal to 0
         if (Math.abs(p) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p);
             validated = false;
@@ -169,6 +188,7 @@ public final class StaticVarCompensatorsValidation {
         double qMin = -bMax * vAux * vAux;
         double qMax = -bMin * vAux * vAux;
 
+        //Rule3: **regulationMode = REACTIVE_POWER**
         if (reactivePowerRegulationModeKo(regulationMode, q, qMin, qMax, reactivePowerSetpoint, config)) {
             LOGGER.warn(
                 "{} {}: {}: regulator mode={} - Q={} qMin={} qMax={} bMin={} bMax={} Vcontroller={} nominalV={} reactivePowerSetpoint={}",
@@ -177,6 +197,7 @@ public final class StaticVarCompensatorsValidation {
             validated = false;
         }
 
+        // Rule4: **regulationMode = VOLTAGE**
         if (voltageRegulationModeKo(regulationMode, q, qMin, qMax, vControlled, voltageSetpoint, config)) {
             LOGGER.warn(
                 "{} {}: {}: regulator mode={} - Q={} qMin={} qMax={} bMin={} bMax={} Vcontroller={} Vcontrolled={} targetV={}",
@@ -185,6 +206,7 @@ public final class StaticVarCompensatorsValidation {
             validated = false;
         }
 
+        // Rule5: if regulating is false then reactive power (q) should be equal to 0
         if (notRegulatingKo(regulating, q, config)) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} ", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR,
                 id, regulationMode, q);
