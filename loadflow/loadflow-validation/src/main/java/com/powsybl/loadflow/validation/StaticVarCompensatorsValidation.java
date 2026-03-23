@@ -162,9 +162,9 @@ public final class StaticVarCompensatorsValidation {
             validated = false;
         }
 
-        double vAux = vController;
+        double vAux = vController; // voltage in bus
         if (vAux == 0 || Double.isNaN(vAux)) {
-            vAux = nominalVcontroller;
+            vAux = nominalVcontroller; // voltage in VoltageLevel
         }
         double qMin = -bMax * vAux * vAux;
         double qMax = -bMin * vAux * vAux;
@@ -231,10 +231,6 @@ public final class StaticVarCompensatorsValidation {
 
     private static boolean notRegulatingKo(boolean regulating, double q, ValidationConfig config) {
         // if regulating is false then reactive power should be equal to 0
-
-        if (regulating) {
-            return false;
-        }
-        return Math.abs(q) > config.getThreshold();
+        return !regulating && Math.abs(q) > config.getThreshold();
     }
 }
