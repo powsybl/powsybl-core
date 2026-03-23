@@ -130,12 +130,13 @@ public final class GeneratorsValidation {
         double expectedP = getExpectedP(guesser, id, p, targetP, minP, maxP, config.getThreshold());
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Double.isNaN(p) || Double.isNaN(q)) {
-                validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
-            } else if (checkReactiveBoundInversion(minQ, maxQ, config)) { // when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
+                validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ); //Rule 1:
+            } else if (checkReactiveBoundInversion(minQ, maxQ, config)) { //Rule 2: when maxQ < minQ if noRequirementIfReactiveBoundInversion return true
                 validated = true;
-            } else if (checkSetpointOutsidePowerBounds(targetP, minP, maxP, config)) { // when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds return true
+            } else if (checkSetpointOutsidePowerBounds(targetP, minP, maxP, config)) { //Rule 3: when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds return true
                 validated = true;
             } else {
+                //Rule 4, Rule 5, Rule 6
                 validated = checkGeneratorsValues(id, p, q, v, expectedP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
             }
         }
@@ -176,30 +177,30 @@ public final class GeneratorsValidation {
     }
 
     /**
-     * Rule1: Active power (p) must match setpoint (expectedP) (within threshold)
-     * Rule2: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
-     * Rule3: if voltageRegulatorOn="true"
-     * Rule3.1: (minQ/maxQ/targetV) are not NaN
-     * Rule3.2: If V > targetV + threshold, generator (Qgen) must be at min reactive limit
-     * Rule3.3: If V < targetV - threshold, generator (Qgen) must be at max reactive limit
-     * Rule3.4: If |V-targetV| <= threshold, generator (Qgen) must be within [minQ, maxQ]
+     * Rule4: Active power (p) must match setpoint (expectedP) (within threshold)
+     * Rule5: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
+     * Rule3: if voltageRegulatorOn="true" then either
+     * Rule6.1: (minQ/maxQ/targetV) must be defined
+     * Rule6.2: If V > targetV + threshold, generator (Qgen) must be at min reactive limit
+     * Rule6.3: If V < targetV - threshold, generator (Qgen) must be at max reactive limit
+     * Rule6.4: If |V-targetV| <= threshold, generator (Qgen) must be within [minQ, maxQ]
      */
     private static boolean checkGeneratorsValues(String id, double p, double q, double v, double expectedP, double targetQ, double targetV,
                                                  boolean voltageRegulatorOn, double minQ, double maxQ, ValidationConfig config) {
         boolean validated = true;
         double threshold = config.getThreshold();
-        // Rule1: Active power (p) must match setpoint (expectedP) (within threshold)
+        // Rule4: Active power (p) must match setpoint (expectedP) (within threshold)
         if (ValidationUtils.areNaN(config, expectedP) || Math.abs(p + expectedP) > threshold) {
             LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
             validated = false;
         }
-        //Rule2: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
+        //Rule5: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
         if (!voltageRegulatorOn && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > threshold)) {
             LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;
         }
-        // Rule3, then
-        // either Rule3.1, Rule3.2, Rule3.3 or Rule3.4
+        // Rule6, then
+        // either Rule6.1, Rule6.2, Rule6.3 or Rule6.4
         //
         // if voltageRegulatorOn="true" then
         // either if minQ/maxQ/targetV are not NaN,

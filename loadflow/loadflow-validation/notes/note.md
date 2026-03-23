@@ -7,7 +7,6 @@
 - [ ] Flows (Branch Data :Line, TwoWindingsTransformer, TieLine)
 - [ ] Transformers (TWT)
 - [ ] Transformers3W (TWT 3W)
-- Examples
 
 ### ShuntCompensator validation
 
@@ -53,7 +52,7 @@
     - Rule4.3: => V is higher than voltageSetpoint (within threshold) AND q must match Qmin (within threshold)
     - Rule4.4: => V is at the controlled bus (within threshold) AND q is bounded within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]
 - [ ] Rule5: if regulating is false then reactive power (q) should be equal to 0
-##### Actions TODO
+##### Actions
 
 |            |                                       Documentation                                        |               Code (StaticVarCompensator) |                                                                      Description |                                                                                           Suggestions (TODO) |
 |:-----------|:------------------------------------------------------------------------------------------:|------------------------------------------:|---------------------------------------------------------------------------------:|-------------------------------------------------------------------------------------------------------------:|
@@ -62,47 +61,35 @@
 | Condition3 |                  `same checks as a generator without voltage regulation`                   |           `reactivePowerRegulationModeKo` |                                                                 Rule3.1, Rule3.2 |                                                                                                            - | 
 | Condition4 | `same checks as a generator with voltage regulation with the following bounds: Qmin, Qmax` |                 `voltageRegulationModeKo` |                                               Rule4.1, Rule4.2, Rule4.3, Rule4.4 |                                                                                                            - |
 | Condition5 |                                             -                                              |                         `notRegulatingKo` |                  if regulating is false then reactive power should be equal to 0 |                                                                                 - `add this rule in the doc` |
+| Condition6 |                 `If the regulation mode is OFF, then \|targetQ -Q \| <  ε`                 |                                -        ` |                  if regulating is false then reactive power should be equal to 0 |                                                              - `remove this rule from the doc` source: #2790 |
 
 
-### Generator validation TODO
+### Generator validation
 
 #### Doc
 - core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#generator
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#generators
 #### Notes (draft) 
-* Rule1: Active power (p) must match setpoint (expectedP) (within threshold)
-* Rule2: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
-* Rule3: if voltageRegulatorOn="true"
-* Rule3.1: (minQ/maxQ/targetV) are not NaN
-* Rule3.2: If V > targetV + threshold, generator (Qgen) must be at min reactive limit
-* Rule3.3: If V < targetV - threshold, generator (Qgen) must be at max reactive limit
-* Rule3.4: If |V-targetV| <= threshold, generator (Qgen) must be within [minQ, maxQ]
+- [ ] Rule1: when maxQ < minQ if noRequirementIfReactiveBoundInversion (parameter) return true (TODO)
+- [ ] Rule2: when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds (parameter) return true (TODO)
+- [ ] Rule3: p or q should be defined if voltage and a target (targetP and targetQ) defined => voltage not mentioned in the condition in code (TODO)
+- [x] Rule4: Active power (p) must match setpoint (expectedP) (within threshold)
+- [x] Rule5: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
+- [x] Rule6: if voltageRegulatorOn="true"
+    * Rule6.1: (minQ/maxQ/targetV) are not defined => OK
+    * Rule6.2: If V > targetV + threshold, generator (Qgen) must be at min reactive limit
+    * Rule6.3: If V < targetV - threshold, generator (Qgen) must be at max reactive limit
+    * Rule6.4: If |V-targetV| <= threshold, generator (Qgen) must be within [minQ, maxQ]
 
 ##### Actions TODO
 
 
----
+|            |            Documentation             |                                                                                   Code (GeneratorValidation) |                                                                    Description | Suggestions (TODO)                                      |
+|:-----------|:------------------------------------:|-------------------------------------------------------------------------------------------------------------:|-------------------------------------------------------------------------------:|---------------------------------------------------------|
+| Condition1 |                  -                   |                             `p or q should be defined if voltage and a target (targetP and targetQ) defined` |                                                                              - | - `voltage not mentioned in the condition in code TODO` |
+| Condition2 |                  -                   |                          `when maxQ < minQ if noRequirementIfReactiveBoundInversion (parameter) return true` |                                                                              - | - `Add to the doc`                                      |
+| Condition3 |                  -                   | `when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds (parameter) return true` |                                                                              - | - `Add to the doc`                                      |
+| Condition4 | (added with recompute of expected P) |                                                                                                              |          - Active power (p) must match setpoint (expectedP) (within threshold) |                                                         |
+| Condition5 |         \|targetQ - Q\| < ε          |                                                                                 `voltageRegulatorOn="false"` | - The reactive power (Q) should match to setpoint (targetQ) (within threshold) |                                                         |
+| Condition6 |                  ..                  |                                                                                 `voltageRegulatorOn="true" ` |                                           - Rule6.1, Rule6.2, Rule6.3, Rule6.4 |                                                         |
 
-#### Examples
-##### ShuntCompensator validation
-- Doc: A section of a shunt compensator is an individual capacitor or reactor: if its reactive power (Q) is negative, it is a capacitor; if it is positive, it is a reactor.
-1. shunt compensator as **capacitor**
-    - Example
-        - bPerSection = 1 > 0
-        - currentSectionCount = 1
-        - Bus (v = 1)
-        - Rule: Q = -bPerSection * currentSectionCount * terminalState.v() * terminalState.v();
-        - SLD
-   ![shunt capacitor](../notes/diagram/shunt_capacitor.svg)
-
-2. shunt compensator as **reactor**
-    - Example
-        - bPerSection = -1 < 0
-        - currentSectionCount = 1
-        - Bus (v = 1)
-        - Rule: Q = -bPerSection * currentSectionCount * terminalState.v() * terminalState.v();
-        - SLD
-   ![shunt reactor](../notes/diagram/shunt_reactor.svg)
-
-##### Static VAR compensator validation
-![svc](../notes/diagram/svc.svg)
