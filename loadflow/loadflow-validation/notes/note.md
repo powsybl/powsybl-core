@@ -93,3 +93,14 @@
 | Condition5 |         \|targetQ - Q\| < ε          |                                                                                 `voltageRegulatorOn="false"` | - The reactive power (Q) should match to setpoint (targetQ) (within threshold) |                                                         |
 | Condition6 |                  ..                  |                                                                                 `voltageRegulatorOn="true" ` |                                           - Rule6.1, Rule6.2, Rule6.3, Rule6.4 |                                                         |
 
+
+
+### Buses validation
+
+#### Doc
+- core grid model:
+- core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#buses
+#### Notes (draft)
+- [x] Rule1: load p = incoming p (within threshold)
+- [x] Rule2: load q = incoming q (within threshold)
+
