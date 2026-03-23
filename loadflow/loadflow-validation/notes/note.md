@@ -3,17 +3,17 @@
 - [x] ShuntCompensator
 - [x] Static VAR Compensator (SVC)
 - [x] Generator
-- [ ] Buses
+- [x] Buses
 - [ ] Flows (Branch Data :Line, TwoWindingsTransformer, TieLine)
 - [ ] Transformers (TWT)
 - [ ] Transformers3W (TWT 3W)
 
 ### ShuntCompensator validation
 
-#### Doc
+##### Doc
 - core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#shunt-compensator
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#shunts
-#### Notes
+##### Notes
 - [ ] Rule1: **|p| < e**
    - if connected, p must be undefined or 0
 - [x] Rule2: **| q + #sections * B * v^2 | < e**
@@ -33,11 +33,11 @@
 
 ### Static VAR compensator validation
 
-#### Doc
+##### Doc
 - core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#static-var-compensator
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#static-var-compensators
 
-#### Notes
+##### Notes
 - Regulation : VOLTAGE, REACTIVE_POWER
 - [ ] Rule1: active power (p) (within threshold) should be equal to 0
 - [ ] Rule2: **reactivePowerSetpoint** must be undefined or equal to 0 if NO (**p** or **q**) 
@@ -66,10 +66,10 @@
 
 ### Generator validation
 
-#### Doc
+##### Doc
 - core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#generator
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#generators
-#### Notes (draft) 
+##### Notes (draft) 
 - [ ] Rule1: when maxQ < minQ if noRequirementIfReactiveBoundInversion (parameter) return true (TODO)
 - [ ] Rule2: when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds (parameter) return true (TODO)
 - [ ] Rule3: p or q should be defined if voltage and a target (targetP and targetQ) defined => voltage not mentioned in the condition in code (TODO)
@@ -82,7 +82,6 @@
     * Rule6.4: If |V-targetV| <= threshold, generator (Qgen) must be within [minQ, maxQ]
 
 ##### Actions TODO
-
 
 |            |            Documentation             |                                                                                   Code (GeneratorValidation) |                                                                    Description | Suggestions (TODO)                                      |
 |:-----------|:------------------------------------:|-------------------------------------------------------------------------------------------------------------:|-------------------------------------------------------------------------------:|---------------------------------------------------------|
@@ -97,10 +96,40 @@
 
 ### Buses validation
 
-#### Doc
+##### Doc
 - core grid model:
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#buses
-#### Notes (draft)
+##### Notes
 - [x] Rule1: load p = incoming p (within threshold)
 - [x] Rule2: load q = incoming q (within threshold)
+
+### Flows validation (Branch Data :Line, TwoWindingsTransformer, TieLine) 
+
+##### Doc
+- core grid model: ..
+- core tool loadflow-validation: ..
+- No doc (TODO)
+##### Notes (draft)
+  - Flows (BranchData) can be constructed from
+      - Line Flows => Line specific rules to clarify (TODO)
+      - TwoWindingsTransformer Flows => TWT specific rules to clarify (TODO)
+      - TieLine Flows => TieLine specific rules to clarify (TODO)
+  - Rule 1: checks disconnected terminal 
+  - Rule 2: checks connected terminal
+##### Actions
+- Refactor: `isUndefinedOrZero`
+- Documentation: add Flows section
+
+### Transformers (TWT) validation TODO
+
+##### Doc
+##### Notes
+##### Actions
+
+### Transformers3W (TWT 3W) TODO
+
+##### Doc
+##### Notes
+##### Actions
+
 
