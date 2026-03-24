@@ -215,7 +215,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getEquivalentLocalTargetV() {
-        return this.equivalentLocalTargetV.get(network.get().getVariantIndex());
+        return this.equivalentLocalTargetV.getDouble(network.get().getVariantIndex());
     }
 
     @Override
