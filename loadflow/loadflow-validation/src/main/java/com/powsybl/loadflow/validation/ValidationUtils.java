@@ -20,6 +20,7 @@ import java.util.Objects;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 public final class ValidationUtils {
 
@@ -122,13 +123,7 @@ public final class ValidationUtils {
         return -bPerSection * sectionCount * v * v;
     }
 
-    public record QBounds(double qMin, double qMax) { }
-
     public static double voltageFrom(double vBus, double nominalV) {
         return (Double.isNaN(vBus) || vBus == 0.0) ? nominalV : vBus;
-    }
-
-    public static boolean isWithinInclusive(double value, double min, double max, double epsilon) {
-        return boundedWithin(min, max, value, epsilon);
     }
 }

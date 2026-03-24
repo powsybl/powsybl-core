@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
@@ -175,7 +176,9 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     @ParameterizedTest(name = "disconnected q={0} => valid={1}")
     @MethodSource("disconnectedShuntCase")
     void checkDisconnectedShunt(double qValue, boolean expectedValid) {
-        when(shuntBusView.getBus()).thenReturn(null); // shunt disconnected
+        when(shuntBusView.getBus()).thenReturn(null); // disconnect shunt
+        // assert that shunt is disconnected
+        assertFalse(shunt.getTerminal().isConnected());
         when(shuntTerminal.getQ()).thenReturn(qValue);
         boolean valid = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
         assertEquals(expectedValid, valid);
