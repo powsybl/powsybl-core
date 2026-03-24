@@ -40,6 +40,10 @@ public class LimitReductionSerializer extends StdSerializer<LimitReduction> {
             serializerProvider.defaultSerializeField("durationCriteria",
                     limitReduction.getDurationCriteria(), jsonGenerator);
         }
+        if (!limitReduction.getOperationalLimitsGroupIdsSelection().isEmpty()) {
+            serializerProvider.defaultSerializeField("operationalLimitsGroupIdsSelection",
+                limitReduction.getOperationalLimitsGroupIdsSelection(), jsonGenerator);
+        }
 
         jsonGenerator.writeEndObject();
     }

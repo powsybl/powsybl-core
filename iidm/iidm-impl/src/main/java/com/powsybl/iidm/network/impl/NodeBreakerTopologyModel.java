@@ -15,39 +15,21 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusAdder;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.BusbarSectionAdder;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import com.powsybl.math.graph.DefaultUndirectedGraphListener;
-import com.powsybl.math.graph.TraversalType;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.Traverser;
-import com.powsybl.math.graph.UndirectedGraph;
-import com.powsybl.math.graph.UndirectedGraphImpl;
+import com.powsybl.math.graph.*;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import org.anarres.graphviz.builder.GraphVizAttribute;
-import org.anarres.graphviz.builder.GraphVizEdge;
-import org.anarres.graphviz.builder.GraphVizGraph;
-import org.anarres.graphviz.builder.GraphVizNode;
-import org.anarres.graphviz.builder.GraphVizScope;
+import org.anarres.graphviz.builder.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,23 +41,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -332,8 +302,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         private void addBus(ExtendedIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
                             String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
             String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
-            Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
-            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals, getBusFromTerminal);
+            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
                 node2bus[nodes.getInt(i)] = bus;
@@ -508,7 +477,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
-                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, DANGLING_LINE -> {
+                        case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, BOUNDARY_LINE -> {
                             branchCount++;
                             feederCount++;
                         }
@@ -677,16 +646,68 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
 
-        private final Int2ObjectMap<ExtendedDoubleArrayList> fictitiousP0ByNode = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
-        private final Int2ObjectMap<ExtendedDoubleArrayList> fictitiousQ0ByNode = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
+        private final ArrayList<Int2DoubleMap> fictitiousP0ByNodeAndVariant = initiateFictitiousValueByNodes();
+        private final ArrayList<Int2DoubleMap> fictitiousQ0ByNodeAndVariant = initiateFictitiousValueByNodes();
+
+        private static void allocateVariantArrayElementForFictitiousValues(ArrayList<Int2DoubleMap> fictitiousValueByNodes,
+                                                                           int[] indexes, int sourceIndex) {
+            Supplier<Int2DoubleMap> supplier = fictitiousValueByNodes.get(sourceIndex) == null ?
+                () -> null :
+                () -> new TIntDoubleHashMap(fictitiousValueByNodes.get(sourceIndex));
+            for (int index : indexes) {
+                fictitiousValueByNodes.set(index, supplier.get());
+            }
+        }
+
+        private static void extendVariantArraySizeForFictitiousValues(ArrayList<Int2DoubleMap> fictitiousValueByNodes,
+                                                                      int number, int sourceIndex) {
+            fictitiousValueByNodes.ensureCapacity(fictitiousValueByNodes.size() + number);
+            Supplier<Int2DoubleMap> supplier = fictitiousValueByNodes.get(sourceIndex) == null ?
+                () -> null :
+                () -> new TIntDoubleHashMap(fictitiousValueByNodes.get(sourceIndex));
+            for (int i = 0; i < number; i++) {
+                fictitiousValueByNodes.add(supplier.get());
+            }
+        }
+
+        private static void reduceVariantArraySizeForFictitiousValues(ArrayList<Int2DoubleMap> fictitiousValueByNodes,
+                                                                      int number) {
+            fictitiousValueByNodes.subList(fictitiousValueByNodes.size() - number, fictitiousValueByNodes.size()).clear();
+        }
+
+        @Override
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+            extendVariantArraySizeForFictitiousValues(fictitiousP0ByNodeAndVariant, number, sourceIndex);
+            extendVariantArraySizeForFictitiousValues(fictitiousQ0ByNodeAndVariant, number, sourceIndex);
+        }
+
+        @Override
+        public void reduceVariantArraySize(int number) {
+            reduceVariantArraySizeForFictitiousValues(fictitiousP0ByNodeAndVariant, number);
+            reduceVariantArraySizeForFictitiousValues(fictitiousQ0ByNodeAndVariant, number);
+        }
+
+        @Override
+        public void deleteVariantArrayElement(int index) {
+            // Nothing to do
+            fictitiousP0ByNodeAndVariant.set(index, null);
+            fictitiousQ0ByNodeAndVariant.set(index, null);
+        }
+
+        @Override
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+            allocateVariantArrayElementForFictitiousValues(fictitiousP0ByNodeAndVariant, indexes, sourceIndex);
+            allocateVariantArrayElementForFictitiousValues(fictitiousQ0ByNodeAndVariant, indexes, sourceIndex);
+        }
+
+        @Override
+        public boolean hasFictitiousP0() {
+            return hasFictitiousInjection(fictitiousP0ByNodeAndVariant);
+        }
 
         @Override
         public double getFictitiousP0(int node) {
-            ExtendedDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
-            if (fictP0 != null) {
-                return fictP0.getDouble(getNetwork().getVariantIndex());
-            }
-            return 0.0;
+            return getFictitiousInjection(fictitiousP0ByNodeAndVariant, node);
         }
 
         @Override
@@ -694,32 +715,18 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(p0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious p0");
             }
-            ExtendedDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
-            if (p0ByVariant == null) {
-                int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                p0ByVariant = new ExtendedDoubleArrayList(variantArraySize, 0.0);
-                synchronized (fictitiousP0ByNode) {
-                    fictitiousP0ByNode.put(node, p0ByVariant);
-                }
-            }
-            int variantIndex = getNetwork().getVariantIndex();
-            double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
-            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousP0", variantId, oldValue, p0);
-            IntSet toRemove = clearFictitiousInjections(fictitiousP0ByNode);
-            synchronized (fictitiousP0ByNode) {
-                toRemove.forEach(fictitiousP0ByNode::remove);
-            }
+            setFictitiousInjection(fictitiousP0ByNodeAndVariant, node, p0, "fictitiousP0");
             return this;
         }
 
         @Override
+        public boolean hasFictitiousQ0() {
+            return hasFictitiousInjection(fictitiousQ0ByNodeAndVariant);
+        }
+
+        @Override
         public double getFictitiousQ0(int node) {
-            ExtendedDoubleArrayList fictQ0 = fictitiousQ0ByNode.get(node);
-            if (fictQ0 != null) {
-                return fictQ0.getDouble(getNetwork().getVariantIndex());
-            }
-            return 0.0;
+            return getFictitiousInjection(fictitiousQ0ByNodeAndVariant, node);
         }
 
         @Override
@@ -727,22 +734,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             if (Double.isNaN(q0)) {
                 throw new ValidationException(voltageLevel, "undefined value cannot be set as fictitious q0");
             }
-            ExtendedDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(node);
-            if (q0ByVariant == null) {
-                int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                q0ByVariant = new ExtendedDoubleArrayList(variantArraySize, 0.0);
-                synchronized (fictitiousQ0ByNode) {
-                    fictitiousQ0ByNode.put(node, q0ByVariant);
-                }
-            }
-            int variantIndex = getNetwork().getVariantIndex();
-            double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
-            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(voltageLevel, "fictitiousQ0", variantId, oldValue, q0);
-            IntSet toRemove = clearFictitiousInjections(fictitiousQ0ByNode);
-            synchronized (fictitiousQ0ByNode) {
-                toRemove.forEach(fictitiousQ0ByNode::remove);
-            }
+            setFictitiousInjection(fictitiousQ0ByNodeAndVariant, node, q0, "fictitiousQ0");
             return this;
         }
 
@@ -955,17 +947,48 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         public void traverse(int[] nodes, TopologyTraverser t) {
             graph.traverse(nodes, TraversalType.DEPTH_FIRST, adapt(t));
         }
-    };
 
-    private static IntSet clearFictitiousInjections(Int2ObjectMap<ExtendedDoubleArrayList> fictitiousInjectionsByNode) {
-        IntSet toRemove = new IntOpenHashSet(fictitiousInjectionsByNode.keySet());
-        fictitiousInjectionsByNode.forEach((node, value) -> value.forEach(inj -> {
-            if (inj != 0.0) {
-                toRemove.remove((int) node);
+        private ArrayList<Int2DoubleMap> initiateFictitiousValueByNodes() {
+            ArrayList<Int2DoubleMap> fictitiousValueByNodes = new ArrayList<>(getNetwork().getVariantManager().getVariantArraySize());
+            for (int i = 0; i < getNetwork().getVariantManager().getVariantArraySize(); i++) {
+                fictitiousValueByNodes.add(null);
             }
-        }));
-        return toRemove;
-    }
+            return fictitiousValueByNodes;
+        }
+
+        private boolean hasFictitiousInjection(ArrayList<Int2DoubleMap> fictitiousValueByNodes) {
+            return fictitiousValueByNodes.get(getNetwork().getVariantIndex()) != null
+                && !fictitiousValueByNodes.get(getNetwork().getVariantIndex()).isEmpty();
+        }
+
+        private double getFictitiousInjection(ArrayList<Int2DoubleMap> fictitiousValueByNodes, int node) {
+            Int2DoubleMap fictitiousValueVariant = fictitiousValueByNodes.get(getNetwork().getVariantIndex());
+            if (fictitiousValueVariant == null || fictitiousValueVariant.isEmpty()) {
+                return 0.0;
+            }
+            // Return the value corresponding to the node, or 0.0 if the node is not in the keyset (default in TIntDoubleHashMap)
+            return fictitiousValueVariant.get(node);
+        }
+
+        private void setFictitiousInjection(ArrayList<Int2DoubleMap> fictitiousValueByNodes, int node, double value,
+                                            String modifiedVariable) {
+            int variantIndex = getNetwork().getVariantIndex();
+
+            // Get the map corresponding to the current variant from the array
+            Int2DoubleMap fictitiousValueVariant = fictitiousValueByNodes.get(variantIndex);
+
+            // If it does not exist yet, create a new one
+            if (fictitiousValueVariant == null) {
+                fictitiousValueVariant = new TIntDoubleHashMap();
+                fictitiousValueByNodes.set(variantIndex, fictitiousValueVariant);
+            }
+
+            // Save the value in the map or remove if the value is 0.0
+            double oldValue = value == 0.0 ? fictitiousValueVariant.remove(node) : fictitiousValueVariant.put(node, value);
+            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+            getNetwork().getListeners().notifyUpdate(voltageLevel, modifiedVariable, variantId, oldValue, value);
+        }
+    };
 
     @Override
     public VoltageLevelExt.NodeBreakerViewExt getNodeBreakerView() {
@@ -1272,7 +1295,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     boolean disconnect(TerminalExt terminal) {
         // Only keep the closed non-fictional breakers in the nominal case
-        return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER);
+        return disconnect(terminal, SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
     @Override
@@ -1410,21 +1433,25 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         variants.push(number, VariantImpl::new);
+        nodeBreakerView.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         variants.pop(number);
+        nodeBreakerView.reduceVariantArraySize(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         variants.delete(index);
+        nodeBreakerView.deleteVariantArrayElement(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, VariantImpl::new);
+        nodeBreakerView.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
     @Override
