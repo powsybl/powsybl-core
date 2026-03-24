@@ -54,9 +54,11 @@ public class ObservabilityAreaSerDe extends AbstractExtensionSerDe<VoltageLevel,
         switch (context.getOptions().getTopologyLevel()) {
             case NODE_BREAKER -> writeInConfiguredTopology(context, observabilityArea, vl);
             case BUS_BREAKER -> {
-                switch (vl.getTopologyKind()) {
-                    case NODE_BREAKER -> writeInCalculatedTopology(context, observabilityArea, vl);
-                    case BUS_BREAKER -> writeInConfiguredTopology(context, observabilityArea, vl);
+                TopologyKind topologyKind = vl.getTopologyKind();
+                if (Objects.requireNonNull(topologyKind) == TopologyKind.NODE_BREAKER) {
+                    writeInCalculatedTopology(context, observabilityArea, vl);
+                } else if (topologyKind == TopologyKind.BUS_BREAKER) {
+                    writeInConfiguredTopology(context, observabilityArea, vl);
                 }
             }
             case BUS_BRANCH -> writeInCalculatedTopology(context, observabilityArea, vl);
@@ -143,17 +145,17 @@ public class ObservabilityAreaSerDe extends AbstractExtensionSerDe<VoltageLevel,
     private static void setObservabilityArea(TopologyKind topologyKind, ObservabilityAreaAdder adder, DeserializerContext context) {
         int areaNumber = context.getReader().readIntAttribute(AREA_NUMBER);
         ObservabilityArea.ObservabilityStatus status = context.getReader().readEnumAttribute(STATUS, ObservabilityArea.ObservabilityStatus.class);
-        switch (topologyKind) {
-            case NODE_BREAKER -> {
-                List<Integer> nodesStr = context.getReader().readIntArrayAttribute("nodes");
-                adder.withObservabilityAreaByNodes(new HashSet<>(nodesStr), areaNumber, status);
-            }
-            case BUS_BREAKER -> {
-                String busId = context.getReader().readStringAttribute("id");
-                List<String> busesId = context.getReader().readStringArrayAttribute("ids");
-                List<String> busesStr = busId == null ? busesId : List.of(busId);
-                adder.withObservabilityAreaByBusBreakerViewBuses(new HashSet<>(busesStr), areaNumber, status);
-            }
+        if (Objects.requireNonNull(topologyKind) == TopologyKind.NODE_BREAKER) {
+            List<Integer> nodesStr = context.getReader()
+                    .readIntArrayAttribute("nodes");
+            adder.withObservabilityAreaByNodes(new HashSet<>(nodesStr), areaNumber, status);
+        } else if (topologyKind == TopologyKind.BUS_BREAKER) {
+            String busId = context.getReader()
+                    .readStringAttribute("id");
+            List<String> busesId = context.getReader()
+                    .readStringArrayAttribute("ids");
+            List<String> busesStr = busId == null ? busesId : List.of(busId);
+            adder.withObservabilityAreaByBusBreakerViewBuses(new HashSet<>(busesStr), areaNumber, status);
         }
         context.getReader().readEndNode();
     }

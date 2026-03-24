@@ -85,12 +85,7 @@ class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel> implem
                 if (observabilityAreaByBusViewBus.containsKey(busViewBusId)) {
                     AreaCharacteristics previous = observabilityAreaByBusViewBus.get(busViewBusId);
                     if (previous != value) {
-                        LOG.error("Inconsistent observabilities areas: bus {} is associated " +
-                                "to different area numbers and/or status. Some will be lost.", busViewBusId);
-                        if (throwException) {
-                            throw new PowsyblException("Inconsistent observabilities areas: bus " + busViewBusId + " is associated " +
-                                    "to different area numbers and/or status");
-                        }
+                        handleOverridingObservabilityAreaError(busViewBusId, throwException);
                     }
                 } else {
                     observabilityAreaByBusViewBus.put(busViewBusId, value);
@@ -110,26 +105,34 @@ class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel> implem
             for (Map.Entry<String, BusBreakerAreaCharacteristics> e : busBreakerView.observabilityAreas.entrySet()) {
                 Bus bus = voltageLevel.getBusBreakerView().getBus(e.getKey());
                 if (bus == null) {
-                    LOG.error("Inconsistent observabilities areas: bus {} does not exist anymore in bus-breaker view", e.getKey());
-                    if (throwException) {
-                        throw new PowsyblException("Inconsistent observabilities areas: bus " + e.getKey() + " does not exist anymore in bus-breaker view");
-                    }
+                    handleNotExistingBusError(e.getKey(), throwException);
                     continue;
                 }
                 if (voltageLevel.getBusView().getMergedBus(e.getKey()).getId().equals(busId)) {
                     if (characteristics != null && characteristics != e.getValue()) {
-                        LOG.error("Inconsistent observabilities areas: bus {} is associated " +
-                                "to different area numbers and/or status. Some will be lost.", busId);
-                        if (throwException) {
-                            throw new PowsyblException("Inconsistent observabilities areas: bus " + busId + " is associated " +
-                                    "to different area numbers and/or status");
-                        }
+                        handleOverridingObservabilityAreaError(busId, throwException);
                     } else {
                         characteristics = e.getValue();
                     }
                 }
             }
             return characteristics;
+        }
+
+        private void handleNotExistingBusError(String busId, boolean throwException) {
+            LOG.error("Inconsistent observabilities areas: bus {} does not exist anymore in bus-breaker view", busId);
+            if (throwException) {
+                throw new PowsyblException("Inconsistent observabilities areas: bus " + busId + " does not exist anymore in bus-breaker view");
+            }
+        }
+
+        private void handleOverridingObservabilityAreaError(String busId, boolean throwException) {
+            LOG.error("Inconsistent observabilities areas: bus {} is associated " +
+                      "to different area numbers and/or status. Some will be lost.", busId);
+            if (throwException) {
+                throw new PowsyblException("Inconsistent observabilities areas: bus " + busId + " is associated " +
+                                           "to different area numbers and/or status");
+            }
         }
     }
 
