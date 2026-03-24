@@ -1101,6 +1101,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean isSilenceFrequentIssuesWarnings() {
+            return this.silenceFrequentIssuesWarnings;
+        }
+
+        public Config setSilenceFrequentIssuesWarnings(boolean silenceFrequentIssuesWarnings) {
+            this.silenceFrequentIssuesWarnings = silenceFrequentIssuesWarnings;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
@@ -1133,6 +1142,7 @@ public class Conversion {
         private boolean usePreviousValuesDuringUpdate = false;
         private boolean removePropertiesAndAliasesAfterImport = false;
         private boolean useDetailedDcModel = false;
+        private boolean silenceFrequentIssuesWarnings = false;
     }
 
     private final CgmesModel cgmes;

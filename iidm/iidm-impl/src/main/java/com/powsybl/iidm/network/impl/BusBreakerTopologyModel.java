@@ -389,6 +389,12 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
+
+        @Override
+        public boolean hasFictitiousP0() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
         @Override
         public double getFictitiousP0(int node) {
             throw createNotSupportedBusBreakerTopologyException();
@@ -396,6 +402,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public VoltageLevel.NodeBreakerView setFictitiousP0(int node, double p0) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public boolean hasFictitiousQ0() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
