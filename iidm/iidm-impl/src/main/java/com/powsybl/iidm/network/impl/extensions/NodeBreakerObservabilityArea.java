@@ -31,7 +31,7 @@ class NodeBreakerObservabilityArea extends AbstractExtension<VoltageLevel> imple
 
         private final Map<Integer, NodeBreakerAreaCharacteristics> observabilityAreas = new HashMap<>();
 
-        NodeBreakerViewImpl(Map<Integer, NodeBreakerAreaCharacteristics> observabilityAreas, List<Set<Integer>> nodesByBus) {
+        NodeBreakerViewImpl(Map<Integer, NodeBreakerAreaCharacteristics> observabilityAreas) {
             this.observabilityAreas.putAll(observabilityAreas);
         }
 
@@ -120,7 +120,7 @@ class NodeBreakerObservabilityArea extends AbstractExtension<VoltageLevel> imple
     NodeBreakerObservabilityArea(Map<Integer, AbstractAreaCharacteristics.Characteristics> observabilityAreasByNode,
                                  Map<String, AbstractAreaCharacteristics.Characteristics> observabilityAreasByBus, List<Set<Integer>> nodesByBus, VoltageLevel voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
-        this.nodeBreakerView = new NodeBreakerViewImpl(convert(observabilityAreasByNode, observabilityAreasByBus, nodesByBus, voltageLevel), nodesByBus);
+        this.nodeBreakerView = new NodeBreakerViewImpl(convert(observabilityAreasByNode, observabilityAreasByBus, nodesByBus, voltageLevel));
         this.busBreakerView = new BusBreakerViewImpl();
         this.busView = new BusViewImpl();
     }
@@ -197,22 +197,33 @@ class NodeBreakerObservabilityArea extends AbstractExtension<VoltageLevel> imple
             AreaCharacteristics tmp = nodeBreakerView.observabilityAreas.get(node);
             if (value != null) {
                 if (tmp == null) {
-                    LOG.error("Inconsistent observability areas: only part of nodes of bus-view bus {} are defined", busId);
-                    if (throwException) {
-                        throw new PowsyblException("Inconsistent observability areas: only part of nodes of bus-view bus " + busId + " are defined");
-                    }
+                    handleUncompleteObservabilityAreaError(busId, throwException);
                     continue;
                 }
                 if (value != tmp) {
-                    LOG.error("Inconsistent observability areas: bus-view bus {} has different area numbers and/or status. Some will be lost.", busId);
-                    if (throwException) {
-                        throw new PowsyblException("Inconsistent observability areas: bus-view bus " + busId + " has different area numbers and/or status");
-                    }
+                    handleOverridingObservabilityArea(busId, throwException);
                 }
             } else {
                 value = tmp;
             }
         }
         return value;
+    }
+
+    private void handleUncompleteObservabilityAreaError(String busId, boolean throwException) {
+        LOG.error("Inconsistent observability areas: only part of nodes of bus-view bus {} are defined", busId);
+        if (throwException) {
+            throw new PowsyblException("Inconsistent observability areas: only part of nodes of bus-view bus " + busId
+                                       + " are defined");
+        }
+    }
+
+    private void handleOverridingObservabilityArea(String busId, boolean throwException) {
+        LOG.error("Inconsistent observability areas: bus-view bus {} has different area numbers and/or status. Some will be lost.",
+                busId);
+        if (throwException) {
+            throw new PowsyblException("Inconsistent observability areas: bus-view bus " + busId
+                                       + " has different area numbers and/or status");
+        }
     }
 }

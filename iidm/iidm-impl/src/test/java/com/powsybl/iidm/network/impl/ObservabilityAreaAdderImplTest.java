@@ -55,32 +55,36 @@ class ObservabilityAreaAdderImplTest {
     @Test
     void shouldRejectUnsupportedTopologyInputs() {
         Network nodeBreakerNetwork = ObservabilityAreaTestSupport.createNodeBreakerNetwork();
-        PowsyblException nodeBreakerFailure = assertThrows(PowsyblException.class, () -> nodeBreakerNetwork.getVoltageLevel("C").newExtension(ObservabilityAreaAdder.class)
-                .withObservabilityAreaByBusBreakerViewBuses(Set.of("C"), 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
-                .add());
+        ObservabilityAreaAdder observabilityAreaAdder = nodeBreakerNetwork.getVoltageLevel("C")
+                .newExtension(ObservabilityAreaAdder.class)
+                .withObservabilityAreaByBusBreakerViewBuses(Set.of("C"), 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE);
+        PowsyblException nodeBreakerFailure = assertThrows(PowsyblException.class, observabilityAreaAdder::add);
         assertEquals("Observability areas must be exclusively filled by bus-view buses or nodes in node-breaker voltage levels", nodeBreakerFailure.getMessage());
 
         Network busBreakerNetwork = ObservabilityAreaTestSupport.createBusBreakerNetwork();
-        PowsyblException busBreakerFailure = assertThrows(PowsyblException.class, () -> busBreakerNetwork.getVoltageLevel("VLGEN").newExtension(ObservabilityAreaAdder.class)
-                .withObservabilityAreaByNodes(Set.of(1), 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
-                .add());
+        ObservabilityAreaAdder observabilityAreaAdder1 = busBreakerNetwork.getVoltageLevel("VLGEN")
+                .newExtension(ObservabilityAreaAdder.class)
+                .withObservabilityAreaByNodes(Set.of(1), 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE);
+        PowsyblException busBreakerFailure = assertThrows(PowsyblException.class, observabilityAreaAdder1::add);
         assertEquals("Observability areas must be exclusively filled by bus-view buses or bus-breaker-view buses in bus-breaker voltage levels", busBreakerFailure.getMessage());
     }
 
     @Test
     void shouldRejectMixedPopulationStrategies() {
         Network nodeBreakerNetwork = ObservabilityAreaTestSupport.createNodeBreakerNetwork();
-        PowsyblException nodeBreakerFailure = assertThrows(PowsyblException.class, () -> nodeBreakerNetwork.getVoltageLevel("C").newExtension(ObservabilityAreaAdder.class)
+        ObservabilityAreaAdder observabilityAreaAdder = nodeBreakerNetwork.getVoltageLevel("C")
+                .newExtension(ObservabilityAreaAdder.class)
                 .withObservabilityAreaByBusViewBus("C_0", 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
-                .withObservabilityAreaByNodes(Set.of(0), 2, ObservabilityArea.ObservabilityStatus.BORDER)
-                .add());
+                .withObservabilityAreaByNodes(Set.of(0), 2, ObservabilityArea.ObservabilityStatus.BORDER);
+        PowsyblException nodeBreakerFailure = assertThrows(PowsyblException.class, observabilityAreaAdder::add);
         assertEquals("Observability areas must be exclusively filled by bus-view buses OR nodes, not both", nodeBreakerFailure.getMessage());
 
         Network busBreakerNetwork = ObservabilityAreaTestSupport.createBusBreakerNetwork();
-        PowsyblException busBreakerFailure = assertThrows(PowsyblException.class, () -> busBreakerNetwork.getVoltageLevel("VLGEN").newExtension(ObservabilityAreaAdder.class)
+        ObservabilityAreaAdder observabilityAreaAdder1 = busBreakerNetwork.getVoltageLevel("VLGEN")
+                .newExtension(ObservabilityAreaAdder.class)
                 .withObservabilityAreaByBusViewBus("VLGEN_0", 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
-                .withObservabilityAreaByBusBreakerViewBuses(Set.of("NGEN"), 2, ObservabilityArea.ObservabilityStatus.BORDER)
-                .add());
+                .withObservabilityAreaByBusBreakerViewBuses(Set.of("NGEN"), 2, ObservabilityArea.ObservabilityStatus.BORDER);
+        PowsyblException busBreakerFailure = assertThrows(PowsyblException.class, observabilityAreaAdder1::add);
         assertEquals("Observability areas must be exclusively filled by bus-view buses OR nodes, not both", busBreakerFailure.getMessage());
     }
 

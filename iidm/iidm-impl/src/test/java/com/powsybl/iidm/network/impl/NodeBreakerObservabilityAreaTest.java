@@ -69,13 +69,15 @@ class NodeBreakerObservabilityAreaTest {
 
         Map<Integer, ObservabilityArea.AreaCharacteristics> nodeAreas = ext.getNodeBreakerView().getObservabilityAreaByNode();
         assertEquals(Set.of(0, 1, 2, 3, 4), nodeAreas.keySet());
-        assertThrows(UnsupportedOperationException.class, () -> nodeAreas.put(99, nodeAreas.get(0)));
-
         ObservabilityArea.AreaCharacteristics nodeArea = nodeAreas.get(0);
-        assertEquals(Set.of(0, 1, 2, 3, 4), nodeArea.getNodeBreakerData().getNodes());
-        assertThrows(UnsupportedOperationException.class, () -> nodeArea.getNodeBreakerData().getNodes().add(99));
+        assertThrows(UnsupportedOperationException.class, () -> nodeAreas.put(99, nodeArea));
 
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () -> nodeArea.getBusBreakerData().getBusIds());
+        Set<Integer> nodes = nodeArea.getNodeBreakerData().getNodes();
+        assertEquals(Set.of(0, 1, 2, 3, 4), nodes);
+        assertThrows(UnsupportedOperationException.class, () -> nodes.add(99));
+
+        ObservabilityArea.AreaCharacteristics.BusBreakerData busBreakerData = nodeArea.getBusBreakerData();
+        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, busBreakerData::getBusIds);
         assertEquals("Not supported in a node breaker topology", e.getMessage());
 
         assertTrue(ext.getBusBreakerView().getObservabilityAreaByBus().values().stream().anyMatch(Objects::nonNull));
@@ -126,12 +128,13 @@ class NodeBreakerObservabilityAreaTest {
         ObservabilityArea ext = ObservabilityAreaTestSupport.populateNodeBreakerAreaFromNodes(vlC);
 
         vlC.getNodeBreakerView().newSwitch().setId("TEST2_SW").setNode1(0).setNode2(9).setOpen(false).setKind(SwitchKind.DISCONNECTOR).add();
-        PowsyblException partiallyDefined = assertThrows(PowsyblException.class, () -> ext.getBusView().getObservabilityArea("C_0"));
+        ObservabilityArea.BusView busView = ext.getBusView();
+        PowsyblException partiallyDefined = assertThrows(PowsyblException.class, () -> busView.getObservabilityArea("C_0"));
         assertEquals("Inconsistent observability areas: only part of nodes of bus-view bus C_0 are defined", partiallyDefined.getMessage());
-        ObservabilityArea.AreaCharacteristics survivingArea = ext.getBusView().getObservabilityArea("C_0", false);
+        ObservabilityArea.AreaCharacteristics survivingArea = busView.getObservabilityArea("C_0", false);
         assertNotNull(survivingArea);
         assertEquals(1, survivingArea.getAreaNumber());
-        assertEquals(1, ext.getBusView().getObservabilityAreaByBus(false).get("C_0").getAreaNumber());
+        assertEquals(1, busView.getObservabilityAreaByBus(false).get("C_0").getAreaNumber());
         assertTrue(ext.getBusBreakerView().getObservabilityAreaByBus(false).values().stream()
                 .filter(Objects::nonNull)
                 .anyMatch(area -> area.getAreaNumber() == 1));
@@ -143,10 +146,11 @@ class NodeBreakerObservabilityAreaTest {
                 .withObservabilityAreaByNodes(Set.of(2, 3, 4), 2, ObservabilityArea.ObservabilityStatus.BORDER)
                 .add();
 
-        PowsyblException conflicting = assertThrows(PowsyblException.class, () -> conflictingArea.getBusView().getObservabilityArea("C_0"));
+        ObservabilityArea.BusView conflictingBusView = conflictingArea.getBusView();
+        PowsyblException conflicting = assertThrows(PowsyblException.class, () -> conflictingBusView.getObservabilityArea("C_0"));
         assertEquals("Inconsistent observability areas: bus-view bus C_0 has different area numbers and/or status", conflicting.getMessage());
-        assertNotNull(conflictingArea.getBusView().getObservabilityArea("C_0", false));
-        assertNotNull(conflictingArea.getBusView().getObservabilityAreaByBus(false).get("C_0"));
+        assertNotNull(conflictingBusView.getObservabilityArea("C_0", false));
+        assertNotNull(conflictingBusView.getObservabilityAreaByBus(false).get("C_0"));
         assertTrue(conflictingArea.getBusBreakerView().getObservabilityAreaByBus(false).values().stream().anyMatch(Objects::nonNull));
     }
 
@@ -154,9 +158,10 @@ class NodeBreakerObservabilityAreaTest {
     void shouldThrowWhenBusViewInputReferencesUnknownBus() {
         Network network = ObservabilityAreaTestSupport.createNodeBreakerNetwork();
 
-        PowsyblException e = assertThrows(PowsyblException.class, () -> network.getVoltageLevel("C").newExtension(ObservabilityAreaAdder.class)
-                .withObservabilityAreaByBusViewBus("UNKNOWN", 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE)
-                .add());
+        ObservabilityAreaAdder observabilityAreaAdder = network.getVoltageLevel("C")
+                .newExtension(ObservabilityAreaAdder.class)
+                .withObservabilityAreaByBusViewBus("UNKNOWN", 1, ObservabilityArea.ObservabilityStatus.OBSERVABLE);
+        PowsyblException e = assertThrows(PowsyblException.class, observabilityAreaAdder::add);
 
         assertEquals("Bus-view bus UNKNOWN does not exist", e.getMessage());
     }
