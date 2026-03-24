@@ -31,7 +31,8 @@ public final class CountryConversion {
             || gr.equals("D2")
             || gr.equals("D4")
             || gr.equals("D7")
-            || gr.equals("D8")) {
+            || gr.equals("D8")
+            || gr.startsWith("DE-")) {
             return Optional.of(Country.DE);
         }
         try {

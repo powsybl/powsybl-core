@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
@@ -69,8 +70,6 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, voltageLevel.getId(), line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-        LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
-        LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
 
         // Create the topology inside the existing voltage level
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
@@ -114,6 +113,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             throw new IllegalStateException();
         }
 
+        BranchOperationalLimitsGroupsCopy groupsCopy = new BranchOperationalLimitsGroupsCopy(line);
+
         // Remove the existing line
         String originalLineId = line.getId();
         line.remove();
@@ -121,8 +122,10 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
-        addLoadingLimits(line1, limits1, TwoSides.ONE);
-        addLoadingLimits(line2, limits2, TwoSides.TWO);
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopy.applyGroupsToBranch(line1, TwoSides.values());
+        groupsCopy.applyGroupsToBranch(line2, TwoSides.values());
         LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevel.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.connectVoltageLevelToLines(reportNode, voltageLevel.getId(), line1Id, line2Id, originalLineId);
     }

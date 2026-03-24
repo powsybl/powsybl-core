@@ -22,5 +22,4 @@ final class ShuntSerDe extends AbstractShuntCompensatorSerDe {
     private ShuntSerDe() {
         super(ROOT_ELEMENT_NAME, null, IidmVersion.V_1_15);
     }
-
 }
