@@ -8,7 +8,8 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -40,8 +41,8 @@ class TopologyTester {
     boolean test(boolean strict) {
         // Only makes sense if the network has been obtained
         // from CGMES node-breaker detailed data
-        if (!network.getProperty(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL)
-                .equals(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER)) {
+        CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
+        if (cimCharacteristics == null || cimCharacteristics.getTopologyKind() != CgmesTopologyKind.NODE_BREAKER) {
             return true;
         }
         Map<String, Set<String>> tpcns = new HashMap<>();

@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -22,6 +21,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.*;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -184,7 +184,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 .map(terminal -> getBusBreakerSvVoltage(terminal, context))
                 .flatMap(Optional::stream)
                 .findFirst()
-                .ifPresent(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context));
+                .ifPresentOrElse(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context),
+                        () -> bus.setV(Double.NaN).setAngle(Double.NaN));
     }
 
     private static Optional<PropertyBag> getBusBreakerSvVoltage(Terminal terminal, Context context) {
@@ -197,7 +198,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 .map(terminal -> getNodeBreakerSvVoltage(terminal, context))
                 .flatMap(Optional::stream)
                 .findFirst()
-                .ifPresent(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context));
+                .ifPresentOrElse(svVoltage -> updateVoltageMagnitudeAndAngle(svVoltage, bus, context),
+                        () -> bus.setV(Double.NaN).setAngle(Double.NaN));
     }
 
     private static void updateVoltageMagnitudeAndAngle(PropertyBag svVoltage, Bus bus, Context context) {
@@ -206,6 +208,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (valid(v, angle)) {
             bus.setV(v).setAngle(angle);
         } else {
+            bus.setV(Double.NaN).setAngle(Double.NaN);
             invalidAngleVoltageReport(context.getReportNode(), bus, v, angle);
         }
     }
@@ -218,14 +221,14 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private static Optional<String> getTerminalId(Connectable<?> connectable, ThreeSides side) {
         if (side == null) {
-            return connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL)
-                    .or(() -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1));
+            return connectable.getAliasFromType(ALIAS_TERMINAL)
+                    .or(() -> connectable.getAliasFromType(ALIAS_TERMINAL1));
         }
         return switch (side) {
-            case ONE -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1)
-                    .or(() -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL));
-            case TWO -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-            case THREE -> connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 3);
+            case ONE -> connectable.getAliasFromType(ALIAS_TERMINAL1)
+                    .or(() -> connectable.getAliasFromType(ALIAS_TERMINAL));
+            case TWO -> connectable.getAliasFromType(ALIAS_TERMINAL2);
+            case THREE -> connectable.getAliasFromType(ALIAS_TERMINAL3);
         };
     }
 

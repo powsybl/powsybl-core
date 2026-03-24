@@ -57,7 +57,7 @@ class HvdcUpdateTest {
         readCgmesResources(network, DIR, "hvdc_SSH_1.xml");
         assertSecondSsh(network);
 
-        assertFlowsBeforeSv(network);
+        assertUnassignedFlows(network);
         assertLossFactorBeforeSv(network);
         readCgmesResources(network, DIR, "hvdc_SV.xml");
         assertFlowsAfterSv(network);
@@ -72,15 +72,17 @@ class HvdcUpdateTest {
     void usePreviousValuesTest() {
         Network network = readCgmesResources(DIR, "hvdc_EQ.xml", "hvdc_SSH_1.xml", "hvdc_SV.xml");
         assertEquals(2, network.getHvdcLineCount());
+
         assertSecondSsh(network);
         assertFlowsAfterSv(network);
         assertLossFactorAfterSshSv(network);
 
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.use-previous-values-during-update", "true");
+
         readCgmesResources(network, properties, DIR, "../empty_SSH.xml", "../empty_SV.xml");
         assertSecondSsh(network);
-        assertFlowsAfterSv(network);
+        assertUnassignedFlows(network);
         assertLossFactorAfterSshSv(network);
     }
 
@@ -96,8 +98,6 @@ class HvdcUpdateTest {
     }
 
     private static void assertPropertiesAndAliasesEmpty(Network network, boolean expected) {
-        assertEquals(expected, network.getPropertyNames().isEmpty());
-        assertTrue(network.getAliases().isEmpty());
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
@@ -126,18 +126,20 @@ class HvdcUpdateTest {
                 396.54, 0.0, 30.0, false);
     }
 
-    private static void assertFlowsBeforeSv(Network network) {
-        assertFlows(network.getHvdcLine("DCLineSegment-Lcc").getConverterStation1().getTerminal(), Double.NaN, Double.NaN,
-                network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getTerminal(), Double.NaN, Double.NaN);
-        assertFlows(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getTerminal(), Double.NaN, Double.NaN,
-                network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getTerminal(), Double.NaN, Double.NaN);
+    private static void assertUnassignedFlows(Network network) {
+        assertFlows(network, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     private static void assertFlowsAfterSv(Network network) {
-        assertFlows(network.getHvdcLine("DCLineSegment-Lcc").getConverterStation1().getTerminal(), 200.0, 50.0,
-                network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getTerminal(), -200.1, -50.1);
-        assertFlows(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getTerminal(), 100.0, 25.0,
-                network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getTerminal(), -100.1, -25.1);
+        assertFlows(network, 200.0, 50.0, -200.1, -50.1, 100.0, 25.0, -100.1, -25.1);
+    }
+
+    private static void assertFlows(Network network, double dCLineSegmentLccP1, double dCLineSegmentLccQ1, double dCLineSegmentLccP2, double dCLineSegmentLccQ2,
+                                    double dCLineSegmentVscP1, double dCLineSegmentVscQ1, double dCLineSegmentVscP2, double dCLineSegmentVscQ2) {
+        assertFlows(network.getHvdcLine("DCLineSegment-Lcc").getConverterStation1().getTerminal(), dCLineSegmentLccP1, dCLineSegmentLccQ1,
+                network.getHvdcLine("DCLineSegment-Lcc").getConverterStation2().getTerminal(), dCLineSegmentLccP2, dCLineSegmentLccQ2);
+        assertFlows(network.getHvdcLine("DCLineSegment-Vsc").getConverterStation1().getTerminal(), dCLineSegmentVscP1, dCLineSegmentVscQ1,
+                network.getHvdcLine("DCLineSegment-Vsc").getConverterStation2().getTerminal(), dCLineSegmentVscP2, dCLineSegmentVscQ2);
     }
 
     private static void assertLossFactorBeforeSv(Network network) {

@@ -11,6 +11,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
+
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -62,9 +64,15 @@ public interface CgmesObjectReference {
                 // There is no single suffix for LOAD identifiables,
                 // They can be mapped to ConformLoad, NonConformLoad, EnergyConsumer, ...
                 Map.entry(IdentifiableType.SHUNT_COMPENSATOR, "SC"),
-                Map.entry(IdentifiableType.DANGLING_LINE, "ACLS"),
+                Map.entry(IdentifiableType.BOUNDARY_LINE, "ACLS"),
                 Map.entry(IdentifiableType.STATIC_VAR_COMPENSATOR, "SVC"),
-                Map.entry(IdentifiableType.HVDC_CONVERTER_STATION, "DCCS")
+                Map.entry(IdentifiableType.HVDC_CONVERTER_STATION, "DCCS"),
+                Map.entry(IdentifiableType.LINE_COMMUTATED_CONVERTER, "LCC"),
+                Map.entry(IdentifiableType.VOLTAGE_SOURCE_CONVERTER, "VSC"),
+                Map.entry(IdentifiableType.DC_NODE, "DCN"),
+                Map.entry(IdentifiableType.DC_GROUND, "DCG"),
+                Map.entry(IdentifiableType.DC_LINE, "DCLS"),
+                Map.entry(IdentifiableType.DC_SWITCH, "DCSW")
         ));
 
         public Identifiable(com.powsybl.iidm.network.Identifiable<?> value, boolean addType) {
@@ -223,6 +231,15 @@ public interface CgmesObjectReference {
             case SOLAR -> Part.SOLAR_GENERATING_UNIT;
             case OTHER -> Part.GENERATING_UNIT;
         };
+    }
+
+    static Part refDcTerminal(com.powsybl.iidm.network.Identifiable<?> identifiable) {
+        if (identifiable instanceof HvdcLine) {
+            return TERMINAL;
+        } else if (identifiable instanceof HvdcConverterStation || identifiable instanceof AcDcConverter) {
+            return ACDC_CONVERTER_DC_TERMINAL;
+        }
+        return DC_TERMINAL;
     }
 
     static String combine(CgmesObjectReference... refs) {

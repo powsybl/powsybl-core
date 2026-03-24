@@ -12,9 +12,6 @@ SELECT *
 { GRAPH ?graph {
     ?FullModel
         a md:FullModel ;
-        md:Model.scenarioTime ?scenarioTime ;
-        md:Model.created ?created ;
-        md:Model.version ?version ;
         md:Model.modelingAuthoritySet ?modelingAuthoritySet .
     {
     SELECT ?FullModel (group_concat(?profile; separator=" ") as ?profileList)
@@ -22,7 +19,6 @@ SELECT *
                 ?FullModel md:Model.profile ?profile .
         } GROUP BY ?FullModel
     }
-    OPTIONAL { ?FullModel md:Model.description ?description }
     OPTIONAL {
         SELECT ?FullModel (group_concat(?dependentOn; separator=" ") as ?dependentOnList)
             WHERE {
@@ -35,6 +31,10 @@ SELECT *
                     ?FullModel md:Model.Supersedes ?supersedes .
             } GROUP BY ?FullModel
     }
+    OPTIONAL { ?FullModel md:Model.description ?description }
+    OPTIONAL { ?FullModel md:Model.scenarioTime ?scenarioTime }
+    OPTIONAL { ?FullModel md:Model.created ?created }
+    OPTIONAL { ?FullModel md:Model.version ?version }
 }}
 
 # query: numObjectsByType
@@ -338,6 +338,7 @@ SELECT *
     OPTIONAL {
         ?ACDCConverter
             cim:ACDCConverter.targetPpcc ?targetPpcc ;
+            cim:ACDCConverter.targetUdc ?targetUdc ;
             cim:ACDCConverter.p ?p ;
             cim:ACDCConverter.q ?q .
     }
@@ -347,18 +348,35 @@ SELECT *
     }
     # For Current Source Converter
     OPTIONAL {
-        ?ACDCConverter a cim:CsConverter ;
+        ?ACDCConverter
+            a cim:CsConverter ;
             cim:CsConverter.operatingMode ?operatingMode ;
-            cim:CsConverter.pPccControl ?controlMode .
-            OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+            cim:CsConverter.pPccControl ?pPccControl .
     }
     # For Voltage Source Converter
     OPTIONAL {
-        ?ACDCConverter a cim:VsConverter ;
-            cim:VsConverter.qPccControl ?qPccControl ;
-            cim:VsConverter.pPccControl ?pPccControl .
+        ?ACDCConverter
+            a cim:VsConverter ;
+            cim:VsConverter.pPccControl ?pPccControl ;
+            cim:VsConverter.qPccControl ?qPccControl .
             OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
             OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+    }
+}
+
+# query: dcTerminals
+SELECT *
+{
+    {
+        ?DCTerminal
+            a cim:DCTerminal ;
+            cim:ACDCTerminal.connected ?connected .
+    }
+    UNION
+    {
+        ?DCTerminal
+            a cim:ACDCConverterDCTerminal ;
+            cim:ACDCTerminal.connected ?connected .
     }
 }
 

@@ -9,11 +9,12 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -39,13 +40,13 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
     }
 
     private static void addSpecificProperties(Load newLoad) {
-        newLoad.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ENERGY_SOURCE);
+        newLoad.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ENERGY_SOURCE);
     }
 
     public static void update(Load load, PropertyBag cgmesData, Context context) {
         updateTerminals(load, context, load.getTerminal());
 
-        PowerFlow updatedPowerFlow = updatedPowerFlow(load, cgmesData, context);
+        PowerFlow updatedPowerFlow = updatedPowerFlow(cgmesData);
         load.setP0(updatedPowerFlow.defined() ? updatedPowerFlow.p() : getDefaultP0(load, context));
         load.setQ0(updatedPowerFlow.defined() ? updatedPowerFlow.q() : getDefaultQ0(load, context));
     }

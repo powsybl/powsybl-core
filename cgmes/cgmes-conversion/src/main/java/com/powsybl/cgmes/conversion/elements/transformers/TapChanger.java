@@ -48,7 +48,6 @@ public class TapChanger {
 
     private int lowTapPosition = 0;
     private Integer tapPosition;
-    private Integer solvedTapPosition;
     private final List<Step> steps = new ArrayList<>();
     private boolean ltcFlag = false;
     private String id = null;
@@ -157,11 +156,6 @@ public class TapChanger {
         return this;
     }
 
-    public TapChanger setSolvedTapPosition(Integer solvedTapPosition) {
-        this.solvedTapPosition = solvedTapPosition;
-        return this;
-    }
-
     public TapChanger setLtcFlag(boolean ltcFlag) {
         this.ltcFlag = ltcFlag;
         return this;
@@ -212,10 +206,6 @@ public class TapChanger {
 
     public Integer getTapPosition() {
         return tapPosition;
-    }
-
-    public Integer getSolvedTapPosition() {
-        return solvedTapPosition;
     }
 
     public List<Step> getSteps() {

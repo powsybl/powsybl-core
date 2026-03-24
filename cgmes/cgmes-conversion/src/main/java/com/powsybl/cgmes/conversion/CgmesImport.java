@@ -206,6 +206,7 @@ public class CgmesImport implements Importer {
                 tripleStoreOptions);
         Conversion conversion = new Conversion(cgmes, config(p));
         conversion.update(network, reportNode);
+        cgmes.close();
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
@@ -585,11 +586,11 @@ public class CgmesImport implements Importer {
                                 p,
                                 IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
                                 defaultValueConfig))
-                .setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(
+                .setDisconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected(
                         Parameter.readBoolean(
                                 getFormat(),
                                 p,
-                                DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
                                 defaultValueConfig))
                 .setMissingPermanentLimitPercentage(
                         Parameter.readDouble(
@@ -614,6 +615,18 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
+                                defaultValueConfig))
+                .setUseDetailedDcModel(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                USE_DETAILED_DC_MODEL_PARAMETER,
+                                defaultValueConfig))
+                .setSilenceFrequentIssuesWarnings(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                SILENCE_FREQUENT_ISSUES_WARNINGS_PARAMETER,
                                 defaultValueConfig));
 
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
@@ -684,13 +697,15 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
-    public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
+    public static final String DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-boundary-line-if-boundary-side-is-disconnected";
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
     public static final String CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE = "iidm.import.cgmes.create-fictitious-voltage-level-for-every-node";
     public static final String USE_PREVIOUS_VALUES_DURING_UPDATE = "iidm.import.cgmes.use-previous-values-during-update";
     public static final String REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT = "iidm.import.cgmes.remove-properties-and-aliases-after-import";
+    public static final String USE_DETAILED_DC_MODEL = "iidm.import.cgmes.use-detailed-dc-model";
+    public static final String SILENCE_FREQUENT_ISSUES_WARNINGS = "iidm.import.cgmes.silence-frequent-issues-warnings";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -756,7 +771,7 @@ public class CgmesImport implements Importer {
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
             "Store the initial CGMES model as a network extension",
-            Boolean.TRUE)
+            Boolean.FALSE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
     private static final Parameter SOURCE_FOR_IIDM_ID_PARAMETER = new Parameter(
             SOURCE_FOR_IIDM_ID,
@@ -774,10 +789,10 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Force import of CGMES node/breaker models as bus/breaker",
             Boolean.FALSE);
-    public static final Parameter DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER = new Parameter(
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED,
+    public static final Parameter DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER = new Parameter(
+            DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED,
             ParameterType.BOOLEAN,
-            "Force disconnection of dangling line network side if boundary side is disconnected",
+            "Force disconnection of boundary line network side if boundary side is disconnected",
             Boolean.TRUE);
     private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER = new Parameter(
             IMPORT_CGM_WITH_SUBNETWORKS,
@@ -816,6 +831,18 @@ public class CgmesImport implements Importer {
             "Remove all properties and aliases after CGMES import",
             Boolean.FALSE);
 
+    private static final Parameter USE_DETAILED_DC_MODEL_PARAMETER = new Parameter(
+            USE_DETAILED_DC_MODEL,
+            ParameterType.BOOLEAN,
+            "Use detailed DC model",
+            Boolean.FALSE);
+
+    private static final Parameter SILENCE_FREQUENT_ISSUES_WARNINGS_PARAMETER = new Parameter(
+            SILENCE_FREQUENT_ISSUES_WARNINGS,
+            ParameterType.BOOLEAN,
+            "Do not issue warning logs for frequent issues",
+            Boolean.FALSE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
@@ -831,13 +858,15 @@ public class CgmesImport implements Importer {
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+            DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
             MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
             CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
             USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
-            REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER);
+            REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
+            USE_DETAILED_DC_MODEL_PARAMETER,
+            SILENCE_FREQUENT_ISSUES_WARNINGS_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;

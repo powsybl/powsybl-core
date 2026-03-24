@@ -13,6 +13,8 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
+import com.powsybl.iidm.network.DcSwitch;
+import com.powsybl.iidm.network.DcTerminal;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -43,11 +45,16 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
                       ReportNode reportNode) {
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
+        Set<DcSwitch> dcSwitchesToOpen = new HashSet<>();
+        Set<DcTerminal> dcTerminalsToDisconnect = new HashSet<>();
 
         try {
             traverse(network, switchesToOpen, terminalsToDisconnect);
+            traverseDc(network, dcSwitchesToOpen, dcTerminalsToDisconnect);
             switchesToOpen.forEach(s -> s.setOpen(true));
             terminalsToDisconnect.forEach(Terminal::disconnect);
+            dcSwitchesToOpen.forEach(s -> s.setOpen(true));
+            dcTerminalsToDisconnect.forEach(DcTerminal::disconnect);
         } catch (PowsyblException powsyblException) {
             logOrThrow(throwException, powsyblException.getMessage());
         }
@@ -61,9 +68,12 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         } else {
             Set<Switch> switchesToOpen = new HashSet<>();
             Set<Terminal> terminalsToDisconnect = new HashSet<>();
+            Set<DcSwitch> dcSwitchesToOpen = new HashSet<>();
+            Set<DcTerminal> dcTerminalsToDisconnect = new HashSet<>();
 
             traverse(network, switchesToOpen, terminalsToDisconnect);
-            if (switchesToOpen.isEmpty() && terminalsToDisconnect.isEmpty()) {
+            traverseDc(network, dcSwitchesToOpen, dcTerminalsToDisconnect);
+            if (switchesToOpen.isEmpty() && terminalsToDisconnect.isEmpty() && dcTerminalsToDisconnect.isEmpty()) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }
@@ -82,6 +92,21 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         } else {
             TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect, traversedTerminals);
             TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals);
+        }
+    }
+
+    public void traverseDoubleSidedEquipment(String dcNodeId, DcTerminal terminal1, DcTerminal terminal2, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals, String equipmentType) {
+        if (dcNodeId != null) {
+            if (dcNodeId.equals(terminal1.getDcNode().getId())) {
+                TrippingTopologyTraverser.traverse(terminal1, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);
+            } else if (dcNodeId.equals(terminal2.getDcNode().getId())) {
+                TrippingTopologyTraverser.traverse(terminal2, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);
+            } else {
+                throw new PowsyblException("DcNode '" + dcNodeId + "' not connected to " + equipmentType + " '" + id + "'");
+            }
+        } else {
+            TrippingTopologyTraverser.traverse(terminal1, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);
+            TrippingTopologyTraverser.traverse(terminal2, dcSwitchesToOpen, dcTerminalsToDisconnect, traversedDcTerminals);
         }
     }
 }

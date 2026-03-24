@@ -3,7 +3,6 @@
 ```{toctree}
 :hidden:
 configuration.md
-implementations.md
 contingency-dsl.md
 action-dsl.md
 limit-reductions.md
@@ -45,24 +44,39 @@ contingencies are:
 - Busbar section contingency for node/breaker topologies
 - Line, two-winding transformer and tie line contingencies (branch contingency)
 - Three-winding transformer contingency
-- Dangling line contingency
+- Boundary line contingency
 - HVDC line contingency
 - Battery contingency
 - Shunt Compensator contingency
 - Switch contingency
+- DC line contingency
+- Voltage source converter contingency
+- DC ground contingency
+- DC node contingency
 
 A contingency is made of contingency elements. A contingency can trigger one element at a time (N-1) or several elements
 at a time (N-K). Bus bar and bus contingencies are special N-K contingencies as they trigger all the equipments
 connected to a given bus bar section.
 
-### Remedial actions
+### Operator strategies
+
+An operator strategy is applied in pre-contingency or after a contingency, depending on the contingency context
+provided. A contingency context can be:
+- `NONE` a pre-contingency state only
+- `SPECIFIC` a post-contingency state on a specific contingency
+- `ONLY_CONTINGENCIES` a post-contingency state on every contingency
+- `ALL` both pre-contingency and post-contingency states
+
+An operator strategy groups a condition and a list of remedial actions.
+
+#### Remedial actions
 
 Remedial actions are actions that are applied when limit violations occur. Supported actions are:
 
 | Action                             | Description                                                                                                                                                                                   |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `LoadAction`                       | Change the relative or absolute `P0` and/or `Q0` of a load.                                                                                                                                   |
-| `DanglingLineAction`               | Change the relative or absolute `P0` and/or `Q0` of the load part of a dangling line.                                                                                                         |
+| `BoundaryLineAction`               | Change the relative or absolute `P0` and/or `Q0` of the load part of a boundary line.                                                                                                         |
 | `SwitchAction`                     | Open or close a switch.                                                                                                                                                                       |
 | `TerminalsConnectionAction`        | Open or close a terminal.                                                                                                                                                                     |
 | `PhaseTapChangerTapPositionAction` | Change the tap of a phase tap changer.                                                                                                                                                        |
@@ -85,7 +99,7 @@ Remedial actions can be *preventive* or *curative*:
 
 Note: you can find the current list of remedial actions implemented in the PowSyBl Open Load Flow security analysis provider in the [PowSyBl Open Load Flow documentation](inv:powsyblopenloadflow:*:*#security/inputs).
 
-### Conditions
+#### Conditions
 
 Actions are applied if a condition is met. The conditions can be diversified and extended in the future:
 
@@ -96,15 +110,12 @@ Actions are applied if a condition is met. The conditions can be diversified and
   network.
 - Any violation condition on a list of elements: meaning that the list of actions is applied if one or more elements
   provided are overloaded.
+- Threshold condition: condition triggered when a threshold violation is detected on the network. The threshold can
+  refer to an active power, reactive power, current or target P value on a specific point of the network.
+  Four condition types are available depending on the equipment to target: branch threshold condition, three-winding
+  transformer threshold condition, injection threshold condition and AC/DC converter threshold condition.
 
-### Operator strategies
 
-An operator strategy is applied in pre-contingency or after a contingency, depending on the contingency context
-provided. A contingency context can be a pre-contingency state only (`NONE`), a post-contingency state (on a specific
-contingency (`SPECIFIC`) or on every contingency (`ONLY_CONTINGENCIES`)) or both pre-contingency and post-contingency
-states (`ALL`).
-
-An operator strategy groups a condition and a list of remedial actions.
 
 ### State monitors
 
@@ -161,10 +172,21 @@ The post-contingency results also contain the network results based on given sta
 
 ### Operator strategy results
 
-The post-contingency results contain the complete list of the contingencies that have been simulated, and for each of
+The operator strategy results contain the complete list of the actions that have been simulated, and for each of
 them the violations detected in order to check if remedial actions were efficient.
 
 The operator strategy results also contain the network results based on given state monitors.
+
+### Active power distribution results
+
+Pre-contingency, post-contingency, and operator strategy results all report the volume of needed active power balancing, in MW:
+- for pre-contingency: if the input network is not properly balanced, how much slack active power was distributed to balance the base case.
+- for post-contingency: how much _additional_ slack active power was distributed compared to the pre-contingency state because of:
+  - losses changes,
+  - injections (generators, loads, ...) disconnected by the contingency, if any.
+- for operator strategy actions results, how much _additional_ slack active power was distributed compared to the post-contingency state because of:
+  - losses changes,
+  - injections (generators, loads, ...) changes by the operator strategy actions, if any, such as disconnections, reconnections, or setpoint modifications.
 
 ### Extensions
 
@@ -177,7 +199,7 @@ The following example is a result of a security analysis with remedial action, e
 
 ```json
 {
-  "version" : "1.4",
+  "version" : "1.9",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -189,6 +211,7 @@ The following example is a result of a security analysis with remedial action, e
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
+        "operationalLimitsGroupId" : "activated_1_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
         "limitReduction" : 0.95,
@@ -239,7 +262,8 @@ The following example is a result of a security analysis with remedial action, e
         "q3" : 2.2,
         "i3" : 3.2
       } ]
-    }
+    },
+    "distributedActivePower" : 1.23
   },
   "postContingencyResults" : [ {
     "contingency" : {
@@ -263,6 +287,7 @@ The following example is a result of a security analysis with remedial action, e
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",
+        "operationalLimitsGroupId" : "activated_2_1",
         "limitType" : "CURRENT",
         "limitName" : "20'",
         "acceptableDuration" : 1200,
@@ -281,12 +306,21 @@ The following example is a result of a security analysis with remedial action, e
         }
       }, {
         "subjectId" : "GEN",
+        "violationLocation" : {
+          "type" : "BUS_BREAKER",
+          "busIds" : [ "BUSID" ]
+        },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.9,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
+        "violationLocation" : {
+          "type" : "NODE_BREAKER",
+          "voltageLevelId" : "VL",
+          "nodes" : [ 0, 1 ]
+        },
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.7,
@@ -328,34 +362,47 @@ The following example is a result of a security analysis with remedial action, e
       "disconnectedLoadActivePower" : 0.0,
       "disconnectedGenerationActivePower" : 0.0,
       "disconnectedElements" : [ ]
-    }
+    },
+    "distributedActivePower" : 2.34
   } ],
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {
       "id" : "strategyId",
       "contingencyContextType" : "SPECIFIC",
       "contingencyId" : "contingency1",
-      "condition" : {
-        "type" : "AT_LEAST_ONE_VIOLATION",
-        "violationIds" : [ "violationId1" ]
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "AT_LEAST_ONE_VIOLATION",
+          "violationIds" : [ "violationId1" ]
+        },
+        "actionIds" : [ "actionId1" ]
+      } ]
+    },
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],
+        "actionsTaken" : [ ]
       },
-      "actionIds" : [ "actionId1" ]
-    },
-    "status" : "CONVERGED",
-    "limitViolationsResult" : {
-      "limitViolations" : [ ],
-      "actionsTaken" : [ ]
-    },
-    "networkResult" : {
-      "branchResults" : [ ],
-      "busResults" : [ ],
-      "threeWindingsTransformerResults" : [ ]
-    }
+      "networkResult" : {
+        "branchResults" : [ ],
+        "busResults" : [ ],
+        "threeWindingsTransformerResults" : [ ]
+      },
+      "distributedActivePower" : 3.45
+    } ]
   } ]
 }
 ```
 
+## Implementations
+
+The following power flow implementations are supported:
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#security/security)
+- [Dynaflow](inv:powsybldynawo:*:*#security_analysis/index)
+
 ## Going further
 
-- Different implementations are available to run security analyses on [page](implementations.md).
-- [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line. 
+- [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line.
