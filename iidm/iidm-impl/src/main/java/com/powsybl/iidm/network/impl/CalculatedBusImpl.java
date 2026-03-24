@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -30,10 +31,10 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private NodeTerminal terminalRef;
 
-    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, IntArrayList nodes, List<NodeTerminal> terminals) {
+    CalculatedBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel, ExtendedIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
-        this.nodes = Objects.requireNonNull(nodes).toArray();
+        this.nodes = Objects.requireNonNull(nodes).elements();
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 

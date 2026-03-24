@@ -13,7 +13,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
-import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnectionAdder;
@@ -23,12 +22,8 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.*;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import org.anarres.graphviz.builder.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -653,7 +648,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
                                                                            int[] indexes, int sourceIndex) {
             Supplier<Int2DoubleMap> supplier = fictitiousValueByNodes.get(sourceIndex) == null ?
                 () -> null :
-                () -> new TIntDoubleHashMap(fictitiousValueByNodes.get(sourceIndex));
+                () -> new Int2DoubleOpenHashMap(fictitiousValueByNodes.get(sourceIndex));
             for (int index : indexes) {
                 fictitiousValueByNodes.set(index, supplier.get());
             }
@@ -664,7 +659,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
             fictitiousValueByNodes.ensureCapacity(fictitiousValueByNodes.size() + number);
             Supplier<Int2DoubleMap> supplier = fictitiousValueByNodes.get(sourceIndex) == null ?
                 () -> null :
-                () -> new TIntDoubleHashMap(fictitiousValueByNodes.get(sourceIndex));
+                () -> new Int2DoubleOpenHashMap(fictitiousValueByNodes.get(sourceIndex));
             for (int i = 0; i < number; i++) {
                 fictitiousValueByNodes.add(supplier.get());
             }
@@ -979,7 +974,7 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
             // If it does not exist yet, create a new one
             if (fictitiousValueVariant == null) {
-                fictitiousValueVariant = new TIntDoubleHashMap();
+                fictitiousValueVariant = new Int2DoubleOpenHashMap();
                 fictitiousValueByNodes.set(variantIndex, fictitiousValueVariant);
             }
 
