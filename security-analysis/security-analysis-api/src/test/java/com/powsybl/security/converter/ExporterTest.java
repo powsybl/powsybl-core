@@ -73,7 +73,13 @@ class ExporterTest extends AbstractSerDeTest {
                 .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+                PostContingencyComputationStatus.CONVERGED,
+                new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
+                NetworkResult.empty(),
+                ConnectivityResult.empty(),
+                2.34
+        );
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
@@ -83,26 +89,34 @@ class ExporterTest extends AbstractSerDeTest {
         var opStrategyResult1 = new OperatorStrategyResult(
             new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
                 List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
-            PostContingencyComputationStatus.CONVERGED,
-            new LimitViolationsResult(Collections.emptyList()),
-            new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+            List.of(new OperatorStrategyResult.ConditionalActionsResult("strategyId", PostContingencyComputationStatus.CONVERGED,
+                    new LimitViolationsResult(Collections.emptyList()),
+                    NetworkResult.empty(),
+                    3.45)
+            )
+        );
 
-        var opStrategyResult2 = new OperatorStrategyResult(
-            new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
+        OperatorStrategy operatorStrategy2 = new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
                 List.of(
-                    new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE), List.of("actionId3")),
-                    new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1", AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE), List.of("actionId3")),
-                    new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
-                    new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5")))),
-            PostContingencyComputationStatus.CONVERGED,
-            new LimitViolationsResult(Collections.emptyList()),
-            new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
+                        new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE), List.of("actionId3")),
+                        new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1", AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE), List.of("actionId3")),
+                        new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
+                        new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5"))
+                )
+        );
+        var opStrategyResult2 = new OperatorStrategyResult(operatorStrategy2,
+                List.of(new OperatorStrategyResult.ConditionalActionsResult(
+                        operatorStrategy2.getId(),
+                        PostContingencyComputationStatus.CONVERGED,
+                        new LimitViolationsResult(Collections.emptyList()), NetworkResult.empty(), Double.NaN)
+                )
+        );
 
         operatorStrategyResults.add(opStrategyResult1);
         operatorStrategyResults.add(opStrategyResult2);
-        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(postContingencyResult),
-                preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
+        SecurityAnalysisResult result = new SecurityAnalysisResult(
+                new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23),
+                Collections.singletonList(postContingencyResult), operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
     }

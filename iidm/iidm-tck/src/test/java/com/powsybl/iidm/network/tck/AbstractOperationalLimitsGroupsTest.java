@@ -804,18 +804,21 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                 }
                 default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
             };
-
-            Assertions.assertThat(overloads)
-                .extracting(
-                    Overload::getPreviousLimitName,
-                    Overload::getOperationalLimitsGroupId,
-                    Overload::getPreviousLimit,
-                    o -> o.getTemporaryLimit().getAcceptableDuration()
-                )
-                .containsExactlyInAnyOrderElementsOf(expected.stream()
-                    .map(r -> tuple(r.previousLimitName, r.operationalLimitsGroupId, r.limit, r.acceptableDuration))
-                    .toList());
+            checkOverloads(overloads, expected);
         }
+    }
+
+    private void checkOverloads(Collection<Overload> overloads, Collection<ExpectedOverload> expected) {
+        Assertions.assertThat(overloads)
+            .extracting(
+                Overload::getPreviousLimitName,
+                Overload::getOperationalLimitsGroupId,
+                Overload::getPreviousLimit,
+                o -> o.getTemporaryLimit().getAcceptableDuration()
+            )
+            .containsExactlyInAnyOrderElementsOf(expected.stream()
+                .map(r -> tuple(r.previousLimitName, r.operationalLimitsGroupId, r.limit, r.acceptableDuration))
+                .toList());
     }
 
     public record ExpectedOverload(String previousLimitName, String operationalLimitsGroupId, double limit, int acceptableDuration) { }
@@ -927,6 +930,96 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     0
                 )
             )) // above last temporary of activated_3_1
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideReductionValueSelectionArguments")
+    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction, LimitType type, double value, Collection<ExpectedOverload> expected) {
+        Collection<Overload> overloads = switch (identifiable) {
+            case Branch<?> b -> LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReductionValue, groupsToApplyLimitReduction, value, type);
+            case ThreeWindingsTransformer t -> LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReductionValue, groupsToApplyLimitReduction, value, type);
+            default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
+        };
+        checkOverloads(overloads, expected);
+    }
+
+    private static Stream<Arguments> provideReductionValueSelectionArguments() {
+        Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        //activate the usually not activated group to have 3 groups with temporary (since default doesn't have any)
+        l.addSelectedOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED);
+
+        Network network3wt = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
+        ThreeWindingsTransformer transformer = network3wt.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
+        //activate the not_activated to have more groups to test on
+        transformer.getLeg(ThreeSides.THREE).addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.NOT_ACTIVATED);
+
+        return Stream.of(
+            Arguments.of(l, ThreeSides.ONE, 0.01, List.of(), LimitType.CURRENT, 250, List.of(
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                ),
+                new ExpectedOverload(
+                    "0.5'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    1600,
+                    0
+                ),
+                new ExpectedOverload(
+                    "30'",
+                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
+                    600,
+                    0
+                )
+            )), // apply to all groups
+            Arguments.of(l, ThreeSides.ONE, 0.01, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 250, List.of(
+                new ExpectedOverload(
+                    "0.5'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    1600,
+                    0
+                )
+            )), // apply only to activated_one_two
+            Arguments.of(l, ThreeSides.ONE, 0.01, List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), LimitType.CURRENT, 250, List.of(
+                new ExpectedOverload(
+                    "1'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
+                    1500,
+                    0
+                ),
+                new ExpectedOverload(
+                    "0.5'",
+                    EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
+                    1600,
+                    0
+                )
+            )), // apply to only 2 groups out of 4
+            Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(), LimitType.ACTIVE_POWER, 290, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    350,
+                    45 * 60
+                ),
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.NOT_ACTIVATED,
+                    300,
+                    25 * 60
+                )
+            )), //apply to all groups
+            Arguments.of(transformer, ThreeSides.THREE, 0.8, List.of(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE), LimitType.ACTIVE_POWER, 290, List.of(
+                new ExpectedOverload(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
+                    350,
+                    45 * 60
+                )
+            )) // only reduce activated_3_1
         );
     }
 

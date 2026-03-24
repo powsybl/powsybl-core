@@ -70,6 +70,7 @@ public final class SteadyStateHypothesisExport {
             }
 
             writeLoads(network, cimNamespace, writer, context);
+            writeFictitiousInjections(network, cimNamespace, writer, context);
             writeEquivalentInjections(network, cimNamespace, writer, context);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer, context);
             writeGenerators(network, cimNamespace, regulatingControlViews, writer, context);
@@ -152,6 +153,53 @@ public final class SteadyStateHypothesisExport {
         if (!context.isExportEquipment()) {
             writeTerminalForBuses(network, cimNamespace, writer, context);
         }
+    }
+
+    private static void writeFictitiousInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER && !context.isBusBranchExport()) {
+                writeNodeBreakerFictitiousInjections(vl, cimNamespace, writer, context);
+            } else {
+                writeBusBranchFictitiousInjections(vl, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeNodeBreakerFictitiousInjections(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
+        for (int node : nb.getNodes()) {
+            double p = nb.getFictitiousP0(node);
+            double q = nb.getFictitiousQ0(node);
+            if (p != 0.0 || q != 0.0) {
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, ref("NCL"), ref(node));
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(vl), FICTITIOUS, TERMINAL, ref(node));
+                writeFictitiousInjection(loadId, terminalId, p, q, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeBusBranchFictitiousInjections(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Bus b : vl.getBusBreakerView().getBuses()) {
+            double p = b.getFictitiousP0();
+            double q = b.getFictitiousQ0();
+            if (p != 0.0 || q != 0.0) {
+                String loadId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, ref("NCL"));
+                String terminalId = context.getNamingStrategy().getCgmesId(refTyped(b), FICTITIOUS, TERMINAL);
+                writeFictitiousInjection(loadId, terminalId, p, q, cimNamespace, writer, context);
+            }
+        }
+    }
+
+    private static void writeFictitiousInjection(String loadId, String terminalId, double p, double q,
+                                                 String cimNamespace, XMLStreamWriter writer,
+                                                 CgmesExportContext context) throws XMLStreamException {
+        if (p <= 0) {
+            writeEnergySource(loadId, p, q, cimNamespace, writer, context);
+        } else {
+            writeSshEnergyConsumer(loadId, CgmesNames.NONCONFORM_LOAD, p, q, cimNamespace, writer, context);
+        }
+        // Terminal connected state (always connected in SSH for fictitious terminals)
+        writeTerminal(terminalId, true, cimNamespace, writer, context);
     }
 
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -337,7 +385,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
-        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Generator gen && gen.isCondenser());
+        String calculatedKind = obtainCalculatedSynchronousMachineKind(minP, maxP, obtainCurve(i), i instanceof Battery || i instanceof Generator gen && gen.isCondenser());
         return obtainOperatingMode(targetP, i, calculatedKind);
     }
 
@@ -347,7 +395,7 @@ public final class SteadyStateHypothesisExport {
         } else if (targetP > 0) {
             return OPERATING_MODE_GENERATOR;
         } else {
-            if (isOperatingAsACondenser(injection)) {
+            if (isOperatingAsACondenser(injection) && calculatedKind.toLowerCase().contains(OPERATING_MODE_CONDENSER)) {
                 return OPERATING_MODE_CONDENSER;
             } else {
                 if (calculatedKind.toLowerCase().contains(OPERATING_MODE_GENERATOR)) {

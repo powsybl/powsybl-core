@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface OverloadManagementSystem extends AutomationSystem<OverloadManagementSystem> {
 
-    interface Tripping {
+    interface Tripping extends PropertiesHolder {
         enum Type {
             BRANCH_TRIPPING,
             THREE_WINDINGS_TRANSFORMER_TRIPPING,
