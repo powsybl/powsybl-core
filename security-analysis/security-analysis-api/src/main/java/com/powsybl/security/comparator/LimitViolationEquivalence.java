@@ -28,6 +28,7 @@ public class LimitViolationEquivalence extends Equivalence<LimitViolation> {
     @Override
     protected boolean doEquivalent(LimitViolation violation1, LimitViolation violation2) {
         return violation1.getSubjectId().equals(violation2.getSubjectId())
+               && (violation1.getOperationalLimitsGroupId() == null ? violation2.getOperationalLimitsGroupId() == null : violation1.getOperationalLimitsGroupId().equals(violation2.getOperationalLimitsGroupId()))
                && violation1.getLimitType() == violation2.getLimitType()
                && Math.abs(violation1.getLimit() - violation2.getLimit()) <= threshold
                && (violation1.getLimitName() == null ? violation2.getLimitName() == null : violation1.getLimitName().equals(violation2.getLimitName()))
