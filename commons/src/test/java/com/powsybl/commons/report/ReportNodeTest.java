@@ -11,6 +11,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.powsybl.commons.test.PowsyblTestReportResourceBundle.TEST_BASE_NAME;
 import static org.junit.jupiter.api.Assertions.*;
@@ -452,6 +457,33 @@ class ReportNodeTest extends AbstractSerDeTest {
         ReportNodeBuilder reportNodeBuilder = ReportNode.newRootReportNode();
         PowsyblException e = assertThrows(PowsyblException.class, reportNodeBuilder::withResourceBundles);
         assertEquals("bundleBaseNames must not be empty", e.getMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("severityProvider")
+    void testSeverityGetter(TypedValue typedSeverity, String expectedSeverity) {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME)
+                .withMessageTemplate("root")
+                .build();
+
+        ReportNode child = root.newReportNode()
+                .withMessageTemplate("child")
+                .withSeverity(typedSeverity)
+                .add();
+
+        assertEquals(expectedSeverity, child.getSeverity());
+        assertNull(root.getSeverity());
+    }
+
+    static Stream<Arguments> severityProvider() {
+        return Stream.of(
+                Arguments.of(TypedValue.TRACE_SEVERITY, "TRACE"),
+                Arguments.of(TypedValue.DEBUG_SEVERITY, "DEBUG"),
+                Arguments.of(TypedValue.INFO_SEVERITY, "INFO"),
+                Arguments.of(TypedValue.WARN_SEVERITY, "WARN"),
+                Arguments.of(TypedValue.ERROR_SEVERITY, "ERROR")
+        );
     }
 
     private static void assertHasNoTimeStamp(ReportNode root1) {
