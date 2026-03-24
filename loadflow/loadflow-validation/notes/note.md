@@ -13,15 +13,28 @@
 ##### Doc
 - core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#shunt-compensator
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#shunts
-##### Notes
-- [ ] Rule1: **|p| < e**
-   - if connected, p must be undefined or 0
-- [x] Rule2: **| q + #sections * B * v^2 | < e**
-   - if connected, q must match expectedQ (within threshold), ( **expectedQ = - #sections * B * v^2** ==> **| q + expectedQ | < e** )
-        - if LinearModel then #sections = bPerSection else #sections = B
-        - **bPerSection**: the susceptance per section in S
-        - **currentSectionCount** = B (The susceptance of the shunt compensator in its current state)
-- [ ] Rule3: if the shunt is disconnected, q should be undefined or 0
+#### Notes
+##### Gaps between current code and current doc:
+- Disconnected rule (Rule 3) is missing in docs
+    - Code/comment includes: if disconnected, Q must be NaN or 0 
+    - doc only lists 2 rules; no disconnected terminal rule.
+##### Current doc:
+> [!NOTE]
+> Rule1: **|p| < e**
+> 
+> if connected, p must be undefined or 0
+
+> [!NOTE]
+> Rule2: **| q + #sections * B * v^2 | < e** 
+> 
+> if connected, q must match expectedQ (within threshold), ( **expectedQ = - #sections * B * v^2** ==> **| q + expectedQ | < e** )
+> - if LinearModel then #sections = bPerSection else #sections = B
+> - **bPerSection**: the susceptance per section in S
+> - **currentSectionCount** = B (The susceptance of the shunt compensator in its current state)
+
+> [!WARNING]
+> Rule3: if the shunt is disconnected, q should be undefined or 0
+
 #### Summary and actions
 
 |            |           Documentation           |                                                                                Code (ShuntCompensatorsValidation) |                                                                                   Description |                                                        Suggestions (TODO) |
@@ -29,7 +42,6 @@
 | Condition1 |             \|P\| < ε             |                                                                                 if(!Double.isNaN(p)) return false |                                        if shunt compensator is connected, p must be undefined | - Add to condition: `or p != 0 return false`, to match the rule \|P\| < ε |
 | Condition2 | \| q + #sections * B * v^2 \| < ε | if (ValidationUtils.areNaN(config, q, expectedQ) \| Math.abs(q - expectedQ) > config.getThreshold()) return false | if connected, q must match expectedQ (within threshold) <br/> expectedQ = #sections * B * v^2 |                                                                         - |
 | Condition3 |                 -                 |                                                        if (!connected && !Double.isNaN(q) && q != 0) return false |                                      if the shunt is disconnected, q should be undefined or 0 |                                              - `add this rule in the doc` |
-
 
 - Added util methods inValidationUtils
     - `isUndefinedOrZero` 
@@ -43,21 +55,40 @@
 - core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#static-var-compensator
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#static-var-compensators
 
-##### Notes
-- Regulation : VOLTAGE, REACTIVE_POWER
-- [ ] Rule1: active power (p) (within threshold) should be equal to 0
-- [ ] Rule2: **reactivePowerSetpoint** must be undefined or equal to 0 if NO (**p** or **q**) 
-    - TODO (doc states that p should be equal to 0 !, if so **reactivePowerSetpoint** must be undefined or equal to 0 !)
-    - Suggestion => check only if (q undefined or equal to 0 then **reactivePowerSetpoint** ~ 0)
-- [x] Rule3: **regulationMode = REACTIVE_POWER** then same condition as generator without voltage regulation
-    - Rule3.1: => (config, reactivePowerSetpoint, qMin, qMax) not defined => OK
-    - Rule3.2: => q must match reactivePowerSetpoint (within threshold)
-- [x] Rule4: **regulationMode = VOLTAGE** then same condition as generator with voltage regulation
-    - Rule4.1: => (config, qMin, qMax, vControlled, voltageSetpoint) not defined => OK
-    - Rule4.2: => V is lower than voltageSetpoint (within threshold) AND q must match qMax (within threshold)
-    - Rule4.3: => V is higher than voltageSetpoint (within threshold) AND q must match Qmin (within threshold)
-    - Rule4.4: => V is at the controlled bus (within threshold) AND q is bounded within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]
-- [ ] Rule5: if regulating is false then reactive power (q) should be equal to 0
+#### Notes
+##### Gaps between current code and current doc:
+- `OFF` mode in docs does not exist in `SVC validation API`
+    - In IIDM, StaticVarCompensator.RegulationMode has only:
+        - VOLTAGE 
+        - REACTIVE_POWER
+        - => The code equivalent of “OFF” is actually regulating = false.
+- Rule for missing P/Q exists in code but not in docs
+    - Current code behavior:
+        - if P or Q is NaN, if it fails when reactivePowerSetpoint is defined and non zero.
+---
+##### Current code rules
+> [!NOTE]
+> Rule1: active power (p) (within threshold) should be equal to 0
+
+> [!WARNING]
+> Rule2: **reactivePowerSetpoint** must be undefined or equal to 0 if NO (**p** or **q**) 
+
+> [!WARNING]
+> Rule3: **regulationMode = REACTIVE_POWER** then same condition as generator without voltage regulation  
+>   - Rule3.1: => (config, reactivePowerSetpoint, qMin, qMax) not defined => OK
+>   - Rule3.2: => q must match reactivePowerSetpoint (within threshold)
+
+> [!WARNING]
+> Rule4: **regulationMode = VOLTAGE** then same condition as generator with voltage regulation 
+>   - Rule4.1: => (config, qMin, qMax, vControlled, voltageSetpoint) not defined => OK
+>   - Rule4.2: => V is lower than voltageSetpoint (within threshold) AND q must match qMax (within threshold)
+>   - Rule4.3: => V is higher than voltageSetpoint (within threshold) AND q must match Qmin (within threshold)
+>   - Rule4.4: => V is at the controlled bus (within threshold) AND q is bounded within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]
+
+> [!WARNING]
+> Rule5: if regulating is false then reactive power (q) should be equal to 0 
+>   - If the regulation mode is OFF: remove this rule from the doc source: #2790
+
 ##### Actions
 
 |            |                                       Documentation                                        |               Code (StaticVarCompensator) |                                                                      Description |                                                                                           Suggestions (TODO) |
@@ -67,7 +98,6 @@
 | Condition3 |                  `same checks as a generator without voltage regulation`                   |           `reactivePowerRegulationModeKo` |                                                                 Rule3.1, Rule3.2 |                                                                                                            - | 
 | Condition4 | `same checks as a generator with voltage regulation with the following bounds: Qmin, Qmax` |                 `voltageRegulationModeKo` |                                               Rule4.1, Rule4.2, Rule4.3, Rule4.4 |                                                                                                            - |
 | Condition5 |                                             -                                              |                         `notRegulatingKo` |                  if regulating is false then reactive power should be equal to 0 |                                                                                 - `add this rule in the doc` |
-| Condition6 |                 `If the regulation mode is OFF, then \|targetQ -Q \| <  ε`                 |                                -        ` |                  if regulating is false then reactive power should be equal to 0 |                                                              - `remove this rule from the doc` source: #2790 |
 
 
 - Used util methods inValidationUtils

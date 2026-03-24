@@ -219,24 +219,37 @@ In the PowSyBl validation, there are a few tricks to handle special cases:
 ### Loads
 <span style="color: red">To be implemented, with tests similar to generators with voltage regulation.</span>
 
-### Shunts
-The two following conditions must be fulfilled in valid results:
+### Shunt Compensator
+#### Linear model
+For connected shunts, the two following conditions must be fulfilled for valid results:
 
 $$
-\begin{align*}
-\left| P \right| < \epsilon \\
-\left| Q + \text{#sections} * B  V^2 \right| < \epsilon
-\end{align*}
+\begin{aligned}
+|P| &< \epsilon \\
+|Q + N_{\text{sections}} \cdot B \cdot V^2| &< \epsilon
+\end{aligned}
 $$
+
+Additional condition for disconnected shunts:
+- If the shunt is disconnected, `Q` must be undefined (`NaN`) or equal to `0`.
+#### Non linear model
+<span style="color: red">Is not supported, to be done.</span>
 
 ### Static VAR Compensators
-The following conditions must be fulfilled in valid results:
-$targetP = 0$ MW
-- If the regulation mode is `OFF`, then
- $$\left| targetQ - Q \right| < \epsilon$$
-- If the regulation mode is `REACTIVE_POWER`, same checks as a generator without voltage regulation
+The following conditions must be fulfilled for valid results:
+
+- If `regulating = false`, then $|Q| <= \epsilon$.
+- $|P - targetP| <= \epsilon$, with $targetP = 0$ MW.
+- If `P` or `Q` is missing, then `reactivePowerSetpoint` must be `NaN` or `0`.
+- If the regulation mode is `REACTIVE_POWER`, same checks as a generator without voltage regulation:
+
+  $|Q - reactivePowerSetpoint| <= \epsilon$.
 - If the regulation mode is `VOLTAGE`, same checks as a generator with voltage regulation with the following bounds:
-$$minQ = - Bmax * V^2$$ and $$maxQ = - Bmin V^2$$
+
+    $minQ = -Bmax * V^2$ and $maxQ = -Bmin * V^2$.
+    - If $V < voltageSetpoint$, then `Q` must match `maxQ`.
+    - If $V > voltageSetpoint$, then `Q` must match `minQ`.
+    - If $|V - voltageSetpoint| <= \epsilon$, then `Q` must be within `[minQ, maxQ]`.
 
 ### HVDC lines
 <span style="color: red">To be done.</span>
