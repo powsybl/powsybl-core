@@ -199,7 +199,7 @@ public interface ReportNode {
     /** Add the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#SEVERITY_KEY} key */
     ReportNode addSeverity(String severity);
 
-    /** Get Severity value **/
+    /** Get the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#SEVERITY_KEY} key */
     default String getSeverity() {
         Optional<TypedValue> typedValue = getValue(ReportConstants.SEVERITY_KEY);
         return typedValue.map(TypedValue::toString).orElse(null);
