@@ -104,4 +104,22 @@ public final class ValidationUtils {
         return new TerminalState(v, connected, mainComponent);
     }
 
+    public static boolean isUndefinedOrZero(double value, double epsilon) {
+        return Double.isNaN(value) || Math.abs(value) <= epsilon;
+    }
+
+    public static boolean isOutsideTolerance(double actual, double expected, double epsilon) {
+        return Math.abs(actual - expected) > epsilon;
+    }
+
+    public static boolean isConnectedAndMainComponent(boolean connected, boolean mainComponent, ValidationConfig config) {
+        Objects.requireNonNull(config);
+        return connected && isMainComponent(config, mainComponent);
+    }
+
+    // expectedQ = - #sections * B * v^2
+    public static double computeShuntExpectedQ(double bPerSection, int sectionCount, double v) {
+        return -bPerSection * sectionCount * v * v;
+    }
+
 }

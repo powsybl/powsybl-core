@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
+import static com.powsybl.loadflow.validation.ValidationUtils.*;
+
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -96,7 +98,7 @@ public final class ShuntCompensatorsValidation {
         double bPerSection = shunt.getModel(ShuntCompensatorLinearModel.class).getBPerSection();
         double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
-        ValidationUtils.TerminalState terminalState = ValidationUtils.getTerminalState(shunt.getTerminal());
+        TerminalState terminalState = getTerminalState(shunt.getTerminal());
         double v = terminalState.v();
         boolean connected = terminalState.connected();
         boolean mainComponent = terminalState.mainComponent();
@@ -118,30 +120,30 @@ public final class ShuntCompensatorsValidation {
     }
 
     /**
-     * Rule1: |p| < e : p must be undefined </br>
-     * Rule2: | q + #sections * B * v^2 | < e : q must match expectedQ (within threshold) </br>
-     * Rule3: if the shunt is disconnected, q should be undefined or 0 </br>
+     * - Rule1: |p| < e </br>
+     * - Rule2: q must match expectedQ </br>
+     * - Rule3: if the shunt is disconnected, q should be NaN or 0
      */
     public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                                double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                ValidationWriter shuntsWriter) {
         boolean validated = true;
-
-        if (!connected && !Double.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0 => Rule3: if the shunt is disconnected, q should be NaN or 0
+        double threshold = config.getThreshold();
+        // Rule3: if the shunt is disconnected, q should be NaN or 0
+        if (!connected && !isUndefinedOrZero(q, threshold)) {
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }
-        // “q” = - bPerSection * currentSectionCount * v^2
-        double expectedQ = -bPerSection * currentSectionCount * v * v;
-        if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
-            // “p” is always NaN => Rule1: p must be NaN or 0  (|p| < e)
-            // TODO add (or) p != 0 in this condition
-            if (!Double.isNaN(p)) {
+        // “expectedQ” = - bPerSection * currentSectionCount * v^2
+        double expectedQ = computeShuntExpectedQ(bPerSection, currentSectionCount, v);
+        if (isConnectedAndMainComponent(connected, mainComponent, config)) {
+            // Rule1: |p| < e
+            if (!Double.isNaN(p) && Math.abs(p) > threshold) {
                 LOGGER.warn("{} {}: {}: P={}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, p);
                 validated = false;
             }
-            // Rule2: q must match expectedQ (within threshold)
-            if (ValidationUtils.areNaN(config, q, expectedQ) || Math.abs(q - expectedQ) > config.getThreshold()) {
+            // Rule2: q must match expectedQ
+            if (areNaN(config, q, expectedQ) || isOutsideTolerance(q, expectedQ, threshold)) {
                 LOGGER.warn("{} {}: {}:  Q {} {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q, expectedQ);
                 validated = false;
             }

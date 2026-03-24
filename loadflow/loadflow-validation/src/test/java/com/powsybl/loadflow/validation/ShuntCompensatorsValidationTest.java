@@ -7,9 +7,6 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.util.stream.Stream;
 
@@ -17,10 +14,17 @@ import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -30,7 +34,7 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
     private double q = 170.50537;
     private double p = Float.NaN;
-    private int currentSectionCount = 1;
+    private final int currentSectionCount = 1;
     private final int maximumSectionCount = 1;
     private final double bPerSection = -0.0010387811;
     private final double v = 405.14175;
@@ -133,5 +137,58 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.INSTANCE, ValidationType.SHUNTS);
         assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));
+    }
+
+    // Rule1: |p| < e
+    @ParameterizedTest(name = "connected p={0} => valid={1}")
+    @MethodSource("connectedShuntPCase")
+    void checkConnectedShuntPCase(double p, boolean expectedValid) {
+        when(shuntTerminal.getP()).thenReturn(p);
+        boolean valid = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, valid);
+    }
+
+    private static Stream<Arguments> connectedShuntPCase() {
+        // threshold = 0.01
+        return Stream.of(
+                Arguments.of(Double.NaN, true),
+                Arguments.of(0.0, true),
+                Arguments.of(0.011, false), // |p| > threshold
+                Arguments.of(-0.011, false) // |p| > threshold
+        );
+    }
+
+    // Rule2: q must match expectedQ: | q + expectedQ | <= ε
+    @ParameterizedTest(name = "epsilon={0} => valid={1}")
+    @CsvSource({"0.000,  true", "0.009,  true", "-0.009, true", "0.010,  true", "0.011,  false", "-0.011, false"})
+    void checkConnectedShuntExpectedQ(double epsilon, boolean expectedValid) {
+        // Given
+        // connected and mainComponent = true, threshold = 0.01
+        when(shuntTerminal.getP()).thenReturn(Double.NaN); // Rule1 OK
+        double expectedQ = -bPerSection * currentSectionCount * v * v;
+        when(shuntTerminal.getQ()).thenReturn(expectedQ + epsilon);
+        boolean valid = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, valid);
+    }
+
+    // Rule3: if the shunt is disconnected, q should be undefined or 0
+    @ParameterizedTest(name = "disconnected q={0} => valid={1}")
+    @MethodSource("disconnectedShuntCase")
+    void checkDisconnectedShunt(double qValue, boolean expectedValid) {
+        when(shuntBusView.getBus()).thenReturn(null); // shunt disconnected
+        when(shuntTerminal.getQ()).thenReturn(qValue);
+        boolean valid = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, valid);
+    }
+
+    private static Stream<Arguments> disconnectedShuntCase() {
+        // threshold = 0.01
+        return Stream.of(
+                Arguments.of(Double.NaN, true),
+                Arguments.of(0.0, true),
+                Arguments.of(0.001, true), // |q| <= threshold
+                Arguments.of(0.011, false),  // |q| > threshold
+                Arguments.of(-0.011, false)  // |q| > threshold
+        );
     }
 }
