@@ -25,6 +25,8 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
+import static com.powsybl.loadflow.validation.ValidationUtils.*;
+
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -147,7 +149,7 @@ public final class StaticVarCompensatorsValidation {
 
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Double.isNaN(p) || Double.isNaN(q)) {
-                // Rule2 : TODO
+                // Rule2: **reactivePowerSetpoint** must be 0 if p or q is missing (NaN)
                 validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
             } else {
                 // Rule1, Rule3, Rule4, Rule5
@@ -164,7 +166,7 @@ public final class StaticVarCompensatorsValidation {
 
     private static boolean checkSVCsNaNValues(String id, double p, double q, double reactivePowerSetpoint) {
         // a validation error should be detected if there is a setpoint but no p or q
-        if (!Double.isNaN(reactivePowerSetpoint) && reactivePowerSetpoint != 0) {
+        if (!isUndefinedOrZero(reactivePowerSetpoint, 0.0)) {
             LOGGER.warn("{} {}: {}: P={} Q={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p, q, reactivePowerSetpoint);
             return false;
         }
@@ -175,16 +177,15 @@ public final class StaticVarCompensatorsValidation {
         double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
         RegulationMode regulationMode, boolean regulating, double bMin, double bMax, ValidationConfig config) {
         boolean validated = true;
+        double threshold = config.getThreshold();
         // Rule1: active power should be equal to 0
-        if (Math.abs(p) > config.getThreshold()) {
+        if (isOutsideTolerance(p, 0.0, threshold)) {
             LOGGER.warn("{} {}: {}: P={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p);
             validated = false;
         }
-
-        double vAux = vController; // voltage in bus
-        if (vAux == 0 || Double.isNaN(vAux)) {
-            vAux = nominalVcontroller; // voltage in VoltageLevel
-        }
+        // vController: voltage in bus
+        // nominalVcontroller: voltage in VoltageLevel
+        double vAux = voltageFrom(vController, nominalVcontroller);
         double qMin = -bMax * vAux * vAux;
         double qMax = -bMin * vAux * vAux;
 
@@ -218,14 +219,13 @@ public final class StaticVarCompensatorsValidation {
     private static boolean reactivePowerRegulationModeKo(RegulationMode regulationMode, double q, double qMin,
         double qMax, double reactivePowerSetpoint, ValidationConfig config) {
         // if regulationMode = REACTIVE_POWER, the reactive power must be equal to setpoint
-
         if (regulationMode != RegulationMode.REACTIVE_POWER) {
             return false;
         }
         if (ValidationUtils.areNaN(config, reactivePowerSetpoint, qMin, qMax)) {
             return true;
         }
-        return Math.abs(q - reactivePowerSetpoint) > config.getThreshold();
+        return isOutsideTolerance(q, reactivePowerSetpoint, config.getThreshold());
     }
 
     private static boolean voltageRegulationModeKo(RegulationMode regulationMode, double q, double qMin,
@@ -235,20 +235,21 @@ public final class StaticVarCompensatorsValidation {
         // or q is equal to Qmin = -bMax * V * V and V is higher than voltageSetpoint
         // or V at the controlled bus is equal to voltageSetpoint and q is bounded
         // within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]
-
+        double threshold = config.getThreshold();
         if (regulationMode != RegulationMode.VOLTAGE) {
             return false;
         }
         if (ValidationUtils.areNaN(config, qMin, qMax, vControlled, voltageSetpoint)) {
             return true;
         }
-        if (vControlled < voltageSetpoint - config.getThreshold() && Math.abs(q - qMax) > config.getThreshold()) {
+        if (vControlled < voltageSetpoint - threshold && isOutsideTolerance(q, qMax, threshold)) {
             return true;
         }
-        if (vControlled > voltageSetpoint + config.getThreshold() && Math.abs(q - qMin) > config.getThreshold()) {
+        if (vControlled > voltageSetpoint + threshold && isOutsideTolerance(q, qMin, threshold)) {
             return true;
         }
-        return Math.abs(vControlled - voltageSetpoint) < config.getThreshold() && !ValidationUtils.boundedWithin(qMin, qMax, q, config.getThreshold());
+        boolean voltageAtSetpoint = Math.abs(vControlled - voltageSetpoint) < threshold;
+        return voltageAtSetpoint && !boundedWithin(qMin, qMax, q, threshold);
     }
 
     private static boolean notRegulatingKo(boolean regulating, double q, ValidationConfig config) {

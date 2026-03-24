@@ -31,6 +31,12 @@
 | Condition3 |                 -                 |                                                        if (!connected && !Double.isNaN(q) && q != 0) return false |                                      if the shunt is disconnected, q should be undefined or 0 |                                              - `add this rule in the doc` |
 
 
+- Added util methods inValidationUtils
+    - `isUndefinedOrZero` 
+    - `isOutsideTolerance`
+    - `isConnectedAndMainComponent`
+    - `computeShuntExpectedQ`
+
 ### Static VAR compensator validation
 
 ##### Doc
@@ -64,6 +70,9 @@
 | Condition6 |                 `If the regulation mode is OFF, then \|targetQ -Q \| <  ε`                 |                                -        ` |                  if regulating is false then reactive power should be equal to 0 |                                                              - `remove this rule from the doc` source: #2790 |
 
 
+- Used util methods inValidationUtils
+    - `isUndefinedOrZero`
+    - `isOutsideTolerance`
 ### Generator validation
 
 ##### Doc

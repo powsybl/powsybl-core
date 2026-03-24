@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -189,4 +190,32 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.INSTANCE, ValidationType.SVCS);
         assertTrue(ValidationType.SVCS.check(network, looseConfig, validationWriter));
     }
+
+    // Rule1: active power should be equal to 0
+    @Test
+    void checkSVCActivePowerShouldBeZeroWithinThreshold() {
+        // Given (p = 0)
+        when(svcTerminal.getP()).thenReturn(0.0);
+        assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
+        // Given (p = 0.01 ~ threshold)
+        when(svcTerminal.getP()).thenReturn(0.01);
+        assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
+        //Given (p > 0.01)
+        when(svcTerminal.getP()).thenReturn(0.02);
+        assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
+    }
+
+    // Rule2: **reactivePowerSetpoint** must be 0 if p or q is missing (NaN)
+    @Test
+    void checkSVCReactivePowerSetpointWhenPOrQMissing() {
+        // non-zero setpoint with missing p/q => KO
+        when(svcTerminal.getP()).thenReturn(Double.NaN);
+        when(svcTerminal.getQ()).thenReturn(Double.NaN);
+        when(svc.getReactivePowerSetpoint()).thenReturn(5.0);
+        assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
+        // zero setpoint with missing p/q => OK
+        when(svc.getReactivePowerSetpoint()).thenReturn(0.0);
+        assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
+    }
+
 }
