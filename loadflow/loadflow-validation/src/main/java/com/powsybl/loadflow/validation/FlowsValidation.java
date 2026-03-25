@@ -61,19 +61,15 @@ public final class FlowsValidation {
         boolean validated = true;
 
         if (!branch.isConnected1()) {
-            //Rule1: checks disconnected terminal
             validated &= checkDisconnectedTerminal(branch.getId(), "1", branch.getP1(), branch.getComputedP1(), branch.getQ1(), branch.getComputedQ1(), config);
         }
         if (!branch.isConnected2()) {
-            //Rule1: checks disconnected terminal
             validated &= checkDisconnectedTerminal(branch.getId(), "2", branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(), config);
         }
         if (branch.isConnected1() && ValidationUtils.isMainComponent(config, branch.isMainComponent1())) {
-            //Rule2: checks connected terminal
             validated &= checkConnectedTerminal(branch.getId(), "1", branch.getP1(), branch.getComputedP1(), branch.getQ1(), branch.getComputedQ1(), config);
         }
         if (branch.isConnected2() && ValidationUtils.isMainComponent(config, branch.isMainComponent2())) {
-            //Rule2: checks connected terminal
             validated &= checkConnectedTerminal(branch.getId(), "2", branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(), config);
         }
         try {

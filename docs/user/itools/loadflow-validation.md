@@ -211,10 +211,11 @@ $$
 \end{align*}
 $$
 
-In the PowSyBl validation, there are a few tricks to handle special cases:
+In the PowSyBl validation, there are a few tricks to handle special cases before applying the nominal active/reactive/voltage rules
+- if `P` or `Q` is missing, validation fails if setpoints are defined and non-zero
 - if $minQ > maxQ$, then the values are switched to recover a meaningful interval if `noRequirementIfReactiveBoundInversion = false`
 - in case of a missing value, the corresponding test is OK
-- $minQ$ and $maxQ$ are function of $P$. If $targetP$ is outside $[minP, maxP]$, no test is done.
+- $minQ$ and $maxQ$ are function of $P$. If $targetP$ is outside $[minP, maxP]$, and `noRequirementIfSetpointOutsidePowerBounds = true`, generator validation checks are bypassed.
 
 ### Loads
 <span style="color: red">To be implemented, with tests similar to generators with voltage regulation.</span>

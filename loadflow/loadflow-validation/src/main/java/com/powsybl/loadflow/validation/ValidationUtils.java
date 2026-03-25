@@ -58,6 +58,17 @@ public final class ValidationUtils {
         return areNaN;
     }
 
+    public static boolean areNaN(double... values) {
+        boolean areMissing = false;
+        for (double value : values) {
+            if (Double.isNaN(value)) {
+                areMissing = true;
+                break;
+            }
+        }
+        return areMissing;
+    }
+
     public static boolean areNaN(ValidationConfig config, double... values) {
         Objects.requireNonNull(config);
         if (config.areOkMissingValues()) {
@@ -126,4 +137,48 @@ public final class ValidationUtils {
     public static double voltageFrom(double vBus, double nominalV) {
         return (Double.isNaN(vBus) || vBus == 0.0) ? nominalV : vBus;
     }
+
+    public static boolean isActivePowerKo(double p, double expectedP, ValidationConfig config, double threshold) {
+        return areNaN(config, expectedP) || Math.abs(p + expectedP) > threshold;
+    }
+
+    /**
+     * Generator: rule for valid result <code> | targetQ - Q | < threshold </code>
+     */
+    public static boolean isReactivePowerKo(double q, double targetQ, double threshold) {
+        return Math.abs(q + targetQ) >= threshold;
+    }
+
+    /**
+     * Generator: rules for valid result:</p>
+     * <code> targetV - V < threshold && |Q - minQ| <= threshold</code></p>
+     * <code> V - targetV < threshold && |Q - maxQ| <= threshold</code></p>
+     * <code> |V - targetV|  < threshold && minQ <= Q <= maxQ </code>
+     */
+    public static boolean isVoltageRegulationKo(double qGen, double v, double targetV, double minQ, double maxQ, double threshold) {
+
+        // When V is higher than g.getTargetV() then q must equal to g.getReactiveLimits().getMinQ(p)
+        // When V is lower than g.getTargetV() q must equal to g.getReactiveLimits().getMaxQ(p)
+        // When V is equal to g.getTargetV() then q (reactive bounds) must satisfy
+        return v > targetV + threshold && Math.abs(qGen - Math.min(minQ, maxQ)) > threshold
+                || v < targetV - threshold && Math.abs(qGen - Math.max(minQ, maxQ)) > threshold
+                || Math.abs(v - targetV) <= threshold && !boundedWithin(minQ, maxQ, qGen, threshold);
+    }
+
+    /**
+     * Generator: rule for valid result <p/>
+     * If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK.
+     */
+    public static boolean isReactiveBoundInverted(double minQ, double maxQ, double threshold, boolean isNoRequirementIfReactiveBoundInversion) {
+        return maxQ < minQ - threshold && isNoRequirementIfReactiveBoundInversion;
+    }
+
+    /**
+     * Generator: rule for valid result<p/>
+     * Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK
+     */
+    public static boolean isSetpointOutsidePowerBounds(double targetP, double minP, double maxP, double threshold, boolean isNoRequirementIfSetpointOutsidePowerBounds) {
+        return (targetP < minP - threshold || targetP > maxP + threshold) && isNoRequirementIfSetpointOutsidePowerBounds;
+    }
+
 }

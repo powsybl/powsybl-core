@@ -99,8 +99,7 @@
 | Condition4 | `same checks as a generator with voltage regulation with the following bounds: Qmin, Qmax` |                 `voltageRegulationModeKo` |                                               Rule4.1, Rule4.2, Rule4.3, Rule4.4 |                                                                                                            - |
 | Condition5 |                                             -                                              |                         `notRegulatingKo` |                  if regulating is false then reactive power should be equal to 0 |                                                                                 - `add this rule in the doc` |
 
-
-- Used util methods inValidationUtils
+- Used util methods in ValidationUtils
     - `isUndefinedOrZero`
     - `isOutsideTolerance`
 ### Generator validation
@@ -109,16 +108,30 @@
 - core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#generator
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#generators
 ##### Notes (draft) 
-- [ ] Rule1: when maxQ < minQ if noRequirementIfReactiveBoundInversion (parameter) return true (TODO)
-- [ ] Rule2: when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds (parameter) return true (TODO)
-- [ ] Rule3: p or q should be defined if voltage and a target (targetP and targetQ) defined => voltage not mentioned in the condition in code (TODO)
-- [x] Rule4: Active power (p) must match setpoint (expectedP) (within threshold)
-- [x] Rule5: if voltageRegulatorOn="false" then reactive power (Q) should match to setpoint (targetQ) (within threshold)
-- [x] Rule6: if voltageRegulatorOn="true"
-    * Rule6.1: (minQ/maxQ/targetV) are not defined => OK
-    * Rule6.2: If V > targetV + threshold, generator (Qgen) must be at min reactive limit
-    * Rule6.3: If V < targetV - threshold, generator (Qgen) must be at max reactive limit
-    * Rule6.4: If |V-targetV| <= threshold, generator (Qgen) must be within [minQ, maxQ]
+
+> [!NOTE]
+> Rule1 : If `P` or `Q` is missing, validation fails if setpoints are defined and non-zero
+
+> [!NOTE]
+> Rule2 : If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation are bypassed.
+
+> [!NOTE]
+> Rule3 : active setpoint outside bounds bypass
+>  If `targetP` is outside `[minP, maxP]` (with tolerance) and noRequirementIfSetpointOutsidePowerBounds = true, generator validation are bypassed
+
+> [!NOTE]
+> Rule4: Active power p matches expected setpoint
+> Active power p must match setpoint (expectedP) (within threshold)
+
+> [!NOTE]
+> Rule5: If voltage regulator is disabled, Q matches targetQ
+> Reactive power q should match to setpoint (targetQ) (within threshold) when voltageRegulatorOn = false
+
+> [!NOTE]
+> Rule6: If voltage regulator ON, Reactive power q follow V/targetV logic
+>   - qGen at minQ if V > targetV + threshold
+>   - qGen at maxQ if V < targetV - threshold
+>   - else qGen within [minQ, maxQ])
 
 ##### Actions TODO
 
@@ -131,7 +144,10 @@
 | Condition5 |         \|targetQ - Q\| < ε          |                                                                                 `voltageRegulatorOn="false"` | - The reactive power (Q) should match to setpoint (targetQ) (within threshold) |                                                         |
 | Condition6 |                  ..                  |                                                                                 `voltageRegulatorOn="true" ` |                                           - Rule6.1, Rule6.2, Rule6.3, Rule6.4 |                                                         |
 
-
+- Used util methods in ValidationUtils
+    - `isActivePowerKo`
+    - `isReactivePowerKo`
+    - `isVoltageRegulationKo`
 
 ### Buses validation
 
