@@ -27,7 +27,7 @@ public class LimitViolationBuilder {
     private LimitViolationType type;
     private Double limit;
     private String limitName;
-    private Integer duration;
+    private Integer duration = Integer.MAX_VALUE;
     private double reduction = 1.0;
     private Double value;
     private ThreeSides side;
