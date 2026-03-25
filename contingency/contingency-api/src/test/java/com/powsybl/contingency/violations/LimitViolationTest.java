@@ -43,7 +43,7 @@ class LimitViolationTest {
             .duration(6300)
             .limit(1000)
             .value(1100)
-            .side(ThreeSides.THREE)
+            .side3()
             .build();
         LimitViolation limitViolation4 = LimitViolation.builder()
             .subject("testId")
