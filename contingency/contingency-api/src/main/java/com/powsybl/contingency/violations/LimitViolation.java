@@ -60,6 +60,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @param voltageLocation    Detailed information about the location of the violation.
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, String operationalLimitsGroupId, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
                           double limit, double limitReduction, double value, @Nullable ThreeSides side, @Nullable ViolationLocation voltageLocation) {
