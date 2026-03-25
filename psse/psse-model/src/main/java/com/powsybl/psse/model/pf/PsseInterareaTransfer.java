@@ -7,7 +7,12 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -16,17 +21,34 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseInterareaTransfer {
 
-    @Parsed
     private int arfrom;
-
-    @Parsed
     private int arto;
-
-    @Parsed(defaultNullRead = "1")
     private String trid;
-
-    @Parsed
     private double ptran = 0.0;
+
+    public static PsseInterareaTransfer fromRecord(CsvRecord rec, String[] headers) {
+        PsseInterareaTransfer psseInterareaTransfer = new PsseInterareaTransfer();
+        psseInterareaTransfer.setArfrom(parseIntFromRecord(rec, headers, "arfrom"));
+        psseInterareaTransfer.setArto(parseIntFromRecord(rec, headers, "arto"));
+        psseInterareaTransfer.setTrid(parseStringFromRecord(rec, "1", headers, "trid"));
+        psseInterareaTransfer.setPtran(parseDoubleFromRecord(rec, headers, "ptran"));
+        return psseInterareaTransfer;
+    }
+
+    public static String[] toRecord(PsseInterareaTransfer psseInterareaTransfer, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            String h = headers[i];
+            row[i] = switch (h) {
+                case "arfrom" -> String.valueOf(psseInterareaTransfer.getArfrom());
+                case "arto" -> String.valueOf(psseInterareaTransfer.getArto());
+                case "trid" -> psseInterareaTransfer.getTrid();
+                case "ptran" -> String.valueOf(psseInterareaTransfer.getPtran());
+                default -> throw new PsseException("Unsupported header: " + h);
+            };
+        }
+        return row;
+    }
 
     public int getArfrom() {
         return arfrom;

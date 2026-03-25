@@ -7,9 +7,15 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
 
 /**
  *
@@ -17,48 +23,70 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseBus extends PsseVersioned {
 
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(defaultNullRead = "            ")
     private String name;
-
-    @Parsed
     private double baskv = 0;
-
-    @Parsed
     private int ide = 1;
-
-    @Parsed
     private int area = 1;
-
-    @Parsed
     private int zone = 1;
-
-    @Parsed
     private int owner = 1;
-
-    @Parsed
     private double vm = 1;
-
-    @Parsed
     private double va = 0;
 
-    @Parsed
     @Revision(since = 33)
     private double nvhi = 1.1;
 
-    @Parsed
     @Revision(since = 33)
     private double nvlo = 0.9;
 
-    @Parsed
     @Revision(since = 33)
     private double evhi = 1.1;
 
-    @Parsed
     @Revision(since = 33)
     private double evlo = 0.9;
+
+    public static PsseBus fromRecord(CsvRecord rec, PsseVersion version, String[] headers) {
+        PsseBus psseBus = new PsseBus();
+        psseBus.setI(parseIntFromRecord(rec, headers, "i", "ibus"));
+        psseBus.setName(parseStringFromRecord(rec, "            ", headers, "name"));
+        psseBus.setBaskv(parseDoubleFromRecord(rec, 0d, headers, "baskv"));
+        psseBus.setIde(parseIntFromRecord(rec, 1, headers, "ide"));
+        psseBus.setArea(parseIntFromRecord(rec, 1, headers, "area"));
+        psseBus.setZone(parseIntFromRecord(rec, 1, headers, "zone"));
+        psseBus.setOwner(parseIntFromRecord(rec, 1, headers, "owner"));
+        psseBus.setVm(parseDoubleFromRecord(rec, 1d, headers, "vm"));
+        psseBus.setVa(parseDoubleFromRecord(rec, 0d, headers, "va"));
+        if (version.getMajorNumber() >= 33) {
+            psseBus.setNvhi(parseDoubleFromRecord(rec, 1.1, headers, "nvhi"));
+            psseBus.setNvlo(parseDoubleFromRecord(rec, 0.9, headers, "nvlo"));
+            psseBus.setEvhi(parseDoubleFromRecord(rec, 1.1, headers, "evhi"));
+            psseBus.setEvlo(parseDoubleFromRecord(rec, 0.9, headers, "evlo"));
+        }
+        return psseBus;
+    }
+
+    public static String[] toRecord(PsseBus psseBus, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "i", "ibus" -> String.valueOf(psseBus.getI());
+                case "name" -> psseBus.getName() == null ? "            " : psseBus.getName();
+                case "baskv" -> String.valueOf(psseBus.getBaskv());
+                case "ide" -> String.valueOf(psseBus.getIde());
+                case "area" -> String.valueOf(psseBus.getArea());
+                case "zone" -> String.valueOf(psseBus.getZone());
+                case "owner" -> String.valueOf(psseBus.getOwner());
+                case "vm" -> String.valueOf(psseBus.getVm());
+                case "va" -> String.valueOf(psseBus.getVa());
+                case "nvhi" -> String.valueOf(psseBus.getNvhi());
+                case "nvlo" -> String.valueOf(psseBus.getNvlo());
+                case "evhi" -> String.valueOf(psseBus.getEvhi());
+                case "evlo" -> String.valueOf(psseBus.getEvlo());
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getI() {
         return i;
