@@ -59,7 +59,7 @@ public final class VoltageRegulationSerDe {
         readSubElements(context, network, voltageRegulation::setTerminal);
     }
 
-    public static void readVoltageRegulation(VoltageRegulationAdder<?> adder, NetworkDeserializerContext context) {
+    public static void readVoltageRegulationMsa(VoltageRegulationAdder<?> adder, NetworkDeserializerContext context) {
         // Read attributes
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
         // Create new Voltage Regulation
@@ -68,8 +68,7 @@ public final class VoltageRegulationSerDe {
             .withTargetDeadband(attributes.targetDeadband())
             .withSlope(attributes.slope())
             .withMode(attributes.mode())
-            .withRegulating(attributes.isRegulating())
-            .add();
+            .withRegulating(attributes.isRegulating());
     }
 
     private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace, VoltageRegulationHolder holder) {

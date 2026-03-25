@@ -574,7 +574,7 @@ public final class CgmesExportUtil {
         return switch (rtc.getRegulationMode()) {
             case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            default -> throw new PowsyblException("Regulation mode can be only VOLTAGE or REACTIVE_POWER for RatioTapChanger."); // TODO MSA throw exception?
+            default -> throw new PowsyblException("Regulation mode can be only VOLTAGE or REACTIVE_POWER for RatioTapChanger.");
         };
     }
 

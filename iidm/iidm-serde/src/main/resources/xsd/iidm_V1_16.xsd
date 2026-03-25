@@ -681,25 +681,15 @@
         <xs:attribute name="g" use="required" type="xs:double"/>
         <xs:attribute name="b" use="required" type="xs:double"/>
     </xs:complexType>
-    <xs:simpleType name="RatioRegulationMode">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="VOLTAGE"/>
-            <xs:enumeration value="REACTIVE_POWER"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
-            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
+            <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="solvedTapPosition" type="xs:int"/>
-        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
-        <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
-        <xs:attribute name="regulationMode" use="optional" type="iidm:RatioRegulationMode"/>
-        <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="PhaseRegulationMode">
         <xs:restriction base="xs:string">

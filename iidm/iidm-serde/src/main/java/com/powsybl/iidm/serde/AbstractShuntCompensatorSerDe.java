@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -265,13 +266,14 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                     modelAdder.add();
                 }
                 case VoltageRegulationSerDe.ELEMENT_NAME -> {
-                    VoltageRegulationSerDe.readVoltageRegulation(adder.newVoltageRegulation(), context);
+                    VoltageRegulationAdder<ShuntCompensatorAdder> voltageRegulationAdder = adder.newVoltageRegulation();
+                    VoltageRegulationSerDe.readVoltageRegulationMsa(voltageRegulationAdder, context);
+                    voltageRegulationAdder.add();
                     context.getReader().readChildNodes(subElementName -> {
                         if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
                             SubElementTerminalAttributes terminalAttributes = getSubElementTerminal(context);
                             toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
                                 () -> sc.getVoltageRegulation().setTerminal(TerminalRefSerDe.resolve(terminalAttributes.regId(), terminalAttributes.regSide(), terminalAttributes.regNumber(), sc.getNetwork()))));
-
                         } else {
                             throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
                         }

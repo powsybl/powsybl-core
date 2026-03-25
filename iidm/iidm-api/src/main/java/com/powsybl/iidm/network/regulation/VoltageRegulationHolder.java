@@ -128,7 +128,7 @@ public interface VoltageRegulationHolder {
      * @return true if regulating remotely, false otherwise
      */
     default boolean isRemoteRegulating() {
-        return !Objects.equals(getRegulatingTerminal().getBusBreakerView().getConnectableBus(), getTerminal().getBusBreakerView().getConnectableBus());
+        return getTerminal() == null || !Objects.equals(getRegulatingTerminal().getBusBreakerView().getConnectableBus(), getTerminal().getBusBreakerView().getConnectableBus());
     }
 
 }

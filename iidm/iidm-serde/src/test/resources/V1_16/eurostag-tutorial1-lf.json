@@ -130,17 +130,9 @@
       "p2" : -600.0,
       "q2" : -200.0,
       "ratioTapChanger" : {
-        "regulating" : true,
         "lowTapPosition" : 0,
         "tapPosition" : 1,
-        "targetDeadband" : 0.0,
         "loadTapChangingCapabilities" : true,
-        "regulationMode" : "VOLTAGE",
-        "regulationValue" : 158.0,
-        "terminalRef" : {
-          "id" : "NHV2_NLOAD",
-          "side" : "TWO"
-        },
         "steps" : [ {
           "r" : 0.0,
           "x" : 0.0,
@@ -159,7 +151,17 @@
           "g" : 0.0,
           "b" : 0.0,
           "rho" : 1.150766642808914
-        } ]
+        } ],
+        "voltageRegulation" : {
+          "targetValue" : 158.0,
+          "targetDeadband" : 0.0,
+          "mode" : "VOLTAGE",
+          "regulating" : true,
+          "terminal" : {
+            "id" : "NHV2_NLOAD",
+            "side" : "TWO"
+          }
+        }
       }
     } ]
   } ],

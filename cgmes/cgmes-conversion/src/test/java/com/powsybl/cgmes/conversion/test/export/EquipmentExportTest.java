@@ -1800,10 +1800,22 @@ class EquipmentExportTest extends AbstractSerDeTest {
             } else if (identifiable instanceof Branch<?> branch) {
                 branch.getTerminal1().setP(0.0).setQ(0.0);
                 branch.getTerminal2().setP(0.0).setQ(0.0);
+                if (identifiable instanceof TwoWindingsTransformer twoWindingsTransformer && twoWindingsTransformer.getRatioTapChanger() != null) {
+                    resetVoltageRegulation(twoWindingsTransformer.getRatioTapChanger());
+                }
             } else if (identifiable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
                 threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);
+                if (threeWindingsTransformer.getLeg1().hasRatioTapChanger()) {
+                    resetVoltageRegulation(threeWindingsTransformer.getLeg1().getRatioTapChanger());
+                }
+                if (threeWindingsTransformer.getLeg2().hasRatioTapChanger()) {
+                    resetVoltageRegulation(threeWindingsTransformer.getLeg2().getRatioTapChanger());
+                }
+                if (threeWindingsTransformer.getLeg3().hasRatioTapChanger()) {
+                    resetVoltageRegulation(threeWindingsTransformer.getLeg3().getRatioTapChanger());
+                }
             }
         });
         for (Load load : network.getLoads()) {
@@ -1818,6 +1830,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         network.removeExtension(CimCharacteristics.class);
 
         return network;
+    }
+
+    private static void resetVoltageRegulation(RatioTapChanger ratioTapChanger) {
+        ratioTapChanger.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).build();
     }
 
     private static Network allGeneratingUnitTypesNetwork() {
