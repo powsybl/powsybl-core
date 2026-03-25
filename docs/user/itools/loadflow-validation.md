@@ -14,6 +14,7 @@ usage: itools [OPTIONS] loadflow-validation --case-file <FILE>
        [--load-flow] --output-folder <FOLDER> [--output-format
        <VALIDATION_WRITER>] [--run-computation <COMPUTATION>] [--types
        <VALIDATION_TYPE,VALIDATION_TYPE,...>] [--verbose]
+       [--with-extensions-validation]
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
@@ -85,6 +86,9 @@ Use the `--load-flow` parameter to run a load-flow before the validation. This o
 
 `--output-format`<br>
 Use the `--output-format` parameter to specify the format of the output files. The available output formats are `CSV` or `CSV_MULTILINE`.
+
+`--with-extensions-validation`<br>
+Use the `--with-extensions-validation` parameter to perform extensions validation.
 
 If this parameter is set to `CSV`, in the output files a line contains all values of validated equipment. If the parameter
 is set to `CSV_MULTILINE`, in the output files the values of a piece of equipment are split in multiple lines, one value for each
