@@ -30,6 +30,16 @@ import static com.powsybl.loadflow.validation.ValidationUtils.*;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ *
+ * Rules for valid results:
+ * Rule 1: active power should be equal to 0
+ * Rule 2: reactivePowerSetpoint must be 0 if p or q is missing (NaN)
+ * Rule 3: regulationMode = REACTIVE_POWER, q must match reactivePowerSetpoint (within threshold)
+ * Rule 4: regulationMode = VOLTAGE
+ *    - V is lower than voltageSetpoint (within threshold) AND q must match qMax (within threshold)
+ *    - V is higher than voltageSetpoint (within threshold) AND q must match Qmin (within threshold)
+ *    - V is at the controlled bus (within threshold) AND q is bounded within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]
+ * Rule5: if regulating is false then reactive power (q) should be equal to 0
  */
 public final class StaticVarCompensatorsValidation {
 
