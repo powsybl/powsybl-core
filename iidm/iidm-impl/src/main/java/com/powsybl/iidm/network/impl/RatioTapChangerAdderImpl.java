@@ -7,10 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.*;
 
 import java.util.List;
 
@@ -20,7 +18,8 @@ import java.util.List;
  */
 class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChangerAdderImpl, RatioTapChangerParent, RatioTapChanger, RatioTapChangerStepImpl> implements RatioTapChangerAdder {
 
-    private RatioTapChanger.RegulationMode regulationMode = null;
+    private RegulationMode regulationMode = null;
+    private VoltageRegulationImpl voltageRegulation = null;
 
     class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
@@ -81,15 +80,24 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     @Override
     public RatioTapChangerAdder setTargetV(double targetV) {
         if (!Double.isNaN(targetV)) {
-            this.regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
+            this.regulationMode = RegulationMode.VOLTAGE;
         }
-        return setRegulationValue(targetV);
+        return setRegulationValue(targetV); // TODO MSA change with settargetV ?
     }
 
     @Override
-    public RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode) {
+    public RatioTapChangerAdder setRegulationMode(RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
+    }
+
+    @Override
+    public VoltageRegulationAdder<Validable> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(RatioTapChanger.class, parent, parent.getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+        this.voltageRegulation = voltageRegulation;
     }
 
     @Override
@@ -99,8 +107,19 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
     @Override
     protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition, List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband) {
-        RatioTapChangerImpl tapChanger = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-            tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+        // TODO MSA backward compatibility
+        // regulationTerminal / regulating / regulationValue / targetDeadband
+        if (voltageRegulation == null && regulationMode != null) {
+            this.newVoltageRegulation()
+                .withMode(regulationMode)
+                .withTargetValue(regulationValue)
+                .withTerminal(regulationTerminal)
+                .withRegulating(regulating)
+                .withTargetDeadband(targetDeadband)
+                .add();
+        }
+        RatioTapChangerImpl tapChanger = new RatioTapChangerImpl(parent, lowTapPosition, steps, loadTapChangingCapabilities,
+            tapPosition, solvedTapPosition, voltageRegulation);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;
     }

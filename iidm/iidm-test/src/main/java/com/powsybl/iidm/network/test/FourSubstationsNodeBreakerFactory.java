@@ -217,7 +217,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setRegulationValue(225.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))

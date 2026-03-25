@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
@@ -20,11 +21,6 @@ public interface RatioTapChanger extends TapChanger<
     RatioTapChangerStepsReplacer,
     RatioTapChangerStepsReplacer.StepAdder>,
     VoltageRegulationHolder {
-
-    enum RegulationMode {
-        VOLTAGE,
-        REACTIVE_POWER
-    }
 
     /**
      * Get the regulation mode.
@@ -56,16 +52,6 @@ public interface RatioTapChanger extends TapChanger<
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     RatioTapChanger setRegulationValue(double regulationValue);
-
-    /**
-     * Get the target voltage in kV.
-     * <p>
-     * Returns NaN if the regulation mode is not {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE}.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    double getTargetV();
 
     /**
      * Set the target voltage in kV and sets regulating mode to {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE}.

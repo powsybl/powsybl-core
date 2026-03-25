@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,8 +135,11 @@ public class RegulatingControlMappingForTransformers {
             return false;
         }
 
-        rtc.setRegulationTerminal(regulatingTerminal.get())
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+        rtc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(regulatingTerminal.get())
+            .withRegulating(false)
+            .build();
         return true;
     }
 

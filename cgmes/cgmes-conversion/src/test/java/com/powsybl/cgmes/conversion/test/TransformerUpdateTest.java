@@ -12,6 +12,7 @@ import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -280,7 +281,7 @@ class TransformerUpdateTest {
 
         assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getRegulationValue()));
         assertTrue(Double.isNaN(t3w.getLeg2().getRatioTapChanger().getTargetDeadband()));
-        assertSame(RatioTapChanger.RegulationMode.VOLTAGE, t3w.getLeg2().getRatioTapChanger().getRegulationMode());
+        assertSame(RegulationMode.VOLTAGE, t3w.getLeg2().getRatioTapChanger().getRegulationMode());
         assertNotNull(t3w.getLeg2().getRatioTapChanger().getRegulationTerminal());
         assertFalse(t3w.getLeg2().getRatioTapChanger().isRegulating());
     }

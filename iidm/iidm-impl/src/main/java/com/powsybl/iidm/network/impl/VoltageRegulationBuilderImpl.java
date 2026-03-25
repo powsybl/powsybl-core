@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationBuilderImpl<P extends VoltageRegulationHolder> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder, P> implements VoltageRegulationBuilder {
+public class VoltageRegulationBuilderImpl<P> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder, P> implements VoltageRegulationBuilder {
 
     public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder> holderClass, P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> consumerSetVoltageRegulation) {
         super(holderClass, parent, network, consumerSetVoltageRegulation);

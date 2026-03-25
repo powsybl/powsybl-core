@@ -416,7 +416,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static double getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
-        return getDefaultValue(null, ratioTapChanger.getTargetV(), Double.NaN, Double.NaN, context);
+        return getDefaultValue(null, ratioTapChanger.getRegulatingTargetV(), Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetValue(com.powsybl.iidm.network.PhaseTapChanger phaseTapChanger, Context context) {

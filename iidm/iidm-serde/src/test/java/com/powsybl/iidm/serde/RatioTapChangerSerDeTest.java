@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -93,7 +94,7 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
                 .setSolvedTapPosition(solvedTapPosition)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
+                .setRegulationMode(RegulationMode.REACTIVE_POWER)
                 .setRegulationValue(-10)
                 .setRegulationTerminal(t2wt.getTerminal2())
                 .setTargetDeadband(0)

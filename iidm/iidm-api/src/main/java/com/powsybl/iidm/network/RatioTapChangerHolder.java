@@ -31,7 +31,7 @@ public interface RatioTapChangerHolder {
                 .setRegulationMode(ratioTapChanger.getRegulationMode())
                 .setRegulationValue(ratioTapChanger.getRegulationValue())
                 .setLoadTapChangingCapabilities(ratioTapChanger.hasLoadTapChangingCapabilities())
-                .setTargetV(ratioTapChanger.getTargetV())
+                .setTargetV(ratioTapChanger.getRegulatingTargetV())
                 .setLowTapPosition(ratioTapChanger.getLowTapPosition())
                 .setTapPosition(ratioTapChanger.getTapPosition())
                 .setRegulating(ratioTapChanger.isRegulating())

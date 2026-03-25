@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.OptionalInt;
@@ -117,12 +118,12 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> {
             double targetV = context.getReader().readDoubleAttribute("targetV");
             if (!Double.isNaN(targetV)) {
-                adder.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+                adder.setRegulationMode(RegulationMode.VOLTAGE);
             }
             adder.setRegulationValue(targetV);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> {
-            RatioTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RatioTapChanger.RegulationMode.class);
+            RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class);
             double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
             adder.setRegulationMode(regulationMode)
                     .setRegulationValue(regulationValue);

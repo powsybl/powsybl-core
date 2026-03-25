@@ -493,13 +493,13 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
+                                                                 Terminal regulationTerminal, RegulationMode regulationMode,
                                                                  double regulationValue, Network network, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, regulationMode, regulationValue, network, checkValidationActionOnError(validationLevel), reportNode);
     }
 
     private static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
+                                                                 Terminal regulationTerminal, RegulationMode regulationMode,
                                                                  double regulationValue, Network network, ActionOnError actionOnError,
                                                                  ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -519,7 +519,7 @@ public final class ValidationUtil {
                         id -> NetworkReports.regulatingRtcNoRegulationValue(reportNode, id));
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
-            if (regulationMode == RatioTapChanger.RegulationMode.VOLTAGE && regulationValue <= 0) {
+            if (regulationMode == RegulationMode.VOLTAGE && regulationValue <= 0) {
                 throwExceptionOrLogError(validable, "bad target voltage " + regulationValue, actionOnError,
                         id -> NetworkReports.regulatingRtcBadTargetVoltage(reportNode, id, regulationValue));
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);

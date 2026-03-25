@@ -12,8 +12,8 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -122,7 +122,7 @@ class TapChangerNeutralStepTest extends AbstractSerDeTest {
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setRegulationValue(158.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(twt.getTerminal2())

@@ -142,7 +142,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .beginStep().setRho(1.05).endStep()
                 .beginStep().setRho(1.0).endStep()
                 .beginStep().setRho(0.95).endStep()
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setTargetV(vl2S3.getNominalV() * 1.02)
                 .setRegulationTerminal(t2w.getTerminal2());
         t2w.newOperationalLimitsGroup1("ApparentPowerLimits")
@@ -264,7 +264,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setRegulationTerminal(t3w.getLeg2().getTerminal())
                 .setTargetV(vl2S4.getNominalV() * 0.99)
                 .setTargetDeadband(0.5)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+                .setRegulationMode(RegulationMode.VOLTAGE);
         t3w.getLeg1().newOperationalLimitsGroup("ActivePowerLimits")
                 .newActivePowerLimits()
                 .setPermanentLimit(210.0)
