@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  *
@@ -474,5 +475,25 @@ public final class Networks {
         network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::applySolvedValues);
         network.getThreeWindingsTransformerStream().forEach(ThreeWindingsTransformer::applySolvedValues);
         network.getShuntCompensatorStream().forEach(ShuntCompensator::applySolvedValues);
+    }
+
+    public static Stream<VoltageLevel> getSingleConnectableReducibleVoltageLevels(Network network) {
+        return network.getVoltageLevelStream()
+            .filter(v -> v.getConnectableCount() == 2)
+            .filter(v -> {
+                Iterator<Connectable> connectables = v.getConnectables().iterator();
+                Connectable<?> connectable1 = connectables.next();
+                Connectable<?> connectable2 = connectables.next();
+                IdentifiableType type1 = connectable1.getType();
+                IdentifiableType type2 = connectable2.getType();
+                return type1 == IdentifiableType.TWO_WINDINGS_TRANSFORMER && isReducibleInjection(type2)
+                    || type2 == IdentifiableType.TWO_WINDINGS_TRANSFORMER && isReducibleInjection(type1);
+            });
+    }
+
+    private static boolean isReducibleInjection(IdentifiableType type) {
+        return type == IdentifiableType.LOAD
+            || type == IdentifiableType.GENERATOR
+            || type == IdentifiableType.BATTERY;
     }
 }

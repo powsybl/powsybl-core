@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.Networks;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -119,5 +120,136 @@ public abstract class AbstractNetworksTest {
 
         Networks.applySolvedValues(network);
         assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+    }
+
+    @Test
+    public void getSingleConnectableReducibleVoltageLevels() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Substation p1 = network.getSubstation("P1");
+        double vb1NomV = 48;
+        VoltageLevel vb1 = p1.newVoltageLevel()
+            .setId("VB1")
+            .setNominalV(vb1NomV)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        Bus vb1Bus = vb1.getBusBreakerView().newBus()
+            .setId("VB1_BUS")
+            .add();
+        vb1.newBattery()
+            .setId("Battery 1")
+            .setBus(vb1Bus.getId())
+            .setConnectableBus(vb1Bus.getId())
+            .setTargetP(20)
+            .setTargetQ(2)
+            .setMinP(3)
+            .setMaxP(50)
+            .add();
+        vb1.newBattery()
+            .setId("Battery 2")
+            .setBus(vb1Bus.getId())
+            .setConnectableBus(vb1Bus.getId())
+            .setTargetP(10)
+            .setTargetQ(1)
+            .setMinP(1.5)
+            .setMaxP(25)
+            .add();
+        p1.newTwoWindingsTransformer()
+            .setId("battery transformer")
+            .setVoltageLevel1(vb1.getId())
+            .setBus1(vb1Bus.getId())
+            .setConnectableBus1(vb1Bus.getId())
+            .setRatedU1(vb1NomV)
+            .setVoltageLevel2(EurostagTutorialExample1Factory.VLHV1)
+            .setBus2(EurostagTutorialExample1Factory.NHV1)
+            .setConnectableBus2(EurostagTutorialExample1Factory.NHV1)
+            .setRatedU2(380)
+            .setR(0.25)
+            .setX(11)
+            .setG(0)
+            .setB(0)
+            .add();
+
+        Substation p2 = network.getSubstation("P2");
+        double vb2NomV = 90;
+        VoltageLevel vb2 = p2.newVoltageLevel()
+            .setId("VB2")
+            .setNominalV(vb2NomV)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        Bus vb2Bus = vb2.getBusBreakerView().newBus()
+            .setId("VB2_BUS")
+            .add();
+        Bus vb2Bus2 = vb2.getBusBreakerView().newBus()
+            .setId("VB2_BUS_2")
+            .add();
+        vb2.getBusBreakerView().newSwitch()
+            .setId("VB2_S")
+            .setBus1(vb2Bus.getId())
+            .setBus2(vb2Bus2.getId())
+            .setOpen(true)
+            .add();
+        vb2.newBattery()
+            .setId("B2-1")
+            .setBus(vb2Bus2.getId())
+            .setConnectableBus(vb2Bus2.getId())
+            .setTargetP(20)
+            .setTargetQ(2)
+            .setMinP(3)
+            .setMaxP(50)
+            .add();
+        p2.newTwoWindingsTransformer()
+            .setId("TB2")
+            .setVoltageLevel1(vb2.getId())
+            .setBus1(vb2Bus.getId())
+            .setConnectableBus1(vb2Bus.getId())
+            .setRatedU1(vb2NomV)
+            .setVoltageLevel2(EurostagTutorialExample1Factory.VLHV2)
+            .setBus2(EurostagTutorialExample1Factory.NHV2)
+            .setConnectableBus2(EurostagTutorialExample1Factory.NHV2)
+            .setRatedU2(380)
+            .setR(0.25)
+            .setX(11)
+            .setG(0)
+            .setB(0)
+            .add();
+
+        double vg2NomV = 380;
+        VoltageLevel vg2 = p2.newVoltageLevel().setId("VG2")
+            .setNominalV(vg2NomV)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        Bus vg2Bus = vg2.getBusBreakerView().newBus()
+            .setId("VG2_BUS")
+            .add();
+        vg2.newLoad()
+            .setId("LOAD2-1")
+            .setBus(vg2Bus.getId())
+            .setConnectableBus(vg2Bus.getId())
+            .setP0(300)
+            .setQ0(100)
+            .add();
+        network.newLine()
+            .setId("VG2L")
+            .setVoltageLevel1(EurostagTutorialExample1Factory.VLHV2)
+            .setBus1(EurostagTutorialExample1Factory.NHV2)
+            .setConnectableBus1(EurostagTutorialExample1Factory.NHV2)
+            .setVoltageLevel2(vg2.getId())
+            .setBus2(vg2Bus.getId())
+            .setConnectableBus2(vg2Bus.getId())
+            .setR(3.0)
+            .setX(33.0)
+            .setG1(0.0)
+            .setB1(386E-6 / 2)
+            .setG2(0.0)
+            .setB2(386E-6 / 2)
+            .add();
+        Assertions.assertThat(Networks.getSingleConnectableReducibleVoltageLevels(network))
+                .extracting(
+                    VoltageLevel::getId
+                ).containsExactlyInAnyOrder(
+                    EurostagTutorialExample1Factory.VLGEN,
+                    EurostagTutorialExample1Factory.VLLOAD,
+                    "VB2"
+            );
     }
 }
