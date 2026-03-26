@@ -77,10 +77,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         this.voltageLocation = voltageLocation;
     }
 
-    public static LimitViolationBuilder builder() {
-        return new LimitViolationBuilder();
-    }
-
     /**
      * Create a new LimitViolation.
      *
@@ -278,6 +274,10 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, double limitReduction, double value) {
         this(subjectId, null, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null, null);
+    }
+
+    public static LimitViolationBuilder builder() {
+        return new LimitViolationBuilder();
     }
 
     /**
