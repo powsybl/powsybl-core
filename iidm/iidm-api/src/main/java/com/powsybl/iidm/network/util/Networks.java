@@ -477,7 +477,14 @@ public final class Networks {
         network.getShuntCompensatorStream().forEach(ShuntCompensator::applySolvedValues);
     }
 
-    public static Stream<VoltageLevel> getSingleConnectableReducibleVoltageLevels(Network network) {
+    /**
+     * Find which voltage levels contain a single element linked to another voltage level by a two-windings transformer.
+     * We only search for elements for which we could calculate an equivalent of that element + the transformer.
+     * We are only searching for {@link Load}, {@link Generator} and {@link Battery}.
+     * @param network the network on which to search
+     * @return a stream of all the voltage levels that meet those conditions
+     */
+    public static Stream<VoltageLevel> getSingleConnectableReducibleVoltageLevelStream(Network network) {
         return network.getVoltageLevelStream()
             .filter(v -> v.getConnectableCount() == 2)
             .filter(v -> {

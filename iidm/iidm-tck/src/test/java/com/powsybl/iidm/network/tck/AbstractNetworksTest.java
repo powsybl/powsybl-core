@@ -123,7 +123,7 @@ public abstract class AbstractNetworksTest {
     }
 
     @Test
-    public void getSingleConnectableReducibleVoltageLevels() {
+    public void getSingleConnectableReducibleVoltageLevelStream() {
         Network network = EurostagTutorialExample1Factory.create();
         Substation p1 = network.getSubstation("P1");
         double vb1NomV = 48;
@@ -243,7 +243,7 @@ public abstract class AbstractNetworksTest {
             .setG2(0.0)
             .setB2(386E-6 / 2)
             .add();
-        Assertions.assertThat(Networks.getSingleConnectableReducibleVoltageLevels(network))
+        Assertions.assertThat(Networks.getSingleConnectableReducibleVoltageLevelStream(network))
                 .extracting(
                     VoltageLevel::getId
                 ).containsExactlyInAnyOrder(
