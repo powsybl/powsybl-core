@@ -28,6 +28,17 @@ import static com.powsybl.loadflow.validation.ValidationUtils.*;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ *
+ * Rules for valid results :<br/>
+ * Rule 1: a validation error should be detected if there is both a voltage and a target but no p or q <br/>
+ * Rule 2: If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK. <br/>
+ * Rule 3: Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK <br/>
+ * Rule 4: Active power p matches expected setpoint <br/>
+ * Rule 5: If voltage regulator is disabled, reactive power Q matches targetQ<br/>
+ * Rule 6: If voltage regulator ON, reactive power q follow V/targetV logic<br/>
+ *   - qGen at minQ if V > targetV + threshold <br/>
+ *   - qGen at maxQ if V < targetV - threshold <br/>
+ *   - else qGen within [minQ, maxQ])
  */
 public final class GeneratorsValidation {
 
