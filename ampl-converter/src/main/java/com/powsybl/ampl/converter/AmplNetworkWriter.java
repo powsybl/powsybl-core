@@ -250,9 +250,7 @@ public class AmplNetworkWriter {
         for (String amplExtName : AmplExtensionWriters.getWriterNames()) {
             Extension<E> ext = extendable.getExtensionByName(amplExtName);
             if (ext != null) {
-                List<AmplExtension> extList = extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<>());
-                extList.add(new AmplExtension(extendedNum, extendable, ext));
-                extensionMap.put(ext.getName(), extList);
+                extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<>()).add(new AmplExtension(extendedNum, extendable, ext));
             }
         }
     }
