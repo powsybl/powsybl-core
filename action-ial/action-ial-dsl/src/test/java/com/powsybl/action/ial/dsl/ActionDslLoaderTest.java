@@ -83,7 +83,7 @@ class ActionDslLoaderTest {
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         fixedTapAction.run(network);
         assertEquals(2, phaseTapChanger.getTapPosition());
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
 
@@ -107,7 +107,7 @@ class ActionDslLoaderTest {
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         fixedTapAction.run(network);
         assertEquals(1, phaseTapChanger.getTapPosition());
-        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
 
@@ -138,7 +138,7 @@ class ActionDslLoaderTest {
             assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             deltaTapAction.run(network);
             assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition());
-            assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+            assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             assertFalse(phaseTapChanger.isRegulating());
         }
     }
@@ -159,8 +159,10 @@ class ActionDslLoaderTest {
         Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
         assertNotNull(deltaTapAction);
         assertEquals(-10, ((PhaseShifterShiftTap) deltaTapAction.getModifications().get(0)).getTapDelta());
-        PowsyblException e = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
-        assertTrue(e.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
+        assertTrue(e1.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network, true));
+        assertTrue(e2.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
     }
 
     @Test

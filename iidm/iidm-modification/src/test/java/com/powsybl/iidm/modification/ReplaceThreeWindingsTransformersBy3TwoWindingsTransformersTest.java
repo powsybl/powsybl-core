@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -150,6 +152,26 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         assertTrue(compareOperationalLimitsGroups(t3w.getLeg3().getOperationalLimitsGroups(), t2w3.getOperationalLimitsGroups1()));
     }
 
+    @Test
+    void replaceSelectedOperationalLimitsGroupTest() {
+        modifyNetworkForLoadingLimitsTest();
+
+        network.getThreeWindingsTransformer(t3w.getId()).getLeg1().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+        network.getThreeWindingsTransformer(t3w.getId()).getLeg2().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-summer");
+        network.getThreeWindingsTransformer(t3w.getId()).getLeg3().setSelectedOperationalLimitsGroup("OperationalLimitsGroup-winter");
+
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replace.apply(network);
+
+        TwoWindingsTransformer t2w1 = network.getTwoWindingsTransformer("3WT-Leg1");
+        TwoWindingsTransformer t2w2 = network.getTwoWindingsTransformer("3WT-Leg2");
+        TwoWindingsTransformer t2w3 = network.getTwoWindingsTransformer("3WT-Leg3");
+
+        assertEquals("OperationalLimitsGroup-summer", t2w1.getSelectedOperationalLimitsGroupId1().orElseThrow());
+        assertEquals("OperationalLimitsGroup-summer", t2w2.getSelectedOperationalLimitsGroupId1().orElseThrow());
+        assertEquals("OperationalLimitsGroup-winter", t2w3.getSelectedOperationalLimitsGroupId1().orElseThrow());
+    }
+
     private void modifyNetworkForLoadingLimitsTest() {
         addLoadingLimits(t3w.getLeg1());
         addLoadingLimits(t3w.getLeg2());
@@ -239,7 +261,10 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         network.getThreeWindingsTransformer(t3w.getId()).setProperty("t3w property2", "t3w-value2");
         network.getThreeWindingsTransformer(t3w.getId()).addAlias("t3w-alias1");
         network.getThreeWindingsTransformer(t3w.getId()).addAlias("t3w-alias2");
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         replace.apply(network, reportNode);
 
@@ -259,7 +284,10 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
 
     @Test
     void reportNodeExtensionsTest() throws IOException {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
         lostThreeWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t3w.getId());
 
         StringWriter sw1 = new StringWriter();

@@ -9,7 +9,6 @@ package com.powsybl.security.tools;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -17,6 +16,8 @@ import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.violations.LimitViolationFilter;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
@@ -195,7 +196,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
              PrintStream err = new PrintStream(berr);
              ComputationManager cm = mock(ComputationManager.class)) {
             CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
-                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), Collections.emptySet());
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
@@ -250,7 +251,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
              ComputationManager cm = mock(ComputationManager.class)) {
 
             CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
-                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), Collections.emptySet());
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 

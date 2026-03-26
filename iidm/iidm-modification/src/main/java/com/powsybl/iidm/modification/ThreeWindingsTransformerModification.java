@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}

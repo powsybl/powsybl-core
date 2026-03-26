@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
@@ -20,16 +19,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.util.ModificationReports.createdLineReport;
-import static com.powsybl.iidm.modification.util.ModificationReports.noVoltageLevelInCommonReport;
-import static com.powsybl.iidm.modification.util.ModificationReports.notFoundLineReport;
-import static com.powsybl.iidm.modification.util.ModificationReports.removedLineReport;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.mergeLimits;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * This method reverses the action done in the ConnectVoltageLevelOnLine class :
@@ -77,11 +69,10 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            LOG.error("Line {} is not found", lineId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Line %s is not found", lineId));
-            }
+            logOrThrow(throwException, String.format("Line %s is not found", lineId));
+            return null;
         }
+
         return line;
     }
 
@@ -115,12 +106,8 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         if (vlIds.size() != 3) {
             noVoltageLevelInCommonReport(reportNode, line1Id, line2Id);
-            LOG.error("Lines {} and {} should have one and only one voltage level in common at their extremities", line1Id, line2Id);
-            if (throwException) {
-                throw new PowsyblException(String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
-            } else {
-                return;
-            }
+            logOrThrow(throwException, String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
+            return;
         }
 
         VoltageLevel commonVl = network.getVoltageLevel(commonVlId);

@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */

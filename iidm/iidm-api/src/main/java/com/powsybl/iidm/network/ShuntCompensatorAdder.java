@@ -33,6 +33,8 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
 
     ShuntCompensatorAdder setSectionCount(int sectionCount);
 
+    ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount);
+
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }

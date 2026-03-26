@@ -75,44 +75,44 @@ class ApplyActionToNetworkTest {
         NetworkModification disconnection = disconnectionAction.toModification();
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine2().getTerminal().isConnected());
         disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertFalse(tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getBoundaryLine2().getTerminal().isConnected());
 
         // Connection
         TerminalsConnectionAction connectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", false);
         NetworkModification connection = connectionAction.toModification();
         connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getBoundaryLine2().getTerminal().isConnected());
     }
 
     @Test
     void dangingLineAction() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        DanglingLine danglingLine = network.getDanglingLine("NHV1_XNODE1");
-        danglingLine.setP0(10.0);
-        danglingLine.setQ0(4.0);
+        BoundaryLine boundaryLine = network.getBoundaryLine("NHV1_XNODE1");
+        boundaryLine.setP0(10.0);
+        boundaryLine.setQ0(4.0);
 
-        assertEquals(10.0, danglingLine.getP0());
-        DanglingLineAction action = new DanglingLineActionBuilder().withId("id")
-                .withDanglingLineId("NHV1_XNODE1")
+        assertEquals(10.0, boundaryLine.getP0());
+        BoundaryLineAction action = new BoundaryLineActionBuilder().withId("id")
+                .withBoundaryLineId("NHV1_XNODE1")
                 .withRelativeValue(false)
                 .withActivePowerValue(5.0)
                 .build();
         action.toModification().apply(network);
-        assertEquals(5.0, danglingLine.getP0());
+        assertEquals(5.0, boundaryLine.getP0());
 
-        assertEquals(4.0, danglingLine.getQ0());
-        DanglingLineAction action2 = new DanglingLineActionBuilder().withId("id")
-                .withDanglingLineId("NHV1_XNODE1")
+        assertEquals(4.0, boundaryLine.getQ0());
+        BoundaryLineAction action2 = new BoundaryLineActionBuilder().withId("id")
+                .withBoundaryLineId("NHV1_XNODE1")
                 .withRelativeValue(true)
                 .withReactivePowerValue(2.0)
                 .build();
         action2.toModification().apply(network);
-        assertEquals(6.0, danglingLine.getQ0());
+        assertEquals(6.0, boundaryLine.getQ0());
     }
 
     @Test
@@ -185,8 +185,9 @@ class ApplyActionToNetworkTest {
                 .withSectionCount(2)
                 .build();
         NetworkModification modif = action2.toModification();
-        ValidationException e = assertThrows(ValidationException.class, () -> modif.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, true, ReportNode.NO_OP));
         assertEquals("Shunt compensator 'SHUNT': the current number (2) of section should be lesser than the maximum number of section (1)", e.getMessage());
+        assertDoesNotThrow(() -> modif.apply(network));
     }
 
     @Test
@@ -202,7 +203,7 @@ class ApplyActionToNetworkTest {
         assertEquals(2, twoWT.getPhaseTapChanger().getTapPosition());
         PhaseTapChangerTapPositionAction action2 = new PhaseTapChangerTapPositionAction("id", "PS1", false, 3);
         NetworkModification modif = action2.toModification();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, true, null));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, true, ReportNode.NO_OP));
         assertEquals("2 windings transformer 'PS1': incorrect tap position 3 [0, 2]", e.getMessage());
 
         Network network2 = ThreeWindingsTransformerNetworkFactory.create();

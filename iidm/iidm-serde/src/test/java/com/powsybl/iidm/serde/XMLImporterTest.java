@@ -9,6 +9,8 @@ package com.powsybl.iidm.serde;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -137,7 +139,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         assertEquals("XIIDM", importer.getFormat());
         assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
         assertEquals(List.of("xiidm", "iidm", "xml"), importer.getSupportedExtensions());
-        assertEquals(5, importer.getParameters().size());
+        assertEquals(6, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
@@ -251,7 +253,10 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     private void importDataAndTestReportNode(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
         assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reportNode));
 
         StringWriter sw = new StringWriter();

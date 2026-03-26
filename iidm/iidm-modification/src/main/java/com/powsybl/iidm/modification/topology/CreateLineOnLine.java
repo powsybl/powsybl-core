@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
+import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.noBusbarSectionPositionExtensionReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
 
@@ -88,11 +89,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
     private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, ReportNode reportNode) {
         if (createFictSubstation && fictitiousSubstationId == null) {
-            LOG.error("Fictitious substation ID must be defined if a fictitious substation is to be created");
             undefinedFictitiousSubstationId(reportNode);
-            if (throwException) {
-                throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
-            }
+            logOrThrow(throwException, "Fictitious substation ID must be defined if a fictitious substation is to be created");
             return false;
         }
         return true;
@@ -127,7 +125,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reportNode, LOG)) {
+        if (failChecks(network, throwException, reportNode)) {
             return;
         }
 
@@ -164,8 +162,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-        LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
-        LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
+
+        BranchOperationalLimitsGroupsCopy groupsCopy = new BranchOperationalLimitsGroupsCopy(line);
 
         // Remove the existing line
         String originalLineId = line.getId();
@@ -173,8 +171,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        addLoadingLimits(line1, limits1, TwoSides.ONE);
-        addLoadingLimits(line2, limits2, TwoSides.TWO);
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopy.applyGroupsToBranch(line1, TwoSides.values());
+        groupsCopy.applyGroupsToBranch(line2, TwoSides.values());
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()
@@ -237,14 +237,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reportNode.newReportNode()
-                .withMessageTemplate("newLineOnLineCreated", "New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
-                .withUntypedValue("newLineId", newLine.getId())
-                .withUntypedValue("line1Id", line1Id)
-                .withUntypedValue("line2Id", line2Id)
-                .withUntypedValue("originalLineId", originalLineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+        ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
     }
 
     public LineAdder getLineAdder() {

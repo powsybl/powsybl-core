@@ -7,22 +7,24 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
-import com.powsybl.iidm.network.*;
-import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
- * Removes a voltage level and the feeder bays connected to that voltage level. Note that dangling lines connected to
+ * Removes a voltage level and the feeder bays connected to that voltage level. Note that boundary lines connected to
  * this voltage level (hence paired) are not removed but unpaired.
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
@@ -44,11 +46,8 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
-            LOGGER.error("Voltage level {} not found", voltageLevelId);
             notFoundVoltageLevelReport(reportNode, voltageLevelId);
-            if (throwException) {
-                throw new PowsyblException("Voltage level not found: " + voltageLevelId);
-            }
+            logOrThrow(throwException, "Voltage level not found: " + voltageLevelId);
             return;
         }
 
@@ -58,7 +57,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             }
         });
 
-        voltageLevel.getDanglingLines().forEach(dl ->
+        voltageLevel.getBoundaryLines().forEach(dl ->
             dl.getTieLine().ifPresent(tieLine -> {
                 String tlId = tieLine.getId();
                 String pairingKey = tieLine.getPairingKey();

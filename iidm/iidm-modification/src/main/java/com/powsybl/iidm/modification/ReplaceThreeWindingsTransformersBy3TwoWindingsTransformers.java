@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhaseAngleClock;
@@ -53,7 +54,7 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhas
  *     <li>Extensions:
  *         <ul>
  *             <li>Only IIDM extensions are copied: TransformerFortescueData, PhaseAngleClock, and TransformerToBeEstimated.</li>
- *             <li>CGMES extensions can not be copied, as they cause circular dependencies.</li>
+ *             <li>CGMES extensions cannot be copied, as they cause circular dependencies.</li>
  *             <li>Extensions that are not copied are recorded in the functional log.</li>
  *         </ul>
  *     </li>
@@ -209,7 +210,12 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         leg.getOptionalPhaseTapChanger().ifPresent(rtc -> copyAndAddPhaseTapChanger(t2w.newPhaseTapChanger(), rtc));
         leg.getOperationalLimitsGroups().forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t2w.newOperationalLimitsGroup1(operationalLimitGroup.getId()), operationalLimitGroup));
 
+        copySelectedOperationLimitsGroup(leg, t2w);
         return t2w;
+    }
+
+    private static void copySelectedOperationLimitsGroup(ThreeWindingsTransformer.Leg leg, TwoWindingsTransformer t2w) {
+        t2w.addSelectedOperationalLimitsGroups(TwoSides.ONE, leg.getAllSelectedOperationalLimitsGroupIdsOrdered().toArray(String[]::new));
     }
 
     private static void connect(TwoWindingsTransformerAdder t2wAdder, ConnectivityR connectivityEnd1, ConnectivityR connectivityEnd2) {

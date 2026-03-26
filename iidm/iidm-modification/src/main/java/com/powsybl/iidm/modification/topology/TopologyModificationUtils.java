@@ -10,12 +10,15 @@ package com.powsybl.iidm.modification.topology;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.modification.util.ModificationReports;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.Range;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.util.Pair;
+import org.jgrapht.graph.Pseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,13 +175,13 @@ public final class TopologyModificationUtils {
 
     public static void addLoadingLimits(Line created, LoadingLimitsBags limits, TwoSides side) {
         if (side == TwoSides.ONE) {
-            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
-            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
-            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits1(), lim));
+            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits(), lim));
+            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits(), lim));
+            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), lim));
         } else {
-            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits2(), lim));
-            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits2(), lim));
-            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits2(), lim));
+            limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits(), lim));
+            limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits(), lim));
+            limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits(), lim));
         }
     }
 
@@ -217,32 +220,45 @@ public final class TopologyModificationUtils {
         });
     }
 
-    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBBreaker(int node1, int node2, String id, String name, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, node2, id, name, view, open, false);
+    }
+
+    static void createNBBreaker(int node1, int node2, String id, String name, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
         view.newSwitch()
                 .setId(id)
+                .setName(name)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
                 .setRetained(true)
                 .setNode1(node1)
                 .setNode2(node2)
+                .setFictitious(fictitious)
                 .add();
     }
 
-    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBDisconnector(int node1, int node2, String id, String name, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBDisconnector(node1, node2, id, name, view, open, false);
+    }
+
+    static void createNBDisconnector(int node1, int node2, String id, String name, VoltageLevel.NodeBreakerView view, boolean open, boolean fictitious) {
         view.newSwitch()
                 .setId(id)
+                .setName(name)
                 .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
                 .setNode1(node1)
                 .setNode2(node2)
+                .setFictitious(fictitious)
                 .add();
     }
 
-    static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
+    static void createBusBreakerSwitch(String busId1, String busId2, String id, String name, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
                 .setId(id)
+                .setName(name)
                 .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
@@ -256,12 +272,12 @@ public final class TopologyModificationUtils {
      **/
     static NavigableMap<Integer, List<Integer>> getSliceOrdersMap(VoltageLevel voltageLevel) {
         // Compute the map of connectables by busbar sections
-        Map<BusbarSection, Set<Connectable<?>>> connectablesByBbs = new LinkedHashMap<>();
+        Map<BusbarSection, Set<ConnectableAndSide>> connectablesByBbs = new LinkedHashMap<>();
         voltageLevel.getConnectableStream(BusbarSection.class)
                 .forEach(bbs -> fillConnectablesMap(bbs, connectablesByBbs));
 
         // Merging the map by section index
-        Map<Integer, Set<Connectable<?>>> connectablesBySectionIndex = new LinkedHashMap<>();
+        Map<Integer, Set<ConnectableAndSide>> connectablesBySectionIndex = new LinkedHashMap<>();
         connectablesByBbs.forEach((bbs, connectables) -> {
             BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
             if (bbPosition != null) {
@@ -283,17 +299,19 @@ public final class TopologyModificationUtils {
         return ordersBySectionIndex;
     }
 
+    private record ConnectableAndSide(Connectable<?> connectable, ThreeSides side) { }
+
     /**
      * Method that fills the map connectablesByBbs with all the connectables of a busbar section.
      */
-    static void fillConnectablesMap(BusbarSection bbs, Map<BusbarSection, Set<Connectable<?>>> connectablesByBbs) {
+    static void fillConnectablesMap(BusbarSection bbs, Map<BusbarSection, Set<ConnectableAndSide>> connectablesByBbs) {
         BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
         int bbSection = bbPosition.getSectionIndex();
 
         if (connectablesByBbs.containsKey(bbs)) {
             return;
         }
-        Set<Connectable<?>> connectables = connectablesByBbs.compute(bbs, (k, v) -> new LinkedHashSet<>());
+        Set<ConnectableAndSide> connectables = connectablesByBbs.compute(bbs, (k, v) -> new LinkedHashSet<>());
 
         bbs.getTerminal().traverse(new Terminal.TopologyTraverser() {
             @Override
@@ -306,12 +324,13 @@ public final class TopologyModificationUtils {
                     BusbarSectionPosition otherBbPosition = otherBbs.getExtension(BusbarSectionPosition.class);
                     if (otherBbPosition.getSectionIndex() == bbSection) {
                         connectablesByBbs.put(otherBbs, connectables);
+                        return TraverseResult.CONTINUE;
                     } else {
                         return TraverseResult.TERMINATE_PATH;
                     }
                 }
-                connectables.add(connectable);
-                return TraverseResult.CONTINUE;
+                connectables.add(new ConnectableAndSide(connectable, terminal.getSide()));
+                return TraverseResult.TERMINATE_PATH;
             }
 
             @Override
@@ -347,7 +366,7 @@ public final class TopologyModificationUtils {
      */
     static void createNodeBreakerSwitchesTopology(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         // Closed breaker
-        createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), voltageLevel.getNodeBreakerView(), false);
+        createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), namingStrategy.getBreakerName(baseId), voltageLevel.getNodeBreakerView(), false);
 
         // Disconnectors - only the one on the chosen busbarsection is closed
         createDisconnectorTopology(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs);
@@ -367,7 +386,8 @@ public final class TopologyModificationUtils {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, side), voltageLevel.getNodeBreakerView(), b != bbs);
+            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(b, baseId, forkNode, bbsNode, side),
+                namingStrategy.getDisconnectorName(b, baseId, forkNode, bbsNode, side), voltageLevel.getNodeBreakerView(), b != bbs);
         });
     }
 
@@ -506,6 +526,22 @@ public final class TopologyModificationUtils {
         addOrderPositions(connectable, voltageLevel, feederPositionsOrders, false, ReportNode.NO_OP);
     }
 
+    private static void addOrderPositions(ConnectableAndSide connectableAndSide, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
+        addOrderPositions(connectableAndSide, voltageLevel, feederPositionsOrders, false, ReportNode.NO_OP);
+    }
+
+    /**
+     * Method adding order position(s) of a connectable on a given voltage level to the given collection.
+     */
+    private static void addOrderPositions(ConnectableAndSide connectableAndSide, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, ReportNode reportNode) {
+        Connectable<?> connectable = connectableAndSide.connectable();
+        ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
+        if (position != null) {
+            List<Integer> orders = getOrderPositions(position, voltageLevel, connectableAndSide, throwException, reportNode);
+            feederPositionsOrders.addAll(orders);
+        }
+    }
+
     /**
      * Method adding order position(s) of a connectable on a given voltage level to the given collection.
      */
@@ -532,22 +568,28 @@ public final class TopologyModificationUtils {
         return feedersByConnectable;
     }
 
-    private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
+    private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, ConnectableAndSide connectableAndSide, boolean throwException, ReportNode reportNode) {
+        Connectable<?> connectable = connectableAndSide.connectable();
+        ThreeSides side = connectableAndSide.side();
         List<ConnectablePosition.Feeder> feeders;
-        if (connectable instanceof Injection) {
-            feeders = getInjectionFeeder(position);
-        } else if (connectable instanceof Branch) {
-            feeders = getBranchFeeders(position, voltageLevel, (Branch<?>) connectable);
-        } else if (connectable instanceof ThreeWindingsTransformer twt) {
-            feeders = get3wtFeeders(position, voltageLevel, twt);
-        } else {
-            LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
-            connectableNotSupported(reportNode, connectable);
-            if (throwException) {
-                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
+        switch (connectable) {
+            case Injection<?> ignored -> feeders = getInjectionFeeder(position);
+            case Branch<?> branch -> feeders = getBranchFeederBySide(position, voltageLevel, branch, side);
+            case ThreeWindingsTransformer twt -> feeders = get3wtFeederBySide(position, voltageLevel, twt, side);
+            default -> {
+                logOrThrowUnexpectedConnectable(connectable, throwException, reportNode);
+                return Collections.emptyList();
             }
-            return Collections.emptyList();
         }
+        return getFeederOrders(feeders);
+    }
+
+    private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
+        List<ConnectablePosition.Feeder> feeders = getFeeders(position, voltageLevel, connectable, throwException, reportNode);
+        return getFeederOrders(feeders);
+    }
+
+    private static List<Integer> getFeederOrders(List<ConnectablePosition.Feeder> feeders) {
         List<Integer> orders = new ArrayList<>();
         feeders.forEach(feeder -> feeder.getOrder().ifPresent(orders::add));
         if (orders.size() > 1) {
@@ -556,34 +598,56 @@ public final class TopologyModificationUtils {
         return orders;
     }
 
-    private static List<ConnectablePosition.Feeder> getFeeders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
-        if (connectable instanceof Injection) {
-            return getInjectionFeeder(position);
-        } else if (connectable instanceof Branch) {
-            return getBranchFeeders(position, voltageLevel, (Branch<?>) connectable);
-        } else if (connectable instanceof ThreeWindingsTransformer twt) {
-            return get3wtFeeders(position, voltageLevel, twt);
-        } else {
-            LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
-            connectableNotSupported(reportNode, connectable);
-            if (throwException) {
-                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
+    private static List<ConnectablePosition.Feeder> getFeeders(ConnectablePosition<?> position, VoltageLevel voltageLevel,
+                                                               Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
+        return switch (connectable) {
+            case Injection<?> ignored -> getInjectionFeeder(position);
+            case Branch<?> branch -> getBranchFeeders(position, voltageLevel, branch);
+            case ThreeWindingsTransformer twt -> get3wtFeeders(position, voltageLevel, twt);
+            default -> {
+                logOrThrowUnexpectedConnectable(connectable, throwException, reportNode);
+                yield Collections.emptyList();
             }
+        };
+    }
+
+    private static void logOrThrowUnexpectedConnectable(Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
+        LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
+        connectableNotSupported(reportNode, connectable);
+        if (throwException) {
+            throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
         }
-        return Collections.emptyList();
     }
 
     private static List<ConnectablePosition.Feeder> getInjectionFeeder(ConnectablePosition<?> position) {
         return Optional.ofNullable(position.getFeeder()).map(List::of).orElse(Collections.emptyList());
     }
 
+    private static List<ConnectablePosition.Feeder> getBranchFeederBySide(ConnectablePosition<?> position, VoltageLevel voltageLevel,
+                                                                          Branch<?> branch, ThreeSides side) {
+        List<ConnectablePosition.Feeder> feeders = new ArrayList<>();
+        if (branch.getTerminal(side.toTwoSides()).getVoltageLevel() == voltageLevel) {
+            Optional.ofNullable(getFeederBySide(position, side)).ifPresent(feeders::add);
+        }
+        return feeders;
+    }
+
     private static List<ConnectablePosition.Feeder> getBranchFeeders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Branch<?> branch) {
         List<ConnectablePosition.Feeder> feeders = new ArrayList<>();
         if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-            Optional.ofNullable(position.getFeeder1()).ifPresent(feeders::add);
+            Optional.ofNullable(getFeederBySide(position, ThreeSides.ONE)).ifPresent(feeders::add);
         }
         if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
-            Optional.ofNullable(position.getFeeder2()).ifPresent(feeders::add);
+            Optional.ofNullable(getFeederBySide(position, ThreeSides.TWO)).ifPresent(feeders::add);
+        }
+        return feeders;
+    }
+
+    private static List<ConnectablePosition.Feeder> get3wtFeederBySide(ConnectablePosition<?> position, VoltageLevel voltageLevel,
+                                                                       ThreeWindingsTransformer twt, ThreeSides side) {
+        List<ConnectablePosition.Feeder> feeders = new ArrayList<>();
+        if (twt.getLeg(side).getTerminal().getVoltageLevel() == voltageLevel) {
+            Optional.ofNullable(getFeederBySide(position, side)).ifPresent(feeders::add);
         }
         return feeders;
     }
@@ -591,15 +655,26 @@ public final class TopologyModificationUtils {
     private static List<ConnectablePosition.Feeder> get3wtFeeders(ConnectablePosition<?> position, VoltageLevel voltageLevel, ThreeWindingsTransformer twt) {
         List<ConnectablePosition.Feeder> feeders = new ArrayList<>();
         if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
-            Optional.ofNullable(position.getFeeder1()).ifPresent(feeders::add);
+            Optional.ofNullable(getFeederBySide(position, ThreeSides.ONE)).ifPresent(feeders::add);
         }
         if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
-            Optional.ofNullable(position.getFeeder2()).ifPresent(feeders::add);
+            Optional.ofNullable(getFeederBySide(position, ThreeSides.TWO)).ifPresent(feeders::add);
         }
         if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
-            Optional.ofNullable(position.getFeeder3()).ifPresent(feeders::add);
+            Optional.ofNullable(getFeederBySide(position, ThreeSides.THREE)).ifPresent(feeders::add);
         }
         return feeders;
+    }
+
+    private static ConnectablePosition.Feeder getFeederBySide(ConnectablePosition<?> position, ThreeSides side) {
+        if (side == null) {
+            return position.getFeeder();
+        }
+        return switch (side) {
+            case ONE -> position.getFeeder1();
+            case TWO -> position.getFeeder2();
+            case THREE -> position.getFeeder3();
+        };
     }
 
     /**
@@ -649,11 +724,7 @@ public final class TopologyModificationUtils {
             // temporary limits on both sides : they are ignored, otherwise, we keep temporary limits on side where they are defined
             if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
                 LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
-                reportNode.newReportNode()
-                        .withMessageTemplate("limitsLost", "Temporary limits on both sides for line ${lineId} : They are ignored")
-                        .withUntypedValue("lineId", lineId)
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .add();
+                ModificationReports.ignoreTemporaryLimitsOnBothLineSides(reportNode, lineId);
             } else {
                 temporaryLimits = !temporaryLimits1.isEmpty() ? temporaryLimits1 : temporaryLimitsTeePointSide;
             }
@@ -688,5 +759,233 @@ public final class TopologyModificationUtils {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Create topology and generate new connectable node and return it.
+     */
+    public static int createTopologyAndGetConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+        int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        int connectableNode = forkNode + 1;
+        buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
+        return connectableNode;
+    }
+
+    /**
+     * Create topology by using the provided connectable node (pre-determined connectable node)
+     */
+    public static void createTopologyWithConnectableNode(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+        int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        buildTopology(side, busOrBusbarSectionId, network, voltageLevel, forkNode, connectableNode, connectable, namingStrategy, reportNode);
+    }
+
+    private static void buildTopology(int side, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel, int forkNode, int connectableNode, Connectable<?> connectable, NamingStrategy namingStrategy, ReportNode reportNode) {
+        // Information gathering
+        String baseId = namingStrategy.getSwitchBaseId(connectable, side);
+        BusbarSection bbs = network.getBusbarSection(busOrBusbarSectionId);
+        BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+
+        // Topology creation
+        int parallelBbsNumber = 0;
+        if (position == null) {
+            // No position extension is present so only one disconnector is needed
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbs);
+            LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
+            noBusbarSectionPositionExtensionReport(reportNode, bbs);
+        } else {
+            List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
+            parallelBbsNumber = bbsList.size() - 1;
+            createNodeBreakerSwitchesTopology(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbsList, bbs);
+        }
+        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
+                "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), busOrBusbarSectionId, parallelBbsNumber);
+        createdNodeBreakerFeederBay(reportNode, voltageLevel.getId(), busOrBusbarSectionId, connectable, parallelBbsNumber);
+    }
+
+    public static Integer getOppositeNode(Graph<Integer, Object> graph, int node, Object e) {
+        Integer edgeSource = graph.getEdgeSource(e);
+        return edgeSource == node ? graph.getEdgeTarget(e) : edgeSource;
+    }
+
+    /**
+     * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
+     * fork node is encountered, for which special care is needed to clean the topology.
+     */
+    public static void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, String connectableId, ReportNode reportNode) {
+        Set<Object> edges = graph.edgesOf(node);
+        if (edges.size() == 1) {
+            Object edge = edges.iterator().next();
+            Integer oppositeNode = getOppositeNode(graph, node, edge);
+            removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
+            cleanTopology(nbv, graph, oppositeNode, connectableId, reportNode);
+        } else if (edges.size() > 1) {
+            cleanFork(nbv, graph, node, edges, connectableId, reportNode);
+        }
+    }
+
+    public static void cleanNodeBreakerTopology(Network network, String connectableId, ReportNode reportNode) {
+        Connectable<?> connectable = network.getConnectable(connectableId);
+        for (Terminal t : connectable.getTerminals()) {
+            cleanNodeBreakerTopologyForTerminal(t, connectableId, reportNode);
+        }
+    }
+
+    /**
+     * Cleans up the topology for a node-breaker topology
+     */
+    public static void cleanNodeBreakerTopology(Terminal terminal, String connectableId, ReportNode reportNode) {
+        Objects.requireNonNull(terminal);
+        if (terminal.getConnectable().getId().equals(connectableId)) {
+            cleanNodeBreakerTopologyForTerminal(terminal, connectableId, reportNode);
+        }
+    }
+
+    private static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            Graph<Integer, Object> graph = createGraphFromTerminal(terminal);
+            int node = terminal.getNodeBreakerView().getNode();
+            cleanTopology(terminal.getVoltageLevel().getNodeBreakerView(), graph, node, connectableId, reportNode);
+        }
+    }
+
+    public static void removeSwitchOrInternalConnection(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
+                                                         Object edge, ReportNode reportNode) {
+        if (edge instanceof Switch sw) {
+            String switchId = sw.getId();
+            nbv.removeSwitch(switchId);
+            removedSwitchReport(reportNode, switchId);
+            LOGGER.info("Switch {} removed", switchId);
+        } else {
+            Pair<Integer, Integer> ic = (Pair<Integer, Integer>) edge;
+            nbv.removeInternalConnections(ic.getFirst(), ic.getSecond());
+            removedInternalConnectionReport(reportNode, ic.getFirst(), ic.getSecond());
+            LOGGER.info("Internal connection between {} and {} removed", ic.getFirst(), ic.getSecond());
+        }
+        graph.removeEdge(edge);
+    }
+
+    /**
+     * Try to remove all edges of the given fork node
+     */
+    public static void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges, String connectableId, ReportNode reportNode) {
+        List<Object> toBusesOnly = new ArrayList<>();
+        List<Object> mixed = new ArrayList<>();
+        for (Object edge : edges) {
+            List<Connectable<?>> connectables = getLinkedConnectables(nbv, graph, node, edge);
+            if (connectables.stream().allMatch(BusbarSection.class::isInstance)) {
+                // the edge is only linked to busbarSections, or to no connectables, hence it's a good candidate for removal
+                toBusesOnly.add(edge);
+            } else if (connectables.stream().noneMatch(BusbarSection.class::isInstance)) {
+                // the edge is only linked to other non-busbarSection connectables, no further cleaning can be done
+                // Note that connectables cannot be empty because of previous if
+                String otherConnectableId = connectables.stream().map(Connectable::getId).findFirst().orElse("none");
+                removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
+                LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
+                return;
+            } else {
+                // the edge is linked to busbarSections and non-busbarSection connectables, some further cleaning can be done if there's only one edge of that type
+                mixed.add(edge);
+            }
+        }
+
+        // We now know there are only edges which are
+        // - either only linked to busbarSections and no other connectables
+        // - or linked to busbarSections and connectables
+        // The former ones can be removed:
+        for (Object edge : toBusesOnly) {
+            removeAllSwitchesAndInternalConnections(nbv, graph, node, edge, reportNode);
+        }
+        // We don't remove the latter ones if more than one, as this would break the connection between them
+        if (mixed.size() == 1) {
+            // If only one, we're cleaning the boundary switches and/or internal connections
+            cleanMixedTopology(nbv, graph, node, reportNode);
+        }
+    }
+
+    private static List<Connectable<?>> getLinkedConnectables(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, Integer node, Object edge) {
+        Set<Integer> visitedNodes = new HashSet<>();
+        visitedNodes.add(node);
+        List<Connectable<?>> connectables = new ArrayList<>();
+        searchConnectables(nbv, graph, getOppositeNode(graph, node, edge), visitedNodes, connectables);
+        return connectables;
+    }
+
+    public static Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
+        Graph<Integer, Object> graph = new Pseudograph<>(Object.class);
+        int node = terminal.getNodeBreakerView().getNode();
+        VoltageLevel.NodeBreakerView vlNbv = terminal.getVoltageLevel().getNodeBreakerView();
+        graph.addVertex(node);
+        vlNbv.traverse(node, (node1, sw, node2) -> {
+            TraverseResult result = vlNbv.getOptionalTerminal(node2)
+                    .map(Terminal::getConnectable)
+                    .filter(BusbarSection.class::isInstance)
+                    .map(c -> TraverseResult.TERMINATE_PATH)
+                    .orElse(TraverseResult.CONTINUE);
+            graph.addVertex(node2);
+            graph.addEdge(node1, node2, sw != null ? sw : Pair.of(node1, node2));
+            return result;
+        });
+        return graph;
+    }
+
+    /**
+     * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
+     * fork node is encountered or a node on which a connectable is connected
+     */
+    private static void cleanMixedTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, ReportNode reportNode) {
+        // Get the next edge and the opposite node
+        Set<Object> edges = graph.edgesOf(node);
+        Object edge = edges.iterator().next();
+        Integer oppositeNode = getOppositeNode(graph, node, edge);
+
+        // Remove the switch or internal connection on the current edge
+        removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
+
+        // List the connectables connected to the opposite node
+        List<Connectable<?>> connectables = new ArrayList<>();
+        nbv.getOptionalTerminal(oppositeNode).map(Terminal::getConnectable).ifPresent(connectables::add);
+
+        // If there is only one edge on the opposite node and no connectable, continue to remove the elements
+        if (graph.edgesOf(oppositeNode).size() == 1 && connectables.isEmpty()) {
+            cleanMixedTopology(nbv, graph, oppositeNode, reportNode);
+        }
+    }
+
+    private static void searchConnectables(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, Integer node,
+                                           Set<Integer> visitedNodes, List<Connectable<?>> connectables) {
+        if (visitedNodes.contains(node)) {
+            return;
+        }
+        nbv.getOptionalTerminal(node).map(Terminal::getConnectable).ifPresent(connectables::add);
+        if (!isBusbarSection(nbv, node)) {
+            visitedNodes.add(node);
+            for (Object e : graph.edgesOf(node)) {
+                searchConnectables(nbv, graph, getOppositeNode(graph, node, e), visitedNodes, connectables);
+            }
+        }
+    }
+
+    /**
+     * Traverse the graph and remove all switches and internal connections until encountering a {@link BusbarSection}.
+     */
+    private static void removeAllSwitchesAndInternalConnections(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
+                                                                int originNode, Object edge, ReportNode reportNode) {
+        // in case of loops inside the traversed bay, the edge might have been already removed
+        if (!graph.containsEdge(edge)) {
+            return;
+        }
+
+        Integer oppositeNode = getOppositeNode(graph, originNode, edge);
+        removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
+        if (!isBusbarSection(nbv, oppositeNode)) {
+            for (Object otherEdge : new ArrayList<>(graph.edgesOf(oppositeNode))) {
+                removeAllSwitchesAndInternalConnections(nbv, graph, oppositeNode, otherEdge, reportNode);
+            }
+        }
+    }
+
+    private static boolean isBusbarSection(VoltageLevel.NodeBreakerView nbv, Integer node) {
+        Optional<Connectable<?>> c = nbv.getOptionalTerminal(node).map(Terminal::getConnectable);
+        return c.isPresent() && c.get() instanceof BusbarSection;
     }
 }

@@ -10,17 +10,22 @@ package com.powsybl.security.detectors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,12 +35,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public abstract class AbstractLimitViolationDetectionTest {
     protected static Network networkWithFixedLimits;
-    protected static Network networkWithFixedLimitsOnDanglingLines;
+    protected static Network networkWithFixedLimitsOnBoundaryLines;
     protected static Network networkWithCurrentLimitsOn3WT;
     protected static Network networkWithApparentLimitsOn3WT;
     protected static Network networkWithActiveLimitsOn3WT;
     private static Network networkWithFixedCurrentLimits;
-    private static Network networkWithFixedCurrentLimitsOnDanglingLines;
+    private static Network networkWithFixedCurrentLimitsOnBoundaryLines;
     private static Network networkWithVoltageAngleLimit;
     protected List<LimitViolation> violationsCollector;
 
@@ -43,8 +48,8 @@ public abstract class AbstractLimitViolationDetectionTest {
     static void setUpClass() {
         networkWithFixedCurrentLimits = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
-        networkWithFixedCurrentLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnDanglingLines();
-        networkWithFixedLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnDanglingLines();
+        networkWithFixedCurrentLimitsOnBoundaryLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnBoundaryLines();
+        networkWithFixedLimitsOnBoundaryLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnBoundaryLines();
         networkWithVoltageAngleLimit = EurostagTutorialExample1Factory.createWithVoltageAngleLimit();
         networkWithCurrentLimitsOn3WT = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         networkWithApparentLimitsOn3WT = ThreeWindingsTransformerNetworkFactory.createWithApparentPowerLimits();
@@ -142,7 +147,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectPermanentLimitOverloadOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         checkCurrent(tieLine1, TwoSides.TWO, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -159,8 +164,8 @@ public abstract class AbstractLimitViolationDetectionTest {
     @Test
     void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        Optional<? extends LoadingLimits> line1Limits = tieLine1.getDanglingLine(TwoSides.ONE).getCurrentLimits();
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
+        Optional<? extends LoadingLimits> line1Limits = tieLine1.getBoundaryLine(TwoSides.ONE).getCurrentLimits();
         assertTrue(line1Limits.isPresent()
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
@@ -183,7 +188,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectTemporaryLimitOverloadOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         checkCurrent(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -198,7 +203,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectHighestTemporaryLimitOverloadOnSide1OfTieLine2() {
-        TieLine tieLine2 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_2");
+        TieLine tieLine2 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_2");
         checkCurrent(tieLine2, TwoSides.ONE, 1250, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -332,7 +337,8 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(100, l.getLimit(), 0d);
+                    assertEquals(0, l.getAcceptableDuration());
+                    assertEquals(140, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(ThreeSides.TWO, l.getSide());
                 });
@@ -362,7 +368,8 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(10, l.getLimit(), 0d);
+                    assertEquals(0, l.getAcceptableDuration());
+                    assertEquals(14, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
                     assertSame(ThreeSides.THREE, l.getSide());
                 });
@@ -378,7 +385,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectAllActivePowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         checkActivePower(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
@@ -393,7 +400,7 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void detectAllApparentPowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         checkApparentPower(tieLine1, TwoSides.TWO, 1201, violationsCollector::add);
 
@@ -408,28 +415,28 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void testCheckLimitViolationUnsupportedVoltageOnTieLine() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         assertThrows(UnsupportedOperationException.class, () -> checkLimitViolation(tieLine1, TwoSides.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE, 1.0));
     }
 
     @Test
-    void detectPermanentCurrentLimitOverloadOn3WT() {
+    void detectOverLastTemporaryCurrentLimitOverloadOn3WT() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
         checkCurrent(transformer, ThreeSides.THREE, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(10, l.getLimit(), 0d);
+                    assertEquals(14, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(ThreeSides.THREE, l.getSide());
-                    assertEquals(2147483647, l.getAcceptableDuration());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(0, l.getAcceptableDuration());
+                    assertEquals("10'", l.getLimitName());
                 });
     }
 
     @Test
-    void detectPermanentCurrentLimitOverloadOn3WT2() {
+    void detectTemporaryCurrentLimitOverloadOn3WT2() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
         checkCurrent(transformer, ThreeSides.THREE, 13, violationsCollector::add);
 
@@ -443,4 +450,150 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals("20'", l.getLimitName());
                 });
     }
+
+    @ParameterizedTest
+    @MethodSource("provideDetectCurrentLimitArguments")
+    void detectCurrentLimit(Network network, String limitsSetId, double currentValue, ExpectedResults expected) {
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.setSelectedOperationalLimitsGroup1(limitsSetId);
+        checkCurrent(line, TwoSides.ONE, currentValue, violationsCollector::add);
+
+        if (expected != null) {
+            Assertions.assertThat(violationsCollector)
+                    .hasSize(1)
+                    .allSatisfy(l -> {
+                        assertEquals(expected.limit(), l.getLimit(), 0d);
+                        assertEquals(currentValue, l.getValue(), 0d);
+                        assertSame(ThreeSides.ONE, l.getSide());
+                        assertEquals(expected.acceptableDuration(), l.getAcceptableDuration());
+                        assertEquals(expected.limitName(), l.getLimitName());
+                    });
+        } else {
+            assertEquals(0, violationsCollector.size());
+        }
+    }
+
+    private record ExpectedResults(String limitName, double limit, int acceptableDuration) { }
+
+    private static Stream<Arguments> provideDetectCurrentLimitArguments() {
+        String case1 = "CASE1";
+        String case2 = "CASE2";
+        String case3 = "OneTempCase";
+
+        Network network = EurostagTutorialExample1Factory.create();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case1).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL2")
+                    .setValue(140.0)
+                    .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case2).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("IT20")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10")
+                    .setValue(140.0)
+                    .setAcceptableDuration(10 * 60)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT1")
+                    .setValue(Double.POSITIVE_INFINITY)
+                    .setAcceptableDuration(60)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+                .newOperationalLimitsGroup1(case3).newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL")
+                    .setValue(120.0)
+                    .setAcceptableDuration(20 * 60)
+                .endTemporaryLimit()
+                .add();
+
+        return Stream.of(
+                // Case 1: no upper infinite limit
+                Arguments.of(network, case1, 90., null), // below the permanent limit
+                Arguments.of(network, case1, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
+                Arguments.of(network, case1, 130., new ExpectedResults("TL1", 120., 600)), // between TL1 and TL2
+                Arguments.of(network, case1, 150., new ExpectedResults("TL2", 140., 0)), // over the highest temp limit (TL2)
+                // Case 2: with an upper infinite limit
+                Arguments.of(network, case2, 90., null), // below the permanent limit
+                Arguments.of(network, case2, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
+                Arguments.of(network, case2, 130., new ExpectedResults("IT20", 120., 600)), // between IT20 and IT10
+                Arguments.of(network, case2, 150., new ExpectedResults("IT10", 140., 60)), // between IT10 and IT1 (over IT1 is not possible)
+                // Case 3: same as 1 but with a single temp limit
+                Arguments.of(network, case3, 90., null), // below the permanent limit
+                Arguments.of(network, case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
+                Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideDetectCurrentLimitMultipleActivatedGroupsArguments")
+    void detectTemporaryCurrentLimitOverloadMultipleSelectedOnLine(Network network, String lineId, double currentValue, List<MultipleActiveExpectedResults> expectedResults) {
+        Line line = network.getLine(lineId);
+        checkCurrent(line, TwoSides.ONE, currentValue, violationsCollector::add);
+        Assertions.assertThat(violationsCollector)
+                .extracting(
+                        LimitViolation::getValue,
+                        LimitViolation::getLimit,
+                        LimitViolation::getAcceptableDuration
+                )
+                .containsExactlyInAnyOrderElementsOf(expectedResults.stream()
+                        .map(r -> tuple(r.value, r.limit, r.acceptableDuration))
+                        .toList());
+    }
+
+    private record MultipleActiveExpectedResults(double value, double limit, Integer acceptableDuration) { }
+
+    private static Stream<Arguments> provideDetectCurrentLimitMultipleActivatedGroupsArguments() {
+        String line1 = EurostagTutorialExample1Factory.NHV1_NHV2_1;
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        return Stream.of(
+                Arguments.of(network, line1, 250, List.of()),
+                Arguments.of(network, line1, 350, List.of(new MultipleActiveExpectedResults(350, 300, 2400))),
+                Arguments.of(network, line1, 600, List.of(
+                        new MultipleActiveExpectedResults(600, 300, 2400),
+                        new MultipleActiveExpectedResults(600, 500, Integer.MAX_VALUE))),
+                Arguments.of(network, line1, 812, List.of(
+                        new MultipleActiveExpectedResults(812, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(812, 700, 30)
+                )),
+                Arguments.of(network, line1, 1150, List.of(
+                        new MultipleActiveExpectedResults(1150, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1150, 1100, 600),
+                        new MultipleActiveExpectedResults(1150, 700, 30)
+                )),
+                Arguments.of(network, line1, 1400, List.of(
+                        new MultipleActiveExpectedResults(1400, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1400, 1200, 60),
+                        new MultipleActiveExpectedResults(1400, 700, 30)
+                )),
+                Arguments.of(network, line1, 1550, List.of(
+                        new MultipleActiveExpectedResults(1550, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1550, 1500, 0),
+                        new MultipleActiveExpectedResults(1550, 700, 30)
+                )),
+                Arguments.of(network, line1, 1601, List.of(
+                        new MultipleActiveExpectedResults(1601, 500, Integer.MAX_VALUE),
+                        new MultipleActiveExpectedResults(1601, 1500, 0),
+                        new MultipleActiveExpectedResults(1601, 1600, 0)
+                ))
+        );
+    }
+
 }

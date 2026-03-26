@@ -219,4 +219,13 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         };
     }
 
+    @Override
+    protected TarArchiveDataSource createDataSourceForPolynomialRegexTest() throws IOException {
+        String filename = "a".repeat(100) + "!";
+        TarArchiveDataSource tarSource = new TarArchiveDataSource(testDir, "test");
+        try (OutputStream os = tarSource.newOutputStream(filename, false)) {
+            os.write(new byte[1]);
+        }
+        return tarSource;
+    }
 }

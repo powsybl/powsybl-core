@@ -25,7 +25,7 @@ contingencies, except that you have to pass a list of equipments' IDs.
 contingency('contingencyID') {
     equipments 'equipment1', 'equipment2'
 }
-``` 
+```
 
 ## Manual contingency list
 
@@ -40,7 +40,7 @@ contingency('contingency1') {
 contingency('contingency2') {
     equipments 'equipment2'
 }
-``` 
+```
 
 ## Automatic contingency list
 

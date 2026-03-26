@@ -276,6 +276,10 @@ public class PsseGenerator extends PsseVersioned {
         return ownership;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public PsseGenerator copy() {
         PsseGenerator copy = new PsseGenerator();
         copy.i = this.i;
@@ -296,7 +300,7 @@ public class PsseGenerator extends PsseVersioned {
         copy.rmpct = this.rmpct;
         copy.pt = this.pt;
         copy.pb = this.pb;
-        copy.ownership = this.ownership;
+        copy.ownership = this.ownership.copy();
         copy.wmod = this.wmod;
         copy.wpf = this.wpf;
         copy.nreg = this.nreg;

@@ -64,6 +64,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags tieFlows;
     private PropertyBags numObjectsByType;
     private PropertyBags modelProfiles;
+    private PropertyBags generatingUnits;
+    private PropertyBags svVoltages;
 
     public InMemoryCgmesModel() {
         properties = new Properties();
@@ -106,6 +108,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
         tieFlows = new PropertyBags();
         numObjectsByType = new PropertyBags();
         modelProfiles = new PropertyBags();
+        generatingUnits = new PropertyBags();
+        svVoltages = new PropertyBags();
     }
 
     @Override
@@ -367,6 +371,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags generatingUnits() {
+        return generatingUnits;
+    }
+
+    @Override
     public PropertyBags connectivityNodes() {
         return connectivityNodes;
     }
@@ -495,6 +504,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags dcSwitches() {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags dcGrounds() {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags acDcConverters() {
         return acDcConverters;
     }
@@ -510,8 +529,18 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags dcNodes() {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags tieFlows() {
         return tieFlows;
+    }
+
+    @Override
+    public PropertyBags svVoltages() {
+        return svVoltages;
     }
 
     @Override
@@ -573,12 +602,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public CgmesTerminal terminal(String terminalId) {
         // FakeCgmesModel does not provide info on terminals
-        return null;
-    }
-
-    @Override
-    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
-        // FakeCgmesModel does not provide info on dcTerminals
         return null;
     }
 

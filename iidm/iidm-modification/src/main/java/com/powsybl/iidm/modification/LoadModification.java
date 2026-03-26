@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * Simple {@link NetworkModification} for a load.
  *

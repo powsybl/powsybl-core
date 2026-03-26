@@ -51,6 +51,12 @@ public class PropertyBags extends ArrayList<PropertyBag> {
             .collect(Collectors.toList());
     }
 
+    public List<String> pluckLocalsUnsorted(String property) {
+        return stream()
+                .map(r -> r.getLocal(property))
+                .collect(Collectors.toList());
+    }
+
     public PropertyBags pivot(
         String idProperty,
         String keyProperty,

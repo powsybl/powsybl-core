@@ -7,6 +7,8 @@
  */
 package com.powsybl.powerfactory.dgs;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.powerfactory.model.DataAttributeType;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -26,8 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

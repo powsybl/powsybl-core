@@ -38,4 +38,14 @@ public interface Component {
      */
     Stream<Bus> getBusStream();
 
+    /**
+     * Get DC buses in the component.
+     */
+    Iterable<DcBus> getDcBuses();
+
+    /**
+     * Get DC buses in the component.
+     */
+    Stream<DcBus> getDcBusStream();
+
 }

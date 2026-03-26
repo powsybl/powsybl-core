@@ -12,8 +12,9 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.math3.complex.Complex;
 
@@ -24,7 +25,7 @@ import java.util.Optional;
  */
 public class EquivalentBranchConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
-    private DanglingLine danglingLine;
+    private BoundaryLine boundaryLine;
 
     public EquivalentBranchConversion(PropertyBag b, Context context) {
         super(CgmesNames.EQUIVALENT_BRANCH, b, context);
@@ -57,7 +58,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         }
         double gch = 0;
         double bch = 0;
-        convertBranch(r, x, gch, bch);
+        convertBranch(r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
         updateParametersForEquivalentBranchWithDifferentNominalVoltages();
     }
 
@@ -73,8 +74,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     @Override
-    public Optional<DanglingLine> getDanglingLine() {
-        return Optional.ofNullable(danglingLine);
+    public Optional<BoundaryLine> getBoundaryLine() {
+        return Optional.ofNullable(boundaryLine);
     }
 
     private void convertEquivalentBranchAtBoundary(int boundarySide) {
@@ -92,7 +93,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
             throw new PowsyblException(message);
         }
         String eqInstance = p.get("graph");
-        danglingLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch);
+        boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
     }
 
     private void updateParametersForEquivalentBranchWithDifferentNominalVoltages() {
@@ -157,6 +158,18 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         line.setB1(y1l.getImaginary());
         line.setG2(y2l.getReal());
         line.setB2(y2l.getImaginary());
+    }
+
+    public static void update(Line line, Context context) {
+        updateBranch(line, context);
+    }
+
+    public static void update(Switch sw, Context context) {
+        updateBranch(sw, context);
+    }
+
+    public static void update(BoundaryLine boundaryLine, Context context) {
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 
     private static final String IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT =

@@ -24,11 +24,15 @@ org.eclipse.jdt.groovy.core.prefs
 org.eclipse.jdt.apt.core.prefs
 org.sonarlint.eclipse.core.prefs
 
+# VS Code settings
+.vscode/*
+
 # Log files
 powsybl.log
 
 # Maven wrapper jar
 .mvn/wrapper/*.jar
 
-# Generated readthedocs pages
+# Documentation
 build-docs/
+/docs/_build

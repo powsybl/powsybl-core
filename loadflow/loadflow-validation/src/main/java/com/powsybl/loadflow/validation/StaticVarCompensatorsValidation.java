@@ -92,6 +92,7 @@ public final class StaticVarCompensatorsValidation {
         double reactivePowerSetpoint = svc.getReactivePowerSetpoint();
         double voltageSetpoint = svc.getVoltageSetpoint();
         RegulationMode regulationMode = svc.getRegulationMode();
+        boolean regulating = svc.isRegulating();
         double bMin = svc.getBmin();
         double bMax = svc.getBmax();
         double nominalVcontroller = svc.getTerminal().getVoltageLevel().getNominalV();
@@ -107,25 +108,25 @@ public final class StaticVarCompensatorsValidation {
         Bus connectableBus = svc.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        return checkSVCs(svc.getId(), p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
+        return checkSVCs(svc.getId(), p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
     }
 
     public boolean checkSVCs(String id, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                    RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
+                                    RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SVCS)) {
-            return checkSVCs(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
+            return checkSVCs(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public boolean checkSVCs(String id, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                    RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
+                                    RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, ValidationWriter svcsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -136,11 +137,11 @@ public final class StaticVarCompensatorsValidation {
             if (Double.isNaN(p) || Double.isNaN(q)) {
                 validated = checkSVCsNaNValues(id, p, q, reactivePowerSetpoint);
             } else {
-                validated = checkSVCsValues(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, config);
+                validated = checkSVCsValues(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, config);
             }
         }
         try {
-            svcsWriter.write(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
+            svcsWriter.write(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -158,7 +159,7 @@ public final class StaticVarCompensatorsValidation {
 
     private static boolean checkSVCsValues(String id, double p, double q, double vControlled, double vController,
         double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-        RegulationMode regulationMode, double bMin, double bMax, ValidationConfig config) {
+        RegulationMode regulationMode, boolean regulating, double bMin, double bMax, ValidationConfig config) {
         boolean validated = true;
         // active power should be equal to 0
         if (Math.abs(p) > config.getThreshold()) {
@@ -189,7 +190,7 @@ public final class StaticVarCompensatorsValidation {
             validated = false;
         }
 
-        if (offRegulationModeKo(regulationMode, q, config)) {
+        if (notRegulatingKo(regulating, q, config)) {
             LOGGER.warn("{} {}: {}: regulator mode={} - Q={} ", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR,
                 id, regulationMode, q);
             validated = false;
@@ -233,10 +234,10 @@ public final class StaticVarCompensatorsValidation {
         return Math.abs(vControlled - voltageSetpoint) < config.getThreshold() && !ValidationUtils.boundedWithin(qMin, qMax, q, config.getThreshold());
     }
 
-    private static boolean offRegulationModeKo(RegulationMode regulationMode, double q, ValidationConfig config) {
-        // if regulationMode = OFF then reactive power should be equal to 0
+    private static boolean notRegulatingKo(boolean regulating, double q, ValidationConfig config) {
+        // if regulating is false then reactive power should be equal to 0
 
-        if (regulationMode != RegulationMode.OFF) {
+        if (regulating) {
             return false;
         }
         return Math.abs(q) > config.getThreshold();

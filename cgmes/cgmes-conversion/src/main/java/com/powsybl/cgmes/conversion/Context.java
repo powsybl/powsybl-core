@@ -9,7 +9,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
-import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
+import com.powsybl.cgmes.conversion.elements.dc.DCMapping;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -18,6 +18,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +54,10 @@ public class Context {
         cgmesBoundary = new CgmesBoundary(cgmes);
         nodeContainerMapping = new NodeContainerMapping(this);
         terminalMapping = new TerminalMapping();
-        dcMapping = new DcMapping(this);
-        loadingLimitsMapping = new LoadingLimitsMapping(this);
+        limitsMapping = new LimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
+        dcMapping = new DCMapping(this);
 
         cachedGroupedTransformerEnds = new HashMap<>();
         cachedGroupedRatioTapChangers = new HashMap<>();
@@ -67,6 +68,17 @@ public class Context {
         cachedGroupedReactiveCapabilityCurveData = new HashMap<>();
 
         buildCaches();
+
+        cgmesTerminals = new HashMap<>();
+        cgmesDcTerminals = new HashMap<>();
+        ratioTapChangers = new HashMap<>();
+        phaseTapChangers = new HashMap<>();
+        regulatingControls = new HashMap<>();
+        operationalLimits = new HashMap<>();
+        generatingUnits = new HashMap<>();
+        equivalentInjections = new HashMap<>();
+        svVoltages = new HashMap<>();
+        switches = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -103,6 +115,11 @@ public class Context {
         }
     }
 
+    public void convertedTerminalWithOnlyEq(String terminalId, Terminal t, int n) {
+        // Record the mapping between CGMES and IIDM terminals
+        terminalMapping().add(terminalId, t, n);
+    }
+
     private boolean setPQAllowed(Terminal t) {
         return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
     }
@@ -115,16 +132,16 @@ public class Context {
         return nodeContainerMapping;
     }
 
+    public DCMapping dcMapping() {
+        return dcMapping;
+    }
+
     public CgmesBoundary boundary() {
         return cgmesBoundary;
     }
 
-    public DcMapping dc() {
-        return dcMapping;
-    }
-
-    public LoadingLimitsMapping loadingLimitsMapping() {
-        return loadingLimitsMapping;
+    public LimitsMapping limitsMapping() {
+        return limitsMapping;
     }
 
     public RegulatingControlMapping regulatingControlMapping() {
@@ -184,6 +201,66 @@ public class Context {
 
     public PropertyBags reactiveCapabilityCurveData(String curveId) {
         return cachedGroupedReactiveCapabilityCurveData.getOrDefault(curveId, new PropertyBags());
+    }
+
+    public void buildUpdateCache() {
+        buildUpdateCache(cgmesTerminals, cgmes.terminals(), CgmesNames.TERMINAL);
+        buildUpdateCache(cgmesDcTerminals, cgmes.dcTerminals(), CgmesNames.DC_TERMINAL);
+        buildUpdateCache(ratioTapChangers, cgmes.ratioTapChangers(), CgmesNames.RATIO_TAP_CHANGER);
+        buildUpdateCache(phaseTapChangers, cgmes.phaseTapChangers(), CgmesNames.PHASE_TAP_CHANGER);
+        buildUpdateCache(regulatingControls, cgmes.regulatingControls(), CgmesNames.REGULATING_CONTROL);
+        buildUpdateCache(operationalLimits, cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT);
+        buildUpdateCache(generatingUnits, cgmes.generatingUnits(), CgmesNames.GENERATING_UNIT);
+        buildUpdateCache(equivalentInjections, cgmes.equivalentInjections(), CgmesNames.EQUIVALENT_INJECTION);
+        buildUpdateCache(svVoltages, cgmes.svVoltages(), CgmesNames.TOPOLOGICAL_NODE);
+        buildUpdateCache(switches, cgmes.switches(), CgmesNames.SWITCH);
+    }
+
+    private static void buildUpdateCache(Map<String, PropertyBag> cache, PropertyBags cgmesPropertyBags, String tagId) {
+        cgmesPropertyBags.forEach(p -> {
+            String id = p.getId(tagId);
+            cache.put(id, p);
+        });
+    }
+
+    public PropertyBag cgmesTerminal(String id) {
+        return cgmesTerminals.get(id);
+    }
+
+    public PropertyBag cgmesDcTerminal(String id) {
+        return cgmesDcTerminals.get(id);
+    }
+
+    public PropertyBag ratioTapChanger(String id) {
+        return ratioTapChangers.get(id);
+    }
+
+    public PropertyBag phaseTapChanger(String id) {
+        return phaseTapChangers.get(id);
+    }
+
+    public PropertyBag regulatingControl(String id) {
+        return regulatingControls.get(id);
+    }
+
+    public PropertyBag operationalLimit(String id) {
+        return operationalLimits.get(id);
+    }
+
+    public PropertyBag generatingUnit(String id) {
+        return generatingUnits.get(id);
+    }
+
+    public PropertyBag equivalentInjection(String id) {
+        return equivalentInjections.get(id);
+    }
+
+    public PropertyBag svVoltage(String id) {
+        return svVoltages.get(id);
+    }
+
+    public PropertyBag cgmesSwitch(String id) {
+        return switches.get(id);
     }
 
     // Handling issues found during conversion
@@ -276,7 +353,12 @@ public class Context {
 
     private static void logIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
         if (LOG.isWarnEnabled()) {
-            LOG.warn("{}: {}. Reason: {}", category, what, reason.get());
+            String r = reason.get();
+            if (r.isEmpty()) {
+                LOG.warn("{}: {}", category, what);
+            } else {
+                LOG.warn("{}: {}. Reason: {}", category, what, r);
+            }
         }
     }
 
@@ -290,9 +372,9 @@ public class Context {
     private final CgmesBoundary cgmesBoundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
-    private final DcMapping dcMapping;
-    private final LoadingLimitsMapping loadingLimitsMapping;
+    private final LimitsMapping limitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
+    private final DCMapping dcMapping;
 
     private final Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private final Map<String, PropertyBags> cachedGroupedRatioTapChangers;
@@ -302,5 +384,15 @@ public class Context {
     private final Map<String, PropertyBags> cachedGroupedShuntCompensatorPoints;
     private final Map<String, PropertyBags> cachedGroupedReactiveCapabilityCurveData;
 
+    private final Map<String, PropertyBag> cgmesTerminals;
+    private final Map<String, PropertyBag> cgmesDcTerminals;
+    private final Map<String, PropertyBag> ratioTapChangers;
+    private final Map<String, PropertyBag> phaseTapChangers;
+    private final Map<String, PropertyBag> regulatingControls;
+    private final Map<String, PropertyBag> operationalLimits;
+    private final Map<String, PropertyBag> generatingUnits;
+    private final Map<String, PropertyBag> equivalentInjections;
+    private final Map<String, PropertyBag> svVoltages;
+    private final Map<String, PropertyBag> switches;
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

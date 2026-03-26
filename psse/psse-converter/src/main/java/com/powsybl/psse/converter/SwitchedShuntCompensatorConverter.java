@@ -35,6 +35,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     void create() {
+        if (!getContainersMapping().isBusDefined(psseSwitchedShunt.getI())) {
+            return;
+        }
         List<ShuntBlock> shuntBlocks = defineShuntBlocks(psseSwitchedShunt, version);
         if (shuntBlocks.isEmpty()) {
             return;
@@ -48,7 +51,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             .setSectionCount(defineSectionCount(psseSwitchedShunt.getBinit(), shuntBlocks));
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_SWITCHED_SHUNT, psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version));
-        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseSwitchedShunt.getI()));
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseSwitchedShunt.getI(), 0, 0, psseSwitchedShunt.getI(), "I"));
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {
@@ -115,10 +118,10 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         if (switchedShuntRegulatingBus(psseSwitchedShunt, version) == 0) {
             regulatingTerminal = shunt.getTerminal();
         } else {
-            String equipmentId = getNodeBreakerEquipmentId(PSSE_SWITCHED_SHUNT, psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version));
-            Optional<NodeBreakerImport.NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, switchedShuntRegulatingBus(psseSwitchedShunt, version)));
-            if (controlNode.isPresent()) {
-                regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+            Optional<NodeBreakerImport.ControlR> control = nodeBreakerImport.getControl(switchedShuntRegulatingBus(psseSwitchedShunt, version));
+            if (control.isPresent()) {
+                int controlledNode = psseSwitchedShunt.getNreg() != 0 ? psseSwitchedShunt.getNreg() : control.get().node();
+                regulatingTerminal = findTerminalNode(network, control.get().voltageLevelId(), controlledNode);
             } else {
                 String regulatingBusId = getBusId(switchedShuntRegulatingBus(psseSwitchedShunt, version));
                 Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
@@ -129,7 +132,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
         if (regulatingTerminal == null) {
             String shuntId = defineShuntId(psseSwitchedShunt, version);
-            LOGGER.warn("SwitchedShunt {}. Regulating terminal is not assigned as the bus is isolated", shuntId);
+            LOGGER.warn("SwitchedShunt {}. Regulating terminal is not assigned", shuntId);
         }
         return regulatingTerminal;
     }
@@ -272,7 +275,160 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
     }
 
-    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel) {
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
+        List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
+        network.getShuntCompensators().forEach(shuntCompensator -> {
+            if (!isFixedShunt(shuntCompensator)) {
+                switchedShunts.add(createSwitchedShunt(shuntCompensator, version, contextExport));
+            }
+        });
+        psseModel.addSwitchedShunts(switchedShunts);
+        psseModel.replaceAllSwitchedShunts(psseModel.getSwitchedShunts().stream().sorted(Comparator.comparingInt(PsseSwitchedShunt::getI).thenComparing(PsseSwitchedShunt::getId)).toList());
+    }
+
+    static PsseSwitchedShunt createSwitchedShunt(ShuntCompensator shuntCompensator, PsseVersion version, ContextExport contextExport) {
+        PsseSwitchedShunt psseSwitchedShunt = createDefaultSwitchedShunt();
+
+        int busI = getTerminalBusI(shuntCompensator.getTerminal(), contextExport);
+        int regulatingBus = getRegulatingTerminalBusI(shuntCompensator.getRegulatingTerminal(), busI, switchedShuntRegulatingBus(psseSwitchedShunt, version), contextExport);
+        psseSwitchedShunt.setI(busI);
+        psseSwitchedShunt.setId(contextExport.getFullExport().getEquipmentCkt(shuntCompensator.getId(), PSSE_SWITCHED_SHUNT.getTextCode(), busI));
+        psseSwitchedShunt.setModsw(getModsw(shuntCompensator));
+        psseSwitchedShunt.setStat(getStatus(shuntCompensator.getTerminal(), contextExport));
+        psseSwitchedShunt.setVswhi(getVswhi(shuntCompensator));
+        psseSwitchedShunt.setVswlo(getVswlo(shuntCompensator));
+        psseSwitchedShunt.setSwreg(regulatingBus);
+        psseSwitchedShunt.setNreg(getRegulatingTerminalNode(shuntCompensator.getRegulatingTerminal(), contextExport));
+        psseSwitchedShunt.setBinit(shuntAdmittanceToPower(shuntCompensator.getB(), shuntCompensator.getTerminal().getVoltageLevel().getNominalV()));
+
+        setShuntBlocks(shuntCompensator, psseSwitchedShunt);
+        return psseSwitchedShunt;
+    }
+
+    private static int getModsw(ShuntCompensator shuntCompensator) {
+        return shuntCompensator.isVoltageRegulatorOn() ? 1 : 0;
+    }
+
+    private static double getVswhi(ShuntCompensator shuntCompensator) {
+        double targetV = shuntCompensator.getTargetV() + shuntCompensator.getTargetDeadband() * 0.5;
+        double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
+        return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;
+    }
+
+    private static double getVswlo(ShuntCompensator shuntCompensator) {
+        double targetV = shuntCompensator.getTargetV() - shuntCompensator.getTargetDeadband() * 0.5;
+        double nominalV = getRegulatingTerminalNominalV(shuntCompensator);
+
+        return Double.isFinite(targetV) && Double.isFinite(nominalV) && targetV > 0 && nominalV > 0 ? targetV / nominalV : 1.0;
+    }
+
+    private static double getRegulatingTerminalNominalV(ShuntCompensator shuntCompensator) {
+        return shuntCompensator.getRegulatingTerminal() != null ? shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV() : shuntCompensator.getTerminal().getVoltageLevel().getNominalV();
+    }
+
+    private static void setShuntBlocks(ShuntCompensator shuntCompensator, PsseSwitchedShunt psseSwitchedShunt) {
+        if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
+            ShuntCompensatorLinearModel linearModel = (ShuntCompensatorLinearModel) shuntCompensator.getModel();
+            setShuntBlocksForLinearModel(linearModel, shuntCompensator.getMaximumSectionCount(), shuntCompensator.getTerminal().getVoltageLevel().getNominalV(), psseSwitchedShunt);
+        } else {
+            ShuntCompensatorNonLinearModel nonLinearModel = (ShuntCompensatorNonLinearModel) shuntCompensator.getModel();
+            setShuntBlocksForNonLinearModel(nonLinearModel, shuntCompensator.getTerminal().getVoltageLevel().getNominalV(), psseSwitchedShunt);
+        }
+    }
+
+    private static void setShuntBlocksForLinearModel(ShuntCompensatorLinearModel linearModel, int maximumSectionCount, double nominalV, PsseSwitchedShunt psseSwitchedShunt) {
+        psseSwitchedShunt.setN1(maximumSectionCount);
+        psseSwitchedShunt.setB1(shuntAdmittanceToPower(linearModel.getBPerSection(), nominalV));
+    }
+
+    private static void setShuntBlocksForNonLinearModel(ShuntCompensatorNonLinearModel nonLinearModel, double nominalV, PsseSwitchedShunt psseSwitchedShunt) {
+        List<ShuntCompensatorNonLinearModel.Section> sections = nonLinearModel.getAllSections().stream().filter(section -> section.getB() != 0.0).toList();
+        psseSwitchedShunt.setN1(getN(sections, 0));
+        psseSwitchedShunt.setB1(shuntAdmittanceToPower(getB(sections, 0), nominalV));
+        psseSwitchedShunt.setN2(getN(sections, 1));
+        psseSwitchedShunt.setB2(shuntAdmittanceToPower(getB(sections, 1), nominalV));
+        psseSwitchedShunt.setN3(getN(sections, 2));
+        psseSwitchedShunt.setB3(shuntAdmittanceToPower(getB(sections, 2), nominalV));
+        psseSwitchedShunt.setN4(getN(sections, 3));
+        psseSwitchedShunt.setB4(shuntAdmittanceToPower(getB(sections, 3), nominalV));
+        psseSwitchedShunt.setN5(getN(sections, 4));
+        psseSwitchedShunt.setB5(shuntAdmittanceToPower(getB(sections, 4), nominalV));
+        psseSwitchedShunt.setN6(getN(sections, 5));
+        psseSwitchedShunt.setB6(shuntAdmittanceToPower(getB(sections, 5), nominalV));
+        psseSwitchedShunt.setN7(getN(sections, 6));
+        psseSwitchedShunt.setB7(shuntAdmittanceToPower(getB(sections, 6), nominalV));
+        psseSwitchedShunt.setN8(getRemainderN(sections, 7));
+        psseSwitchedShunt.setB8(shuntAdmittanceToPower(getRemainderB(sections, 7), nominalV));
+    }
+
+    private static int getN(List<ShuntCompensatorNonLinearModel.Section> sections, int index) {
+        return sections.size() > index ? 1 : 0;
+    }
+
+    private static double getB(List<ShuntCompensatorNonLinearModel.Section> sections, int index) {
+        return sections.size() > index ? sections.get(index).getB() : 0.0;
+    }
+
+    private static int getRemainderN(List<ShuntCompensatorNonLinearModel.Section> sections, int index) {
+        return sections.size() > index ? sections.size() - index : 0;
+    }
+
+    private static double getRemainderB(List<ShuntCompensatorNonLinearModel.Section> sections, int index) {
+        int n = getRemainderN(sections, index);
+        if (n <= 0) {
+            return 0.0;
+        }
+        double remainderB = 0.0;
+        for (int i = index; i < sections.size(); i++) {
+            remainderB += sections.get(i).getB();
+        }
+        return remainderB / n;
+    }
+
+    private static PsseSwitchedShunt createDefaultSwitchedShunt() {
+        PsseSwitchedShunt psseSwitchedShunt = new PsseSwitchedShunt();
+        psseSwitchedShunt.setI(0);
+        psseSwitchedShunt.setId("1");
+        psseSwitchedShunt.setModsw(1);
+        psseSwitchedShunt.setAdjm(0);
+        psseSwitchedShunt.setStat(1);
+        psseSwitchedShunt.setVswhi(1.0);
+        psseSwitchedShunt.setVswlo(1.0);
+        psseSwitchedShunt.setSwreg(0);
+        psseSwitchedShunt.setNreg(0);
+        psseSwitchedShunt.setRmpct(100.0);
+        psseSwitchedShunt.setRmidnt("");
+        psseSwitchedShunt.setBinit(0.0);
+
+        psseSwitchedShunt.setS1(1);
+        psseSwitchedShunt.setN1(0);
+        psseSwitchedShunt.setB1(0.0);
+        psseSwitchedShunt.setS2(1);
+        psseSwitchedShunt.setN2(0);
+        psseSwitchedShunt.setB2(0.0);
+        psseSwitchedShunt.setS3(1);
+        psseSwitchedShunt.setN3(0);
+        psseSwitchedShunt.setB3(0.0);
+        psseSwitchedShunt.setS4(1);
+        psseSwitchedShunt.setN4(0);
+        psseSwitchedShunt.setB4(0.0);
+        psseSwitchedShunt.setS5(1);
+        psseSwitchedShunt.setN5(0);
+        psseSwitchedShunt.setB5(0.0);
+        psseSwitchedShunt.setS6(1);
+        psseSwitchedShunt.setN6(0);
+        psseSwitchedShunt.setB6(0.0);
+        psseSwitchedShunt.setS7(1);
+        psseSwitchedShunt.setN7(0);
+        psseSwitchedShunt.setB7(0.0);
+        psseSwitchedShunt.setS8(1);
+        psseSwitchedShunt.setN8(0);
+        psseSwitchedShunt.setB8(0.0);
+        return psseSwitchedShunt;
+    }
+
+    static void update(Network network, PssePowerFlowModel psseModel) {
         PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
             String switchedShuntId = getSwitchedShuntId(psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version));
@@ -280,7 +436,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             if (switchedShunt == null) {
                 psseSwitchedShunt.setStat(0);
             } else {
-                psseSwitchedShunt.setStat(getStatus(switchedShunt));
+                psseSwitchedShunt.setStat(getUpdatedStatus(switchedShunt.getTerminal()));
                 psseSwitchedShunt.setBinit(getQ(switchedShunt));
             }
         });

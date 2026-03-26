@@ -452,7 +452,7 @@ class TransformerConversionTest {
         double threshold = 0.01;
         ValidationConfig vconfig = loadFlowValidationConfig(threshold);
         LoadFlowParameters lfParameters = defineLoadflowParameters(vconfig.getLoadFlowParameters(), config);
-        ConversionTester.computeMissingFlows(n, lfParameters);
+        ConversionTester.computeMissingFlows(n, lfParameters, false);
 
         return n;
     }

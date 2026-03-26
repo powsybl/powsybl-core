@@ -19,7 +19,6 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 
@@ -72,39 +71,6 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void microGridOperationalLimits() {
-        Network n = networkModel(Cgmes3Catalog.microGrid(), new Conversion.Config());
-
-        Line ln = n.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
-        assertEquals(1312.0, ln.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(1312.0, ln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-
-        assertEquals(1, (int) ln.getCurrentLimits1().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, lntl1.getValue(), 0.0);
-        assertEquals(10, lntl1.getAcceptableDuration());
-
-        assertEquals(1, (int) ln.getCurrentLimits2().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, lntl2.getValue(), 0.0);
-        assertEquals(10, lntl2.getAcceptableDuration());
-
-        TieLine tln = n.getTieLine("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b");
-        assertEquals(1371.0, tln.getDanglingLine1().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(1226.0, tln.getDanglingLine2().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-
-        assertEquals(1, (int) tln.getDanglingLine1().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit tlntl1 = tln.getDanglingLine1().getCurrentLimits().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, tlntl1.getValue(), 0.0);
-        assertEquals(10, tlntl1.getAcceptableDuration());
-
-        assertEquals(1, (int) tln.getDanglingLine2().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit tlntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, tlntl2.getValue(), 0.0);
-        assertEquals(10, tlntl2.getAcceptableDuration());
-    }
-
-    @Test
     void microGridWithAndWithoutTpSv() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
@@ -146,27 +112,6 @@ class Cgmes3ConversionTest {
             new ComparisonConfig());
         Network expected = null;
         t.testConversion(expected, Cgmes3Catalog.miniGrid());
-    }
-
-    @Test
-    void miniGridOperationalLimits() {
-        Network n = networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
-
-        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
-        assertEquals(753.0659, tw2t.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(4123.933, tw2t.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-
-        assertEquals(0, (int) tw2t.getCurrentLimits1().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        assertEquals(0, (int) tw2t.getCurrentLimits2().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-
-        ThreeWindingsTransformer tw3t = n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
-        assertEquals(505.1817, tw3t.getLeg1().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(1683.939, tw3t.getLeg2().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(962.2509, tw3t.getLeg3().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-
-        assertEquals(0, (int) tw3t.getLeg1().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        assertEquals(0, (int) tw3t.getLeg2().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        assertEquals(0, (int) tw3t.getLeg3().getCurrentLimits().map(l -> l.getTemporaryLimits().size()).orElse(-1));
     }
 
     @Test
@@ -233,25 +178,6 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void smallGridOperationalLimits() {
-        Network n = networkModel(Cgmes3Catalog.smallGrid(), new Conversion.Config());
-
-        Line ln = n.getLine("04658820-c766-11e1-8775-005056c00008");
-        assertEquals(1000.0, ln.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(1000.0, ln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-
-        assertEquals(1, (int) ln.getCurrentLimits1().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, lntl1.getValue(), 0.0);
-        assertEquals(900, lntl1.getAcceptableDuration());
-
-        assertEquals(1, (int) ln.getCurrentLimits2().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, lntl2.getValue(), 0.0);
-        assertEquals(900, lntl2.getAcceptableDuration());
-    }
-
-    @Test
     void smallGridWithAndWithoutTpSv() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
@@ -312,25 +238,6 @@ class Cgmes3ConversionTest {
             new ComparisonConfig());
         Network expected = null;
         t.testConversion(expected, Cgmes3Catalog.svedala());
-    }
-
-    @Test
-    void svedalaOperationalLimits() {
-        Network n = networkModel(Cgmes3Catalog.svedala(), new Conversion.Config());
-
-        Line ln = n.getLine("c6278b38-b777-4ad9-b395-50c4009afdff");
-        assertEquals(2970.0, ln.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(2970.0, ln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-
-        assertEquals(1, (int) ln.getCurrentLimits1().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, lntl1.getValue(), 0.0);
-        assertEquals(600, lntl1.getAcceptableDuration());
-
-        assertEquals(1, (int) ln.getCurrentLimits2().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
-        assertEquals(500.0, lntl2.getValue(), 0.0);
-        assertEquals(600, lntl2.getAcceptableDuration());
     }
 
     @Test

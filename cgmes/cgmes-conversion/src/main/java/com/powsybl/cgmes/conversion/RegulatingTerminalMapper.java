@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-final class RegulatingTerminalMapper {
+public final class RegulatingTerminalMapper {
 
     private RegulatingTerminalMapper() {
         // Empty constructor for utility class
@@ -42,9 +42,11 @@ final class RegulatingTerminalMapper {
                         .or(() -> new EquivalentTerminalFinderVoltageControl(cgmesTerminalId, context).find())
                         // As a last resource, rely on the "find" method of terminal mapping:
                         // Bus/branch models may define remote voltage controls that point to busbar sections
-                        // Busbar sections are not mapped to IIDM
+                        // Since busbar sections are not mapped to IIDM, we look for an equivalent IIDM terminal
+                        // that is connected to the busbar section via switches
                         .or(() -> Optional.ofNullable(context.terminalMapping()
-                                .findFromTopologicalNode(context.terminalMapping().getTopologicalNode(cgmesTerminalId))));
+                                .findFromTopologicalNode(context.terminalMapping().getTopologicalNode(cgmesTerminalId)))
+                                .or(() -> findEquivalentTerminalForVoltageRegulatingTerminalDefinedAtBusbarSection(cgmesTerminalId, context)));
     }
 
     public static Optional<TerminalAndSign> mapForFlowControl(String cgmesTerminalId, Context context) {
@@ -105,7 +107,7 @@ final class RegulatingTerminalMapper {
                 .filter(terminal -> vertices.contains(terminalToVertex.apply(terminal)));
     }
 
-    static class TerminalAndSign {
+    public static class TerminalAndSign {
         private final Terminal terminal;
         private final int sign;
 
@@ -337,7 +339,7 @@ final class RegulatingTerminalMapper {
 
         private Optional<Terminal> findBusBranch() {
             Bus end1 = vl.getBusBreakerView().getBus1(sw.getId());
-            List<Terminal> terminals = findTerminalsBusBranch(end1);
+            List<Terminal> terminals = findTerminalsBusBranch(vl, end1);
             return best(terminals);
         }
 
@@ -346,7 +348,7 @@ final class RegulatingTerminalMapper {
             return allTerminals(vl, nodes, t -> t.getNodeBreakerView().getNode());
         }
 
-        private List<Terminal> findTerminalsBusBranch(Bus end) {
+        private static List<Terminal> findTerminalsBusBranch(VoltageLevel vl, Bus end) {
             Set<Bus> buses = allBusesReachableBySwitches(vl, end);
             return allTerminals(vl, buses, RegulatingTerminalMapper::getTerminalBus);
         }
@@ -360,14 +362,14 @@ final class RegulatingTerminalMapper {
         /**
          * The best terminal is the terminal associated to the line, branch at the border
          * one end inside the controlArea and the other outside.
-         * At this moment we only know this information in danglingLines so
-         * the terminal will only be accepted if it is a danglingLine
+         * At this moment we only know this information in boundaryLines so
+         * the terminal will only be accepted if it is a boundaryLine
          */
         private static Optional<Terminal> best(Terminal terminalEnd1, Terminal terminalEnd2) {
-            if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
+            if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.BOUNDARY_LINE) {
                 return Optional.of(terminalEnd1);
             }
-            if (terminalEnd2 != null && terminalEnd2.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
+            if (terminalEnd2 != null && terminalEnd2.getConnectable().getType() == IdentifiableType.BOUNDARY_LINE) {
                 return Optional.of(terminalEnd2);
             }
             return Optional.empty();
@@ -397,6 +399,17 @@ final class RegulatingTerminalMapper {
             Terminal terminalEnd2 = findForFlow(end2, end1);
             return best(terminalEnd1, terminalEnd2);
         }
+    }
+
+    static Optional<Terminal> findEquivalentTerminalForVoltageRegulatingTerminalDefinedAtBusbarSection(String cgmesTerminalId, Context context) {
+        CgmesTerminal busbarSectionCgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
+        if (busbarSectionCgmesTerminal == null) {
+            return Optional.empty();
+        }
+        Bus busInBusBreakerView = context.network().getBusBreakerView().getBus(busbarSectionCgmesTerminal.topologicalNode());
+        return busInBusBreakerView != null
+                ? EquivalentTerminalFinderVoltageControl.best(EquivalentTerminalFinderVoltageControl.findTerminalsBusBranch(busInBusBreakerView.getVoltageLevel(), busInBusBreakerView))
+                : Optional.empty();
     }
 
     private static Bus getTerminalBus(Terminal terminal) {

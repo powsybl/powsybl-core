@@ -16,11 +16,11 @@ import com.powsybl.iidm.network.Network;
  */
 public abstract class AbstractMultiVariantIdentifiableExtension<T extends Identifiable<T>> extends AbstractIidmExtension<T> implements MultiVariantObject {
 
-    public AbstractMultiVariantIdentifiableExtension(T extendable) {
+    protected AbstractMultiVariantIdentifiableExtension(T extendable) {
         super(extendable);
     }
 
-    protected VariantManagerHolder getVariantManagerHolder() {
+    public VariantManagerHolder getVariantManagerHolder() {
         Network network = getExtendable().getNetwork();
 
         if (network instanceof VariantManagerHolder variantManagerHolder) {

@@ -9,11 +9,13 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
-import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
@@ -27,6 +29,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static com.powsybl.iidm.network.test.NetworkTest1Factory.id;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -49,6 +52,10 @@ public abstract class AbstractNetworkTest {
     private static final String VLHV1 = "VLHV1";
     private static final String VLGEN = "VLGEN";
     private static final String VLBAT = "VLBAT";
+    private static final String ID_1 = "1";
+    private static final String ID_2 = "2";
+
+    private static Network fullNetwork;
 
     @Test
     public void testNetwork1() {
@@ -86,14 +93,15 @@ public abstract class AbstractNetworkTest {
         topology1.setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
         assertEquals(1.0, topology1.getFictitiousP0(0), 0.0);
         assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
-        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(voltageLevel1);
-        nodesByBus.forEach((busId, nodes) -> {
-            if (nodes.contains(0)) {
-                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
-            } else if (nodes.contains(1)) {
-                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
-            }
-        });
+        assertEquals(1.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
+        assertEquals(2.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
+        topology1.getTerminal(0).getBusView().getBus().setFictitiousP0(3.0);
+        topology1.getTerminal(0).getBusView().getBus().setFictitiousQ0(4.0);
+        // here we only test that the bus has the correct total fictitious. We
+        // decided not to enforce how it is distributed on the different nodes
+        // of the bus to allow different behaviors.
+        assertEquals(3.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
+        assertEquals(4.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
 
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
@@ -406,32 +414,32 @@ public abstract class AbstractNetworkTest {
                 .setB(0.0)
                 .add();
 
-        assertEquals(Arrays.asList("P1", "P2"), mapper.apply(network.getSubstationStream()));
+        assertThat(mapper.apply(network.getSubstationStream())).containsExactlyInAnyOrder("P1", "P2");
         assertEquals(network.getSubstationCount(), network.getSubstationStream().count());
-        assertEquals(Arrays.asList(NHV1_NHV2_1, NHV1_NHV2_2), mapper.apply(network.getLineStream()));
+        assertThat(mapper.apply(network.getLineStream())).containsExactlyInAnyOrder(NHV1_NHV2_1, NHV1_NHV2_2);
         assertEquals(network.getLineCount(), network.getLineStream().count());
 
-        assertEquals(Arrays.asList(VLGEN, VLHV1, VLHV2, VLLOAD), mapper.apply(network.getVoltageLevelStream()));
+        assertThat(mapper.apply(network.getVoltageLevelStream())).containsExactlyInAnyOrder(VLGEN, VLHV1, VLHV2, VLLOAD);
         assertEquals(network.getVoltageLevelCount(), network.getVoltageLevelStream().count());
-        assertEquals(Arrays.asList(VLGEN, VLHV1), mapper.apply(network.getSubstation("P1").getVoltageLevelStream()));
-        assertEquals(Arrays.asList(VLHV2, VLLOAD), mapper.apply(network.getSubstation("P2").getVoltageLevelStream()));
+        assertThat(mapper.apply(network.getSubstation("P1").getVoltageLevelStream())).containsExactlyInAnyOrder(VLGEN, VLHV1);
+        assertThat(mapper.apply(network.getSubstation("P2").getVoltageLevelStream())).containsExactlyInAnyOrder(VLHV2, VLLOAD);
 
-        assertEquals(Arrays.asList("NGEN", "NHV1", "NHV1_bis", "NHV2", "NLOAD"), mapper.apply(network.getBusBreakerView().getBusStream()));
+        assertThat(mapper.apply(network.getBusBreakerView().getBusStream())).containsExactlyInAnyOrder("NGEN", "NHV1", "NHV1_bis", "NHV2", "NLOAD");
         assertEquals(Collections.singletonList("NGEN"), mapper.apply(network.getVoltageLevel(VLGEN).getBusBreakerView().getBusStream()));
-        assertEquals(Arrays.asList("NHV1", "NHV1_bis"), mapper.apply(network.getVoltageLevel(VLHV1).getBusBreakerView().getBusStream()));
+        assertThat(mapper.apply(network.getVoltageLevel(VLHV1).getBusBreakerView().getBusStream())).containsExactlyInAnyOrder("NHV1", "NHV1_bis");
         assertEquals(Collections.singletonList("NHV2"), mapper.apply(network.getVoltageLevel(VLHV2).getBusBreakerView().getBusStream()));
         assertEquals(Collections.singletonList("NLOAD"), mapper.apply(network.getVoltageLevel(VLLOAD).getBusBreakerView().getBusStream()));
         assertThat(mapper.apply(network.getVoltageLevel(VLHV1).getConnectableStream())).containsExactlyInAnyOrder(NHV1_NHV2_1, NHV1_NHV2_2, NGEN_NHV1, nhv1nhv1);
         assertEquals(network.getVoltageLevel(VLHV1).getConnectableCount(), network.getVoltageLevel(VLHV1).getConnectableStream().count());
 
-        assertEquals(Arrays.asList(NGEN_NHV1, NHV2_NLOAD, nhv1nhv1), mapper.apply(network.getTwoWindingsTransformerStream()));
+        assertThat(mapper.apply(network.getTwoWindingsTransformerStream())).containsExactlyInAnyOrder(NGEN_NHV1, NHV2_NLOAD, nhv1nhv1);
         assertEquals(network.getTwoWindingsTransformerCount(), network.getTwoWindingsTransformerStream().count());
-        assertEquals(Arrays.asList(NGEN_NHV1, nhv1nhv1), mapper.apply(network.getSubstation("P1").getTwoWindingsTransformerStream()));
+        assertThat(mapper.apply(network.getSubstation("P1").getTwoWindingsTransformerStream())).containsExactlyInAnyOrder(NGEN_NHV1, nhv1nhv1);
         assertEquals(Collections.singleton(NHV2_NLOAD), mapperSet.apply(network.getSubstation("P2").getTwoWindingsTransformerStream()));
-        assertEquals(Arrays.asList(NGEN_NHV1, nhv1nhv1), mapper.apply(network.getVoltageLevel(VLHV1).getConnectableStream(TwoWindingsTransformer.class)));
+        assertThat(mapper.apply(network.getVoltageLevel(VLHV1).getConnectableStream(TwoWindingsTransformer.class))).containsExactlyInAnyOrder(NGEN_NHV1, nhv1nhv1);
         assertEquals(network.getVoltageLevel(VLHV1).getConnectableCount(TwoWindingsTransformer.class), network.getVoltageLevel(VLHV1).getConnectableStream(TwoWindingsTransformer.class).count());
 
-        assertEquals(Arrays.asList(NHV1_NHV2_1, NHV1_NHV2_2, NGEN_NHV1, NHV2_NLOAD, nhv1nhv1), mapper.apply(network.getBranchStream()));
+        assertThat(mapper.apply(network.getBranchStream())).containsExactlyInAnyOrder(NHV1_NHV2_1, NHV1_NHV2_2, NGEN_NHV1, NHV2_NLOAD, nhv1nhv1);
         assertEquals(network.getBranchCount(), network.getBranchStream().count());
 
         assertEquals(Collections.emptyList(), mapper.apply(network.getThreeWindingsTransformerStream()));
@@ -439,9 +447,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformerStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(network.getBoundaryLineCount(), network.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntCompensatorStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV2).getShuntCompensatorStream()));
         assertEquals(network.getShuntCompensatorCount(), network.getShuntCompensatorStream().count());
@@ -458,8 +466,8 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.singletonList(NGEN_NHV1), mapper.apply(bus.getTwoWindingsTransformerStream()));
         assertEquals(Collections.singletonList("GEN"), mapper.apply(bus.getGeneratorStream()));
         bus = network.getVoltageLevel(VLHV1).getBusView().getBus("VLHV1_0");
-        assertEquals(Arrays.asList(NHV1_NHV2_1, NHV1_NHV2_2), mapper.apply(bus.getLineStream()));
-        assertEquals(Arrays.asList(NGEN_NHV1, nhv1nhv1), mapper.apply(bus.getTwoWindingsTransformerStream()));
+        assertThat(mapper.apply(bus.getLineStream())).containsExactlyInAnyOrder(NHV1_NHV2_1, NHV1_NHV2_2);
+        assertThat(mapper.apply(bus.getTwoWindingsTransformerStream())).containsExactlyInAnyOrder(NGEN_NHV1, nhv1nhv1);
         bus = network.getVoltageLevel(VLHV2).getBusView().getBus("VLHV2_0");
         assertEquals(Collections.singletonList(NHV2_NLOAD), mapper.apply(bus.getTwoWindingsTransformerStream()));
         bus = network.getVoltageLevel(VLLOAD).getBusView().getBus("VLLOAD_0");
@@ -486,9 +494,9 @@ public abstract class AbstractNetworkTest {
         network = HvdcTestNetwork.createLcc();
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
         assertEquals(network.getHvdcLineCount(), network.getHvdcLineStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getLccConverterStationStream()));
+        assertThat(mapper.apply(network.getLccConverterStationStream())).containsExactlyInAnyOrder("C1", "C2");
         assertEquals(network.getLccConverterStationCount(), network.getLccConverterStationStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getHvdcConverterStationStream()));
+        assertThat(mapper.apply(network.getHvdcConverterStationStream())).containsExactlyInAnyOrder("C1", "C2");
         assertEquals(network.getHvdcConverterStationCount(), network.getHvdcConverterStationStream().count());
         assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getLccConverterStationStream()));
         assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getLccConverterStationStream()));
@@ -496,14 +504,14 @@ public abstract class AbstractNetworkTest {
         bus = network.getVoltageLevel("VL2").getBusView().getBus(VL2_0);
         assertEquals(Collections.singletonList("C2"), mapper.apply(bus.getLccConverterStationStream()));
 
-        assertEquals(Arrays.asList("BK1", "BK2", "BK3"), mapper.apply(network.getBusBreakerView().getSwitchStream()));
+        assertThat(mapper.apply(network.getBusBreakerView().getSwitchStream())).containsExactlyInAnyOrder("BK1", "BK2", "BK3");
 
         network = HvdcTestNetwork.createVsc();
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
         assertEquals(network.getHvdcLineCount(), network.getHvdcLineStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getVscConverterStationStream()));
+        assertThat(mapper.apply(network.getVscConverterStationStream())).containsExactlyInAnyOrder("C1", "C2");
         assertEquals(network.getVscConverterStationCount(), network.getVscConverterStationStream().count());
-        assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getHvdcConverterStationStream()));
+        assertThat(mapper.apply(network.getHvdcConverterStationStream())).containsExactlyInAnyOrder("C1", "C2");
         assertEquals(network.getHvdcConverterStationCount(), network.getHvdcConverterStationStream().count());
         assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getVscConverterStationStream()));
         assertEquals(Collections.singletonList("C2"), mapper.apply(network.getVoltageLevel("VL2").getVscConverterStationStream()));
@@ -513,17 +521,17 @@ public abstract class AbstractNetworkTest {
 
         // Topology
         network = NetworkTest1Factory.create();
-        assertEquals(Arrays.asList(VOLTAGE_LEVEL1_BUSBAR_SECTION1, VOLTAGE_LEVEL1_BUSBAR_SECTION2),
-                mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView().getBusbarSectionStream()));
+        assertThat(mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView().getBusbarSectionStream()))
+            .containsExactlyInAnyOrder(VOLTAGE_LEVEL1_BUSBAR_SECTION1, VOLTAGE_LEVEL1_BUSBAR_SECTION2);
         assertEquals(Collections.singletonList(VOLTAGE_LEVEL1_BREAKER1),
                 mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
                         .getSwitchStream()
                         .filter(sw -> sw.getKind() == SwitchKind.BREAKER)));
-        assertEquals(Arrays.asList("load1Disconnector1", "load1Breaker1"),
-                mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
-                        .getSwitchStream()
-                        .filter(sw -> sw.getKind() == SwitchKind.DISCONNECTOR)
-                        .limit(2)));
+        assertThat(mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
+            .getSwitchStream()
+            .filter(sw -> sw.getKind() == SwitchKind.DISCONNECTOR)
+            .limit(2)))
+            .containsExactlyInAnyOrder("load1Disconnector1", "load1Breaker1");
         assertEquals(Collections.emptyList(),
                 mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView()
                         .getSwitchStream()
@@ -598,16 +606,18 @@ public abstract class AbstractNetworkTest {
     public void testScadaNetwork() {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
-
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testReportScadaNetwork")
+                .build();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
 
         List<ReportNode> children = reportNode.getChildren();
         assertEquals(1, children.size());
         ReportNode reportNodeChild = children.get(0);
-        assertEquals("IIDMValidation", reportNodeChild.getMessageKey());
+        assertEquals("core.iidm.network.IIDMValidation", reportNodeChild.getMessageKey());
         assertEquals("Running validation checks on IIDM network scada", reportNodeChild.getMessage());
 
         List<ReportNode> messageNodes = reportNodeChild.getChildren();
@@ -689,7 +699,7 @@ public abstract class AbstractNetworkTest {
     }
 
     @Test
-    void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
+    public void testSetMinimumAcceptableValidationLevelOnInvalidatedNetwork() {
         Network network = Network.create("test", "iidm");
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         VoltageLevel vl = network.newSubstation().setId("s1").add()
@@ -702,5 +712,316 @@ public abstract class AbstractNetworkTest {
 
         network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
+
+    @Test
+    public void testIdentifiableStreamNetwork() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                "full",
+                id("network", ID_1),
+                id("network", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.NETWORK);
+    }
+
+    @Test
+    public void testIdentifiableStreamSubstation() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("substation1", ID_1),
+                id("substation1", ID_2),
+                id("substation2", ID_1),
+                id("substation2", ID_2),
+                id("substation3", ID_1),
+                id("substation3", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.SUBSTATION);
+    }
+
+    @Test
+    public void testIdentifiableStreamVoltageLevel() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("voltageLevel1", ID_1),
+                id("voltageLevel1", ID_2),
+                id("voltageLevel2", ID_1),
+                id("voltageLevel2", ID_2),
+                id("voltageLevel3", ID_1),
+                id("voltageLevel3", ID_2),
+                id("voltageLevel4", ID_1),
+                id("voltageLevel4", ID_2),
+                id("voltageLevel5", ID_1),
+                id("voltageLevel5", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.VOLTAGE_LEVEL);
+    }
+
+    @Test
+    public void testIdentifiableStreamArea() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("area1", ID_1),
+                id("area1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.AREA);
+    }
+
+    @Test
+    public void testIdentifiableStreamHvdcLine() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("hvdcLine1", ID_1),
+                id("hvdcLine1", ID_2),
+                id("hvdcLine2", ID_1),
+                id("hvdcLine2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.HVDC_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamSwitch() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("voltageLevel1Breaker1", ID_1),
+                id("load1Disconnector1", ID_1),
+                id("load1Breaker1", ID_1),
+                id("generator1Disconnector1", ID_1),
+                id("generator1Breaker1", ID_1),
+                id("voltageLevel1Breaker1", ID_2),
+                id("load1Disconnector1", ID_2),
+                id("load1Breaker1", ID_2),
+                id("generator1Disconnector1", ID_2),
+                id("generator1Breaker1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.SWITCH);
+    }
+
+    @Test
+    public void testIdentifiableStreamBusBarSection() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("voltageLevel1BusbarSection1", ID_1),
+                id("voltageLevel1BusbarSection2", ID_1),
+                id("voltageLevel1BusbarSection1", ID_2),
+                id("voltageLevel1BusbarSection2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.BUSBAR_SECTION);
+    }
+
+    @Test
+    public void testIdentifiableStreamLine() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("line1", ID_1),
+                id("line1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamTieLine() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("tieLine1", ID_1),
+                id("tieLine1", ID_2),
+                TieLineUtil.buildMergedId(id("boundaryLine3", ID_1), id("boundaryLine3", ID_2))
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.TIE_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStream2WT() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("twoWindingsTransformer1", ID_1),
+                id("twoWindingsTransformer1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.TWO_WINDINGS_TRANSFORMER);
+    }
+
+    @Test
+    public void testIdentifiableStream3WT() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("threeWindingsTransformer1", ID_1),
+                id("threeWindingsTransformer1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
+    }
+
+    @Test
+    public void testIdentifiableStreamGenerator() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("generator1", ID_1),
+                id("generator1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.GENERATOR);
+    }
+
+    @Test
+    public void testIdentifiableStreamBattery() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("battery1", ID_1),
+                id("battery1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.BATTERY);
+    }
+
+    @Test
+    public void testIdentifiableStreamLoad() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("load1", ID_1),
+                id("load1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.LOAD);
+    }
+
+    @Test
+    public void testIdentifiableStreamShuntCompensator() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("shuntCompensator1", ID_1),
+                id("shuntCompensator1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.SHUNT_COMPENSATOR);
+    }
+
+    @Test
+    public void testIdentifiableStreamBoundaryLine() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("boundaryLine1", ID_1),
+                id("boundaryLine2", ID_1),
+                id("boundaryLine3", ID_1),
+                id("boundaryLine1", ID_2),
+                id("boundaryLine2", ID_2),
+                id("boundaryLine3", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.BOUNDARY_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamStaticVarCompensator() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("svc1", ID_1),
+                id("svc1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.STATIC_VAR_COMPENSATOR);
+    }
+
+    @Test
+    public void testIdentifiableStreamHvdcConverterStation() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("lcc1", ID_1),
+                id("lcc2", ID_1),
+                id("lcc1", ID_2),
+                id("lcc2", ID_2),
+                id("vsc1", ID_1),
+                id("vsc2", ID_1),
+                id("vsc1", ID_2),
+                id("vsc2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.HVDC_CONVERTER_STATION);
+    }
+
+    @Test
+    public void testIdentifiableStreamOverloadManagementSystem() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("overloadManagementSystem", ID_1),
+                id("overloadManagementSystem", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcNode() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("dcNode1", ID_1),
+                id("dcNode2", ID_1),
+                id("dcNode1", ID_2),
+                id("dcNode2", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_NODE);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcSwitch() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("dcSwitch1", ID_1),
+                id("dcSwitch1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_SWITCH);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcGround() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("dcGround1", ID_1),
+                id("dcGround1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_GROUND);
+    }
+
+    @Test
+    public void testIdentifiableStreamDcLine() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("dcLine1", ID_1),
+                id("dcLine1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_LINE);
+    }
+
+    @Test
+    public void testIdentifiableStreamLcc() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("lccDetailed1", ID_1),
+                id("lccDetailed1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.LINE_COMMUTATED_CONVERTER);
+    }
+
+    @Test
+    public void testIdentifiableStreamVsc() {
+        fullNetwork = createMergedNetwork();
+        Set<String> expected = Set.of(
+                id("vscDetailed1", ID_1),
+                id("vscDetailed1", ID_2)
+        );
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.VOLTAGE_SOURCE_CONVERTER);
+    }
+
+    @Test
+    public void testIdentifiableStreamUnsupportedType() {
+        fullNetwork = createMergedNetwork();
+        // unsupported types also include DC_BUS
+        assertThrows(PowsyblException.class, () -> fullNetwork.getIdentifiableStream(IdentifiableType.BUS));
+    }
+
+    // GROUND not tested because there is no GROUND in the test network we are using
+
+    private static void assertIdentifiableStreamEqual(Set<String> expected, Network network, IdentifiableType type) {
+        Set<String> actualIds = network
+                .getIdentifiableStream(type)
+                .map(Identifiable::getId)
+                .collect(Collectors.toSet());
+        assertEquals(expected, actualIds);
+    }
+
+    private static Network createMergedNetwork() {
+        Network n1 = AbstractSubnetworksExplorationTest.createNetwork(ID_1, Country.BE);
+        Network n2 = AbstractSubnetworksExplorationTest.createNetwork(ID_2, Country.DE);
+        return Network.merge("full", n1, n2);
     }
 }

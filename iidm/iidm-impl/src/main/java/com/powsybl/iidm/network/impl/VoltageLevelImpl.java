@@ -385,23 +385,23 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     }
 
     @Override
-    public DanglingLineAdder newDanglingLine() {
-        return new DanglingLineAdderImpl(this);
+    public BoundaryLineAdder newBoundaryLine() {
+        return new BoundaryLineAdderImpl(this);
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return getConnectableCount(DanglingLine.class);
+    public int getBoundaryLineCount() {
+        return getConnectableCount(BoundaryLine.class);
     }
 
     @Override
@@ -530,6 +530,46 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     }
 
     @Override
+    public LineCommutatedConverterAdder newLineCommutatedConverter() {
+        return new LineCommutatedConverterAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return getConnectables(LineCommutatedConverter.class);
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return getConnectableStream(LineCommutatedConverter.class);
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        return getConnectableCount(LineCommutatedConverter.class);
+    }
+
+    @Override
+    public VoltageSourceConverterAdder newVoltageSourceConverter() {
+        return new VoltageSourceConverterAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return getConnectables(VoltageSourceConverter.class);
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return getConnectableStream(VoltageSourceConverter.class);
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        return getConnectableCount(VoltageSourceConverter.class);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }
@@ -622,9 +662,17 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
     private void convertToBusBreakerModel() {
         BusBreakerTopologyModel newTopologyModel = new BusBreakerTopologyModel(this);
 
-        // remove busbar sections because not needed in a bus/breaker topology
-        for (BusbarSection bbs : topologyModel.getNodeBreakerView().getBusbarSections()) {
-            bbs.remove();
+        // first store all bus/breaker topological infos associated to this terminal because we will start moving
+        // terminal from old mode to new one, it will modify the old topology model
+        record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
+        }
+        List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
+        for (Terminal oldTerminal : topologyModel.getTerminals()) {
+            if (oldTerminal.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
+                Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
+                boolean connected = oldTerminal.isConnected();
+                oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBus.getId(), connected));
+            }
         }
 
         for (Bus bus : topologyModel.getBusBreakerView().getBuses()) {
@@ -643,18 +691,6 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
         }
 
         // reconnect all connectable to new topology model
-        // first store all bus/breaker topological infos associated to this terminal because we will start moving
-        // terminal from old mode to new one, it will modify the old topology model
-        record TopologyModelInfos(TerminalExt terminal, String connectableBusId, boolean connected) {
-        }
-        List<TopologyModelInfos> oldTopologyModelInfos = new ArrayList<>();
-        for (Terminal oldTerminal : topologyModel.getTerminals()) {
-            Bus connectableBus = oldTerminal.getBusBreakerView().getConnectableBus();
-            String connectableBusId = connectableBus == null ? null : connectableBus.getId();
-            boolean connected = oldTerminal.isConnected();
-            oldTopologyModelInfos.add(new TopologyModelInfos((TerminalExt) oldTerminal, connectableBusId, connected));
-        }
-
         for (var infos : oldTopologyModelInfos) {
             TerminalExt oldTerminalExt = infos.terminal();
 
@@ -669,12 +705,17 @@ class VoltageLevelImpl extends AbstractIdentifiable<VoltageLevel> implements Vol
             AbstractConnectable<?> connectable = oldTerminalExt.getConnectable();
 
             // create the new terminal with new type
-            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide())
+            TerminalExt newTerminalExt = new TerminalBuilder(networkRef, this, oldTerminalExt.getSide(), oldTerminalExt.getTerminalNumber())
                     .setBus(infos.connected ? infos.connectableBusId() : null)
                     .setConnectableBus(infos.connectableBusId())
                     .build();
 
             connectable.replaceTerminal(oldTerminalExt, newTopologyModel, newTerminalExt, false);
+        }
+
+        // remove busbar sections because not needed in a bus/breaker topology
+        for (BusbarSection bbs : topologyModel.getNodeBreakerView().getBusbarSections()) {
+            bbs.remove();
         }
 
         // also here keep the notification for remaining switches removal

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.*;
+import com.google.auto.service.AutoService;
 
 import java.util.List;
 
@@ -15,8 +16,10 @@ import java.util.List;
  * Default naming strategy used if no other naming strategy is specified.
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
+@AutoService(NamingStrategy.class)
 public class DefaultNamingStrategy implements NamingStrategy {
 
+    public static final String STRATEGY_NAME = "Default";
     private static final String SEPARATOR = "_";
     private static final String DISCONNECTOR_NAMEBASE = "DISCONNECTOR";
     private static final String BREAKER_NAMEBASE = "BREAKER";
@@ -25,7 +28,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public final String getName() {
-        return "Default";
+        return STRATEGY_NAME;
     }
 
     @Override

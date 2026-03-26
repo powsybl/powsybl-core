@@ -25,7 +25,7 @@ import java.util.Optional;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -118,4 +118,23 @@ public interface Load extends Injection<Load> {
     }
 
     Optional<LoadModel> getModel();
+
+    default void applySolvedValues() {
+        setP0ToP();
+        setQ0ToQ();
+    }
+
+    default void setP0ToP() {
+        double p = this.getTerminal().getP();
+        if (!Double.isNaN(p)) {
+            this.setP0(p);
+        }
+    }
+
+    default void setQ0ToQ() {
+        double q = this.getTerminal().getQ();
+        if (!Double.isNaN(q)) {
+            this.setQ0(q);
+        }
+    }
 }

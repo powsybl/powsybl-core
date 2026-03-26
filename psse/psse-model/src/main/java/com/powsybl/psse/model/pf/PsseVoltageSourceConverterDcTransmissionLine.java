@@ -75,6 +75,10 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         return ownership;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public void setConverter1(PsseVoltageSourceConverter converter1) {
         this.converter1 = converter1;
     }
@@ -89,6 +93,17 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
 
     public PsseVoltageSourceConverter getConverter2() {
         return converter2;
+    }
+
+    public PsseVoltageSourceConverterDcTransmissionLine copy() {
+        PsseVoltageSourceConverterDcTransmissionLine copy = new PsseVoltageSourceConverterDcTransmissionLine();
+        copy.name = this.name;
+        copy.mdc = this.mdc;
+        copy.rdc = this.rdc;
+        copy.ownership = this.ownership.copy();
+        copy.converter1 = this.converter1.copy();
+        copy.converter2 = this.converter2.copy();
+        return copy;
     }
 
     public static class ConverterHeaderTransformer extends HeaderTransformer {

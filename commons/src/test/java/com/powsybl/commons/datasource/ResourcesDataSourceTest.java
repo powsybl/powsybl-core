@@ -12,12 +12,16 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class ResourcesDataSourceTest {
+class ResourcesDataSourceTest extends AbstractReadOnlyDataSourceTest {
 
     @Test
     void testExists() {
@@ -55,5 +59,12 @@ class ResourcesDataSourceTest {
         assertNotNull(dataSource.newInputStream("foo.txt"));
         assertNotNull(dataSource.newInputStream(null, "txt"));
         assertEquals(Collections.singleton("foo.txt"), dataSource.listNames(".*"));
+    }
+
+    @Override
+    protected ResourceDataSource createDataSourceForPolynomialRegexTest() {
+        String filename = "a".repeat(100) + "b";
+        ResourceSet resourceSet = new ResourceSet("/test/", filename);
+        return new ResourceDataSource("test", List.of(resourceSet));
     }
 }

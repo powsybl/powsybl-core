@@ -12,14 +12,24 @@ import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
-import com.powsybl.cgmes.model.*;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.compress.SafeZipInputStream;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.parameters.*;
+import com.powsybl.commons.parameters.ConfiguredParameter;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterScope;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Importer;
@@ -42,10 +52,22 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.zip.ZipInputStream;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static java.util.function.Predicate.not;
 
 /**
@@ -76,7 +98,7 @@ public class CgmesImport implements Importer {
                 .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
                 .map(Path::toString)
                 .orElse(null);
-        // Boundary location parameter can not be static
+        // Boundary location parameter cannot be static
         // because we want its default value
         // to depend on the received platformConfig
         boundaryLocationParameter = new Parameter(
@@ -126,12 +148,7 @@ public class CgmesImport implements Importer {
     public boolean exists(ReadOnlyDataSource ds) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         try {
-            if (cds.exists()) {
-                return true;
-            }
-            // If we are configured to support CIM14,
-            // check if there is this CIM14 data
-            return IMPORT_CIM_14 && cds.existsCim14();
+            return cds.exists();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -172,8 +189,24 @@ public class CgmesImport implements Importer {
 
     private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         CgmesModel cgmes = readCgmes(ds, p, reportNode);
-        ReportNode conversionReportNode = reportNode.newReportNode().withMessageTemplate("CGMESConversion", "Importing CGMES file(s)").add();
+        ReportNode conversionReportNode = CgmesReports.importingCgmesFileReport(reportNode, ds.getBaseName());
         return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+    }
+
+    @Override
+    public void update(Network network, ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
+        TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
+        tripleStoreOptions.setQueryCatalog(Conversion.QUERY_CATALOG_NAME_UPDATE);
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        CgmesModel cgmes = CgmesModelFactory.create(
+                ds,
+                alternativeDataSourceForBoundary,
+                TripleStoreFactory.DEFAULT_IMPLEMENTATION,
+                reportNode,
+                tripleStoreOptions);
+        Conversion conversion = new Conversion(cgmes, config(p));
+        conversion.update(network, reportNode);
+        cgmes.close();
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
@@ -249,13 +282,18 @@ public class CgmesImport implements Importer {
             };
         }
 
+        private static boolean isEquipmentCore(String profile) {
+            return profile.contains("/EquipmentCore/") || profile.contains("/CIM/CoreEquipment");
+        }
+
         private Set<ReadOnlyDataSource> separateByModelingAuthority() {
-            xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory = getXMLInputFactory();
             Map<String, List<String>> igmNames = new CgmesOnDataSource(dataSource).names().stream()
                     // We consider IGMs only the modeling authorities that have an EQ file
                     // The CGM SV should have the MA of the merging agent
-                    .filter(CgmesSubset.EQUIPMENT::isValidName)
-                    .map(name -> readModelingAuthority(name).map(ma -> Map.entry(ma, name)))
+                    .map(name ->
+                            readModelingAuthority(name, MultipleGridModelChecker::isEquipmentCore)
+                            .map(ma -> Map.entry(ma, name)))
                     .flatMap(Optional::stream)
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(List.of(e.getValue()))));
             if (!igmNames.isEmpty()) {
@@ -267,10 +305,11 @@ public class CgmesImport implements Importer {
                 return Set.of(dataSource);
             }
             Set<String> shared = new HashSet<>();
+            Set<String> processed = igmNames.values().stream().flatMap(List::stream).collect(Collectors.toSet());
             new CgmesOnDataSource(dataSource).names().stream()
                     // We read the modeling authorities present in the rest of instance files
                     // and mark the instance name as linked to an IGM or as shared
-                    .filter(not(CgmesSubset.EQUIPMENT::isValidName))
+                    .filter(not(processed::contains))
                     .filter(not(MultipleGridModelChecker::isBoundary))
                     .forEach(name -> {
                         Optional<String> ma = readModelingAuthority(name);
@@ -302,26 +341,78 @@ public class CgmesImport implements Importer {
         }
 
         private Optional<String> readModelingAuthority(String name) {
-            String modellingAuthority = null;
-            try (InputStream is = dataSource.newInputStream(name)) {
-                XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(is);
-                boolean stopReading = false;
-                while (reader.hasNext() && !stopReading) {
-                    int token = reader.next();
-                    if (token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET)) {
-                        modellingAuthority = reader.getElementText();
-                        stopReading = true;
-                    } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL)) {
-                        // Try to finish parsing the input file as soon as we can
-                        // If we do not have found a modelling authority set inside the FullModel object, exit with unknown
-                        stopReading = true;
+            return readModelingAuthority(name, profile -> true);
+        }
+
+        private Optional<String> readModelingAuthority(String name, Predicate<String> profileChecker) {
+            String modelingAuthority = null;
+            try (InputStream in = dataSource.newInputStream(name)) {
+                String fileExtension = name.substring(name.lastIndexOf('.') + 1);
+                if (fileExtension.equals(CompressionFormat.ZIP.getExtension())) {
+                    try (SafeZipInputStream zis = new SafeZipInputStream(new ZipInputStream(in), 1, 1024000L)) {
+                        zis.getNextEntry();
+                        modelingAuthority = readModelingAuthority(zis, profileChecker);
                     }
+                } else {
+                    modelingAuthority = readModelingAuthority(in, profileChecker);
                 }
-                reader.close();
             } catch (IOException | XMLStreamException e) {
                 throw new PowsyblException(e);
             }
-            return Optional.ofNullable(modellingAuthority);
+            return Optional.ofNullable(modelingAuthority);
+        }
+
+        private boolean isStartModelingAuthority(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.MODELING_AUTHORITY_SET);
+        }
+
+        private boolean isStartProfile(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(CgmesNames.PROFILE);
+        }
+
+        private boolean isEndModel(XMLStreamReader reader, int token) {
+            return token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.FULL_MODEL);
+        }
+
+        private String readModelingAuthority(InputStream is, Predicate<String> profileChecker) throws XMLStreamException {
+            String modelingAuthority = null;
+            boolean profileChecked = false;
+            XMLStreamReader reader = null;
+            try {
+                reader = xmlInputFactory.createXMLStreamReader(is);
+                boolean stopReading = false;
+                while (reader.hasNext() && !stopReading) {
+                    int token = reader.next();
+                    if (isStartModelingAuthority(reader, token)) {
+                        modelingAuthority = reader.getElementText();
+                        if (profileChecked) {
+                            stopReading = true;
+                        }
+                    } else if (isStartProfile(reader, token)) {
+                        String profile = reader.getElementText();
+                        // We may encounter multiple profiles,
+                        // Equipment core and short-circuits for example.
+                        // If at least one of the profiles checks ok it is enough to accept the modeling authority
+                        if (!profileChecked) {
+                            profileChecked = profileChecker.test(profile);
+                        }
+                    } else if (isEndModel(reader, token)) {
+                        // Try to finish parsing the input file as soon as we can
+                        // If we do not have found a modeling authority set inside the FullModel object, exit with unknown
+                        stopReading = true;
+                    }
+                }
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
+            }
+            // We may have read a modeling authority,
+            // but if we haven't been able to check that one of the profiles checks ok we discard it
+            if (!profileChecked) {
+                modelingAuthority = null;
+            }
+            return modelingAuthority;
         }
 
         private Set<ReadOnlyDataSource> separateByIgmName() {
@@ -363,7 +454,7 @@ public class CgmesImport implements Importer {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
         options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
-        ReportNode tripleStoreReportNode = reportNode.newReportNode().withMessageTemplate("CGMESTriplestore", "Reading CGMES Triplestore").add();
+        ReportNode tripleStoreReportNode = CgmesReports.readingCgmesTriplestoreReport(reportNode);
         return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReportNode, options);
     }
 
@@ -465,12 +556,6 @@ public class CgmesImport implements Importer {
                                 p,
                                 IMPORT_CONTROL_AREAS_PARAMETER,
                                 defaultValueConfig))
-                .setProfileForInitialValuesShuntSectionsTapPositions(
-                        Parameter.readString(
-                                getFormat(),
-                                p,
-                                PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
-                                defaultValueConfig))
                 .setStoreCgmesModelAsNetworkExtension(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -501,11 +586,11 @@ public class CgmesImport implements Importer {
                                 p,
                                 IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
                                 defaultValueConfig))
-                .setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(
+                .setDisconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected(
                         Parameter.readBoolean(
                                 getFormat(),
                                 p,
-                                DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
                                 defaultValueConfig))
                 .setMissingPermanentLimitPercentage(
                         Parameter.readDouble(
@@ -518,6 +603,30 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
+                                defaultValueConfig))
+                .setUsePreviousValuesDuringUpdate(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
+                                defaultValueConfig))
+                .setRemovePropertiesAndAliasesAfterImport(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
+                                defaultValueConfig))
+                .setUseDetailedDcModel(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                USE_DETAILED_DC_MODEL_PARAMETER,
+                                defaultValueConfig))
+                .setSilenceFrequentIssuesWarnings(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                SILENCE_FREQUENT_ISSUES_WARNINGS_PARAMETER,
                                 defaultValueConfig));
 
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
@@ -584,16 +693,19 @@ public class CgmesImport implements Importer {
     public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
     public static final String SOURCE_FOR_IIDM_ID = "iidm.import.cgmes.source-for-iidm-id";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
-    public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
+    public static final String DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-boundary-line-if-boundary-side-is-disconnected";
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
     public static final String CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE = "iidm.import.cgmes.create-fictitious-voltage-level-for-every-node";
+    public static final String USE_PREVIOUS_VALUES_DURING_UPDATE = "iidm.import.cgmes.use-previous-values-during-update";
+    public static final String REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT = "iidm.import.cgmes.remove-properties-and-aliases-after-import";
+    public static final String USE_DETAILED_DC_MODEL = "iidm.import.cgmes.use-detailed-dc-model";
+    public static final String SILENCE_FREQUENT_ISSUES_WARNINGS = "iidm.import.cgmes.silence-frequent-issues-warnings";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -639,13 +751,6 @@ public class CgmesImport implements Importer {
             null,
             ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
-            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
-            ParameterType.STRING,
-            "Profile used for initial state values",
-            "SSH",
-            List.of("SSH", "SV"))
-            .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -666,7 +771,7 @@ public class CgmesImport implements Importer {
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
             "Store the initial CGMES model as a network extension",
-            Boolean.TRUE)
+            Boolean.FALSE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
     private static final Parameter SOURCE_FOR_IIDM_ID_PARAMETER = new Parameter(
             SOURCE_FOR_IIDM_ID,
@@ -684,10 +789,10 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Force import of CGMES node/breaker models as bus/breaker",
             Boolean.FALSE);
-    public static final Parameter DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER = new Parameter(
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED,
+    public static final Parameter DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER = new Parameter(
+            DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED,
             ParameterType.BOOLEAN,
-            "Force disconnection of dangling line network side if boundary side is disconnected",
+            "Force disconnection of boundary line network side if boundary side is disconnected",
             Boolean.TRUE);
     private static final Parameter IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER = new Parameter(
             IMPORT_CGM_WITH_SUBNETWORKS,
@@ -714,6 +819,30 @@ public class CgmesImport implements Importer {
             Boolean.TRUE)
             .addAdditionalNames("createFictitiousVoltageLevelForEveryNode");
 
+    private static final Parameter USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER = new Parameter(
+            USE_PREVIOUS_VALUES_DURING_UPDATE,
+            ParameterType.BOOLEAN,
+            "Use previous values (from a previous update) during the current update",
+            Boolean.FALSE);
+
+    private static final Parameter REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER = new Parameter(
+            REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT,
+            ParameterType.BOOLEAN,
+            "Remove all properties and aliases after CGMES import",
+            Boolean.FALSE);
+
+    private static final Parameter USE_DETAILED_DC_MODEL_PARAMETER = new Parameter(
+            USE_DETAILED_DC_MODEL,
+            ParameterType.BOOLEAN,
+            "Use detailed DC model",
+            Boolean.FALSE);
+
+    private static final Parameter SILENCE_FREQUENT_ISSUES_WARNINGS_PARAMETER = new Parameter(
+            SILENCE_FREQUENT_ISSUES_WARNINGS,
+            ParameterType.BOOLEAN,
+            "Do not issue warning logs for frequent issues",
+            Boolean.FALSE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
@@ -722,7 +851,6 @@ public class CgmesImport implements Importer {
             NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
-            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
             SOURCE_FOR_IIDM_ID_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
@@ -730,11 +858,15 @@ public class CgmesImport implements Importer {
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
-            DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+            DISCONNECT_BOUNDARY_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
             MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
-            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER);
+            CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE_PARAMETER,
+            USE_PREVIOUS_VALUES_DURING_UPDATE_PARAMETER,
+            REMOVE_PROPERTIES_AND_ALIASES_AFTER_IMPORT_PARAMETER,
+            USE_DETAILED_DC_MODEL_PARAMETER,
+            SILENCE_FREQUENT_ISSUES_WARNINGS_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;
@@ -746,10 +878,4 @@ public class CgmesImport implements Importer {
     private final PlatformConfig platformConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);
-
-    // TODO Allow this property to be configurable
-    // Parameters of importers are only passed to importData method,
-    // but to decide if we are importers also for CIM 14 files
-    // we must implement the exists method, that has not access to parameters
-    private static final boolean IMPORT_CIM_14 = false;
 }

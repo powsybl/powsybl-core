@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * An equipment that is part of a substation topology.
+ * AC equipment that is part of a substation topology.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -20,16 +20,26 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     List<? extends Terminal> getTerminals();
 
     /**
-     * Remove the connectable from the voltage level (dangling switches are kept).
+     * Remove the connectable from the voltage level (boundary switches are kept).
      */
     void remove();
 
+    /**
+     * Connects the connectable by operating real breakers.<br>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
+     * {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}.
+     */
     boolean connect();
 
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
     boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
 
+    /**
+     * Disconnects the connectable by operating real breakers.<br>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
+     * {@link #disconnect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}.
+     */
     boolean disconnect();
 
     boolean disconnect(Predicate<Switch> isSwitchOpenable);

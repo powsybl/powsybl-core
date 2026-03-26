@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -34,8 +35,9 @@ class ThreeWindingsTransformerTrippingTest extends AbstractTrippingTest {
         assertFalse(twt3.getLeg3().getTerminal().isConnected());
 
         var notExistsTripping = new ThreeWindingsTransformerTripping("NOT_EXISTS");
-        Exception e = assertThrows(PowsyblException.class, () -> notExistsTripping.apply(network));
+        Exception e = assertThrows(PowsyblException.class, () -> notExistsTripping.apply(network, true, ReportNode.NO_OP));
         assertEquals("ThreeWindingsTransformer 'NOT_EXISTS' not found", e.getMessage());
+        assertDoesNotThrow(() -> notExistsTripping.apply(network));
     }
 
     @Test

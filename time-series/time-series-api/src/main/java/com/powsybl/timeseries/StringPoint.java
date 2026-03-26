@@ -17,8 +17,16 @@ public class StringPoint extends AbstractPoint {
 
     private final String value;
 
+    /**
+     * @deprecated Replaced by {@link #StringPoint(int, Instant, String)}
+     */
+    @Deprecated(since = "6.7.0")
     public StringPoint(int index, long time, String value) {
-        super(index, time);
+        this(index, Instant.ofEpochMilli(time), value);
+    }
+
+    public StringPoint(int index, Instant instant, String value) {
+        super(index, instant);
         this.value = value;
     }
 
@@ -28,19 +36,19 @@ public class StringPoint extends AbstractPoint {
 
     @Override
     public int hashCode() {
-        return Objects.hash(index, time, value);
+        return Objects.hash(index, instant, value);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof StringPoint other) {
-            return index == other.index && time == other.time && Objects.equals(value, other.value);
+            return index == other.index && instant.equals(other.instant) && Objects.equals(value, other.value);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "StringPoint(index=" + index + ", time=" + Instant.ofEpochMilli(time) + ", value=" + value + ")";
+        return "StringPoint(index=" + index + ", instant=" + instant + ", value=" + value + ")";
     }
 }

@@ -14,7 +14,7 @@ import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoad
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
  */
-public interface OperationalLimitsGroup {
+public interface OperationalLimitsGroup extends PropertiesHolder {
 
     String getId();
 
@@ -23,6 +23,21 @@ public interface OperationalLimitsGroup {
     Optional<ActivePowerLimits> getActivePowerLimits();
 
     Optional<ApparentPowerLimits> getApparentPowerLimits();
+
+    /**
+     * Get the {@link LoadingLimits} corresponding to the given <code>limitType</code> (see {@link LimitType} for all types).<br>
+     * Throws an {@link UnsupportedOperationException} if a limit of the given type cannot be defined
+     * @param limitType the type of limit we want
+     * @return the limit corresponding to the <code>limitType</code> if any exists, otherwise an empty {@link Optional}
+     */
+    default Optional<? extends LoadingLimits> getLoadingLimits(LimitType limitType) {
+        return switch (limitType) {
+            case CURRENT -> getCurrentLimits();
+            case ACTIVE_POWER -> getActivePowerLimits();
+            case APPARENT_POWER -> getApparentPowerLimits();
+            default -> throw new UnsupportedOperationException("Unsupported limitType for this element: " + limitType);
+        };
+    }
 
     CurrentLimitsAdder newCurrentLimits();
 

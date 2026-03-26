@@ -10,14 +10,14 @@ package com.powsybl.iidm.network;
 import java.util.Optional;
 
 /**
- * A two windings power transformer.
+ * A two-winding power transformer.
  * <p>The equivalent &#960; model used is:
  * <div>
  *    <object data="doc-files/twoWindingsTransformer.svg" type="image/svg+xml">
  *    </object>
  * </div>
  * <p>b, g, r, x shall be specified at the side 2 voltage.
- * <p>b and g unit is siemens, r and x unit is ohm.
+ * <p>The b and g unit is siemens, the r and x unit is ohm.
  *
  * <p>
  *  Characteristics
@@ -29,7 +29,7 @@ import java.util.Optional;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -56,7 +56,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">&Omega;</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The nominal series resistance at the side 2 of the transformer </td>
+ *             <td style="border: 1px solid black">The nominal series resistance at side 2 of the transformer </td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">Xnom</td>
@@ -64,7 +64,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">&Omega;</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The nominal series reactance at the side 2 of the transformer</td>
+ *             <td style="border: 1px solid black">The nominal series reactance at side 2 of the transformer</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">Gnom</td>
@@ -72,7 +72,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">S</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The nominal magnetizing conductance at the side 2 of the transformer</td>
+ *             <td style="border: 1px solid black">The nominal magnetizing conductance at side 2 of the transformer</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">Bnom</td>
@@ -80,7 +80,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">S</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The nominal magnetizing susceptance at the side 2 of the transformer</td>
+ *             <td style="border: 1px solid black">The nominal magnetizing susceptance at side 2 of the transformer</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">V1nom</td>
@@ -131,9 +131,9 @@ import java.util.Optional;
  * alpha = (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getAlpha() : 0);
  *
  * </pre>
- * A 2 windings transformer is connected to 2 voltage levels (side 1 and side 2)
+ * A 2-winding transformer is connected to 2 voltage levels (side 1 and side 2)
  * that belong to the same substation.
- * <p>To create a 2 windings transformer, see {@link TwoWindingsTransformerAdder}
+ * <p>To create a 2-winding transformer, see {@link TwoWindingsTransformerAdder}
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see RatioTapChanger
@@ -149,70 +149,62 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     }
 
     /**
-     * Get the nominal series resistance specified in &#937; at the secondary
-     * voltage side.
+     * Get the nominal series resistance specified in &#937; at voltage side 2.
      */
     double getR();
 
     /**
-     * Set the nominal series resistance specified in &#937; at the secondary
-     * voltage side.
+     * Set the nominal series resistance specified in &#937; at side 2.
      */
     TwoWindingsTransformer setR(double r);
 
     /**
-     * Get the nominal series reactance specified in &#937; at the secondary
-     * voltage side.
+     * Get the nominal series reactance specified in &#937; at side 2.
      */
     double getX();
 
     /**
-     * Set the nominal series reactance specified in &#937; at the secondary
-     * voltage side.
+     * Set the nominal series reactance specified in &#937; at side 2.
      */
     TwoWindingsTransformer setX(double x);
 
     /**
-     * Get the nominal magnetizing conductance specified in S at the secondary
-     * voltage side.
+     * Get the nominal magnetizing conductance specified in S at side 2.
      */
     double getG();
 
     /**
-     * Set the nominal magnetizing conductance specified in S at the secondary
-     * voltage side.
+     * Set the nominal magnetizing conductance specified in S at side 2.
      */
     TwoWindingsTransformer setG(double g);
 
     /**
-     * Get the nominal magnetizing susceptance specified in S at the secondary
-     * voltage side.
+     * Get the nominal magnetizing susceptance specified in S at side 2.
      */
     double getB();
 
     /**
-     * Set the nominal magnetizing susceptance specified in S at the secondary
-     * voltage side.
+     * Set the nominal magnetizing susceptance specified in S at side 2.
      */
     TwoWindingsTransformer setB(double b);
 
     /**
-     * Get the primary winding rated voltage in kV.
+     * Get the rated voltage in kV for side 1.
      */
     double getRatedU1();
 
     /**
-     * Set the secondary winding rated voltage in kV.
+     * Set the rated voltage in kV for side 1.
      */
     TwoWindingsTransformer setRatedU1(double ratedU1);
 
     /**
-     * Get the secondary winding rated voltage in kV.
+     * Get the rated voltage in kV for side 2.
      */
     double getRatedU2();
 
     /**
-     * Set the secondary winding rated voltage in kV.
+     * Set the rated voltage in kV for side 2.
      */
     TwoWindingsTransformer setRatedU2(double ratedU2);
 
@@ -233,5 +225,18 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.TWO_WINDINGS_TRANSFORMER;
+    }
+
+    default void applySolvedValues() {
+        setRatioTapPositionToSolvedTapPosition();
+        setPhaseTapPositionToSolvedTapPosition();
+    }
+
+    default void setRatioTapPositionToSolvedTapPosition() {
+        this.getOptionalRatioTapChanger().ifPresent(TapChanger::applySolvedValues);
+    }
+
+    default void setPhaseTapPositionToSolvedTapPosition() {
+        this.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues);
     }
 }

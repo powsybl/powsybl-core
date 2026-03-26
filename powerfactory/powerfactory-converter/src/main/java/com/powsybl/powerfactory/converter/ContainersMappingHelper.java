@@ -191,7 +191,8 @@ final class ContainersMappingHelper {
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
+                        throw new PowerFactoryException("Detected unsupported terminal count (2) for object "
+                                + connectedObj.getDataClassName() + " " + connectedObj.getId() + ".");
                 }
             } else if (elmTerms.size() == 3) {
                 if (connectedObj.getDataClassName().equals("ElmTr3")) {
@@ -201,7 +202,8 @@ final class ContainersMappingHelper {
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(2), false, true));
                 } else {
-                    throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
+                    throw new PowerFactoryException("Detected unsupported terminal count (3) for object "
+                            + connectedObj.getDataClassName() + " " + connectedObj.getId() + ".");
                 }
             }
         }
@@ -224,6 +226,7 @@ final class ContainersMappingHelper {
             Edge::isZeroImpedance,
             Edge::isTransformer,
             busesToVoltageLevelId::getNominalVoltage,
+            id -> 0,
             busesToVoltageLevelId::getVoltageLevelId,
             busesToVoltageLevelId::getSubstationId);
     }

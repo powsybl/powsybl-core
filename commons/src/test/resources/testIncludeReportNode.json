@@ -1,25 +1,25 @@
 {
-  "version" : "2.1",
+  "version" : "3.0",
   "dictionaries" : {
     "default" : {
-      "child" : "Child message",
       "includedChild" : "Included child message",
       "includedRoot" : "Included root message",
       "newRootAboveAll" : "New root above all reportNodes",
-      "rootTemplate" : "Root message"
+      "simpleChild" : "Child message",
+      "simpleRootTemplate" : "Root message"
     }
   },
   "reportRoot" : {
     "messageKey" : "newRootAboveAll",
     "children" : [ {
-      "messageKey" : "rootTemplate",
+      "messageKey" : "simpleRootTemplate",
       "children" : [ {
         "messageKey" : "includedRoot",
         "children" : [ {
           "messageKey" : "includedChild"
         } ]
       }, {
-        "messageKey" : "child"
+        "messageKey" : "simpleChild"
       } ]
     } ]
   }

@@ -33,6 +33,9 @@ public final class CgmesNames {
     public static final String SUPERSEDES = "Model.Supersedes";
     public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
+    public static final String REGION_ID = "regionId";
+    public static final String REGION_NAME = "regionName";
+    public static final String SUB_REGION_ID = "subRegionId";
     public static final String CONNECTIVITY_NODE = "ConnectivityNode";
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
@@ -46,13 +49,21 @@ public final class CgmesNames {
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";
+    public static final String TRANSFORMER_END1 = "TransformerEnd1";
+    public static final String TRANSFORMER_END2 = "TransformerEnd2";
+    public static final String TRANSFORMER_END3 = "TransformerEnd3";
     public static final String TAP_CHANGER = "TapChanger";
     public static final String CONTINUOUS_POSITION = "continuousPosition";
     public static final String POSITION = "position";
     public static final String LOW_STEP = "lowStep";
     public static final String HIGH_STEP = "highStep";
 
+    public static final String DC_NODE = "DCNode";
+    public static final String DC_TOPOLOGICAL_NODE = "DCTopologicalNode";
+    public static final String ACDC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
     public static final String DC_TERMINAL = "DCTerminal";
+    public static final String DC_TERMINAL1 = "DCTerminal1";
+    public static final String DC_TERMINAL2 = "DCTerminal2";
     public static final String RATED_UDC = "ratedUdc";
 
     public static final String B_PER_SECTION = "bPerSection";
@@ -75,7 +86,13 @@ public final class CgmesNames {
     public static final String R = "r";
     public static final String X = "x";
     public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
+    public static final String RATIO_TAP_CHANGER1 = "RatioTapChanger1";
+    public static final String RATIO_TAP_CHANGER2 = "RatioTapChanger2";
+    public static final String RATIO_TAP_CHANGER3 = "RatioTapChanger3";
     public static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
+    public static final String PHASE_TAP_CHANGER1 = "PhaseTapChanger1";
+    public static final String PHASE_TAP_CHANGER2 = "PhaseTapChanger2";
+    public static final String PHASE_TAP_CHANGER3 = "PhaseTapChanger3";
     public static final String RATEDU = "ratedU";
     public static final String RATEDS = "ratedS";
     public static final String G = "g";
@@ -115,6 +132,8 @@ public final class CgmesNames {
     public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
     public static final String REGULATING_CONTROL = "RegulatingControl";
     public static final String CONTROL_AREA = "ControlArea";
+    public static final String CONTROL_AREA_TYPE_KIND_INTERCHANGE = "ControlAreaTypeKind.Interchange";
+    public static final String TIE_FLOW = "TieFlow";
     public static final String CONFORM_LOAD = "ConformLoad";
     public static final String NONCONFORM_LOAD = "NonConformLoad";
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
@@ -126,7 +145,12 @@ public final class CgmesNames {
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
     public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
     public static final String ACDC_CONVERTER = "ACDCConverter";
+    public static final String VS_CONVERTER = "VsConverter";
+    public static final String CS_CONVERTER = "CsConverter";
     public static final String DC_LINE_SEGMENT = "DCLineSegment";
+    public static final String DC_LINE_SEGMENT2 = "DCLineSegment2";
+    public static final String DC_SWITCH = "DCSwitch";
+    public static final String DC_GROUND = "DCGround";
 
     public static final String CONNECTIVITY_NODE_BOUNDARY = "ConnectivityNode_Boundary";
     public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
@@ -141,9 +165,40 @@ public final class CgmesNames {
 
     public static final String OPERATIONAL_LIMIT = "OperationalLimit";
     public static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
+    public static final String NORMAL_VALUE = "normalValue";
     public static final String CURRENT_LIMIT = "CurrentLimit";
     public static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
     public static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
+    public static final String P_FIXED = "pFixed";
+    public static final String Q_FIXED = "qFixed";
+    public static final String TERMINAL_SIGN = "terminalSign";
+    public static final String TERMINAL_SIGN1 = "terminalSign1";
+    public static final String TERMINAL_SIGN2 = "terminalSign2";
+    public static final String TERMINAL_SIGN3 = "terminalSign3";
+    public static final String GENERATING_UNIT = "GeneratingUnit";
+    public static final String NORMAL_PF = "normalPF";
+    public static final String REGULATION_CAPABILITY = "regulationCapability";
+    public static final String REGULATION_TARGET = "regulationTarget";
+    public static final String REGULATION_STATUS = "regulationStatus";
+    public static final String MODE = "mode";
+    public static final String INITIAL_P = "initialP";
+    public static final String NORMAL_SECTIONS = "normalSections";
+    public static final String TARGET_VALUE = "targetValue";
+    public static final String TARGET_DEADBAND = "targetDeadband";
+    public static final String ENABLED = "enabled";
+    public static final String CONTROL_ENABLED = "controlEnabled";
+    public static final String REACTIVE_POWER = "reactivepower";
+    public static final String VOLTAGE_TAG = "voltage";
+    public static final String NORMAL_OPEN = "normalOpen";
+    public static final String CONNECTED = "connected";
+    public static final String OPEN = "open";
+    public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
+    public static final String HIGH_VOLTAGE_LIMIT = "highVoltageLimit";
+    public static final String LOW_VOLTAGE_LIMIT = "lowVoltageLimit";
+    public static final String SVC_EQ_VOLTAGE_SET_POINT = "svcEquipmentVoltageSetPoint";
+
+    public static final String ENERGY_IDENT_CODE_EIC = "energyIdentCodeEic";
+    public static final String P_TOLERANCE = "pTolerance";
 
     private CgmesNames() {
     }

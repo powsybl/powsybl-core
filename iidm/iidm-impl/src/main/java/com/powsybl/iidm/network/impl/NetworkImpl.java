@@ -16,10 +16,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
+import com.powsybl.iidm.network.components.AbstractDcComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util.NetworkReports;
 import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +135,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
         index.checkAndAdd(this);
+        dcTopologyModel = new DcTopologyModel(ref, subnetworkRef);
     }
 
     static Network merge(String id, String name, Network... networks) {
@@ -173,6 +176,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             }
         }
         mergedNetwork.setCaseDate(caseDate);
+    }
+
+    RefChain<SubnetworkImpl> getSubnetworkRef() {
+        return subnetworkRef;
     }
 
     RefChain<NetworkImpl> getRef() {
@@ -590,23 +597,23 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return index.getAll(DanglingLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return index.getAll(BoundaryLineImpl.class).stream().filter(boundaryLineFilter.getPredicate()).map(Function.identity());
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return index.getAll(DanglingLineImpl.class).size();
+    public int getBoundaryLineCount() {
+        return index.getAll(BoundaryLineImpl.class).size();
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine(String id) {
-        return index.get(id, DanglingLineImpl.class);
+    public BoundaryLineImpl getBoundaryLine(String id) {
+        return index.get(id, BoundaryLineImpl.class);
     }
 
     @Override
@@ -786,6 +793,146 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         return index.getAll(GroundImpl.class).size();
     }
 
+    @Override
+    public DcNodeAdder newDcNode() {
+        return new DcNodeAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcNode> getDcNodes() {
+        return Collections.unmodifiableCollection(index.getAll(DcNodeImpl.class));
+    }
+
+    @Override
+    public Stream<DcNode> getDcNodeStream() {
+        return index.getAll(DcNodeImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcNodeCount() {
+        return index.getAll(DcNodeImpl.class).size();
+    }
+
+    @Override
+    public DcNode getDcNode(String id) {
+        return index.get(id, DcNodeImpl.class);
+    }
+
+    @Override
+    public DcLineAdder newDcLine() {
+        return new DcLineAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcLine> getDcLines() {
+        return Collections.unmodifiableCollection(index.getAll(DcLineImpl.class));
+    }
+
+    @Override
+    public Stream<DcLine> getDcLineStream() {
+        return index.getAll(DcLineImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcLineCount() {
+        return index.getAll(DcLineImpl.class).size();
+    }
+
+    @Override
+    public DcLine getDcLine(String id) {
+        return index.get(id, DcLineImpl.class);
+    }
+
+    @Override
+    public DcSwitchAdder newDcSwitch() {
+        return new DcSwitchAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcSwitch> getDcSwitches() {
+        return Collections.unmodifiableCollection(index.getAll(DcSwitchImpl.class));
+    }
+
+    @Override
+    public Stream<DcSwitch> getDcSwitchStream() {
+        return index.getAll(DcSwitchImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcSwitchCount() {
+        return index.getAll(DcSwitchImpl.class).size();
+    }
+
+    @Override
+    public DcSwitch getDcSwitch(String id) {
+        return index.get(id, DcSwitchImpl.class);
+    }
+
+    @Override
+    public DcGroundAdder newDcGround() {
+        return new DcGroundAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<DcGround> getDcGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(DcGroundImpl.class));
+    }
+
+    @Override
+    public Stream<DcGround> getDcGroundStream() {
+        return index.getAll(DcGroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getDcGroundCount() {
+        return index.getAll(DcGroundImpl.class).size();
+    }
+
+    @Override
+    public DcGround getDcGround(String id) {
+        return index.get(id, DcGroundImpl.class);
+    }
+
+    @Override
+    public Iterable<LineCommutatedConverter> getLineCommutatedConverters() {
+        return Collections.unmodifiableCollection(index.getAll(LineCommutatedConverterImpl.class));
+    }
+
+    @Override
+    public Stream<LineCommutatedConverter> getLineCommutatedConverterStream() {
+        return index.getAll(LineCommutatedConverterImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getLineCommutatedConverterCount() {
+        return index.getAll(LineCommutatedConverterImpl.class).size();
+    }
+
+    @Override
+    public LineCommutatedConverter getLineCommutatedConverter(String id) {
+        return index.get(id, LineCommutatedConverterImpl.class);
+    }
+
+    @Override
+    public Iterable<VoltageSourceConverter> getVoltageSourceConverters() {
+        return Collections.unmodifiableCollection(index.getAll(VoltageSourceConverterImpl.class));
+    }
+
+    @Override
+    public Stream<VoltageSourceConverter> getVoltageSourceConverterStream() {
+        return index.getAll(VoltageSourceConverterImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getVoltageSourceConverterCount() {
+        return index.getAll(VoltageSourceConverterImpl.class).size();
+    }
+
+    @Override
+    public VoltageSourceConverter getVoltageSourceConverter(String id) {
+        return index.get(id, VoltageSourceConverterImpl.class);
+    }
+
     HvdcLineAdder newHvdcLine(String subnetwork) {
         return new HvdcLineAdderImpl(this, subnetwork);
     }
@@ -836,6 +983,41 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public <C extends DcConnectable> Iterable<C> getDcConnectables(Class<C> clazz) {
+        return getDcConnectableStream(clazz).toList();
+    }
+
+    @Override
+    public <C extends DcConnectable> Stream<C> getDcConnectableStream(Class<C> clazz) {
+        return index.getAll().stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
+    @Override
+    public <C extends DcConnectable> int getDcConnectableCount(Class<C> clazz) {
+        return Ints.checkedCast(getDcConnectableStream(clazz).count());
+    }
+
+    @Override
+    public Iterable<DcConnectable> getDcConnectables() {
+        return getDcConnectables(DcConnectable.class);
+    }
+
+    @Override
+    public Stream<DcConnectable> getDcConnectableStream() {
+        return getDcConnectableStream(DcConnectable.class);
+    }
+
+    @Override
+    public DcConnectable<?> getDcConnectable(String id) {
+        return index.get(id, DcConnectable.class);
+    }
+
+    @Override
+    public int getDcConnectableCount() {
+        return Ints.checkedCast(getDcConnectableStream().count());
+    }
+
+    @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
         return newVoltageAngleLimit(null);
     }
@@ -874,6 +1056,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
 
         @Override
+        protected void setComponentNumber(DcBus dcBus, int num) {
+            Objects.requireNonNull(dcBus);
+            ((DcBusImpl) dcBus).setConnectedComponentNumber(num);
+        }
+
+        @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
             return new ConnectedComponentImpl(num, size, network.ref);
         }
@@ -901,6 +1089,31 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
             return new SynchronousComponentImpl(num, size, network.ref);
+        }
+    }
+
+    static final class DcComponentsManager extends AbstractDcComponentsManager<DcComponentImpl> {
+
+        private final NetworkImpl network;
+
+        private DcComponentsManager(NetworkImpl network) {
+            this.network = Objects.requireNonNull(network);
+        }
+
+        @Override
+        protected Network getNetwork() {
+            return network;
+        }
+
+        @Override
+        protected void setComponentNumber(DcBus dcBus, int num) {
+            Objects.requireNonNull(dcBus);
+            ((DcBusImpl) dcBus).setDcComponentNumber(num);
+        }
+
+        @Override
+        protected DcComponentImpl createComponent(int num, int size) {
+            return new DcComponentImpl(num, size, network.ref);
         }
     }
 
@@ -938,13 +1151,16 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    private class VariantImpl implements Variant {
+    private final class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager
                 = new ConnectedComponentsManager(NetworkImpl.this);
 
         private final SynchronousComponentsManager synchronousComponentsManager
                 = new SynchronousComponentsManager(NetworkImpl.this);
+
+        private final DcComponentsManager dcComponentsManager
+                = new DcComponentsManager(NetworkImpl.this);
 
         private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
 
@@ -971,9 +1187,20 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         return variants.get().synchronousComponentsManager;
     }
 
+    DcComponentsManager getDcComponentsManager() {
+        return variants.get().dcComponentsManager;
+    }
+
+    @Override
+    public Collection<Component> getDcComponents() {
+        return Collections.unmodifiableList(variants.get().dcComponentsManager.getConnectedComponents());
+    }
+
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, final int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        dcTopologyModel.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().extendVariantArraySize(initVariantArraySize, number, sourceIndex));
 
         variants.push(number, () -> variants.copy(sourceIndex));
     }
@@ -981,6 +1208,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
+        dcTopologyModel.reduceVariantArraySize(number);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().reduceVariantArraySize(number));
 
         variants.pop(number);
     }
@@ -988,6 +1217,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
+        dcTopologyModel.deleteVariantArrayElement(index);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().deleteVariantArrayElement(index));
 
         variants.delete(index);
     }
@@ -995,6 +1226,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
+        dcTopologyModel.allocateVariantArrayElement(indexes, sourceIndex);
+        getSubnetworks().forEach(sn -> ((SubnetworkImpl) sn).getDcTopologyModel().allocateVariantArrayElement(indexes, sourceIndex));
 
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
@@ -1024,17 +1257,17 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
         checkMergeability(otherNetwork);
 
-        // try to find dangling lines couples
-        List<DanglingLinePair> lines = new ArrayList<>();
-        Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
+        // try to find boundary lines couples
+        List<BoundaryLinePair> lines = new ArrayList<>();
+        Map<String, List<BoundaryLine>> dl1byPairingKey = new HashMap<>();
 
-        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine dl1 : getBoundaryLines(BoundaryLineFilter.ALL)) {
             if (dl1.getPairingKey() != null) {
                 dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : findCandidateDanglingLines(other, dl1byPairingKey::containsKey)) {
-            findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
+        for (BoundaryLine dl2 : findCandidateBoundaryLines(other, dl1byPairingKey::containsKey)) {
+            findAndAssociateBoundaryLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairBoundaryLines(lines, dll1, dll2, dl1byPairingKey));
         }
 
         // create a subnetwork for the other network
@@ -1046,7 +1279,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         // merge the indexes
         index.merge(otherNetwork.index);
 
-        replaceDanglingLineByTieLine(lines);
+        replaceBoundaryLineByTieLine(lines);
 
         other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
@@ -1096,27 +1329,28 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
         transferProperties(original, sn);
+        sn.attachDcTopologyModel(original.detachDcTopologyModel(), sn.getRootNetworkRef(), sn.getRef());
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
     }
 
-    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byPairingKey) {
+    private void pairBoundaryLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byPairingKey) {
         if (dl1 != null) {
             if (dl1.getPairingKey() != null) {
                 dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
             }
-            DanglingLinePair l = new DanglingLinePair();
+            BoundaryLinePair l = new BoundaryLinePair();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
             l.dl1Id = dl1.getId();
             l.dl2Id = dl2.getId();
             l.aliases = new HashMap<>();
-            // No need to merge properties or aliases because we keep the original dangling lines after merge
-            danglingLinePairs.add(l);
+            // No need to merge properties or aliases because we keep the original boundary lines after merge
+            boundaryLinePairs.add(l);
 
-            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
-                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename boundary lines
+                ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
             } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
@@ -1128,19 +1362,19 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
-        for (DanglingLinePair danglingLinePair : lines) {
-            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
-                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
+    private void replaceBoundaryLineByTieLine(List<BoundaryLinePair> lines) {
+        for (BoundaryLinePair boundaryLinePair : lines) {
+            LOGGER.debug("Creating tie line '{}' between boundary line couple '{}' and '{}",
+                    boundaryLinePair.id, boundaryLinePair.dl1Id, boundaryLinePair.dl2Id);
             TieLineImpl l = newTieLine()
-                    .setId(danglingLinePair.id)
+                    .setId(boundaryLinePair.id)
                     .setEnsureIdUnicity(true)
-                    .setName(danglingLinePair.name)
-                    .setDanglingLine1(danglingLinePair.dl1Id)
-                    .setDanglingLine2(danglingLinePair.dl2Id)
+                    .setName(boundaryLinePair.name)
+                    .setBoundaryLine1(boundaryLinePair.dl1Id)
+                    .setBoundaryLine2(boundaryLinePair.dl2Id)
                     .add();
-            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            danglingLinePair.aliases.forEach((alias, type) -> {
+            boundaryLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            boundaryLinePair.aliases.forEach((alias, type) -> {
                 if (type.isEmpty()) {
                     l.addAlias(alias);
                 } else {
@@ -1150,7 +1384,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    static class DanglingLinePair {
+    static class BoundaryLinePair {
         String id;
         String name;
         String dl1Id;
@@ -1191,12 +1425,12 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return getDanglingLineStream(DanglingLineFilter.UNPAIRED).collect(Collectors.toSet());
+        return getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).collect(Collectors.toSet());
     }
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
+        return identifiable.getType() == IdentifiableType.BOUNDARY_LINE && !((BoundaryLine) identifiable).isPaired();
     }
 
     @Override
@@ -1206,6 +1440,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             return;
         }
         subnetworks.values().forEach(subnetwork -> {
+            // the subnetwork DC topology model is transferred into this network DC topology model
+            dcTopologyModel.addAndDetachSubnetworkDcTopologyModel(subnetwork);
             // The subnetwork ref chain should point to the current network's subnetworkRef
             // (thus, we obtain a "double ref chain": a refChain referencing another refChain).
             // This way, all its network elements (using this ref chain) will have a reference to the current network
@@ -1217,6 +1453,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             transferProperties(subnetwork, this, true);
             index.remove(subnetwork);
         });
+        dcTopologyModel.invalidateAllVariantsCache();
         subnetworks.clear();
     }
 
@@ -1242,19 +1479,16 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
-        ReportNode readReportNode = Objects.requireNonNull(reportNode).newReportNode()
-                .withMessageTemplate("IIDMValidation", "Running validation checks on IIDM network ${networkId}")
-                .withUntypedValue("networkId", id)
-                .add();
+        ReportNode readReportNode = NetworkReports.runIidmNetworkValidationCHecks(reportNode, id);
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
+                true, throwsException ? ValidationUtil.ActionOnError.THROW_EXCEPTION : ValidationUtil.ActionOnError.LOG_ERROR, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, ReportNode.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, ValidationUtil.ActionOnError.IGNORE, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
@@ -1285,4 +1519,41 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             validationLevel = null;
         }
     }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        List<Iterable<DcBus>> iterables = new ArrayList<>();
+        iterables.add(getDcTopologyModel().getDcBuses());
+        getSubnetworks().stream().map(Network::getDcBuses).forEach(iterables::add);
+        return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return Stream.concat(
+                getDcTopologyModel().getDcBusStream(),
+                getSubnetworks().stream().map(n -> ((SubnetworkImpl) n).getDcTopologyModel()).flatMap(DcTopologyModel::getDcBusStream)
+        );
+    }
+
+    @Override
+    public int getDcBusCount() {
+        return getDcTopologyModel().getDcBusCount() + getSubnetworks().stream().mapToInt(Network::getDcBusCount).sum();
+    }
+
+    @Override
+    public DcBus getDcBus(String id) {
+        DcBus found = getDcTopologyModel().getDcBus(id);
+        if (found != null) {
+            return found;
+        }
+        for (Network sn : getSubnetworks()) {
+            found = ((SubnetworkImpl) sn).getDcTopologyModel().getDcBus(id);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+
 }

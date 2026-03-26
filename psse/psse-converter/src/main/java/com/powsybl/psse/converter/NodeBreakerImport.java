@@ -17,14 +17,14 @@ final class NodeBreakerImport {
 
     private final Set<Integer> topologicalBuses;
     private final Map<String, Integer> equipmentIdBusNode;
-    private final Map<String, NodeBreakerControlNode> equipmentIdBusControlNode;
+    private final Map<Integer, ControlR> busControlR;
 
-    private final Map<Integer, NodeBreakerControlNode> slackBusControlNode;
+    private final Map<Integer, ControlR> slackBusControlNode;
 
     NodeBreakerImport() {
         this.topologicalBuses = new HashSet<>(); // buses not used for defining the connectivity
         this.equipmentIdBusNode = new HashMap<>();
-        this.equipmentIdBusControlNode = new HashMap<>();
+        this.busControlR = new HashMap<>();
         this.slackBusControlNode = new HashMap<>();
     }
 
@@ -48,23 +48,23 @@ final class NodeBreakerImport {
         }
     }
 
-    void addControl(String equipmentIdBus, String voltageLevelId, int node) {
-        equipmentIdBusControlNode.put(equipmentIdBus, new NodeBreakerControlNode(voltageLevelId, node));
+    void addBusControl(int bus, String voltageLevelId, int defaultNode) {
+        busControlR.put(bus, new ControlR(voltageLevelId, defaultNode));
     }
 
-    Optional<NodeBreakerControlNode> getControlNode(String equipmentIdBus) {
-        if (equipmentIdBusControlNode.containsKey(equipmentIdBus)) {
-            return Optional.of(equipmentIdBusControlNode.get(equipmentIdBus));
+    Optional<ControlR> getControl(int bus) {
+        if (busControlR.containsKey(bus)) {
+            return Optional.of(busControlR.get(bus));
         } else {
             return Optional.empty();
         }
     }
 
     void addSlackControl(int bus, String voltageLevelId, int node) {
-        slackBusControlNode.put(bus, new NodeBreakerControlNode(voltageLevelId, node));
+        slackBusControlNode.put(bus, new ControlR(voltageLevelId, node));
     }
 
-    Optional<NodeBreakerControlNode> getSlackControlNode(int bus) {
+    Optional<ControlR> getSlackControlNode(int bus) {
         if (slackBusControlNode.containsKey(bus)) {
             return Optional.of(slackBusControlNode.get(bus));
         } else {
@@ -72,21 +72,6 @@ final class NodeBreakerImport {
         }
     }
 
-    static final class NodeBreakerControlNode {
-        private final String voltageLevelId;
-        private final int node;
-
-        private NodeBreakerControlNode(String voltageLevelId, int node) {
-            this.voltageLevelId = voltageLevelId;
-            this.node = node;
-        }
-
-        String getVoltageLevelId() {
-            return voltageLevelId;
-        }
-
-        int getNode() {
-            return node;
-        }
+    record ControlR(String voltageLevelId, int node) {
     }
 }

@@ -63,10 +63,6 @@ public final class StaticVarCompensatorEq {
             return "SVCControlMode.voltage";
         } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
             return "SVCControlMode.reactivePower";
-        } else if (StaticVarCompensator.RegulationMode.OFF.equals(svcControlMode)) {
-            // CGMES does not have a "none" value for SVCControlMode enumeration,
-            // so we have to take a default here
-            return "SVCControlMode.reactivePower";
         }
         throw new PowsyblException("Invalid regulation mode for Static Var Compensator " + svcControlMode);
     }

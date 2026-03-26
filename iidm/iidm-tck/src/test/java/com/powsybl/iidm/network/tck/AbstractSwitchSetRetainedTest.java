@@ -58,20 +58,12 @@ public abstract class AbstractSwitchSetRetainedTest {
         Switch b1 = network.getSwitch("B1");
         assertNotNull(b1);
 
-        VariantManager variantManager = network.getVariantManager();
-        variantManager.allowVariantMultiThreadAccess(true);
-        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "backup");
-
         assertTrue(b1.isRetained());
         assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
 
         b1.setRetained(false);
         assertFalse(b1.isRetained());
         assertEquals(1, Iterables.size(vl.getBusBreakerView().getBuses()));
-
-        variantManager.setWorkingVariant("backup");
-        assertTrue(b1.isRetained());
-        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 
     @Test

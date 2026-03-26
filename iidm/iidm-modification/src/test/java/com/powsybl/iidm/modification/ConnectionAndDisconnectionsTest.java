@@ -8,6 +8,8 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -25,6 +27,7 @@ import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -320,7 +323,10 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportPlannedDisconnectionComplete")
+                .build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -339,7 +345,10 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         network.getSwitch("D1").setFictitious(true);
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestConnectionNoDisconnection")
+                .build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -364,7 +373,10 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionDisconnection", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestConnectionDisconnection")
+                .build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -380,7 +392,10 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestConnectionNoDisconnection")
+                .build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -405,7 +420,10 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnection", "Testing reportNode for connectable connection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestConnection")
+                .build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withIdentifiableId("L2")
             .withFictitiousSwitchesOperable(true)
@@ -422,7 +440,10 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoConnection", "Testing reportNode for connectable connection").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestConnectionNoConnection")
+                .build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withIdentifiableId("L2")
             .withFictitiousSwitchesOperable(false)
@@ -448,7 +469,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Add tie line
-        DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel("VL2").newBoundaryLine()
             .setId("NHV1_XNODE1")
             .setP0(0.0)
             .setQ0(0.0)
@@ -459,7 +480,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setBus("bus2A")
             .setPairingKey("XNODE1")
             .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel("VL3").newBoundaryLine()
             .setId("XNODE1_NHV2")
             .setP0(0.0)
             .setQ0(0.0)
@@ -472,8 +493,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
         TieLine tieLine = network.newTieLine()
             .setId("NHV1_NHV2_1")
-            .setDanglingLine1(nhv1xnode1.getId())
-            .setDanglingLine2(xnode1nhv2.getId())
+            .setBoundaryLine1(nhv1xnode1.getId())
+            .setBoundaryLine2(xnode1nhv2.getId())
             .add();
 
         // Disconnection
@@ -558,8 +579,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
     }
 
     private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
-        assertEquals(expectedConnectionOnSide1, tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertEquals(expectedConnectionOnSide2, tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide1, tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, tieLine.getBoundaryLine2().getTerminal().isConnected());
     }
 
     private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
@@ -577,7 +598,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> disconnection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", disconnectionException.getMessage());
 
         ConnectableConnection connection = new ConnectableConnectionBuilder()
@@ -585,7 +607,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
-        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> connection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", connectionException.getMessage());
     }
 
@@ -599,7 +622,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> disconnection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Disconnection not implemented for identifiable 'S1'", disconnectionException.getMessage());
 
         ConnectableConnection connection = new ConnectableConnectionBuilder()
@@ -607,7 +631,9 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
-        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+
+        assertDoesNotThrow(() -> connection.apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP));
+        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, true, ReportNode.NO_OP));
         assertEquals("Connection not implemented for identifiable 'S1'", connectionException.getMessage());
     }
 
@@ -967,7 +993,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
     private void addTieLine(Network network) {
         // Add tie line
-        DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel("VL2").newBoundaryLine()
             .setId("NHV1_XNODE1")
             .setP0(0.0)
             .setQ0(0.0)
@@ -978,7 +1004,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setBus("bus2A")
             .setPairingKey("XNODE1")
             .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel("VL3").newBoundaryLine()
             .setId("XNODE1_NHV2")
             .setP0(0.0)
             .setQ0(0.0)
@@ -991,8 +1017,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
         network.newTieLine()
             .setId("NHV1_NHV2_1")
-            .setDanglingLine1(nhv1xnode1.getId())
-            .setDanglingLine2(xnode1nhv2.getId())
+            .setBoundaryLine1(nhv1xnode1.getId())
+            .setBoundaryLine2(xnode1nhv2.getId())
             .add();
     }
 }

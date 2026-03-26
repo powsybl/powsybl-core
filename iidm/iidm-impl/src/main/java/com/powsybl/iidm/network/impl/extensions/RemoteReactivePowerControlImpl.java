@@ -77,8 +77,12 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     @Override
     public RemoteReactivePowerControl setRegulatingTerminal(Terminal regulatingTerminal) {
         Objects.requireNonNull(regulatingTerminal);
-        checkRegulatingTerminal(regulatingTerminal, getExtendable().getTerminal().getVoltageLevel().getNetwork());
-        this.regulatingTerminal = regulatingTerminal;
+        if (this.regulatingTerminal != regulatingTerminal) {
+            ((TerminalExt) this.regulatingTerminal).getReferrerManager().unregister(this);
+            checkRegulatingTerminal(regulatingTerminal, getExtendable().getTerminal().getVoltageLevel().getNetwork());
+            this.regulatingTerminal = regulatingTerminal;
+            ((TerminalExt) regulatingTerminal).getReferrerManager().register(this);
+        }
         return this;
     }
 
@@ -135,7 +139,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     @Override
     public void onReferencedReplacement(Terminal oldReferenced, Terminal newReferenced) {
         if (regulatingTerminal == oldReferenced) {
-            regulatingTerminal = newReferenced;
+            setRegulatingTerminal(newReferenced);
         }
     }
 

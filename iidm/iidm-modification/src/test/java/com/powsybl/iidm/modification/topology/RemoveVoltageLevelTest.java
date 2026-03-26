@@ -8,6 +8,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -77,9 +79,9 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         vl2.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
 
         // "Parallel lines" between voltage levels: a tie line and a line
-        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(2).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(1).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        BoundaryLine dl1 = vl1.newBoundaryLine().setId("DL1").setNode(2).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        BoundaryLine dl2 = vl2.newBoundaryLine().setId("DL2").setNode(1).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setBoundaryLine1(dl1.getId()).setBoundaryLine2(dl2.getId()).add();
         network.newLine().setId("line").setVoltageLevel1(vl1.getId()).setVoltageLevel2(vl2.getId()).setNode1(4).setNode2(2)
                 .setR(0.01).setX(20.0).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).add();
         addListener(network);
@@ -93,7 +95,10 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reportNode on remove voltage level").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestRemoveVL")
+                .build();
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
@@ -115,9 +120,10 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
         removeUnknown.apply(network, false, reportNode);
+        assertDoesNotThrow(() -> removeUnknown.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reportNode));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
-        assertEquals("voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.modification.voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());
     }
 
     @Test

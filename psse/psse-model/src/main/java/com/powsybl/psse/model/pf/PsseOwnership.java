@@ -109,4 +109,17 @@ public class PsseOwnership extends PsseVersioned {
     public void setF4(double f4) {
         this.f4 = f4;
     }
+
+    public PsseOwnership copy() {
+        PsseOwnership copy = new PsseOwnership();
+        copy.o1 = this.o1;
+        copy.f1 = this.f1;
+        copy.o2 = this.o2;
+        copy.f2 = this.f2;
+        copy.o3 = this.o3;
+        copy.f3 = this.f3;
+        copy.o4 = this.o4;
+        copy.f4 = this.f4;
+        return copy;
+    }
 }

@@ -121,7 +121,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             VoltageLevelExt voltageLevel = checkAndGetVoltageLevel();
-            return new TerminalBuilder(voltageLevel.getNetworkRef(), this, side)
+            return new TerminalBuilder(voltageLevel.getNetworkRef(), this, side, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)
@@ -174,8 +174,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         @Override
-        public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", side.getNum(), substation.getId());
+        public MessageHeader getMessageHeader() {
+            return new DefaultMessageHeader("3 windings transformer leg" + side.getNum(), substation.getId(), "substation");
         }
     }
 

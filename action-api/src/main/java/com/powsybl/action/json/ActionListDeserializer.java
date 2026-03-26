@@ -73,7 +73,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
         if (context.version == null) {
             throw new JsonMappingException(parser, "version is missing");
         }
-        JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: tapPosition", context.version, ActionList.VERSION);
+        JsonUtil.assertSupportedVersion("actions", context.version, ActionList.VERSION);
         if (!context.actionBuilderMap.isEmpty()) {
             if (context.elementIdentifierMap.size() != context.actionBuilderMap.size()) {
                 throw new IOException("map elementIdentifiers and actionBuilders must have the same size");

@@ -236,7 +236,7 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
-    public void skipChildNodes() {
+    public void skipNode() {
         throw new PowsyblException("Binary format does not support skipping child nodes");
     }
 

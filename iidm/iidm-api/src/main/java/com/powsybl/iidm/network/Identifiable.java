@@ -17,7 +17,7 @@ import com.powsybl.commons.extensions.Extendable;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
+public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, PropertiesHolder {
 
     /**
      * Get the network associated to the object.
@@ -127,44 +127,6 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     default I setName(String name) {
         throw new UnsupportedOperationException("Not implemented");
     }
-
-    /**
-     * Check that this object has some properties.
-     */
-    boolean hasProperty();
-
-    /**
-     * Check that this object has property with specified name.
-     */
-    boolean hasProperty(String key);
-
-    /**
-     * Get property associated to specified key.
-     */
-    String getProperty(String key);
-
-    /**
-     * Get property associated to specified key, with default value.
-     */
-    String getProperty(String key, String defaultValue);
-
-    /**
-     * Set property value associated to specified key.
-     */
-    String setProperty(String key, String value);
-
-    /**
-     * Remove property with specified key.
-     *
-     * @param key the property key
-     * @return {@code true} if property exists and has been removed, {@code false} otherwise
-     */
-    boolean removeProperty(String key);
-
-    /**
-     * Get properties key values.
-     */
-    Set<String> getPropertyNames();
 
     /**
      * Get the fictitious status

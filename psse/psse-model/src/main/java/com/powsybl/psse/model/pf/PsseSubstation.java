@@ -172,9 +172,11 @@ public class PsseSubstation {
         @Parsed(field = {"stat", "status"})
         private int status = 1;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double vm = 1.0;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double va = 0.0;
 

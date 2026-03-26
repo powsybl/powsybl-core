@@ -8,15 +8,9 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.extensions.CimCharacteristics;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -42,47 +36,6 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         String baseName = nameEQ.replace("_EQ.xml", "");
         // The baseName of the output files should be taken from the network name or id
         assertEquals(n.getNameOrId(), baseName);
-    }
-
-    @Test
-    void testExportIEEE14Cim14ToCim16() {
-        testExportToCim(ieee14Cim14(), "IEEE14", 16);
-    }
-
-    @Test
-    void testExportIEEE14Cim14ToCim100() {
-        // Testing export to CGMES 3
-        // TODO(Luma) verify that all classes and attributes are valid against profiles (using CIMdesk)
-        // TODO(Luma) Check mRID is exported
-        // TODO(Luma) Check GeneratingUnit.initialP (removed in CIM100)
-        // TODO(Luma) Check the way OperationalLimit TypeName is read
-        // TODO(Luma) Check OperationalLimit value (renamed to normalValue in CIM100)
-        Network network = ieee14Cim14();
-        assertEquals(14, network.getExtension(CimCharacteristics.class).getCimVersion());
-        testExportToCim(network, "IEEE14", 100);
-    }
-
-    @Test
-    void testExportIEEE14ToCim100CheckIsNodeBreaker() {
-        // Testing export to CGMES 3 is interpreted as a node/breaker CGMES model
-        // Input was a bus/branch model
-
-        Network network = ieee14Cim14();
-        CgmesModel cgmesModel14 = network.getExtension(CgmesModelExtension.class).getCgmesModel();
-        assertFalse(cgmesModel14.isNodeBreaker());
-
-        String cimZipFilename = "ieee14_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        Network network100 = Network.read(zip, importParams);
-
-        CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
-        assertTrue(cgmesModel100.isNodeBreaker());
     }
 
     @Test
@@ -116,38 +69,4 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         assertTrue(eqContent.contains("<cim:IdentifiedObject.mRID>"));
     }
 
-    private static Network ieee14Cim14() {
-        ReadOnlyDataSource dataSource = Cim14SmallCasesCatalog.ieee14().dataSource();
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        return new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
-    }
-
-    private void testExportToCim(Network network, String name, int cimVersion) {
-        String cimZipFilename = name + "_CIM" + cimVersion;
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, Integer.toString(cimVersion));
-        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-
-        // Reimport and verify contents of Network
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        Network networkCimVersion = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve(cimZipFilename + ".zip")), importParams);
-        CimCharacteristics cim = networkCimVersion.getExtension(CimCharacteristics.class);
-
-        assertEquals(cimVersion, cim.getCimVersion());
-        // Initial verification: check that we have the same number of elements in both networks
-        // TODO(Luma) compare the networks
-        // If the original was bus-branch (like IEEE14) and the exported is node-breaker at least compare attributes
-        // or select another network for verification (SmallGrid ?)
-        assertEquals(network.getSubstationCount(), networkCimVersion.getSubstationCount());
-        assertEquals(network.getVoltageLevelCount(), networkCimVersion.getVoltageLevelCount());
-        assertEquals(network.getLineCount(), networkCimVersion.getLineCount());
-        assertEquals(network.getTwoWindingsTransformerCount(), networkCimVersion.getTwoWindingsTransformerCount());
-        assertEquals(network.getThreeWindingsTransformerCount(), networkCimVersion.getThreeWindingsTransformerCount());
-        assertEquals(network.getGeneratorCount(), networkCimVersion.getGeneratorCount());
-        assertEquals(network.getLoadCount(), networkCimVersion.getLoadCount());
-        assertEquals(network.getShuntCompensatorCount(), networkCimVersion.getShuntCompensatorCount());
-    }
 }

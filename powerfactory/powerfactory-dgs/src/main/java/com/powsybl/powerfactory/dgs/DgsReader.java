@@ -54,7 +54,7 @@ public class DgsReader {
         }
     }
 
-    private class DgsHandlerImpl implements DgsHandler {
+    private final class DgsHandlerImpl implements DgsHandler {
 
         private DataClass clazz;
 

@@ -43,9 +43,4 @@ public abstract class AbstractTreeDataReader implements TreeDataReader {
         String attributeValue = readStringAttribute(name);
         return attributeValue != null ? Enum.valueOf(clazz, attributeValue) : defaultValue;
     }
-
-    @Override
-    public void skipChildNodes() {
-        readChildNodes(elementName -> skipChildNodes());
-    }
 }

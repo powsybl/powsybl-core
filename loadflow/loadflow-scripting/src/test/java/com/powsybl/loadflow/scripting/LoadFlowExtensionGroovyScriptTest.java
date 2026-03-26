@@ -7,7 +7,6 @@
  */
 package com.powsybl.loadflow.scripting;
 
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -21,6 +20,7 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -28,7 +28,6 @@ import java.util.List;
 class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
 
     private Network fooNetwork;
-    private ComputationManager computationManager;
 
     @BeforeEach
     void setUp() {
@@ -57,12 +56,13 @@ class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
     protected List<GroovyScriptExtension> getExtensions() {
         GroovyScriptExtension ext = new GroovyScriptExtension() {
             @Override
-            public void load(Binding binding, ComputationManager computationManager) {
+            public void load(Binding binding, Map<Class<?>, Object> contextObjects) {
                 binding.setVariable("n", fooNetwork);
             }
 
             @Override
             public void unload() {
+                // Nothing to do here
             }
         };
 

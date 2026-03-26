@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -16,10 +18,10 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -28,9 +30,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -72,7 +78,7 @@ public final class ConversionUtil {
 
     public static boolean xmlContains(InputStream is, String clazz, String ns, String attr, String expectedValue) {
         try {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 if (reader.next() == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(clazz)) {
                     String actualValue = reader.getAttributeValue(ns, attr);
@@ -96,6 +102,25 @@ public final class ConversionUtil {
     public static Network readCgmesResources(Properties properties, String dir, String... files) {
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
         return Network.read(ds, properties);
+    }
+
+    public static void readCgmesResources(Network network, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        network.update(ds);
+    }
+
+    public static void readCgmesResources(Network network, Properties properties, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        network.update(ds, properties);
+    }
+
+    public static Network readCgmesResources(ReportNode reportNode, String dir, String... files) {
+        return readCgmesResources(new Properties(), reportNode, dir, files);
+    }
+
+    public static Network readCgmesResources(Properties properties, ReportNode reportNode, String dir, String... files) {
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
+        return Network.read(ds, properties, reportNode);
     }
 
     public static String writeCgmesProfile(Network network, String profile, Path outDir) throws IOException {
@@ -126,8 +151,35 @@ public final class ConversionUtil {
     }
 
     public static String getElement(String xmlFile, String className, String rdfId) {
-        String regex = "(<cim:" + className + " (rdf:ID=\"_|rdf:about=\"#_)" + rdfId + "\">.*?</cim:" + className + ">)";
+        String regex = "(<cim:" + className + " (?:rdf:ID=\"_|rdf:about=\"#_)\\Q" + rdfId + "\\E\">.*?</cim:" + className + ">)";
         Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
         return getFirstMatch(xmlFile, pattern);
+    }
+
+    public static String getAttribute(String element, String attributeName) {
+        String regex = "<cim:" + attributeName + ">(.*?)</cim:" + attributeName + ">";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
+    }
+
+    public static String getResource(String element, String attributeName) {
+        String regex = "<cim:" + attributeName + " rdf:resource=\"(?:#_)?(.*?)\"/>";
+        Pattern pattern = Pattern.compile(regex);
+        return getFirstMatch(element, pattern);
+    }
+
+    public static long getElementCount(String xmlFile, String className) {
+        String regex = "(<cim:" + className + " (?:rdf:ID=\"_|rdf:about=\"#_).*?\")>";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(xmlFile);
+        return matcherCount(matcher);
+    }
+
+    public static int matcherCount(Matcher matcher) {
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
     }
 }

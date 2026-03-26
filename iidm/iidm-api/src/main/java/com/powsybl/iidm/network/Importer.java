@@ -14,8 +14,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.commons.parameters.Parameter;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -110,6 +110,11 @@ public interface Importer {
         @Override
         public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
             importer.copy(fromDataSource, toDataSource);
+        }
+
+        @Override
+        public void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+            importer.update(network, dataSource, parameters, reportNode);
         }
     }
 
@@ -306,14 +311,6 @@ public interface Importer {
     boolean exists(ReadOnlyDataSource dataSource);
 
     /**
-     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
-     */
-    @Deprecated(since = "2.6.0")
-    default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        return importData(dataSource, NetworkFactory.findDefault(), parameters);
-    }
-
-    /**
      * Create a model.
      *
      * @param dataSource data source
@@ -345,5 +342,28 @@ public interface Importer {
      */
     default void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         throw new UnsupportedOperationException("Copy not implemented");
+    }
+
+    /**
+     * Update a given network with contents coming from a data source.
+     *
+     * @param network network
+     * @param dataSource data source
+     * @param parameters some properties to configure the import
+     * @param reportNode the reportNode used for functional logs
+     */
+    default void update(Network network, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        throw new UnsupportedOperationException("Importer do not implement updates");
+    }
+
+    /**
+     * Update a given network with contents coming from a data source.
+     *
+     * @param network network
+     * @param dataSource data source
+     * @param parameters some properties to configure the import
+     */
+    default void update(Network network, ReadOnlyDataSource dataSource, Properties parameters) {
+        update(network, dataSource, parameters, ReportNode.NO_OP);
     }
 }

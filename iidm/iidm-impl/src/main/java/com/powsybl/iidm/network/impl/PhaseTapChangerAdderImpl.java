@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 
@@ -20,9 +17,9 @@ import java.util.List;
  */
 class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChangerAdderImpl, PhaseTapChangerParent, PhaseTapChanger, PhaseTapChangerStepImpl> implements PhaseTapChangerAdder {
 
-    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
-    class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
+    class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerAdder.StepAdder {
 
         private double alpha = Double.NaN;
 
@@ -75,15 +72,15 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
         @Override
         public PhaseTapChangerAdder endStep() {
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
+            this.copyPropertiesTo(step);
             step.validate(parent);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }
-
     }
 
     PhaseTapChangerAdderImpl(PhaseTapChangerParent parent) {
-        super(parent);
+        super(parent, true);
     }
 
     @Override
@@ -98,8 +95,8 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     @Override
-    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, double regulationValue, double targetDeadband) {
-        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband) {
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }
@@ -110,8 +107,8 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     @Override
-    protected ValidationLevel checkTapChangerRegulation(PhaseTapChangerParent parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal) {
-        return ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
+    protected ValidationLevel checkTapChangerRegulation(PhaseTapChangerParent parent, double regulationValue, boolean regulating, boolean loadTapChangingCapabilities, TerminalExt regulationTerminal) {
+        return ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating, loadTapChangingCapabilities,
                 regulationTerminal, getNetwork(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
     }
 

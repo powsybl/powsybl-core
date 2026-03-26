@@ -132,8 +132,8 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
-        addFlow(danglingLine.getTerminal());
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
+        addFlow(boundaryLine.getTerminal());
     }
 
     @Override
@@ -144,6 +144,11 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     @Override
     public void visitGround(Ground ground) {
         addFlow(ground.getTerminal());
+    }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+        converter.getTerminal(terminalNumber).ifPresent(this::addFlow);
     }
 
     private final Bus bus;

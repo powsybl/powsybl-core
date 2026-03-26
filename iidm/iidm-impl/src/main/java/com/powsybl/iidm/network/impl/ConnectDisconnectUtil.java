@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.util.NetworkReports;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +35,7 @@ public final class ConnectDisconnectUtil {
      * @param identifiable network element to connect. It can be a connectable, a tie line or an HVDC line
      * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
-     *                  underlying dangling lines (respectively converter stations)
+     *                  underlying boundary lines (respectively converter stations)
      * @param isTypeSwitchToOperate type of switches that can be operated
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
@@ -53,11 +53,7 @@ public final class ConnectDisconnectUtil {
         for (Terminal terminal : terminals) {
             // Check if the terminal is already connected
             if (terminal.isConnected()) {
-                reportNode.newReportNode()
-                    .withMessageTemplate("alreadyConnectedTerminal", "A terminal of identifiable ${identifiable} is already connected.")
-                    .withUntypedValue("identifiable", identifiable.getId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+                NetworkReports.alreadyConnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             } else {
                 isAlreadyConnected = false;
@@ -101,7 +97,7 @@ public final class ConnectDisconnectUtil {
      * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
      * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
-     *                  underlying dangling lines (respectively converter stations)
+     *                  underlying boundary lines (respectively converter stations)
      * @param isSwitchOpenable type of switches that can be operated
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
@@ -118,11 +114,7 @@ public final class ConnectDisconnectUtil {
         for (Terminal terminal : terminals) {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
-                reportNode.newReportNode()
-                    .withMessageTemplate("alreadyDisconnectedTerminal", "A terminal of identifiable ${identifiable} is already disconnected.")
-                    .withUntypedValue("identifiable", identifiable.getId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+                NetworkReports.alreadyDisconnectedIdentifiableTerminal(reportNode, identifiable.getId());
                 continue;
             }
             // The terminal is connected

@@ -33,6 +33,11 @@ public class EmptyAmplParameters implements AmplParameters {
     }
 
     @Override
+    public String getDebugDir() {
+        return null;
+    }
+
+    @Override
     public AmplExportConfig getAmplExportConfig() {
         return null;
     }

@@ -65,7 +65,7 @@ public interface Measurement {
 
     /**
      * Set measurement value.
-     * Can not be NaN if the measurement is valid.
+     * Cannot be NaN if the measurement is valid.
      */
     Measurement setValue(double value);
 
@@ -86,15 +86,33 @@ public interface Measurement {
 
     /**
      * Get validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the measured value can not be NaN.
+     * If it is true (i.e. the measurement is valid), the measured value cannot be NaN.
      */
     boolean isValid();
 
     /**
      * Set validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the measured value can not be NaN.
+     * If it is true (i.e. the measurement is valid), the measured value cannot be NaN.
      */
     Measurement setValid(boolean valid);
+
+    /**
+     * Set measurement value and validity status at once.
+     * This default implementation is based on the two single mutators,
+     * called in an order preventing spurious exception throwing.
+     * A real implementation will call the check routine just once,
+     * before the two effective mutations.
+     */
+    default Measurement setValueAndValidity(double v, boolean valid) {
+        if (valid) {
+            setValue(v);
+            setValid(true);
+        } else {
+            setValid(false);
+            setValue(v);
+        }
+        return this;
+    }
 
     /**
      * Get which side the measurement is applied on (see {@link ThreeSides}).

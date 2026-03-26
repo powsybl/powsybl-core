@@ -9,16 +9,16 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
+import com.powsybl.cgmes.conversion.elements.dc.DCConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -36,7 +36,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+import static com.powsybl.cgmes.conversion.Update.*;
+import static com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.isBoundaryTerminalConnected;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -82,6 +84,9 @@ import static java.util.stream.Collectors.groupingBy;
  *
  */
 public class Conversion {
+
+    public static final String QUERY_CATALOG_NAME_INIT = "";
+    public static final String QUERY_CATALOG_NAME_UPDATE = "-update";
 
     public enum Xfmr2RatioPhaseInterpretationAlternative {
         END1, END2, END1_END2, X
@@ -158,8 +163,9 @@ public class Conversion {
 
         // Create base network with metadata information
         Network network = createNetwork();
-        Context context = createContext(network, reportNode);
-        assignNetworkProperties(context);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        Context context = new Context(cgmes, config, network, reportNode);
+        setNetworkTimes(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
 
@@ -170,6 +176,9 @@ public class Conversion {
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
+        cgmes.computedTerminals().stream()
+                .filter(t -> !CgmesNames.SWITCH_TYPES.contains(t.conductingEquipmentType()))
+                .forEach(t -> context.terminalMapping().buildConnectivityNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
         context.popReportNode();
 
@@ -217,43 +226,21 @@ public class Conversion {
 
         // Convert DC equipments, limits, SV injections, control areas, regulating controls
         context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, "DC network"));
-        CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
-        cgmesDcConversion.convert();
+        new DCConversion(context);
         clearUnattachedHvdcConverterStations(network, context);
         context.popReportNode();
 
         convert(cgmes.operationalLimits(), CgmesNames.OPERATIONAL_LIMIT, context);
-        context.loadingLimitsMapping().addAll();
+        context.limitsMapping().addAll();
         setSelectedOperationalLimitsGroup(context);
 
-        if (config.convertSvInjections()) {
-            convert(cgmes.svInjections(), CgmesNames.SV_INJECTION, context);
-        }
-
         if (config.importControlAreas()) {
-            context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, CgmesNames.CONTROL_AREA));
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
-            cgmesControlAreas.cleanIfEmpty();
-            context.popReportNode();
+            convert(cgmes.controlAreas(), CgmesNames.CONTROL_AREA, context);
+            convert(cgmes.tieFlows(), CgmesNames.TIE_FLOW, context);
         }
 
         context.pushReportNode(CgmesReports.convertingElementTypeReport(reportNode, CgmesNames.REGULATING_CONTROL));
         context.regulatingControlMapping().setAllRegulatingControls(network);
-        context.popReportNode();
-
-        // Fix dangling lines issues
-        context.pushReportNode(CgmesReports.fixingDanglingLinesIssuesReport(reportNode));
-        handleDangingLineDisconnectedAtBoundary(network, context);
-        adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(network, context);
-        context.popReportNode();
-
-        // Set voltages and angles
-        context.pushReportNode(CgmesReports.settingVoltagesAndAnglesReport(reportNode));
-        voltageAngles(nodes, context);
-        completeVoltagesAndAngles(network);
         context.popReportNode();
 
         // Save/store data for debug or external validation
@@ -272,16 +259,146 @@ public class Conversion {
             // FIXME generic cgmes models may not have an underlying triplestore
             // TODO maybe pass the properties to the post processors
             CgmesReports.applyingProcessorReport(postProcessorsNode, postProcessor.getName());
-            postProcessor.process(network, cgmes.tripleStore());
+            postProcessor.process(network, cgmes);
         }
 
         CgmesReports.importedCgmesNetworkReport(reportNode, network.getId());
+
+        updateWithAllInputs(network, reportNode, context);
+
+        if (!config.storeCgmesModelAsNetworkExtension() && !config.storeCgmesConversionContextAsNetworkExtension()) {
+            // not configured to store CgmesModel nor CgmesConversionContext as an extension, we can close the CgmesModel (and its underlying triplestore)
+            cgmes.close();
+        }
+
         return network;
+    }
+
+    private void updateWithAllInputs(Network network, ReportNode reportNode, Context importContext) {
+        if (!sshOrSvIsIncludedInCgmesModel(this.cgmes)) {
+            CgmesReports.noInputsForUpdateReport(reportNode);
+            // Remove all properties and aliases, this will invalidate all subsequent updates
+            if (importContext.config().getRemovePropertiesAndAliasesAfterImport()) {
+                removeAllAliasesAndProperties(network);
+            }
+            return;
+        }
+        this.cgmes.setQueryCatalog(QUERY_CATALOG_NAME_UPDATE);
+        Context updateContext = createUpdateContext(network, reportNode);
+
+        // add processes to create new equipment using update data (ssh and sv data)
+        createFictitiousSwitchesForDisconnectedTerminalsDuringUpdate(network, cgmes, updateContext);
+        createTieLinesWhenThereAreMoreThanTwoBoundaryLinesAtBoundaryNodeDuringUpdate(network, updateContext);
+        createFictitiousLoadsForSvInjectionsDuringUpdate(network, cgmes, updateContext);
+
+        update(network, updateContext, reportNode);
+    }
+
+    private static void removeAllAliasesAndProperties(Network network) {
+        network.getIdentifiables().forEach(identifiable -> {
+            identifiable.getAliases().forEach(identifiable::removeAlias);
+            identifiable.getPropertyNames().forEach(identifiable::removeProperty);
+        });
+
+        network.getBranchStream()
+                .map(branch -> (Branch<?>) branch)
+                .forEach(branch -> {
+                    removeProperties(branch.getOperationalLimitsGroups1());
+                    removeProperties(branch.getOperationalLimitsGroups2());
+                });
+
+        network.getThreeWindingsTransformers().forEach(t3w -> {
+            removeProperties(t3w.getLeg1().getOperationalLimitsGroups());
+            removeProperties(t3w.getLeg2().getOperationalLimitsGroups());
+            removeProperties(t3w.getLeg3().getOperationalLimitsGroups());
+        });
+
+        network.getBoundaryLines().forEach(boundaryLine ->
+                removeProperties(boundaryLine.getOperationalLimitsGroups()));
+    }
+
+    private static void removeProperties(Collection<OperationalLimitsGroup> operationalLimitsGroupCollection) {
+        operationalLimitsGroupCollection.forEach(operationalLimitsGroup ->
+                operationalLimitsGroup.getPropertyNames().forEach(operationalLimitsGroup::removeProperty));
+    }
+
+    private static boolean sshOrSvIsIncludedInCgmesModel(CgmesModel cgmes) {
+        return cgmes.fullModels().stream()
+                .map(fullModel -> fullModel.getId("profileList"))
+                .anyMatch(profileList -> profileList.contains("SteadyStateHypothesis") || profileList.contains("StateVariables"));
+    }
+
+    public void update(Network network, ReportNode reportNode) {
+        Objects.requireNonNull(network);
+
+        if (network.getIdentifiables().stream().allMatch(i -> i.getPropertyNames().isEmpty())) {
+            throw new ConversionException("The network has no properties and aliases, they have been removed. Update is not allowed.");
+        }
+
+        Objects.requireNonNull(reportNode);
+        Context updateContext = createUpdateContext(network, reportNode);
+
+        addMetadataModels(network, updateContext);
+        update(network, updateContext, reportNode);
+    }
+
+    private void update(Network network, Context updateContext, ReportNode reportNode) {
+        // Inspect the contents of the loaded data
+        if (LOG.isDebugEnabled()) {
+            PropertyBags nts = cgmes.numObjectsByType();
+            LOG.debug("CGMES objects read for the update:");
+            nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
+            nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
+        }
+
+        // Switches are updated first because the subsequent update of the terminals
+        // is configurable and, if activated, may modify their state.
+        // Then, the update of the terminals can overwrite the state of the switches
+        updateSwitches(network, updateContext);
+
+        updateLoads(network, cgmes, updateContext);
+        updateGenerators(network, cgmes, updateContext);
+        updateLines(network, updateContext);
+        updateTransformers(network, updateContext);
+        updateStaticVarCompensators(network, cgmes, updateContext);
+        updateShuntCompensators(network, cgmes, updateContext);
+
+        // Update either simplified or detailed DC model
+        if (!updateContext.config().getUseDetailedDcModel()) {
+            updateHvdcLines(network, cgmes, updateContext);
+        } else {
+            updateDcSwitches(network, updateContext);
+            updateDcGrounds(network, updateContext);
+            updateDcLines(network, updateContext);
+            updateAcDcConverters(network, cgmes, updateContext);
+        }
+
+        updateBoundaryLines(network, updateContext);
+        // Fix boundary lines issues
+        updateContext.pushReportNode(CgmesReports.fixingBoundaryLinesIssuesReport(reportNode));
+        handleDangingLineDisconnectedAtBoundary(network, updateContext);
+        adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(network, updateContext);
+        updateContext.popReportNode();
+
+        updateVoltageLevels(network, updateContext);
+        updateGrounds(network, updateContext);
+        updateAreas(network, cgmes, updateContext);
+
+        // Set voltages and angles, then complete
+        updateAndCompleteVoltageAndAngles(network, updateContext);
+
+        network.runValidationChecks(false, reportNode);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+
+        // Remove all properties and aliases, this will invalidate all subsequent updates
+        if (updateContext.config().getRemovePropertiesAndAliasesAfterImport()) {
+            removeAllAliasesAndProperties(network);
+        }
     }
 
     /**
      * Retrieve the Collection of OperationalLimitGroups for identifiable that have flow limits
-     * (branch, dangling line, 3w-transformer).
+     * (branch, boundary line, 3w-transformer).
      * If the collection has only one element, it gets to be the identifiable's selectedGroup.
      * If there is more than one element in the collection, don't set any as selected.
      * @param context The conversion's Context.
@@ -301,11 +418,11 @@ public class Conversion {
             }
         });
 
-        // Set selected limits group for Dangling lines
-        context.network().getDanglingLineStream().forEach(dl -> {
-            Collection<OperationalLimitsGroup> limitsHolder = dl.getOperationalLimitsGroups();
+        // Set selected limits group for Boundary lines
+        context.network().getBoundaryLineStream().forEach(bl -> {
+            Collection<OperationalLimitsGroup> limitsHolder = bl.getOperationalLimitsGroups();
             if (limitsHolder.size() == 1) {
-                dl.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
+                bl.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
             }
         });
 
@@ -319,66 +436,52 @@ public class Conversion {
     }
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
-        if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
-            for (DanglingLine dl : network.getDanglingLines()) {
-                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
-                if (terminalBoundaryId == null) {
-                    LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
-                } else {
-                    disconnectDanglingLineAtBounddary(dl, terminalBoundaryId, context);
+        if (config.disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected()) {
+            for (BoundaryLine bl : network.getBoundaryLines()) {
+                if (!isBoundaryTerminalConnected(bl, context) && bl.getTerminal().isConnected()) {
+                    LOG.warn("BoundaryLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", bl.getId());
+                    CgmesReports.boundaryLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), bl.getId());
+                    bl.getTerminal().disconnect();
                 }
             }
         }
     }
 
-    private void disconnectDanglingLineAtBounddary(DanglingLine dl, String terminalBoundaryId, Context context) {
-        CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
-        if (terminalBoundary == null) {
-            LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
-        } else {
-            if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
-                LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
-                dl.getTerminal().disconnect();
-            }
-        }
-    }
-
-    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(Network network, Context context) {
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-                .filter(dl -> dl.getTerminal().isConnected())
-                .collect(groupingBy(Conversion::getDanglingLineBoundaryNode))
+    private void adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(Network network, Context context) {
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
+                .filter(bl -> bl.getTerminal().isConnected())
+                .collect(groupingBy(Conversion::getBoundaryLineBoundaryNode))
                 .values().stream()
-                // Only perform adjustment for the groups with more than one connected dangling line
+                // Only perform adjustment for the groups with more than one connected boundary line
                 .filter(dls -> dls.size() > 1)
-                .forEach(dls -> adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(dls, context));
+                .forEach(dls -> adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(dls, context));
     }
 
-    private void adjustMultipleUnpairedDanglingLinesAtSameBoundaryNode(List<DanglingLine> dls, Context context) {
-        // All dangling lines will have same value for p0, q0. Take it from the first one
+    private void adjustMultipleUnpairedBoundaryLinesAtSameBoundaryNode(List<BoundaryLine> dls, Context context) {
+        // All boundary lines will have same value for p0, q0. Take it from the first one
         double p0 = dls.get(0).getP0();
         double q0 = dls.get(0).getQ0();
-        // Divide this value between all connected dangling lines
-        // This method is called only if there is more than 1 connected dangling line
+        // Divide this value between all connected boundary lines
+        // This method is called only if there is more than 1 connected boundary line
         long count = dls.size();
         final double p0Adjusted = p0 / count;
         final double q0Adjusted = q0 / count;
-        dls.forEach(dl -> {
-            LOG.warn("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for dangling line {}.", p0, q0, p0Adjusted, q0Adjusted, dl.getId());
-            CgmesReports.multipleUnpairedDanglingLinesAtSameBoundaryReport(context.getReportNode(), dl.getId(), p0, q0, p0Adjusted, q0Adjusted);
-            dl.setP0(p0Adjusted);
-            dl.setQ0(q0Adjusted);
+        dls.forEach(bl -> {
+            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for boundary line {}.", p0, q0, p0Adjusted, q0Adjusted, bl.getId());
+            CgmesReports.multipleUnpairedBoundaryLinesAtSameBoundaryReport(context.getReportNode(), bl.getId(), p0, q0, p0Adjusted, q0Adjusted);
+            bl.setP0(p0Adjusted);
+            bl.setQ0(q0Adjusted);
         });
     }
 
-    public static String getDanglingLineBoundaryNode(DanglingLine dl) {
+    public static String getBoundaryLineBoundaryNode(BoundaryLine dl) {
         String node;
-        node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        node = dl.getProperty(PROPERTY_CONNECTIVITY_NODE_BOUNDARY);
         if (node == null) {
-            node = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            node = dl.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY);
         }
         if (node == null) {
-            LOG.warn("Dangling line {} does not have a boundary node identifier.", dl.getId());
+            LOG.warn("Boundary line {} does not have a boundary node identifier.", dl.getId());
             node = "unknown";
         }
         return node;
@@ -387,45 +490,6 @@ public class Conversion {
     private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
         return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
-    }
-
-    private static void completeVoltagesAndAngles(Network network) {
-
-        // Voltage and angle in starBus as properties
-        network.getThreeWindingsTransformers()
-            .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
-
-        // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-            .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
-        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
-    }
-
-    private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
-        String controlAreaId = ca.getId("ControlArea");
-        cgmesControlAreas.newCgmesControlArea()
-                .setId(controlAreaId)
-                .setName(ca.getLocal("name"))
-                .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
-                .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
-                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
-                .add();
-    }
-
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
-        String controlAreaId = tf.getId("ControlArea");
-        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
-        if (cgmesControlArea == null) {
-            context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", tf.getId("TieFlow")));
-            return;
-        }
-        String terminalId = tf.getId("terminal");
-        Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
-        if (boundary != null) {
-            cgmesControlArea.add(boundary);
-            return;
-        }
-        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
     }
 
     private void convert(PropertyBags elements, String elementType, Context context) {
@@ -451,7 +515,8 @@ public class Conversion {
                 case CgmesNames.SYNCHRONOUS_MACHINE -> new SynchronousMachineConversion(element, context);
                 case CgmesNames.SERIES_COMPENSATOR -> new SeriesCompensatorConversion(element, context);
                 case CgmesNames.OPERATIONAL_LIMIT -> new OperationalLimitConversion(element, context);
-                case CgmesNames.SV_INJECTION -> new SvInjectionConversion(element, context);
+                case CgmesNames.CONTROL_AREA -> new ControlAreaConversion(element, context);
+                case CgmesNames.TIE_FLOW -> new TieFlowConversion(element, context);
                 default -> throw new IllegalArgumentException("Invalid elementType.");
             };
             if (c.insideBoundary()) {
@@ -469,31 +534,13 @@ public class Conversion {
         return networkFactory.createNetwork(networkId, sourceFormat);
     }
 
-    private Context createContext(Network network, ReportNode reportNode) {
+    private Context createUpdateContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
-        context.dc().initialize();
+        context.buildUpdateCache();
         return context;
     }
 
-    private void assignNetworkProperties(Context context) {
-        context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
-                context.nodeBreaker()
-                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
-        PropertyBags modelProfiles = context.cgmes().modelProfiles();
-        String fullModel = "FullModel";
-        modelProfiles.sort(Comparator.comparing(p -> p.getId(fullModel)));
-        for (PropertyBag modelProfile : modelProfiles) { // Import of profiles ID as properties TODO import them in a dedicated extension
-            if (modelProfile.getId(fullModel).equals(context.network().getId())) {
-                continue;
-            }
-            String profile = CgmesNamespace.getProfile(modelProfile.getId("profile"));
-            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile)) { // don't import EQ_OP and SV profiles as they are not used for CGMES export
-                context.network()
-                        .setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID", property -> context.network().hasProperty(property)),
-                                modelProfile.getId(fullModel));
-            }
-        }
+    private void setNetworkTimes(Context context) {
         ZonedDateTime modelScenarioTime = cgmes.scenarioTime();
         ZonedDateTime modelCreated = cgmes.created();
         long forecastDistance = Duration.between(modelCreated, modelScenarioTime).toMinutes();
@@ -516,20 +563,45 @@ public class Conversion {
         if (ps.isEmpty()) {
             return;
         }
+        CgmesMetadataModels previous = network.getExtension(CgmesMetadataModels.class);
         CgmesMetadataModelsAdder modelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
+
+        if (previous != null) {
+            previous.getModels().stream()
+                    .filter(model -> !isSubSetIncluded(ps, model.getSubset()))
+                    .forEach(model -> {
+                        CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
+                                .setId(model.getId())
+                                .setSubset(model.getSubset())
+                                .setDescription(model.getDescription())
+                                .setVersion(model.getVersion())
+                                .setModelingAuthoritySet(model.getModelingAuthoritySet());
+                        model.getProfiles().forEach(modelAdder::addProfile);
+                        model.getDependentOn().forEach(modelAdder::addDependentOn);
+                        model.getSupersedes().forEach(modelAdder::addSupersedes);
+                        modelAdder.add();
+                    });
+            network.removeExtension(CgmesMetadataModels.class);
+        }
+
         for (PropertyBag p : ps) {
             CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
-                .setId(p.getId("FullModel"))
-                .setSubset(subsetFromGraph(p.getLocal("graph")))
-                .setDescription(p.getId("description"))
-                .setVersion(readVersion(p, context))
-                .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
+                    .setId(p.getId("FullModel"))
+                    .setSubset(subsetFromGraph(p.getLocal("graph")))
+                    .setDescription(p.getId("description"))
+                    .setVersion(readVersion(p, context))
+                    .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
             addMetadataModelReferences(p, "profileList", modelAdder::addProfile);
             addMetadataModelReferences(p, "dependentOnList", modelAdder::addDependentOn);
             addMetadataModelReferences(p, "supersedesList", modelAdder::addSupersedes);
             modelAdder.add();
         }
+
         modelsAdder.add();
+    }
+
+    private boolean isSubSetIncluded(PropertyBags ps, CgmesSubset subSet) {
+        return ps.stream().anyMatch(p -> subSet == subsetFromGraph(p.getLocal("graph")));
     }
 
     /**
@@ -577,8 +649,9 @@ public class Conversion {
 
     private void addCimCharacteristics(Network network) {
         if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
+            boolean isNodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
             network.newExtension(CimCharacteristicsAdder.class)
-                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                    .setTopologyKind(isNodeBreaker ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
                     .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
@@ -638,7 +711,7 @@ public class Conversion {
                 .setName(containerName)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
-        vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", containerId);
+        vl.setProperty(PROPERTY_LINE_CONTAINER, containerId);
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
@@ -725,10 +798,10 @@ public class Conversion {
     }
 
     // Supported conversions:
-    // Only one Line (--> create dangling line)
-    // Only one Switch (--> create dangling line with z0)
-    // Only one Transformer (--> create dangling line)
-    // Only one EquivalentBranch (--> create dangling line)
+    // Only one Line (--> create boundary line)
+    // Only one Switch (--> create boundary line with z0)
+    // Only one Transformer (--> create boundary line)
+    // Only one EquivalentBranch (--> create boundary line)
     // Any combination of Line, Switch, Transformer and EquivalentBranch
 
     private void convertEquipmentAtBoundaryNode(Context context, String node) {
@@ -744,76 +817,21 @@ public class Conversion {
             beqs.get(0).createConversion(context).convertAtBoundary();
         } else if (numEquipmentsAtNode == 2) {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
-        } else if (numEquipmentsAtNode > 2) {
-            // In some TYNDP there are three acLineSegments at the boundary node,
-            // one of them disconnected. The two connected acLineSegments are imported.
-            List<BoundaryEquipment> connectedBeqs = beqs.stream()
-                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).toList();
-            if (connectedBeqs.size() == 2) {
-                convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
-                // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
-                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).toList()
-                    .forEach(beq -> {
-                        context.fixed("convertEquipmentAtBoundaryNode",
-                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
-                        beq.createConversion(context).convertAtBoundary();
-                    });
-            } else {
-                // This case should not happen and will not result in an equivalent network at the end of the conversion
-                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
-                        " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
-                beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
-            }
+        } else {
+            // In some TYNDPs, there are three or more AcLineSegments at the boundary node, but only two are connected.
+            // Here, a boundaryLine is created for each segment, and later, in the method
+            // createTieLinesWhenThereAreMoreThanTwoBoundaryLinesAtBoundaryNodeDuringUpdate,
+            // a tieLine is created using only the two connected boundaryLines
+            context.fixed(node, "More than two AcLineSegments at boundary: only boundary lines are created." +
+                    " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
+            beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
         }
     }
 
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
         EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
         EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
-
-        conversion1.convertAtBoundary();
-        Optional<DanglingLine> dl1 = conversion1.getDanglingLine();
-        conversion2.convertAtBoundary();
-        Optional<DanglingLine> dl2 = conversion2.getDanglingLine();
-
-        if (dl1.isPresent() && dl2.isPresent()) {
-            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
-            // in this case, we don't merge them
-            // please note that only one of them should be connected
-            String regionName1 = obtainRegionName(dl1.get().getTerminal().getVoltageLevel());
-            String regionName2 = obtainRegionName(dl2.get().getTerminal().getVoltageLevel());
-
-            String pairingKey1 = dl1.get().getPairingKey();
-            String pairingKey2 = dl2.get().getPairingKey();
-
-            if (!(pairingKey1 != null && pairingKey1.equals(pairingKey2))) {
-                context.ignored(node, "Both dangling lines do not have the same pairingKey: we do not consider them as a merged line");
-            } else if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
-            } else if (dl2.get().getId().compareTo(dl1.get().getId()) >= 0) {
-                ACLineSegmentConversion.convertToTieLine(context, dl1.get(), dl2.get());
-            } else {
-                ACLineSegmentConversion.convertToTieLine(context, dl2.get(), dl1.get());
-            }
-        }
-    }
-
-    private static String obtainRegionName(VoltageLevel voltageLevel) {
-        return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
-    }
-
-    private void voltageAngles(PropertyBags nodes, Context context) {
-        if (context.nodeBreaker()) {
-            // TODO(Luma): we create again one conversion object for every node
-            // In node-breaker conversion,
-            // set (voltage, angle) values after all nodes have been created and connected
-            for (PropertyBag n : nodes) {
-                NodeConversion nc = new NodeConversion(CgmesNames.CONNECTIVITY_NODE, n, context);
-                if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
-                    nc.setVoltageAngleNodeBreaker();
-                }
-            }
-        }
+        TieLineConversion.create(node, conversion1, conversion2, context);
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
@@ -842,9 +860,23 @@ public class Conversion {
 
     public static class Config {
 
-        public enum StateProfile {
-            SSH,
-            SV
+        /**
+         * Specifies the default behavior to apply when updating equipment attributes
+         * and no value is provided.
+         * <br/>
+         * The available options are:
+         * <ul>
+         *   <li><b>EQ</b>: Uses the default value received from the EQ file.</li>
+         *   <li><b>DEFAULT</b>: Assigns a predefined default value.</li>
+         *   <li><b>EMPTY</b>: Leaves the attribute empty (e.g., {@code Double.NaN}) if allowed.</li>
+         *   <li><b>PREVIOUS</b>: Reuses the value from the previous update.</li>
+         * </ul>
+         */
+        public enum DefaultValue {
+            EQ,
+            DEFAULT,
+            EMPTY,
+            PREVIOUS
         }
 
         public List<String> substationIdsExcludedFromMapping() {
@@ -873,7 +905,7 @@ public class Conversion {
             return this;
         }
 
-        public boolean computeFlowsAtBoundaryDanglingLines() {
+        public boolean computeFlowsAtBoundaryBoundaryLines() {
             return true;
         }
 
@@ -892,20 +924,6 @@ public class Conversion {
 
         public Config setConvertSvInjections(boolean convertSvInjections) {
             this.convertSvInjections = convertSvInjections;
-            return this;
-        }
-
-        public StateProfile getProfileForInitialValuesShuntSectionsTapPositions() {
-            return profileForInitialValuesShuntSectionsTapPositions;
-        }
-
-        public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
-            String forInitialValuesShuntSectionsTapPositions = Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions);
-            if (forInitialValuesShuntSectionsTapPositions.equals("SSH") || forInitialValuesShuntSectionsTapPositions.equals("SV")) {
-                this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
-            } else {
-                throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
-            }
             return this;
         }
 
@@ -1032,13 +1050,23 @@ public class Conversion {
             return this;
         }
 
-        public Config setDisconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected(boolean b) {
-            disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = b;
+        public Config setDisconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected(boolean b) {
+            disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected = b;
             return this;
         }
 
-        public boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected() {
-            return disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected;
+        public boolean disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected() {
+            return disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected;
+        }
+
+        public boolean updateTerminalConnectionInNodeBreakerVoltageLevel() {
+            return UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL;
+        }
+
+        public List<DefaultValue> updateDefaultValuesPriority() {
+            return usePreviousValuesDuringUpdate
+                    ? List.of(DefaultValue.PREVIOUS, DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY)
+                    : List.of(DefaultValue.EQ, DefaultValue.DEFAULT, DefaultValue.EMPTY);
         }
 
         public boolean getCreateFictitiousVoltageLevelsForEveryNode() {
@@ -1050,12 +1078,43 @@ public class Conversion {
             return this;
         }
 
+        public Config setUsePreviousValuesDuringUpdate(boolean use) {
+            usePreviousValuesDuringUpdate = use;
+            return this;
+        }
+
+        public boolean getRemovePropertiesAndAliasesAfterImport() {
+            return removePropertiesAndAliasesAfterImport;
+        }
+
+        public Config setRemovePropertiesAndAliasesAfterImport(boolean remove) {
+            removePropertiesAndAliasesAfterImport = remove;
+            return this;
+        }
+
+        public boolean getUseDetailedDcModel() {
+            return useDetailedDcModel;
+        }
+
+        public Config setUseDetailedDcModel(boolean useDetailedDcModel) {
+            this.useDetailedDcModel = useDetailedDcModel;
+            return this;
+        }
+
+        public boolean isSilenceFrequentIssuesWarnings() {
+            return this.silenceFrequentIssuesWarnings;
+        }
+
+        public Config setSilenceFrequentIssuesWarnings(boolean silenceFrequentIssuesWarnings) {
+            this.silenceFrequentIssuesWarnings = silenceFrequentIssuesWarnings;
+            return this;
+        }
+
         private boolean convertBoundary = false;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
-        private boolean storeCgmesModelAsNetworkExtension = true;
+        private boolean storeCgmesModelAsNetworkExtension = false;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
         private boolean createActivePowerControlExtension = false;
 
@@ -1064,9 +1123,9 @@ public class Conversion {
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
         private boolean importNodeBreakerAsBusBreaker = false;
-        private boolean disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected = true;
+        private boolean disconnectNetworkSideOfBoundaryLinesIfBoundaryIsDisconnected = true;
 
-        private NamingStrategy namingStrategy = new NamingStrategy.Identity();
+        private NamingStrategy namingStrategy = new IdentityNamingStrategy();
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
@@ -1079,6 +1138,11 @@ public class Conversion {
 
         private double missingPermanentLimitPercentage = 100;
         private boolean createFictitiousVoltageLevelsForEveryNode = true;
+        private static final boolean UPDATE_TERMINAL_CONNECTION_IN_NODE_BREAKER_VOLTAGE_LEVEL = false;
+        private boolean usePreviousValuesDuringUpdate = false;
+        private boolean removePropertiesAndAliasesAfterImport = false;
+        private boolean useDetailedDcModel = false;
+        private boolean silenceFrequentIssuesWarnings = false;
     }
 
     private final CgmesModel cgmes;
@@ -1089,21 +1153,83 @@ public class Conversion {
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
-
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
+
+    public static final String ALIAS_DC_LINE_SEGMENT2 = CGMES_PREFIX_ALIAS_PROPERTIES + DC_LINE_SEGMENT2;
+    public static final String ALIAS_DC_TERMINAL1 = CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL1;
+    public static final String ALIAS_DC_TERMINAL2 = CGMES_PREFIX_ALIAS_PROPERTIES + DC_TERMINAL2;
+    public static final String ALIAS_PHASE_TAP_CHANGER = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER;
+    public static final String ALIAS_PHASE_TAP_CHANGER1 = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER1;
+    public static final String ALIAS_PHASE_TAP_CHANGER2 = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER2;
+    public static final String ALIAS_PHASE_TAP_CHANGER3 = CGMES_PREFIX_ALIAS_PROPERTIES + PHASE_TAP_CHANGER3;
+    public static final String ALIAS_RATIO_TAP_CHANGER = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER;
+    public static final String ALIAS_RATIO_TAP_CHANGER1 = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER1;
+    public static final String ALIAS_RATIO_TAP_CHANGER2 = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER2;
+    public static final String ALIAS_RATIO_TAP_CHANGER3 = CGMES_PREFIX_ALIAS_PROPERTIES + RATIO_TAP_CHANGER3;
+    public static final String ALIAS_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL;
+    public static final String ALIAS_TERMINAL_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY;
+    public static final String ALIAS_TERMINAL1 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL1;
+    public static final String ALIAS_TERMINAL2 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL2;
+    public static final String ALIAS_TERMINAL3 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL3;
+    public static final String ALIAS_TRANSFORMER_END1 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END1;
+    public static final String ALIAS_TRANSFORMER_END2 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END2;
+    public static final String ALIAS_TRANSFORMER_END3 = CGMES_PREFIX_ALIAS_PROPERTIES + TRANSFORMER_END3;
+
+    public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
+    public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
+    public static final String PROPERTY_CONNECTIVITY_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + CONNECTIVITY_NODE_BOUNDARY;
+    public static final String PROPERTY_DC_CONVERTER_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + "DCConverterUnit";
+    public static final String PROPERTY_EQ_BD_ID = CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
+    public static final String PROPERTY_EQUIVALENT_INJECTION = CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION;
+    public static final String PROPERTY_EQUIVALENT_INJECTION_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION_TERMINAL;
+    public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
+    public static final String PROPERTY_GENERATING_UNIT = CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT;
+    public static final String PROPERTY_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
+    public static final String PROPERTY_HIGH_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + HIGH_VOLTAGE_LIMIT;
+    public static final String PROPERTY_HYDRO_PLANT_STORAGE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "hydroPlantStorageKind";
+    public static final String PROPERTY_INITIAL_P = CGMES_PREFIX_ALIAS_PROPERTIES + INITIAL_P;
     public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
     public static final String PROPERTY_IS_EQUIVALENT_SHUNT = CGMES_PREFIX_ALIAS_PROPERTIES + "isEquivalentShunt";
-    public static final String PROPERTY_HYDRO_PLANT_STORAGE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "hydroPlantStorageKind";
-    public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
+    public static final String PROPERTY_LINE_CONTAINER = CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId";
+    public static final String PROPERTY_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + LOW_VOLTAGE_LIMIT;
+    public static final String PROPERTY_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + MODE;
+    public static final String PROPERTY_NORMAL_OPEN = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_OPEN;
+    public static final String PROPERTY_NORMAL_PF = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_PF;
+    public static final String PROPERTY_NORMAL_SECTIONS = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_SECTIONS;
+    public static final String PROPERTY_NORMAL_VALUE_HIGH_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_VALUE + "_" + HIGH_VOLTAGE_LIMIT;
+    public static final String PROPERTY_NORMAL_VALUE_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + NORMAL_VALUE + "_" + LOW_VOLTAGE_LIMIT;
+    public static final String PROPERTY_OPERATIONAL_LIMIT_HIGH_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + OPERATIONAL_LIMIT + "_" + HIGH_VOLTAGE_LIMIT;
+    public static final String PROPERTY_OPERATIONAL_LIMIT_LOW_VOLTAGE_LIMIT = CGMES_PREFIX_ALIAS_PROPERTIES + OPERATIONAL_LIMIT + "_" + LOW_VOLTAGE_LIMIT;
+    public static final String PROPERTY_OPERATIONAL_LIMIT_SET_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetName";
+    public static final String PROPERTY_OPERATIONAL_LIMIT_SET_RDFID = CGMES_PREFIX_ALIAS_PROPERTIES + "OperationalLimitSetRdfID";
+    public static final String PROPERTY_P_FIXED = CGMES_PREFIX_ALIAS_PROPERTIES + P_FIXED;
+    public static final String PROPERTY_Q_FIXED = CGMES_PREFIX_ALIAS_PROPERTIES + Q_FIXED;
+    public static final String PROPERTY_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID;
+    public static final String PROPERTY_REGION_NAME = CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME;
+    public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL;
+    public static final String PROPERTY_REGULATION_CAPABILITY = CGMES_PREFIX_ALIAS_PROPERTIES + REGULATION_CAPABILITY;
+    public static final String PROPERTY_SUB_REGION_ID = CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID;
+    public static final String PROPERTY_SVC_EQ_VOLTAGE_SET_POINT = CGMES_PREFIX_ALIAS_PROPERTIES + SVC_EQ_VOLTAGE_SET_POINT;
+    public static final String PROPERTY_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
+    public static final String PROPERTY_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL;
+    public static final String PROPERTY_TERMINAL_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY;
+    public static final String PROPERTY_TERMINAL_SIGN = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN;
+    public static final String PROPERTY_TERMINAL_SIGN1 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN1;
+    public static final String PROPERTY_TERMINAL_SIGN2 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN2;
+    public static final String PROPERTY_TERMINAL_SIGN3 = CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_SIGN3;
+    public static final String PROPERTY_TOPOLOGICAL_NODE_BOUNDARY = CGMES_PREFIX_ALIAS_PROPERTIES + TOPOLOGICAL_NODE_BOUNDARY;
+    public static final String PROPERTY_TP_BD_ID = CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
     public static final String PROPERTY_WIND_GEN_UNIT_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "windGenUnitType";
-    public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
-    public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
-    public static final String PROPERTY_CGMES_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
-    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
-    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineOperatingMode";
-    public static final String PROPERTY_OPERATIONAL_LIMIT_SET_IDENTIFIERS = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.OPERATIONAL_LIMIT_SET + "_identifiers";
-    public static final String PROPERTY_REGULATING_CONTROL = CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.REGULATING_CONTROL;
+
+    public static String getOperationalLimitPropertyName(String limitSubclass, boolean isInfiniteDuration, int duration, String tagProperty) {
+        if (isInfiniteDuration) {
+            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_patl";
+        } else {
+            return Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tagProperty + "_" + limitSubclass + "_tatl_" + duration;
+        }
+    }
+
+    public static String getOperationalLimitPropertyName(String measurementType) {
+        return CGMES_PREFIX_ALIAS_PROPERTIES + "Analog_" + measurementType;
+    }
 }

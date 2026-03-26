@@ -19,17 +19,24 @@ import java.util.UUID;
 public final class NamingStrategyFactory {
 
     public static final String IDENTITY = "identity";
-    public static final String CGMES = "cgmes"; // This simple naming strategy will fix only ids for IIDM identifiables
-    public static final String CGMES_FIX_ALL_INVALID_IDS = "cgmes-fix-all-invalid-ids";
+    public static final String CGMES = "cgmes";
 
-    public static final List<String> LIST = List.of(IDENTITY, CGMES, CGMES_FIX_ALL_INVALID_IDS);
+    public static final List<String> LIST = List.of(IDENTITY, CGMES);
 
     public static NamingStrategy create(String impl, UUID uuidNamespace) {
         Objects.requireNonNull(impl);
+
+        // First, try to find a provider via ServiceLoader
+        NamingStrategiesServiceLoader serviceLoader = new NamingStrategiesServiceLoader();
+        var providerOpt = serviceLoader.findProviderByName(impl);
+        if (providerOpt.isPresent()) {
+            return providerOpt.get().create(uuidNamespace);
+        }
+
+        // Fallback to built-in implementations for backward compatibility
         return switch (impl) {
-            case IDENTITY -> new NamingStrategy.Identity();
-            case CGMES -> new SimpleCgmesAliasNamingStrategy(uuidNamespace);
-            case CGMES_FIX_ALL_INVALID_IDS -> new FixedCgmesAliasNamingStrategy(uuidNamespace);
+            case IDENTITY -> new IdentityNamingStrategy();
+            case CGMES -> new CgmesNamingStrategy(uuidNamespace);
             default -> throw new PowsyblException("Unknown naming strategy: " + impl);
         };
     }

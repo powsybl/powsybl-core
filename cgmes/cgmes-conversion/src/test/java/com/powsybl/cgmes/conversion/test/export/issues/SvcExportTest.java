@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -20,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.OFF;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -39,8 +38,9 @@ class SvcExportTest extends AbstractSerDeTest {
         Network network = Network.read(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
         assertNotNull(svc);
-        assertEquals(OFF, svc.getRegulationMode());
-        assertEquals(rcId, svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
+        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        assertFalse(svc.isRegulating());
+        assertEquals(rcId, svc.getProperty(PROPERTY_REGULATING_CONTROL));
         assertEquals(231.123, svc.getVoltageSetpoint(), 0.0);
 
         // Do a full export and check that output files contain the reference to the RC

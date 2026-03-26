@@ -7,23 +7,16 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 
 /**
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface GeneratorShortCircuitAdder extends ExtensionAdder<Generator, GeneratorShortCircuit> {
+public interface GeneratorShortCircuitAdder extends ShortCircuitExtensionAdder<Generator, GeneratorShortCircuit, GeneratorShortCircuitAdder> {
 
     @Override
     default Class<GeneratorShortCircuit> getExtensionClass() {
         return GeneratorShortCircuit.class;
     }
-
-    GeneratorShortCircuitAdder withDirectTransX(double directTransX);
-
-    GeneratorShortCircuitAdder withDirectSubtransX(double direcSubtransX);
-
-    GeneratorShortCircuitAdder withStepUpTransformerX(double stepUpTransformerX);
 }

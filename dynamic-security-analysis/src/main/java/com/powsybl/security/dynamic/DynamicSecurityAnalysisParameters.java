@@ -26,10 +26,13 @@ import java.util.Objects;
  */
 public class DynamicSecurityAnalysisParameters extends AbstractExtendable<DynamicSecurityAnalysisParameters> {
 
-    public static final String VERSION = "1.0";
+    // VERSION = 1.0 dynamicSimulationParameters, contingenciesParameters
+    // VERSION = 1.1 debugDir
+    public static final String VERSION = "1.1";
 
     private DynamicSimulationParameters dynamicSimulationParameters = new DynamicSimulationParameters();
     private ContingenciesParameters contingenciesParameters = new ContingenciesParameters();
+    private String debugDir;
 
     public static class ContingenciesParameters {
 
@@ -109,6 +112,15 @@ public class DynamicSecurityAnalysisParameters extends AbstractExtendable<Dynami
 
     public DynamicSecurityAnalysisParameters setDynamicContingenciesParameters(ContingenciesParameters contingenciesParameters) {
         this.contingenciesParameters = contingenciesParameters;
+        return this;
+    }
+
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    public DynamicSecurityAnalysisParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
         return this;
     }
 

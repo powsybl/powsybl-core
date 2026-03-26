@@ -41,7 +41,6 @@ public class GroovyEventModelsSupplier extends AbstractGroovySupplier<EventModel
 
     @Override
     public List<EventModel> get(Network network, ReportNode reportNode) {
-        return evaluateScript(network,
-                createReportNode(reportNode, "groovyEventModels", "Groovy Event Models Supplier"));
+        return evaluateScript(network, DynamicSimulationReports.supplyGroovyEventModels(reportNode));
     }
 }

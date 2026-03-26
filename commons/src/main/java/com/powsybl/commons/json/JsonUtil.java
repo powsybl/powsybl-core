@@ -23,6 +23,7 @@ import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.report.ReportNode;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -326,9 +327,19 @@ public final class JsonUtil {
      *
      * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
      */
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, T extendable) throws IOException {
-        return updateExtensions(parser, context, supplier, null, extendable);
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser,
+                                                                             DeserializationContext context,
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                             T extendable,
+                                                                             ReportNode reportNode) throws IOException {
+        return updateExtensions(parser, context, supplier, null, extendable, reportNode);
+    }
+
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser,
+                                                                             DeserializationContext context,
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                             T extendable) throws IOException {
+        return updateExtensions(parser, context, supplier, extendable, ReportNode.NO_OP);
     }
 
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
@@ -336,9 +347,21 @@ public final class JsonUtil {
         return updateExtensions(parser, context, supplier, null, extendable);
     }
 
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
-        return updateExtensions(parser, context, supplier::findProvider, extensionsNotFound, extendable);
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser,
+                                                                             DeserializationContext context,
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                             Set<String> extensionsNotFound,
+                                                                             T extendable,
+                                                                             ReportNode reportNode) throws IOException {
+        return updateExtensions(parser, context, supplier::findProvider, extensionsNotFound, extendable, reportNode);
+    }
+
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser,
+                                                                             DeserializationContext context,
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                             Set<String> extensionsNotFound,
+                                                                             T extendable) throws IOException {
+        return updateExtensions(parser, context, supplier, extensionsNotFound, extendable, ReportNode.NO_OP);
     }
 
     /**
@@ -346,7 +369,12 @@ public final class JsonUtil {
      *
      * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
      */
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser,
+                                                                             DeserializationContext context,
+                                                                             SerializerSupplier supplier,
+                                                                             Set<String> extensionsNotFound,
+                                                                             T extendable,
+                                                                             ReportNode reportNode) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -357,7 +385,7 @@ public final class JsonUtil {
                     + parser.currentToken());
         }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            Extension<T> extension = updateExtension(parser, context, supplier, extensionsNotFound, extendable);
+            Extension<T> extension = updateExtension(parser, context, supplier, extensionsNotFound, extendable, reportNode);
             if (extension != null) {
                 extensions.add(extension);
             }
@@ -365,16 +393,28 @@ public final class JsonUtil {
         return extensions;
     }
 
-    private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser, DeserializationContext context,
-                                                                                    SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser,
+                                                                             DeserializationContext context,
+                                                                             SerializerSupplier supplier,
+                                                                             Set<String> extensionsNotFound,
+                                                                             T extendable) throws IOException {
+        return updateExtensions(parser, context, supplier, extensionsNotFound, extendable, ReportNode.NO_OP);
+    }
+
+    private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser,
+                                                                                    DeserializationContext context,
+                                                                                    SerializerSupplier supplier,
+                                                                                    Set<String> extensionsNotFound,
+                                                                                    T extendable,
+                                                                                    ReportNode reportNode) throws IOException {
         String extensionName = parser.currentName();
         ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.getSerializer(extensionName);
         if (extensionJsonSerializer != null) {
             parser.nextToken();
             if (extendable != null && extendable.getExtensionByName(extensionName) != null) {
-                return extensionJsonSerializer.deserializeAndUpdate(parser, context, (E) extendable.getExtensionByName(extensionName));
+                return extensionJsonSerializer.deserializeAndUpdate(parser, context, (E) extendable.getExtensionByName(extensionName), reportNode);
             } else {
-                return extensionJsonSerializer.deserialize(parser, context);
+                return extensionJsonSerializer.deserialize(parser, context, reportNode);
             }
         } else {
             if (extensionsNotFound != null) {
@@ -394,8 +434,11 @@ public final class JsonUtil {
         return readExtensions(parser, context, supplier, null);
     }
 
-    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser,
+                                                                           DeserializationContext context,
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                           Set<String> extensionsNotFound,
+                                                                           ReportNode reportNode) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -405,7 +448,7 @@ public final class JsonUtil {
                     + parser.currentToken());
         }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound);
+            Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound, reportNode);
             if (extension != null) {
                 extensions.add(extension);
             }
@@ -413,12 +456,29 @@ public final class JsonUtil {
         return extensions;
     }
 
-    public static <T extends Extendable> Extension<T> readExtension(JsonParser parser, DeserializationContext context,
-                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser,
+                                                                           DeserializationContext context,
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                           Set<String> extensionsNotFound) throws IOException {
+        return readExtensions(parser, context, supplier, extensionsNotFound, ReportNode.NO_OP);
+    }
+
+    public static <T extends Extendable> Extension<T> readExtension(JsonParser parser,
+                                                                    DeserializationContext context,
+                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                    Set<String> extensionsNotFound,
+                                                                    ReportNode reportNode) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
-        return updateExtension(parser, context, supplier::findProvider, extensionsNotFound, null);
+        return updateExtension(parser, context, supplier::findProvider, extensionsNotFound, null, reportNode);
+    }
+
+    public static <T extends Extendable> Extension<T> readExtension(JsonParser parser,
+                                                                    DeserializationContext context,
+                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier,
+                                                                    Set<String> extensionsNotFound) throws IOException {
+        return readExtension(parser, context, supplier, extensionsNotFound, ReportNode.NO_OP);
     }
 
     /**
@@ -429,9 +489,19 @@ public final class JsonUtil {
         parser.skipChildren();
     }
 
+    public static void assertSupportedVersion(String contextName, String version, String maxSupportedVersion) {
+        Objects.requireNonNull(version);
+        if (compareVersions(version, maxSupportedVersion) > 0) {
+            String exception = String.format(
+                    "%s. Unsupported version %s. Version should be <= %s %n",
+                    contextName, version, maxSupportedVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
     public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) > 0) {
+        if (compareVersions(version, referenceVersion) > 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be <= %s %n",
                     contextName, elementName, version, referenceVersion);
@@ -441,7 +511,7 @@ public final class JsonUtil {
 
     public static void assertGreaterThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) <= 0) {
+        if (compareVersions(version, referenceVersion) <= 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be > %s %n",
                     contextName, elementName, version, referenceVersion);
@@ -451,7 +521,7 @@ public final class JsonUtil {
 
     public static void assertGreaterOrEqualThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) < 0) {
+        if (compareVersions(version, referenceVersion) < 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be >= %s %n",
                     contextName, elementName, version, referenceVersion);
@@ -461,11 +531,52 @@ public final class JsonUtil {
 
     public static void assertLessThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
-        if (version.compareTo(referenceVersion) >= 0) {
+        if (compareVersions(version, referenceVersion) >= 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be < %s %n",
                     contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
+        }
+    }
+
+    public static int compareVersions(String v1, String v2) {
+        Objects.requireNonNull(v1);
+        Objects.requireNonNull(v2);
+
+        String[] parts1 = v1.split("\\.");
+        String[] parts2 = v2.split("\\.");
+
+        int length = Math.max(parts1.length, parts2.length);
+
+        for (int i = 0; i < length; i++) {
+            String p1 = i < parts1.length ? parts1[i] : "";
+            String p2 = i < parts2.length ? parts2[i] : "";
+
+            Integer n1 = parseOrNull(p1);
+            Integer n2 = parseOrNull(p2);
+
+            if (n1 != null && n2 != null) {
+                if (!n1.equals(n2)) {
+                    return Integer.compare(n1, n2);
+                }
+            } else {
+                int cmp = p1.compareTo(p2);
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+        }
+        return 0;
+    }
+
+    private static Integer parseOrNull(String s) {
+        if (s.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

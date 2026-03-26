@@ -161,7 +161,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
         Assertions.assertEquals(expectedNbAutomationSystem, networkOutput.getOverloadManagementSystemCount());
     }
 
-    private static Network createNetwork() {
+    static Network createNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("fictitious", "test");
         network.setCaseDate(ZonedDateTime.parse("2024-01-02T15:00:00.000+01:00"));
         network.setForecastDistance(0);
@@ -187,7 +187,7 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
         createThreeWindingsTransformer(s1, s1v400, s1v225, s1v90);
 
         // Create an overload management system with trippings on "2WT", "3WT" and "S1_400_LINE_2_BREAKER"
-        s1.newOverloadManagementSystem()
+        OverloadManagementSystem oms1 = s1.newOverloadManagementSystem()
                 .setId("OMS1")
                 .setName("1st OMS")
                 .setEnabled(true)
@@ -223,6 +223,8 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
                     .setSwitchToOperateId("S1_400_LINE_2_BREAKER")
                     .add()
                 .add();
+
+        oms1.addExtension(OverloadManagementSystemMockExt.class, new OverloadManagementSystemMockExt(oms1, "bar"));
 
         // Create an overload management system monitoring "LINE_1" with a tripping on "LINE_2".
         // Note that this test is very important since the OMS uses identifiers of elements which are not

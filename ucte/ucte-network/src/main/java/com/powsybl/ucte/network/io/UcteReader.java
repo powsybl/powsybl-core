@@ -10,6 +10,7 @@ package com.powsybl.ucte.network.io;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.ucte.network.*;
+import com.powsybl.ucte.network.util.UcteReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,7 +211,7 @@ public class UcteReader {
 
     private void readTtBlock(UcteRecordParser parser, UcteNetwork network, ReportNode reportNode) throws IOException {
         LOGGER.warn("TT block not supported");
-        reportNode.newReportNode().withMessageTemplate("UnsupportedTTBlock", "TT block not supported").add();
+        UcteReports.unsupportedTtBlock(reportNode);
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
                 parseRecords(parser, network, reportNode);
@@ -267,8 +268,7 @@ public class UcteReader {
     }
 
     public UcteNetwork read(BufferedReader reader, ReportNode reportNode) throws IOException {
-
-        ReportNode readReportNode = reportNode.newReportNode().withMessageTemplate("UcteReading", "Reading UCTE network file").add();
+        ReportNode readReportNode = UcteReports.readUcteNetworkFile(reportNode);
         long start = System.currentTimeMillis();
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);

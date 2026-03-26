@@ -124,6 +124,7 @@ public final class TransformerUtils {
 
     private static void copyCommonPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
         ptcAdder.setTapPosition(ptc.getTapPosition())
+                .setLoadTapChangingCapabilities(ptc.hasLoadTapChangingCapabilities())
                 .setRegulationMode(ptc.getRegulationMode())
                 .setRegulationValue(ptc.getRegulationValue())
                 .setLowTapPosition(ptc.getLowTapPosition())
@@ -163,7 +164,7 @@ public final class TransformerUtils {
         destinationTerminal.setQ(sourceTerminal.getQ());
     }
 
-    public static void copyAndAddFortescue(TwoWindingsTransformerFortescueAdder t2wFortescueAdder, ThreeWindingsTransformerFortescue.LegFortescue legFortescue) {
+    public static void copyAndAddFortescue(TwoWindingsTransformerFortescueAdder t2wFortescueAdder, LegFortescue legFortescue) {
         t2wFortescueAdder.withConnectionType1(legFortescue.getConnectionType())
                 .withFreeFluxes(legFortescue.isFreeFluxes())
                 .withGroundingR1(legFortescue.getGroundingR())

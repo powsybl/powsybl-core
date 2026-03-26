@@ -73,7 +73,7 @@ public class PsseFacts extends PsseVersioned {
     private double set2 = 0.0;
 
     @Parsed
-    private double vsref = 0.0;
+    private int vsref = 0;
 
     @Parsed
     @Revision(until = 33)
@@ -234,11 +234,11 @@ public class PsseFacts extends PsseVersioned {
         this.set2 = set2;
     }
 
-    public double getVsref() {
+    public int getVsref() {
         return vsref;
     }
 
-    public void setVsref(double vsref) {
+    public void setVsref(int vsref) {
         this.vsref = vsref;
     }
 
@@ -275,5 +275,33 @@ public class PsseFacts extends PsseVersioned {
 
     public void setNreg(int nreg) {
         this.nreg = nreg;
+    }
+
+    public PsseFacts copy() {
+        PsseFacts copy = new PsseFacts();
+        copy.name = this.name;
+        copy.i = this.i;
+        copy.j = this.j;
+        copy.mode = this.mode;
+        copy.pdes = this.pdes;
+        copy.qdes = this.qdes;
+        copy.vset = this.vset;
+        copy.shmx = this.shmx;
+        copy.trmx = this.trmx;
+        copy.vtmn = this.vtmn;
+        copy.vtmx = this.vtmx;
+        copy.vsmx = this.vsmx;
+        copy.imx = this.imx;
+        copy.linx = this.linx;
+        copy.rmpct = this.rmpct;
+        copy.owner = this.owner;
+        copy.set1 = this.set1;
+        copy.set2 = this.set2;
+        copy.vsref = this.vsref;
+        copy.remot = this.remot;
+        copy.mname = this.mname;
+        copy.fcreg = this.fcreg;
+        copy.nreg = this.nreg;
+        return copy;
     }
 }

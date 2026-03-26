@@ -12,7 +12,9 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -53,6 +55,14 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
+    private FlowsLimitsHolder getOperationalLimitsHolder(TwoSides side) {
+        if (side == TwoSides.ONE) {
+            return operationalLimitsHolder1;
+        } else {
+            return operationalLimitsHolder2;
+        }
+    }
+
     private FlowsLimitsHolder getOperationalLimitsHolder1() {
         return operationalLimitsHolder1;
     }
@@ -78,6 +88,36 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroups();
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side) {
+        return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroupIdsOrdered();
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
+        getOperationalLimitsHolder(side).addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
+        getOperationalLimitsHolder(side).addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
+        getOperationalLimitsHolder(side).deselectOperationalLimitsGroups(ids);
+    }
+
+    @Override
     public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
         return getOperationalLimitsHolder1().newOperationalLimitsGroup(id);
     }
@@ -97,19 +137,41 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         getOperationalLimitsHolder1().cancelSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return getOperationalLimitsHolder1().newCurrentLimits();
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup1() {
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup2() {
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup();
+    }
+
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return getOperationalLimitsHolder1().newActivePowerLimits();
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return getOperationalLimitsHolder1().newApparentPowerLimits();
+        return getOperationalLimitsHolder1().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     private FlowsLimitsHolder getOperationalLimitsHolder2() {
@@ -156,19 +218,31 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         getOperationalLimitsHolder2().cancelSelectedOperationalLimitsGroup();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newCurrentLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return getOperationalLimitsHolder2().newCurrentLimits();
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newActivePowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return getOperationalLimitsHolder2().newActivePowerLimits();
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits();
     }
 
+    /**
+     * @deprecated Use {@link OperationalLimitsGroup#newApparentPowerLimits()} instead.
+     */
+    @Deprecated(since = "6.8.0")
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return getOperationalLimitsHolder2().newApparentPowerLimits();
+        return getOperationalLimitsHolder2().getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits();
     }
 
     @Override
@@ -194,11 +268,6 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     @Override
     public boolean isOverloaded(double limitReductionValue) {
         return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT) || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT);
-    }
-
-    @Override
-    public int getOverloadDuration() {
-        return BranchUtil.getOverloadDuration(checkTemporaryLimits1(LimitType.CURRENT), checkTemporaryLimits2(LimitType.CURRENT));
     }
 
     @Override
@@ -267,5 +336,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
 
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
     }
 }

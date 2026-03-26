@@ -14,23 +14,28 @@ import java.util.Objects;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeAdder> implements ReportNodeAdder {
+public class ReportNodeChildAdderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeAdder>
+        implements ReportNodeAdder {
 
     private final ReportNodeImpl parent;
 
-    ReportNodeChildAdderImpl(ReportNodeImpl parent) {
+    ReportNodeChildAdderImpl(ReportNodeImpl parent, MessageTemplateProvider messageTemplateProvider) {
         this.parent = Objects.requireNonNull(parent);
+        this.messageTemplateProvider = messageTemplateProvider;
     }
 
     @Override
     public ReportNode add() {
-        ReportNodeImpl node = ReportNodeImpl.createChildReportNode(key, messageTemplate, values, parent);
-        parent.addChild(node);
-        return node;
+        TreeContext treeContext = parent.getTreeContext();
+        if (withTimestamp) {
+            addTimeStampValue(treeContext);
+        }
+        updateTreeDictionary(treeContext);
+        return ReportNodeImpl.createChildReportNode(key, values, parent, messageTemplateProvider);
     }
 
     @Override
-    public ReportNodeAdder self() {
+    public ReportNodeChildAdderImpl self() {
         return this;
     }
 }

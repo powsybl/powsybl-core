@@ -29,7 +29,7 @@ public class VoltageIntervalDeserializer extends StdDeserializer<VoltageInterval
         super(VoltageInterval.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         Double nominalVoltageLowBound;
         Boolean lowClosed;
         Double nominalVoltageHighBound;

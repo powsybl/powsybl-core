@@ -2,11 +2,10 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -30,7 +29,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
     @Test
     void testExportSwitchesNodeBreaker() {
         test(createSwitchesNBNetwork(), true, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
     }
 
     @Test
@@ -48,12 +47,11 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
                 new String[] {"voltageLevel1_0", "voltageLevel2_0"});
     }
 
-    @Disabled("Mismatch in bus view bus definition from node/breaker and bus/breaker topologies")
-    // FIXME(Luma): consider adding busbar section to exported EQ when we save a bus/breaker topology as node/breaker
     @Test
     void testExportDisconnectedLoadBusBreaker() {
         test(createDisconnectedLoadBBNetwork(), false, true,
-                new String[] {"voltageLevel1_0", "voltageLevel1_1"});
+                new String[] {"voltageLevel1_0", "voltageLevel1_1"},
+                true);
     }
 
     @Test
@@ -66,6 +64,14 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
                       boolean checkAllTerminalsConnected,
                       boolean checkSameNumberOfBusViewBuses,
                       String[] expectedBusBreakerViewBuses) {
+        test(network, checkAllTerminalsConnected, checkSameNumberOfBusViewBuses, expectedBusBreakerViewBuses, false);
+    }
+
+    private void test(Network network,
+                      boolean checkAllTerminalsConnected,
+                      boolean checkSameNumberOfBusViewBuses,
+                      String[] expectedBusBreakerViewBuses,
+                      boolean importCreateBusbarSections) {
         String name = network.getId();
 
         // Some terminals may show as disconnected even if everything is connected but the bus is not valid
@@ -75,13 +81,16 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
             checkAllTerminalsConnected(network, name);
         }
 
-        // Export as CGMES 3
+        // Export as node-breaker
         Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
+        params.put(CgmesExport.TOPOLOGY_KIND, "NODE_BREAKER");
         ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        if (importCreateBusbarSections) {
+            importParams.put(CgmesImport.CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE, "true");
+        }
         Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"), LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), importParams);
         if (checkAllTerminalsConnected) {
             checkAllTerminalsConnected(network, name + "_from_CGMES");

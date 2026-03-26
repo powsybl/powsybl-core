@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
@@ -304,8 +306,11 @@ public abstract class AbstractConnectableTest {
         // Failing disconnection
         assertFalse(line1.disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER));
 
-        // disconnect the line 1
-        assertTrue(line1.disconnect());
+        // try to disconnect the line 1 but fail since by default disconnect should not touch the fictitious breaker that is closed
+        assertFalse(line1.disconnect());
+
+        // force disconnection of fictional breaker
+        assertTrue(line1.disconnect(SwitchPredicates.IS_CLOSED_BREAKER));
 
         // check line 1 is disconnected
         assertTrue(topo.getOptionalTerminal(4).isPresent());
@@ -313,11 +318,14 @@ public abstract class AbstractConnectableTest {
         line1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
 
         // disconnect the already fully disconnected line 1
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line1.disconnect());
         network.getReportNodeContext().popReportNode();
-        assertEquals("alreadyDisconnectedTerminal", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.network.alreadyDisconnectedTerminal", reportNode.getChildren().getFirst().getMessageKey());
 
         // Reconnect the line 1
         assertTrue(line1.connect());
@@ -363,11 +371,14 @@ public abstract class AbstractConnectableTest {
         line2.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
 
         // connect the already fully connected line 2
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTest")
+                .build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line2.connect());
         network.getReportNodeContext().popReportNode();
-        assertEquals("alreadyConnectedTerminal", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("core.iidm.network.alreadyConnectedTerminal", reportNode.getChildren().getFirst().getMessageKey());
 
         // Disconnect the twt
         assertTrue(twt.disconnect(SwitchPredicates.IS_CLOSED_BREAKER));
@@ -376,6 +387,52 @@ public abstract class AbstractConnectableTest {
         assertTrue(topo.getOptionalTerminal(6).isPresent());
         twt.getTerminals().forEach(terminal -> assertNull(terminal.getBusView().getBus()));
         twt.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
+    }
+
+    @Test
+    public void connectionRoundTripFictionalBreaker() {
+        //checks that connect and disconnect work in the same way
+        Network network = createNetwork();
+        Line l2 = network.getLine("L2");
+        assertTrue(l2.connect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR));
+        assertTrue(l2.getTerminal1().isConnected());
+        l2.disconnect();
+        // check that when we disconnect then connect, it leads to the same state
+        l2.connect();
+        assertTrue(l2.getTerminal1().isConnected());
+    }
+
+    @Test
+    public void connectDisconnectOnOpenFictionalBreaker() {
+        //checks that connect and disconnect do not touch fictional breakers in open position
+        Network n = createNetwork();
+        Line l2 = n.getLine("L2");
+        Switch l2FictitiousBreaker = n.getSwitch("B_L2"); // fictitious
+        Switch l2RealBreaker = n.getSwitch("B1"); // non-fictitious
+        l2.connect();
+        assertTrue(l2FictitiousBreaker.isOpen());
+        // cannot access the real breaker behind the open fictitious breaker, no connection is made
+        assertTrue(l2RealBreaker.isOpen());
+        l2.disconnect();
+        assertTrue(l2FictitiousBreaker.isOpen());
+        assertTrue(l2RealBreaker.isOpen());
+    }
+
+    @Test
+    public void connectDisconnectOnClosedFictionalBreaker() {
+        //checks that connect and disconnect do not touch fictional breakers on closed position
+        Network n = createNetwork();
+        Line l2 = n.getLine("L2");
+        Switch l2FictitiousBreaker = n.getSwitch("B_L2"); // fictitious
+        Switch l2RealBreaker = n.getSwitch("B1"); // non-fictitious
+        l2.connect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR); // forcibly close the open fictitious breaker
+        l2.disconnect();
+        assertFalse(l2FictitiousBreaker.isOpen());
+        assertTrue(l2RealBreaker.isOpen());
+        l2.connect();
+        assertFalse(l2FictitiousBreaker.isOpen());
+        // this works because fictitious is closed, so we can access the real breaker behind it
+        assertFalse(l2RealBreaker.isOpen());
     }
 
     @Test

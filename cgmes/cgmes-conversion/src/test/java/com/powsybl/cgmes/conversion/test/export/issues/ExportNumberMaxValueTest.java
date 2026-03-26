@@ -1,5 +1,7 @@
 package com.powsybl.cgmes.conversion.test.export.issues;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
@@ -8,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +32,7 @@ class ExportNumberMaxValueTest extends AbstractSerDeTest {
                 .getBusBreakerView().newBus().setId("B1").add();
         Line line = network.newLine().setId("L01").setR(1.0).setX(10.0)
                 .setBus1("B0").setBus2("B1").add();
-        line.newCurrentLimits1()
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(2000)
                 .beginTemporaryLimit()
                 .setName("L300").setAcceptableDuration(300).setValue(3000)
@@ -65,7 +65,7 @@ class ExportNumberMaxValueTest extends AbstractSerDeTest {
         double value = Double.parseDouble(tatl60Value.group(1));
 
         // Check that we have read a very big number,
-        // we can not compare exactly with Float.MAX_VALUE because it has not been written with enough precision
+        // we cannot compare exactly with Float.MAX_VALUE because it has not been written with enough precision
         assertTrue(value > Float.MAX_VALUE / 10);
         // And check that we have not written Double.MAX_VALUE
         assertTrue(value < Double.MAX_VALUE / 10);

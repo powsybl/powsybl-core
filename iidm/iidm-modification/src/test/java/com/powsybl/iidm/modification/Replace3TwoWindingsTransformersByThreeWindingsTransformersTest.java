@@ -7,12 +7,11 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
-
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
 import static com.powsybl.iidm.modification.util.ModificationReports.lostTwoWindingsTransformerExtensions;
@@ -170,6 +168,36 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         assertTrue(compareOperationalLimitsGroups(t2w3.getOperationalLimitsGroups1(), t3w.getLeg3().getOperationalLimitsGroups()));
     }
 
+    @Test
+    void selectedOperationalLimitsGroupTest() {
+        modifyNetworkForFlowsNotWellOrientedTest(); // t2w2 not well oriented, t3w related leg is "3WT-Leg2-notWellOriented"
+        modifyNetworkForLoadingLimitsAtBothEndsTest();
+
+        t2w1.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-summer");
+        t2w1.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+        network.getTwoWindingsTransformer("3WT-Leg1").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-summer");
+        network.getTwoWindingsTransformer("3WT-Leg1").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+
+        t2w2.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        t2w2.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+        network.getTwoWindingsTransformer("3WT-Leg2-notWellOriented").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        network.getTwoWindingsTransformer("3WT-Leg2-notWellOriented").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+
+        t2w3.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        t2w3.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+        network.getTwoWindingsTransformer("3WT-Leg3").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        network.getTwoWindingsTransformer("3WT-Leg3").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-notWellOriented-3WT-Leg3");
+
+        assertEquals("OperationalLimitsGroup-summer", t3w.getLeg1().getSelectedOperationalLimitsGroupId().orElseThrow());
+        assertEquals("OperationalLimitsGroup-winter-end2", t3w.getLeg2().getSelectedOperationalLimitsGroupId().orElseThrow());
+        assertEquals("OperationalLimitsGroup-winter", t3w.getLeg3().getSelectedOperationalLimitsGroupId().orElseThrow());
+    }
+
     private void modifyNetworkForLoadingLimitsTest() {
         addLoadingLimitsEnd1(t2w1);
         addLoadingLimitsEnd1(t2w2);
@@ -177,6 +205,22 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w1.getId()));
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w2.getId()));
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w3.getId()));
+    }
+
+    private void modifyNetworkForLoadingLimitsAtBothEndsTest() {
+        addLoadingLimitsEnd1(t2w1);
+        addLoadingLimitsEnd1(t2w2);
+        addLoadingLimitsEnd1(t2w3);
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w2.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w3.getId()));
+
+        addLoadingLimitsEnd2(t2w1);
+        addLoadingLimitsEnd2(t2w2);
+        addLoadingLimitsEnd2(t2w3);
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w2.getId()));
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w3.getId()));
     }
 
     @Test
@@ -276,7 +320,10 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         network.getTwoWindingsTransformer(t2w1.getId()).addAlias("t2w1-alias2");
         addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w1.getId()));
         addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w2.getId()));
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         replace.apply(network, reportNode);
 
@@ -300,7 +347,10 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
 
     @Test
     void reportNodeExtensionsTest() throws IOException {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
         lostTwoWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t2w1.getId());
 
         StringWriter sw1 = new StringWriter();
@@ -441,6 +491,117 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         network = createThreeWindingsTransformerNodeBreakerNetwork();
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         replace.apply(network);
+    }
+
+    @Test
+    void replaceDisconnectedNodeBreakerTest() {
+        // In node/breaker topology:
+        // One of the 3 two-winding transformers ("3WT-Leg3") is inverted + its switch is opened and not retained
+        // => no bus in the bus view on side 2 for this transformer. The "well oriented" detection should not fail.
+        Network n = NetworkFactory.findDefault().createNetwork("test", "test");
+        Substation substation = n.newSubstation().setId("SUBSTATION").setCountry(Country.FR).add();
+        VoltageLevel vl1 = substation.newVoltageLevel()
+                .setId("vl1")
+                .setNominalV(132.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().newBusbarSection()
+                .setId("bbsVl1")
+                .setNode(0)
+                .add();
+        vl1.getNodeBreakerView().newSwitch()
+                .setId("sw1")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(1)
+                .add();
+
+        VoltageLevel vl2 = substation.newVoltageLevel()
+                .setId("vl2")
+                .setNominalV(33.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("bbsVl2")
+                .setNode(0)
+                .add();
+        vl2.getNodeBreakerView().newSwitch()
+                .setId("sw2")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(1)
+                .add();
+
+        VoltageLevel vl3 = substation.newVoltageLevel()
+                .setId("vl3")
+                .setNominalV(11.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl3.getNodeBreakerView().newBusbarSection()
+                .setId("bbsVl3")
+                .setNode(0)
+                .add();
+        vl3.getNodeBreakerView().newSwitch()
+                .setId("sw3")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(true) // Opened and not retained
+                .setNode1(0).setNode2(1)
+                .add();
+
+        VoltageLevel vlStar = substation.newVoltageLevel()
+                .setId("vlStar")
+                .setNominalV(20.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vlStar.getNodeBreakerView().newBusbarSection()
+                .setId("bbsStar")
+                .setNode(0)
+                .add();
+        vlStar.getNodeBreakerView().newSwitch()
+                .setId("swStar1")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(1)
+                .add();
+        vlStar.getNodeBreakerView().newSwitch()
+                .setId("swStar2")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(2)
+                .add();
+        vlStar.getNodeBreakerView().newSwitch()
+                .setId("swStar3")
+                .setKind(SwitchKind.BREAKER).setRetained(false)
+                .setOpen(false)
+                .setNode1(0).setNode2(3)
+                .add();
+
+        substation.newTwoWindingsTransformer()
+                .setId("3WT-Leg1")
+                .setR(17.424).setX(1.7424).setG(0.00573921028466483).setB(0.000573921028466483)
+                .setVoltageLevel1(vl1.getId()).setRatedU1(132.0).setNode1(1)
+                .setVoltageLevel2(vlStar.getId()).setRatedU2(20.0).setNode2(1)
+                .add();
+        substation.newTwoWindingsTransformer()
+                .setId("3WT-Leg2")
+                .setR(1.089).setX(0.1089).setG(0.0).setB(0.0)
+                .setVoltageLevel1(vl2.getId()).setRatedU1(33.0).setNode1(1)
+                .setVoltageLevel2(vlStar.getId()).setRatedU2(20.0).setNode2(2)
+                .add();
+        substation.newTwoWindingsTransformer()
+                .setId("3WT-Leg3")
+                .setR(0.121).setX(0.0121).setG(0.0).setB(0.0)
+                // Inverted
+                .setVoltageLevel1(vlStar.getId()).setRatedU1(20.0).setNode1(3)
+                .setVoltageLevel2(vl3.getId()).setRatedU2(11.0).setNode2(1)
+                .add();
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(n);
+
+        assertEquals(3, n.getVoltageLevelCount());
+        assertEquals(0, n.getTwoWindingsTransformerCount());
+        assertEquals(1, n.getThreeWindingsTransformerCount());
     }
 
     @Test

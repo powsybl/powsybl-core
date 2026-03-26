@@ -51,8 +51,8 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
-        visitEquipment(danglingLine);
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
+        visitEquipment(boundaryLine);
     }
 
     @Override
@@ -68,5 +68,10 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     @Override
     public void visitGround(Ground ground) {
         visitEquipment(ground);
+    }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+        visitEquipment(converter);
     }
 }

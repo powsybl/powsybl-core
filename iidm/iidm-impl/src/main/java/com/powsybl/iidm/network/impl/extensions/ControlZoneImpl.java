@@ -63,4 +63,25 @@ class ControlZoneImpl implements ControlZone {
         Objects.requireNonNull(id);
         return controlUnits.stream().filter(u -> u.getId().equals(id)).findFirst();
     }
+
+    void extendVariantArraySize(int number, int sourceIndex) {
+        ((PilotPointImpl) pilotPoint).extendVariantArraySize(number, sourceIndex);
+        for (ControlUnit controlUnit : controlUnits) {
+            ((ControlUnitImpl) controlUnit).extendVariantArraySize(number, sourceIndex);
+        }
+    }
+
+    void reduceVariantArraySize(int number) {
+        ((PilotPointImpl) pilotPoint).reduceVariantArraySize(number);
+        for (ControlUnit controlUnit : controlUnits) {
+            ((ControlUnitImpl) controlUnit).reduceVariantArraySize(number);
+        }
+    }
+
+    void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        ((PilotPointImpl) pilotPoint).allocateVariantArrayElement(indexes, sourceIndex);
+        for (ControlUnit controlUnit : controlUnits) {
+            ((ControlUnitImpl) controlUnit).allocateVariantArrayElement(indexes, sourceIndex);
+        }
+    }
 }

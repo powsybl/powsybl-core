@@ -28,8 +28,10 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
+    static final String[] FIELD_NAMES_CASE_IDENTIFICATION = {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2};
+
     CaseIdentificationData() {
-        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2);
+        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, FIELD_NAMES_CASE_IDENTIFICATION);
         withQuotedFields(STR_TITLE_1, STR_TITLE_2);
         withIO(LEGACY_TEXT, new CaseIdentificationLegacyText(this));
         withIO(JSON, new CaseIdentificationJson(this));
@@ -82,12 +84,12 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
         @Override
         public List<PsseCaseIdentification> read(LegacyTextReader reader, Context context) throws IOException {
-            throw new PsseException("Case Identification can not be read as a record group, it was be read as head record");
+            throw new PsseException("Case Identification cannot be read as a record group, it was be read as head record");
         }
 
         @Override
         public void write(List<PsseCaseIdentification> psseObjects, Context context, OutputStream outputStream) {
-            throw new PsseException("Case Identification can not be written as a record group, it was be written as head record");
+            throw new PsseException("Case Identification cannot be written as a record group, it was be written as head record");
         }
     }
 

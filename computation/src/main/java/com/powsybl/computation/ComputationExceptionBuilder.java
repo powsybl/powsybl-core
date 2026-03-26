@@ -7,10 +7,10 @@
  */
 package com.powsybl.computation;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -127,7 +127,7 @@ public class ComputationExceptionBuilder {
             byte[] bytes = Files.readAllBytes(path);
             bytesByFileName.put(path.getFileName().toString(), bytes);
         } catch (IOException e) {
-            LOGGER.warn("Can not read zip file '{}'", path);
+            LOGGER.warn("Cannot read zip file '{}'", path);
         }
         return this;
     }
@@ -155,7 +155,7 @@ public class ComputationExceptionBuilder {
             byte[] bytes = Files.readAllBytes(path);
             map.put(path.getFileName().toString(), new String(bytes, StandardCharsets.UTF_8));
         } catch (IOException e) {
-            LOGGER.warn("Can not read log file '{}'", path);
+            LOGGER.warn("Cannot read log file '{}'", path);
         }
         return this;
     }
