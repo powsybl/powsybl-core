@@ -82,7 +82,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -96,6 +95,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
@@ -104,7 +104,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -118,6 +117,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
@@ -126,7 +126,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation without side.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -139,6 +138,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
@@ -148,7 +148,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -162,6 +161,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
@@ -170,7 +170,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -183,6 +182,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
@@ -191,7 +191,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation without side.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -203,6 +202,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
@@ -227,7 +227,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation, for types other than current limits.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -238,6 +237,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit          The value of the limit which has been violated.
      * @param limitReduction The limit reduction factor used for violation detection.
      * @param value          The actual value of the physical value which triggered the detection of a violation.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, double limit, double limitReduction, double value) {
@@ -245,7 +245,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation, for types other than current limits.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -257,6 +256,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limitReduction The limit reduction factor used for violation detection.
      * @param value          The actual value of the physical value which triggered the detection of a violation.
      * @param voltageLocation    Detailed information about the location of the violation.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, double limit, double limitReduction, double value, ViolationLocation voltageLocation) {
@@ -264,7 +264,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * <p>@deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}</p>
      * Create a new LimitViolation, for voltage angle limit.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -274,6 +273,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit          The value of the limit which has been violated.
      * @param limitReduction The limit reduction factor used for violation detection.
      * @param value          The actual value of the physical value which triggered the detection of a violation.
+     * @deprecated use {@link LimitViolationBuilder} or {@link LimitViolation#LimitViolation(String, String, String, LimitViolationType, String, int, double, double, double, ThreeSides, ViolationLocation)}
      */
     @Deprecated(since = "7.3.0", forRemoval = true)
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, double limitReduction, double value) {
