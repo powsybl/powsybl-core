@@ -163,7 +163,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
         ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
 
-        if((r==0.0) != (this.r == 0.0)) {
+        if ((r == 0.0) != (this.r == 0.0)) {
             // if we change the value of r from 0 to non-zero
             // or vice versa, topology must be recomputed.
             getNetwork().dcTopologyModel.invalidateCache();
