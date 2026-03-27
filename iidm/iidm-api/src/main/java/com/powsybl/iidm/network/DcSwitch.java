@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 /**
  * A DC Switch within a DC system. A DC Switch connects two DC Nodes and can be opened or closed.
+ * A DC Switch may have a non-negative resistance, which may be important for security analyses.
  *
  * <p> To create a DcSwitch, see {@link DcSwitchAdder}
  *
@@ -63,7 +64,7 @@ package com.powsybl.iidm.network;
  *         <tr>
  *              <td style="border: 1px solid black">r</td>
  *              <td style="border: 1px solid black">double</td>
- *              <td style="border: 1px solid black"> Ohm </td>
+ *              <td style="border: 1px solid black">&Omega;</td>
  *              <td style="border: 1px solid black">No</td>
  *              <td style="border: 1px solid black">0.0</td>
  *              <td style="border: 1px solid black">Resistance of the DC Switch</td>

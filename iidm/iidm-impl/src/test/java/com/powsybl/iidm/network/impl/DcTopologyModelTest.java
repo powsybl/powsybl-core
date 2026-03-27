@@ -28,16 +28,16 @@ class DcTopologyModelTest {
                 .setDcNode2("n2")
                 .add();
 
-        final String BUS1_NAME = "n1_dcBus";
-        final String BUS2_NAME = "n2_dcBus";
-        List<String> refBusNames = List.of(BUS1_NAME, BUS2_NAME);
+        final String bus1Name = "n1_dcBus";
+        final String bus2Name = "n2_dcBus";
+        List<String> refBusNames = List.of(bus1Name, bus2Name);
         assertExpected(refBusNames, network);
 
         // Test helper routines
         DcTopologyModel topo = ((AbstractNetwork) network).getDcTopologyModel();
-        assertEquals(BUS1_NAME, topo.getDcBusOfDcNode("n1").getId());
-        assertEquals(BUS2_NAME, topo.getDcBusOfDcNode("n2").getId());
-        assertEquals(BUS1_NAME, topo.getDcBus(BUS1_NAME).getId());
+        assertEquals(bus1Name, topo.getDcBusOfDcNode("n1").getId());
+        assertEquals(bus2Name, topo.getDcBusOfDcNode("n2").getId());
+        assertEquals(bus1Name, topo.getDcBus(bus1Name).getId());
     }
 
     @Test
