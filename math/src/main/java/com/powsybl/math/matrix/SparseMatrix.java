@@ -352,6 +352,17 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         return new SparseLUDecomposition(this);
     }
 
+    /**
+     * Perform LU decomposition using the RTE RLU native library (powsybl-rte-math-native).
+     * This is an alternative to {@link #decomposeLU()} which uses the KLU library.
+     *
+     * @return a {@link LUDecomposition} backed by the RTE RLU factorization
+     */
+    public LUDecomposition decomposeRLU() {
+        fillLastEmptyColumns();
+        return new SparseRLUDecomposition(this);
+    }
+
     private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
     private native SparseMatrix add(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2, double alpha, double beta);
