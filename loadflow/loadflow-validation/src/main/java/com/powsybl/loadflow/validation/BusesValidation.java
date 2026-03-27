@@ -22,9 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
+import static com.powsybl.loadflow.validation.ValidationUtils.areNaN;
+
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ *
+ * Rule for valid results :<br/>
+ * |incomingP + loadP| <= threshold and |incomingQ + loadQ| <= threshold
  */
 public final class BusesValidation {
 
@@ -158,14 +163,10 @@ public final class BusesValidation {
         double incomingP = genP + batP + shuntP + svcP + vscCSP + lineP + boundaryLineP + t2wtP + t3wtP;
         double incomingQ = genQ + batQ + shuntQ + svcQ + vscCSQ + lineQ + boundaryLineQ + t2wtQ + t3wtQ;
         if (ValidationUtils.isMainComponent(config, mainComponent)) {
-            if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
-                validated = false;
-            }
-            if (ValidationUtils.areNaN(config, incomingQ, loadQ) || Math.abs(incomingQ + loadQ) > config.getThreshold()) {
-                LOGGER.warn("{} {}: {} Q {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingQ, loadQ);
-                validated = false;
-            }
+             // |incomingP + loadP| <= threshold
+            validated &= validatePowerBalance(id, "P", incomingP, loadP, config);
+            // |incomingQ + loadQ| <= threshold
+            validated &= validatePowerBalance(id, "Q", incomingQ, loadQ, config);
         }
         try {
             busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
@@ -175,4 +176,17 @@ public final class BusesValidation {
         }
         return validated;
     }
+
+    private boolean validatePowerBalance(String id, String balanceType, double incomingPower, double loadPower, ValidationConfig config) {
+        if (!areNaN(config, incomingPower, loadPower) && !isBalanceInconsistent(incomingPower, loadPower, config.getThreshold())) {
+            return true;
+        }
+        LOGGER.warn("{} {}: {} {} {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, balanceType, incomingPower, loadPower);
+        return false;
+    }
+
+    private static boolean isBalanceInconsistent(double incomingPower, double loadPower, double threshold) {
+        return Math.abs(incomingPower + loadPower) > threshold;
+    }
+
 }

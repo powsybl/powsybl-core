@@ -156,7 +156,18 @@ incomplete to go through the rest of the validation.
 In this section, we go into more details about the checks performed by the validation feature of load-flow results available in PowSyBl.
 
 ### Buses
-If all values are present, or if only one value is missing, the result is considered to be consistent.
+The bus active and reactive power balances are considered consistent when:
+
+$$
+\begin{aligned}
+|incomingP + loadP| \leq \epsilon \\
+|incomingQ + loadQ| \leq \epsilon
+\end{aligned}
+$$
+
+where:
+- `incomingP` and `incomingQ` are the sums of connected injections (generators, batteries, shunts, SVCs, VSC, lines, dangling lines, and transformers)
+
 Note that if the result contains only the voltages (phase and angle), the PowSyBl validation provides a load-flow results completion feature.
 It can be used to compute the flows from the voltages to ensure the result consistency, with the run-computation option of
 the PowSyBl validation.
@@ -204,45 +215,64 @@ $$\left| targetQ - Q \right| < \epsilon$$
 On the other hand, when the voltage regulation is enabled, depending on the generator's mode, one of the three conditions should be respected:
 
 $$
-\begin{align*}
+\begin{aligned}
     |V - targetV| & \leq && \epsilon && \& && minQ & \leq & Q \leq maxQ \\
     V - targetV & < & -& \epsilon && \& && |Q-maxQ| & \leq & \epsilon \\
     targetV - V & < && \epsilon && \& && |Q-minQ| & \leq & \epsilon \\
-\end{align*}
+\end{aligned}
 $$
 
-In the PowSyBl validation, there are a few tricks to handle special cases:
+In the PowSyBl validation, there are a few tricks to handle special cases before applying the nominal active/reactive/voltage rules
+- if `P` or `Q` is missing, validation fails if setpoints are defined and non-zero
 - if $minQ > maxQ$, then the values are switched to recover a meaningful interval if `noRequirementIfReactiveBoundInversion = false`
 - in case of a missing value, the corresponding test is OK
-- $minQ$ and $maxQ$ are function of $P$. If $targetP$ is outside $[minP, maxP]$, no test is done.
+- $minQ$ and $maxQ$ are function of $P$. If $targetP$ is outside $[minP, maxP]$, and `noRequirementIfSetpointOutsidePowerBounds = true`, generator validation checks are bypassed.
 
 ### Loads
 <span style="color: red">To be implemented, with tests similar to generators with voltage regulation.</span>
 
-### Shunts
-The two following conditions must be fulfilled in valid results:
+### Shunt Compensator
+#### Linear model
+For connected shunts, the two following conditions must be fulfilled for valid results:
 
 $$
-\begin{align*}
+\begin{aligned}
 \left| P \right| < \epsilon \\
-\left| Q + \text{#sections} * B  V^2 \right| < \epsilon
-\end{align*}
+\left| Q + \#\text{sections} * B  V^2 \right| < \epsilon
+\end{aligned}
 $$
+
+Additional condition for disconnected shunts:
+- If the shunt is disconnected, `Q` must be undefined (`NaN`) or equal to `0`.
+#### Non linear model
+<span style="color: red">Is not supported, to be done.</span>
 
 ### Static VAR Compensators
-The following conditions must be fulfilled in valid results:
-$targetP = 0$ MW
-- If the regulation mode is `OFF`, then
- $$\left| targetQ - Q \right| < \epsilon$$
-- If the regulation mode is `REACTIVE_POWER`, same checks as a generator without voltage regulation
+The following conditions must be fulfilled for valid results:
+
+- If `regulating = false`, then $|Q| <= \epsilon$.
+- $|P - targetP| <= \epsilon$, with $targetP = 0$ MW.
+- If `P` or `Q` is missing, then `reactivePowerSetpoint` must be `NaN` or `0`.
+- If the regulation mode is `REACTIVE_POWER`, same checks as a generator without voltage regulation:
+
+  $|Q - reactivePowerSetpoint| <= \epsilon$.
 - If the regulation mode is `VOLTAGE`, same checks as a generator with voltage regulation with the following bounds:
-$$minQ = - Bmax * V^2$$ and $$maxQ = - Bmin V^2$$
+$$
+\begin{aligned}
+minQ = - B_{max} * V^2 \\
+maxQ = - B_{min} * V^2
+\end{aligned}
+$$
+    - If $V < voltageSetpoint$, then `Q` must match `maxQ`.
+    - If $V > voltageSetpoint$, then `Q` must match `minQ`.
+    - If $|V - voltageSetpoint| <= \epsilon$, then `Q` must be within `[minQ, maxQ]`.
 
 ### HVDC lines
 <span style="color: red">To be done.</span>
 
 #### VSC
 Same checks as a generator. Besides, for stations paired by a cable:
+
 $$\sum_{\text{stations}}{P} = \sum_{\text{stations}}{Loss} + Loss_{cable}$$
 
 #### LCC
@@ -270,17 +300,17 @@ We can therefore compute approximately the voltage increments corresponding to $
 taps $tap-1$ and $tap+1$:
 
 $$
-\begin{align*}
+\begin{aligned}
     & \text{up deadband} = - \min(V_2(tap+1) - V_2(tap), V_2(tap-1) - V_2(tap)) \\
-    & \text{down deadband} = \max(V_2(tap+1) - V_2(tap), V_2(tap-1) - V_2(tap)) \\
-\end{align*}
+    & \text{down deadband} = \max(V_2(tap+1) - V_2(tap), V_2(tap-1) - V_2(tap))
+\end{aligned}
 $$
 
-Finally, we check that the voltage deviation $$\text{deviation} = V_2(tap) - targetV2$$ stays inside the deadband.
+Finally, we check that the voltage deviation $\text{deviation} = V_2(tap) - targetV2$ stays inside the deadband.
 - If $deviation < 0$, meaning that the voltage is too low, it should be checked if the deviation is smaller by
-increasing V2, i.e., the following condition should be satisfied: $$\left| deviation \right| < down deadband + threshold$$
-- If $$deviation > 0$$, meaning that the voltage is too high, it should be checked if the deviation is smaller by
-decreasing V2, i.e., the following condition should be satisfied: $$deviation < up deadband  + threshold$$
+increasing $V_2$, i.e., the following condition should be satisfied: $\left| deviation \right| < down deadband + threshold$
+- If $deviation > 0$, meaning that the voltage is too high, it should be checked if the deviation is smaller by
+decreasing $V_2$, i.e., the following condition should be satisfied: $deviation < up deadband + threshold$
 
 The test is done only if the regulated voltage is on one end of the transformer, and it always returns OK if the controlled voltage is remote.
 
