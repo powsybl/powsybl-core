@@ -12,6 +12,8 @@ import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,11 +48,11 @@ class SecurityAnalysisResultMergerTest {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
         LimitViolation line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900f, 0.95f, 950, TwoSides.ONE);
-        postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
+        postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency2");
-        postContingencyResult2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action3"));
+        postContingencyResult2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action3")), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
         result1 = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
         result2 = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult2));

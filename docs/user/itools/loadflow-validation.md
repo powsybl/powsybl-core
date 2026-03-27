@@ -215,11 +215,11 @@ $$\left| targetQ - Q \right| < \epsilon$$
 On the other hand, when the voltage regulation is enabled, depending on the generator's mode, one of the three conditions should be respected:
 
 $$
-\begin{align*}
+\begin{aligned}
     |V - targetV| & \leq && \epsilon && \& && minQ & \leq & Q \leq maxQ \\
     V - targetV & < & -& \epsilon && \& && |Q-maxQ| & \leq & \epsilon \\
     targetV - V & < && \epsilon && \& && |Q-minQ| & \leq & \epsilon \\
-\end{align*}
+\end{aligned}
 $$
 
 In the PowSyBl validation, there are a few tricks to handle special cases before applying the nominal active/reactive/voltage rules
@@ -237,8 +237,8 @@ For connected shunts, the two following conditions must be fulfilled for valid r
 
 $$
 \begin{aligned}
-|P| &< \epsilon \\
-|Q + N_{\text{sections}} \cdot B \cdot V^2| &< \epsilon
+\left| P \right| < \epsilon \\
+\left| Q + \#\text{sections} * B  V^2 \right| < \epsilon
 \end{aligned}
 $$
 
@@ -257,8 +257,12 @@ The following conditions must be fulfilled for valid results:
 
   $|Q - reactivePowerSetpoint| <= \epsilon$.
 - If the regulation mode is `VOLTAGE`, same checks as a generator with voltage regulation with the following bounds:
-
-    $minQ = -Bmax * V^2$ and $maxQ = -Bmin * V^2$.
+$$
+\begin{aligned}
+minQ = - B_{max} * V^2 \\
+maxQ = - B_{min} * V^2
+\end{aligned}
+$$
     - If $V < voltageSetpoint$, then `Q` must match `maxQ`.
     - If $V > voltageSetpoint$, then `Q` must match `minQ`.
     - If $|V - voltageSetpoint| <= \epsilon$, then `Q` must be within `[minQ, maxQ]`.
@@ -268,6 +272,7 @@ The following conditions must be fulfilled for valid results:
 
 #### VSC
 Same checks as a generator. Besides, for stations paired by a cable:
+
 $$\sum_{\text{stations}}{P} = \sum_{\text{stations}}{Loss} + Loss_{cable}$$
 
 #### LCC
@@ -295,17 +300,17 @@ We can therefore compute approximately the voltage increments corresponding to $
 taps $tap-1$ and $tap+1$:
 
 $$
-\begin{align*}
+\begin{aligned}
     & \text{up deadband} = - \min(V_2(tap+1) - V_2(tap), V_2(tap-1) - V_2(tap)) \\
-    & \text{down deadband} = \max(V_2(tap+1) - V_2(tap), V_2(tap-1) - V_2(tap)) \\
-\end{align*}
+    & \text{down deadband} = \max(V_2(tap+1) - V_2(tap), V_2(tap-1) - V_2(tap))
+\end{aligned}
 $$
 
-Finally, we check that the voltage deviation $$\text{deviation} = V_2(tap) - targetV2$$ stays inside the deadband.
+Finally, we check that the voltage deviation $\text{deviation} = V_2(tap) - targetV2$ stays inside the deadband.
 - If $deviation < 0$, meaning that the voltage is too low, it should be checked if the deviation is smaller by
-increasing V2, i.e., the following condition should be satisfied: $$\left| deviation \right| < down deadband + threshold$$
-- If $$deviation > 0$$, meaning that the voltage is too high, it should be checked if the deviation is smaller by
-decreasing V2, i.e., the following condition should be satisfied: $$deviation < up deadband  + threshold$$
+increasing $V_2$, i.e., the following condition should be satisfied: $\left| deviation \right| < down deadband + threshold$
+- If $deviation > 0$, meaning that the voltage is too high, it should be checked if the deviation is smaller by
+decreasing $V_2$, i.e., the following condition should be satisfied: $deviation < up deadband + threshold$
 
 The test is done only if the regulated voltage is on one end of the transformer, and it always returns OK if the controlled voltage is remote.
 
