@@ -155,10 +155,12 @@
 - core grid model:
 - core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#buses
 ##### Notes
-- [x] Rule1: load p = incoming p (within threshold)
-- [x] Rule2: load q = incoming q (within threshold)
+> [!NOTE]
+> Rule: load p = incoming p And load q = incoming q
+- Added method
+    - `isBalanceInconsistent`
 
-### Flows validation (Branch Data :Line, TwoWindingsTransformer, TieLine) 
+### Flows validation (Branch Data :Line, TwoWindingsTransformer, TieLine)
 
 ##### Doc
 - core grid model: ..

@@ -156,7 +156,18 @@ incomplete to go through the rest of the validation.
 In this section, we go into more details about the checks performed by the validation feature of load-flow results available in PowSyBl.
 
 ### Buses
-If all values are present, or if only one value is missing, the result is considered to be consistent.
+The bus active and reactive power balances are considered consistent when:
+
+$$
+\begin{aligned}
+|incomingP + loadP| \leq \epsilon \\
+|incomingQ + loadQ| \leq \epsilon
+\end{aligned}
+$$
+
+where:
+- `incomingP` and `incomingQ` are the sums of connected injections (generators, batteries, shunts, SVCs, VSC, lines, dangling lines, and transformers)
+
 Note that if the result contains only the voltages (phase and angle), the PowSyBl validation provides a load-flow results completion feature.
 It can be used to compute the flows from the voltages to ensure the result consistency, with the run-computation option of
 the PowSyBl validation.
