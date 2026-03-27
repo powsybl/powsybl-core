@@ -165,6 +165,28 @@ class RemoveFeederBayTest {
         assertEquals(TypedValue.UNTYPED_TYPE, values.get("connectableId").getType());
     }
 
+    @Test
+    void testRemoveGroundWithSwitchInBusBreakerModel() {
+        Network network = createBusBreakerNetworkWithGround();
+        addListener(network);
+
+        new RemoveFeederBay("Ground3").apply(network);
+
+        assertEquals(0, network.getGroundCount());
+        assertEquals(2, network.getSwitchCount());
+    }
+
+    @Test
+    void testRemoveGroundWithSwitchInNodeBreakerModel() {
+        Network network = createNodeBreakerNetworkWithGround();
+        addListener(network);
+
+        new RemoveFeederBay("Ground3").apply(network);
+
+        assertEquals(0, network.getGroundCount());
+        assertEquals(2, network.getSwitchCount());
+    }
+
     private Network createNetwork2Feeders() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology createVlTopology = new CreateVoltageLevelTopologyBuilder()
@@ -286,6 +308,45 @@ class RemoveFeederBayTest {
                 .setNode1(3).setVoltageLevel1("VL1")
                 .setNode2(2).setVoltageLevel2("VL2")
                 .add();
+
+        return network;
+    }
+
+    private Network createBusBreakerNetworkWithGround() {
+
+        Network network = Network.create("test", "test");
+
+        VoltageLevel vl = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl.getBusBreakerView().newBus().setId("Bus0").add();
+        vl.getBusBreakerView().newBus().setId("Bus1").add();
+        vl.getBusBreakerView().newBus().setId("Bus2").add();
+        vl.getBusBreakerView().newBus().setId("Bus3").add();
+
+        vl.newGenerator().setId("Generator1").setBus("Bus1").setTargetP(0).setVoltageRegulatorOn(true).setTargetV(400).setMinP(0).setMaxP(10).add();
+        vl.newLoad().setId("Load2").setBus("Bus2").setP0(0).setQ0(0).add();
+        vl.newGround().setId("Ground3").setBus("Bus3").add();
+
+        vl.getBusBreakerView().newSwitch().setBus1("Bus0").setBus2("Bus1").setId("BreakerGen").add();
+        vl.getBusBreakerView().newSwitch().setBus1("Bus0").setBus2("Bus2").setId("BreakerLoad").add();
+        vl.getBusBreakerView().newSwitch().setBus1("Bus0").setBus2("Bus3").setId("BreakerGround").add();
+
+        return network;
+    }
+
+    private Network createNodeBreakerNetworkWithGround() {
+
+        Network network = Network.create("test", "test");
+
+        VoltageLevel vl = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        vl.getNodeBreakerView().newBusbarSection().setId("Bus0").setNode(0).add();
+
+        vl.newGenerator().setId("Generator1").setNode(1).setTargetP(0).setVoltageRegulatorOn(true).setTargetV(400).setMinP(0).setMaxP(10).add();
+        vl.newLoad().setId("Load2").setNode(2).setP0(0).setQ0(0).add();
+        vl.newGround().setId("Ground3").setNode(3).add();
+
+        vl.getNodeBreakerView().newBreaker().setNode1(0).setNode2(1).setId("BreakerGen").add();
+        vl.getNodeBreakerView().newBreaker().setNode1(0).setNode2(2).setId("BreakerLoad").add();
+        vl.getNodeBreakerView().newBreaker().setNode1(0).setNode2(3).setId("BreakerGround").add();
 
         return network;
     }
