@@ -11,8 +11,9 @@
 ### ShuntCompensator validation
 
 ##### Doc
-- core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#shunt-compensator
-- core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#shunts
+- core grid model: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_model/network_subnetwork.html#shunt-compensator
+- core grid features: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_features/loadflow_validation.html#shunts
+- core tool loadflow-validation: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/user/itools/loadflow-validation.html#shunts
 #### Notes
 ##### Gaps between current code and current doc:
 - Disconnected rule (Rule 3) is missing in docs
@@ -52,8 +53,9 @@
 ### Static VAR compensator validation
 
 ##### Doc
-- core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#static-var-compensator
-- core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#static-var-compensators
+- core grid model: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_model/network_subnetwork.html#static-var-compensator
+- core grid features: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_features/loadflow_validation.html#static-var-compensators
+- core tool loadflow-validation: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/user/itools/loadflow-validation.html#static-var-compensators
 
 #### Notes
 ##### Gaps between current code and current doc:
@@ -105,8 +107,9 @@
 ### Generator validation
 
 ##### Doc
-- core grid model: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#generator
-- core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#generators
+- core grid model: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_model/network_subnetwork.html#generator
+- core grid features: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_features/loadflow_validation.html#generators
+- core tool loadflow-validation: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/user/itools/loadflow-validation.html#generators
 ##### Notes (draft) 
 
 > [!NOTE]
@@ -153,7 +156,8 @@
 
 ##### Doc
 - core grid model:
-- core tool loadflow-validation: https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/user/itools/loadflow-validation.html#buses
+- core grid features: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_features/loadflow_validation.html#buses
+- core tool loadflow-validation: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/user/itools/loadflow-validation.html#buses
 ##### Notes
 > [!NOTE]
 > Rule: load p = incoming p And load q = incoming q
@@ -161,11 +165,9 @@
     - `isBalanceInconsistent`
 
 ### Flows validation (Branch Data :Line, TwoWindingsTransformer, TieLine)
-
 ##### Doc
-- core grid model: ..
-- core tool loadflow-validation: ..
-- No doc (TODO)
+- core grid model:
+- core grid features: https://powsybl--3849.org.readthedocs.build/projects/powsybl-core/en/3849/grid_features/loadflow_validation.html#branches
 ##### Notes (draft)
   - Flows (BranchData) can be constructed from
       - Line Flows => Line specific rules to clarify (TODO)
