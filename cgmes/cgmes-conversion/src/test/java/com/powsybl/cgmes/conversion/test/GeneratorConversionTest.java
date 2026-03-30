@@ -236,4 +236,14 @@ class GeneratorConversionTest extends AbstractSerDeTest {
 
         return network;
     }
+
+    @Test
+    void ADAPT_Test() {
+        Network network = readCgmesResources("/issues/synchronousmachine/", "ReactiveCapabilityCurve.xml");
+        // CGMES network:
+        //   A Breaker with all optional fields defined, and a Disconnector with just the required fields defined.
+        // IIDM network:
+        //   All fields have been correctly read.
+    }
+
 }
