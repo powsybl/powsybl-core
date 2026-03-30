@@ -1,5 +1,7 @@
 @startuml
 
+namespace mvp {
+
 namespace existing {
 
 class OperatorStrategy {
@@ -10,24 +12,34 @@ class OperatorStrategy {
 OperatorStrategy --* "1" ContingencyContext
 OperatorStrategy --* "*" ConditionalActions
 
-interface Condition
-
 class ConditionalActions {
   - List<String> actionIds
   - Condition condition
+  - Optional<Integer> applicationDelay
 }
 ConditionalActions ..* "*" Action
 ConditionalActions --* "1" Condition
+note right of ConditionalActions::applicationDelay
+  new field
+end note
+
+interface Condition
+Condition <|-- AndCondition
+Condition <|-- OrCondition
+
+class AndCondition {
+  + Set<Condition> conditions
+}
+
+class OrCondition {
+  + Set<Condition> conditions
+}
 
 class ContingencyContext {
   - ContingencyContextType contextType
-  - Optional<Integer> applicationDelay
 }
 ContingencyContext --* "1" ContingencyContextType
 
-note left of ContingencyContext::applicationDelay
-  new field
-end note
 
 enum ContingencyContextType {
   ALL
@@ -42,32 +54,25 @@ interface Action {
   + NetworkModification toModification()
 }
 
+'end namespace existing
 }
 
-Condition <|-- AndCondition
-Condition <|-- OrCondition
 Condition <|-- AnyViolationInCountryCondition
 
-class AndCondition {
-  + Set<Condition> conditions
-}
-
-class OrCondition {
-  + Set<Condition> conditions
-}
 
 class AnyViolationInCountryCondition {
  + Country country
  + Set<LimitViolationType> conditionFilters
 }
-note bottom: condition filter or branch threshold ?
+note top: condition filter or branch threshold ?
 
 class OptimizableRemedialAction {
   - String id
   - Condition condition
   - ContingencyContext contingencyContext
+  - Optional<Integer> applicationDelay
 }
-OptimizableRemedialAction --* "1" Condition
+OptimizableRemedialAction -l-* "1" Condition
 OptimizableRemedialAction --* "1" ContingencyContext
 OptimizableRemedialAction <|-- BinaryRemedialAction
 OptimizableRemedialAction <|-- RangeRemedialAction
@@ -75,7 +80,6 @@ OptimizableRemedialAction <|-- RangeRemedialAction
 class BinaryRemedialAction {
   - Set<Action> actions
   + Set<Action> toActions()
-  + OperatorStrategy toOperatorStrategy()
 }
 BinaryRemedialAction --* "*" Action
 
@@ -83,7 +87,6 @@ class RangeRemedialAction {
   - Set<RangeAction> rangeActions
   + RangeType rangeType
   + Set<Action> toActions(double setPoint)
-  + OperatorStrategy toOperatorStrategy(double setPoint)
 }
 RangeRemedialAction --* "*" RangeAction
 RangeRemedialAction --* "1" RangeType
@@ -98,18 +101,19 @@ interface RangeAction {
 }
 note bottom: Clone of some actions but without "set point"
 
+'end namespace mvp
+}
+
 class ExclusiveOptimizableRemedialActionGroup {
   - List<String> exclusiveRemedialActionIds
   - int limitOfSelectedRemedialActions
 }
-ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
+ExclusiveOptimizableRemedialActionGroup .r.* "*" OptimizableRemedialAction
 
 'class TemporalRangeRemedialActionV1 {
 '  - Map<ZonedDateTime, RangeRemedialAction> rangeRemedialActionsPerCaseDate
 '  + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
-'  + OperatorStrategy toOperatorStrategy(ZonedDateTime caseDate, double setPoint)
 '  + Map<ZonedDateTime, Set<Action>> toActions(Map<ZonedDateTime, Double> setPoints)
-'  + Map<ZonedDateTime, OperatorStrategy> toOperatorStrategy(Map<ZonedDateTime, Double> setPoint)
 '}
 'TemporalRangeRemedialActionV1 --* "*" RangeRemedialAction
 'note top: I don't know where to put the condition and contingencyContext in this object.\nIs it ok to have a condition and contingencyContext per TS ?
@@ -118,11 +122,10 @@ class TemporalRangeRemedialAction {
   - Set<TemporalRangeAction> temporalRangeActions
   + RangeType rangeType
   + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
-  + OperatorStrategy toOperatorStrategy(ZonedDateTime caseDate, double setPoint)
 }
 TemporalRangeRemedialAction --* "*" TemporalRangeAction
 TemporalRangeRemedialAction --* "1" RangeType
-TemporalRangeRemedialAction --|> OptimizableRemedialAction
+TemporalRangeRemedialAction -u-|> OptimizableRemedialAction
 
 interface TemporalRangeAction {
     + Action toAction(ZonedDateTime caseDate, double setPoint)
