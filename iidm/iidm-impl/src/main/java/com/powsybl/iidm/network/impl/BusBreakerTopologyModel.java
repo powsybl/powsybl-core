@@ -385,6 +385,12 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
+
+        @Override
+        public boolean hasFictitiousP0() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
         @Override
         public double getFictitiousP0(int node) {
             throw createNotSupportedBusBreakerTopologyException();
@@ -392,6 +398,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public VoltageLevel.NodeBreakerView setFictitiousP0(int node, double p0) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public boolean hasFictitiousQ0() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -567,6 +578,26 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public void traverse(int[] node, TopologyTraverser traverser) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void reduceVariantArraySize(int number) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void deleteVariantArrayElement(int index) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
             throw createNotSupportedBusBreakerTopologyException();
         }
     };
