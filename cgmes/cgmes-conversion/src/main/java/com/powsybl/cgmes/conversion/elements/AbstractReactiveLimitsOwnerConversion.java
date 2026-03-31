@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
@@ -121,7 +122,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
                     .setMinQ(qRange.lowerEndpoint())
                     .setMaxQ(qRange.upperEndpoint())
                     .add();
-        } else {
+        } else if (!context.config().isSilenceFrequentIssuesWarnings()) {
             missing("minQ/maxQ are missing, default to unbounded reactive limits");
         }
     }
@@ -161,7 +162,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         } else if (isControlModeReactivePower(mode)) {
             updateRegulatingControlReactivePower(generator, controlEnabled, context);
         } else {
-            context.ignored(mode, "Unsupported regulation mode for generator " + generator.getId());
+            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "generator") + " " + generator.getId());
         }
     }
 

@@ -66,6 +66,20 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void roundTripTestOperationalLimitsGroupSpecialCharacterName() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        String name = "notANiceName\"";
+        String name2 = "anotherName,,,";
+        line.newOperationalLimitsGroup1(name);
+        line.newOperationalLimitsGroup1(name2);
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, name, name2);
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml", CURRENT_IIDM_VERSION);
+        assertEquals(6, networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getOperationalLimitsGroups1().size());
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
+    }
+
+    @Test
     void writeMultipleSelectedOperationalLimitsGroupToOlderFormat() throws IOException {
         testWriteVersionedXmlBetweenVersions(
             EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(),
@@ -214,10 +228,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         }
     }
 
-    private static Network writeAndRead(Network network, ExportOptions options) throws IOException {
+    static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkSerDe.write(network, options, os);
-
             try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
                 return NetworkSerDe.read(is);
             }
