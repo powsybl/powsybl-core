@@ -831,8 +831,8 @@ public abstract class AbstractOperationalLimitsGroupsTest {
         ThreeWindingsTransformer transformer = network3wt.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
 
         return Stream.of(
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.95), LimitType.CURRENT, 299, List.of()), // below any permanent limit
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.8), LimitType.CURRENT, 310, List.of(
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.95, 1.12), LimitType.CURRENT, 299, List.of()), // below any permanent limit
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.8, 1.37), LimitType.CURRENT, 310, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -840,7 +840,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     60 * 40
                 )
             )), // above permanent of activated_1_2
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.82), LimitType.CURRENT, 510, List.of(
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.82, 1.23), LimitType.CURRENT, 510, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -848,7 +848,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     60 * 40
                 )
             )), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.7), LimitType.CURRENT, 701, List.of(
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.7, 1.5), LimitType.CURRENT, 701, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -856,7 +856,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     30
                 )
             )), // above first temporary of 1_2
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.92), LimitType.CURRENT, 1122, List.of(
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.92, 2.), LimitType.CURRENT, 1122, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -870,7 +870,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     60 * 10
                 )
             )), // above permanent of 1_1
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.87), LimitType.CURRENT, 1450, List.of(
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.87, 1.43), LimitType.CURRENT, 1450, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -884,7 +884,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     60
                 )
             )), // above first temporary of 1_1
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.3), LimitType.CURRENT, 1500, List.of(
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.3, 3.1), LimitType.CURRENT, 1500, List.of(
                 new ExpectedOverload(
                     "40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -898,7 +898,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     0
                 )
             )), // above last temporary of 1_1
-            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.84), LimitType.CURRENT, 1601, List.of(
+            Arguments.of(l, ThreeSides.ONE, List.of(1., 0.84, 1.75), LimitType.CURRENT, 1601, List.of(
                 new ExpectedOverload(
                     "0.5'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
@@ -912,9 +912,9 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     0
                 )
             )), // above last temporary of 1_2
-            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.99), LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
-            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.96), LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
-            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.88), LimitType.ACTIVE_POWER, 375, List.of(
+            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.99, 1.01), LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
+            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.96, 1.87), LimitType.ACTIVE_POWER, 275, List.of()), // above permanent of Default, but no temporary above. `checkAllTemporaryLimits` doesn't detect anything in this case. It is the responsibility of `checkPermanentLimit`
+            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.88, 1.64), LimitType.ACTIVE_POWER, 375, List.of(
                 new ExpectedOverload(
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
@@ -922,7 +922,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
                     45 * 60
                 )
             )), // above permanent of activated_3_1
-            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.77), LimitType.ACTIVE_POWER, 405, List.of(
+            Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.77, 1.67), LimitType.ACTIVE_POWER, 405, List.of(
                 new ExpectedOverload(
                     "45'",
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,

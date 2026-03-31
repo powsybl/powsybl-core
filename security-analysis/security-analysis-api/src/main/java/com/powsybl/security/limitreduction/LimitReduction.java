@@ -231,8 +231,8 @@ public class LimitReduction {
         } else {
             throw new PowsyblException(limitType + " is not a supported limit type for limit reduction");
         }
-        if (value > 1. || value < 0.) {
-            throw new PowsyblException("Limit reduction value should be in [0;1]");
+        if (value < 0.) {
+            throw new PowsyblException("Limit reduction value should be equal or more than 0");
         }
         this.value = value;
         this.monitoringOnly = monitoringOnly;
