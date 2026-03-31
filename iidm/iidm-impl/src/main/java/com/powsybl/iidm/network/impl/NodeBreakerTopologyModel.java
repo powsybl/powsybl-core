@@ -257,8 +257,15 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         }
 
         private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
-                            String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
+                            String busId) {
             String busName = NAMING_STRATEGY.getName(voltageLevel, nodes);
+            CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
+            for (int i = 0; i < nodes.size(); i++) {
+                NodeTerminal terminal = graph.getVertexObject(nodes.getQuick(i));
+                if (terminal != null) {
+                    terminals.add(terminal);
+                }
+            }
             CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, voltageLevel.isFictitious(), voltageLevel, nodes, terminals);
             id2bus.put(busId, bus);
             for (int i = 0; i < nodes.size(); i++) {
