@@ -23,6 +23,7 @@ public class LimitViolationBuilder {
 
     private String subjectId;
     private String subjectName;
+    private String operationalLimitsGroupId = "";
     private LimitViolationType type;
     private Double limit;
     private String limitName;
@@ -30,6 +31,7 @@ public class LimitViolationBuilder {
     private double reduction = 1.0;
     private Double value;
     private ThreeSides side;
+    private ViolationLocation violationLocation;
 
     public LimitViolationBuilder type(LimitViolationType type) {
         this.type = requireNonNull(type);
@@ -43,6 +45,16 @@ public class LimitViolationBuilder {
 
     public LimitViolationBuilder subjectName(String subjectName) {
         this.subjectName = subjectName;
+        return this;
+    }
+
+    public LimitViolationBuilder operationalLimitsGroupId(String id) {
+        this.operationalLimitsGroupId = id;
+        return this;
+    }
+
+    public LimitViolationBuilder violationLocation(ViolationLocation location) {
+        this.violationLocation = location;
         return this;
     }
 
@@ -107,14 +119,14 @@ public class LimitViolationBuilder {
             case CURRENT:
                 requireNonNull(duration, "Acceptable duration must be defined.");
                 requireNonNull(side, "Violation side must be defined.");
-                return new LimitViolation(subjectId, subjectName, type, limitName, duration, limit, reduction, value, side);
+                return new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, type, limitName, duration, limit, reduction, value, side, violationLocation);
             case LOW_VOLTAGE:
             case HIGH_VOLTAGE:
             case LOW_SHORT_CIRCUIT_CURRENT:
             case HIGH_SHORT_CIRCUIT_CURRENT:
             case LOW_VOLTAGE_ANGLE:
             case HIGH_VOLTAGE_ANGLE:
-                return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value);
+                return new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, type, limitName, Integer.MAX_VALUE, limit, reduction, value, null, violationLocation);
             default:
                 throw new UnsupportedOperationException(String.format("Building %s limits is not supported.", type.name()));
         }
