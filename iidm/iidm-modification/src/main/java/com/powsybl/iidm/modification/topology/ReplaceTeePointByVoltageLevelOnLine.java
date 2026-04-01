@@ -162,10 +162,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
             return;
         }
 
-        // get line tpLine1 limits
+        // copy all limits groups
         BranchOperationalLimitsGroupsCopy groupsCopyOnLine1 = new BranchOperationalLimitsGroupsCopy(tpLine1);
-
-        // get line tpLine2 limits
         BranchOperationalLimitsGroupsCopy groupsCopyOnLine2 = new BranchOperationalLimitsGroupsCopy(tpLine2);
 
         // Remove the three existing lines

@@ -326,8 +326,9 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .setAcceptableDuration(1200)
                 .endTemporaryLimit()
                 .add();
-        line1.setSelectedOperationalLimitsGroup1("group1");
-        line1.setSelectedOperationalLimitsGroup2("group3");
+        line1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "group1");
+        line1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "group2");
+        line1.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group3");
 
         Line line2 = network.getLine("CJ_2");
         line2.newOperationalLimitsGroup1("group4").newCurrentLimits()
@@ -344,7 +345,16 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .setAcceptableDuration(1200)
                 .endTemporaryLimit()
                 .add();
+        line2.newOperationalLimitsGroup2("group6").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
         line2.setSelectedOperationalLimitsGroup1("group4");
+        line2.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group5");
+        line2.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group6");
         NetworkModification modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("CJ_1")
                 .withTeePointLine2("CJ_2")
