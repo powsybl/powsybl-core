@@ -199,17 +199,26 @@ public final class TopologyModificationUtils {
     }
 
     static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, ReportNode reportNode) {
-        Optional<Substation> substation = voltageLevel.getSubstation();
         String vlId = voltageLevel.getId();
+        boolean noMoreBranches = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.LINE
+                || c.getType() != IdentifiableType.TWO_WINDINGS_TRANSFORMER || c.getType() != IdentifiableType.THREE_WINDINGS_TRANSFORMER ||
+                c.getType() != IdentifiableType.HVDC_CONVERTER_STATION);
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
-            voltageLevelRemovingEquipmentsLeftReport(reportNode, vlId);
-            LOGGER.warn("Voltage level {} still contains equipments", vlId);
+            if (noMoreBranches) {
+                voltageLevelRemovingEquipmentsLeftWithoutQuadripoleReport(reportNode, vlId);
+                LOGGER.warn("Voltage level {} still contains equipments but no quadripoles, it is not removed", vlId);
+            } else {
+                voltageLevelRemovingEquipmentsLeftWithQuadripoleReport(reportNode, vlId);
+                LOGGER.warn("Voltage level {} still contains equipments including quadripoles, it is not removed", vlId);
+            }
+            return;
         }
+        // substation must be gotten before removing the voltageLevel
+        Optional<Substation> substation = voltageLevel.getSubstation();
         voltageLevel.remove();
         voltageLevelRemovedReport(reportNode, vlId);
         LOGGER.info("Voltage level {} removed", vlId);
-
         substation.ifPresent(s -> {
             if (s.getVoltageLevelStream().count() == 0) {
                 String substationId = s.getId();
