@@ -200,12 +200,12 @@ public final class TopologyModificationUtils {
 
     static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, ReportNode reportNode) {
         String vlId = voltageLevel.getId();
-        boolean noMoreBranches = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.LINE
+        boolean noMoreQuadripoles = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.LINE
                 || c.getType() != IdentifiableType.TWO_WINDINGS_TRANSFORMER || c.getType() != IdentifiableType.THREE_WINDINGS_TRANSFORMER ||
                 c.getType() != IdentifiableType.HVDC_CONVERTER_STATION);
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
-            if (noMoreBranches) {
+            if (noMoreQuadripoles) {
                 voltageLevelRemovingEquipmentsLeftWithoutQuadripoleReport(reportNode, vlId);
                 LOGGER.warn("Voltage level {} still contains equipments but no quadripoles, it is not removed", vlId);
             } else {
