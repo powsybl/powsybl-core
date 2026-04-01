@@ -32,9 +32,11 @@ public class BinReader implements TreeDataReader {
 
     private int nextAttrIdx = END_ATTRS;
 
+    private static final int BUFFER_SIZE = 1024 * 1024;
+
     public BinReader(InputStream is, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = binaryMagicNumber;
-        this.dis = new DataInputStream(new BufferedInputStream(Objects.requireNonNull(is)));
+        this.dis = new DataInputStream(new BufferedInputStream(Objects.requireNonNull(is), BUFFER_SIZE));
     }
 
     @Override
