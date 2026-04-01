@@ -1,0 +1,7 @@
++ Testing reportNode for reverting create line on line and not removing the voltage level
+   Line CJ_1 removed
+   Line CJ_2 removed
+   Line testLine removed
+   Line CJ_NEW created
+   Voltage level CJ_VL still contains equipments including quadripoles, it is not removed
+   Voltage level VLTEST removed
