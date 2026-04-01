@@ -708,10 +708,8 @@ public final class EquipmentExport {
 
     private static void writeLines(Network network, String cimNamespace, String euNamespace, Set<String> exportedLimitTypes, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Line line : network.getLines()) {
-            String baseVoltageId = null;
-            if (line.getTerminal1().getVoltageLevel().getNominalV() == line.getTerminal2().getVoltageLevel().getNominalV()) {
-                baseVoltageId = context.getBaseVoltageIdFromNominalV(line.getTerminal1().getVoltageLevel().getNominalV());
-            }
+            double baseVoltage = Math.max(line.getTerminal1().getVoltageLevel().getNominalV(), line.getTerminal2().getVoltageLevel().getNominalV());
+            String baseVoltageId = context.getBaseVoltageIdFromNominalV(baseVoltage);
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltageId, line.getR(), line.getX(), line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer, context);
             writeBranchLimits(line, getTerminalId(line.getTerminal1(), context), getTerminalId(line.getTerminal2(), context), cimNamespace, euNamespace, exportedLimitTypes, writer, context);
         }
