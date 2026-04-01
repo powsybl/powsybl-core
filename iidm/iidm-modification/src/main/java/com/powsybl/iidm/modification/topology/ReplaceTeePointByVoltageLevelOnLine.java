@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -162,25 +163,10 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
         }
 
         // get line tpLine1 limits
-        TwoSides tpLine1Limits1Side = tpLine1OtherVlSide;
-        TwoSides tpLine1Limits2Side = tpLine1OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        LoadingLimitsBags limits1TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
-                () -> tpLine1.getApparentPowerLimits(tpLine1Limits1Side),
-                () -> tpLine1.getCurrentLimits(tpLine1Limits1Side));
-        LoadingLimitsBags limits2TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits2Side),
-                () -> tpLine1.getApparentPowerLimits(tpLine1Limits2Side),
-                () -> tpLine1.getCurrentLimits(tpLine1Limits2Side));
+        BranchOperationalLimitsGroupsCopy groupsCopyOnLine1 = new BranchOperationalLimitsGroupsCopy(tpLine1);
 
         // get line tpLine2 limits
-        TwoSides tpLine2Limits1Side = tpLine2OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        TwoSides tpLine2Limits2Side = tpLine2OtherVlSide;
-
-        LoadingLimitsBags limits1TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
-                () -> tpLine2.getApparentPowerLimits(tpLine2Limits1Side),
-                () -> tpLine2.getCurrentLimits(tpLine2Limits1Side));
-        LoadingLimitsBags limits2TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits2Side),
-                () -> tpLine2.getApparentPowerLimits(tpLine2Limits2Side),
-                () -> tpLine2.getCurrentLimits(tpLine2Limits2Side));
+        BranchOperationalLimitsGroupsCopy groupsCopyOnLine2 = new BranchOperationalLimitsGroupsCopy(tpLine2);
 
         // Remove the three existing lines
         tpLine1.remove();
@@ -195,14 +181,16 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnecti
 
         // Create the two new lines
         Line newLine1 = newLine1Adder.add();
-        addLoadingLimits(newLine1, limits1TpLine1, TwoSides.ONE);
-        addLoadingLimits(newLine1, limits2TpLine1, TwoSides.TWO);
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopyOnLine1.applyGroupsToBranch(newLine1, TwoSides.values());
         createdLineReport(reportNode, newLine1Id);
         LOGGER.info("Line {} created", newLine1Id);
 
         Line newLine2 = newLine2Adder.add();
-        addLoadingLimits(newLine2, limits1TpLine2, TwoSides.ONE);
-        addLoadingLimits(newLine2, limits2TpLine2, TwoSides.TWO);
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopyOnLine2.applyGroupsToBranch(newLine2, TwoSides.values());
         createdLineReport(reportNode, newLine2Id);
         LOGGER.info("Line {} created", newLine2Id);
 
