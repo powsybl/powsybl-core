@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
@@ -326,8 +325,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .setAcceptableDuration(1200)
                 .endTemporaryLimit()
                 .add();
-        line1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "group1");
-        line1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "group2");
+        line1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "group1", "group2");
         line1.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group3");
 
         Line line2 = network.getLine("CJ_2");
@@ -353,8 +351,8 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
                 .endTemporaryLimit()
                 .add();
         line2.setSelectedOperationalLimitsGroup1("group4");
-        line2.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group5");
-        line2.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group6");
+        line2.cancelSelectedOperationalLimitsGroup2();
+        line2.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group5", "group6");
         NetworkModification modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("CJ_1")
                 .withTeePointLine2("CJ_2")
