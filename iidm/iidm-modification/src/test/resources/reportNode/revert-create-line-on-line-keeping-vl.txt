@@ -3,5 +3,5 @@
    Line CJ_2 removed
    Line testLine removed
    Line CJ_NEW created
-   Voltage level CJ_VL still contains equipments including quadripoles, it is not removed
+   Voltage level CJ_VL still contains equipments
    Voltage level VLTEST removed

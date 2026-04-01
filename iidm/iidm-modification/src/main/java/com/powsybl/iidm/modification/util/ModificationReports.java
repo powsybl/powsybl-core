@@ -447,22 +447,6 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void voltageLevelRemovingEquipmentsLeftWithoutQuadripoleReport(ReportNode reportNode, String vlId) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.voltageLevelRemovingEquipmentsLeftWithoutQuadripoles")
-                .withUntypedValue("vlId", vlId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
-    public static void voltageLevelRemovingEquipmentsLeftWithQuadripoleReport(ReportNode reportNode, String vlId) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.voltageLevelRemovingEquipmentsLeftWithQuadripoles")
-                .withUntypedValue("vlId", vlId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
     // ERROR
     public static void notFoundBusOrBusbarSectionReport(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
