@@ -439,6 +439,14 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void voltageLevelRemovingEquipmentsLeftReport(ReportNode reportNode, String vlId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.voltageLevelRemovingEquipmentsLeft")
+                .withUntypedValue("vlId", vlId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
     public static void voltageLevelRemovingEquipmentsLeftWithoutQuadripoleReport(ReportNode reportNode, String vlId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.voltageLevelRemovingEquipmentsLeftWithoutQuadripoles")
