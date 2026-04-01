@@ -31,12 +31,11 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeEnumAttribute("energySource", g.getEnergySource());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("minP", g.getMinP()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute("minP", g.getMinP(), 0.0));
+        context.getWriter().writeDoubleAttribute("minP", g.getMinP());
+        context.getWriter().writeDoubleAttribute("minP", g.getMinP(), 0.0);
         context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
         context.getWriter().writeDoubleAttribute("ratedS", g.getRatedS());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn(), false));
+        context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn(),false);
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
