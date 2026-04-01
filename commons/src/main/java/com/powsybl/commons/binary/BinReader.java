@@ -104,13 +104,13 @@ public class BinReader implements TreeDataReader {
 
     private void skipTypedValue(byte typeTag) throws IOException {
         switch (typeTag) {
-            case TYPE_DOUBLE       -> dis.readDouble();
-            case TYPE_FLOAT        -> dis.readFloat();
-            case TYPE_INT          -> dis.readInt();
-            case TYPE_BOOLEAN      -> dis.readBoolean();
-            case TYPE_STRING       -> readString();
-            case TYPE_ENUM         -> dis.readShort();
-            case TYPE_INT_ARRAY    -> skipIntArray();
+            case TYPE_DOUBLE -> dis.readDouble();
+            case TYPE_FLOAT -> dis.readFloat();
+            case TYPE_INT -> dis.readInt();
+            case TYPE_BOOLEAN -> dis.readBoolean();
+            case TYPE_STRING -> readString();
+            case TYPE_ENUM -> dis.readShort();
+            case TYPE_INT_ARRAY -> skipIntArray();
             case TYPE_STRING_ARRAY -> skipStringArray();
             default -> throw new PowsyblException("Binary format: unknown attribute type tag " + typeTag);
         }

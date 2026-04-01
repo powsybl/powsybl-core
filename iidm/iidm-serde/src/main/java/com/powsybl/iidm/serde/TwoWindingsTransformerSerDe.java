@@ -36,14 +36,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r", twt.getR());
         context.getWriter().writeDoubleAttribute("x", twt.getX());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            context.getWriter().writeDoubleAttribute("g", twt.getG());
-            context.getWriter().writeDoubleAttribute("b", twt.getB());
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            context.getWriter().writeDoubleAttribute("g", twt.getG(), 0.0);
-            context.getWriter().writeDoubleAttribute("b", twt.getB(), 0.0);
-        });
+        context.getWriter().writeDoubleAttribute("g", twt.getG(), 0.0);
+        context.getWriter().writeDoubleAttribute("b", twt.getB(), 0.0);
         context.getWriter().writeDoubleAttribute("ratedU1", twt.getRatedU1());
         context.getWriter().writeDoubleAttribute("ratedU2", twt.getRatedU2());
         writeRatedS("ratedS", twt.getRatedS(), context);
