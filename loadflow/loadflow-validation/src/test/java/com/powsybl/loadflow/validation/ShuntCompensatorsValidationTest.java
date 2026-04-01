@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -140,13 +141,13 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));
     }
 
-    // Rule1: |p| < e
+    @DisplayName("Rule 1: |p| < e")
     @ParameterizedTest(name = "connected p={0} => valid={1}")
     @MethodSource("connectedShuntPCase")
-    void checkConnectedShuntPCase(double p, boolean expectedValid) {
+    void checkShuntShouldSucceedRulePMustBeZero(double p, boolean expectedValid) {
         when(shuntTerminal.getP()).thenReturn(p);
-        boolean valid = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
-        assertEquals(expectedValid, valid);
+        boolean result = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, result);
     }
 
     private static Stream<Arguments> connectedShuntPCase() {
@@ -159,23 +160,23 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         );
     }
 
-    // Rule2: q must match expectedQ: | q + expectedQ | <= ε
+    @DisplayName("Rule 2: q must match expectedQ: | q + expectedQ | <= ε")
     @ParameterizedTest(name = "epsilon={0} => valid={1}")
     @CsvSource({"0.000,  true", "0.009,  true", "-0.009, true", "0.010,  true", "0.011,  false", "-0.011, false"})
-    void checkConnectedShuntExpectedQ(double epsilon, boolean expectedValid) {
+    void checkShuntsShouldSucceedRuleQMatchExpectedQ(double epsilon, boolean expectedValid) {
         // Given
         // connected and mainComponent = true, threshold = 0.01
         when(shuntTerminal.getP()).thenReturn(Double.NaN); // Rule1 OK
         double expectedQ = -bPerSection * currentSectionCount * v * v;
         when(shuntTerminal.getQ()).thenReturn(expectedQ + epsilon);
-        boolean valid = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
-        assertEquals(expectedValid, valid);
+        boolean result = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, result);
     }
 
-    // Rule3: if the shunt is disconnected, q should be undefined or 0
+    @DisplayName("Rule 3: if the shunt is disconnected, q should be undefined or 0")
     @ParameterizedTest(name = "disconnected q={0} => valid={1}")
     @MethodSource("disconnectedShuntCase")
-    void checkDisconnectedShunt(double qValue, boolean expectedValid) {
+    void checkShuntsShouldSucceedRuleWhenDisconnectedShuntQMustBeUndefinedOrZero(double qValue, boolean expectedValid) {
         when(shuntBusView.getBus()).thenReturn(null); // disconnect shunt
         // assert that shunt is disconnected
         assertFalse(shunt.getTerminal().isConnected());

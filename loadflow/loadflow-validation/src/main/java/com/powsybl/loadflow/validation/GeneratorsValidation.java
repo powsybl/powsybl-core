@@ -140,7 +140,6 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
         boolean validated = true;
-
         double expectedP = getExpectedP(guesser, id, p, targetP, minP, maxP, config.getThreshold());
         if (isConnectedAndMainComponent(connected, mainComponent, config)) {
             if (areNaN(p, q)) {

@@ -32,6 +32,10 @@ import static com.powsybl.loadflow.validation.ValidationUtils.*;
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ *
+ * Rules for valid results: <br/>
+ * Rule 1: checks disconnected terminal: P and Q must be undefined or ~0 <br/>
+ * Rule 2: checks connected terminal: |P - Pcalc| <= ε and |Q - Qcalc| <= ε
  */
 public final class FlowsValidation {
 
@@ -55,13 +59,6 @@ public final class FlowsValidation {
         }
     }
 
-    /**
-     * Rules for valid results: <br/>
-     * Rule 1: checks disconnected terminal: P and Q must be NaN or ~0 <br/>
-     * Rule 2: checks connected terminal: |P - Pcalc| <= ε and |Q - Qcalc| <= ε, where <br/>
-     *     - pCalc = ComputedP1 calculated in BranchData <br/>
-     *     - QCalc = ComputedQ1 calculated in BranchData
-     */
     public boolean checkFlows(BranchData branch, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(branch.getId());
@@ -101,11 +98,11 @@ public final class FlowsValidation {
 
     private static boolean checkDisconnectedTerminal(String id, String terminalNumber, double p, double pCalc, double q, double qCalc, double threshold) {
         boolean validated = true;
-        if (!Double.isNaN(p) && Math.abs(p) > threshold) {
+        if (!Double.isNaN(p) && isOutsideTolerance(p, 0.0, threshold)) {
             LOGGER.warn("{} {}: {} disconnected P{} {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, terminalNumber, p, pCalc);
             validated = false;
         }
-        if (!Double.isNaN(q) && Math.abs(q) > threshold) {
+        if (!Double.isNaN(q) && isOutsideTolerance(q, 0.0, threshold)) {
             LOGGER.warn("{} {}: {} disconnected Q{} {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, terminalNumber, q, qCalc);
             validated = false;
         }

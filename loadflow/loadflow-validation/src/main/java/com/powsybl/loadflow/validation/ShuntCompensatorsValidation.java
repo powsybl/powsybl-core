@@ -134,7 +134,7 @@ public final class ShuntCompensatorsValidation {
                                ValidationWriter shuntsWriter) {
         boolean validated = true;
         double threshold = config.getThreshold();
-        // Rule3: if the shunt is disconnected, q should be NaN or 0
+        // Rule3: if the shunt is disconnected, q should be undefined or 0
         if (!connected && !isUndefinedOrZero(q, threshold)) {
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
