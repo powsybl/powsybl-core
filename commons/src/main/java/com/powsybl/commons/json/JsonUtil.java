@@ -509,6 +509,16 @@ public final class JsonUtil {
         }
     }
 
+    public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String elementValue, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (compareVersions(version, referenceVersion) > 0) {
+            String exception = String.format(
+                    "%s. Tag: %s, value: %s is not valid for version %s. Version should be <= %s",
+                    contextName, elementName, elementValue, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
     public static void assertGreaterThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
         if (compareVersions(version, referenceVersion) <= 0) {
@@ -525,6 +535,16 @@ public final class JsonUtil {
             String exception = String.format(
                     "%s. Tag: %s is not valid for version %s. Version should be >= %s",
                     contextName, elementName, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
+    public static void assertGreaterOrEqualThanReferenceVersion(String contextName, String elementName, String elementValue, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (compareVersions(version, referenceVersion) < 0) {
+            String exception = String.format(
+                    "%s. Tag: %s, value: %s is not valid for version %s. Version should be >= %s",
+                    contextName, elementName, elementValue, version, referenceVersion);
             throw new PowsyblException(exception);
         }
     }

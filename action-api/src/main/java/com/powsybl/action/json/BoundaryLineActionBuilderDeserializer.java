@@ -36,9 +36,9 @@ public class BoundaryLineActionBuilderDeserializer extends AbstractLoadActionBui
             if (name.equals("type")) {
                 String type = jsonParser.nextTextValue();
                 if ("DANGLING_LINE".equals(type)) {
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "element type", version, "1.2");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", name, type, version, "1.2");
                 } else if (BoundaryLineAction.NAME.equals(type)) {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", "element type", version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", name, type, version, "1.3");
                 } else {
                     throw JsonMappingException.from(jsonParser, "Expected type :" + BoundaryLineAction.NAME + " got : " + type);
                 }
