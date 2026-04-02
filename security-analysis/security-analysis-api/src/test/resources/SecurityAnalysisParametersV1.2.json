@@ -9,7 +9,7 @@
   },
   "intermediate-results-in-operator-strategy" : true,
   "load-flow-parameters" : {
-    "version" : "1.10",
+    "version" : "1.11",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
