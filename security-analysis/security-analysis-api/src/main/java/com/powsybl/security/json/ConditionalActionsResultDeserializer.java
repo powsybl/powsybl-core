@@ -63,7 +63,7 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
                 case "distributedActivePower" -> {
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion("ConditionalActionsResult",
-                            "Tag: distributedActivePower", version, "1.9");
+                            parser.currentName(), version, "1.9");
                     distributedActivePower = parser.getValueAsDouble();
                 }
                 default -> throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());

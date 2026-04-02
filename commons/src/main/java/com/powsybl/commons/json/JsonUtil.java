@@ -503,7 +503,7 @@ public final class JsonUtil {
         Objects.requireNonNull(version);
         if (compareVersions(version, referenceVersion) > 0) {
             String exception = String.format(
-                    "%s. %s is not valid for version %s. Version should be <= %s",
+                    "%s. Tag: %s is not valid for version %s. Version should be <= %s",
                     contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
@@ -513,7 +513,7 @@ public final class JsonUtil {
         Objects.requireNonNull(version);
         if (compareVersions(version, referenceVersion) <= 0) {
             String exception = String.format(
-                    "%s. %s is not valid for version %s. Version should be > %s",
+                    "%s. Tag: %s is not valid for version %s. Version should be > %s",
                     contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
@@ -523,7 +523,7 @@ public final class JsonUtil {
         Objects.requireNonNull(version);
         if (compareVersions(version, referenceVersion) < 0) {
             String exception = String.format(
-                    "%s. %s is not valid for version %s. Version should be >= %s",
+                    "%s. Tag: %s is not valid for version %s. Version should be >= %s",
                     contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
@@ -533,7 +533,7 @@ public final class JsonUtil {
         Objects.requireNonNull(version);
         if (compareVersions(version, referenceVersion) >= 0) {
             String exception = String.format(
-                    "%s. %s is not valid for version %s. Version should be < %s",
+                    "%s. Tag: %s is not valid for version %s. Version should be < %s",
                     contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }

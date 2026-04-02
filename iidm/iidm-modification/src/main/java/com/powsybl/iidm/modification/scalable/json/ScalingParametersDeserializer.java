@@ -59,17 +59,17 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     parameters.setReconnect(parser.readValueAs(Boolean.class));
                 }
                 case "iterative" -> {
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: iterative", version, "1.1");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setPriority(Boolean.TRUE.equals(parser.readValueAs(Boolean.class)) ? RESPECT_OF_VOLUME_ASKED : ONESHOT);
                 }
                 case "priority" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: priority", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setPriority(JsonUtil.readValue(context, parser, ScalingParameters.Priority.class));
                 }
                 case "ignoredInjectionIds" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());

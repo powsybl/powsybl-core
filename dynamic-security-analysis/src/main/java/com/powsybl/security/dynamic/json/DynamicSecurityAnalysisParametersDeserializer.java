@@ -28,7 +28,6 @@ import static com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParam
 public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializer<DynamicSecurityAnalysisParameters> {
 
     private static final String CONTEXT_NAME = "DynamicSecurityAnalysisParameters";
-    private static final String TAG = "Tag: ";
 
     DynamicSecurityAnalysisParametersDeserializer() {
         super(DynamicSecurityAnalysisParameters.class);
@@ -60,7 +59,7 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                             DynamicSecurityAnalysisParameters.ContingenciesParameters.class));
                     break;
                 case "debugDir":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setDebugDir(parser.readValueAs(String.class));
                     break;

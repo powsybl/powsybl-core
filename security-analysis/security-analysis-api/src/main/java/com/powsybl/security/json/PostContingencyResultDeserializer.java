@@ -57,13 +57,13 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
                     return true;
                 case "status":
                     parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             finalVersion, "1.3");
                     parsingContext.status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
                     return true;
                 case "connectivityResult":
                     parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: connectivityResult",
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             finalVersion, "1.4");
                     parsingContext.connectivityResult = JsonUtil.readValue(deserializationContext, parser, ConnectivityResult.class);
                     return true;

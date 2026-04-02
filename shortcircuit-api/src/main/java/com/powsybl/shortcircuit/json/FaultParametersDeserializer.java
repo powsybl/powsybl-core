@@ -28,7 +28,6 @@ import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*
 class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
-    private static final String TAG = "TAG: ";
 
     FaultParametersDeserializer() {
         super(FaultParameters.class);
@@ -69,12 +68,12 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     withLimitViolations = parser.readValueAs(Boolean.class);
                 }
                 case "withVoltageMap" -> {
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
                 }
                 case "withVoltageResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageAndVoltageDropProfileResult", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
                 }
@@ -91,42 +90,42 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                 }
                 case "withFortescueResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     withFortescueResult = parser.readValueAs(Boolean.class);
                 }
                 case "subTransientCoefficient" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     subTransientCoefficient = parser.readValueAs(Double.class);
                 }
                 case "withLoads" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     withLoads = parser.readValueAs(Boolean.class);
                 }
                 case "withShuntCompensators" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     withShuntCompensators = parser.readValueAs(Boolean.class);
                 }
                 case "withVSCConverterStations" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     withVSCConverterStations = parser.readValueAs(Boolean.class);
                 }
                 case "withNeutralPosition" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     withNeutralPosition = parser.readValueAs(Boolean.class);
                 }
                 case "initialVoltageProfileMode" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     initialVoltageProfileMode = InitialVoltageProfileMode.valueOf(parser.readValueAs(String.class));
                 }
                 case "voltageRanges" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     voltageRanges = JsonUtil.readList(deserializationContext, parser, VoltageRange.class);
                 }

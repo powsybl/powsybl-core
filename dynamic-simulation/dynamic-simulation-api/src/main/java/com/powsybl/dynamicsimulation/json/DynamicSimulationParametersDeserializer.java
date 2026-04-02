@@ -27,7 +27,6 @@ import static com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters
 public class DynamicSimulationParametersDeserializer extends StdDeserializer<DynamicSimulationParameters> {
 
     private static final String CONTEXT_NAME = "DynamicSimulationParameters";
-    private static final String TAG = "Tag: ";
 
     DynamicSimulationParametersDeserializer() {
         super(DynamicSimulationParameters.class);
@@ -62,7 +61,7 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                     break;
 
                 case "debugDir":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setDebugDir(parser.readValueAs(String.class));
                     break;

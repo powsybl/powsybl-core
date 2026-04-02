@@ -53,7 +53,7 @@ public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
                     coefficient = parser.readValueAs(Double.class);
                 }
                 case "voltage" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.currentName(), version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
                     parser.nextToken();
                     voltage = parser.readValueAs(Double.class);
                 }

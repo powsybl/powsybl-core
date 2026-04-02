@@ -48,7 +48,7 @@ class ShortCircuitBusResultsDeserializer {
                         busId = parser.readValueAs(String.class);
                     }
                     case "initialVoltageMagnitude" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMagnitude", version, "1.1");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                         parser.nextToken();
                         initialVoltageMagnitude = parser.readValueAs(Double.class);
                     }
@@ -57,12 +57,12 @@ class ShortCircuitBusResultsDeserializer {
                         voltage = parser.readValueAs(FortescueValue.class);
                     }
                     case "voltageMagnitude" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMagnitude", version, "1.1");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                         parser.nextToken();
                         voltageMagnitude = parser.readValueAs(Double.class);
                     }
                     case "voltageDropProportional" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDropProportional", version, "1.1");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                         parser.nextToken();
                         voltageDropProportional = parser.readValueAs(Double.class);
                     }

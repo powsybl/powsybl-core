@@ -88,7 +88,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     break;
 
                 case "operatorStrategyResults":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyResults", version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     operatorStrategyResults = JsonUtil.readList(ctx, parser, OperatorStrategyResult.class);
                     break;

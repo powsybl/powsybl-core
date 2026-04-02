@@ -71,30 +71,30 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                 case "limitViolationsResult":
                     parser.nextToken();
                     limitViolationsResult = JsonUtil.readValue(deserializationContext, parser, LimitViolationsResult.class);
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: limitViolationsResult",
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             version, "1.5");
                     break;
 
                 case "networkResult":
                     parser.nextToken();
                     networkResult = JsonUtil.readValue(deserializationContext, parser, NetworkResult.class);
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: networkResult",
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             version, "1.5");
                     break;
 
                 case "status":
                     parser.nextToken();
                     status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             version, "1.3");
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             version, "1.6");
                     break;
 
                 case "conditionalActionsResults":
                     parser.nextToken();
                     conditionalActionsResultList = JsonUtil.readList(deserializationContext, parser, OperatorStrategyResult.ConditionalActionsResult.class);
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: conditionalActionsResults",
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             version, "1.6");
                     break;
                 default:

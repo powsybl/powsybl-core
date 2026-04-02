@@ -28,7 +28,6 @@ import static com.powsybl.security.json.JsonSecurityAnalysisParameters.getExtens
 public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 
     private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
-    private static final String TAG = "Tag: ";
 
     SecurityAnalysisParametersDeserializer() {
         super(SecurityAnalysisParameters.class);
@@ -50,7 +49,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     version = parser.getValueAsString();
                     break;
                 case "increased-violations-parameters":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, TAG + "increased-violations-parameters", version, "1.0");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.0");
                     parser.nextToken();
                     parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
                             parser,
@@ -61,7 +60,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
                 case "intermediate-results-in-operator-strategy":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + "intermediate-results-in-operator-strategy", version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setIntermediateResultsInOperatorStrategy(parser.getValueAsBoolean());
                     break;

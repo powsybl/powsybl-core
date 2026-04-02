@@ -58,25 +58,25 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     break;
 
                 case "contingencyStatus":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, parser.currentName(), version, "1.0");
                     parser.nextToken();
                     stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
                     break;
 
                 case "stateStatus":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: stateStatus", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
                     break;
 
                 case "contingencyIds":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyIds", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     contingencyIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
 
                 case "operatorStrategyIds":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: operatorStrategyIds", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     operatorStrategyIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;

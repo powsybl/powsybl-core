@@ -47,30 +47,30 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
             case "networkResult":
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(contextName,
-                        "Tag: networkResult", version, "1.2");
+                        parser.currentName(), version, "1.2");
                 context.networkResult = JsonUtil.readValue(deserializationContext, parser, NetworkResult.class);
                 return true;
             case "distributedActivePower":
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(contextName,
-                        "Tag: distributedActivePower", version, "1.9");
+                        parser.currentName(), version, "1.9");
                 context.distributedActivePower = parser.getValueAsDouble();
                 return true;
             case "busResults":
                 parser.nextToken();
-                JsonUtil.assertLessThanOrEqualToReferenceVersion(contextName, "Tag: busResults",
+                JsonUtil.assertLessThanOrEqualToReferenceVersion(contextName, parser.currentName(),
                         version, "1.1");
                 context.busResults = JsonUtil.readList(deserializationContext, parser, BusResult.class);
                 return true;
             case "branchResults":
                 parser.nextToken();
-                JsonUtil.assertLessThanOrEqualToReferenceVersion(contextName, "Tag: branchResults",
+                JsonUtil.assertLessThanOrEqualToReferenceVersion(contextName, parser.currentName(),
                         version, "1.1");
                 context.branchResults = JsonUtil.readList(deserializationContext, parser, BranchResult.class);
                 return true;
             case "threeWindingsTransformerResults":
                 parser.nextToken();
-                JsonUtil.assertLessThanOrEqualToReferenceVersion(contextName, "Tag: threeWindingsTransformerResults",
+                JsonUtil.assertLessThanOrEqualToReferenceVersion(contextName, parser.currentName(),
                         version, "1.1");
                 context.threeWindingsTransformerResults = JsonUtil.readList(deserializationContext, parser,
                         ThreeWindingsTransformerResult.class);

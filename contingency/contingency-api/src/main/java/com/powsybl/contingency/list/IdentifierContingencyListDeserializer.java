@@ -44,7 +44,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                     JsonUtil.setSourceVersion(deserializationContext, version, IDENTIFIER_LIST_VERSION);
                 }
                 case "identifiableType" -> {
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType",
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, parser.currentName(),
                             version, "1.0");
                     parser.nextToken();
                 }

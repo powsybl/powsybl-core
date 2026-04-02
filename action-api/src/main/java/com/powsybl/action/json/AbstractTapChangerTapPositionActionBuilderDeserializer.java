@@ -34,12 +34,12 @@ public abstract class AbstractTapChangerTapPositionActionBuilderDeserializer<T e
                 builder.withTransformerId(jsonParser.nextTextValue());
                 return true;
             case "value":
-                JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: value", version, "1.0");
+                JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", jsonParser.currentName(), version, "1.0");
                 jsonParser.nextToken();
                 builder.withTapPosition(jsonParser.getValueAsInt());
                 return true;
             case "tapPosition":
-                JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", "Tag: tapPosition", version, "1.1");
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", jsonParser.currentName(), version, "1.1");
                 jsonParser.nextToken();
                 builder.withTapPosition(jsonParser.getValueAsInt());
                 return true;

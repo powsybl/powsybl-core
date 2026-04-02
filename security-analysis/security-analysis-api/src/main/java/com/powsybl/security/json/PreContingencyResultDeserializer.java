@@ -50,7 +50,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
             }
             if (parser.currentName().equals("status")) {
                 parser.nextToken();
-                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(),
                         finalVersion, "1.3");
                 parsingContext.status = JsonUtil.readValue(deserializationContext, parser, LoadFlowResult.ComponentResult.Status.class);
                 return true;

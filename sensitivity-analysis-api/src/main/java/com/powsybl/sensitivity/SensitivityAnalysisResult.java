@@ -144,17 +144,17 @@ public class SensitivityAnalysisResult {
                     context.contingencyId = parser.getValueAsString();
                     break;
                 case "operatorStrategyId":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyId", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     context.operatorStrategyId = parser.getValueAsString();
                     break;
                 case "contingencyStatus":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.0");
                     parser.nextToken();
                     context.status = Status.valueOf(parser.getValueAsString());
                     break;
                 case "status":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     context.status = Status.valueOf(parser.getValueAsString());
                     break;

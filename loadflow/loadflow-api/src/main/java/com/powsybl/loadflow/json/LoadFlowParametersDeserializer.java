@@ -31,7 +31,6 @@ import static com.powsybl.loadflow.json.JsonLoadFlowParameters.*;
 public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 
     private static final String CONTEXT_NAME = "LoadFlowParameters";
-    private static final String TAGS = "Tag: ";
 
     LoadFlowParametersDeserializer() {
         super(LoadFlowParameters.class);
@@ -64,13 +63,13 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "useReactiveLimits":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useReactiveLimits", version, "1.8");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.8");
                     parser.nextToken();
                     parameters.setUseReactiveLimits(parser.readValueAs(Boolean.class));
                     break;
 
                 case "noGeneratorReactiveLimits":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: noGeneratorReactiveLimits", version, "1.7");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.7");
                     parser.nextToken();
                     parameters.setUseReactiveLimits(!parser.readValueAs(Boolean.class));
                     break;
@@ -81,101 +80,101 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "specificCompatibility":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.0");
                     parser.nextToken();
                     parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "t2wtSplitShuntAdmittance":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, "1.0");
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, "1.1");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.0");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "twtSplitShuntAdmittance":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: twtSplitShuntAdmittance", version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "simulShunt":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.3");
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.6");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.6");
                     parser.nextToken();
                     parameters.setShuntCompensatorVoltageControlOn(parser.readValueAs(Boolean.class));
                     break;
 
                 case "shuntCompensatorVoltageControlOn":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: shuntCompensatorVoltageControlOn", version, "1.6");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.6");
                     parser.nextToken();
                     parameters.setShuntCompensatorVoltageControlOn(parser.readValueAs(Boolean.class));
                     break;
 
                 case "readSlackBus":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: readSlackBus", version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
                     parser.nextToken();
                     parameters.setReadSlackBus(parser.readValueAs(Boolean.class));
                     break;
 
                 case "writeSlackBus":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: writeSlackBus", version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
                     parser.nextToken();
                     parameters.setWriteSlackBus(parser.readValueAs(Boolean.class));
                     break;
 
                 case "dc":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: dc", version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     parameters.setDc(parser.readValueAs(Boolean.class));
                     break;
 
                 case "distributedSlack":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: distributedSlack", version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     parameters.setDistributedSlack(parser.readValueAs(Boolean.class));
                     break;
 
                 case "balanceType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     parameters.setBalanceType(JsonUtil.readValue(deserializationContext, parser, BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.5");
                     parser.nextToken();
                     parameters.setDcUseTransformerRatio(parser.readValueAs(Boolean.class));
                     break;
 
                 case "countriesToBalance":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.5");
                     parser.nextToken();
                     Set<Country> countries = JsonUtil.readSet(deserializationContext, parser, Country.class);
                     parameters.setCountriesToBalance(countries);
                     break;
 
                 case "connectedComponentMode":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.5");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.10");
                     parser.nextToken();
                     parameters.setComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ComponentMode.class));
                     break;
 
                 case "componentMode":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.10");
                     parser.nextToken();
                     parameters.setComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ComponentMode.class));
                     break;
 
                 case "hvdcAcEmulation":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: hvdcAcEmulation" + parser.currentName(), version, "1.7");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.7");
                     parser.nextToken();
                     parameters.setHvdcAcEmulation(parser.readValueAs(Boolean.class));
                     break;
 
                 case "dcPowerFactor":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: dcPowerFactor" + parser.currentName(), version, "1.9");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.9");
                     parser.nextToken();
                     parameters.setDcPowerFactor(parser.readValueAs(Double.class));
                     break;

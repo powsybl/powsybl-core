@@ -28,7 +28,6 @@ import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*
 public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCircuitParameters> {
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
-    private static final String TAG = "Tag: ";
 
     public ShortCircuitParametersDeserializer() {
         super(ShortCircuitParameters.class);
@@ -56,12 +55,12 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parameters.setWithLimitViolations(parser.readValueAs(Boolean.class));
                 }
                 case "withVoltageMap" -> {
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
                 }
                 case "withVoltageResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
                 }
@@ -78,52 +77,52 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
                 }
                 case "withFortescueResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithFortescueResult(parser.readValueAs(Boolean.class));
                 }
                 case "subTransientCoefficient" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setSubTransientCoefficient(parser.readValueAs(Double.class));
                 }
                 case "withLoads" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithLoads(parser.readValueAs(Boolean.class));
                 }
                 case "withShuntCompensators" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithShuntCompensators(parser.readValueAs(Boolean.class));
                 }
                 case "withVSCConverterStations" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithVSCConverterStations(parser.readValueAs(Boolean.class));
                 }
                 case "withNeutralPosition" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithNeutralPosition(parser.readValueAs(Boolean.class));
                 }
                 case "initialVoltageProfileMode" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setInitialVoltageProfileMode(JsonUtil.readValue(deserializationContext, parser, InitialVoltageProfileMode.class));
                 }
                 case "voltageRanges" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setVoltageRanges(JsonUtil.readList(deserializationContext, parser, VoltageRange.class));
                 }
                 case "detailedReport" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
                     parser.nextToken();
                     parameters.setDetailedReport(parser.readValueAs(Boolean.class));
                 }
                 case "debugDir" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     parameters.setDebugDir(parser.readValueAs(String.class));
                 }

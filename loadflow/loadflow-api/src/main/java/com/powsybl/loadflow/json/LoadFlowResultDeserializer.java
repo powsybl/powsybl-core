@@ -78,12 +78,12 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     status = LoadFlowResult.ComponentResult.Status.valueOf(tempStatus);
                 }
                 case "statusText" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: statusText", version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     statusText = parser.getValueAsString();
                 }
                 case "metrics" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: metrics", version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     metrics = parser.readValueAs(HashMap.class);
                 }
@@ -92,12 +92,12 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     iterationCount = parser.getValueAsInt();
                 }
                 case "referenceBusId" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: referenceBusId", version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     referenceBusId = parser.getValueAsString();
                 }
                 case "slackBusResults" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: slackBusResults", version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     deserializeSlackBusResults(parser, slackBusResults);
                 }
@@ -222,7 +222,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     metrics = parser.readValueAs(HashMap.class);
                 }
                 case "componentResults" -> {
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: componentResults", version, "1.0");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.0");
                     parser.nextToken();
                     deserializeComponentResults(parser, componentResults, version);
                 }

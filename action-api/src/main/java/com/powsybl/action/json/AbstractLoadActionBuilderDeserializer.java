@@ -32,11 +32,11 @@ public abstract class AbstractLoadActionBuilderDeserializer<T extends AbstractLo
                 builder.withNetworkElementId(jsonParser.nextTextValue());
                 return true;
             case "danglingLineId":
-                JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: danglingLineId", version, "1.2");
+                JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", jsonParser.currentName(), version, "1.2");
                 builder.withNetworkElementId(jsonParser.nextTextValue());
                 return true;
             case "boundaryLineId":
-                JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", "Tag: boundaryLineId", version, "1.3");
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", jsonParser.currentName(), version, "1.3");
                 builder.withNetworkElementId(jsonParser.nextTextValue());
                 return true;
             case "relativeValue":
