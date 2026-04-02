@@ -99,7 +99,7 @@ class JsonUtilTest {
         String unsupportedVersion = "1.11";
         String maxSupportedVersion = "1.10";
         assertDoesNotThrow(() -> JsonUtil.assertSupportedVersion(contextName, supportedVersion, maxSupportedVersion));
-        String expectedException = String.format("%s. Unsupported version %s. Version should be <= %s %n", contextName, unsupportedVersion, maxSupportedVersion);
+        String expectedException = String.format("%s. Unsupported version %s. Version should be <= %s", contextName, unsupportedVersion, maxSupportedVersion);
         assertThrows(PowsyblException.class, () -> JsonUtil.assertSupportedVersion(contextName, unsupportedVersion, maxSupportedVersion), expectedException);
     }
 }
