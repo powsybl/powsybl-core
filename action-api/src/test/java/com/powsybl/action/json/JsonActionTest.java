@@ -18,6 +18,7 @@ import java.util.*;
 
 import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonActionTest extends AbstractSerDeTest {
@@ -114,10 +115,9 @@ public class JsonActionTest extends AbstractSerDeTest {
         }
 
         try (final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
-            assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
-                .readJsonInputStream(inputStream3))
-                .getMessage()
-                .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));
+            assertThatThrownBy(() -> ActionList.readJsonInputStream(inputStream3))
+                    .isInstanceOf(UncheckedIOException.class)
+                    .hasMessageContaining("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0");
         }
     }
 

@@ -25,7 +25,9 @@ import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -263,9 +265,11 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonVersion10Invalid() {
-        assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
-                        .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")),
-                "SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
+    void readJsonVersion10Invalid() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")) {
+            assertThatThrownBy(() -> JsonSensitivityAnalysisParameters.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
+        }
     }
 }

@@ -16,10 +16,12 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -204,21 +206,30 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonVersion11Exception() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json")));
-        assertTrue(e.getMessage().contains("com.powsybl.loadflow.json.LoadFlowResultDeserializer. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2 "));
+    void readJsonVersion11Exception() throws IOException {
+       try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json")) {
+            assertThatThrownBy(() -> LoadFlowResultDeserializer.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2");
+       }
     }
 
     @Test
-    void readJsonVersion12Exception() {
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json")));
-        assertTrue(e.getMessage().contains("Connected component number field not found."));
+    void readJsonVersion12Exception() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json")) {
+            assertThatThrownBy(() -> LoadFlowResultDeserializer.read(inputStream))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Connected component number field not found.");
+        }
     }
 
     @Test
-    void readJsonVersion12Exception2() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json")));
-        assertTrue(e.getMessage().contains("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2 "));
+    void readJsonVersion12Exception2() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json")) {
+            assertThatThrownBy(() -> LoadFlowResultDeserializer.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2");
+        }
     }
 
     @Test

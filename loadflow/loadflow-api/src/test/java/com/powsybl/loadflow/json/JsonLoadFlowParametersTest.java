@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -156,21 +157,27 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     @Test
     void readJsonVersion10Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json")) {
-            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
+            assertThatThrownBy(() -> JsonLoadFlowParameters.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
         }
     }
 
     @Test
     void readJsonVersion11Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json")) {
-            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");
+            assertThatThrownBy(() -> JsonLoadFlowParameters.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");
         }
     }
 
     @Test
     void readJsonVersion12Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion12Exception.json")) {
-            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1");
+            assertThatThrownBy(() -> JsonLoadFlowParameters.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1");
         }
     }
 

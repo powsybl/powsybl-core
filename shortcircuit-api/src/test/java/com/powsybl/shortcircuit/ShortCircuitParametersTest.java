@@ -10,10 +10,7 @@ package com.powsybl.shortcircuit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.YamlModuleConfigRepository;
@@ -39,6 +36,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -303,9 +301,10 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
 
     @Test
     void testInvalidVersion12VoltageNotSupportedInVoltageRange() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json")) {
-            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
-            assertTrue(e.getMessage().contains("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3"));
+        try (InputStream inputStream = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json")) {
+            assertThatThrownBy(() -> JsonShortCircuitParameters.read(inputStream))
+                    .isInstanceOf(UncheckedIOException.class)
+                    .hasMessageContaining("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3");
         }
     }
 

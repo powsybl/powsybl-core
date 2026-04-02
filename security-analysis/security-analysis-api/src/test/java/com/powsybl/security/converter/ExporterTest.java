@@ -40,6 +40,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -131,12 +132,12 @@ class ExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testCompatibilityV12DeserializationFail() {
-        InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.2fail.json");
-        assertNotNull(inputStream);
-        Assertions.assertThatThrownBy(() -> SecurityAnalysisResultDeserializer.read(inputStream))
-                .isInstanceOf(PowsyblException.class)
-                .hasMessageContaining("PreContingencyResult. Tag: branchResults is not valid for version 1.2. Version should be <= 1.1");
+    void testCompatibilityV12DeserializationFail() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.2fail.json")) {
+            assertThatThrownBy(() -> SecurityAnalysisResultDeserializer.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("PreContingencyResult. Tag: branchResults is not valid for version 1.2. Version should be <= 1.1");
+        }
     }
 
     @Test
