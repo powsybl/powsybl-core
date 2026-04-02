@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
@@ -85,7 +86,7 @@ class FaultResultDeserializer {
                     case "shortCircuitBusResults" ->
                         faultResultParameters.shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
                     case "status" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.currentName(), version, "1.1");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                         parser.nextToken();
                         faultResultParameters.status = FaultResult.Status.valueOf(parser.getValueAsString());
                     }
@@ -124,7 +125,9 @@ class FaultResultDeserializer {
     private FaultResult getFaultResult(FaultResultParameters parameters,
                                        String version) {
         if (parameters.status == null) {
-            JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "No status", version, "1.0");
+            if (JsonUtil.compareVersions(version, "1.0") > 0) {
+                throw new PowsyblException(String.format("FaultResult with version %s should contains status field.", version));
+            }
             if (parameters.current == null && Double.isNaN(parameters.currentMagnitude)) {
                 return new FailedFaultResult(parameters.fault, FaultResult.Status.FAILURE);
             } else {
