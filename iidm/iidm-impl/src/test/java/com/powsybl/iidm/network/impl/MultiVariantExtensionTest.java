@@ -8,11 +8,11 @@
 
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import gnu.trove.list.array.TIntArrayList;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
@@ -26,16 +26,13 @@ class MultiVariantExtensionTest {
 
     static class LoadExt extends AbstractMultiVariantIdentifiableExtension<Load> {
 
-        private final TIntArrayList values;
+        private final ExtendedIntArrayList values;
 
         LoadExt(Load load, int value) {
             super(load);
 
             int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-            this.values = new TIntArrayList(variantArraySize);
-            for (int i = 0; i < variantArraySize; i++) {
-                this.values.add(value);
-            }
+            this.values = new ExtendedIntArrayList(variantArraySize, value);
         }
 
         @Override
@@ -45,15 +42,12 @@ class MultiVariantExtensionTest {
 
         @Override
         public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-            values.ensureCapacity(values.size() + number);
-            for (int i = 0; i < number; i++) {
-                values.add(values.get(sourceIndex));
-            }
+            values.growAndFill(number, values.getInt(sourceIndex));
         }
 
         @Override
         public void reduceVariantArraySize(int number) {
-            values.remove(values.size() - number, number);
+            values.removeElements(number);
         }
 
         @Override
@@ -64,12 +58,12 @@ class MultiVariantExtensionTest {
         @Override
         public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
             for (int index : indexes) {
-                values.set(index, values.get(sourceIndex));
+                values.set(index, values.getInt(sourceIndex));
             }
         }
 
         int getValue() {
-            return values.get(getVariantIndex());
+            return values.getInt(getVariantIndex());
         }
 
         void setValue(int value) {
@@ -109,14 +103,14 @@ class MultiVariantExtensionTest {
 
         variantManager.setWorkingVariant(variant2);
         assertEquals(4, ext.getValue());
-        assertArrayEquals(new int[]{0, 2, 4}, ext.values.toArray());
+        assertArrayEquals(new int[]{0, 2, 4}, ext.values.toIntArray());
 
         variantManager.removeVariant(variant1);
         assertEquals(3, ext.values.size());
-        assertArrayEquals(new int[]{0, -1, 4}, ext.values.toArray());
+        assertArrayEquals(new int[]{0, -1, 4}, ext.values.toIntArray());
 
         variantManager.removeVariant(variant2);
         assertEquals(1, ext.values.size());
-        assertArrayEquals(new int[]{0}, ext.values.toArray());
+        assertArrayEquals(new int[]{0}, ext.values.toIntArray());
     }
 }
