@@ -27,9 +27,15 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
+import static com.powsybl.loadflow.validation.ValidationUtils.*;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ *
+ * Rules for valid results: <br/>
+ * Rule 1: checks disconnected terminal: P and Q must be undefined or ~0 <br/>
+ * Rule 2: checks connected terminal: |P - Pcalc| <= ε and |Q - Qcalc| <= ε
  */
 public final class FlowsValidation {
 
@@ -46,7 +52,7 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(branch.getId(), config, writer, ValidationType.FLOWS)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(branch.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(branch, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -61,15 +67,15 @@ public final class FlowsValidation {
         boolean validated = true;
 
         if (!branch.isConnected1()) {
-            validated &= checkDisconnectedTerminal(branch.getId(), "1", branch.getP1(), branch.getComputedP1(), branch.getQ1(), branch.getComputedQ1(), config);
+            validated &= checkDisconnectedTerminal(branch.getId(), "1", branch.getP1(), branch.getComputedP1(), branch.getQ1(), branch.getComputedQ1(), config.getThreshold());
         }
         if (!branch.isConnected2()) {
-            validated &= checkDisconnectedTerminal(branch.getId(), "2", branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(), config);
+            validated &= checkDisconnectedTerminal(branch.getId(), "2", branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(), config.getThreshold());
         }
-        if (branch.isConnected1() && ValidationUtils.isMainComponent(config, branch.isMainComponent1())) {
+        if (branch.isConnected1() && isMainComponent(config, branch.isMainComponent1())) {
             validated &= checkConnectedTerminal(branch.getId(), "1", branch.getP1(), branch.getComputedP1(), branch.getQ1(), branch.getComputedQ1(), config);
         }
-        if (branch.isConnected2() && ValidationUtils.isMainComponent(config, branch.isMainComponent2())) {
+        if (branch.isConnected2() && isMainComponent(config, branch.isMainComponent2())) {
             validated &= checkConnectedTerminal(branch.getId(), "2", branch.getP2(), branch.getComputedP2(), branch.getQ2(), branch.getComputedQ2(), config);
         }
         try {
@@ -90,14 +96,14 @@ public final class FlowsValidation {
         return validated;
     }
 
-    private static boolean checkDisconnectedTerminal(String id, String terminalNumber, double p, double pCalc, double q, double qCalc, ValidationConfig config) {
+    private static boolean checkDisconnectedTerminal(String id, String terminalNumber, double p, double pCalc, double q, double qCalc, double threshold) {
         boolean validated = true;
-        if (!Double.isNaN(p) && Math.abs(p) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {} disconnected P{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, p, pCalc);
+        if (!Double.isNaN(p) && isOutsideTolerance(p, 0.0, threshold)) {
+            LOGGER.warn("{} {}: {} disconnected P{} {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, terminalNumber, p, pCalc);
             validated = false;
         }
-        if (!Double.isNaN(q) && Math.abs(q) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {} disconnected Q{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, q, qCalc);
+        if (!Double.isNaN(q) && isOutsideTolerance(q, 0.0, threshold)) {
+            LOGGER.warn("{} {}: {} disconnected Q{} {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, terminalNumber, q, qCalc);
             validated = false;
         }
         return validated;
@@ -105,12 +111,12 @@ public final class FlowsValidation {
 
     private static boolean checkConnectedTerminal(String id, String terminalNumber, double p, double pCalc, double q, double qCalc, ValidationConfig config) {
         boolean validated = true;
-        if (ValidationUtils.areNaN(config, pCalc) || Math.abs(p - pCalc) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {} P{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, p, pCalc);
+        if (areNaN(config, pCalc) || isOutsideTolerance(p, pCalc, config.getThreshold())) {
+            LOGGER.warn("{} {}: {} P{} {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, terminalNumber, p, pCalc);
             validated = false;
         }
-        if (ValidationUtils.areNaN(config, qCalc) || Math.abs(q - qCalc) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {} Q{} {} {}", ValidationType.FLOWS, ValidationUtils.VALIDATION_ERROR, id, terminalNumber, q, qCalc);
+        if (areNaN(config, qCalc) || isOutsideTolerance(q, qCalc, config.getThreshold())) {
+            LOGGER.warn("{} {}: {} Q{} {} {}", ValidationType.FLOWS, VALIDATION_ERROR, id, terminalNumber, q, qCalc);
             validated = false;
         }
         return validated;
@@ -121,7 +127,7 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(l.getId(), config, writer, ValidationType.FLOWS)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(l.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(l, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -142,7 +148,7 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(twt.getId(), config, writer, ValidationType.FLOWS)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(twt.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(twt, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -168,7 +174,7 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(tl.getId(), config, writer, ValidationType.FLOWS)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(tl.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(tl, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -189,7 +195,7 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(network.getId(), config, writer, ValidationType.FLOWS)) {
+        try (ValidationWriter flowsWriter = createValidationWriter(network.getId(), config, writer, ValidationType.FLOWS)) {
             return checkFlows(network, config, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
