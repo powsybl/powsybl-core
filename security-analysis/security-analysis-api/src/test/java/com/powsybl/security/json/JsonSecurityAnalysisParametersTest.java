@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -103,10 +104,12 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonVersion10Invalid() {
-        InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisParametersV1Invalid.json");
-        assertThrows(PowsyblException.class, () -> JsonSecurityAnalysisParameters.read(inputStream),
-                "SecurityAnalysisParameters. Tag: specificCompatibility is not valid for version 1.0. Version should be > 1.0");
+    void readJsonVersion10Invalid() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisParametersV1Invalid.json")) {
+            assertThatThrownBy(() -> JsonSecurityAnalysisParameters.read(inputStream))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessage("SecurityAnalysisParameters. Tag: increased-violations-parameters is not valid for version 1.0. Version should be > 1.0");
+        }
     }
 
     public static class DummyExtension extends AbstractExtension<SecurityAnalysisParameters> {
