@@ -7,17 +7,20 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.LegacyTextReader;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.pf.PsseGneDevice;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.powsybl.psse.model.io.*;
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.powsybl.psse.model.pf.PsseGneDevice;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
 
 /**
  *
@@ -28,7 +31,7 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
 
     GneDeviceData() {
         super(GNE_DEVICE);
-        withQuotedFields(QUOTED_FIELDS);
+        withQuotedFields(PsseGneDevice.getFieldNamesString());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
 
@@ -38,12 +41,6 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
     }
 
     private static class IOLegacyText extends RecordGroupIOLegacyText<PsseGneDevice> {
-
-        private static final String[][] FIELD_NAMES = {
-            {"name", "model", "nterm", "bus1", "bus2", "nreal", "nintg", "nchar", "status", "owner", "nmet"},
-            {"real1", "real2", "real3", "real4", "real5", "real6", "real7", "real8", "real9", "real10"},
-            {"intg1", "intg2", "intg3", "intg4", "intg5", "intg6", "intg7", "intg8", "intg9", "intg10"},
-            {"char1", "char2", "char3", "char4", "char5", "char6", "char7", "char8", "char9", "char10"}};
 
         IOLegacyText(AbstractRecordGroup<PsseGneDevice> recordGroup) {
             super(recordGroup);
@@ -61,25 +58,25 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
                 int nreal = getNreal(record, Character.toString(context.getDelimiter()));
                 int nintg = getNintg(record, Character.toString(context.getDelimiter()));
                 int nchar = getNchar(record, Character.toString(context.getDelimiter()));
-                String[] headers = FIELD_NAMES[0];
+                String[] headers = PsseGneDevice.getFieldNames(0);
                 if (nreal > 0) {
                     record = String.join(Character.toString(context.getDelimiter()), record, records.get(i++));
-                    headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(FIELD_NAMES[1], 0, nreal));
+                    headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(PsseGneDevice.getFieldNames(1), 0, nreal));
                 }
                 if (nintg > 0) {
                     record = String.join(Character.toString(context.getDelimiter()), record, records.get(i++));
-                    headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(FIELD_NAMES[2], 0, nintg));
+                    headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(PsseGneDevice.getFieldNames(2), 0, nintg));
                 }
                 if (nchar > 0) {
                     record = String.join(Character.toString(context.getDelimiter()), record, records.get(i++));
-                    headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(FIELD_NAMES[3], 0, nchar));
+                    headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(PsseGneDevice.getFieldNames(3), 0, nchar));
                 }
                 gneDeviceList.add(super.recordGroup.parseSingleRecord(record, headers, context));
                 maxNumMainHeaders = setMaxNumMainHeaders(maxNumMainHeaders, context.getCurrentRecordGroupMaxNumFields() - nreal - nintg - nchar);
             }
 
             // Record only main headers
-            String[] actualFieldNames = ArrayUtils.subarray(FIELD_NAMES[0], 0, maxNumMainHeaders);
+            String[] actualFieldNames = ArrayUtils.subarray(PsseGneDevice.getFieldNames(0), 0, maxNumMainHeaders);
             context.setFieldNames(super.recordGroup.getIdentification(), actualFieldNames);
 
             return gneDeviceList;
@@ -96,15 +93,15 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
                 records.add(super.recordGroup.buildRecord(gneDevice, mainHeaders, super.recordGroup.quotedFields(), context));
 
                 if (gneDevice.getNreal() > 0) {
-                    String[] headers = ArrayUtils.subarray(FIELD_NAMES[1], 0, gneDevice.getNreal());
+                    String[] headers = ArrayUtils.subarray(PsseGneDevice.getFieldNames(1), 0, gneDevice.getNreal());
                     records.add(super.recordGroup.buildRecord(gneDevice, headers, super.recordGroup.quotedFields(), context));
                 }
                 if (gneDevice.getNintg() > 0) {
-                    String[] headers = ArrayUtils.subarray(FIELD_NAMES[2], 0, gneDevice.getNintg());
+                    String[] headers = ArrayUtils.subarray(PsseGneDevice.getFieldNames(2), 0, gneDevice.getNintg());
                     records.add(super.recordGroup.buildRecord(gneDevice, headers, super.recordGroup.quotedFields(), context));
                 }
                 if (gneDevice.getNchar() > 0) {
-                    String[] headers = ArrayUtils.subarray(FIELD_NAMES[3], 0, gneDevice.getNchar());
+                    String[] headers = ArrayUtils.subarray(PsseGneDevice.getFieldNames(3), 0, gneDevice.getNchar());
                     records.add(super.recordGroup.buildRecord(gneDevice, headers, super.recordGroup.quotedFields(), context));
                 }
 
@@ -140,6 +137,4 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
             return maxNumMainHeaders;
         }
     }
-
-    private static final String[] QUOTED_FIELDS = {"name", "model", "char1", "char2", "char3", "char4", "char5", "char6", "char7", "char8", "char9", "char10"};
 }
