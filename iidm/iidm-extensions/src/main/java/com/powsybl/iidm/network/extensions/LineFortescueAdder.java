@@ -25,4 +25,12 @@ public interface LineFortescueAdder extends ExtensionAdder<Line, LineFortescue> 
     LineFortescueAdder withOpenPhaseB(boolean openPhaseB);
 
     LineFortescueAdder withOpenPhaseC(boolean openPhaseC);
+
+    LineFortescueAdder withB1z(double b1z);
+
+    LineFortescueAdder withB2z(double b2z);
+
+    LineFortescueAdder withG1z(double g1z);
+
+    LineFortescueAdder withG2z(double g2z);
 }
