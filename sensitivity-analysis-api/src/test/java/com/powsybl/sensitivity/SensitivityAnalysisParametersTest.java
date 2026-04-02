@@ -269,7 +269,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         try (InputStream inputStream = getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")) {
             assertThatThrownBy(() -> JsonSensitivityAnalysisParameters.read(inputStream))
                     .isInstanceOf(PowsyblException.class)
-                    .hasMessage("SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
+                    .hasMessage("SensitivityAnalysisParameters. Tag: flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
         }
     }
 }
