@@ -1,14 +1,11 @@
-/**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2019-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.ieeecdf.model;
-
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
+package com.powsybl.ieeecdf.model.elements;
 
 /**
  * <p>
@@ -25,41 +22,31 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class IeeeCdfTieLine {
+public class IeeeCdfTieLine extends AbstractIeeeElement {
 
     /**
      * Metered bus number
      */
-    @FixedWidth(from = 0, to = 4)
-    @Parsed
     private int meteredBusNumber;
 
     /**
      * Metered area number
      */
-    @FixedWidth(from = 6, to = 8)
-    @Parsed
     private int meteredAreaNumber;
 
     /**
      * Non-metered bus number
      */
-    @FixedWidth(from = 10, to = 14)
-    @Parsed
     private int nonMeteredBusNumber;
 
     /**
      * Non-metered area number
      */
-    @FixedWidth(from = 16, to = 18)
-    @Parsed
     private int nonMeteredAreaNumber;
 
     /**
      * Circuit number
      */
-    @FixedWidth(from = 20, to = 21)
-    @Parsed
     private int circuitNumber;
 
     public int getMeteredBusNumber() {
