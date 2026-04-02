@@ -247,10 +247,11 @@ public class AmplNetworkWriter {
     }
 
     private <E> void addExtensions(int extendedNum, Extendable<E> extendable) {
-        for (Extension<E> ext : extendable.getExtensions()) {
-            List<AmplExtension> extList = extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<>());
-            extList.add(new AmplExtension(extendedNum, extendable, ext));
-            extensionMap.put(ext.getName(), extList);
+        for (String amplExtName : AmplExtensionWriters.getWriterNames()) {
+            Extension<E> ext = extendable.getExtensionByName(amplExtName);
+            if (ext != null) {
+                extensionMap.computeIfAbsent(ext.getName(), k -> new ArrayList<>()).add(new AmplExtension(extendedNum, extendable, ext));
+            }
         }
     }
 
@@ -263,9 +264,7 @@ public class AmplNetworkWriter {
 
         for (Entry<String, List<AmplExtension>> entry : extensionMap.entrySet()) {
             AmplExtensionWriter extWriter = AmplExtensionWriters.getWriter(entry.getKey());
-            if (extWriter != null) {
-                extWriter.write(entry.getValue(), network, variantIndex, mapper, dataSource, append, config);
-            }
+            extWriter.write(entry.getValue(), network, variantIndex, mapper, dataSource, append, config);
         }
     }
 
