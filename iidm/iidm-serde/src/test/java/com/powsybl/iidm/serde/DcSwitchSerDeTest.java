@@ -55,11 +55,9 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         // Note: we do not test here failing for all versions < 1.15: DcSwitch cannot exist without DcNode,
         // hence the DcNode SerDe test is sufficient.
 
-        // check it fails for version <= 1.15
-
-        // check it doesn't fail for version 1.16 if IidmVersionIncompatibilityBehavior is to log error
+        // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteVersionedXml(network, options, "dcSwitchNotSupported.xml", IidmVersion.V_1_16);
+        testWriteVersionedXml(network, options, "dcSwitchNotSupported.xml", IidmVersion.V_1_14);
 
     }
 
