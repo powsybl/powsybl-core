@@ -93,8 +93,8 @@ public abstract class AbstractSerDeTest {
     }
 
     /**
-     * Writes the given data using the provided write function, then compares the resulting text file to the specified reference.
-     * @return the path of written file.
+     * Write the given data using the provided write function, then compares the resulting text file to the specified reference.
+     * @return the path of the written file.
      */
     protected <T> Path writeTxtTest(T data, BiConsumer<T, Path> write, String ref) throws IOException {
         return writeTest(data, write, ComparisonUtils::assertTxtEquals, ref);
