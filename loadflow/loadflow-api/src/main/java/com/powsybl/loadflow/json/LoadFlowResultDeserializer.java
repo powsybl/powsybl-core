@@ -53,17 +53,17 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "connectedComponentNum" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     connectedComponentNum = parser.getValueAsInt();
                 }
                 case "synchronousComponentNum" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
                 }
                 case "componentNum" -> {
-                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.2");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
                 }
@@ -102,17 +102,17 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     deserializeSlackBusResults(parser, slackBusResults);
                 }
                 case "slackBusId" -> {
-                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.4");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     slackBusId = parser.getValueAsString();
                 }
                 case "slackBusActivePowerMismatch" -> {
-                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.4");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.4");
                     parser.nextToken();
                     slackBusActivePowerMismatch = parser.getValueAsDouble();
                 }
                 case "distributedActivePower" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.3");
                     parser.nextToken();
                     distributedActivePower = parser.getValueAsDouble();
                 }

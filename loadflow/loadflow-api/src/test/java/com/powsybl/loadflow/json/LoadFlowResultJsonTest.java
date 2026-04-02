@@ -210,7 +210,7 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
        try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json")) {
             assertThatThrownBy(() -> LoadFlowResultDeserializer.read(inputStream))
                     .isInstanceOf(PowsyblException.class)
-                    .hasMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2");
+                    .hasMessage("LoadFlowResult. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2");
        }
     }
 
@@ -228,7 +228,7 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json")) {
             assertThatThrownBy(() -> LoadFlowResultDeserializer.read(inputStream))
                     .isInstanceOf(PowsyblException.class)
-                    .hasMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2");
+                    .hasMessage("LoadFlowResult. componentNum is not valid for version 1.2. Version should be < 1.2");
         }
     }
 
