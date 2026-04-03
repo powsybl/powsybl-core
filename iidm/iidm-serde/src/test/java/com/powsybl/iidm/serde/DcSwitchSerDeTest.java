@@ -7,14 +7,21 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcSwitchKind;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
@@ -46,6 +53,18 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         // backward compatibility - checks from version 1.16
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchResistanceRoundTripRef.xml", IidmVersion.V_1_16);
 
+    }
+
+    @Test
+    void testDefaultResistanceValue() throws IOException, URISyntaxException {
+        String fileName = getVersionedNetworkPath("dcSwitchRoundTripRef.xml", IidmVersion.V_1_16);
+        Path path = Path.of(Objects.requireNonNull(getClass().getResource(fileName)).toURI());
+        try (InputStream is = Files.newInputStream(path)) {
+            Network network = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.XML), null);
+            // Check that default resistance is zero.
+            assertEquals(0.0, network.getDcSwitch("dcSwitchClosed").getR());
+            assertEquals(0.0, network.getDcSwitch("dcSwitchOpened").getR());
+        }
     }
 
     @Test
