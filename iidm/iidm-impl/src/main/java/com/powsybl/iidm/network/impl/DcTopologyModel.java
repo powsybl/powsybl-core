@@ -29,7 +29,9 @@ import java.util.stream.Stream;
  * It is only meant to be used in NetworkImpl.
  * DC buses are parts of the DC network with the same voltage, i.e. connected by
  * zero impedance links. The only links with zero impedance are closed DcSwitches
- * with non-zero resistance.
+ * with zero resistance.
+ * Only nodes with terminal create buses. In particular, disconnected nodes do
+ * not create buses.
  *
  */
 class DcTopologyModel implements MultiVariantObject {
