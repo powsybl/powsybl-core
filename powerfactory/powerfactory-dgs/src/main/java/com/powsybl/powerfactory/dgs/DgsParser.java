@@ -252,6 +252,7 @@ public class DgsParser {
                 if (trimmedLine.isEmpty() || trimmedLine.startsWith("*")) {
                     continue;
                 }
+                System.out.println(trimmedLine);
 
                 if (trimmedLine.startsWith("$$")) { // table header
                     if (trimmedLine.startsWith("$$General")) {
