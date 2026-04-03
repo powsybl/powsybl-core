@@ -20,6 +20,7 @@ import java.util.Optional;
 public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSwitch, MultiVariantObject {
 
     public static final String OPEN_ATTRIBUTE = "open";
+    public static final String R_ATTRIBUTE = "r";
 
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
@@ -28,9 +29,17 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     private final DcNode dcNode2;
     private final TBooleanArrayList open;
     private boolean removed = false;
+    private double r = 0.0;
 
-    DcSwitchImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious,
-                 DcSwitchKind kind, DcNode dcNode1, DcNode dcNode2, boolean open) {
+    DcSwitchImpl(Ref<NetworkImpl> ref,
+                 Ref<SubnetworkImpl> subnetworkRef,
+                 String id,
+                 String name,
+                 boolean fictitious,
+                 DcSwitchKind kind,
+                 DcNode dcNode1,
+                 DcNode dcNode2,
+                 boolean open) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
@@ -142,5 +151,25 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
 
         network.getListeners().notifyAfterRemoval(id);
         this.removed = true;
+    }
+
+    @Override
+    public double getR() {
+        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
+        return r;
+    }
+
+    public DcSwitch setR(double r) {
+        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
+        ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
+
+        if ((r == 0.0) != (this.r == 0.0)) {
+            // if we change the value of r from 0 to non-zero
+            // or vice versa, topology must be recomputed.
+            getNetwork().dcTopologyModel.invalidateCache();
+        }
+
+        this.r = r;
+        return this;
     }
 }
