@@ -85,26 +85,68 @@ BinaryRemedialAction --* "*" Action
 
 class RangeRemedialAction {
   - Range range
+  - Optional<Step> step
+  - boolean isIntegerValue
   - Set<RangeAction> rangeActions
   + Set<Action> toActions(double setPoint)
 }
+note bottom
+ Questions ouvertes:
+  - comment gérer le minimum type puissance min de fonctionnement ?
+end note
 RangeRemedialAction --* "*" RangeAction
+RangeRemedialAction --* "1" Range
+RangeRemedialAction --* "1" Step
+note left of RangeRemedialAction::isIntegerValue
+ Lié à l'optimisation
+ Exemple: Counter-trading par pas de 100 MW
+end note
 
-interface Range {
+interface Range{
+ + UnionRange toUnionOfAbsoluteContinuousRanges(double initialSetPoint)
+ + isValidSetpoint(double setPoint, double initialSetPoint)
+}
+note bottom
+  Pas évident comment le rendre user friendly ?
+  Est-ce qu'il est mieux de laisser parcourir l'arbre des ranges par l'optim ?
+  On peut simplifier ça en interdisant l'union et avec les exclusivités entre parades
+end note
+Range <|-- ContinuousRange
+Range <|-- IntersectionRange
+Range <|-- UnionRange
+
+interface ContinuousRange {
  - boolean isRelative
  - Optional<Double> mimimum
  - Optional<Double> maximum
 }
-note right of Range::isRelative
- Notion similaire mais valeur différente de isRelativeValue dans les actions
+note left of Range::isRelative
+ Notion similaire
+ Mais valeur différente de isRelativeValue dans les actions
 end note
 
+class IntersectionRange {
+ - Set<Range> ranges
+}
+
+class UnionRange {
+ - Set<Range> ranges
+}
+
+class Step {
+ - boolean isRelative
+ - double value
+ - double offset = 0
+}
+
 interface RangeAction {
-  - Set<Range> ranges
   - boolean isIntegerValue
   + Action toAction(double setPoint)
 }
-RangeAction --* "*" Range
+note left of RangeAction::isIntegerValue
+ Lié à la physique
+ Exemple: PST
+end note
 'note bottom: Clone of some actions but without "set point"
 
 interface DiscreteRangeAction {
