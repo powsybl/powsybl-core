@@ -1,6 +1,6 @@
 @startuml
 
-namespace mvp {
+'namespace mvp {
 
 namespace existing {
 
@@ -64,7 +64,7 @@ class AnyViolationInCountryCondition {
  + Country country
  + Set<LimitViolationType> conditionFilters
 }
-note top: condition filter or branch threshold ?
+note right: condition filter or branch threshold ?
 
 class OptimizableRemedialAction {
   - String id
@@ -72,7 +72,7 @@ class OptimizableRemedialAction {
   - ContingencyContext contingencyContext
   - Optional<Integer> applicationDelay
 }
-OptimizableRemedialAction -l-* "1" Condition
+OptimizableRemedialAction --* "1" Condition
 OptimizableRemedialAction --* "1" ContingencyContext
 OptimizableRemedialAction <|-- BinaryRemedialAction
 OptimizableRemedialAction <|-- RangeRemedialAction
@@ -84,52 +84,85 @@ class BinaryRemedialAction {
 BinaryRemedialAction --* "*" Action
 
 class RangeRemedialAction {
+  - Range range
   - Set<RangeAction> rangeActions
-  + RangeType rangeType
   + Set<Action> toActions(double setPoint)
 }
 RangeRemedialAction --* "*" RangeAction
-RangeRemedialAction --* "1" RangeType
 
-enum RangeType {
-  DISCRETE
-  CONTINUOUS
+interface Range {
+ - boolean isRelative
+ - Optional<Double> mimimum
+ - Optional<Double> maximum
 }
+note right of Range::isRelative
+ Notion similaire mais valeur différente de isRelativeValue dans les actions
+end note
 
 interface RangeAction {
+  - Set<Range> ranges
+  - boolean isIntegerValue
   + Action toAction(double setPoint)
 }
-note bottom: Clone of some actions but without "set point"
+RangeAction --* "*" Range
+'note bottom: Clone of some actions but without "set point"
 
-'end namespace mvp
+interface DiscreteRangeAction {
 }
+DiscreteRangeAction --|> RangeAction
 
+class AbstractTapChangerRegulationAction {
+
+}
+PhaseTapChangerTapPositionRangeAction --|> DiscreteRangeAction
+
+interface ContinuousRangeAction {
+}
+ContinuousRangeAction --|> RangeAction
+
+class LoadRangeAction {
+ - double pMin
+ - double pMax
+ + LoadAction toAction(double setPoint)
+}
+LoadRangeAction --|> ContinuousRangeAction
+
+
+
+
+interface SetpointBasedAction {
+}
+SetpointBasedAction --|> Action
+
+class AbstractLoadAction {
+}
+AbstractLoadAction --|> SetpointBasedAction
+
+class MultipleActionWithKey {
+}
+MultipleActionWithKey --|> SetpointBasedAction
+'end namespace mvp
+'}
+
+namespace niceToHave {
 class ExclusiveOptimizableRemedialActionGroup {
   - List<String> exclusiveRemedialActionIds
   - int limitOfSelectedRemedialActions
 }
-ExclusiveOptimizableRemedialActionGroup .r.* "*" OptimizableRemedialAction
-
-'class TemporalRangeRemedialActionV1 {
-'  - Map<ZonedDateTime, RangeRemedialAction> rangeRemedialActionsPerCaseDate
-'  + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
-'  + Map<ZonedDateTime, Set<Action>> toActions(Map<ZonedDateTime, Double> setPoints)
-'}
-'TemporalRangeRemedialActionV1 --* "*" RangeRemedialAction
-'note top: I don't know where to put the condition and contingencyContext in this object.\nIs it ok to have a condition and contingencyContext per TS ?
+ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
 
 class TemporalRangeRemedialAction {
   - Set<TemporalRangeAction> temporalRangeActions
-  + RangeType rangeType
   + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
 }
 TemporalRangeRemedialAction --* "*" TemporalRangeAction
-TemporalRangeRemedialAction --* "1" RangeType
-TemporalRangeRemedialAction -u-|> OptimizableRemedialAction
+TemporalRangeRemedialAction --|> OptimizableRemedialAction
 
 interface TemporalRangeAction {
     + Action toAction(ZonedDateTime caseDate, double setPoint)
 }
-note bottom: Clone of some range actions but with a case date
+note right: Clone of some range actions but with a case date
+}
+
 
 @enduml
