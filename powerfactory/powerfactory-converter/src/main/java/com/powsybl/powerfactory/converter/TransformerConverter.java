@@ -289,6 +289,7 @@ class TransformerConverter extends AbstractConverter {
         private static Complex createShuntAdmittance(String curmgT, String pfeT, DataObject typTr2, double ratedApparentPower, double nominalVoltage) {
             float curmg = typTr2.getFloatAttributeValue(curmgT);
             if (curmg == 0) {
+                LOGGER.warn("curmg is zero");
                 return Complex.ZERO;
             }
             float pfe = typTr2.getFloatAttributeValue(pfeT);
