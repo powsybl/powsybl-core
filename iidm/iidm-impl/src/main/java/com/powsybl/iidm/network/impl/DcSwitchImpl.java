@@ -39,7 +39,8 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
                  DcSwitchKind kind,
                  DcNode dcNode1,
                  DcNode dcNode2,
-                 boolean open) {
+                 boolean open,
+                 double r) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
@@ -52,6 +53,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         for (int i = 0; i < variantArraySize; i++) {
             this.open.add(open);
         }
+        this.r = r;
     }
 
     @Override
@@ -163,13 +165,16 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
         ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
 
-        if ((r == 0.0) != (this.r == 0.0)) {
+        double oldValue = this.r;
+        this.r = r;
+
+        if ((r == 0.0) != (oldValue == 0.0)) {
             // if we change the value of r from 0 to non-zero
             // or vice versa, topology must be recomputed.
             getNetwork().dcTopologyModel.invalidateCache();
         }
+        getNetwork().getListeners().notifyUpdate(this, R_ATTRIBUTE, oldValue, r);
 
-        this.r = r;
         return this;
     }
 }
