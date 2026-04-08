@@ -32,7 +32,7 @@ class ExternalGridConverter extends AbstractConverter {
     }
 
     void create(DataObject elmXnet) {
-        NodeRef nodeRef = checkNodes(elmXnet, 1).get(0);
+        NodeRef nodeRef = checkNodes(elmXnet, 1).getFirst();
         ExternalGridModel externalGridModel = ExternalGridModel.create(elmXnet);
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
@@ -63,8 +63,7 @@ class ExternalGridConverter extends AbstractConverter {
         switch (type) {
             case PQ:
                 break;
-            case PV:
-            case SLACK:
+            case PV, SLACK:
                 voltageRegulatorOn = true;
                 break;
         }
