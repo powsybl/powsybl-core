@@ -1,0 +1,23 @@
+{
+  "version" : "3.0",
+  "dictionaries" : {
+    "default" : {
+      "core.iidm.network.testImportPostProcessor" : "testing import post processor",
+      "testImportModel" : "Import model ${model}",
+      "testPostProcessor" : "Test importer post processor"
+    }
+  },
+  "reportRoot" : {
+    "messageKey" : "testPostProcessor",
+    "children" : [ {
+      "messageKey" : "testImportModel",
+      "values" : {
+        "model" : {
+          "value" : "eurostagTutorialExample1"
+        }
+      }
+    }, {
+      "messageKey" : "core.iidm.network.testImportPostProcessor"
+    } ]
+  }
+}

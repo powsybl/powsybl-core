@@ -4,16 +4,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.ucte.network.util.UcteReports;
 
 import java.util.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteNetworkImpl implements UcteNetwork {
 
@@ -119,27 +121,26 @@ public class UcteNetworkImpl implements UcteNetwork {
     }
 
     @Override
-    public void fix(Reporter reporter) {
+    public void fix(ReportNode reportNode) {
 
-        Reporter nodesReporter = reporter.createSubReporter("fixUcteNodes", "Fix UCTE nodes");
+        ReportNode nodesReportNode = UcteReports.fixUcteNodes(reportNode);
         for (UcteNode node : nodes.values()) {
-            node.fix(nodesReporter);
+            node.fix(nodesReportNode);
         }
 
-        Reporter linesReporter = reporter.createSubReporter("fixUcteLines", "Fix UCTE lines");
+        ReportNode linesReportNode = UcteReports.fixUcteLines(reportNode);
         for (UcteLine line : lines.values()) {
-            line.fix(linesReporter);
+            line.fix(linesReportNode);
         }
 
-        Reporter transfoReporter = reporter.createSubReporter("fixUcteTransformer", "Fix UCTE transformers");
+        ReportNode transfoReportNode = UcteReports.fixUcteTransformers(reportNode);
         for (UcteTransformer transfo : transformers.values()) {
-            transfo.fix(transfoReporter);
+            transfo.fix(transfoReportNode);
         }
 
-        Reporter regulationsReporter = reporter.createSubReporter("fixUcteRegulations", "Fix UCTE regulations");
+        ReportNode regulationsReportNode = UcteReports.fixUcteRegulations(reportNode);
         for (UcteRegulation regulation : regulations.values()) {
-            regulation.fix(regulationsReporter);
+            regulation.fix(regulationsReportNode);
         }
     }
-
 }

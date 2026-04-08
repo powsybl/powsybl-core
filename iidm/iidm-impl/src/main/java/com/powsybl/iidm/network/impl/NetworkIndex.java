@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -13,11 +14,10 @@ import com.powsybl.iidm.network.Identifiable;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NetworkIndex {
 
@@ -45,11 +45,7 @@ class NetworkIndex {
         objectsById.put(obj.getId(), obj);
         obj.getAliases().forEach(alias -> addAlias(obj, alias));
 
-        Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
-        if (all == null) {
-            all = new LinkedHashSet<>();
-            objectsByClass.put(obj.getClass(), all);
-        }
+        Set<Identifiable<?>> all = objectsByClass.computeIfAbsent(obj.getClass(), k -> new LinkedHashSet<>());
         all.add(obj);
     }
 
@@ -190,7 +186,7 @@ class NetworkIndex {
             out.println(entry.getKey() + " " + System.identityHashCode(entry.getValue()));
         }
         for (Map.Entry<Class<? extends Identifiable>, Set<Identifiable<?>>> entry : objectsByClass.entrySet()) {
-            out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).collect(Collectors.toList()));
+            out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).toList());
         }
     }
 }

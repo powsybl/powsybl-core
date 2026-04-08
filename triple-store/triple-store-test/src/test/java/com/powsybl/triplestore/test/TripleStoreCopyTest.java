@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.triplestore.test;
 
@@ -16,7 +17,7 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
 /**
- * @author Elena Kaltakova <kaltakovae at aia.es>
+ * @author Elena Kaltakova {@literal <kaltakovae at aia.es>}
  *
  */
 class TripleStoreCopyTest {
@@ -37,7 +38,7 @@ class TripleStoreCopyTest {
             assertEquals(expected.getNamespaces(), actual.getNamespaces());
         });
 
-        Expected expectedContents = new Expected().expect("nick", "SweetCaroline", "Wonderland");
+        Expected expectedContents = new Expected().expect("nick", "Wonderland", "SweetCaroline");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testQueryOnCopies(queries.get("selectNickName"), expectedContents);
 

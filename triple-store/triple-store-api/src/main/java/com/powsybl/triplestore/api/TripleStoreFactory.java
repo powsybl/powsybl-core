@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.api;
@@ -19,11 +20,12 @@ import java.util.stream.Collectors;
  * Factory for the creation of Triplestore databases.
  * It relies on named factory services to create instances.
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class TripleStoreFactory {
 
     private static final ServiceLoaderCache<TripleStoreFactoryService> LOADER = new ServiceLoaderCache<>(TripleStoreFactoryService.class);
+    private static final String NO_AVAILABLE_IMPLEMENTATION = "No implementation available for triple store ";
 
     private TripleStoreFactory() {
     }
@@ -62,7 +64,7 @@ public final class TripleStoreFactory {
                 return ts.copy(source);
             }
         }
-        throw new PowsyblException("No implementation available for triple store " + impl);
+        throw new PowsyblException(NO_AVAILABLE_IMPLEMENTATION + impl);
     }
 
     /**
@@ -78,7 +80,7 @@ public final class TripleStoreFactory {
                 return ts.create();
             }
         }
-        throw new PowsyblException("No implementation available for triple store " + impl);
+        throw new PowsyblException(NO_AVAILABLE_IMPLEMENTATION + impl);
     }
 
     /**
@@ -95,7 +97,7 @@ public final class TripleStoreFactory {
                 return ts.create(options);
             }
         }
-        throw new PowsyblException("No implementation available for triple store " + impl);
+        throw new PowsyblException(NO_AVAILABLE_IMPLEMENTATION + impl);
     }
 
     /**

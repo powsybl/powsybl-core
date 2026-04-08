@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -20,11 +21,11 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see Generator
  * @see VoltageLevel
  */
-public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
+public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder> {
 
     GeneratorAdder setEnergySource(EnergySource energySource);
 
@@ -45,21 +46,30 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
 
     GeneratorAdder setTargetV(double targetV);
 
+    GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV);
+
     GeneratorAdder setRatedS(double ratedS);
 
     /**
+     * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     */
+    GeneratorAdder setCondenser(boolean isCondenser);
+
+    /**
      * Build the Generator object.
-     * This are the checks that are performed before creating the object :
-     *      - energySource is set
-     *      - minP is not equal to Double.NaN -> minP is set
-     *      - maxP is not equal to Double.NaN -> maxP is set
-     *      - regulatingTerminal is set
-     *      - network of regulatingTerminal's voltageLevel is the network of the generator
-     *      - targetP is not equal to Double.NaN -> targetP is set
-     *      - targetP is not equal to Double.NaN -> targetP is set
-     *      - minP <= maxP
-     *      - ratedS is set and ratedS > 0
+     * <br>These are the checks that are performed before creating the object :
+     * <ul> <li>energySource is set</li>
+     *      <li>minP is not equal to Double.NaN -> minP is set</li>
+     *      <li>maxP is not equal to Double.NaN -> maxP is set</li>
+     *      <li>regulatingTerminal is set</li>
+     *      <li>network of regulatingTerminal's voltageLevel is the network of the generator</li>
+     *      <li>targetP is not equal to Double.NaN -> targetP is set</li>
+     *      <li>targetP is not equal to Double.NaN -> targetP is set</li>
+     *      <li>minP <= maxP</li>
+     *      <li>ratedS is set and ratedS > 0</li>
+     *      </ul>
      * @return {@link Generator}
      */
+    @Override
     Generator add();
 }

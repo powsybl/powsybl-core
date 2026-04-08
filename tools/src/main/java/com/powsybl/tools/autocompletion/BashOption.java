@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools.autocompletion;
 
@@ -16,7 +17,7 @@ import java.util.Optional;
 /**
  * Simplified option model for completion script generation.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at gmail.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at gmail.com>}
  */
 public class BashOption {
 
@@ -93,8 +94,8 @@ public class BashOption {
     }
 
     public Object[] getPossibleValues() {
-        if (type instanceof OptionType.Enumeration) {
-            return ((OptionType.Enumeration) type).getClazz().getEnumConstants();
+        if (type instanceof OptionType.Enumeration optionType) {
+            return optionType.getClazz().getEnumConstants();
         }
         return null;
     }

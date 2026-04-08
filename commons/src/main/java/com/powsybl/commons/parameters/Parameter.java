@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.parameters;
 
@@ -17,7 +18,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class Parameter {
 
@@ -31,16 +32,45 @@ public class Parameter {
 
     private final List<Object> possibleValues;
 
-    private ParameterScope scope;
+    private final ParameterScope scope;
+
+    private final String categoryKey;
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
-                     List<Object> possibleValues, ParameterScope scope) {
+                     List<Object> possibleValues, ParameterScope scope, String categoryKey) {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
         this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
         this.scope = scope;
+        this.categoryKey = categoryKey;
+    }
+
+    public Parameter(List<String> names, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues, ParameterScope scope, String categoryKey) {
+        Objects.requireNonNull(names);
+        if (names.isEmpty()) {
+            throw new IllegalArgumentException("At least one name is expected.");
+        }
+        Objects.requireNonNull(names.get(0));
+        this.names.addAll(names);
+        this.type = Objects.requireNonNull(type);
+        this.description = Objects.requireNonNull(description);
+        this.defaultValue = checkDefaultValue(type, defaultValue);
+        this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
+        this.scope = scope;
+        this.categoryKey = categoryKey;
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues, ParameterScope scope) {
+        this(name, type, description, defaultValue, possibleValues, scope, null);
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue, ParameterScope scope,
+                     String categoryKey) {
+        this(name, type, description, defaultValue, null, scope, categoryKey);
     }
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
@@ -119,8 +149,8 @@ public class Parameter {
         }
     }
 
-    public static Object read(String prefix, Properties paramaters, Parameter configuredParameter) {
-        return read(prefix, paramaters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static Object read(String prefix, Properties parameters, Parameter configuredParameter) {
+        return read(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
     public static boolean readBoolean(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
@@ -149,7 +179,7 @@ public class Parameter {
 
     public static double readDouble(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
         return read(parameters, configuredParameter, defaultValueConfig.getDoubleValue(prefix, configuredParameter),
-            (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> !Double.isNaN(value));
+            (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> value != null && !Double.isNaN(value));
     }
 
     public static int readInteger(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
@@ -179,7 +209,7 @@ public class Parameter {
             }
         }
         // if none, use configured parameters
-        if (isPresent.test(value)) {
+        if (value != null && isPresent.test(value)) {
             return value;
         }
         return defaultValue;
@@ -221,5 +251,9 @@ public class Parameter {
 
     public ParameterScope getScope() {
         return scope;
+    }
+
+    public String getCategoryKey() {
+        return categoryKey;
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.json;
 
@@ -16,7 +17,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import java.io.IOException;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParameters> {
 
@@ -47,8 +48,9 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
             jsonGenerator.writeString(arg.name());
         }
         jsonGenerator.writeEndArray();
-        jsonGenerator.writeStringField("connectedComponentMode", parameters.getConnectedComponentMode().name());
+        jsonGenerator.writeStringField("componentMode", parameters.getComponentMode().name());
         jsonGenerator.writeBooleanField("hvdcAcEmulation", parameters.isHvdcAcEmulation());
+        jsonGenerator.writeNumberField("dcPowerFactor", parameters.getDcPowerFactor());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers()::get);
 

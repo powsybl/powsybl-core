@@ -3,12 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.action.json.ActionJsonModule;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.BusBreakerViolationLocation;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.contingency.violations.NodeBreakerViolationLocation;
 import com.powsybl.security.*;
 import com.powsybl.security.results.*;
 import org.junit.jupiter.api.Test;
@@ -23,9 +29,9 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class PostContingencyResultTest extends AbstractConverterTest {
+class PostContingencyResultTest extends AbstractSerDeTest {
 
     @Test
     void testGetters() {
@@ -39,8 +45,7 @@ class PostContingencyResultTest extends AbstractConverterTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
-                new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")), Double.NaN);
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
@@ -57,7 +62,11 @@ class PostContingencyResultTest extends AbstractConverterTest {
     void roundTrip() throws IOException {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
-        LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
+        LimitViolation violation2 = new LimitViolation("subject_id", LimitViolationType.HIGH_VOLTAGE, 420,
+            (float) 0.1, 500, new BusBreakerViolationLocation(List.of("bus_id")));
+        LimitViolation violation3 = new LimitViolation("subject_id", LimitViolationType.LOW_VOLTAGE, 200,
+            (float) 0.3, 180, new NodeBreakerViolationLocation("vl_id", Collections.singletonList(0)));
+        LimitViolationsResult result = new LimitViolationsResult(Arrays.asList(violation, violation2, violation3));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
         threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));
@@ -65,8 +74,13 @@ class PostContingencyResultTest extends AbstractConverterTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
-                new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(
+                contingency,
+                PostContingencyComputationStatus.CONVERGED,
+                result,
+                new NetworkResult(branchResults, busResults, threeWindingsTransformerResults),
+                new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()),
+                1.23);
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 
@@ -75,6 +89,7 @@ class PostContingencyResultTest extends AbstractConverterTest {
             OutputStream out = Files.newOutputStream(jsonFile);
             JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule())
                 .writerWithDefaultPrettyPrinter()
                 .writeValue(out, postContingencyResult);
         } catch (IOException e) {
@@ -86,6 +101,7 @@ class PostContingencyResultTest extends AbstractConverterTest {
         try {
             return JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule())
                 .readerFor(PostContingencyResult.class)
                 .readValue(Files.newInputStream(jsonFile));
         } catch (IOException e) {

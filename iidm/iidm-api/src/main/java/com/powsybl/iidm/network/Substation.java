@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -28,7 +29,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -76,14 +77,12 @@ import java.util.stream.Stream;
  *     </tbody>
  * </table>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see VoltageLevel
  * @see Country
  * @see SubstationAdder
  */
 public interface Substation extends Container<Substation> {
-
-    Network getNetwork();
 
     /**
      * Get an optional containing the country to which the substation belongs if it is defined, Optional.empty() if not.
@@ -128,6 +127,12 @@ public interface Substation extends Container<Substation> {
     TwoWindingsTransformerAdder newTwoWindingsTransformer();
 
     /**
+     * Get a builder to create a new two windings transformer in the substation by copying an existing one.
+     * Only use this builder if the two ends of the transformer are in the substation.
+     */
+    TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer);
+
+    /**
      * Get the two windings transformers connected to the substation.
      */
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
@@ -163,6 +168,26 @@ public interface Substation extends Container<Substation> {
      * Get the three windings transformers count
      */
     int getThreeWindingsTransformerCount();
+
+    /**
+     * Get a builder to create a new overload management system in the substation.
+     */
+    OverloadManagementSystemAdder newOverloadManagementSystem();
+
+    /**
+     * Get the overload management systems relative to the substation.
+     */
+    Iterable<OverloadManagementSystem> getOverloadManagementSystems();
+
+    /**
+     * Get the overload management systems relative to the substation.
+     */
+    Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
+
+    /**
+     * Get the overload management systems count
+     */
+    int getOverloadManagementSystemCount();
 
     /**
      * Get geographical tags associated to the substation.

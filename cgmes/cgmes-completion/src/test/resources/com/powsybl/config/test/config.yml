@@ -1,0 +1,3 @@
+import-export-parameters-default-value:
+  # path relative to the platform config dir
+  iidm.import.cgmes.fixes-for-missing-containers-folder: "./"

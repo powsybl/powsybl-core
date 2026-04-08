@@ -3,24 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, ShuntCompensatorNonLinearModel {
+class ShuntCompensatorNonLinearModelImpl extends AbstractPropertiesHolder implements ShuntCompensatorModelExt, ShuntCompensatorNonLinearModel {
 
-    static class SectionImpl implements Section {
+    static class SectionImpl extends AbstractPropertiesHolder implements Section {
 
         private ShuntCompensatorImpl shuntCompensator;
 
@@ -38,7 +36,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
 
         private SectionImpl attach(ShuntCompensatorImpl shuntCompensator) {
             if (this.shuntCompensator != null) {
-                throw new AssertionError("Section already attached to " + this.shuntCompensator.getId());
+                throw new IllegalStateException("Section already attached to " + this.shuntCompensator.getId());
             }
             this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
             return this;
@@ -75,6 +73,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
         private String getAttributeName(int sectionNum, String attribute) {
             return "section" + sectionNum + "." + attribute;
         }
+
     }
 
     private ShuntCompensatorImpl shuntCompensator;
@@ -88,7 +87,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
     @Override
     public ShuntCompensatorNonLinearModelImpl attach(ShuntCompensatorImpl shuntCompensator) {
         if (this.shuntCompensator != null) {
-            throw new AssertionError("ShuntCompensatorNonLinearModelImpl already attached to " + this.shuntCompensator.getId());
+            throw new IllegalStateException("ShuntCompensatorNonLinearModelImpl already attached to " + this.shuntCompensator.getId());
         }
 
         this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
@@ -129,4 +128,5 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
         }
         return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getG();
     }
+
 }

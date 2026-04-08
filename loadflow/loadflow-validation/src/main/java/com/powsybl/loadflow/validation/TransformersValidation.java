@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
 
@@ -17,7 +18,7 @@ import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
@@ -26,7 +27,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  * We check that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
  * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public final class TransformersValidation extends AbstractTransformersValidation {
 
@@ -80,11 +81,11 @@ public final class TransformersValidation extends AbstractTransformersValidation
         double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
         double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
         double targetV = ratioTapChanger.getTargetV();
-        Side regulatedSide;
+        TwoSides regulatedSide;
         if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {
-            regulatedSide = Side.ONE;
+            regulatedSide = TwoSides.ONE;
         } else if (twt.getTerminal2().equals(ratioTapChanger.getRegulationTerminal())) {
-            regulatedSide = Side.TWO;
+            regulatedSide = TwoSides.TWO;
         } else {
             LOGGER.warn("{} {}: {}: Unexpected regulation terminal (side 1 or 2 of transformer is expected), skipping validation",
                         ValidationType.TWTS, ValidationUtils.VALIDATION_WARNING, twt.getId());
@@ -107,8 +108,8 @@ public final class TransformersValidation extends AbstractTransformersValidation
     }
 
     public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
-                                           int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
-                                           boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
+                                    int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v,
+                                    boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -122,8 +123,8 @@ public final class TransformersValidation extends AbstractTransformersValidation
     }
 
     public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
-                                           int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
-                                           boolean connected, boolean mainComponent, ValidationConfig config, ValidationWriter twtsWriter) {
+                                    int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v,
+                                    boolean connected, boolean mainComponent, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
@@ -149,14 +150,14 @@ public final class TransformersValidation extends AbstractTransformersValidation
      *  assuming "nothing else changes": voltage on the other side is kept constant,
      *  voltage decrease through the impedance is kept constant (perfect transformer approximation).
      */
-    private static double evaluateVoltage(Side regulatedSide, double voltage, double ratio, double nextRatio) {
+    private static double evaluateVoltage(TwoSides regulatedSide, double voltage, double ratio, double nextRatio) {
         switch (regulatedSide) {
             case ONE:
                 return voltage * ratio / nextRatio;
             case TWO:
                 return voltage * nextRatio / ratio;
             default:
-                throw new AssertionError("Unexpected Side value: " + regulatedSide);
+                throw new IllegalStateException("Unexpected Side value: " + regulatedSide);
         }
     }
 
@@ -164,7 +165,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
      * Checks that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
      * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
      */
-    private static boolean checkTransformerSide(String id, Side side, double error, double upIncrement, double downIncrement, ValidationConfig config) {
+    private static boolean checkTransformerSide(String id, TwoSides side, double error, double upIncrement, double downIncrement, ValidationConfig config) {
         boolean validated = true;
         double maxIncrease = getMaxVoltageIncrease(upIncrement, downIncrement);
         double maxDecrease = getMaxVoltageDecrease(upIncrement, downIncrement);

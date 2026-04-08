@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.execution;
 
@@ -12,7 +13,7 @@ import com.powsybl.security.SecurityAnalysisInput;
  * In charge of transforming an execution input to an actual
  * security analysis input. Will typically be defined as a lambda.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 @FunctionalInterface
 public interface SecurityAnalysisInputBuildStrategy {

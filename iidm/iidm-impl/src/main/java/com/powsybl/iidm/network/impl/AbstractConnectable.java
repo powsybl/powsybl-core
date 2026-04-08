@@ -3,29 +3,32 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static com.powsybl.iidm.network.TopologyKind.NODE_BREAKER;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
     private final Ref<NetworkImpl> networkRef;
-    private boolean removed = false;
+    protected boolean removed = false;
 
     AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
         super(id, name, fictitious);
@@ -39,6 +42,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     public List<TerminalExt> getTerminals() {
         return terminals;
+    }
+
+    @Override
+    public NetworkExt getParentNetwork() {
+        // the parent network is the network that contains all terminals of the connectable.
+        List<NetworkExt> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().toList();
+        if (subnetworks.size() == 1) {
+            return subnetworks.get(0);
+        }
+        return getNetwork();
     }
 
     @Override
@@ -57,8 +70,9 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
+            terminal.getReferrerManager().notifyOfRemoval();
             VoltageLevelExt vl = terminal.getVoltageLevel();
-            vl.detach(terminal);
+            vl.getTopologyModel().detach(terminal);
         }
 
         network.getListeners().notifyAfterRemoval(id);
@@ -118,14 +132,14 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, int node, String voltageLevelId) {
+    protected void move(TerminalExt oldTerminal, int node, String voltageLevelId) {
         VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             throw new PowsyblException("Voltage level '" + voltageLevelId + "' not found");
         }
 
         // check bus topology
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+        if (voltageLevel.getTopologyKind() != NODE_BREAKER) {
             String msg = String.format(
                     "Trying to move connectable %s to node %d of voltage level %s, which is a bus breaker voltage level",
                     getId(), node, voltageLevel.getId());
@@ -133,15 +147,15 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the given voltage level and to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), this, oldTerminal.getSide(), oldTerminal.getTerminalNumber())
                 .setNode(node)
                 .build();
 
         // detach the terminal from its previous voltage level
-        attachTerminal(oldTerminal, oldConnectionInfo, voltageLevel, terminalExt);
+        replaceTerminal(oldTerminal, voltageLevel.getTopologyModel(), terminalExt, true);
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, String busId, boolean connected) {
+    protected void move(TerminalExt oldTerminal, String busId, boolean connected) {
         Bus bus = getNetwork().getBusBreakerView().getBus(busId);
         if (bus == null) {
             throw new PowsyblException("Bus '" + busId + "' not found");
@@ -155,27 +169,95 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), this, oldTerminal.getSide(), oldTerminal.getTerminalNumber())
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();
 
         // detach the terminal from its previous voltage level
-        attachTerminal(oldTerminal, oldConnectionInfo, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
+        replaceTerminal(oldTerminal, ((VoltageLevelExt) bus.getVoltageLevel()).getTopologyModel(), terminalExt, true);
     }
 
-    private void attachTerminal(TerminalExt oldTerminal, String oldConnectionInfo, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
+    void replaceTerminal(TerminalExt oldTerminal, TopologyPoint oldTopologyPoint, TerminalExt newTerminalExt, boolean notify) {
+        Objects.requireNonNull(oldTerminal);
+        Objects.requireNonNull(newTerminalExt);
+        int iSide = terminals.indexOf(oldTerminal);
+        if (iSide == -1) {
+            throw new PowsyblException("Terminal to replace not found");
+        }
+        terminals.set(iSide, newTerminalExt);
+
+        if (notify) {
+            notifyUpdate("terminal" + (iSide + 1), oldTopologyPoint, newTerminalExt.getTopologyPoint());
+        }
+    }
+
+    void replaceTerminal(TerminalExt oldTerminal, TopologyModel newTopologyModel, TerminalExt newTerminalExt, boolean notify) {
+        Objects.requireNonNull(oldTerminal);
+        Objects.requireNonNull(newTopologyModel);
+        Objects.requireNonNull(newTerminalExt);
+
         // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
-        terminalExt.setConnectable(this);
-        voltageLevel.attach(terminalExt, false);
+        newTerminalExt.setConnectable(this);
+        newTopologyModel.attach(newTerminalExt, false);
 
         // then we can detach the old terminal, as we now know that the new terminal is valid
-        oldTerminal.getVoltageLevel().detach(oldTerminal);
+        TopologyPoint oldTopologyPoint = oldTerminal.getTopologyPoint();
+        oldTerminal.getVoltageLevel().getTopologyModel().detach(oldTerminal);
 
         // replace the old terminal by the new terminal in the connectable
-        int iSide = terminals.indexOf(oldTerminal);
-        terminals.set(iSide, terminalExt);
+        replaceTerminal(oldTerminal, oldTopologyPoint, newTerminalExt, notify);
 
-        notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo, terminalExt.getConnectionInfo());
+        // also update terminal referrers
+        for (Referrer<Terminal> referrer : oldTerminal.getReferrerManager().getReferrers()) {
+            referrer.onReferencedReplacement(oldTerminal, newTerminalExt);
+        }
+    }
+
+    @Override
+    public boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return connect(isTypeSwitchToOperate, null);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminals(side),
+            isTypeSwitchToOperate,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
+    public boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return disconnect(isSwitchOpenable, null);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminals(side),
+            isSwitchOpenable,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    public List<TerminalExt> getTerminals(ThreeSides side) {
+        if (side == null) {
+            return terminals;
+        } else {
+            return terminals.stream().filter(terminal -> terminal.getSide().equals(side)).toList();
+        }
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2023, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_10"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/remote_reactive_power_control/1_0"
+           elementFormDefault="qualified">
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_10" schemaLocation="iidm_V1_10.xsd"/>
+    <xs:element name="generatorRemoteReactivePowerControl">
+        <xs:complexType>
+            <xs:attribute name="enabled" use="required" type="xs:boolean"/>
+            <xs:attribute name="targetQ" use="required" type="xs:double"/>
+            <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+            <xs:attribute name="side" type="iidm:Side"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

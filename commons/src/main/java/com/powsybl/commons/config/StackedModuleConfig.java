@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class StackedModuleConfig extends AbstractModuleConfig {
 
@@ -92,7 +93,7 @@ public class StackedModuleConfig extends AbstractModuleConfig {
     }
 
     @Override
-    public Optional<DateTime> getOptionalDateTimeProperty(String name) {
+    public Optional<ZonedDateTime> getOptionalDateTimeProperty(String name) {
         return or(config1.getOptionalDateTimeProperty(name), () -> config2.getOptionalDateTimeProperty(name));
     }
 }

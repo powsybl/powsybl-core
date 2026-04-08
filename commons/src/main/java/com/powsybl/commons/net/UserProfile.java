@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.net;
 
@@ -12,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UserProfile {
 
@@ -43,8 +44,7 @@ public class UserProfile {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UserProfile) {
-            UserProfile profile = (UserProfile) obj;
+        if (obj instanceof UserProfile profile) {
             return profile.firstName.equals(firstName) && profile.lastName.equals(lastName);
         }
         return false;

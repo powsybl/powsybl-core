@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
@@ -15,7 +16,7 @@ import com.powsybl.shortcircuit.FortescueValue;
 import java.io.IOException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
 
@@ -34,33 +35,32 @@ class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
         double inversePhase = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "directMagnitude":
+            switch (parser.currentName()) {
+                case "directMagnitude" -> {
                     parser.nextToken();
                     directMagnitude = parser.readValueAs(Double.class);
-                    break;
-                case "zeroMagnitude":
+                }
+                case "zeroMagnitude" -> {
                     parser.nextToken();
                     zeroMagnitude = parser.readValueAs(Double.class);
-                    break;
-                case "inverseMagnitude":
+                }
+                case "inverseMagnitude" -> {
                     parser.nextToken();
                     inverseMagnitude = parser.readValueAs(Double.class);
-                    break;
-                case "directAngle":
+                }
+                case "directAngle" -> {
                     parser.nextToken();
                     directPhase = parser.readValueAs(Double.class);
-                    break;
-                case "zeroAngle":
+                }
+                case "zeroAngle" -> {
                     parser.nextToken();
                     zeroPhase = parser.readValueAs(Double.class);
-                    break;
-                case "inverseAngle":
+                }
+                case "inverseAngle" -> {
                     parser.nextToken();
                     inversePhase = parser.readValueAs(Double.class);
-                    break;
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return new FortescueValue(directMagnitude, zeroMagnitude, inverseMagnitude, directPhase, zeroPhase, inversePhase);

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -18,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public abstract class AbstractContingencyResultDeserializer<T extends AbstractContingencyResult> extends StdDeserializer<T> {
     protected AbstractContingencyResultDeserializer(Class<T> vc) {
@@ -28,6 +29,7 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
     protected static class ParsingContext {
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
+        double distributedActivePower = Double.NaN;
         List<BranchResult> branchResults = Collections.emptyList();
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
@@ -47,6 +49,12 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(contextName,
                         "Tag: networkResult", version, "1.2");
                 context.networkResult = JsonUtil.readValue(deserializationContext, parser, NetworkResult.class);
+                return true;
+            case "distributedActivePower":
+                parser.nextToken();
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(contextName,
+                        "Tag: distributedActivePower", version, "1.9");
+                context.distributedActivePower = parser.getValueAsDouble();
                 return true;
             case "busResults":
                 parser.nextToken();

@@ -3,24 +3,30 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadModel;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.Optional;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     private final Ref<? extends VariantManagerHolder> network;
 
     private LoadType loadType;
+
+    private LoadModel model;
 
     // attributes depending on the variant
 
@@ -29,10 +35,12 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     private final TDoubleArrayList q0;
 
     LoadImpl(Ref<NetworkImpl> networkRef,
-             String id, String name, boolean fictitious, LoadType loadType, double p0, double q0) {
+             String id, String name, boolean fictitious, LoadType loadType, LoadModel model,
+             double p0, double q0) {
         super(networkRef, id, name, fictitious);
         this.network = networkRef;
         this.loadType = loadType;
+        this.model = model;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);
         this.q0 = new TDoubleArrayList(variantArraySize);
@@ -74,7 +82,7 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     @Override
     public LoadImpl setP0(double p0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkP0(this, p0, n.getMinValidationLevel());
+        ValidationUtil.checkP0(this, p0, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -91,13 +99,18 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     @Override
     public LoadImpl setQ0(double q0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkQ0(this, q0, n.getMinValidationLevel());
+        ValidationUtil.checkQ0(this, q0, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("q0", variantId, oldValue, q0);
         return this;
+    }
+
+    @Override
+    public Optional<LoadModel> getModel() {
+        return Optional.ofNullable(model);
     }
 
     @Override

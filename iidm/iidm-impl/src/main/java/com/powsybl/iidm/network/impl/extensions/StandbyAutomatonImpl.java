@@ -3,19 +3,25 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import com.powsybl.iidm.network.impl.StaticVarCompensatorImpl;
+import com.powsybl.iidm.network.util.NetworkReports;
+
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtension<StaticVarCompensator> implements StandbyAutomaton {
 
@@ -28,44 +34,61 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     private final TDoubleArrayList lowVoltageThreshold;
     private final TDoubleArrayList highVoltageThreshold;
 
-    private static double checkB0(double b0) {
+    private static double checkB0(StaticVarCompensatorImpl svc, double b0) {
         if (Double.isNaN(b0)) {
-            throw new IllegalArgumentException("b0 is invalid");
+            throw new ValidationException(svc, "b0 is invalid");
         }
         return b0;
     }
 
-    private static void checkVoltageConfig(double lowVoltageSetpoint, double highVoltageSetpoint,
-                                           double lowVoltageThreshold, double highVoltageThreshold) {
+    private static void checkVoltageConfig(StaticVarCompensatorImpl svc, double lowVoltageSetpoint, double highVoltageSetpoint,
+                                           double lowVoltageThreshold, double highVoltageThreshold,
+                                           boolean standby) {
+        ReportNode reportNode = svc.getNetwork().getReportNodeContext().getReportNode();
         if (Double.isNaN(lowVoltageSetpoint)) {
-            throw new IllegalArgumentException("lowVoltageSetpoint is invalid");
+            throw new ValidationException(svc, String.format("low voltage setpoint (%s) is invalid", lowVoltageSetpoint));
         }
         if (Double.isNaN(highVoltageSetpoint)) {
-            throw new IllegalArgumentException("highVoltageSetpoint is invalid");
+            throw new ValidationException(svc, String.format("high voltage setpoint (%s) is invalid", highVoltageSetpoint));
         }
         if (Double.isNaN(lowVoltageThreshold)) {
-            throw new IllegalArgumentException("lowVoltageThreshold is invalid");
+            throw new ValidationException(svc, String.format("low voltage threshold (%s) is invalid", lowVoltageThreshold));
         }
         if (Double.isNaN(highVoltageThreshold)) {
-            throw new IllegalArgumentException("highVoltageThreshold is invalid");
+            throw new ValidationException(svc, String.format("high voltage threshold (%s) is invalid", highVoltageThreshold));
         }
         if (lowVoltageThreshold >= highVoltageThreshold) {
-            throw new IllegalArgumentException("Inconsistent low (" + lowVoltageThreshold + ") and high (" + highVoltageThreshold + ") voltage thresholds");
+            if (standby) {
+                throw new ValidationException(svc,
+                        String.format("Inconsistent low (%s) and high (%s) voltage thresholds",
+                                lowVoltageThreshold,
+                                highVoltageThreshold));
+            } else {
+                LOGGER.warn("Inconsistent low {} and high ({}) voltage thresholds for StaticVarCompensator {}",
+                        lowVoltageSetpoint, lowVoltageThreshold, svc.getId());
+                NetworkReports.svcVoltageThresholdInvalid(reportNode, svc.getId(), lowVoltageThreshold, highVoltageThreshold);
+            }
         }
+
         if (lowVoltageSetpoint < lowVoltageThreshold) {
-            LOGGER.warn("Invalid low voltage setpoint {} < threshold {}", lowVoltageSetpoint, lowVoltageThreshold);
+            LOGGER.warn("Invalid low voltage setpoint {} < threshold {} for StaticVarCompensator {}",
+                lowVoltageSetpoint, lowVoltageThreshold, svc.getId());
+            NetworkReports.svcLowVoltageSetpointInvalid(reportNode, svc.getId(), lowVoltageSetpoint, lowVoltageThreshold);
         }
+
         if (highVoltageSetpoint > highVoltageThreshold) {
-            LOGGER.warn("Invalid high voltage setpoint {} > threshold {}", highVoltageSetpoint, highVoltageThreshold);
+            LOGGER.warn("Invalid high voltage setpoint {} > threshold {} for StaticVarCompensator {}",
+                highVoltageSetpoint, highVoltageThreshold, svc.getId());
+            NetworkReports.svcHighVoltageSetpointInvalid(reportNode, svc.getId(), highVoltageSetpoint, highVoltageThreshold);
         }
     }
 
-    public StandbyAutomatonImpl(StaticVarCompensator svc, double b0, boolean standby, double lowVoltageSetpoint, double highVoltageSetpoint,
+    public StandbyAutomatonImpl(StaticVarCompensatorImpl svc, double b0, boolean standby, double lowVoltageSetpoint, double highVoltageSetpoint,
                                 double lowVoltageThreshold, double highVoltageThreshold) {
         super(svc);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
-        this.b0 = checkB0(b0);
+        checkVoltageConfig(svc, lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold, standby);
+        this.b0 = checkB0(svc, b0);
         this.standby = new TBooleanArrayList(variantArraySize);
         this.lowVoltageSetpoint = new TDoubleArrayList(variantArraySize);
         this.highVoltageSetpoint = new TDoubleArrayList(variantArraySize);
@@ -87,6 +110,10 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     @Override
     public StandbyAutomatonImpl setStandby(boolean standby) {
+        checkVoltageConfig((StaticVarCompensatorImpl) getExtendable(),
+                lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
+                lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()),
+                standby);
         this.standby.set(getVariantIndex(), standby);
         return this;
     }
@@ -98,7 +125,7 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     @Override
     public StandbyAutomatonImpl setB0(double b0) {
-        this.b0 = checkB0(b0);
+        this.b0 = checkB0((StaticVarCompensatorImpl) getExtendable(), b0);
         return this;
     }
 
@@ -109,8 +136,8 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     @Override
     public StandbyAutomatonImpl setHighVoltageSetpoint(double highVoltageSetpoint) {
-        checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint,
-                lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()));
+        checkVoltageConfig((StaticVarCompensatorImpl) getExtendable(), lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint,
+            lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()), standby.get(getVariantIndex()));
         this.highVoltageSetpoint.set(getVariantIndex(), highVoltageSetpoint);
         return this;
     }
@@ -122,8 +149,8 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     @Override
     public StandbyAutomatonImpl setHighVoltageThreshold(double highVoltageThreshold) {
-        checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
-                lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold);
+        checkVoltageConfig((StaticVarCompensatorImpl) getExtendable(), lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
+            lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold, standby.get(getVariantIndex()));
         this.highVoltageThreshold.set(getVariantIndex(), highVoltageThreshold);
         return this;
     }
@@ -135,8 +162,8 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     @Override
     public StandbyAutomatonImpl setLowVoltageSetpoint(double lowVoltageSetpoint) {
-        checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint.get(getVariantIndex()),
-                lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()));
+        checkVoltageConfig((StaticVarCompensatorImpl) getExtendable(), lowVoltageSetpoint, highVoltageSetpoint.get(getVariantIndex()),
+            lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()), standby.get(getVariantIndex()));
         this.lowVoltageSetpoint.set(getVariantIndex(), lowVoltageSetpoint);
         return this;
     }
@@ -148,8 +175,8 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
 
     @Override
     public StandbyAutomatonImpl setLowVoltageThreshold(double lowVoltageThreshold) {
-        checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
-                lowVoltageThreshold, highVoltageThreshold.get(getVariantIndex()));
+        checkVoltageConfig((StaticVarCompensatorImpl) getExtendable(), lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint.get(getVariantIndex()),
+            lowVoltageThreshold, highVoltageThreshold.get(getVariantIndex()), standby.get(getVariantIndex()));
         this.lowVoltageThreshold.set(getVariantIndex(), lowVoltageThreshold);
         return this;
     }

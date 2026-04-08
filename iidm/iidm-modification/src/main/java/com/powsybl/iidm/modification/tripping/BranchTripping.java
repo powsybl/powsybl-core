@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.tripping;
 
@@ -17,8 +18,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  *
  */
 public class BranchTripping extends AbstractTripping {
@@ -41,12 +42,9 @@ public class BranchTripping extends AbstractTripping {
         this.supplier = supplier;
     }
 
-    /**
-     * @deprecated Use {@link #getId()} instead.
-     */
-    @Deprecated
-    protected String getBranchId() {
-        return id;
+    @Override
+    public String getName() {
+        return "BranchTripping";
     }
 
     protected String getVoltageLevelId() {
@@ -61,18 +59,7 @@ public class BranchTripping extends AbstractTripping {
         if (branch == null) {
             throw createNotFoundException();
         }
-        if (voltageLevelId != null) {
-            if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else if (voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else {
-                throw createNotConnectedException();
-            }
-        } else {
-            TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
-        }
+        traverseDoubleSidedEquipment(voltageLevelId, branch.getTerminal1(), branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals, branch.getType().name());
     }
 
     protected PowsyblException createNotFoundException() {

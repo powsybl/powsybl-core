@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -22,7 +23,7 @@ import java.util.Objects;
  * trough shift keys, also called GLSK (for Generation and Load shift keys), see {@link com.powsybl.sensitivity.SensitivityVariableSet}
  * for more details.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class WeightedSensitivityVariable {
 
@@ -79,17 +80,16 @@ public class WeightedSensitivityVariable {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     switch (fieldName) {
-                        case "id":
-                            context.id = parser.nextTextValue();
-                            break;
-                        case "weight":
+                        case "id" -> context.id = parser.nextTextValue();
+                        case "weight" -> {
                             parser.nextToken();
                             context.weight = parser.getDoubleValue();
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+                            // Do nothing
+                        }
                     }
                 } else if (token == JsonToken.END_ARRAY) {
                     break;

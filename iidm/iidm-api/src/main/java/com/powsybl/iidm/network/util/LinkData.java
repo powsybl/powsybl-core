@@ -3,17 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
-import com.powsybl.iidm.network.Branch;
-
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 
 public final class LinkData {
@@ -48,15 +48,15 @@ public final class LinkData {
         return branchAdmittance;
     }
 
-    public static BranchAdmittanceMatrix kronChain(BranchAdmittanceMatrix firstAdm, Branch.Side firstChainNodeSide,
-        BranchAdmittanceMatrix secondAdm, Branch.Side secondChainNodeSide) {
+    public static BranchAdmittanceMatrix kronChain(BranchAdmittanceMatrix firstAdm, TwoSides firstChainNodeSide,
+        BranchAdmittanceMatrix secondAdm, TwoSides secondChainNodeSide) {
         BranchAdmittanceMatrix admittance = new BranchAdmittanceMatrix();
 
         Complex yFirst11;
         Complex yFirst1C;
         Complex yFirstC1;
         Complex yFirstCC;
-        if (firstChainNodeSide == Branch.Side.TWO) {
+        if (firstChainNodeSide == TwoSides.TWO) {
             yFirst11 = firstAdm.y11();
             yFirst1C = firstAdm.y12();
             yFirstC1 = firstAdm.y21();
@@ -72,7 +72,7 @@ public final class LinkData {
         Complex ySecond2C;
         Complex ySecondC2;
         Complex ySecondCC;
-        if (secondChainNodeSide == Branch.Side.TWO) {
+        if (secondChainNodeSide == TwoSides.TWO) {
             ySecond22 = secondAdm.y11();
             ySecond2C = secondAdm.y12();
             ySecondC2 = secondAdm.y21();

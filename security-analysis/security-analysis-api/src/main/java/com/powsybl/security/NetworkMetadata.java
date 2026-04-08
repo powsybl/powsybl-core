@@ -3,17 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Network;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class NetworkMetadata extends AbstractExtendable<NetworkMetadata> {
 
@@ -21,7 +22,7 @@ public class NetworkMetadata extends AbstractExtendable<NetworkMetadata> {
 
     private final String sourceFormat;
 
-    private final DateTime caseDate;
+    private final ZonedDateTime caseDate;
 
     private final int forecastDistance;
 
@@ -33,7 +34,7 @@ public class NetworkMetadata extends AbstractExtendable<NetworkMetadata> {
         this.forecastDistance = network.getForecastDistance();
     }
 
-    public NetworkMetadata(String id, String sourceFormat, DateTime caseDate, int forecastDistance) {
+    public NetworkMetadata(String id, String sourceFormat, ZonedDateTime caseDate, int forecastDistance) {
         this.id = Objects.requireNonNull(id);
         this.sourceFormat = Objects.requireNonNull(sourceFormat);
         this.caseDate = Objects.requireNonNull(caseDate);
@@ -48,7 +49,7 @@ public class NetworkMetadata extends AbstractExtendable<NetworkMetadata> {
         return sourceFormat;
     }
 
-    public DateTime getCaseDate() {
+    public ZonedDateTime getCaseDate() {
         return caseDate;
     }
 

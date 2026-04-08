@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -13,7 +14,7 @@ package com.powsybl.commons.extensions;
  * implementation of the {@link Extendable}. {@link #getAdderClass} is used to
  * specify the adder class.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  *
  * @param <T> The extendable
  * @param <E> The extension

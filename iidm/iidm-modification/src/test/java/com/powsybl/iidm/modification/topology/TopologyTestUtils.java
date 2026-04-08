@@ -3,16 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.joda.time.DateTime;
+
+import java.time.ZonedDateTime;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 final class TopologyTestUtils {
 
@@ -28,7 +32,7 @@ final class TopologyTestUtils {
 
     static Network createNbNetwork() {
         Network network = FictitiousSwitchFactory.create();
-        network.setCaseDate(DateTime.parse("2021-08-27T14:44:56.567+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2021-08-27T14:44:56.567+02:00"));
         network.newVoltageLevel().setId(VLTEST).setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         return network;
     }
@@ -49,7 +53,62 @@ final class TopologyTestUtils {
 
     private static Network createNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2021-08-27T14:44:56.567+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2021-08-27T14:44:56.567+02:00"));
+        return network;
+    }
+
+    /**
+     *   L(1)   G(2)
+     *   |       |
+     *   B1      B2
+     *   |       |
+     *   ----3----
+     *       |
+     *       D
+     *       |
+     *       BBS(0)
+     */
+    static Network createNetworkWithForkFeeder() {
+        Network network = Network.create("test", "test");
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS")
+                .setNode(0)
+                .add();
+        vl.newLoad()
+                .setId("LD")
+                .setNode(1)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl.newGenerator()
+                .setId("G")
+                .setNode(2)
+                .setTargetP(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(400)
+                .setMinP(0)
+                .setMaxP(10)
+                .add();
+        vl.getNodeBreakerView().newDisconnector()
+                .setId("D")
+                .setNode1(0)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(1)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B2")
+                .setNode1(2)
+                .setNode2(3)
+                .add();
         return network;
     }
 

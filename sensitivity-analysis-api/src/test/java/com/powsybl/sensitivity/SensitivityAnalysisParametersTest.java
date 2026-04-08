@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -13,10 +14,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
@@ -27,9 +29,9 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class SensitivityAnalysisParametersTest extends AbstractConverterTest {
+class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
@@ -172,7 +174,7 @@ class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
-                ComparisonUtils::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
+                ComparisonUtils::assertTxtEquals, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
     @Test
@@ -213,16 +215,57 @@ class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json")) {
             SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
-            AssertionError e = assertThrows(AssertionError.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, objectMapper));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, objectMapper));
             assertEquals("Unexpected field: unexpected", e.getMessage());
         }
     }
 
     @Test
     void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
-        SensitivityAnalysisResult.SensitivityContingencyStatus value = new SensitivityAnalysisResult.SensitivityContingencyStatus("C1", SensitivityAnalysisResult.Status.SUCCESS);
+        SensitivityAnalysisResult.SensitivityStateStatus value = new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("C1"), SensitivityAnalysisResult.Status.SUCCESS);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, objectMapper), "/stateStatusRef.json");
+    }
+
+    @Test
+    void updateThresholdParameters() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+
+        assertEquals(0.0, parameters.getFlowFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getAngleFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getFlowVoltageSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getVoltageVoltageSensitivityValueThreshold(), 1e-3);
+
+        parameters.setFlowFlowSensitivityValueThreshold(0.1)
+                .setAngleFlowSensitivityValueThreshold(0.2)
+                .setFlowVoltageSensitivityValueThreshold(0.3)
+                .setVoltageVoltageSensitivityValueThreshold(0.4);
+
+        assertEquals(0.1, parameters.getFlowFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.2, parameters.getAngleFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.3, parameters.getFlowVoltageSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.4, parameters.getVoltageVoltageSensitivityValueThreshold(), 1e-3);
+    }
+
+    @Test
+    void readJsonVersion10() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0.json"));
+        assertEquals(0.0, parameters.getFlowFlowSensitivityValueThreshold(), 0.0001);
+    }
+
+    @Test
+    void readJsonVersion11() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.1.json"));
+        assertEquals(0.2, parameters.getFlowFlowSensitivityValueThreshold());
+    }
+
+    @Test
+    void readJsonVersion10Invalid() {
+        assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
+                        .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")),
+                "SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
     }
 }

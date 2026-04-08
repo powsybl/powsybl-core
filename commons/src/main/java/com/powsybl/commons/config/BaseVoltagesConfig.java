@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -27,8 +29,8 @@ import java.util.stream.Collectors;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class BaseVoltagesConfig {
 
@@ -136,7 +138,7 @@ public class BaseVoltagesConfig {
         private static final List<String> BASE_VOLTAGE_CONFIG_REQUIRED_FIELDS = Arrays.asList("name", "minValue", "maxValue", "profile");
 
         BaseVoltagesConfigConstructor() {
-            super(BaseVoltagesConfig.class);
+            super(BaseVoltagesConfig.class, new LoaderOptions());
         }
 
         @Override
@@ -150,11 +152,11 @@ public class BaseVoltagesConfig {
         }
 
         private void checkRequiredFields(Node node, List<String> requiredFields, Class<?> aClass) {
-            if (node instanceof MappingNode) {
-                for (NodeTuple nodeTuple : ((MappingNode) node).getValue()) {
+            if (node instanceof MappingNode mappingNode) {
+                for (NodeTuple nodeTuple : mappingNode.getValue()) {
                     Node keyNode = nodeTuple.getKeyNode();
-                    if (keyNode instanceof ScalarNode) {
-                        requiredFields.remove(((ScalarNode) keyNode).getValue());
+                    if (keyNode instanceof ScalarNode scalarNode) {
+                        requiredFields.remove(scalarNode.getValue());
                     }
                 }
             }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -17,11 +18,13 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 @AutoService(ExtensionJsonSerializer.class)
 public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
@@ -52,11 +55,11 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
     public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Boolean value = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("value")) {
+            if (parser.currentName().equals("value")) {
                 parser.nextToken();
                 value = parser.readValueAs(Boolean.class);
             } else {
-                throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 
@@ -65,6 +68,12 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
         }
 
         return new FooExt(value);
+    }
+
+    @Override
+    public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
+        reportNode.newReportNode().withSeverity(TypedValue.INFO_SEVERITY).withMessageTemplate("deserialize").add();
+        return deserialize(parser, deserializationContext);
     }
 
     private interface SerializationSpec {
@@ -87,5 +96,11 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
         ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
         FooExt updatedParameters = objectReader.readValue(jsonParser, FooExt.class);
         return updatedParameters;
+    }
+
+    @Override
+    public FooExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FooExt parameters, ReportNode reportNode) throws IOException {
+        reportNode.newReportNode().withSeverity(TypedValue.INFO_SEVERITY).withMessageTemplate("deserialize_and_update").add();
+        return deserializeAndUpdate(jsonParser, deserializationContext, parameters);
     }
 }

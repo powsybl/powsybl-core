@@ -3,15 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseOwnership extends PsseVersioned {
     @Parsed
@@ -20,21 +22,27 @@ public class PsseOwnership extends PsseVersioned {
     @Parsed
     private double f1 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int o2 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double f2 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int o3 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double f3 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int o4 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double f4 = 1;
 
@@ -100,5 +108,18 @@ public class PsseOwnership extends PsseVersioned {
 
     public void setF4(double f4) {
         this.f4 = f4;
+    }
+
+    public PsseOwnership copy() {
+        PsseOwnership copy = new PsseOwnership();
+        copy.o1 = this.o1;
+        copy.f1 = this.f1;
+        copy.o2 = this.o2;
+        copy.f2 = this.f2;
+        copy.o3 = this.o3;
+        copy.f3 = this.f3;
+        copy.o4 = this.o4;
+        copy.f4 = this.f4;
+        return copy;
     }
 }

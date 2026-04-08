@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
@@ -13,8 +14,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class CgmesT3xModel {
 
@@ -37,6 +38,7 @@ public class CgmesT3xModel {
         final TapChanger phaseTapChanger;
         final double ratedU;
         final String terminal;
+        final Double ratedS;
 
         CgmesEnd(PropertyBag end, Context context) {
             this.r = end.asDouble(CgmesNames.R);
@@ -47,6 +49,8 @@ public class CgmesT3xModel {
             this.phaseTapChanger = TapChanger.phaseTapChangerFromEnd(end, x, context);
             this.ratedU = end.asDouble(CgmesNames.RATEDU);
             this.terminal = end.getId(CgmesNames.TERMINAL);
+            double ratedS0 = end.asDouble(CgmesNames.RATEDS, 0);
+            this.ratedS = ratedS0 > 0 ? ratedS0 : null;
         }
     }
 }

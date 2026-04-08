@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * A {@link ModuleConfig} backed by a simple key/value {@link Map}.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class MapModuleConfig extends AbstractMapModuleConfig {
 
@@ -54,6 +55,10 @@ public class MapModuleConfig extends AbstractMapModuleConfig {
 
     public void setPathProperty(String name, Path path) {
         properties.put(name, path.toAbsolutePath().toString());
+    }
+
+    public void setPathsProperty(String name, List<Path> paths) {
+        properties.put(name, paths.stream().map(path -> path.toAbsolutePath().toString()).toList());
     }
 
     public <T> void setClassProperty(String name, Class<T> subClass) {

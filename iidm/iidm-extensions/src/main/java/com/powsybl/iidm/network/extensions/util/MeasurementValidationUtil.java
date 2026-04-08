@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions.util;
 
@@ -11,6 +12,7 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.Identifiables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import static com.powsybl.iidm.network.extensions.Measurement.Type.OTHER;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class MeasurementValidationUtil {
 
@@ -43,11 +45,11 @@ public final class MeasurementValidationUtil {
 
     public static void checkValue(double value, boolean valid) {
         if (Double.isNaN(value) && valid) {
-            throw new PowsyblException("Valid measurement can not have an undefined value");
+            throw new PowsyblException("Valid measurement cannot have an undefined value");
         }
     }
 
-    public static <C extends Connectable<C>> void checkSide(Measurement.Type type, Measurement.Side side, Connectable<C> c) {
+    public static <C extends Connectable<C>> void checkSide(Measurement.Type type, ThreeSides side, Connectable<C> c) {
         if (side != null && c instanceof Injection) {
             throw new PowsyblException("Inconsistent side for measurement of injection");
         } else if (side == null && type != OTHER && !(c instanceof Injection)) {

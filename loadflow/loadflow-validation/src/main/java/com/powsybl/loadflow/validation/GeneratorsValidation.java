@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
 
@@ -25,7 +26,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public final class GeneratorsValidation {
 
@@ -163,14 +164,14 @@ public final class GeneratorsValidation {
             case PROPORTIONAL_TO_GENERATION_HEADROOM:
                 return Math.max(Math.max(0, minP), Math.min(maxP, targetP + (maxP - targetP) * guesser.getKHeadroom()));
             default:
-                throw new AssertionError("Unhandled Balance Type: " + guesser.getBalanceType());
+                throw new IllegalStateException("Unhandled Balance Type: " + guesser.getBalanceType());
         }
     }
 
     private static boolean checkGeneratorsNaNValues(String id, double p, double q, double targetP, double targetQ) {
         // a validation error should be detected if there is both a voltage and a target but no p or q
-        if ((!Double.isNaN(targetP) && targetP != 0)
-            || (!Double.isNaN(targetQ) && targetQ != 0)) {
+        if (!Double.isNaN(targetP) && targetP != 0
+                || !Double.isNaN(targetQ) && targetQ != 0) {
             LOGGER.warn("{} {}: {}: P={} targetP={} - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP, q, targetQ);
             return false;
         }
@@ -197,9 +198,9 @@ public final class GeneratorsValidation {
         double qGen = -q;
         if (voltageRegulatorOn
             && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
-                || (v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold())
-                || (v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold())
-                || (Math.abs(v - targetV) <= config.getThreshold()) && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
+                || v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold()
+                || v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold()
+                || Math.abs(v - targetV) <= config.getThreshold() && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
             LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
             validated = false;
         }

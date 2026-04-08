@@ -3,23 +3,26 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
-import com.powsybl.cgmes.conversion.elements.BoundaryLine;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * TwoWindingsTransformer Cgmes Conversion
@@ -53,10 +56,12 @@ import com.powsybl.triplestore.api.PropertyBags;
  * Set <br>
  * A direct map from ConvertedT2xModel to IIDM model
  * <p>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class TwoWindingsTransformerConversion extends AbstractTransformerConversion implements EquipmentAtBoundaryConversion {
+
+    private BoundaryLine boundaryLine;
 
     public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
@@ -64,7 +69,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     @Override
     public boolean valid() {
-        // An transformer end voltage level may be null
+        // A transformer end voltage level may be null
         // (when it is in the boundary and the boundary nodes are not converted)
         // So we do not use the generic validity check for conducting equipment
         // or branch. We only ensure we have nodes at both ends
@@ -95,69 +100,55 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
             return;
         }
 
+        String eqInstance = ps.get(0).get("graph");
         if (isBoundary(1)) {
-            convertTwoWindingsTransformerAtBoundary(1);
+            convertTwoWindingsTransformerAtBoundary(eqInstance, 1);
         } else if (isBoundary(2)) {
-            convertTwoWindingsTransformerAtBoundary(2);
+            convertTwoWindingsTransformerAtBoundary(eqInstance, 2);
         } else {
             throw new ConversionException("Boundary must be at one end of the twoWindingsTransformer");
         }
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
-
-        CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
-        InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
-        ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
-
-        // The twoWindingsTransformer is converted to half line of a TieLine with different VoltageLevels at its ends
-        // and the tapChanger fixed to the current tap position.
-        // As the current TieLine only supports a Line at each half we can only map twoWindingsTransformers with
-        // ratioTapChanger and / or phaseTapChanger with zero angle.
-        // Since the angle has been fixed to 0.0, if the current angle of the transformer (getAngle(convertedT2xModel))
-        // is non-zero we will have differences in the LF computation.
-        // TODO support in the TieLine the complete twoWindingsTransformer model (transformer + tapChangers)
-
-        PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
-            getB(convertedT2xModel), getRatio(convertedT2xModel), 0.0);
-        boundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
-
-        return boundaryLine;
+    public Optional <BoundaryLine> getBoundaryLine() {
+        return Optional.ofNullable(boundaryLine);
     }
 
-    private void convertTwoWindingsTransformerAtBoundary(int boundarySide) {
+    private void convertTwoWindingsTransformerAtBoundary(String eqInstance, int boundarySide) {
 
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
-        // The twoWindingsTransformer is converted to a danglingLine with different VoltageLevels at its ends.
-        // As the current danglingLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
+        // The twoWindingsTransformer is converted to a boundaryLine with different VoltageLevels at its ends.
+        // As the current boundaryLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
         // ratio 1.0 and angle 0.0
         // Since the ratio has been fixed to 1.0, if the current (ratio, angle) of the transformer
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
-        // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        convertToDanglingLine(boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
+        // TODO support in the boundaryLine the complete twoWindingsTransformer model (transformer + tapChangers)
+        boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel), CgmesNames.POWER_TRANSFORMER);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
         TwoWindingsTransformerAdder adder = substation()
                 .map(Substation::newTwoWindingsTransformer)
-                .orElseGet(() -> context.network().newTwoWindingsTransformer())
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .setR(convertedT2xModel.r)
                 .setX(convertedT2xModel.x)
                 .setG(Double.isNaN(convertedT2xModel.end1.g) ? 0.0 : convertedT2xModel.end1.g)
                 .setB(Double.isNaN(convertedT2xModel.end1.b) ? 0.0 : convertedT2xModel.end1.b)
                 .setRatedU1(convertedT2xModel.end1.ratedU)
                 .setRatedU2(convertedT2xModel.end2.ratedU);
+        if (convertedT2xModel.ratedS != null) {
+            adder.setRatedS(convertedT2xModel.ratedS);
+        }
         identify(adder);
-        connect(adder);
+        connectWithOnlyEq(adder);
         TwoWindingsTransformer tx = adder.add();
         addAliasesAndProperties(tx);
-        convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
+        convertedTerminalsWithOnlyEq(tx.getTerminal1(), tx.getTerminal2());
 
         setToIidmRatioTapChanger(convertedT2xModel, tx);
         setToIidmPhaseTapChanger(convertedT2xModel, tx, context);
@@ -200,28 +191,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
-    }
-
-    private static double getRatio(ConvertedT2xModel convertedT2xModel) {
-        double a = convertedT2xModel.end1.ratedU / convertedT2xModel.end2.ratedU;
-        if (convertedT2xModel.end1.ratioTapChanger != null) {
-            a *= convertedT2xModel.end1.ratioTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.ratioTapChanger)).getRatio();
-        }
-        if (convertedT2xModel.end1.phaseTapChanger != null) {
-            a *= convertedT2xModel.end1.phaseTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getRatio();
-        }
-        return a;
-    }
-
-    private static double getAngle(ConvertedT2xModel convertedT2xModel) {
-        double angle = 0.0;
-        if (convertedT2xModel.end1.phaseTapChanger != null) {
-            angle = Math.toRadians(convertedT2xModel.end1.phaseTapChanger.getSteps()
-                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getAngle());
-        }
-        return angle;
     }
 
     private static int getStepIndex(TapChanger tapChanger) {
@@ -276,36 +245,21 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         return getValue(convertedT2xModel.end1.b, getStepB1(convertedT2xModel.end1.ratioTapChanger), getStepB1(convertedT2xModel.end1.phaseTapChanger));
     }
 
-    private PiModel piModel(double r, double x, double g, double b, double a, double angle) {
-        PiModel piModel = new PiModel();
+    public static void update(TwoWindingsTransformer t2w, Context context) {
+        updateTerminals(t2w, context, t2w.getTerminal1(), t2w.getTerminal2());
 
-        Complex ratio = ComplexUtils.polar2Complex(a, angle);
-        Complex ytr = new Complex(r, x).reciprocal();
-        Complex ytr1 = ytr.divide(ratio.conjugate());
-        Complex ytr2 = ytr.divide(ratio);
-        Complex ysh1 = new Complex(g, b).divide(ratio.multiply(ratio.conjugate()))
-            .add(ytr.multiply(ratio.reciprocal().subtract(1.0)).divide(ratio.conjugate()));
-        Complex ysh2 = ytr.multiply(ratio.reciprocal().negate().add(1.0));
+        boolean isAllowedToRegulatePtc = true;
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t2w, ptc, context, isAllowedToRegulatePtc));
 
-        piModel.r1 = ytr1.reciprocal().getReal();
-        piModel.x1 = ytr1.reciprocal().getImaginary();
-        piModel.g1 = ysh1.getReal();
-        piModel.b1 = ysh1.getImaginary();
-        piModel.r2 = ytr2.reciprocal().getReal();
-        piModel.x2 = ytr2.reciprocal().getImaginary();
-        piModel.g2 = ysh2.getReal();
-        piModel.b2 = ysh2.getImaginary();
-        return piModel;
+        boolean isAllowedToRegulateRtc = checkOnlyOneEnabled(isAllowedToRegulatePtc, t2w.getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t2w, rtc, context, isAllowedToRegulateRtc));
+
+        Stream.of(t2w.getOperationalLimitsGroups1(), t2w.getOperationalLimitsGroups2())
+                .flatMap(Collection::stream)
+                .forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 
-    private static class PiModel {
-        double r1;
-        double x1;
-        double g1;
-        double b1;
-        double r2;
-        double x2;
-        double g2;
-        double b2;
+    public static void update(BoundaryLine boundaryLine, Context context) {
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 }

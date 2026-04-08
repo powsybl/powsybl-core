@@ -3,26 +3,34 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.converter;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
-import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import com.powsybl.ucte.converter.util.UcteConstants;
+import com.powsybl.ucte.converter.util.UcteConverterConstants;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class UcteImporterTest {
 
@@ -79,8 +87,8 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         // Test Element name Line
         assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperty("elementName"));
-        // Test Dangling Line element name
-        assertEquals("Test DL", network.getDanglingLine("XG__F_21 F_SU1_21 1").getProperty("elementName"));
+        // Test Boundary Line element name
+        assertEquals("Test DL", network.getBoundaryLine("XG__F_21 F_SU1_21 1").getProperty("elementName"));
         // Test Switch element name
         assertEquals("Test Coupler", network.getSwitch("F_SU1_12 F_SU1_11 1").getProperty("elementName"));
         // Test 2WT element name
@@ -88,24 +96,18 @@ class UcteImporterTest {
         assertEquals("Test 2WT 2", network.getBranch("B_SU1_11 B_SU1_21 1").getProperty("elementName"));
         // Test tie line
         // cannot refer to side of tieline directly cause order of half lines may change
-        // at import : due to HashSet iterator on dangling lines ?
-        TieLine tieLine1 = (TieLine) network.getLineStream().filter(Line::isTieLine)
-                .filter(line -> {
-                    TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") || tl.getHalf2().getId().equals("XB__F_11 B_SU1_11 1");
-                }).findAny().get();
-        String expectedElementName1 = tieLine1.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
-        String expectedElementName2 = tieLine1.getHalf2().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        // at import : due to HashSet iterator on boundary lines ?
+        TieLine tieLine1 = network.getTieLineStream()
+                .filter(line -> line.getBoundaryLine1().getId().contains("XB__F_11 B_SU1_11 1") || line.getBoundaryLine2().getId().contains("XB__F_11 B_SU1_11 1")).findAny().orElseThrow();
+        String expectedElementName1 = tieLine1.getBoundaryLine1().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        String expectedElementName2 = tieLine1.getBoundaryLine2().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
         assertEquals(expectedElementName1, tieLine1.getProperty("elementName_1"));
         assertEquals(expectedElementName2, tieLine1.getProperty("elementName_2"));
 
-        TieLine tieLine2 = (TieLine) network.getLineStream().filter(Line::isTieLine)
-                .filter(line -> {
-                    TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") || tl.getHalf2().getId().equals("XB__F_21 B_SU1_21 1");
-                }).findAny().get();
-        expectedElementName1 = tieLine2.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
-        expectedElementName2 = tieLine2.getHalf2().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        TieLine tieLine2 = network.getTieLineStream()
+                .filter(line -> line.getBoundaryLine1().getId().contains("XB__F_21 B_SU1_21 1") || line.getBoundaryLine2().getId().contains("XB__F_21 B_SU1_21 1")).findAny().orElseThrow();
+        expectedElementName1 = tieLine2.getBoundaryLine1().getId().contains("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        expectedElementName2 = tieLine2.getBoundaryLine2().getId().contains("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
         assertEquals(expectedElementName1, tieLine2.getProperty("elementName_1"));
         assertEquals(expectedElementName2, tieLine2.getProperty("elementName_2"));
     }
@@ -117,14 +119,12 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, network.getDanglingLineCount());
-        assertEquals(1, network.getLineCount());
-        Line l = network.getLineStream().findFirst().orElseThrow(AssertionError::new);
+        assertEquals(1, network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).count());
+        assertEquals(1, network.getTieLineCount());
+        TieLine l = network.getTieLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
-        MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
-        assertNotNull(mergedXnode);
-        assertTrue(l.getCurrentLimits1().isPresent());
-        assertTrue(l.getCurrentLimits2().isPresent());
+        assertTrue(l.getBoundaryLine1().getCurrentLimits().isPresent());
+        assertTrue(l.getBoundaryLine2().getCurrentLimits().isPresent());
     }
 
     @Test
@@ -156,7 +156,9 @@ class UcteImporterTest {
     void testImportLinesDifferentNominalvoltage() {
         ResourceDataSource dataSource = new ResourceDataSource("differentLinesVoltage", new ResourceSet("/", "differentLinesVoltage.uct"));
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null));
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        Importer ucteImporter = new UcteImporter();
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> ucteImporter.importData(dataSource, networkFactory, null));
         assertTrue(e.getMessage().contains("with two different nominal voltages"));
     }
 
@@ -164,7 +166,7 @@ class UcteImporterTest {
     void testVoltageRegulatingXnode() {
         ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-        DanglingLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
+        BoundaryLine dl = network.getBoundaryLine("FFFFFF13 XXXXXX14 1");
         assertTrue(dl.getGeneration().isVoltageRegulationOn());
         assertEquals(409.08, dl.getGeneration().getTargetV(), 0.01);
         assertEquals(1.0, dl.getGeneration().getTargetP(), 0.01);
@@ -224,22 +226,24 @@ class UcteImporterTest {
     void importOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeOneClosedLine", new ResourceSet("/", "xnodeOneClosedLine.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
-        assertNotNull(network.getDanglingLine("FFFFFF12 XXXXXX11 1"));
+        assertNotNull(network.getBoundaryLine("FFFFFF12 XXXXXX11 1"));
     }
 
     @Test
     void importOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeTwoClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
-        assertNotNull(network.getLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
-        assertNotNull(network.getDanglingLine("FFFFFF11 XXXXXX11 1"));
-        assertNotNull(network.getDanglingLine("BEBBBB12 XXXXXX11 1"));
+        assertNotNull(network.getTieLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
+        assertNotNull(network.getBoundaryLine("FFFFFF11 XXXXXX11 1"));
+        assertNotNull(network.getBoundaryLine("BEBBBB12 XXXXXX11 1"));
     }
 
     @Test
     void importOfNetworkWithXnodesConnectedToMoreThanTwoClosedLineMustFail() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeThreeClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
-        assertThrows(UcteException.class, () -> new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null));
+        NetworkFactory networkFactory = new NetworkFactoryImpl();
+        Importer ucteImporter = new UcteImporter();
+        assertThrows(UcteException.class, () -> ucteImporter.importData(dataSource, networkFactory, null));
     }
 
     @Test
@@ -267,7 +271,7 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         Line l = network.getLine("F_SU1_12 F_SU1_11 1");
         assertNotNull(l);
-        assertFalse(l.hasProperty(UcteConstants.ELEMENT_NAME_PROPERTY_KEY));
+        assertFalse(l.hasProperty(UcteConverterConstants.ELEMENT_NAME_PROPERTY_KEY));
     }
 
     @Test
@@ -283,5 +287,76 @@ class UcteImporterTest {
         assertEquals(1.92419, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getAlpha(), 0.001);
         assertEquals(1.00000694, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getRho(), 0.0000001); // FIXME, symmetrical no impact
     }
-}
 
+    @Test
+    void lineBetweenTwoXnodesTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("lineBetweenTwoXnodes", new ResourceSet("/", "lineBetweenTwoXnodes.uct"));
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        UcteImporter importer = new UcteImporter();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(dataSource, networkFactory, null));
+        assertEquals("Line between 2 X-nodes: 'XXNODE11' and 'XXNODE12'", e.getMessage());
+    }
+
+    @Test
+    void testCreateAreas() {
+        ResourceDataSource dataSource = new ResourceDataSource("uxTestGridForMerging", new ResourceSet("/", "uxTestGridForMerging.uct"));
+        Properties parameters = new Properties();
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
+        assertEquals(1, network.getAreaTypeCount());
+        assertEquals(List.of("ControlArea"), network.getAreaTypeStream().toList());
+        assertEquals(2, network.getAreaCount());
+        var frArea = network.getArea("FR");
+        var beArea = network.getArea("BE");
+        assertNotNull(frArea);
+        assertNotNull(beArea);
+        assertEquals(2, frArea.getAreaBoundaryStream().count());
+        assertNotNull(frArea.getAreaBoundary(network.getBoundaryLine("FFFFFF11 XXXXXX11 1").getBoundary()));
+        assertNotNull(frArea.getAreaBoundary(network.getBoundaryLine("FFFFFF11 XXXXXX12 1").getBoundary()));
+        assertEquals(2, beArea.getAreaBoundaryStream().count());
+        assertNotNull(beArea.getAreaBoundary(network.getBoundaryLine("BBBBBB11 XXXXXX11 1").getBoundary()));
+        assertNotNull(beArea.getAreaBoundary(network.getBoundaryLine("BBBBBB11 XXXXXX12 1").getBoundary()));
+        frArea.getAreaBoundaries().forEach(ab -> assertTrue(ab.isAc()));
+        beArea.getAreaBoundaries().forEach(ab -> assertTrue(ab.isAc()));
+
+        assertEquals(Set.of("FFFFFF1"), frArea.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toUnmodifiableSet()));
+        assertEquals(Set.of("BBBBBB1"), beArea.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toUnmodifiableSet()));
+    }
+
+    @Test
+    void testCreateAreasDcXnode() {
+        ResourceDataSource dataSource = new ResourceDataSource("uxTestGridForMerging", new ResourceSet("/", "uxTestGridForMerging.uct"));
+        Properties parameters = new Properties();
+        parameters.put("ucte.import.areas-dc-xnodes", "XXXXXX11");
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
+        var frArea = network.getArea("FR");
+        var beArea = network.getArea("BE");
+        var frBoundaryLine1 = network.getBoundaryLine("FFFFFF11 XXXXXX11 1");
+        var frBoundaryLine2 = network.getBoundaryLine("FFFFFF11 XXXXXX12 1");
+        var beBoundaryLine1 = network.getBoundaryLine("BBBBBB11 XXXXXX11 1");
+        var beBoundaryLine2 = network.getBoundaryLine("BBBBBB11 XXXXXX12 1");
+        assertFalse(frArea.getAreaBoundary(frBoundaryLine1.getBoundary()).isAc());
+        assertTrue(frArea.getAreaBoundary(frBoundaryLine2.getBoundary()).isAc());
+        assertFalse(beArea.getAreaBoundary(beBoundaryLine1.getBoundary()).isAc());
+        assertTrue(beArea.getAreaBoundary(beBoundaryLine2.getBoundary()).isAc());
+    }
+
+    @Test
+    void testDontCreateAreas() {
+        ResourceDataSource dataSource = new ResourceDataSource("uxTestGridForMerging", new ResourceSet("/", "uxTestGridForMerging.uct"));
+        Properties parameters = new Properties();
+        parameters.put("ucte.import.create-areas", "false");
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
+        assertEquals(0, network.getAreaTypeCount());
+        assertEquals(0, network.getAreaCount());
+    }
+
+    @Test
+    void testMetaInfos() throws IOException {
+        try (var fs = Jimfs.newFileSystem(Configuration.unix())) {
+            var importer = new UcteImporter(new InMemoryPlatformConfig(fs));
+            assertEquals("UCTE", importer.getFormat());
+            assertEquals("UCTE-DEF", importer.getComment());
+            assertEquals(List.of("uct", "UCT"), importer.getSupportedExtensions());
+        }
+    }
+}

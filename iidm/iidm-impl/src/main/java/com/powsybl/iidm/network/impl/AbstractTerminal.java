@@ -3,32 +3,38 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 /**
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTerminal implements TerminalExt {
 
     protected static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment ";
     protected static final String CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT = "Cannot access bus of removed equipment ";
 
-    protected final Ref<? extends VariantManagerHolder> network;
+    private Ref<? extends VariantManagerHolder> network;
+
+    protected final ThreeSides side;
+
+    protected final TerminalNumber terminalNumber;
 
     protected AbstractConnectable connectable;
 
     protected VoltageLevelExt voltageLevel;
 
-    protected int num = -1;
+    protected final ReferrerManager<Terminal> referrerManager = new ReferrerManager<>(this);
 
     // attributes depending on the variant
 
@@ -38,7 +44,12 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected boolean removed = false;
 
-    AbstractTerminal(Ref<? extends VariantManagerHolder> network) {
+    AbstractTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, TerminalNumber terminalNumber) {
+        if (side != null && terminalNumber != null) {
+            throw new IllegalStateException("cannot have both side and number");
+        }
+        this.side = side;
+        this.terminalNumber = terminalNumber;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         p = new TDoubleArrayList(variantArraySize);
@@ -47,6 +58,24 @@ abstract class AbstractTerminal implements TerminalExt {
             p.add(Double.NaN);
             q.add(Double.NaN);
         }
+    }
+
+    @Override
+    public ThreeSides getSide() {
+        return side;
+    }
+
+    @Override
+    public TerminalNumber getTerminalNumber() {
+        return terminalNumber;
+    }
+
+    protected String getAttributeSideOrNumberSuffix() {
+        return "" + (side != null ? side.getNum() : "") + (terminalNumber != null ? terminalNumber.getNum() : "");
+    }
+
+    protected VariantManagerHolder getVariantManagerHolder() {
+        return network.get();
     }
 
     @Override
@@ -70,11 +99,9 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void setVoltageLevel(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    public void setNum(int num) {
-        this.num = num;
+        if (voltageLevel != null) {
+            network = voltageLevel.getNetworkRef();
+        }
     }
 
     @Override
@@ -96,7 +123,7 @@ abstract class AbstractTerminal implements TerminalExt {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p.set(variantIndex, p);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate(() -> "p" + (num != -1 ? num : ""), variantId, oldValue, p);
+        getConnectable().notifyUpdate(() -> "p" + getAttributeSideOrNumberSuffix(), variantId, oldValue, p);
         return this;
     }
 
@@ -119,7 +146,7 @@ abstract class AbstractTerminal implements TerminalExt {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.q.set(variantIndex, q);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate(() -> "q" + (num != -1 ? num : ""), variantId, oldValue, q);
+        getConnectable().notifyUpdate(() -> "q" + getAttributeSideOrNumberSuffix(), variantId, oldValue, q);
         return this;
     }
 
@@ -140,18 +167,56 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+    /**
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isTypeSwitchToOperate Predicate telling if a switch is considered operable. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        return voltageLevel.connect(this);
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+        boolean connectedBefore = isConnected();
+        connectable.notifyUpdate("beginConnect", variantId, connectedBefore, null);
+        boolean connected = voltageLevel.getTopologyModel().connect(this, isTypeSwitchToOperate);
+        boolean connectedAfter = isConnected();
+        connectable.notifyUpdate("endConnect", variantId, null, connectedAfter);
+        return connected;
     }
 
     @Override
     public boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+    }
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable Predicate telling if a switch is considered openable. Examples of predicates are available in the class {@link SwitchPredicates}
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
-        return voltageLevel.disconnect(this);
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+        boolean disconnectedBefore = !isConnected();
+        connectable.notifyUpdate("beginDisconnect", variantId, disconnectedBefore, null);
+        boolean disconnected = voltageLevel.getTopologyModel().disconnect(this, isSwitchOpenable);
+        boolean disconnectedAfter = !isConnected();
+        connectable.notifyUpdate("endDisconnect", variantId, null, disconnectedAfter);
+        return disconnected;
     }
 
     @Override
@@ -186,5 +251,15 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void remove() {
         removed = true;
+    }
+
+    @Override
+    public ReferrerManager<Terminal> getReferrerManager() {
+        return referrerManager;
+    }
+
+    @Override
+    public List<Object> getReferrers() {
+        return referrerManager.getReferrers().stream().map(r -> (Object) r).toList();
     }
 }

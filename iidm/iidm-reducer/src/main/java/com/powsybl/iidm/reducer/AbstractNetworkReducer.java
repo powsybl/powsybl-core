@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
@@ -14,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractNetworkReducer implements NetworkReducer {
 
@@ -22,9 +23,9 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
 
     private final NetworkPredicate predicate;
 
-    private Set<String> vlIds = new HashSet<>();
+    private final Set<String> vlIds = new HashSet<>();
 
-    public AbstractNetworkReducer(NetworkPredicate predicate) {
+    protected AbstractNetworkReducer(NetworkPredicate predicate) {
         this.predicate = Objects.requireNonNull(predicate);
     }
 
@@ -34,37 +35,43 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
         // Remove all unwanted lines
         List<Line> lines = network.getLineStream()
                 .filter(l -> !test(l))
-                .collect(Collectors.toList());
+                .toList();
         lines.forEach(this::reduce);
+
+        // Remove all unwanted tie lines
+        List<TieLine> tieLines = network.getTieLineStream()
+                .filter(l -> !test(l))
+                .toList();
+        tieLines.forEach(this::reduce);
 
         // Remove all unwanted two windings transformers
         List<TwoWindingsTransformer> twoWindingsTransformers = network.getTwoWindingsTransformerStream()
                 .filter(t -> !test(t))
-                .collect(Collectors.toList());
+                .toList();
         twoWindingsTransformers.forEach(this::reduce);
 
         // Remove all three windings transformers
         List<ThreeWindingsTransformer> threeWindingsTransformers = network.getThreeWindingsTransformerStream()
                 .filter(t -> !test(t))
-                .collect(Collectors.toList());
+                .toList();
         threeWindingsTransformers.forEach(this::reduce);
 
         // Remove all unwanted HVDC lines
         List<HvdcLine> hvdcLines = network.getHvdcLineStream()
                 .filter(h -> !test(h))
-                .collect(Collectors.toList());
+                .toList();
         hvdcLines.forEach(this::reduce);
 
         // Remove all unwanted voltage levels
         List<VoltageLevel> voltageLevels = network.getVoltageLevelStream()
                 .filter(vl -> !test(vl))
-                .collect(Collectors.toList());
+                .toList();
         voltageLevels.forEach(this::reduce);
 
         // Remove all unwanted substations
         List<Substation> substations = network.getSubstationStream()
                 .filter(s -> !test(s))
-                .collect(Collectors.toList());
+                .toList();
         substations.forEach(this::reduce);
     }
 
@@ -77,6 +84,8 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
     protected abstract void reduce(VoltageLevel voltageLevel);
 
     protected abstract void reduce(Line line);
+
+    protected abstract void reduce(TieLine tieLine);
 
     protected abstract void reduce(TwoWindingsTransformer transformer);
 
@@ -97,20 +106,27 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
      * Return true if the given {@link Line} should be kept in the network, false otherwise
      */
     protected boolean test(Line line) {
-        return test((Branch) line);
+        return test((Branch<?>) line);
+    }
+
+    /**
+     * Return true if the given {@link TieLine} should be kept in the network, false otherwise
+     */
+    protected boolean test(TieLine tieLine) {
+        return test((Branch<?>) tieLine);
     }
 
     /**
      * Return true if the given {@link TwoWindingsTransformer} should be kept in the network, false otherwise
      */
     protected boolean test(TwoWindingsTransformer transformer) {
-        return test((Branch) transformer);
+        return test((Branch<?>) transformer);
     }
 
     /**
      * Return true if the given {@link Branch} should be kept in the network, false otherwise
      */
-    private boolean test(Branch branch) {
+    private boolean test(Branch<?> branch) {
         Objects.requireNonNull(branch);
         VoltageLevel vl1 = branch.getTerminal1().getVoltageLevel();
         VoltageLevel vl2 = branch.getTerminal2().getVoltageLevel();
@@ -145,7 +161,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
         List<String> voltageLevels = network.getVoltageLevelStream()
                 .filter(predicate::test)
                 .map(VoltageLevel::getId)
-                .collect(Collectors.toList());
+                .toList();
         vlIds.addAll(voltageLevels);
 
         //Adding necessary vl for three winding transformers

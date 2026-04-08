@@ -3,16 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class FictitiousSwitchFactory {
 
@@ -27,7 +28,7 @@ public final class FictitiousSwitchFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("fictitious", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         Substation s = network.newSubstation()
@@ -231,10 +232,10 @@ public final class FictitiousSwitchFactory {
                 .setNode2(10)
                 .setVoltageLevel2("N")
                 .add();
-        twtCI.newCurrentLimits1()
+        twtCI.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        twtCI.newCurrentLimits2()
+        twtCI.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
         twtCI.newPhaseTapChanger()
@@ -243,7 +244,7 @@ public final class FictitiousSwitchFactory {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(930.6667)
                 .setRegulating(false)
-                .setRegulationTerminal(twtCI.getTerminal(Branch.Side.ONE))
+                .setRegulationTerminal(twtCI.getTerminal(TwoSides.ONE))
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
                 .beginStep().setR(31.720245).setX(31.720242).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-40.18).endStep()
                 .beginStep().setR(23.655737).setX(23.655735).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-37.54).endStep()
@@ -292,10 +293,10 @@ public final class FictitiousSwitchFactory {
                 .setNode2(5)
                 .setVoltageLevel2("N")
                 .add();
-        lineCJ.newCurrentLimits1()
+        lineCJ.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        lineCJ.newCurrentLimits2()
+        lineCJ.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .beginTemporaryLimit()
                     .setName("IST")

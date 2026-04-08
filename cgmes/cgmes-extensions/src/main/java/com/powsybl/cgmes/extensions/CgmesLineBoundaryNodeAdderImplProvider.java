@@ -3,18 +3,19 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesLineBoundaryNodeAdderImplProvider implements ExtensionAdderProvider<Line, CgmesLineBoundaryNode, CgmesLineBoundaryNodeAdderImpl> {
+public class CgmesLineBoundaryNodeAdderImplProvider implements ExtensionAdderProvider<TieLine, CgmesLineBoundaryNode, CgmesLineBoundaryNodeAdderImpl> {
     @Override
     public String getImplementationName() {
         return "Default";
@@ -31,7 +32,7 @@ public class CgmesLineBoundaryNodeAdderImplProvider implements ExtensionAdderPro
     }
 
     @Override
-    public CgmesLineBoundaryNodeAdderImpl newAdder(Line extendable) {
+    public CgmesLineBoundaryNodeAdderImpl newAdder(TieLine extendable) {
         return new CgmesLineBoundaryNodeAdderImpl(extendable);
     }
 }

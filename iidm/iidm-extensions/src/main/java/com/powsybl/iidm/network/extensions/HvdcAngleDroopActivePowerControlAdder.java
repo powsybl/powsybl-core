@@ -12,7 +12,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.HvdcLine;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public interface HvdcAngleDroopActivePowerControlAdder extends ExtensionAdder<HvdcLine, HvdcAngleDroopActivePowerControl> {
 

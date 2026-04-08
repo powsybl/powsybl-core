@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public abstract class AbstractAliasesTest {
 
@@ -164,7 +165,7 @@ public abstract class AbstractAliasesTest {
         Network network = EurostagTutorialExample1Factory.create();
         Network otherNetwork = FourSubstationsNodeBreakerFactory.create();
         otherNetwork.getGenerator("GH1").addAlias("NHV2_NLOAD");
-        assertThrows(PowsyblException.class, () -> network.merge(otherNetwork));
+        assertThrows(PowsyblException.class, () -> Network.merge(network, otherNetwork));
     }
 
     @Test
@@ -173,6 +174,6 @@ public abstract class AbstractAliasesTest {
         Network otherNetwork = FourSubstationsNodeBreakerFactory.create();
         network.getTwoWindingsTransformer("NHV2_NLOAD").addAlias("Alias");
         otherNetwork.getGenerator("GH1").addAlias("Alias");
-        assertThrows(PowsyblException.class, () -> network.merge(otherNetwork));
+        assertThrows(PowsyblException.class, () -> Network.merge(network, otherNetwork));
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -16,7 +17,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class TimeSeriesNameNodeCalc implements NodeCalc {
 
@@ -53,8 +54,8 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
     }
 
     static NodeCalc parseJson(JsonParser parser) throws IOException {
-        JsonToken token;
-        while ((token = parser.nextToken()) != null) {
+        JsonToken token = parser.nextToken();
+        if (token != null) {
             if (token == JsonToken.VALUE_STRING) {
                 return new TimeSeriesNameNodeCalc(parser.getValueAsString());
             } else {
@@ -71,8 +72,8 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeSeriesNameNodeCalc) {
-            return ((TimeSeriesNameNodeCalc) obj).timeSeriesName.equals(timeSeriesName);
+        if (obj instanceof TimeSeriesNameNodeCalc timeSeriesNameNodeCalc) {
+            return timeSeriesNameNodeCalc.timeSeriesName.equals(timeSeriesName);
         }
         return false;
     }

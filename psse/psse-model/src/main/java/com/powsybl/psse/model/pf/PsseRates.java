@@ -3,16 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class PsseRates extends PsseVersioned {
 
@@ -28,50 +30,62 @@ public class PsseRates extends PsseVersioned {
     @Revision(until = 33)
     private double ratec = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate1", "wdgrate1"})
     @Revision(since = 35)
     private double rate1 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate2", "wdgrate2"})
     @Revision(since = 35)
     private double rate2 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate3", "wdgrate3"})
     @Revision(since = 35)
     private double rate3 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate4", "wdgrate4"})
     @Revision(since = 35)
     private double rate4 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate5", "wdgrate5"})
     @Revision(since = 35)
     private double rate5 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate6", "wdgrate6"})
     @Revision(since = 35)
     private double rate6 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate7", "wdgrate7"})
     @Revision(since = 35)
     private double rate7 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate8", "wdgrate8"})
     @Revision(since = 35)
     private double rate8 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate9", "wdgrate9"})
     @Revision(since = 35)
     private double rate9 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate10", "wdgrate10"})
     @Revision(since = 35)
     private double rate10 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate11", "wdgrate11"})
     @Revision(since = 35)
     private double rate11 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed(field = {"rate12", "wdgrate12"})
     @Revision(since = 35)
     private double rate12 = 0;
@@ -224,5 +238,25 @@ public class PsseRates extends PsseVersioned {
     public void setRate12(double rate12) {
         checkVersion("rate12");
         this.rate12 = rate12;
+    }
+
+    public PsseRates copy() {
+        PsseRates copy = new PsseRates();
+        copy.ratea = this.ratea;
+        copy.rateb = this.rateb;
+        copy.ratec = this.ratec;
+        copy.rate1 = this.rate1;
+        copy.rate2 = this.rate2;
+        copy.rate3 = this.rate3;
+        copy.rate4 = this.rate4;
+        copy.rate5 = this.rate5;
+        copy.rate6 = this.rate6;
+        copy.rate7 = this.rate7;
+        copy.rate8 = this.rate8;
+        copy.rate9 = this.rate9;
+        copy.rate10 = this.rate10;
+        copy.rate11 = this.rate11;
+        copy.rate12 = this.rate12;
+        return copy;
     }
 }

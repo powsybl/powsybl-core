@@ -11,6 +11,7 @@ sourceDir=$(dirname $(readlink -f $0))
 ## install default settings
 ###############################################################################
 powsybl_prefix=$HOME/powsybl
+powsybl_mvn=mvn
 
 # Targets
 powsybl_clean=false
@@ -42,6 +43,7 @@ usage() {
     echo "Options:"
     echo "  --help                   Display this help"
     echo "  --prefix                 Set the installation directory (default is $HOME/powsybl)"
+    echo "  --mvn                    Set the maven command to use (default is \"mvn\")"
     echo ""
 }
 
@@ -77,6 +79,7 @@ writeEmptyLine() {
 writeSettings() {
     writeComment " -- Global options --"
     writeSetting "powsybl_prefix" ${powsybl_prefix}
+    writeSetting "powsybl_mvn" ${powsybl_mvn}
 
     return 0
 }
@@ -92,13 +95,13 @@ powsybl_java()
         [ $powsybl_clean = true ] && mvn_options="$mvn_options clean"
         [ $powsybl_compile = true ] && mvn_options="$mvn_options install"
         if [ ! -z "$mvn_options" ]; then
-            mvn -f "$sourceDir/pom.xml" $mvn_options || exit $?
+            "$powsybl_mvn" -f "$sourceDir/pom.xml" $mvn_options || exit $?
         fi
 
         if [ $powsybl_docs = true ]; then
             echo "**** Generating Javadoc documentation"
-            mvn -f "$sourceDir/pom.xml" javadoc:aggregate || exit $?
-            mvn -f "$sourceDir/distribution-core/pom.xml" install || exit $?
+            "$powsybl_mvn" -f "$sourceDir/pom.xml" javadoc:aggregate || exit $?
+            "$powsybl_mvn" -f "$sourceDir/distribution-core/pom.xml" install || exit $?
         fi
     fi
 }
@@ -118,7 +121,7 @@ powsybl_install()
 
 ## Parse command line
 ###############################################################################
-powsybl_options="prefix:"
+powsybl_options="prefix:,mvn:"
 
 opts=`getopt -o '' --long "help,$powsybl_options" -n 'install.sh' -- "$@"`
 eval set -- "$opts"
@@ -126,6 +129,7 @@ while true; do
     case "$1" in
         # Options
         --prefix) powsybl_prefix=$2 ; shift 2 ;;
+        --mvn) powsybl_mvn=$2 ; shift 2 ;;
 
         # Help
         --help) usage ; exit 0 ;;

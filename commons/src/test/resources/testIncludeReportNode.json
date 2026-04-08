@@ -1,0 +1,26 @@
+{
+  "version" : "3.0",
+  "dictionaries" : {
+    "default" : {
+      "includedChild" : "Included child message",
+      "includedRoot" : "Included root message",
+      "newRootAboveAll" : "New root above all reportNodes",
+      "simpleChild" : "Child message",
+      "simpleRootTemplate" : "Root message"
+    }
+  },
+  "reportRoot" : {
+    "messageKey" : "newRootAboveAll",
+    "children" : [ {
+      "messageKey" : "simpleRootTemplate",
+      "children" : [ {
+        "messageKey" : "includedRoot",
+        "children" : [ {
+          "messageKey" : "includedChild"
+        } ]
+      }, {
+        "messageKey" : "simpleChild"
+      } ]
+    } ]
+  }
+}

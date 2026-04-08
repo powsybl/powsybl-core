@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -16,7 +17,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class FloatNodeCalc implements LiteralNodeCalc {
 
@@ -58,8 +59,8 @@ public class FloatNodeCalc implements LiteralNodeCalc {
     }
 
     static NodeCalc parseJson(JsonParser parser) throws IOException {
-        JsonToken token;
-        while ((token = parser.nextToken()) != null) {
+        JsonToken token = parser.nextToken();
+        if (token != null) {
             if (token == JsonToken.VALUE_NUMBER_FLOAT) {
                 return new FloatNodeCalc(parser.getFloatValue());
             } else if (token == JsonToken.VALUE_NUMBER_INT) {
@@ -78,8 +79,8 @@ public class FloatNodeCalc implements LiteralNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof FloatNodeCalc) {
-            return ((FloatNodeCalc) obj).value == value;
+        if (obj instanceof FloatNodeCalc floatNodeCalc) {
+            return floatNodeCalc.value == value;
         }
         return false;
     }

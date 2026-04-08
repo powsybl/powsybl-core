@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.execution;
 
@@ -10,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,7 +22,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 class SecurityAnalysisExecutionInputTest {
 
@@ -55,7 +56,7 @@ class SecurityAnalysisExecutionInputTest {
 
         assertSame(network, input.getNetworkVariant().getNetwork());
         assertEquals("variantId", input.getNetworkVariant().getVariantId());
-        assertSame(source, input.getContingenciesSource().orElseThrow(AssertionError::new));
+        assertSame(source, input.getContingenciesSource().orElseThrow(IllegalStateException::new));
         assertSame(params, input.getParameters());
         assertEquals(ImmutableList.of("ext1", "ext2", "ext3"), input.getResultExtensions());
         assertEquals(EnumSet.of(LimitViolationType.CURRENT,

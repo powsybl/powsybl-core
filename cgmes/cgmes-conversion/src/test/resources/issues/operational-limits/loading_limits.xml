@@ -1,0 +1,152 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:ModelID_EQ">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>Loading limits</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+    <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:GeographicalRegion rdf:ID="_GR">
+    <cim:IdentifiedObject.name>Geographical region</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR">
+    <cim:IdentifiedObject.name>Subgeographical region</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_GR"/>
+</cim:SubGeographicalRegion>
+<cim:Substation rdf:ID="_ST_1">
+    <cim:IdentifiedObject.name>Substation 1</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_1">
+    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_1"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_1">
+    <cim:IdentifiedObject.name>Node 1</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_1"/>
+</cim:ConnectivityNode>
+<cim:Substation rdf:ID="_ST_2">
+    <cim:IdentifiedObject.name>Substation 2</cim:IdentifiedObject.name>
+    <cim:Substation.Region rdf:resource="#_SGR"/>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_VL_2">
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_BV"/>
+    <cim:VoltageLevel.Substation rdf:resource="#_ST_2"/>
+</cim:VoltageLevel>
+<cim:ConnectivityNode rdf:ID="_CN_2">
+    <cim:IdentifiedObject.name>Node 2</cim:IdentifiedObject.name>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VL_2"/>
+</cim:ConnectivityNode>
+<cim:ACLineSegment rdf:ID="_ACL">
+    <cim:IdentifiedObject.name>AC line segment</cim:IdentifiedObject.name>
+    <cim:ACLineSegment.b0ch>0</cim:ACLineSegment.b0ch>
+    <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+    <cim:ACLineSegment.g0ch>0</cim:ACLineSegment.g0ch>
+    <cim:ACLineSegment.gch>0</cim:ACLineSegment.gch>
+    <cim:ACLineSegment.r>0.1</cim:ACLineSegment.r>
+    <cim:ACLineSegment.r0>0.1</cim:ACLineSegment.r0>
+    <cim:ACLineSegment.x>1</cim:ACLineSegment.x>
+    <cim:ACLineSegment.x0>0.1</cim:ACLineSegment.x0>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV"/>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_LN"/>
+</cim:ACLineSegment>
+<cim:Terminal rdf:ID="_T_ACL_1">
+    <cim:IdentifiedObject.name>Terminal ACL 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_ACL_2">
+    <cim:IdentifiedObject.name>Terminal ACL 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_ACL"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:OperationalLimitSet rdf:ID="_OLS_ACL_1">
+    <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_T_ACL_1"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_I_PATL_1">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>100</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_I_TATL_1">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>200</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_TATL_600"/>
+</cim:CurrentLimit>
+<cim:ActivePowerLimit rdf:ID="_P_PATL_1">
+    <cim:IdentifiedObject.name>Active power limit</cim:IdentifiedObject.name>
+    <cim:ActivePowerLimit.value>101</cim:ActivePowerLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:ActivePowerLimit>
+<cim:ActivePowerLimit rdf:ID="_P_TATL_1">
+    <cim:IdentifiedObject.name>Active power limit</cim:IdentifiedObject.name>
+    <cim:ActivePowerLimit.value>201</cim:ActivePowerLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_TATL_600"/>
+</cim:ActivePowerLimit>
+<cim:ApparentPowerLimit rdf:ID="_S_PATL_1">
+    <cim:IdentifiedObject.name>Apparent power limit</cim:IdentifiedObject.name>
+    <cim:ApparentPowerLimit.value>102</cim:ApparentPowerLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:ApparentPowerLimit>
+<cim:ApparentPowerLimit rdf:ID="_S_TATL_1">
+    <cim:IdentifiedObject.name>Apparent power limit</cim:IdentifiedObject.name>
+    <cim:ApparentPowerLimit.value>202</cim:ApparentPowerLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_1"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_TATL_600"/>
+</cim:ApparentPowerLimit>
+<cim:OperationalLimitSet rdf:ID="_OLS_ACL_2">
+    <cim:IdentifiedObject.name>Limit set</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_T_ACL_2"/>
+</cim:OperationalLimitSet>
+<cim:CurrentLimit rdf:ID="_I_PATL_20">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>100</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_I_PATL_21">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>99</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_PATL"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_I_TATL_20">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>200</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_TATL_600"/>
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_I_TATL_21">
+    <cim:IdentifiedObject.name>Current limit</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>199</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_ACL_2"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_TATL_600"/>
+</cim:CurrentLimit>
+<cim:OperationalLimitType rdf:ID="_PATL">
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue" />
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl" />
+    <cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:OperationalLimitType rdf:ID="_TATL_600">
+    <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue" />
+    <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tatl" />
+    <cim:IdentifiedObject.name>Tatl 600</cim:IdentifiedObject.name>
+    <cim:OperationalLimitType.acceptableDuration>600</cim:OperationalLimitType.acceptableDuration>
+</cim:OperationalLimitType>
+<cim:BaseVoltage rdf:ID="_BV">
+    <cim:IdentifiedObject.name>100 kV</cim:IdentifiedObject.name>
+    <cim:BaseVoltage.nominalVoltage>100</cim:BaseVoltage.nominalVoltage>
+</cim:BaseVoltage>
+</rdf:RDF>

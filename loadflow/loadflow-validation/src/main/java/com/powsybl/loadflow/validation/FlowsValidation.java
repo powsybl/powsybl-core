@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
 
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.BranchData;
@@ -27,7 +29,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class FlowsValidation {
 
@@ -161,6 +163,27 @@ public final class FlowsValidation {
         return checkFlows(branch, config, flowsWriter);
     }
 
+    public boolean checkFlows(TieLine tl, ValidationConfig config, Writer writer) {
+        Objects.requireNonNull(tl);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(writer);
+
+        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(tl.getId(), config, writer, ValidationType.FLOWS)) {
+            return checkFlows(tl, config, flowsWriter);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public boolean checkFlows(TieLine tl, ValidationConfig config, ValidationWriter flowsWriter) {
+        Objects.requireNonNull(tl);
+        Objects.requireNonNull(config);
+        Objects.requireNonNull(flowsWriter);
+
+        BranchData branch = new BranchData(tl, config.getEpsilonX(), config.applyReactanceCorrection());
+        return checkFlows(branch, config, flowsWriter);
+    }
+
     public boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
@@ -198,7 +221,12 @@ public final class FlowsValidation {
                 .map(t -> checkFlows(t, config, flowsWriter))
                 .reduce(Boolean::logicalAnd).orElse(true);
 
-        return linesValidated && transformersValidated;
+        boolean tieLinesValidated = network.getTieLineStream()
+            .sorted(Comparator.comparing(TieLine::getId))
+            .map(tl -> checkFlows(tl, config, flowsWriter))
+            .reduce(Boolean::logicalAnd).orElse(true);
+
+        return linesValidated && transformersValidated && tieLinesValidated;
     }
 
 }

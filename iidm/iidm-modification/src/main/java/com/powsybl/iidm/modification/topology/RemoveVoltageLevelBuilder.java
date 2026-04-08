@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 /**
- * @author Etienne Homer <etienne.homer at rte-france.com>
+ * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
 public class RemoveVoltageLevelBuilder {
     private String voltageLevelId = null;

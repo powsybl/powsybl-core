@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.comparator;
 
@@ -17,17 +18,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 class SecurityAnalysisResultComparisonWriterTest {
 
@@ -41,8 +42,8 @@ class SecurityAnalysisResultComparisonWriterTest {
     @BeforeEach
     void setUp() {
         vlViolation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
-        lineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);
-        similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, Branch.Side.ONE);
+        lineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.0, TwoSides.ONE);
+        similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, TwoSides.ONE);
         actions = Arrays.asList("action1", "action2");
         writer = new StringWriter();
         comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer);
@@ -70,7 +71,7 @@ class SecurityAnalysisResultComparisonWriterTest {
                                                  "", String.format(Locale.getDefault(), "%g", 250.0), String.format(Locale.getDefault(), "%g", 200.0),
                                                  "", String.format(Locale.getDefault(), "%g", 250.0), String.format(Locale.getDefault(), "%g", 200.0),
                                                  "", "", "equivalent"),
-                                     String.join(";", "contingency", "", "", "NHV1_NHV2_1", Branch.Side.ONE.name(), LimitViolationType.CURRENT.name(),
+                                     String.join(";", "contingency", "", "", "NHV1_NHV2_1", TwoSides.ONE.name(), LimitViolationType.CURRENT.name(),
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.0), String.format(Locale.getDefault(), "%g", 1000.0),
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.09), String.format(Locale.getDefault(), "%g", 1000.0),
                                                  "", "", "equivalent"),
@@ -108,7 +109,7 @@ class SecurityAnalysisResultComparisonWriterTest {
                                                  "", "", "",
                                                  "", String.format(Locale.getDefault(), "%g", 250.0), String.format(Locale.getDefault(), "%g", 200.0),
                                                  "", "", "different"),
-                                     String.join(";", "contingency", "", "", "NHV1_NHV2_1", Branch.Side.ONE.name(), LimitViolationType.CURRENT.name(),
+                                     String.join(";", "contingency", "", "", "NHV1_NHV2_1", TwoSides.ONE.name(), LimitViolationType.CURRENT.name(),
                                                  "", "", "",
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.0), String.format(Locale.getDefault(), "%g", 1000.0),
                                                  "", "", "different"),
@@ -145,7 +146,7 @@ class SecurityAnalysisResultComparisonWriterTest {
                                      String.join(";", "contingency", "", "", "VL1", "", LimitViolationType.HIGH_VOLTAGE.name(),
                                                  "", String.format(Locale.getDefault(), "%g", 250.0), String.format(Locale.getDefault(), "%g", 200.0),
                                                  "", "", "", "", "", "different"),
-                                     String.join(";", "contingency", "", "", "NHV1_NHV2_1", Branch.Side.ONE.name(), LimitViolationType.CURRENT.name(),
+                                     String.join(";", "contingency", "", "", "NHV1_NHV2_1", TwoSides.ONE.name(), LimitViolationType.CURRENT.name(),
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.0), String.format(Locale.getDefault(), "%g", 1000.0),
                                                  "", "", "", "", "", "different"),
                                      String.join(";", "contingency", "", "", "", "", "", "", "", "", "", "", "", actions.toString(), "", "different"));

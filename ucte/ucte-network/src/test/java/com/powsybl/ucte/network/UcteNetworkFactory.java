@@ -3,15 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 
 import java.util.function.Supplier;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class UcteNetworkFactory {
 
@@ -52,7 +53,7 @@ public final class UcteNetworkFactory {
         UcteRegulation regulation = new UcteRegulation(transformerId, null, null);
         network.addRegulation(regulation);
 
-        network.fix(Reporter.NO_OP);
+        network.fix(ReportNode.NO_OP);
 
         return network;
     }

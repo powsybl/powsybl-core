@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.model;
 
@@ -12,14 +13,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.*;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
+ * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public class MatpowerModel {
 
     @JsonProperty("caseName")
     private String caseName;
     private double baseMva;
-    private String version;
+    private MatpowerFormatVersion version;
 
     private final List<MBus> buses = new ArrayList<>();
 
@@ -31,17 +32,19 @@ public class MatpowerModel {
 
     private final List<MBranch> branches = new ArrayList<>();
 
+    private final List<MDcLine> dcLines = new ArrayList<>();
+
     @JsonCreator
     public MatpowerModel(@JsonProperty("caseName") String caseName) {
         this.caseName = Objects.requireNonNull(caseName);
     }
 
-    public String getVersion() {
+    public MatpowerFormatVersion getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setVersion(MatpowerFormatVersion version) {
+        this.version = Objects.requireNonNull(version);
     }
 
     public String getCaseName() {
@@ -120,5 +123,14 @@ public class MatpowerModel {
     public void addBranch(MBranch branch) {
         Objects.requireNonNull(branch);
         branches.add(branch);
+    }
+
+    public List<MDcLine> getDcLines() {
+        return dcLines;
+    }
+
+    public void addDcLine(MDcLine dcLine) {
+        Objects.requireNonNull(dcLine);
+        dcLines.add(dcLine);
     }
 }

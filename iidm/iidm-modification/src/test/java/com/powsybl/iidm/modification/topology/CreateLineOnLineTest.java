@@ -3,30 +3,58 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CreateLineOnLineTest extends AbstractConverterTest {
+class CreateLineOnLineTest extends AbstractModificationTest {
+
+    @Test
+    void testWithLimits() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        line.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.setSelectedOperationalLimitsGroup1("group1");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network);
+        writeXmlTest(network, "/fictitious-line-split-l-with-limits.xml");
+    }
 
     @Test
     void createLineOnLineNbTest() throws IOException {
@@ -35,8 +63,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
     }
 
     @Test
@@ -46,8 +73,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-line-split-nb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-nb-l.xml");
     }
 
     @Test
@@ -57,8 +83,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-line-split-bb-l.xml");
+        writeXmlTest(network, "/eurostag-line-split-bb-l.xml");
     }
 
     @Test
@@ -92,6 +117,11 @@ class CreateLineOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder()
@@ -110,8 +140,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLine2Name("FICT2LName")
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-l-complete.xml");
+        writeXmlTest(network, "/fictitious-line-split-l-complete.xml");
     }
 
     @Test
@@ -125,8 +154,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-l.xml");
+        writeXmlTest(network, "/fictitious-line-split-l.xml");
 
     }
 
@@ -135,33 +163,96 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
-
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestBbsNotExistingNB")
+                .build();
         NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line1)
                 .withLineAdder(adder1)
                 .build();
-        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception1.getMessage());
+        assertDoesNotThrow(() -> modification1.apply(network1, false, ReportNode.NO_OP));
+        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, reportNode1));
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception1.getMessage());
+        assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", reportNode1.getChildren().get(0).getMessageKey());
 
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestBbsNotExistingBB")
+                .build();
         NetworkModification modification2 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+        assertDoesNotThrow(() -> modification2.apply(network2, false, ReportNode.NO_OP));
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, reportNode2));
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
+        assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
+        ReportNode reportNode3 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestWrongTypeBbs")
+                .build();
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable LOAD is not a bus or a busbar section", exception3.getMessage());
+        assertDoesNotThrow(() -> modification3.apply(network2, false, ReportNode.NO_OP));
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, reportNode3));
+        assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
+        assertEquals("core.iidm.modification.unexpectedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
+
+        ReportNode reportNode4 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestNullFictitiousSubstationID")
+                .build();
+        NetworkModification modification4 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId(null)
+                .build();
+        assertDoesNotThrow(() -> modification4.apply(network1, false, ReportNode.NO_OP));
+        PowsyblException exception4 = assertThrows(PowsyblException.class, () -> modification4.apply(network1, true, reportNode4));
+        assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
+        assertEquals("core.iidm.modification.undefinedFictitiousSubstationId", reportNode4.getChildren().get(0).getMessageKey());
+
+        ReportNode reportNode5 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestUndefinedPositionPercent")
+                .build();
+        NetworkModification modification5 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withPositionPercent(Double.NaN)
+                .build();
+        assertDoesNotThrow(() -> modification5.apply(network1, false, ReportNode.NO_OP));
+        PowsyblException exception5 = assertThrows(PowsyblException.class, () -> modification5.apply(network1, true, reportNode5));
+        assertEquals("Percent should not be undefined", exception5.getMessage());
+        assertEquals("core.iidm.modification.undefinedPercent", reportNode5.getChildren().get(0).getMessageKey());
+    }
+
+    @Test
+    void testWithReportNode() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestCreateLineOnLine")
+                .build();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network, reportNode);
+        testReportNode(reportNode, "/reportNode/create-line-on-line-report.txt");
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {
@@ -173,5 +264,30 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .setG1(line.getG1())
                 .setB2(line.getB2())
                 .setG2(line.getG2());
+    }
+
+    @Test
+    void testGetName() {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        AbstractNetworkModification networkModification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        assertEquals("CreateLineOnLine", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+
+        NetworkModification modification1 = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("WRONG_BBS").withLine(line).withLineAdder(adder).build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withPositionPercent(Double.NaN).withLine(line).withLineAdder(adder).build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification3.hasImpactOnNetwork(network));
     }
 }

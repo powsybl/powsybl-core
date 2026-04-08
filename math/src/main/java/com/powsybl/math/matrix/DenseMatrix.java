@@ -3,10 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
@@ -18,9 +21,15 @@ import java.util.function.Supplier;
 /**
  * Dense matrix implementation based on an array of {@code rowCount} * {@code columnCount} double values.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DenseMatrix extends AbstractMatrix {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DenseMatrix.class);
+
+    public static final int MAX_ELEMENT_COUNT = Integer.MAX_VALUE / Double.BYTES;
+
+    public static final DenseMatrix EMPTY = new DenseMatrix(0, 0);
 
     /**
      * Dense element implementation.
@@ -61,8 +70,15 @@ public class DenseMatrix extends AbstractMatrix {
     private final ByteBuffer buffer;
 
     private static ByteBuffer createBuffer(int rowCount, int columnCount) {
-        return ByteBuffer.allocateDirect(rowCount * columnCount * Double.BYTES)
-                .order(ByteOrder.LITTLE_ENDIAN);
+        try {
+            int capacity = Math.multiplyExact(Math.multiplyExact(rowCount, columnCount), Double.BYTES);
+            return ByteBuffer.allocateDirect(capacity)
+                    .order(ByteOrder.LITTLE_ENDIAN);
+        } catch (ArithmeticException e) {
+            LOGGER.error(e.toString(), e);
+            throw new MatrixException("Too many elements for a dense matrix, maximum allowed is "
+                    + MAX_ELEMENT_COUNT);
+        }
     }
 
     public DenseMatrix(int rowCount, int columnCount, double[] values) {
@@ -109,14 +125,6 @@ public class DenseMatrix extends AbstractMatrix {
 
     private double getUnsafe(int i, int j) {
         return buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
-    }
-
-    /**
-     * @deprecated Use {@link #get(int, int)} instead.
-     */
-    @Deprecated
-    public double getValue(int i, int j) {
-        return get(i, j);
     }
 
     private void setUnsafe(int i, int j, double value) {
@@ -329,7 +337,7 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
-    protected int getEstimatedNonZeroValueCount() {
+    public int getValueCount() {
         return getRowCount() * getColumnCount();
     }
 
@@ -345,6 +353,56 @@ public class DenseMatrix extends AbstractMatrix {
             }
         }
         return new DenseMatrix(transposedRowCount, transposedColumnCount, () -> transposedBuffer);
+    }
+
+    /**
+     * Copy all the values that are in an originalMatrix and paste it in the current DenseMatrix (without allocating new memory spaces)
+     * The dimensions of both matrices must be the same
+     */
+    public void copyValuesFrom(DenseMatrix originalMatrix) {
+        if (originalMatrix.getRowCount() == getRowCount() && originalMatrix.getColumnCount() == getColumnCount()) {
+            for (int columnIndex = 0; columnIndex < originalMatrix.getColumnCount(); columnIndex++) {
+                for (int rowIndex = 0; rowIndex < originalMatrix.getRowCount(); rowIndex++) {
+                    set(rowIndex, columnIndex, originalMatrix.get(rowIndex, columnIndex));
+                }
+            }
+        } else {
+            throw new MatrixException("Incompatible matrix dimensions when copying values. Received (" + originalMatrix.getRowCount() + ", " + originalMatrix.getColumnCount() + ") but expected (" + getRowCount() + ", " + getColumnCount() + ")");
+        }
+    }
+
+    public void resetRow(int row) {
+        if (row >= 0 && row < getRowCount()) {
+            for (int j = 0; j < getColumnCount(); j++) {
+                set(row, j, 0);
+            }
+        } else {
+            throw new IllegalArgumentException("Row value out of bounds. Expected in range [0," + (getRowCount() - 1) + "] but received " + row);
+        }
+    }
+
+    public void resetColumn(int column) {
+        if (column >= 0 && column < getColumnCount()) {
+            for (int i = 0; i < getRowCount(); i++) {
+                set(i, column, 0);
+            }
+        } else {
+            throw new IllegalArgumentException("Column value out of bounds. Expected in range [0," + (getColumnCount() - 1) + "] but received " + column);
+        }
+    }
+
+    public void removeSmallValues(double epsilonValue) {
+        if (epsilonValue >= 0) {
+            for (int i = 0; i < getRowCount(); i++) {
+                for (int j = 0; j < getColumnCount(); j++) {
+                    if (Math.abs(get(i, j)) < epsilonValue) {
+                        set(i, j, 0.);
+                    }
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Argument epsilonValue should be positive but received " + epsilonValue);
+        }
     }
 
     @Override
@@ -408,8 +466,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DenseMatrix) {
-            DenseMatrix other = (DenseMatrix) obj;
+        if (obj instanceof DenseMatrix other) {
             return rowCount == other.rowCount && columnCount == other.columnCount && buffer.equals(other.buffer);
         }
         return false;

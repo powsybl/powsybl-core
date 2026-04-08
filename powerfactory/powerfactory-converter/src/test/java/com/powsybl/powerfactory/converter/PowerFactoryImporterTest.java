@@ -3,27 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
-import org.joda.time.DateTime;
+import com.powsybl.powerfactory.model.StudyCase;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,25 +24,29 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
-class PowerFactoryImporterTest extends AbstractConverterTest {
+class PowerFactoryImporterTest extends AbstractSerDeTest {
 
     @Test
     void testBase() {
         PowerFactoryImporter importer = new PowerFactoryImporter();
         assertEquals("POWER-FACTORY", importer.getFormat());
-        assertTrue(importer.getParameters().isEmpty());
         assertEquals("PowerFactory to IIDM converter", importer.getComment());
+        assertEquals(List.of("json", "dgs", "properties"), importer.getSupportedExtensions());
     }
 
     @Test
@@ -62,11 +59,11 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(studyCase.isPresent());
 
         PowerFactoryImporter importer = new PowerFactoryImporter();
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "ieee14")));
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "error")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14")));
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "error")));
 
-        importer.copy(new FileDataSource(fileSystem.getPath("/work"), "ieee14"),
-                new FileDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14"),
+                new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 
@@ -79,16 +76,20 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     private Network importAndCompareXml(String id, String fileExtension) {
+        return importAndCompareXml(id, fileExtension, null);
+    }
+
+    private Network importAndCompareXml(String id, String fileExtension, Properties parameters) {
         Network network = new PowerFactoryImporter()
                 .importData(new ResourceDataSource(id, new ResourceSet("/", id + fileExtension)),
                         NetworkFactory.findDefault(),
-                        null);
+                        parameters);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
-        network.setCaseDate(DateTime.parse("2021-01-01T10:00:00.000+02:00"));
-        NetworkXml.write(network, file);
+        network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
+        NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -473,12 +474,12 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
         // The case does not have the reactive of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
-        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) - generator2.getTargetQ(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + load7.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + load7.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + load7.getQ0(), tol);
     }
 
     @Test
@@ -504,6 +505,25 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     void threeMibPhaseWinding12() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding12", 575.835158, 0.09));
+    }
+
+    @Test
+    void simpleAcDcCases() {
+        Properties importParams = new Properties();
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
+
+        importAndCompareXml("MTDC-3-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-4-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants3", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants4", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss3", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {
@@ -547,12 +567,12 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
         // The case does not have the reactive of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
-        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
-        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
-        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
     }
 
 }

@@ -3,36 +3,33 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class InMemoryCgmesModel implements CgmesModel {
     private final Properties properties;
     private String modelId;
     private String version;
     private boolean isNodeBreaker;
-    private DateTime created;
-    private DateTime scenarioTime;
+    private ZonedDateTime created;
+    private ZonedDateTime scenarioTime;
     private PropertyBags substations;
     private PropertyBags voltageLevels;
     private PropertyBags terminals;
@@ -52,9 +49,10 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags energyConsumers;
     private PropertyBags energySources;
     private PropertyBags shuntCompensators;
+    private PropertyBags shuntCompensatorPoints;
     private PropertyBags staticVarCompensators;
     private PropertyBags equivalentShunts;
-    private PropertyBags synchronousMachines;
+    private PropertyBags synchronousMachinesGenerators;
     private PropertyBags equivalentInjections;
     private PropertyBags externalNetworkInjections;
     private PropertyBags svInjections;
@@ -66,14 +64,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags tieFlows;
     private PropertyBags numObjectsByType;
     private PropertyBags modelProfiles;
+    private PropertyBags generatingUnits;
+    private PropertyBags svVoltages;
 
     public InMemoryCgmesModel() {
         properties = new Properties();
         modelId = "fakeModel0";
         version = "unknown";
         isNodeBreaker = false;
-        created = DateTime.now();
-        scenarioTime = DateTime.now();
+        created = ZonedDateTime.now();
+        scenarioTime = ZonedDateTime.now();
         substations = new PropertyBags();
         voltageLevels = new PropertyBags();
         terminals = new PropertyBags();
@@ -93,9 +93,10 @@ public final class InMemoryCgmesModel implements CgmesModel {
         energyConsumers = new PropertyBags();
         energySources = new PropertyBags();
         shuntCompensators = new PropertyBags();
+        shuntCompensatorPoints = new PropertyBags();
         equivalentShunts = new PropertyBags();
         staticVarCompensators = new PropertyBags();
-        synchronousMachines = new PropertyBags();
+        synchronousMachinesGenerators = new PropertyBags();
         equivalentInjections = new PropertyBags();
         externalNetworkInjections = new PropertyBags();
         svInjections = new PropertyBags();
@@ -107,6 +108,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
         tieFlows = new PropertyBags();
         numObjectsByType = new PropertyBags();
         modelProfiles = new PropertyBags();
+        generatingUnits = new PropertyBags();
+        svVoltages = new PropertyBags();
     }
 
     @Override
@@ -228,13 +231,18 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return this;
     }
 
+    public InMemoryCgmesModel shuntCompensatorsPoints(String... ids) {
+        fakeObjectsFromIdentifiers("NonlinearShuntCompensatorPoint", ids, shuntCompensatorPoints);
+        return this;
+    }
+
     public InMemoryCgmesModel staticVarCompensators(String... ids) {
         fakeObjectsFromIdentifiers("StaticVarCompensator", ids, staticVarCompensators);
         return this;
     }
 
-    public InMemoryCgmesModel synchronousMachines(String... ids) {
-        fakeObjectsFromIdentifiers("SynchronousMachine", ids, synchronousMachines);
+    public InMemoryCgmesModel synchronousMachinesGenerators(String... ids) {
+        fakeObjectsFromIdentifiers("SynchronousMachine", ids, synchronousMachinesGenerators);
         return this;
     }
 
@@ -271,19 +279,14 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids, PropertyBags objects) {
         String[] propertyNames = {propertyNameId};
         for (String id : ids) {
-            PropertyBag p = new PropertyBag(Arrays.asList(propertyNames));
+            PropertyBag p = new PropertyBag(Arrays.asList(propertyNames), true);
             p.put(propertyNameId, id);
             objects.add(p);
         }
-        PropertyBag p = new PropertyBag(Arrays.asList("Type", "numObjects"));
+        PropertyBag p = new PropertyBag(Arrays.asList("Type", "numObjects"), true);
         p.put("Type", propertyNameId);
         p.put("numObjects", "" + ids.length);
         numObjectsByType.add(p);
-    }
-
-    @Override
-    public PropertyBags fullModel(String cgmesProfile) {
-        return new PropertyBags();
     }
 
     @Override
@@ -302,12 +305,12 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public DateTime scenarioTime() {
+    public ZonedDateTime scenarioTime() {
         return scenarioTime;
     }
 
     @Override
-    public DateTime created() {
+    public ZonedDateTime created() {
         return created;
     }
 
@@ -333,6 +336,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags sourcingActor(String sourcingActor) {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags substations() {
         return substations;
     }
@@ -349,13 +362,17 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags connectivityNodeContainers() {
-        // TODO(Luma) refactoring node-breaker conversion temporal
         return new PropertyBags();
     }
 
     @Override
     public PropertyBags operationalLimits() {
         return operationalLimits;
+    }
+
+    @Override
+    public PropertyBags generatingUnits() {
+        return generatingUnits;
     }
 
     @Override
@@ -394,19 +411,25 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public Map<String, PropertyBags> groupedTransformerEnds() {
-        // FakeCgmesModeldoes not provide grouped transformer ends
-        return Collections.emptyMap();
-    }
-
-    @Override
     public PropertyBags ratioTapChangers() {
         return ratioTapChangers;
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablePoints() {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags phaseTapChangers() {
         return phaseTapChangers;
+    }
+
+    @Override
+    public PropertyBags phaseTapChangerTablePoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return new PropertyBags();
     }
 
     @Override
@@ -430,13 +453,13 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags equivalentShunts() {
-        return equivalentShunts;
+    public PropertyBags nonlinearShuntCompensatorPoints() {
+        return shuntCompensatorPoints;
     }
 
     @Override
-    public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
-        return new PropertyBags();
+    public PropertyBags equivalentShunts() {
+        return equivalentShunts;
     }
 
     @Override
@@ -445,8 +468,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags synchronousMachines() {
-        return synchronousMachines;
+    public PropertyBags synchronousMachinesGenerators() {
+        return synchronousMachinesGenerators;
     }
 
     @Override
@@ -481,26 +504,12 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags ratioTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement ratio tap changer tables
+    public PropertyBags dcSwitches() {
         return new PropertyBags();
     }
 
     @Override
-    public PropertyBags phaseTapChangerTablesPoints() {
-        // FakeCgmesModel does not implement phase tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags ratioTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement ratio tap changer tables
-        return new PropertyBags();
-    }
-
-    @Override
-    public PropertyBags phaseTapChangerTable(String tableId) {
-        // FakeCgmesModel does not implement phase tap changer tables
+    public PropertyBags dcGrounds() {
         return new PropertyBags();
     }
 
@@ -520,8 +529,18 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags dcNodes() {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags tieFlows() {
         return tieFlows;
+    }
+
+    @Override
+    public PropertyBags svVoltages() {
+        return svVoltages;
     }
 
     @Override
@@ -587,30 +606,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
-        // FakeCgmesModel does not provide info on dcTerminals
-        return null;
-    }
-
-    /**
-     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
-        return null;
-    }
-
-    /**
-     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
-        return null;
-    }
-
-    @Override
     public String substation(CgmesTerminal t, boolean nodeBreaker) {
         return null;
     }
@@ -618,6 +613,16 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public String voltageLevel(CgmesTerminal t, boolean nodeBreaker) {
         return null;
+    }
+
+    @Override
+    public Optional<String> node(CgmesTerminal t, boolean nodeBreaker) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<CgmesContainer> nodeContainer(String nodeId) {
+        return Optional.empty();
     }
 
     @Override
@@ -632,27 +637,26 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     @Override
     public void setBasename(String baseName) {
-        // TODO Review if required by current tests
+        // Not required by current tests
     }
 
     @Override
     public String getBasename() {
-        // TODO Review if required by current tests
         return null;
     }
 
     @Override
-    public void read(ReadOnlyDataSource ds, Reporter reporter) {
-        // TODO Review if required by current tests
+    public void read(ReadOnlyDataSource ds, ReportNode reportNode) {
+        // Not required by current tests
     }
 
     @Override
-    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
-        // TODO Review if required by current tests
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, ReportNode reportNode) {
+        // Not required by current tests
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
-        // TODO Review if required by current tests
+    public void read(InputStream is, String baseName, String contextName, ReportNode reportNode) {
+        // Not required by current tests
     }
 }

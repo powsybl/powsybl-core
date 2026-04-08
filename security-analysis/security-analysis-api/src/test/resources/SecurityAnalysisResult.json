@@ -1,5 +1,5 @@
 {
-  "version" : "1.4",
+  "version" : "1.9",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -11,9 +11,10 @@
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
+        "operationalLimitsGroupId" : "activated_1_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
-        "limitReduction" : 0.95,
+        "limitReduction" : 0.949999988079071,
         "value" : 110.0,
         "side" : "ONE",
         "extensions" : {
@@ -61,7 +62,8 @@
         "q3" : 2.2,
         "i3" : 3.2
       } ]
-    }
+    },
+    "distributedActivePower" : 1.23
   },
   "postContingencyResults" : [ {
     "contingency" : {
@@ -85,6 +87,7 @@
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",
+        "operationalLimitsGroupId" : "activated_2_1",
         "limitType" : "CURRENT",
         "limitName" : "20'",
         "acceptableDuration" : 1200,
@@ -103,15 +106,24 @@
         }
       }, {
         "subjectId" : "GEN",
+        "violationLocation" : {
+          "type" : "BUS_BREAKER",
+          "busIds" : [ "BUSID" ]
+        },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.9,
+        "limitReduction" : 0.8999999761581421,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
+        "violationLocation" : {
+          "type" : "NODE_BREAKER",
+          "voltageLevelId" : "VL",
+          "nodes" : [ 0, 1 ]
+        },
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.7,
+        "limitReduction" : 0.699999988079071,
         "value" : 115.0,
         "extensions" : {
           "Voltage" : {
@@ -150,28 +162,100 @@
       "disconnectedLoadActivePower" : 0.0,
       "disconnectedGenerationActivePower" : 0.0,
       "disconnectedElements" : [ ]
-    }
+    },
+    "distributedActivePower" : 2.34
   } ],
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {
       "id" : "strategyId",
       "contingencyContextType" : "SPECIFIC",
       "contingencyId" : "contingency1",
-      "condition" : {
-        "type" : "AT_LEAST_ONE_VIOLATION",
-        "violationIds" : [ "violationId1" ]
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "AT_LEAST_ONE_VIOLATION",
+          "violationIds" : [ "violationId1" ]
+        },
+        "actionIds" : [ "actionId1" ]
+      } ]
+    },
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],
+        "actionsTaken" : [ ]
       },
-      "actionIds" : [ "actionId1" ]
+      "networkResult" : {
+        "branchResults" : [ ],
+        "busResults" : [ ],
+        "threeWindingsTransformerResults" : [ ]
+      },
+      "distributedActivePower" : 3.45
+    } ]
+  }, {
+    "operatorStrategy" : {
+      "id" : "strategyId2",
+      "contingencyContextType" : "SPECIFIC",
+      "contingencyId" : "contingency1",
+      "conditionalActions" : [ {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "BRANCH_THRESHOLD_CONDITION",
+          "equipmentId" : "Line1",
+          "variable" : "CURRENT",
+          "comparisonType" : "GREATER_THAN",
+          "threshold" : 2.0,
+          "side" : "ONE"
+        },
+        "actionIds" : [ "actionId3" ]
+      }, {
+        "id" : "stage1",
+        "condition" : {
+          "type" : "THREE_WINDINGS_TRANSFORMER_THRESHOLD_CONDITION",
+          "equipmentId" : "3WTransformer1",
+          "variable" : "REACTIVE_POWER",
+          "comparisonType" : "NOT_EQUAL",
+          "threshold" : 52.0,
+          "side" : "THREE"
+        },
+        "actionIds" : [ "actionId3" ]
+      }, {
+        "id" : "stage2",
+        "condition" : {
+          "type" : "INJECTION_THRESHOLD_CONDITION",
+          "equipmentId" : "Gen2",
+          "variable" : "ACTIVE_POWER",
+          "comparisonType" : "GREATER_THAN_OR_EQUALS",
+          "threshold" : 2.0
+        },
+        "actionIds" : [ "actionId3", "actionId4" ]
+      }, {
+        "id" : "stage3",
+        "condition" : {
+          "type" : "AC_DC_CONVERTER_THRESHOLD_CONDITION",
+          "equipmentId" : "Converter1",
+          "variable" : "CURRENT",
+          "comparisonType" : "LESS_THAN_OR_EQUALS",
+          "threshold" : 3.0,
+          "acSide" : true,
+          "terminalNumber" : 2
+        },
+        "actionIds" : [ "actionId3", "actionId4", "actionId5" ]
+      } ]
     },
-    "status" : "CONVERGED",
-    "limitViolationsResult" : {
-      "limitViolations" : [ ],
-      "actionsTaken" : [ ]
-    },
-    "networkResult" : {
-      "branchResults" : [ ],
-      "busResults" : [ ],
-      "threeWindingsTransformerResults" : [ ]
-    }
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId2",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],
+        "actionsTaken" : [ ]
+      },
+      "networkResult" : {
+        "branchResults" : [ ],
+        "busResults" : [ ],
+        "threeWindingsTransformerResults" : [ ]
+      }
+    } ]
   } ]
 }

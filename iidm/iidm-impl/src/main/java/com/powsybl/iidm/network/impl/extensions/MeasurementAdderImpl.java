@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -10,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.MeasurementAdder;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +20,7 @@ import java.util.Objects;
 import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 class MeasurementAdderImpl implements MeasurementAdder {
 
@@ -31,7 +33,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     private double value = Double.NaN;
     private double standardDeviation = Double.NaN;
     private boolean valid = true;
-    private Measurement.Side side;
+    private ThreeSides side;
 
     MeasurementAdderImpl(MeasurementsImpl<? extends Connectable<?>> measurements) {
         this.measurements = Objects.requireNonNull(measurements);
@@ -68,7 +70,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     }
 
     @Override
-    public MeasurementAdder setSide(Measurement.Side side) {
+    public MeasurementAdder setSide(ThreeSides side) {
         this.side = side;
         return this;
     }
@@ -89,7 +91,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     public Measurement add() {
         id = checkId(id, idUnicity, measurements);
         if (type == null) {
-            throw new PowsyblException("Measurement type can not be null");
+            throw new PowsyblException("Measurement type cannot be null");
         }
         checkValue(value, valid);
         checkSide(type, side, measurements.getExtendable());

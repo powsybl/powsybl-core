@@ -3,21 +3,24 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.undefinedPercent;
+import static com.powsybl.iidm.modification.util.ModificationReports.unexpectedIdentifiableType;
+
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLineConnectionModification<M extends AbstractLineConnectionModification<M>> extends AbstractNetworkModification {
 
@@ -36,7 +39,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
 
     protected AbstractLineConnectionModification(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
                                        String line2Id, String line2Name, Line line) {
-        this.positionPercent = checkPositionPercent(positionPercent);
+        this.positionPercent = positionPercent;
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line1Name = line1Name;
@@ -66,7 +69,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     }
 
     public M setPositionPercent(double positionPercent) {
-        this.positionPercent = checkPositionPercent(positionPercent);
+        this.positionPercent = positionPercent;
         return (M) this;
     }
 
@@ -98,57 +101,46 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         return line2Name;
     }
 
-    private static double checkPositionPercent(double positionPercent) {
+    private static boolean checkPositionPercent(double positionPercent, boolean throwException, ReportNode reportNode) {
         if (Double.isNaN(positionPercent)) {
-            throw new PowsyblException("Percent should not be undefined");
+            undefinedPercent(reportNode);
+            logOrThrow(throwException, "Percent should not be undefined");
+            return false;
         }
-        return positionPercent;
+        return true;
     }
 
-    protected boolean failChecks(Network network, boolean throwException, Reporter reporter, Logger logger) {
-        Identifiable<?> identifiable = checkIdentifiable(bbsOrBusId, network, throwException, reporter, logger);
+    protected boolean failChecks(Network network, boolean throwException, ReportNode reportNode) {
+        Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
         if (identifiable == null) {
+            ModificationLogs.busOrBbsDoesNotExist(bbsOrBusId, reportNode, throwException);
             return true;
         }
-        voltageLevel = getVoltageLevel(identifiable, throwException, reporter, logger);
+        if (!checkPositionPercent(positionPercent, throwException, reportNode)) {
+            return true;
+        }
+        voltageLevel = getVoltageLevel(identifiable, throwException, reportNode);
         return voltageLevel == null;
     }
 
-    private static Identifiable<?> checkIdentifiable(String id, Network network, boolean throwException, Reporter reporter, Logger logger) {
-        Identifiable<?> identifiable = network.getIdentifiable(id);
-        if (identifiable == null) {
-            logger.error("Identifiable {} not found", id);
-            reporter.report(Report.builder()
-                    .withKey("notFoundIdentifiable")
-                    .withDefaultMessage("Identifiable ${identifiableId} not found")
-                    .withValue("identifiableId", id)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
-            if (throwException) {
-                throw new PowsyblException("Identifiable " + id + " not found");
-            }
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
+        if (!checkVoltageLevel(identifiable) || Double.isNaN(positionPercent)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         }
-        return identifiable;
+        return impact;
     }
 
-    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, Reporter reporter, Logger logger) {
-        if (identifiable instanceof Bus) {
-            Bus bus = (Bus) identifiable;
+    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, ReportNode reportNode) {
+        if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
-        } else if (identifiable instanceof BusbarSection) {
-            BusbarSection bbs = (BusbarSection) identifiable;
+        } else if (identifiable instanceof BusbarSection bbs) {
             return bbs.getTerminal().getVoltageLevel();
         } else {
-            logger.error("Identifiable {} is not a bus or a busbar section", identifiable.getId());
-            reporter.report(Report.builder()
-                    .withKey("unexpectedIdentifiableType")
-                    .withDefaultMessage("Identifiable ${identifiableId} is not a bus or a busbar section")
-                    .withValue("identifiableId", identifiable.getId())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
-            if (throwException) {
-                throw new PowsyblException("Identifiable " + identifiable.getId() + " is not a bus or a busbar section");
-            }
+            unexpectedIdentifiableType(reportNode, identifiable);
+            logOrThrow(throwException, String.format("Unexpected type of identifiable %s: %s", identifiable.getId(), identifiable.getType()));
             return null;
         }
     }

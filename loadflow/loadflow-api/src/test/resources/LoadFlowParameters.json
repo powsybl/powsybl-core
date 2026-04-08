@@ -1,5 +1,5 @@
 {
-  "version" : "1.8",
+  "version" : "1.10",
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
@@ -7,12 +7,13 @@
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
   "readSlackBus" : true,
-  "writeSlackBus" : false,
+  "writeSlackBus" : true,
   "dc" : false,
   "distributedSlack" : true,
   "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
   "dcUseTransformerRatio" : true,
   "countriesToBalance" : [ ],
-  "connectedComponentMode" : "MAIN",
-  "hvdcAcEmulation" : true
+  "componentMode" : "MAIN_CONNECTED",
+  "hvdcAcEmulation" : true,
+  "dcPowerFactor" : 1.0
 }

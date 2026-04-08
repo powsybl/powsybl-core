@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.api;
@@ -18,7 +19,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class QueryCatalog extends HashMap<String, String> {
 
@@ -53,10 +54,9 @@ public class QueryCatalog extends HashMap<String, String> {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof QueryCatalog)) {
+        if (!(obj instanceof QueryCatalog q)) {
             return false;
         }
-        QueryCatalog q = (QueryCatalog) obj;
         return resource.equals(q.resource);
     }
 
@@ -92,7 +92,9 @@ public class QueryCatalog extends HashMap<String, String> {
 
     private static String includedResource(String line) {
         int p = line.indexOf(INCLUDE);
-        assert p > 0;
+        if (p <= 0) {
+            throw new IllegalStateException("p should be > 0");
+        }
         return line.substring(p + INCLUDE.length()).trim();
     }
 
@@ -105,7 +107,9 @@ public class QueryCatalog extends HashMap<String, String> {
         void enterQuery(String line) {
             leaveQuery();
             int p = line.indexOf(QUERY_DEFINITION);
-            assert p > 0;
+            if (p <= 0) {
+                throw new IllegalStateException("p should be > 0");
+            }
             queryName = line.substring(p + QUERY_DEFINITION.length()).trim();
         }
 

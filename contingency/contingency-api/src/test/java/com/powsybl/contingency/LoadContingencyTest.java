@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.tripping.LoadTripping;
@@ -18,7 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Hadrien Godard <hadrien.godard at artelys.com>
+ * @author Hadrien Godard {@literal <hadrien.godard at artelys.com>}
  */
 class LoadContingencyTest {
 
@@ -34,7 +35,7 @@ class LoadContingencyTest {
         assertEquals(ContingencyElementType.LOAD, loadContingency.getType());
 
         assertNotNull(loadContingency.toModification());
-        assertTrue(loadContingency.toModification() instanceof LoadTripping);
+        assertInstanceOf(LoadTripping.class, loadContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new LoadContingency("g1"), new LoadContingency("g1"))

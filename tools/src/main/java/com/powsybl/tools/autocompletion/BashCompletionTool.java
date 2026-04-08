@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools.autocompletion;
 
@@ -28,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 @AutoService(Tool.class)
 public class BashCompletionTool implements Tool {
@@ -75,7 +76,7 @@ public class BashCompletionTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path outputPath = options.getPath(OUTPUT_FILE).orElseThrow(AssertionError::new);
+        Path outputPath = options.getPath(OUTPUT_FILE).orElseThrow(IllegalStateException::new);
 
         List<Tool> tools = new ServiceLoaderCache<>(Tool.class).getServices();
         generateCompletionScript(tools, outputPath);

@@ -3,64 +3,78 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
+class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
 
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportAttachVoltageLevelOnLineNbTest")
+                .build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-vl.xml");
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
+        writeXmlTest(network, "/fictitious-line-split-vl.xml");
     }
 
     @Test
     void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportConnectVoltageLevelOnLineNbBbTest")
+                .build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-line-split-nb-vl.xml");
+        modification.apply(network, new DefaultNamingStrategy(), reportNode);
+        writeXmlTest(network, "/eurostag-line-split-nb-vl.xml");
     }
 
     @Test
     void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportConnectVoltageLevelOnLineBbTest")
+                .build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-line-split-bb-vl.xml");
+        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
+        writeXmlTest(network, "/eurostag-line-split-bb-vl.xml");
     }
 
     @Test
@@ -97,6 +111,11 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     @Test
     void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+            .withBusbarIndex(1)
+            .withSectionIndex(1)
+            .add();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(40)
                 .withBusbarSectionOrBusId(BBS)
@@ -106,9 +125,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine2Name("FICT2LName")
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-vl-complete.xml");
+        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
+        writeXmlTest(network, "/fictitious-line-split-vl-complete.xml");
     }
 
     @Test
@@ -118,45 +136,116 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-line-split-vl.xml");
+        modification.apply(network, LocalComputationManager.getDefault());
+        writeXmlTest(network, "/fictitious-line-split-vl.xml");
     }
 
     @Test
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestUndefinedBbs")
+                .build();
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+        ReportNode subReportNodeNb = reportNode.newReportNode()
+                .withMessageTemplate("nodeBreaker")
+                .add();
+        assertDoesNotThrow(() -> modification2.apply(network1, false, ReportNode.NO_OP));
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReportNodeNb));
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
+        ReportNode firstReport = reportNode.getChildren().get(0);
+        assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", firstReport.getChildren().get(0).getMessageKey());
+        assertEquals("nodeBreaker", firstReport.getMessageKey());
 
         Network network2 = createBbNetwork();
         NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception3.getMessage());
+        ReportNode subReportNodeBb = reportNode.newReportNode()
+                .withMessageTemplate("busBreaker")
+                .add();
+        assertDoesNotThrow(() -> modification3.apply(network2, false, ReportNode.NO_OP));
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReportNodeBb));
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
+        ReportNode secondReport = reportNode.getChildren().get(1);
+        assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", secondReport.getChildren().get(0).getMessageKey());
+        assertEquals("busBreaker", secondReport.getMessageKey());
     }
 
     @Test
     void testIgnore() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
         NetworkModification modification1 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification1.apply(network);
+        modification1.apply(network, new DefaultNamingStrategy());
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification2.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-tutorial-example1.xml");
+        modification2.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
+        writeXmlTest(network, "/eurostag-tutorial-example1.xml");
+    }
+
+    @Test
+    void testWithReportNode() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        ReportNode report = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestConnectVoltageLevelOnLine")
+                .build();
+        new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build().apply(network, new DefaultNamingStrategy(), true, report);
+        testReportNode(report, "/reportNode/connect-voltage-level-on-line-NB-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network2 = createBbNetwork();
+        AbstractNetworkModification networkModification = new ConnectVoltageLevelOnLineBuilder()
+            .withBusbarSectionOrBusId("NOT_EXISTING")
+            .withLine(network2.getLine("NHV1_NHV2_1"))
+            .build();
+        assertEquals("ConnectVoltageLevelOnLine", networkModification.getName());
+    }
+
+    @Test
+    void testWithLimits() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportAttachVoltageLevelOnLineNbTest")
+                .build();
+        Line line = network.getLine("CJ");
+        line.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.setSelectedOperationalLimitsGroup1("group1");
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .build();
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
+        writeXmlTest(network, "/fictitious-line-split-vl-with-limits.xml");
     }
 }

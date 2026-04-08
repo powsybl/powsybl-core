@@ -1,0 +1,2 @@
+#variant num bus ignored V(pu) P(MW) Q(Mvar) ignored ignored
+1 1 1 true 1.455 263.597 4.329 0 0

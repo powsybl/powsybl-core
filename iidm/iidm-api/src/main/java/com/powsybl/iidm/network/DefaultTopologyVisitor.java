@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DefaultTopologyVisitor implements TopologyVisitor {
 
@@ -18,17 +19,17 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
-    public void visitLine(Line line, Branch.Side side) {
+    public void visitLine(Line line, TwoSides side) {
         // empty default implementation
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         // empty default implementation
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
         // empty default implementation
     }
 
@@ -53,7 +54,7 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
         // empty default implementation
     }
 
@@ -64,6 +65,16 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
 
     @Override
     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+        // empty default implementation
+    }
+
+    @Override
+    public void visitGround(Ground ground) {
+        // empty default implementation
+    }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
         // empty default implementation
     }
 }

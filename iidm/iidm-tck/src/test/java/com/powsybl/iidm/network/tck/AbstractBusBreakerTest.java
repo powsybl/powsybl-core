@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -14,10 +15,11 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public abstract class AbstractBusBreakerTest {
 
-    private static Network createTestNetwork() {
+    protected static Network createTestNetwork() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S1")
@@ -182,7 +184,7 @@ public abstract class AbstractBusBreakerTest {
         assertEquals(2.0, bus.getFictitiousQ0(), 0.0);
         Bus busViewBus = bus.getConnectedTerminalStream()
                 .map(t -> t.getBusView().getBus())
-                .filter(Objects::nonNull).findFirst().orElseThrow(AssertionError::new);
+                .filter(Objects::nonNull).findFirst().orElseThrow(IllegalStateException::new);
         assertEquals(1.0, busViewBus.getFictitiousP0(), 0.0);
         assertEquals(2.0, busViewBus.getFictitiousQ0(), 0.0);
         busViewBus.setFictitiousP0(3.0).setFictitiousQ0(4.0);

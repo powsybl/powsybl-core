@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S1" country="FR">
+        <iidm:voltageLevel id="VL1" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B1"/>
+            </iidm:busBreakerTopology>
+            <iidm:vscConverterStation id="C1" name="Converter1" lossFactor="1.1" voltageRegulatorOn="true" voltageSetpoint="405.0" bus="B1" connectableBus="B1" p="100.0" q="50.0" >
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="5.0" minQ="0.0" maxQ="10.0"/>
+                    <iidm:point p="10.0" minQ="0.0" maxQ="10.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2" country="FR">
+        <iidm:voltageLevel id="VL2" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="BBS1" name="BusbarSection" node="0"/>
+                <iidm:switch id="DISC_BBS1_BK1" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="BK1" name="Breaker" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:vscConverterStation id="C2" name="Converter2" lossFactor="1.1" voltageRegulatorOn="false" reactivePowerSetpoint="123.0" node="2">
+                <iidm:minMaxReactiveLimits minQ="0.0" maxQ="10.0"/>
+                <iidm:regulatingTerminal id="C1"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:hvdcLine id="L" name="HVDC" r="1.0" nominalV="400.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="280.0" maxP="300.0" converterStation1="C1" converterStation2="C2"/>
+</iidm:network>

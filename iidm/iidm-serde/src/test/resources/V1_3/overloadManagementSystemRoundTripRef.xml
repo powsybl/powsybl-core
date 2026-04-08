@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_3" id="fictitious" caseDate="2024-01-02T15:00:00.000+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="S1_400" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S1_400_BBS" node="0"/>
+                <iidm:switch id="S1_400_LINE_1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="1"/>
+                <iidm:switch id="S1_400_LINE_1_BREAKER" kind="BREAKER" retained="false" open="true" node1="1" node2="11"/>
+                <iidm:switch id="S1_400_LINE_2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="2"/>
+                <iidm:switch id="S1_400_LINE_2_BREAKER" kind="BREAKER" retained="false" open="true" node1="2" node2="12"/>
+                <iidm:switch id="S1_400_BBS_2WT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
+                <iidm:switch id="S1_400_2WT_BREAKER" kind="BREAKER" retained="false" open="true" node1="13" node2="23"/>
+                <iidm:switch id="S1_400_BBS_3WT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="14"/>
+                <iidm:switch id="S1_400_3WT_BREAKER" kind="BREAKER" retained="false" open="true" node1="14" node2="24"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="S1_225" nominalV="225.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S1_225_BBS" node="0"/>
+                <iidm:switch id="S1_225_BBS_2WT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
+                <iidm:switch id="S1_225_2WT_BREAKER" kind="BREAKER" retained="false" open="true" node1="13" node2="23"/>
+                <iidm:switch id="S1_225_BBS_3WT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="14"/>
+                <iidm:switch id="S1_225_3WT_BREAKER" kind="BREAKER" retained="false" open="true" node1="14" node2="24"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="S1_90" nominalV="90.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S1_90_BBS" node="0"/>
+                <iidm:switch id="S1_90_BBS_3WT_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="14"/>
+                <iidm:switch id="S1_90_3WT_BREAKER" kind="BREAKER" retained="false" open="true" node1="14" node2="24"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="2WT" r="2.0" x="25.0" g="0.0" b="3.2E-5" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="S1_400" node1="23" voltageLevelId2="S1_225" node2="23"/>
+        <iidm:threeWindingsTransformer id="3WT" r1="0.001" x1="1.0E-6" g1="0.0" b1="0.0" ratedU1="400.0" r2="0.1" x2="1.0E-5" g2="0.0" b2="0.0" ratedU2="225.0" r3="0.01" x3="1.0E-4" g3="0.0" b3="0.0" ratedU3="90.0" ratedU0="400.0" voltageLevelId1="S1_400" node1="24" voltageLevelId2="S1_225" node2="24" voltageLevelId3="S1_90" node3="24"/>
+    </iidm:substation>
+    <iidm:substation id="S2">
+        <iidm:voltageLevel id="S2_400" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="S2_400_BBS" node="0"/>
+                <iidm:switch id="S2_400_LINE_1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="1"/>
+                <iidm:switch id="S2_400_LINE_1_BREAKER" kind="BREAKER" retained="false" open="true" node1="1" node2="11"/>
+                <iidm:switch id="S2_400_LINE_2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="2"/>
+                <iidm:switch id="S2_400_LINE_2_BREAKER" kind="BREAKER" retained="false" open="true" node1="2" node2="12"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="LINE_1" r="0.01" x="50.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="S1_400" node1="11" voltageLevelId2="S2_400" node2="11"/>
+    <iidm:line id="LINE_2" r="0.01" x="50.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="S1_400" node1="12" voltageLevelId2="S2_400" node2="12"/>
+</iidm:network>

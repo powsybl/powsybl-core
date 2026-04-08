@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.io.table;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
  */
 class AsciiTableFormatterTest {
 
@@ -75,8 +76,8 @@ class AsciiTableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
              AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
-                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
-                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
+                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> formatter.writeCell("Line:1 Cell:1", 1)
                     .writeCell("Line:1 Cell:2", 1)
                     .writeCell("Line:1 Cell:3", 1)
@@ -91,8 +92,8 @@ class AsciiTableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
              AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
-                new Column("column1").setColspan(4),
-                new Column("column2").setColspan(2))) {
+                 new Column("column1").setColspan(4),
+                 new Column("column2").setColspan(2))) {
             formatter.writeCell("Line:1 Cell:1")
                     .writeCell("Line:1 Cell:2")
                     .writeCell("Line:1 Cell:3")

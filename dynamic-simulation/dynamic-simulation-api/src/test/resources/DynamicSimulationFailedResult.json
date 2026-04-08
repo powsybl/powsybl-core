@@ -1,0 +1,8 @@
+{
+  "version" : "1.0",
+  "status" : "FAILURE",
+  "error" : "Error test",
+  "curves" : [ ],
+  "finalStateValues" : [ ],
+  "timeLine" : [ ]
+}

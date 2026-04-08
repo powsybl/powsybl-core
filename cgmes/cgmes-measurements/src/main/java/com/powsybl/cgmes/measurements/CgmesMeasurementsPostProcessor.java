@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.measurements;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.commons.parameters.Parameter;
@@ -15,7 +17,6 @@ import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(CgmesImportPostProcessor.class)
 public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor {
@@ -58,26 +59,31 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
     }
 
     @Override
-    public void process(Network network, TripleStore tripleStore) {
-        CgmesMeasurementsModel model = new CgmesMeasurementsModel(tripleStore);
+    public void process(Network network, CgmesModel cgmesModel) {
+        CgmesMeasurementsModel model = new CgmesMeasurementsModel(cgmesModel.tripleStore());
         PropertyBags bays = model.bays();
+        Map<String, PropertyBag> idToBayBag = bays.stream().collect(Collectors.toMap(b -> b.getId("Bay"), b -> b));
+        Map<String, String> analogTypesMapping = createTypesMapping(
+                Parameter.readStringList("CGMES", null, ANALOG_TYPES_MAPPING_PARAMETER, defaultValueConfig));
         for (PropertyBag analog : model.analogs()) {
             CgmesAnalogPostProcessor.process(network, analog.getId("Analog"), analog.getId("Terminal"),
                     analog.getId("powerSystemResource"),
                     analog.getId("type"),
-                    bays,
-                    createTypesMapping(Parameter.readStringList("CGMES", null, ANALOG_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
+                    idToBayBag,
+                    analogTypesMapping);
         }
+        Map<String, String> discreteTypesMapping = createTypesMapping(
+                Parameter.readStringList("CGMES", null, DISCRETE_TYPES_MAPPING_PARAMETER, defaultValueConfig));
         for (PropertyBag discrete : model.discretes()) {
             CgmesDiscretePostProcessor.process(network, discrete.getId("Discrete"), discrete.getId("Terminal"),
                     discrete.getId("powerSystemResource"),
                     discrete.getId("type"),
-                    bays,
-                    createTypesMapping(Parameter.readStringList("CGMES", null, DISCRETE_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
+                    idToBayBag,
+                    discreteTypesMapping);
         }
     }
 
-    private static Map<String, String> createTypesMapping(List<String> typesMappingList) {
+    protected static Map<String, String> createTypesMapping(List<String> typesMappingList) {
         if (typesMappingList.isEmpty()) {
             return Collections.emptyMap();
         }

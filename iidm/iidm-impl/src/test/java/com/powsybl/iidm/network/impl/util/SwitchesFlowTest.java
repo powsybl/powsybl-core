@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.util;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.EnergySource;
@@ -27,8 +28,8 @@ import com.powsybl.iidm.network.util.SwitchesFlow;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SwitchesFlowTest {
 
@@ -40,34 +41,34 @@ class SwitchesFlowTest {
         VoltageLevel voltageLevel11 = network.getVoltageLevel("S1VL1");
         SwitchesFlow switchesFlow11 = new SwitchesFlow(voltageLevel11);
 
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-1B", 180.0, 19.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-1A", -10.0, 1.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1B-2B", -70.0, -10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-10", -100.0, -10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-8", 80.0, 10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-0B", 80.0, 9.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-1B", -180.0, -19.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-1A", 10.0, -1.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1B-2B", 70.0, 10.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-10", 100.0, 10.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-8", -80.0, -10.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-0B", -80.0, -9.0));
         assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2A-2B", 0.0, 0.0));
         assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-1B", 0.0, 0.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2B-12", -70.0, -10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-2A", -90.0, -9.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2B-12", 70.0, 10.0));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-2A", 90.0, 9.0));
 
         VoltageLevel voltageLevel12 = network.getVoltageLevel("S1VL2");
         SwitchesFlow switchesFlow12 = new SwitchesFlow(voltageLevel12);
 
-        assertTrue(compareSwitchFlow(switchesFlow12, "S1VL2-SW-0-1", -251.0, -35.0));
-        assertTrue(compareSwitchFlow(switchesFlow12, "S1VL2-SW-0-2", 251.0, 35.0));
+        assertTrue(compareSwitchFlow(switchesFlow12, "S1VL2-SW-0-1", 251.0, 35.0));
+        assertTrue(compareSwitchFlow(switchesFlow12, "S1VL2-SW-0-2", -251.0, -35.0));
 
         VoltageLevel voltageLevel21 = network.getVoltageLevel("S2VL1");
         SwitchesFlow switchesFlow21 = new SwitchesFlow(voltageLevel21);
 
-        assertTrue(compareSwitchFlow(switchesFlow21, "S2VL1-SW-0-1", 75.0, 15.0));
-        assertTrue(compareSwitchFlow(switchesFlow21, "S2VL1-SW-0-2", -75.0, -15.0));
+        assertTrue(compareSwitchFlow(switchesFlow21, "S2VL1-SW-0-1", -75.0, -15.0));
+        assertTrue(compareSwitchFlow(switchesFlow21, "S2VL1-SW-0-2", 75.0, 15.0));
 
         VoltageLevel voltageLevel31 = network.getVoltageLevel("S3VL1");
         SwitchesFlow switchesFlow31 = new SwitchesFlow(voltageLevel31);
 
-        assertTrue(compareSwitchFlow(switchesFlow31, "S3VL1-SW-0-1", 71.0, 11.0));
-        assertTrue(compareSwitchFlow(switchesFlow31, "S3VL1-SW-0-2", -71.0, -11.0));
+        assertTrue(compareSwitchFlow(switchesFlow31, "S3VL1-SW-0-1", -71.0, -11.0));
+        assertTrue(compareSwitchFlow(switchesFlow31, "S3VL1-SW-0-2", 71.0, 11.0));
     }
 
     private static Network createNodeBreaker() {
@@ -77,7 +78,7 @@ class SwitchesFlowTest {
     private static Network createNodeBreaker(NetworkFactory networkFactory) {
 
         Network network = networkFactory.createNetwork("SwitchesFlow-NodeBreaker", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         // First substation
@@ -254,7 +255,8 @@ class SwitchesFlowTest {
             .add();
         generator.newMinMaxReactiveLimits()
             .setMinQ(-100)
-            .setMaxQ(100);
+            .setMaxQ(100)
+            .add();
         generator.getTerminal().setP(-p).setQ(-q);
 
     }
@@ -293,10 +295,10 @@ class SwitchesFlowTest {
             .setNode2(node2)
             .setVoltageLevel2(vl2id)
             .add();
-        twt.newCurrentLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
-        twt.newCurrentLimits2()
+        twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
         twt.getTerminal1().setP(p1).setQ(q1);
@@ -311,8 +313,8 @@ class SwitchesFlowTest {
         VoltageLevel voltageLevel11 = network.getVoltageLevel("S1VL1");
         SwitchesFlow switchesFlow11 = new SwitchesFlow(voltageLevel11);
 
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS1", 25.0, 10.5));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS1-BUS2", 25.0, 10.5));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS1", -25.0, -10.5));
+        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS1-BUS2", -25.0, -10.5));
         assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS2", 0.0, 0.0));
 
         VoltageLevel voltageLevel12 = network.getVoltageLevel("S1VL2");
@@ -328,7 +330,7 @@ class SwitchesFlowTest {
     private static Network createBusBreaker(NetworkFactory networkFactory) {
 
         Network network = networkFactory.createNetwork("SwitchesFlow-BusBreaker", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
         // First substation
@@ -419,10 +421,10 @@ class SwitchesFlowTest {
             .setBus2(busId2)
             .setVoltageLevel2(vl2id)
             .add();
-        twt.newCurrentLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
-        twt.newCurrentLimits2()
+        twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(1030.0)
             .add();
         twt.getTerminal1().setP(p1).setQ(q1);

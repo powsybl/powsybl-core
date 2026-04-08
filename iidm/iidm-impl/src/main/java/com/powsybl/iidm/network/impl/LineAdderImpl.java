@@ -3,19 +3,24 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.commons.ref.Ref;
+
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
 
     private final NetworkImpl network;
+    private final String subnetwork;
+    private final Line copiedLine;
 
     private double r = Double.NaN;
 
@@ -29,8 +34,17 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private double b2 = 0.0;
 
-    LineAdderImpl(NetworkImpl network) {
+    LineAdderImpl(NetworkImpl network, String subnetwork) {
         this.network = network;
+        this.subnetwork = subnetwork;
+        this.copiedLine = null;
+    }
+
+    LineAdderImpl(NetworkImpl network, String subnetwork, Line copiedLine) {
+        this.network = network;
+        this.subnetwork = subnetwork;
+        this.copiedLine = copiedLine;
+        LineAdder.fillLineAdder(this, copiedLine);
     }
 
     @Override
@@ -85,6 +99,10 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetworkId()) || !subnetwork.equals(voltageLevel2.getSubnetworkId()))) {
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
+                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+        }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
@@ -95,18 +113,20 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         ValidationUtil.checkB1(this, b1);
         ValidationUtil.checkB2(this, b2);
 
-        LineImpl line = new LineImpl(network.getRef(), id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
-        terminal1.setNum(1);
-        terminal2.setNum(2);
+        Ref<NetworkImpl> networkRef = computeNetworkRef(getNetwork(), voltageLevel1, voltageLevel2);
+
+        LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
 
-        // check that the line is attachable on both side
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
+        copyOperationalLimits(copiedLine, line);
 
-        voltageLevel1.attach(terminal1, false);
-        voltageLevel2.attach(terminal2, false);
+        // check that the line is attachable on both side
+        voltageLevel1.getTopologyModel().attach(terminal1, true);
+        voltageLevel2.getTopologyModel().attach(terminal2, true);
+
+        voltageLevel1.getTopologyModel().attach(terminal1, false);
+        voltageLevel2.getTopologyModel().attach(terminal2, false);
         network.getIndex().checkAndAdd(line);
         getNetwork().getListeners().notifyCreation(line);
         return line;

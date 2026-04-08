@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.converter;
 
@@ -11,8 +12,8 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationHelper;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationHelper;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.FortescueFaultResult;
 import com.powsybl.shortcircuit.MagnitudeFaultResult;
@@ -53,9 +54,9 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         try (TableFormatter formatter = formatterFactory.create(writer, "Short circuit analysis", formatterConfig,
                 new Column("ID"), new Column("Three Phase Fault Current"))) {
             for (FaultResult action : result.getFaultResults()) {
-                if (action instanceof FortescueFaultResult) {
+                if (action instanceof FortescueFaultResult fortescueFaultResult) {
                     formatter.writeCell(action.getFault().getElementId())
-                            .writeCell(((FortescueFaultResult) action).getCurrent().getDirectMagnitude());
+                            .writeCell(fortescueFaultResult.getCurrent().getPositiveMagnitude());
                 } else {
                     formatter.writeCell(action.getFault().getElementId())
                             .writeCell(((MagnitudeFaultResult) action).getCurrent());

@@ -3,31 +3,32 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateCouplingDeviceBuilder {
 
-    private String busbarSectionId1 = null;
+    private String busOrBbsId1 = null;
 
-    private String busbarSectionId2 = null;
+    private String busOrBbsId2 = null;
 
     private String switchPrefixId = null;
 
     public CreateCouplingDevice build() {
-        return new CreateCouplingDevice(busbarSectionId1, busbarSectionId2, switchPrefixId);
+        return new CreateCouplingDevice(busOrBbsId1, busOrBbsId2, switchPrefixId);
     }
 
-    public CreateCouplingDeviceBuilder withBusbarSectionId1(String bbsId1) {
-        this.busbarSectionId1 = bbsId1;
+    public CreateCouplingDeviceBuilder withBusOrBusbarSectionId1(String busOrBbsId1) {
+        this.busOrBbsId1 = busOrBbsId1;
         return this;
     }
 
-    public CreateCouplingDeviceBuilder withBusbarSectionId2(String bbsId2) {
-        this.busbarSectionId2 = bbsId2;
+    public CreateCouplingDeviceBuilder withBusOrBusbarSectionId2(String busOrBbsId2) {
+        this.busOrBbsId2 = busOrBbsId2;
         return this;
     }
 

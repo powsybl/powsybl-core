@@ -3,15 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_TERMINAL_DC_TRANSMISSION_LINE;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_CONVERTER;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_BUS;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_LINK;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine;
+import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -19,25 +19,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.io.RecordGroupIOJson;
-import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcBus;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcBusx;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcConverter;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcConverterx;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcLink;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcLinkx;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcMain;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
 /**
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiTerminalDcTransmissionLine> {
 
@@ -59,7 +46,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
         }
 
         @Override
-        public List<PsseMultiTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseMultiTerminalDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
 
             MultiTerminalDcMainData mainData = new MultiTerminalDcMainData();
             List<PsseMultiTerminalDcTransmissionLine> multiTerminalList = new ArrayList<>();
@@ -68,17 +55,19 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             List<String> busRecords = new ArrayList<>();
             List<String> linkRecords = new ArrayList<>();
 
-            String line = readRecordLine(reader);
-            while (!endOfBlock(line)) {
-                PsseMultiTerminalDcMain main = mainData.readFromStrings(Collections.singletonList(line), context).get(0);
+            if (!reader.isQRecordFound()) {
+                String line = reader.readUntilFindingARecordLineNotEmpty();
+                while (!reader.endOfBlock(line)) {
+                    PsseMultiTerminalDcMain main = mainData.readFromStrings(Collections.singletonList(line), context).get(0);
 
-                addNextNrecords(reader, converterRecords, main.getNconv());
-                addNextNrecords(reader, busRecords, main.getNdcbs());
-                addNextNrecords(reader, linkRecords, main.getNdcln());
-                line = readRecordLine(reader);
+                    addNextNrecords(reader, converterRecords, main.getNconv());
+                    addNextNrecords(reader, busRecords, main.getNdcbs());
+                    addNextNrecords(reader, linkRecords, main.getNdcln());
+                    line = reader.readUntilFindingARecordLineNotEmpty();
 
-                PsseMultiTerminalDcTransmissionLine multiTerminal = new PsseMultiTerminalDcTransmissionLine(main);
-                multiTerminalList.add(multiTerminal);
+                    PsseMultiTerminalDcTransmissionLine multiTerminal = new PsseMultiTerminalDcTransmissionLine(main);
+                    multiTerminalList.add(multiTerminal);
+                }
             }
 
             List<PsseMultiTerminalDcConverter> converterList = new MultiTerminalDcConverterData().readFromStrings(converterRecords, context);
@@ -97,10 +86,10 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             return multiTerminalList;
         }
 
-        private static void addNextNrecords(BufferedReader reader, List<String> records, int nRecords) throws IOException {
+        private static void addNextNrecords(LegacyTextReader reader, List<String> records, int nRecords) throws IOException {
             int n = 0;
             while (n < nRecords) {
-                records.add(readRecordLine(reader));
+                records.add(reader.readRecordLine());
                 n++;
             }
         }
@@ -216,7 +205,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
         }
 
         @Override
-        public List<PsseMultiTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseMultiTerminalDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
             if (reader != null) {
                 throw new PsseException("Unexpected reader. Should be null");
             }

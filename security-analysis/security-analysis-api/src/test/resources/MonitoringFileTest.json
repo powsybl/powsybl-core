@@ -1,1 +1,1 @@
-[{"contingencyContext":{"contingencyId":"contingency1","contextType":"SPECIFIC"},"branchIds":["Branch1"],"voltageLevelIds":["Bus1"],"threeWindingsTransformerIds":["ThreeWindingsTransformer1"]}]
+[{"contingencyContext":{"contextType":"SPECIFIC","contingencyId":"contingency1"},"branchIds":["Branch1"],"voltageLevelIds":["Bus1"],"threeWindingsTransformerIds":["ThreeWindingsTransformer1"]}]

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
@@ -17,8 +18,8 @@ import java.util.Comparator;
 import java.util.function.Supplier;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 
 public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder {
@@ -48,7 +49,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         // We keep the original type of tap changer (linear, symmetrical, asymmetrical)
         // The type stored here will eventually be used to determine the class in the SSH export
         // If only SSH export is written, the type used should match the original one
-        return super.build().setType(toClassTypeFromClassOrKind(type));
+        return super.build().setType(type);
     }
 
     private boolean validType() {
@@ -69,13 +70,13 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         if (isLinear()) {
             addStepsLinear();
         } else if (isTabular()) {
-            PropertyBags table = context.phaseTapChangerTable(tableId);
-            if (table == null) {
+            PropertyBags tablePoints = context.phaseTapChangerTablePoints(tableId);
+            if (tablePoints.isEmpty()) {
                 addStepsLinear();
                 return;
             }
-            if (isTableValid(tableId, table)) {
-                addStepsFromTable(table);
+            if (isTableValid(tableId, tablePoints)) {
+                addStepsFromTable(tablePoints);
             } else {
                 addStepsLinear();
             }
@@ -144,8 +145,8 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
                     .setRatio(ratio)
                     .endStep();
         }
-        double xMin = p.asDouble(CgmesNames.X_STEP_MIN, p.asDouble(CgmesNames.X_MIN));
-        double xMax = p.asDouble(CgmesNames.X_STEP_MAX, p.asDouble(CgmesNames.X_MAX));
+        double xMin = getXMin();
+        double xMax = getXMax();
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
@@ -183,7 +184,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
                 angle = (step - neutralStep) * stepPhaseShiftIncrement;
             } else {
                 double dy = (step - neutralStep) * (stepVoltageIncrement / 100.0);
-                angle = Math.toDegrees(2 * Math.asin(dy / 2));
+                angle = Math.toDegrees(2 * Math.atan(dy / 2));
             }
             tapChanger.beginStep()
                 .setRatio(1.0)
@@ -194,8 +195,8 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private void stepXforLinearAndSymmetrical() {
-        double xMin = p.asDouble(CgmesNames.X_STEP_MIN, p.asDouble(CgmesNames.X_MIN));
-        double xMax = p.asDouble(CgmesNames.X_STEP_MAX, p.asDouble(CgmesNames.X_MAX));
+        double xMin = getXMin();
+        double xMax = getXMax();
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
@@ -236,19 +237,21 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         return typeLowerCase != null && typeLowerCase.endsWith(CgmesNames.ASYMMETRICAL);
     }
 
-    private static String toClassTypeFromClassOrKind(String type) {
-        // If type is obtained from CIM14 kind PhaseTapChanger.phaseTapChangerType
-        // It has the pattern PhaseTapChangerKind.<type>
-        // where type can be symmetrical, asymmetrical
-        if (type.startsWith("PhaseTapChangerKind.")) {
-            int idot = type.indexOf('.');
-            String kind = type.substring(idot + 1);
-            String camelKind = kind.substring(0, 1).toUpperCase() + kind.substring(1);
-            return "PhaseTapChanger" + camelKind;
+    private double getXMin() {
+        // xMin has been deprecated in CGMES 3, and is optional
+        // Also, if the value read is inconsistent, x of the transformer must be used.
+        // Quoting the definition from CGMES 3:
+        // "PowerTransformerEnd.x shall be consistent with PhaseTapChangerLinear.xMin
+        // and PhaseTapChangerNonLinear.xMin.
+        // In case of inconsistency, PowerTransformerEnd.x shall be used."
+        double xMin = p.asDouble(CgmesNames.X_STEP_MIN, p.asDouble(CgmesNames.X_MIN, 0));
+        if (xMin <= 0) {
+            return xtx;
         }
-        // Otherwise, type has been read from the class name,
-        // we do not have to transform it
-        return type;
+        return xMin;
     }
 
+    private double getXMax() {
+        return p.asDouble(CgmesNames.X_STEP_MAX, p.asDouble(CgmesNames.X_MAX));
+    }
 }

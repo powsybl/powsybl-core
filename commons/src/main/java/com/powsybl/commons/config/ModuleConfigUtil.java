@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
@@ -12,42 +13,42 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public final class ModuleConfigUtil {
 
     private ModuleConfigUtil() {
     }
 
-    public static Optional<Boolean> getOptionalBooleanProperty(ModuleConfig moduleConfig, List<String> names) {
-        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalBooleanProperty);
+    public static Optional<Boolean> getOptionalBooleanProperty(ModuleConfig moduleConfig, List<String> propertyNames) {
+        return getOptionalProperty(moduleConfig, propertyNames, moduleConfig::getOptionalBooleanProperty);
     }
 
-    public static Optional<String> getOptionalStringProperty(ModuleConfig moduleConfig, List<String> names) {
-        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalStringProperty);
+    public static Optional<String> getOptionalStringProperty(ModuleConfig moduleConfig, List<String> propertyNames) {
+        return getOptionalProperty(moduleConfig, propertyNames, moduleConfig::getOptionalStringProperty);
     }
 
-    public static Optional<List<String>> getOptionalStringListProperty(ModuleConfig moduleConfig, List<String> names) {
-        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalStringListProperty);
+    public static Optional<List<String>> getOptionalStringListProperty(ModuleConfig moduleConfig, List<String> propertyNames) {
+        return getOptionalProperty(moduleConfig, propertyNames, moduleConfig::getOptionalStringListProperty);
     }
 
-    public static OptionalDouble getOptionalDoubleProperty(ModuleConfig moduleConfig, List<String> names) {
-        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalDoubleProperty, OptionalDouble::empty, OptionalDouble::isPresent);
+    public static OptionalDouble getOptionalDoubleProperty(ModuleConfig moduleConfig, List<String> propertyNames) {
+        return getOptionalProperty(moduleConfig, propertyNames, moduleConfig::getOptionalDoubleProperty, OptionalDouble::empty, OptionalDouble::isPresent);
     }
 
-    public static OptionalInt getOptionalIntProperty(ModuleConfig moduleConfig, List<String> names) {
-        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalIntProperty, OptionalInt::empty, OptionalInt::isPresent);
+    public static OptionalInt getOptionalIntProperty(ModuleConfig moduleConfig, List<String> propertyNames) {
+        return getOptionalProperty(moduleConfig, propertyNames, moduleConfig::getOptionalIntProperty, OptionalInt::empty, OptionalInt::isPresent);
     }
 
-    private static <T> Optional<T> getOptionalProperty(ModuleConfig moduleConfig, List<String> names, Function<String, Optional<T>> supplier) {
-        return getOptionalProperty(moduleConfig, names, supplier, Optional::empty, Optional::isPresent);
+    private static <T> Optional<T> getOptionalProperty(ModuleConfig moduleConfig, List<String> propertyNames, Function<String, Optional<T>> supplier) {
+        return getOptionalProperty(moduleConfig, propertyNames, supplier, Optional::empty, Optional::isPresent);
     }
 
-    private static <T> T getOptionalProperty(ModuleConfig moduleConfig, List<String> names, Function<String, T> supplier, Supplier<T> factory, Predicate<T> isPresent) {
+    private static <T> T getOptionalProperty(ModuleConfig moduleConfig, List<String> propertyNames, Function<String, T> supplier, Supplier<T> factory, Predicate<T> isPresent) {
         Objects.requireNonNull(moduleConfig);
-        Objects.requireNonNull(names);
+        Objects.requireNonNull(propertyNames);
         T res = factory.get();
-        Iterator<String> it = names.iterator();
+        Iterator<String> it = propertyNames.iterator();
         while (!isPresent.test(res) && it.hasNext()) {
             res = supplier.apply(it.next());
         }

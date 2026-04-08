@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.scripting;
 
@@ -13,9 +14,9 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.iidm.xml.XMLExporter;
-import com.powsybl.iidm.xml.XMLImporter;
+import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.XMLExporter;
+import com.powsybl.iidm.serde.XMLImporter;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import com.powsybl.scripting.test.AbstractGroovyScriptTest;
 import org.junit.jupiter.api.AfterEach;
@@ -30,7 +31,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NetworkLoadSaveGroovyScriptExtensionTest extends AbstractGroovyScriptTest {
 
@@ -40,7 +41,7 @@ class NetworkLoadSaveGroovyScriptExtensionTest extends AbstractGroovyScriptTest 
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Network network = EurostagTutorialExample1Factory.create();
-        NetworkXml.write(network, fileSystem.getPath("/work/n.xiidm"));
+        NetworkSerDe.write(network, fileSystem.getPath("/work/n.xiidm"));
     }
 
     @AfterEach

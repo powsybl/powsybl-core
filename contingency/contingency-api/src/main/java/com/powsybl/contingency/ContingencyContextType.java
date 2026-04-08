@@ -3,29 +3,37 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.contingency;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * This type precises the contingencies involved.
+ * If only pre-contingency state matters, NONE must be used.
+ * If all the post-contingency states plus the pre-contingency state matters, ALL must be used.
+ * If all the post-contingency states without the pre-contingency state matters, ONLY_CONTINGENCIES must be used.
+ * A SPECIFIC contingency context focus on a single contingency, which id is specified in the {@link ContingencyContext}.
  *
- * Define for a contingencyContext the type of information asked.
- * It can be a pre-contingency state, a post-contingency state on a specific contingency (SPECIFIC) or both (ALL)
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 
 public enum ContingencyContextType {
     /**
-     *  Corresponds to all contingencies and pre-contingency situation
+     *  Corresponds to all contingencies and the pre-contingency state.
      */
     ALL,
     /**
-     *  Corresponds to pre-contingency situation
+     *  Corresponds to the pre-contingency state only.
      */
     NONE,
     /**
-     *  Corresponds to one contingency his id is specified in the contingencyContext
+     *  Corresponds to the contingency whose id is specified in the contingency context.
      */
     SPECIFIC,
+    /**
+     *  Corresponds to all contingencies, without the pre-contingency state.
+     */
+    ONLY_CONTINGENCIES
 }

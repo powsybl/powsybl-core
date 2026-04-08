@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.BusFault;
 import com.powsybl.shortcircuit.Fault;
@@ -22,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class JsonShortCircuitInputTest extends AbstractConverterTest {
+class JsonShortCircuitInputTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {
@@ -40,8 +41,8 @@ class JsonShortCircuitInputTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultsFileInvalid.json"), fileSystem.getPath("/FaultsFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultsFileInvalid.json");
-        AssertionError e = assertThrows(AssertionError.class, () -> Fault.read(path));
-        assertEquals("Unexpected field: unexpected", e.getMessage());
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> Fault.read(path));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 
     @Test
@@ -49,7 +50,7 @@ class JsonShortCircuitInputTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultsFileNoType.json"), fileSystem.getPath("/FaultsFileNoType.json"));
 
         Path path = fileSystem.getPath("/FaultsFileNoType.json");
-        AssertionError e = assertThrows(AssertionError.class, () -> Fault.read(path));
-        assertEquals("Required type field is missing", e.getMessage());
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> Fault.read(path));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Required type field is missing (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 }

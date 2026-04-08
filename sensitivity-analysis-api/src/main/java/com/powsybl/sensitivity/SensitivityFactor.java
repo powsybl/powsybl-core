@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  * network in a given contingency context. Usually we compute the impact of an injection increase on a branch flow or current,
  * the impact of a shift of a phase tap changer on a branch flow or current or the impact of a voltage target increase on a bus voltage.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityFactor {
 
@@ -110,13 +111,7 @@ public class SensitivityFactor {
                           String variableId, boolean variableSet, ContingencyContext contingencyContext) {
         try {
             jsonGenerator.writeStartObject();
-            if (functionType.equals(SensitivityFunctionType.BRANCH_CURRENT)) {
-                jsonGenerator.writeStringField("functionType", SensitivityFunctionType.BRANCH_CURRENT_1.name());
-            } else if (functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {
-                jsonGenerator.writeStringField("functionType", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1.name());
-            } else {
-                jsonGenerator.writeStringField("functionType", functionType.name());
-            }
+            jsonGenerator.writeStringField("functionType", functionType.name());
             jsonGenerator.writeStringField("functionId", functionId);
             jsonGenerator.writeStringField("variableType", variableType.name());
             jsonGenerator.writeStringField("variableId", variableId);
@@ -162,7 +157,8 @@ public class SensitivityFactor {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                    boolean variableSet = Objects.requireNonNull(context.variableSet, "Parameter variableSet is missing");
+                    return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, variableSet,
                             new ContingencyContext(context.contingencyId, context.contingencyContextType));
                 }
             }
@@ -173,15 +169,10 @@ public class SensitivityFactor {
     }
 
     static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         switch (fieldName) {
             case "functionType":
                 context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
-                if (context.functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {
-                    context.functionType = SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
-                } else if (context.functionType.equals(SensitivityFunctionType.BRANCH_CURRENT)) {
-                    context.functionType = SensitivityFunctionType.BRANCH_CURRENT_1;
-                }
                 break;
             case "functionId":
                 context.functionId = parser.nextTextValue();

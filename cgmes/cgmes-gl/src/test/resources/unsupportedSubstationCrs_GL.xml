@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" 
+      xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" 
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <md:FullModel rdf:about="urn:uuid:fba05f4d-eda1-4c70-a042-d03acfba2eb3">
+    <md:Model.DependentOn rdf:resource="urn:uuid:94f88e95-1d5a-4227-984b-84232f4dfb81"/>
+  </md:FullModel>
+  <cim:CoordinateSystem rdf:ID="_unsupportedCoordinateSystem">
+    <cim:CoordinateSystem.crsUrn>urn:ogc:def:crs:OGC:2:84</cim:CoordinateSystem.crsUrn>
+  </cim:CoordinateSystem>
+  <cim:Location rdf:ID="_location1">
+    <cim:Location.CoordinateSystem rdf:resource="#_unsupportedCoordinateSystem" />
+    <cim:Location.PowerSystemResources rdf:resource="#_Substation1" />
+  </cim:Location>
+  <cim:PositionPoint rdf:ID="_positionSubstation1">
+    <cim:PositionPoint.Location rdf:resource="#_location1" />
+    <cim:PositionPoint.xPosition>-1.8468419</cim:PositionPoint.xPosition>
+    <cim:PositionPoint.yPosition>48.7123755</cim:PositionPoint.yPosition>
+  </cim:PositionPoint>
+</rdf:RDF>

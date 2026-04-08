@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl.tck;
 import com.powsybl.iidm.network.tck.AbstractSecurityAnalysisTestNetworkFactoryTest;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 class SecurityAnalysisTestNetworkFactoryTest extends AbstractSecurityAnalysisTestNetworkFactoryTest {
 }

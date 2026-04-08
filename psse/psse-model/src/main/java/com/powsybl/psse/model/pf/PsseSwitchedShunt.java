@@ -3,16 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
  *
- * @author Jean-Baptiste Heyberger <Jean-Baptiste.Heyberger at rte-france.com>
+ * @author Jean-Baptiste Heyberger {@literal <Jean-Baptiste.Heyberger at rte-france.com>}
  */
 public class PsseSwitchedShunt extends PsseVersioned {
 
@@ -53,45 +55,59 @@ public class PsseSwitchedShunt extends PsseVersioned {
     @Parsed
     private double b1 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n2 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b2 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n3 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b3 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n4 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b4 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n5 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b5 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n6 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b6 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n7 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b7 = 0.0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int n8 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double b8 = 0.0;
 
@@ -111,30 +127,37 @@ public class PsseSwitchedShunt extends PsseVersioned {
     @Revision(since = 35)
     private int s1 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s2 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s3 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s4 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s5 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s6 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s7 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int s8 = 1;
@@ -445,5 +468,47 @@ public class PsseSwitchedShunt extends PsseVersioned {
 
     public void setS8(int s8) {
         this.s8 = s8;
+    }
+
+    public PsseSwitchedShunt copy() {
+        PsseSwitchedShunt copy = new PsseSwitchedShunt();
+        copy.i = this.i;
+        copy.modsw = this.modsw;
+        copy.adjm = this.adjm;
+        copy.stat = this.stat;
+        copy.vswhi = this.vswhi;
+        copy.vswlo = this.vswlo;
+        copy.swrem = this.swrem;
+        copy.rmpct = this.rmpct;
+        copy.rmidnt = this.rmidnt;
+        copy.binit = this.binit;
+        copy.n1 = this.n1;
+        copy.b1 = this.b1;
+        copy.n2 = this.n2;
+        copy.b2 = this.b2;
+        copy.n3 = this.n3;
+        copy.b3 = this.b3;
+        copy.n4 = this.n4;
+        copy.b4 = this.b4;
+        copy.n5 = this.n5;
+        copy.b5 = this.b5;
+        copy.n6 = this.n6;
+        copy.b6 = this.b6;
+        copy.n7 = this.n7;
+        copy.b7 = this.b7;
+        copy.n8 = this.n8;
+        copy.b8 = this.b8;
+        copy.id = this.id;
+        copy.swreg = this.swreg;
+        copy.nreg = this.nreg;
+        copy.s1 = this.s1;
+        copy.s2 = this.s2;
+        copy.s3 = this.s3;
+        copy.s4 = this.s4;
+        copy.s5 = this.s5;
+        copy.s6 = this.s6;
+        copy.s7 = this.s7;
+        copy.s8 = this.s8;
+        return copy;
     }
 }

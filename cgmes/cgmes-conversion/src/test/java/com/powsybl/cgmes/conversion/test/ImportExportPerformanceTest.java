@@ -3,20 +3,21 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -33,15 +34,15 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class ImportExportPerformanceTest {
     // TODO We should build tests that check that re-imported exported models
     // are equivalent to the original models
 
     @Test
-    void smallcase1() throws IOException {
-        importExport(TripleStoreFactory.onlyDefaultImplementation(), Cim14SmallCasesCatalog.small1());
+    void microGridBaseCaseNL() throws IOException {
+        importExport(TripleStoreFactory.onlyDefaultImplementation(), CgmesConformity1Catalog.microGridBaseCaseNL());
     }
 
     private void importExport(List<String> tsImpls, GridModelReference gm) throws IOException {
@@ -72,6 +73,7 @@ class ImportExportPerformanceTest {
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
         importParameters.put("storeCgmesModelAsNetworkExtension", "true");
+        importParameters.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network n = i.importData(ds, NetworkFactory.findDefault(), importParameters);
         CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         cgmes.print(LOG::info);
@@ -79,7 +81,7 @@ class ImportExportPerformanceTest {
         CgmesExport e = new CgmesExport();
         Path exportFolder = fs.getPath("impl-" + ts);
         Files.createDirectories(exportFolder);
-        DataSource exportDataSource = new FileDataSource(exportFolder, "");
+        DataSource exportDataSource = new DirectoryDataSource(exportFolder, "");
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.CIM_VERSION, "16");
         e.export(n, exportParameters, exportDataSource);

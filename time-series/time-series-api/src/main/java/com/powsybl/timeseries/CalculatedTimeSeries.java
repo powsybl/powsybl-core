@@ -3,14 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -22,7 +25,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class CalculatedTimeSeries implements DoubleTimeSeries {
 
@@ -160,7 +163,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     //To remove if we ever get it from somewhere else
-    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+    @FunctionalInterface private interface DoubleIntConsumer { void accept(double a, int b); }
 
     private void forEachMaterializedValueIndex(DoubleIntConsumer consumer) {
         if (metadata.getIndex() == InfiniteTimeSeriesIndex.INSTANCE) {
@@ -217,16 +220,16 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     private static DoublePoint evaluateMultiPoint(NodeCalc resolvedNodeCalc, DoubleMultiPoint multiPoint) {
         double value = NodeCalcEvaluator.eval(resolvedNodeCalc, multiPoint);
-        return new DoublePoint(multiPoint.getIndex(), multiPoint.getTime(), value);
+        return new DoublePoint(multiPoint.getIndex(), multiPoint.getInstant(), value);
     }
 
     private static DoublePoint evaluate(NodeCalc resolvedNodeCalc) {
         double value = NodeCalcEvaluator.eval(resolvedNodeCalc, null);
-        return new DoublePoint(0, InfiniteTimeSeriesIndex.START_TIME, value);
+        return new DoublePoint(0, InfiniteTimeSeriesIndex.START_INSTANT, value);
     }
 
     @Override
-    public Stream<DoublePoint> stream() {
+    public Stream<DoublePoint> uncompressedStream() {
         List<DoubleTimeSeries> timeSeriesList = loadData();
         NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
@@ -237,7 +240,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     @Override
-    public Iterator<DoublePoint> iterator() {
+    public Iterator<DoublePoint> uncompressedIterator() {
         List<DoubleTimeSeries> timeSeriesList = loadData();
         NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
@@ -250,6 +253,18 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     @Override
     public List<DoubleTimeSeries> split(int newChunkSize) {
         int chunkCount = TimeSeries.computeChunkCount(index, newChunkSize);
+        return Collections.nCopies(chunkCount, this);
+    }
+
+    /**
+     * <p>Splits the current time series into multiple time series based on the specified ranges.</p>
+     *
+     * This method creates a list of time series where each time series in the list is a copy of the original time series.<br/>
+     * The number of copies is determined by the number of ranges provided.
+     */
+    @Override
+    public List<DoubleTimeSeries> splitByRanges(List<Range<@NonNull Integer>> ranges) {
+        int chunkCount = ranges.size();
         return Collections.nCopies(chunkCount, this);
     }
 
@@ -280,8 +295,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CalculatedTimeSeries) {
-            CalculatedTimeSeries other = (CalculatedTimeSeries) obj;
+        if (obj instanceof CalculatedTimeSeries other) {
             return name.equals(other.name) && nodeCalc.equals(other.nodeCalc);
         }
         return false;

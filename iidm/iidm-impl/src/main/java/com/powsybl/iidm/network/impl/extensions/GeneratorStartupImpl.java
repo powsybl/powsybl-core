@@ -3,15 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 
 /**
- * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Jérémy Labous {@literal <jlabous at silicom.fr>}
  */
 public class GeneratorStartupImpl extends AbstractExtension<Generator> implements GeneratorStartup {
 
@@ -75,6 +78,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setPlannedOutageRate(double plannedOutageRate) {
+        ValidationUtil.checkRate((Validable) getExtendable(), "GeneratorStartup", plannedOutageRate, "planned outage rate");
         this.plannedOutageRate = plannedOutageRate;
         return this;
     }
@@ -86,6 +90,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setForcedOutageRate(double forcedOutageRate) {
+        ValidationUtil.checkRate((Validable) getExtendable(), "GeneratorStartup", forcedOutageRate, "forced outage rate");
         this.forcedOutageRate = forcedOutageRate;
         return this;
     }

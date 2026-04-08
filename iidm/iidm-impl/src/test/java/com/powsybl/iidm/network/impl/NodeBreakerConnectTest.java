@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -13,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeBreakerConnectTest {
 
@@ -150,6 +151,21 @@ class NodeBreakerConnectTest {
     }
 
     @Test
+    void testNodeBreakerConnectViaVoltageLevelConnectedLoad() {
+        Network network = createNetwork();
+        Load l = network.getLoad("LD");
+        assertTrue(l.getTerminal().isConnected());
+        assertTrue(network.getSwitch("B2").isOpen());
+
+        if (l.getTerminal() instanceof TerminalExt terminal) {
+            NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) network.getVoltageLevel("VL")).getTopologyModel();
+            topologyModel.connect(terminal);
+        }
+        assertTrue(network.getSwitch("B2").isOpen());
+        assertTrue(l.getTerminal().isConnected());
+    }
+
+    @Test
     void testNodeBreakerDisconnectDisconnectedLoad() {
         Network network = createNetwork();
         network.getSwitch("B3").setOpen(true);
@@ -166,7 +182,10 @@ class NodeBreakerConnectTest {
         Network network = createDiamondNetwork();
         Load l = network.getLoad("L");
         assertTrue(l.getTerminal().isConnected());
-        l.getTerminal().disconnect();
+        if (l.getTerminal() instanceof TerminalExt terminal) {
+            NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) network.getVoltageLevel("VL")).getTopologyModel();
+            topologyModel.disconnect(terminal);
+        }
         assertFalse(l.getTerminal().isConnected());
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
@@ -17,9 +18,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 final class ContainersMappingHelper {
 
@@ -209,17 +210,15 @@ final class ContainersMappingHelper {
                         // All transformers are considered with impedance
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
                         break;
-                    case "ElmLne":
-                        // All lines are considered with impedance, only zero impedance lines are necessary
-                        break;
-                    case "ElmZpu":
+                    case "ElmLne", "ElmZpu":
                         // All lines are considered with impedance, only zero impedance lines are necessary
                         break;
                     case "ElmCoup":
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
+                        throw new PowerFactoryException("Detected unsupported terminal count (2) for object "
+                                + connectedObj.getDataClassName() + " " + connectedObj.getId() + ".");
                 }
             } else if (elmTerms.size() == 3) {
                 if (connectedObj.getDataClassName().equals("ElmTr3")) {
@@ -229,7 +228,8 @@ final class ContainersMappingHelper {
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(2), false, true));
                 } else {
-                    throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
+                    throw new PowerFactoryException("Detected unsupported terminal count (3) for object "
+                            + connectedObj.getDataClassName() + " " + connectedObj.getId() + ".");
                 }
             }
         }
@@ -252,6 +252,7 @@ final class ContainersMappingHelper {
             Edge::isZeroImpedance,
             Edge::isTransformer,
             busesToVoltageLevelId::getNominalVoltage,
+            id -> 0,
             busesToVoltageLevelId::getVoltageLevelId,
             busesToVoltageLevelId::getSubstationId);
     }

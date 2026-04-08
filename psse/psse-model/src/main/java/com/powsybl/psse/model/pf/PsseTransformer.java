@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -13,11 +14,12 @@ import com.powsybl.psse.model.Revision;
 import com.powsybl.psse.model.pf.io.WindingHeaderTransformer;
 import com.powsybl.psse.model.pf.io.WindingRatesHeaderTransformer;
 import com.univocity.parsers.annotations.Nested;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 
 @JsonPropertyOrder(alphabetic = true)
@@ -83,6 +85,7 @@ public class PsseTransformer extends PsseVersioned {
     @Revision(since = 33)
     private String vecgrp = "            ";
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int zcod = 0;
@@ -354,12 +357,43 @@ public class PsseTransformer extends PsseVersioned {
         this.winding3Rates = winding3Rates;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public TransformerImpedances getImpedances() {
         return impedances;
     }
 
     public void setImpedances(TransformerImpedances impedances) {
         this.impedances = impedances;
+    }
+
+    public PsseTransformer copy() {
+        PsseTransformer copy = new PsseTransformer();
+        copy.i = this.i;
+        copy.j = this.j;
+        copy.k = this.k;
+        copy.ckt = this.ckt;
+        copy.cw = this.cw;
+        copy.cz = this.cz;
+        copy.cm = this.cm;
+        copy.mag1 = this.mag1;
+        copy.mag2 = this.mag2;
+        copy.nmetr = this.nmetr;
+        copy.name = this.name;
+        copy.stat = this.stat;
+        copy.ownership = this.ownership.copy();
+        copy.vecgrp = this.vecgrp;
+        copy.zcod = this.zcod;
+        copy.impedances = this.impedances.copy();
+        copy.winding1 = this.winding1.copy();
+        copy.winding1Rates = this.winding1Rates.copy();
+        copy.winding2 = this.winding2.copy();
+        copy.winding2Rates = this.winding2Rates.copy();
+        copy.winding3 = this.winding3.copy();
+        copy.winding3Rates = this.winding3Rates.copy();
+        return copy;
     }
 
     public static class TransformerImpedances {
@@ -372,28 +406,52 @@ public class PsseTransformer extends PsseVersioned {
         @Parsed(field = {"sbase12", "sbase1_2"})
         private double sbase12 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"r23", "r2_3"})
         private double r23 = 0;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"x23", "x2_3"})
         private double x23 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"sbase23", "sbase2_3"})
         private double sbase23 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"r31", "r3_1"})
         private double r31 = 0;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"x31", "x3_1"})
         private double x31 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"sbase31", "sbase3_1"})
         private double sbase31 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double vmstar = 1;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double anstar = 0;
+
+        public TransformerImpedances copy() {
+            TransformerImpedances copy = new TransformerImpedances();
+            copy.r12 = this.r12;
+            copy.x12 = this.x12;
+            copy.sbase12 = this.sbase12;
+            copy.r23 = this.r23;
+            copy.x23 = this.x23;
+            copy.sbase23 = this.sbase23;
+            copy.r31 = this.r31;
+            copy.x31 = this.x31;
+            copy.sbase31 = this.sbase31;
+            copy.vmstar = this.vmstar;
+            copy.anstar = this.anstar;
+            return copy;
+        }
     }
 }

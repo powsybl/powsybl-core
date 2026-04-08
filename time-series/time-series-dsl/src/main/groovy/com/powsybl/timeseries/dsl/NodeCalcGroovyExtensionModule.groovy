@@ -3,62 +3,40 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.dsl
 
 import com.powsybl.commons.PowsyblException
-import com.powsybl.timeseries.ast.BigDecimalNodeCalc
-import com.powsybl.timeseries.ast.BinaryOperation
-import com.powsybl.timeseries.ast.DoubleNodeCalc
-import com.powsybl.timeseries.ast.FloatNodeCalc
-import com.powsybl.timeseries.ast.IntegerNodeCalc
-import com.powsybl.timeseries.ast.MaxNodeCalc
-import com.powsybl.timeseries.ast.MinNodeCalc
-import com.powsybl.timeseries.ast.NodeCalc
-import com.powsybl.timeseries.ast.TimeNodeCalc
-import com.powsybl.timeseries.ast.UnaryOperation
+import com.powsybl.timeseries.ast.*
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NodeCalcGroovyExtensionModule {
 
     // restore default comparison behaviour
     static boolean compareToNodeCalc(Object self, Object value, String op) {
-        switch (op) {
-            case ">":
-                return self > value
-            case ">=":
-                return self >= value
-            case "<":
-                return self < value
-            case "<=":
-                return self <= value
-            case "==":
-                return self == value
-            case "!=":
-                return self != value
-            default:
-                throw new PowsyblException("Unexpected operator: " + op)
+        return switch (op) {
+            case ">" -> self > value
+            case ">=" -> self >= value
+            case "<" -> self < value
+            case "<=" -> self <= value
+            case "==" -> self == value
+            case "!=" -> self != value
+            default -> throw new PowsyblException("Unexpected operator: " + op)
         }
     }
 
     private static NodeCalc createComparisonNode(NodeCalc left, NodeCalc right, String op) {
-        switch (op) {
-            case ">":
-                return BinaryOperation.greaterThan(left, right)
-            case ">=":
-                return BinaryOperation.greaterThanOrEqualsTo(left, right)
-            case "<":
-                return BinaryOperation.lessThan(left, right)
-            case "<=":
-                return BinaryOperation.lessThanOrEqualsTo(left, right)
-            case "==":
-                return BinaryOperation.equals(left, right)
-            case "!=":
-                return BinaryOperation.notEquals(left, right)
-            default:
-                throw new PowsyblException("Unexpected operator: " + op)
+        return switch (op) {
+            case ">" -> BinaryOperation.greaterThan(left, right)
+            case ">=" -> BinaryOperation.greaterThanOrEqualsTo(left, right)
+            case "<" -> BinaryOperation.lessThan(left, right)
+            case "<=" -> BinaryOperation.lessThanOrEqualsTo(left, right)
+            case "==" -> BinaryOperation.equals(left, right)
+            case "!=" -> BinaryOperation.notEquals(left, right)
+            default -> throw new PowsyblException("Unexpected operator: " + op)
         }
     }
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -16,11 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class BranchDataTest {
 
@@ -165,7 +166,7 @@ class BranchDataTest {
     // Some tests for a transmission line disconnected at one end
 
     @Test
-    void testDanglingLine() {
+    void testBoundaryLine() {
         BranchTestCase t = lineEnd2Disconnected();
 
         // First obtain results when end 2 is disconnected
@@ -186,9 +187,9 @@ class BranchDataTest {
     }
 
     @Test
-    void testDanglingLineDifferentY() {
+    void testBoundaryLineDifferentY() {
         BranchTestCase t = lineEnd2Disconnected();
-        t.branch.id = "Dangling-Y1-Y2-different";
+        t.branch.id = "Boundary-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2
         t.branch.end1.b = t.branch.end2.b * 2;
 
@@ -217,7 +218,7 @@ class BranchDataTest {
         BranchTestCase t = new BranchTestCase();
         t.config.convertAsTransformer = false;
 
-        t.branch.id = "Dangling";
+        t.branch.id = "Boundary";
         t.branch.end1.ratedU = 380;
         t.branch.end2.ratedU = 380;
         t.branch.end1.r = 5;
@@ -277,10 +278,10 @@ class BranchDataTest {
         // (P with 10e-2, Q with 10e-4)
         LOG.debug("");
         LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
-        Flow line1 = flow(pline, Side.ONE);
-        Flow line2 = flow(pline, Side.TWO);
-        Flow pst1 = flow(ppst, Side.ONE);
-        Flow pst2 = flow(ppst, Side.TWO);
+        Flow line1 = flow(pline, TwoSides.ONE);
+        Flow line2 = flow(pline, TwoSides.TWO);
+        Flow pst1 = flow(ppst, TwoSides.ONE);
+        Flow pst2 = flow(ppst, TwoSides.TWO);
         checkBusBalance("End 1", TOLERANCE_BALANCE_EXACT, TOLERANCE_BALANCE_EXACT, line1, pst1, load);
         checkBusBalance("End 2", 1e-2, 1e-4, line2, pst2, generator);
     }
@@ -311,10 +312,10 @@ class BranchDataTest {
         LOG.debug("");
         LOG.debug("Balance at ends of parallel branches " + pline.getId() + ", " + ppst.getId());
         LOG.debug("After moving phase shifter to side 1");
-        Flow line1 = flow(pline, Side.ONE);
-        Flow line2 = flow(pline, Side.TWO);
-        Flow pst1 = flow(ppst, Side.ONE);
-        Flow pst2 = flow(ppst, Side.TWO);
+        Flow line1 = flow(pline, TwoSides.ONE);
+        Flow line2 = flow(pline, TwoSides.TWO);
+        Flow pst1 = flow(ppst, TwoSides.ONE);
+        Flow pst2 = flow(ppst, TwoSides.TWO);
         checkBusBalance("End 1", TOLERANCE_BALANCE_EXACT, TOLERANCE_BALANCE_EXACT, line1, pst1, load);
         checkBusBalance("End 2", 1e-2, 1e-4, line2, pst2, generator);
     }
@@ -811,9 +812,9 @@ class BranchDataTest {
         BranchData r1 = checkTestCase(label, w1);
         BranchData r2 = checkTestCase(label, w2);
         BranchData r3 = checkTestCase(label, w3);
-        Flow f1 = flow(r1, Side.TWO);
-        Flow f2 = flow(r2, Side.TWO);
-        Flow f3 = flow(r3, Side.TWO);
+        Flow f1 = flow(r1, TwoSides.TWO);
+        Flow f2 = flow(r2, TwoSides.TWO);
+        Flow f3 = flow(r3, TwoSides.TWO);
         checkBusBalance(label, toleranceBalance, f1, f2, f3);
     }
 
@@ -954,7 +955,7 @@ class BranchDataTest {
         return sum;
     }
 
-    private Flow flow(BranchData b, Side side) {
+    private Flow flow(BranchData b, TwoSides side) {
         Flow f = new Flow();
         f.id = b.getId();
         f.p = b.getComputedP(side);

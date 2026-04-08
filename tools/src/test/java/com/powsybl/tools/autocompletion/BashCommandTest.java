@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools.autocompletion;
 
@@ -17,7 +18,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 class BashCommandTest {
 
@@ -40,7 +41,7 @@ class BashCommandTest {
 
         BashOption option1 = options.get(0);
         assertEquals("--file", option1.getName());
-        assertEquals("FILE", option1.getArgName().orElseThrow(AssertionError::new));
+        assertEquals("FILE", option1.getArgName().orElseThrow(IllegalStateException::new));
         assertTrue(option1.hasArg());
         assertNull(option1.getType());
         assertNull(option1.getPossibleValues());

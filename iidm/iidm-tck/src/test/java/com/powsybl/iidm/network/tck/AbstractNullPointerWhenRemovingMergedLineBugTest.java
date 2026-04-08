@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
 
@@ -31,7 +32,7 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
         vl1.getBusBreakerView().newBus()
                 .setId("b1")
                 .add();
-        vl1.newDanglingLine()
+        vl1.newBoundaryLine()
                 .setId("dl1")
                 .setConnectableBus("b1")
                 .setBus("b1")
@@ -41,7 +42,7 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         Network n2 = Network.create("n2", "test");
         Substation s2 = n2.newSubstation()
@@ -56,7 +57,7 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
         vl2.getBusBreakerView().newBus()
                 .setId("b2")
                 .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
                 .setId("dl2")
                 .setConnectableBus("b2")
                 .setBus("b2")
@@ -66,17 +67,18 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         assertEquals(0, n1.getLineCount());
-        assertEquals(1, n1.getDanglingLineCount());
+        assertEquals(1, n1.getBoundaryLineCount());
         assertEquals(0, n2.getLineCount());
-        assertEquals(1, n2.getDanglingLineCount());
-        n1.merge(n2);
-        assertEquals(1, n1.getLineCount());
-        assertEquals(0, n1.getDanglingLineCount());
-        n1.getLine("dl1 + dl2").remove();
-        for (Bus b : n1.getBusBreakerView().getBuses()) {
+        assertEquals(1, n2.getBoundaryLineCount());
+        Network merged = Network.merge(n1, n2);
+        assertEquals(1, merged.getTieLineCount());
+        assertEquals(2, merged.getBoundaryLineCount());
+        merged.getTieLine("dl1 + dl2").remove();
+        assertEquals(2, merged.getBoundaryLineCount());
+        for (Bus b : merged.getBusBreakerView().getBuses()) {
             // throws an exception if bug already present
             b.isInMainConnectedComponent();
         }

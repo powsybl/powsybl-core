@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.gl;
 
@@ -17,7 +18,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public abstract class AbstractPositionExporter {
 
@@ -39,7 +40,7 @@ public abstract class AbstractPositionExporter {
 
     protected String addLocation(String id, String name) {
 
-        PropertyBag locationProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, COORDINATE_SYSTEM, POWER_SYSTEM_RESOURCES));
+        PropertyBag locationProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, COORDINATE_SYSTEM, POWER_SYSTEM_RESOURCES), true);
         locationProperties.setResourceNames(Arrays.asList(COORDINATE_SYSTEM, POWER_SYSTEM_RESOURCES));
         locationProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
         locationProperties.put(IDENTIFIED_OBJECT_NAME, name);
@@ -51,8 +52,8 @@ public abstract class AbstractPositionExporter {
 
     protected void addLocationPoint(String locationId, Coordinate coordinate, int seq) {
         PropertyBag locationPointProperties = (seq == 0)
-                ? new PropertyBag(Arrays.asList(X_POSITION, Y_POSITION, LOCATION))
-                : new PropertyBag(Arrays.asList(SEQUENCE_NUMBER, X_POSITION, Y_POSITION, LOCATION));
+                ? new PropertyBag(Arrays.asList(X_POSITION, Y_POSITION, LOCATION), true)
+                : new PropertyBag(Arrays.asList(SEQUENCE_NUMBER, X_POSITION, Y_POSITION, LOCATION), true);
         locationPointProperties.setResourceNames(Collections.singletonList(LOCATION));
         if (seq > 0) {
             locationPointProperties.put(SEQUENCE_NUMBER, Integer.toString(seq));

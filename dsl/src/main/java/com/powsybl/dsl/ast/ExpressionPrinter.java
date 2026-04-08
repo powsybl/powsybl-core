@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dsl.ast;
 
@@ -10,7 +11,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
 
@@ -160,7 +161,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         return null;
     }
 
-    private static AssertionError createUnexpectedOperatorException(String operatorName) {
-        return new AssertionError("Unexpected operator: " + operatorName);
+    private static IllegalStateException createUnexpectedOperatorException(String operatorName) {
+        return new IllegalStateException("Unexpected operator: " + operatorName);
     }
 }

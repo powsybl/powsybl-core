@@ -3,19 +3,21 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
-
-import java.io.Writer;
-import java.util.Objects;
 
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
 
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
+
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public final class ValidationUtils {
 
@@ -31,9 +33,9 @@ public final class ValidationUtils {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(validationType);
         try {
-            ValidationWriterFactory factory = config.getValidationOutputWriter().getValidationWriterFactory().newInstance();
+            ValidationWriterFactory factory = config.getValidationOutputWriter().getValidationWriterFactory().getDeclaredConstructor().newInstance();
             return factory.create(id, config.getTableFormatterFactory(), writer, config.isVerbose(), validationType, config.isCompareResults());
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new ConfigurationException(e);
         }
     }
@@ -69,7 +71,8 @@ public final class ValidationUtils {
     }
 
     public static boolean boundedWithin(double lowerBound, double upperBound, double value, double margin) {
-        if (Double.isNaN(value) || (Double.isNaN(lowerBound) && Double.isNaN(upperBound))) {
+        if (Double.isNaN(value)
+                || Double.isNaN(lowerBound) && Double.isNaN(upperBound)) {
             return false;
         }
         if (Double.isNaN(lowerBound)) {
@@ -83,7 +86,7 @@ public final class ValidationUtils {
 
     public static boolean isMainComponent(ValidationConfig config, boolean mainComponent) {
         Objects.requireNonNull(config);
-        return config.isCheckMainComponentOnly() ? mainComponent : true;
+        return !config.isCheckMainComponentOnly() || mainComponent;
     }
 
 }

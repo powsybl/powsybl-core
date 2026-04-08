@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
@@ -18,7 +19,7 @@ import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CountryConversionTest {
     @Test
@@ -28,9 +29,11 @@ class CountryConversionTest {
                 .put("D4", Country.DE)
                 .put("D7", Country.DE)
                 .put("D8", Country.DE)
+                .put("DE-anything", Country.DE)
+                .put("DE-anythingElse", Country.DE)
                 .build()
                 .forEach((name, country) -> assertEquals(country,
-                        CountryConversion.fromRegionName(name).get()));
+                        CountryConversion.fromRegionName(name).orElseThrow()));
         assertEquals(Optional.empty(), CountryConversion.fromRegionName("XYZ"));
     }
 

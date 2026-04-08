@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
@@ -19,15 +20,16 @@ import java.util.Optional;
  * the busbar section with a breaker and a closed disconnector. The injection is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
 
-    private final InjectionAdder<?> injectionAdder;
+    private final InjectionAdder<?, ?> injectionAdder;
     private final String busOrBbsId;
     private final Integer injectionPositionOrder;
     private final String injectionFeederName;
     private final ConnectablePosition.Direction injectionDirection;
+    private final boolean logOrThrowIfIncorrectPositionOrder;
 
     /**
      * @param injectionAdder         The injection adder.
@@ -37,14 +39,20 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
      * @param injectionFeederName    The name of the feeder indicated in the extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
-    CreateFeederBay(InjectionAdder<?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
-                    String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
+    CreateFeederBay(InjectionAdder<?, ?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
+                    String injectionFeederName, ConnectablePosition.Direction injectionDirection, boolean logOrThrowIfIncorrectPositionOrder) {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.busOrBbsId = Objects.requireNonNull(busOrBbsId);
         this.injectionPositionOrder = injectionPositionOrder;
         this.injectionFeederName = injectionFeederName;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
+        this.logOrThrowIfIncorrectPositionOrder = logOrThrowIfIncorrectPositionOrder;
+    }
+
+    @Override
+    public String getName() {
+        return "CreateFeederBay";
     }
 
     @Override
@@ -62,27 +70,8 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
         injectionAdder.setNode(node);
     }
 
-    @Override
     protected Connectable<?> add() {
-        if (injectionAdder instanceof LoadAdder) {
-            return ((LoadAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof BatteryAdder) {
-            return ((BatteryAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof DanglingLineAdder) {
-            return ((DanglingLineAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof GeneratorAdder) {
-            return ((GeneratorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof ShuntCompensatorAdder) {
-            return ((ShuntCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof StaticVarCompensatorAdder) {
-            return ((StaticVarCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof LccConverterStationAdder) {
-            return ((LccConverterStationAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof VscConverterStationAdder) {
-            return ((VscConverterStationAdder) injectionAdder).add();
-        } else {
-            throw new AssertionError("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
-        }
+        return injectionAdder.add();
     }
 
     @Override
@@ -113,5 +102,10 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     @Override
     protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
         return connectablePositionAdder.newFeeder();
+    }
+
+    @Override
+    protected boolean getLogOrThrowIfIncorrectPositionOrder(int side) {
+        return logOrThrowIfIncorrectPositionOrder;
     }
 }
