@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.measurements;
 
@@ -10,23 +11,38 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.Type.*;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class CgmesDiscretePostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesDiscretePostProcessor.class);
 
-    public static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
+    /**
+     * @deprecated use {{@link #process(Network, String, String, String, String, Map, Map)}} instead.
+     */
+    @Deprecated(since = "6.7.1")
+    public static void process(Network network, String id, String terminalId, String powerSystemResourceId,
+            String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
+
+        Map<String, PropertyBag> m = bays.stream().collect(Collectors.toMap(b -> b.getId("Bay"), b -> b));
+        process(network, id, terminalId, powerSystemResourceId, measurementType, m, typesMapping);
+    }
+
+    public static void process(Network network, String id, String terminalId,
+            String powerSystemResourceId, String measurementType,
+            Map<String, PropertyBag> idToBayBag, Map<String, String> typesMapping) {
         if (terminalId != null) {
             Identifiable<?> identifiable = network.getIdentifiable(terminalId);
             if (identifiable != null) {
@@ -40,7 +56,7 @@ public final class CgmesDiscretePostProcessor {
             createDisMeas(identifiable, id, measurementType, typesMapping);
             return;
         }
-        PropertyBag bay = bays.stream().filter(b -> b.getId("Bay").equals(powerSystemResourceId)).findFirst().orElse(null);
+        PropertyBag bay = idToBayBag.get(powerSystemResourceId);
         if (bay != null) {
             String voltageLevelId = bay.getId("VoltageLevel");
             LOG.info("Power resource system {} of Discrete {} is a Bay: Discrete is attached to the associated voltage level {}",
@@ -76,8 +92,7 @@ public final class CgmesDiscretePostProcessor {
     }
 
     private static void setTapChanger(DiscreteMeasurementAdder adder, Identifiable<?> identifiable) {
-        if (identifiable instanceof TwoWindingsTransformer) {
-            TwoWindingsTransformer twt = (TwoWindingsTransformer) identifiable;
+        if (identifiable instanceof TwoWindingsTransformer twt) {
             if (twt.hasRatioTapChanger() && !twt.hasPhaseTapChanger()) {
                 adder.setTapChanger(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER);
             } else if (!twt.hasRatioTapChanger() && twt.hasPhaseTapChanger()) {
@@ -85,8 +100,7 @@ public final class CgmesDiscretePostProcessor {
             } else {
                 adder.setType(OTHER);
             }
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+        } else if (identifiable instanceof ThreeWindingsTransformer twt) {
             List<DiscreteMeasurement.TapChanger> tapChangers = new ArrayList<>();
             twt.getLeg1().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_1));
             twt.getLeg2().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_2));

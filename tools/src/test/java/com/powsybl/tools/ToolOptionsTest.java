@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools;
 
@@ -21,7 +22,7 @@ import java.nio.file.FileSystem;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 class ToolOptionsTest {
 
@@ -68,12 +69,12 @@ class ToolOptionsTest {
         CommandLine line = parser.parse(options, args);
         ToolOptions opts = new ToolOptions(line, context);
 
-        assertEquals("valueString", opts.getValue("value").orElseThrow(AssertionError::new));
-        assertEquals(5, (long) opts.getInt("int").orElseThrow(AssertionError::new));
-        assertEquals(3.2f, opts.getFloat("float").orElseThrow(AssertionError::new), 0f);
-        assertEquals(EnumOption.VALUE, opts.getEnum("enum", EnumOption.class).orElseThrow(AssertionError::new));
-        assertEquals(Lists.newArrayList("str1", "str2"), opts.getValues("list").orElseThrow(AssertionError::new));
-        assertEquals(fileSystem.getPath("/test/path"), opts.getPath("path").orElseThrow(AssertionError::new));
+        assertEquals("valueString", opts.getValue("value").orElseThrow(IllegalStateException::new));
+        assertEquals(5, (long) opts.getInt("int").orElseThrow(IllegalStateException::new));
+        assertEquals(3.2f, opts.getFloat("float").orElseThrow(IllegalStateException::new), 0f);
+        assertEquals(EnumOption.VALUE, opts.getEnum("enum", EnumOption.class).orElseThrow(IllegalStateException::new));
+        assertEquals(Lists.newArrayList("str1", "str2"), opts.getValues("list").orElseThrow(IllegalStateException::new));
+        assertEquals(fileSystem.getPath("/test/path"), opts.getPath("path").orElseThrow(IllegalStateException::new));
         assertTrue(opts.hasOption("flag"));
         assertFalse(opts.hasOption("flag2"));
     }

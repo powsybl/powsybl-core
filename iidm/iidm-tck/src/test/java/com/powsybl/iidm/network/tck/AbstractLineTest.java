@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -11,18 +12,26 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import com.powsybl.iidm.network.util.SV;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
-
-    private static final String HALF1_NAME = "half1_name";
 
     private static final String INVALID = "invalid";
 
@@ -35,6 +44,22 @@ public abstract class AbstractLineTest {
     private Network network;
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
+
+    public static boolean areLinesIdentical(Line line1, Line line2) {
+        boolean areIdentical = false;
+
+        if (line1 != null && line2 != null) {
+            areIdentical = line1.getR() == line2.getR()
+                    && line1.getX() == line2.getX()
+                    && line1.getG1() == line2.getG1()
+                    && line1.getG2() == line2.getG2()
+                    && line1.getB1() == line2.getB1()
+                    && line1.getB2() == line2.getB2()
+                    && Objects.equals(line1.getTerminal1().getVoltageLevel().getId(), line2.getTerminal1().getVoltageLevel().getId())
+                    && Objects.equals(line1.getTerminal2().getVoltageLevel().getId(), line2.getTerminal2().getVoltageLevel().getId());
+        }
+        return areIdentical;
+    }
 
     @BeforeEach
     public void setUp() {
@@ -84,10 +109,11 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal2().getBusBreakerView().getBus());
         assertSame(busA, acLine.getTerminal("vl1").getBusBreakerView().getConnectableBus());
         assertSame(busB, acLine.getTerminal("vl2").getBusBreakerView().getConnectableBus());
-        assertSame(busA, acLine.getTerminal(Branch.Side.ONE).getBusBreakerView().getConnectableBus());
-        assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getConnectableBus());
+        assertSame(busA, acLine.getTerminal(TwoSides.ONE).getBusBreakerView().getConnectableBus());
+        assertSame(busB, acLine.getTerminal(TwoSides.TWO).getBusBreakerView().getConnectableBus());
+        assertNull(acLine.getTerminal1().getTerminalNumber());
+        assertNull(acLine.getTerminal2().getTerminalNumber());
 
-        assertFalse(acLine.isTieLine());
         assertEquals(IdentifiableType.LINE, acLine.getType());
 
         // setter getter
@@ -109,9 +135,8 @@ public abstract class AbstractLineTest {
         assertEquals(b1, acLine.getB1(), 0.0);
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
-        assertFalse(acLine.isTieLine());
 
-        CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
+        CurrentLimits currentLimits1 = acLine.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
                 .setName("5'")
@@ -119,7 +144,7 @@ public abstract class AbstractLineTest {
                 .setValue(1400)
                 .endTemporaryLimit()
                 .add();
-        CurrentLimits currentLimits2 = acLine.newCurrentLimits2()
+        CurrentLimits currentLimits2 = acLine.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(50)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -127,10 +152,12 @@ public abstract class AbstractLineTest {
                 .setValue(1200)
                 .endTemporaryLimit()
                 .add();
-        assertSame(currentLimits1, acLine.getCurrentLimits1().orElse(null));
-        assertSame(currentLimits2, acLine.getCurrentLimits2().orElse(null));
-        assertSame(currentLimits1, acLine.getLimits(LimitType.CURRENT, Branch.Side.ONE).orElse(null));
-        assertSame(currentLimits2, acLine.getLimits(LimitType.CURRENT, Branch.Side.TWO).orElse(null));
+        currentLimits1.setPermanentLimit(110);
+        assertEquals(110, currentLimits1.getPermanentLimit(), 0.0);
+        assertEquals(currentLimits1.getPermanentLimit(), acLine.getCurrentLimits1().orElseThrow().getPermanentLimit(), 0.0);
+        currentLimits2.setPermanentLimit(120);
+        assertEquals(120, currentLimits2.getPermanentLimit(), 0.0);
+        assertEquals(currentLimits2.getPermanentLimit(), acLine.getCurrentLimits2().orElseThrow().getPermanentLimit(), 0.0);
 
         // add power on line
         Terminal terminal1 = acLine.getTerminal1();
@@ -138,22 +165,22 @@ public abstract class AbstractLineTest {
         terminal1.setQ(Math.sqrt(2.0));
         busA.setV(1.0);
         // i1 = 1000
-        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
-        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertTrue(acLine.checkPermanentLimit(TwoSides.ONE, 0.9f, LimitType.CURRENT));
+        assertTrue(acLine.checkPermanentLimit(TwoSides.ONE, LimitType.CURRENT));
         assertTrue(acLine.checkPermanentLimit1(LimitType.CURRENT));
-        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
-        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT));
+        assertNotNull(acLine.checkTemporaryLimits(TwoSides.ONE, 0.9f, LimitType.CURRENT));
+        assertNotNull(acLine.checkTemporaryLimits(TwoSides.ONE, LimitType.CURRENT));
 
         Terminal terminal2 = acLine.getTerminal2();
         terminal2.setP(1.0);
         terminal2.setQ(Math.sqrt(2.0));
         busB.setV(1.0e3);
         // i2 = 1
-        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
-        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
+        assertFalse(acLine.checkPermanentLimit(TwoSides.TWO, 0.9f, LimitType.CURRENT));
+        assertFalse(acLine.checkPermanentLimit(TwoSides.TWO, LimitType.CURRENT));
         assertFalse(acLine.checkPermanentLimit2(LimitType.CURRENT));
-        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
-        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+        assertNull(acLine.checkTemporaryLimits(TwoSides.TWO, 0.9f, LimitType.CURRENT));
+        assertNull(acLine.checkTemporaryLimits(TwoSides.TWO, LimitType.CURRENT));
     }
 
     @Test
@@ -174,6 +201,81 @@ public abstract class AbstractLineTest {
 
         assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
         assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
+    }
+
+    @Test
+    public void testLineCopier() {
+        // First limit normally created
+        LineAdder acLineAdder1 = network.newLine()
+                .setId("line1")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder1.add();
+        Line acLine1 = network.getLine("line1");
+        // Group and limits creation 1
+        acLine1.newOperationalLimitsGroup1("group1").newCurrentLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<CurrentLimits> optionalLimits1 = acLine1.getCurrentLimits1();
+        assertTrue(optionalLimits1.isPresent());
+        CurrentLimits limits1 = optionalLimits1.get();
+        assertNotNull(limits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newActivePowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ActivePowerLimits> optionalActivePowerLimits1 = acLine1.getActivePowerLimits1();
+        assertTrue(optionalActivePowerLimits1.isPresent());
+        ActivePowerLimits activePowerLimits1 = optionalActivePowerLimits1.get();
+        assertNotNull(activePowerLimits1);
+
+        acLine1.getOperationalLimitsGroup1("group1").get().newApparentPowerLimits().setPermanentLimit(220.0).add();
+        acLine1.setSelectedOperationalLimitsGroup1("group1");
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits1 = acLine1.getApparentPowerLimits1();
+        assertTrue(optionalApparentPowerLimits1.isPresent());
+        ApparentPowerLimits apparentPowerLimits1 = optionalApparentPowerLimits1.get();
+        assertNotNull(apparentPowerLimits1);
+
+        // Group and limit creation 2
+        acLine1.newOperationalLimitsGroup2("group2").newCurrentLimits().setPermanentLimit(80.0).add();
+        acLine1.setSelectedOperationalLimitsGroup2("group2");
+        Optional<CurrentLimits> optionalLimits2 = acLine1.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+        assertNotNull(limits2);
+
+        // Second limit created by copy
+        LineAdder acLineAdder2 = network.newLine(acLine1);
+        acLineAdder2
+                .setId("line2")
+                .setName(LINE_NAME)
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB");
+        acLineAdder2.add();
+        Line acLine2 = network.getLine("line2");
+        // Limits check to set up test
+        Optional<CurrentLimits> optionalLimits3 = acLine2.getCurrentLimits1();
+        assertTrue(optionalLimits3.isPresent());
+        CurrentLimits limits3 = optionalLimits3.get();
+
+        // Tests
+        assertNotNull(acLine2);
+        assertTrue(areLinesIdentical(acLine1, acLine2));
+        assertEquals(limits1.getPermanentLimit(), limits3.getPermanentLimit());
+        assertNotNull(acLine2.getOperationalLimitsGroup2("group2"));
+        assertEquals(acLine1.getSelectedOperationalLimitsGroupId2(), acLine2.getSelectedOperationalLimitsGroupId2());
+
     }
 
     @Test
@@ -324,9 +426,7 @@ public abstract class AbstractLineTest {
     public void testChangesNotification() {
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), any(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), any(), anyString(), any(),
-                any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
 
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
@@ -364,12 +464,12 @@ public abstract class AbstractLineTest {
 
         // Change values that not depend on the variant
         acLine.setR(1.5);
-        verify(mockedListener, times(1)).onUpdate(acLine, "r", 1.0, 1.5);
+        verify(mockedListener, times(1)).onUpdate(acLine, "r", null, 1.0, 1.5);
 
         // Simulate exception for onUpdate calls
         doThrow(new PowsyblException())
                 .when(mockedListener)
-                .onUpdate(any(Line.class), anyString(), anyDouble(), anyDouble());
+                .onUpdate(any(Line.class), anyString(), anyString(), anyDouble(), anyDouble());
         // Change P1 value
         try {
             acLine.getTerminal1().setP(1.1);
@@ -531,308 +631,6 @@ public abstract class AbstractLineTest {
         assertEquals(count - 1L, network.getLineCount());
     }
 
-    @Test
-    public void testTieLineAdder() {
-        double tol = 0.0000001;
-
-        double r = 10.0;
-        double r2 = 1.0;
-        double x = 20.0;
-        double x2 = 2.0;
-        double hl1g1 = 0.03;
-        double hl1g2 = 0.035;
-        double hl1b1 = 0.04;
-        double hl1b2 = 0.045;
-        double hl2g1 = 0.013;
-        double hl2g2 = 0.0135;
-        double hl2b1 = 0.014;
-        double hl2b2 = 0.0145;
-
-        // adder
-        TieLineAdder adder = network.newTieLine().setId("testTie")
-                .setName("testNameTie")
-                .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
-                .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode("ucte")
-                .newHalfLine1()
-                .setId("hl1")
-                .setName(HALF1_NAME)
-                .setR(r)
-                .setX(x)
-                .setB1(hl1b1)
-                .setB2(hl1b2)
-                .setG1(hl1g1)
-                .setG2(hl1g2)
-                .add()
-                .newHalfLine2()
-                .setId("hl2")
-                .setR(r2)
-                .setX(x2)
-                .setB1(hl2b1)
-                .setB2(hl2b2)
-                .setG1(hl2g1)
-                .setG2(hl2g2)
-                .add();
-        TieLine tieLine = adder.add();
-        assertTrue(tieLine.isTieLine());
-        assertEquals(IdentifiableType.LINE, tieLine.getType());
-        assertEquals("ucte", tieLine.getUcteXnodeCode());
-        assertEquals("hl1", tieLine.getHalf1().getId());
-        assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
-        assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(7.20, tieLine.getR(), tol);
-        assertEquals(22.15, tieLine.getX(), tol);
-        assertEquals(0.03539991244, tieLine.getG1(), tol);
-        assertEquals(0.06749912436, tieLine.getG2(), tol);
-        assertEquals(0.04491554716, tieLine.getB1(), tol);
-        assertEquals(0.06365547158, tieLine.getB2(), tol);
-
-        // invalid set line characteristics on tieLine
-        try {
-            tieLine.setR(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setX(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setB1(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setB2(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setG1(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setG2(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        TieLine.HalfLine half1 = tieLine.getHalf1();
-
-        TieLine.HalfLine half2 = tieLine.getHalf2();
-
-        // Check notification on HalfLine changes
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
-        // Add observer changes to current network
-        network.addListener(mockedListener);
-        // Apply changes on Half lines
-        half1.setR(r + 1);
-        half1.setX(x + 1);
-        half1.setG1(hl1g1 + 1);
-        half1.setG2(hl1g2 + 1);
-        half1.setB1(hl1b1 + 1);
-        half1.setB2(hl1b2 + 1);
-        half2.setR(r + 1);
-        half2.setX(x + 1);
-        half2.setG1(hl2g1 + 1);
-        half2.setG2(hl2g2 + 1);
-        half2.setB1(hl2b1 + 1);
-        half2.setB2(hl2b2 + 1);
-        verify(mockedListener, times(12)).onUpdate(any(TieLine.class), anyString(), any(), any());
-        // Remove observer
-        network.removeListener(mockedListener);
-        // Cancel changes on Half lines
-        half1.setR(r);
-        half1.setX(x);
-        half1.setG1(hl1g1);
-        half1.setG2(hl1g2);
-        half1.setB1(hl1b1);
-        half1.setB2(hl1b2);
-        half2.setR(r);
-        half2.setX(x);
-        half2.setG1(hl2g1);
-        half2.setG2(hl2g2);
-        half2.setB1(hl2b1);
-        half2.setB2(hl2b2);
-        // Check no notification
-        verifyNoMoreInteractions(mockedListener);
-
-        // Reuse adder
-        TieLine tieLine2 = adder.setId("testTie2").add();
-        assertNotSame(tieLine.getHalf1(), tieLine2.getHalf1());
-        assertNotSame(tieLine.getHalf2(), tieLine2.getHalf2());
-
-        // Update power flows, voltages and angles
-        double p1 = -605.0;
-        double q1 = -302.5;
-        double p2 = 600.0;
-        double q2 = 300.0;
-        double v1 = 420.0;
-        double v2 = 380.0;
-        double angle1 = -1e-4;
-        double angle2 = -1.7e-3;
-        tieLine.getTerminal1().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
-        tieLine.getTerminal2().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
-
-        // test boundaries values
-        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.TWO);
-        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.otherSideU(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.otherSideA(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.otherSideU(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.otherSideA(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getAngle(), 0.0d);
-    }
-
-    @Test
-    public void halfLine1NotSet() {
-        // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
-                .setId("testTie")
-                .setName("testNameTie")
-                .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
-                .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode("ucte")
-                .add());
-        assertTrue(e.getMessage().contains("half line 1 is not set"));
-    }
-
-    @Test
-    public void halfLine2NotSet() {
-        // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
-                .setId("testTie")
-                .setName("testNameTie")
-                .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
-                .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode("ucte")
-                .newHalfLine1()
-                .setId("hl1")
-                .setName(HALF1_NAME)
-                .setR(10.0)
-                .setX(20.0)
-                .setB1(40.0)
-                .setB2(45.0)
-                .setG1(30.0)
-                .setG2(35.0)
-                .add()
-                .add());
-        assertTrue(e.getMessage().contains("half line 2 is not set"));
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code"));
-        assertTrue(e.getMessage().contains("r is not set for half line 1"));
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsX() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
-                3.0, 3.5, 4.0, 4.5, "code"));
-        assertTrue(e.getMessage().contains("x is not set for half line 1"));
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsG1() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                Double.NaN, 3.5, 4.0, 4.5, "code"));
-        assertTrue(e.getMessage().contains("g1 is not set for half line 1"));
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsG2() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, Double.NaN, 4.0, 4.5, "code"));
-        assertTrue(e.getMessage().contains("g2 is not set for half line 1"));
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsB1() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, Double.NaN, 4.5, "code"));
-        assertTrue(e.getMessage().contains("b1 is not set for half line 1"));
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsB2() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, 4.0, Double.NaN, "code"));
-        assertTrue(e.getMessage().contains("b2 is not set for half line 1"));
-    }
-
-    @Test
-    public void halfLineIdNull() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code"));
-        assertTrue(e.getMessage().contains("id is not set for half line 1"));
-    }
-
-    @Test
-    public void halfLineIdEmpty() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code"));
-        assertTrue(e.getMessage().contains("id is not set for half line 1"));
-    }
-
-    @Test
-    public void uctecodeNull() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, null));
-        assertTrue(e.getMessage().contains("ucteXnodeCode is not set"));
-    }
-
-    @Test
-    public void duplicate() {
-        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, DUPLICATE);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, DUPLICATE));
-    }
-
-    @Test
-    public void testRemove() {
-        createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, TO_REMOVE);
-        Line line = network.getLine(TO_REMOVE);
-        assertNotNull(line);
-        assertTrue(line.isTieLine());
-        int count = network.getLineCount();
-        line.remove();
-        assertNull(network.getLine(TO_REMOVE));
-        assertNotNull(line);
-        assertEquals(count - 1L, network.getLineCount());
-    }
-
     private Line createLineBetweenVoltageAB(String id, String name, double r, double x,
                                             double g1, double g2, double b1, double b2) {
         return network.newLine()
@@ -853,38 +651,104 @@ public abstract class AbstractLineTest {
                 .add();
     }
 
-    private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
-                                                     double g1, double g2, double b1, double b2, String code) {
-        network.newTieLine()
-                .setId(id)
-                .setName(name)
-                .newHalfLine1()
-                .setId(halfLineId)
-                .setName(HALF1_NAME)
-                .setR(r)
-                .setX(x)
-                .setB1(b1)
-                .setB2(b2)
-                .setG1(g1)
-                .setG2(g2)
-                .add()
-                .newHalfLine2()
-                .setId("hl2")
-                .setName("half2_name")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getLimitType")
+    void createSelectedOperationalLimitsGroupWhenMissing(LimitType limitType) {
+        Line line = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
                 .setR(1.0)
                 .setX(2.0)
-                .setB1(3.0)
-                .setB2(3.5)
-                .setG1(4.0)
-                .setG2(4.5)
-                .add()
-                .setVoltageLevel1("vl1")
                 .setBus1("busA")
-                .setConnectableBus1("busA")
-                .setVoltageLevel2("vl2")
                 .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode(code)
                 .add();
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
+        adder.setPermanentLimit(1000.);
+        adder.add();
+        // The default group is automatically created
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
+        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
+        assertEquals(1, operationalLimitsGroups1.size());
+        OperationalLimitsGroup group = operationalLimitsGroups1.iterator().next();
+        assertEquals("DEFAULT", group.getId());
+        assertTrue(getLimits(group, limitType).isPresent());
+        assertEquals(1000., getLimits(group, limitType).get().getPermanentLimit());
+    }
+
+    static Stream<Arguments> getLimitType() {
+        return Stream.of(
+                Arguments.of(LimitType.CURRENT),
+                Arguments.of(LimitType.ACTIVE_POWER),
+                Arguments.of(LimitType.APPARENT_POWER)
+        );
+    }
+
+    private LoadingLimitsAdder<?, ?> getAdder(Line l, LimitType limitType) {
+        return switch (limitType) {
+            case CURRENT -> l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
+            case ACTIVE_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits();
+            case APPARENT_POWER -> l.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits();
+            default -> throw new IllegalArgumentException("Invalid type");
+        };
+    }
+
+    private Optional<LoadingLimits> getLimits(OperationalLimitsGroup group, LimitType limitType) {
+        return switch (limitType) {
+            case CURRENT -> group.getCurrentLimits().map(LoadingLimits.class::cast);
+            case ACTIVE_POWER -> group.getActivePowerLimits().map(LoadingLimits.class::cast);
+            case APPARENT_POWER -> group.getApparentPowerLimits().map(LoadingLimits.class::cast);
+            default -> throw new IllegalArgumentException("Invalid type");
+        };
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getLimitType")
+    void addEmptySelectedOperationalLimitsGroupIfAdderNotUsed(LimitType limitType) {
+        Line line = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
+        adder.setPermanentLimit(1000.);
+        // The adder is voluntarily NOT added. The default group is updated, but no limit is added.
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getLimitType")
+    void addEmptyDefaultOperationalLimitsGroupIfAdderValidationFails(LimitType limitType) {
+        Line line = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isEmpty());
+        assertTrue(line.getOperationalLimitsGroups1().isEmpty());
+        LoadingLimitsAdder<?, ?> adder = getAdder(line, limitType);
+        adder.setPermanentLimit(Double.NaN);
+        adder.beginTemporaryLimit().setName("10'").setValue(500.).setAcceptableDuration(600).endTemporaryLimit();
+        assertThrows(ValidationException.class, adder::add);
+        // The limits' validation of the adder fails. The default group is updated, but no limit is added.
+        assertFalse(line.getSelectedOperationalLimitsGroup1().isEmpty());
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals("DEFAULT", line.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(line.getSelectedOperationalLimitsGroup1().get().isEmpty());
     }
 }

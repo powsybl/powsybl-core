@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateVoltageLevelTopologyBuilder {
 
@@ -29,6 +30,8 @@ public class CreateVoltageLevelTopologyBuilder {
     private String switchPrefixId = null;
 
     private List<SwitchKind> switchKinds = Collections.emptyList();
+
+    private boolean connectExistingConnectables = false;
 
     /**
      * Set the voltage level ID in which the symmetrical topology will be created.
@@ -116,7 +119,6 @@ public class CreateVoltageLevelTopologyBuilder {
      * If it is {@link SwitchKind#BREAKER}, a closed disconnector, a closed breaker and a closed disconnector are created.
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
      * If it is null, no switch is created: the sections are disconnected.
-     *
      * In bus/breaker topology, all the switching devices are by default breakers.
      *
      * @param switchKinds
@@ -132,7 +134,6 @@ public class CreateVoltageLevelTopologyBuilder {
      * The switch kinds can be {@link SwitchKind#BREAKER}, {@link SwitchKind#DISCONNECTOR} or null.
      * If it is {@link SwitchKind#BREAKER}, a closed disconnector, a closed breaker and a closed disconnector are created.
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
-     *
      * In bus/breaker topology, all the switching devices are by default breakers.
      *
      * @param switchKinds
@@ -142,7 +143,23 @@ public class CreateVoltageLevelTopologyBuilder {
         return this;
     }
 
+    /**
+     * Set the option to connect the existing connectables.</br>
+     * If the voltage level is not empty, some connectables might be connected to a busbar section parallel to the
+     * created one. If this boolean is set to true, then the connectables will be connected to the new busbar section
+     * via an open switch of the same type as the first switch between the parallel busbar section and the connectables.
+     * </br>
+     * This option should only be set to true if the voltage level has a node-breaker topology and if the
+     * BusbarSectionPosition extensions are present on the voltage level.
+     *
+     * @param connectExistingConnectables should the existing connectables be connected to the new busbar section?
+     */
+    public CreateVoltageLevelTopologyBuilder withConnectExistingConnectables(boolean connectExistingConnectables) {
+        this.connectExistingConnectables = connectExistingConnectables;
+        return this;
+    }
+
     public CreateVoltageLevelTopology build() {
-        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds);
+        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds, connectExistingConnectables);
     }
 }

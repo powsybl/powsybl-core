@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.Objects;
@@ -19,13 +21,14 @@ import java.util.Optional;
  * 1. id of equipment:
  * 2. id of a configured bus itself:
  * 3. id of branch, in this case, side is required
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonTypeName(".IdBasedBusRef")
 public class IdBasedBusRef extends AbstractBusRef {
 
     private final String id;
-    private final Branch.Side side;
+    private final TwoSides side;
 
     public IdBasedBusRef(String id) {
         this.id = Objects.requireNonNull(id);
@@ -33,7 +36,7 @@ public class IdBasedBusRef extends AbstractBusRef {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public IdBasedBusRef(@JsonProperty("id") String id, @JsonProperty("side") Branch.Side side) {
+    public IdBasedBusRef(@JsonProperty("id") String id, @JsonProperty("side") TwoSides side) {
         this.id = Objects.requireNonNull(id);
         this.side = side;
     }
@@ -46,8 +49,7 @@ public class IdBasedBusRef extends AbstractBusRef {
         }
 
         if (side == null) {
-            if (identifiable instanceof Bus) {
-                Bus bus = (Bus) identifiable;
+            if (identifiable instanceof Bus bus) {
                 if (level == TopologyLevel.BUS_BRANCH) {
                     return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
                 } else {
@@ -62,17 +64,7 @@ public class IdBasedBusRef extends AbstractBusRef {
         } else {
             if (identifiable instanceof Branch) {
                 Branch<?> branch = (Branch<?>) identifiable;
-                Terminal terminal;
-                switch (side) {
-                    case ONE:
-                        terminal = branch.getTerminal1();
-                        break;
-                    case TWO:
-                        terminal = branch.getTerminal2();
-                        break;
-                    default:
-                        throw new AssertionError("Unexpected side: " + side);
-                }
+                Terminal terminal = branch.getTerminal(side);
                 return chooseBusByLevel(terminal, level);
             } else {
                 throw new PowsyblException(id + " is not a branch.");
@@ -84,7 +76,7 @@ public class IdBasedBusRef extends AbstractBusRef {
         return id;
     }
 
-    public Branch.Side getSide() {
+    public TwoSides getSide() {
         return side;
     }
 

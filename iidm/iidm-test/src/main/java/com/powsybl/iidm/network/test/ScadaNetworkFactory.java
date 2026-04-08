@@ -3,16 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class ScadaNetworkFactory {
 
@@ -23,7 +24,7 @@ public final class ScadaNetworkFactory {
     public static Network create(NetworkFactory networkFactory) {
         Objects.requireNonNull(networkFactory);
         Network network = Network.create("scada", "test");
-        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setCaseDate(ZonedDateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Substation sub = network.newSubstation()
                 .setId("sub")
@@ -44,7 +45,7 @@ public final class ScadaNetworkFactory {
                 .setMaxP(100.0)
                 .setBus(busId)
                 .add();
-        DanglingLine dl = vl.newDanglingLine()
+        BoundaryLine dl = vl.newBoundaryLine()
                 .setId("dl")
                 .setBus(busId)
                 .setR(1.0)

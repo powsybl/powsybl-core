@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -57,7 +58,7 @@ public abstract class AbstractSubstationTest {
 
         // Create mocked network listeners
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Test without listeners registered
         substation.addGeographicalTag("no listeners");
@@ -70,7 +71,7 @@ public abstract class AbstractSubstationTest {
         substation.addGeographicalTag("test");
         // Check notification done
         verify(mockedListener, times(1))
-               .onElementAdded(any(Substation.class), anyString(), anyString());
+               .onUpdate(any(Substation.class), anyString(), isNull(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
 

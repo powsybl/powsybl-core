@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisTestNetworkFactoryTest {
 }

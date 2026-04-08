@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.shortcircuit;
 
@@ -12,8 +13,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.shorcircuit.CgmesShortCircuitImporter;
-import com.powsybl.cgmes.shorcircuit.CgmesShortCircuitModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Generator;
@@ -29,8 +28,8 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class CgmesImporterTest {
 
@@ -55,8 +54,10 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmes3GeneratorShortCircuitData() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network = new CgmesImport().importData(Cgmes3Catalog.miniGrid().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);
@@ -80,8 +81,10 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmesBranchModelBusbarSectionShortCircuitData() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallGridBusBranchWithBusbarSectionsAndIpMax().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);
@@ -103,8 +106,10 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmesBusbarSectionShortCircuitData() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);
@@ -123,8 +128,12 @@ class CgmesImporterTest {
 
     @Test
     void testImportCgmes3BusbarSectionShortCircuitData() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
+        // Avoid importing assembled micro grid as subnetworks, to have access to whole CGMES model
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = new CgmesImport().importData(Cgmes3Catalog.microGrid().dataSource(),
-                NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), importParams);
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         assertNotNull(cgmesModelExtension);

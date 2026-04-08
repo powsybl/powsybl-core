@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
@@ -11,8 +12,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.transformers.InterpretedT3xModel.InterpretedWinding;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class ConvertedT3xModel {
 
@@ -35,6 +36,7 @@ public class ConvertedT3xModel {
         final double r;
         final double x;
         final TapChangerConversion.ConvertedEnd1 end1;
+        final Double ratedS;
 
         /**
          * At each winding or leg:
@@ -56,6 +58,7 @@ public class ConvertedT3xModel {
                 windingTapChanger.phaseTapChanger,
                 interpretedWinding.end1.ratedU,
                 interpretedWinding.end1.terminal);
+            this.ratedS = interpretedWinding.ratedS;
         }
 
         private TapChangerWinding moveCombineTapChangerWinding(InterpretedWinding interpretedWinding, TapChangerConversion tcc) {

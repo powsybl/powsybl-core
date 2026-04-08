@@ -2,7 +2,7 @@
   "network" : {
     "caseid" : {
       "fields" : [ "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2" ],
-      "data" : [ 0,100.0,35,0.0,0.0,60.0,"","" ]
+      "data" : [ 0,100.0,35,0,0,60.0,"","" ]
     },
     "bus" : {
       "fields" : [ "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo" ],
@@ -137,7 +137,7 @@
       ]
     },
     "swshunt" : {
-      "fields" : [ "i", "id", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1" ],
+      "fields" : [ "ibus", "shntid", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1" ],
       "data" : [
         [ 1,"1",0,0,1,1.0,0.99,0,0,100.0,"        ",120.0,1,1,120.0 ],
         [ 6,"1",0,0,1,1.0,0.99,0,0,100.0,"        ",100.0,1,1,100.0 ]

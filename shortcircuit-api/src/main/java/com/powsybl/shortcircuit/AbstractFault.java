@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -10,9 +11,9 @@ import java.util.Objects;
 
 /**
  * Abstract class to describe the characteristics of the fault to be simulated.
- * Used for elementary short-circuit calculation only.
+ * Used for elementary short-circuit analysis only.
  *
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 abstract class AbstractFault implements Fault {
 

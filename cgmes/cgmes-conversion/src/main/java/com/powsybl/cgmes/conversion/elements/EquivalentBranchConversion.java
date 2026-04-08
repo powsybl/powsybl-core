@@ -3,24 +3,32 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.math3.complex.Complex;
 
+import java.util.Optional;
+
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class EquivalentBranchConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
+    private BoundaryLine boundaryLine;
+
     public EquivalentBranchConversion(PropertyBag b, Context context) {
-        super("EquivalentBranch", b, context);
+        super(CgmesNames.EQUIVALENT_BRANCH, b, context);
     }
 
     @Override
@@ -50,7 +58,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         }
         double gch = 0;
         double bch = 0;
-        convertBranch(r, x, gch, bch);
+        convertBranch(r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
         updateParametersForEquivalentBranchWithDifferentNominalVoltages();
     }
 
@@ -66,12 +74,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
-        double r = p.asDouble("r");
-        double x = p.asDouble("x");
-        boundaryLine.setParameters(r, x, 0.0, 0.0, 0.0, 0.0);
-        return boundaryLine;
+    public Optional<BoundaryLine> getBoundaryLine() {
+        return Optional.ofNullable(boundaryLine);
     }
 
     private void convertEquivalentBranchAtBoundary(int boundarySide) {
@@ -88,7 +92,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
                     "This method should not be called, the mapping has already been performed in ::convert";
             throw new PowsyblException(message);
         }
-        convertToDanglingLine(boundarySide, r, x, gch, bch);
+        String eqInstance = p.get("graph");
+        boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, r, x, gch, bch, CgmesNames.EQUIVALENT_BRANCH);
     }
 
     private void updateParametersForEquivalentBranchWithDifferentNominalVoltages() {
@@ -153,6 +158,18 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         line.setB1(y1l.getImaginary());
         line.setG2(y2l.getReal());
         line.setB2(y2l.getImaginary());
+    }
+
+    public static void update(Line line, Context context) {
+        updateBranch(line, context);
+    }
+
+    public static void update(Switch sw, Context context) {
+        updateBranch(sw, context);
+    }
+
+    public static void update(BoundaryLine boundaryLine, Context context) {
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context), context);
     }
 
     private static final String IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT =

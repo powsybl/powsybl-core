@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.config.test;
 
@@ -33,7 +34,7 @@ import java.util.List;
  * The files must be listed manually in a "filelist.txt" file. The "filelist.txt" and
  * the test files are read from the classpath relative to this class.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 @AutoService(PlatformConfigProvider.class)
 public class TestPlatformConfigProvider implements PlatformConfigProvider {
@@ -61,11 +62,7 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
         InputStream resourceList = TestPlatformConfigProvider.class.getResourceAsStream(FILELIST_PATH);
         List<String> resources;
         if (resourceList != null) {
-            try {
-                resources = IOUtils.readLines(resourceList, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            resources = IOUtils.readLines(resourceList, StandardCharsets.UTF_8);
         } else {
             resources = Collections.emptyList();
         }
@@ -77,6 +74,7 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
                 // The resources have relative paths (no leading slash) with full package path.
                 Path dest = cfgDir.resolve(resource);
                 LOGGER.info("Copying classpath resource: {} -> {}", resource, dest);
+                Files.createDirectories(dest.getParent());
                 Files.copy(TestPlatformConfigProvider.class.getResourceAsStream(resource), dest);
             }
         } catch (IOException e) {

@@ -3,19 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Results for one fault computation with currents and voltage on the three phases.
+ * Results of the short-circuit calculation with the voltage and currents detailed on the three phases.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class FortescueFaultResult extends AbstractFaultResult {
 
@@ -46,14 +47,14 @@ public final class FortescueFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The results on three phases for current.
+     * The results on three phases for current [in A]
      */
     public FortescueValue getCurrent() {
         return current;
     }
 
     /**
-     * The results on three phases for voltage.
+     * The results on three phases for voltage [in kV].
      */
     public FortescueValue getVoltage() {
         return voltage;

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -11,11 +12,12 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
@@ -48,6 +50,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
+    public Network getParentNetwork() {
+        return voltageLevel.getParentNetwork();
+    }
+
+    @Override
     public VoltageLevel getVoltageLevel() {
         return voltageLevel;
     }
@@ -69,25 +76,16 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         for (TerminalExt terminal : getConnectedTerminals()) {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION:
-                case SHUNT_COMPENSATOR:
-                case STATIC_VAR_COMPENSATOR:
-                case LINE:
-                case TWO_WINDINGS_TRANSFORMER:
-                case THREE_WINDINGS_TRANSFORMER:
-                case DANGLING_LINE:
+                case BUSBAR_SECTION, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER,
+                     THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE, GROUND -> {
                     // skip
-                    break;
-                case GENERATOR:
-                case BATTERY:
-                case LOAD:
-                case HVDC_CONVERTER_STATION:
+                }
+                case GENERATOR, BATTERY, LOAD, HVDC_CONVERTER_STATION -> {
                     if (!Double.isNaN(terminal.getP())) {
                         p += terminal.getP();
                     }
-                    break;
-                default:
-                    throw new AssertionError();
+                }
+                default -> throw new IllegalStateException();
             }
         }
         return p;
@@ -102,25 +100,15 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         for (TerminalExt terminal : getConnectedTerminals()) {
             AbstractConnectable connectable = terminal.getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION:
-                case LINE:
-                case TWO_WINDINGS_TRANSFORMER:
-                case THREE_WINDINGS_TRANSFORMER:
-                case DANGLING_LINE:
+                case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, BOUNDARY_LINE, GROUND -> {
                     // skip
-                    break;
-                case GENERATOR:
-                case BATTERY:
-                case LOAD:
-                case SHUNT_COMPENSATOR:
-                case STATIC_VAR_COMPENSATOR:
-                case HVDC_CONVERTER_STATION:
+                }
+                case GENERATOR, BATTERY, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, HVDC_CONVERTER_STATION -> {
                     if (!Double.isNaN(terminal.getQ())) {
                         q += terminal.getQ();
                     }
-                    break;
-                default:
-                    throw new AssertionError();
+                }
+                default -> throw new IllegalStateException();
             }
         }
         return q;
@@ -217,13 +205,13 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getConnectables(DanglingLine.class);
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(DanglingLine.class);
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
@@ -273,67 +261,44 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         for (T terminal : terminals) {
             AbstractConnectable connectable = ((TerminalExt) terminal).getConnectable();
             switch (connectable.getType()) {
-                case BUSBAR_SECTION:
-                    visitor.visitBusbarSection((BusbarSectionImpl) connectable);
-                    break;
-
-                case LINE:
-                    LineImpl line = (LineImpl) connectable;
-                    visitor.visitLine(line, line.getTerminal1() == terminal ? Branch.Side.ONE
-                                                                            : Branch.Side.TWO);
-                    break;
-
-                case GENERATOR:
-                    visitor.visitGenerator((GeneratorImpl) connectable);
-                    break;
-
-                case BATTERY:
-                    visitor.visitBattery((BatteryImpl) connectable);
-                    break;
-
-                case SHUNT_COMPENSATOR:
-                    visitor.visitShuntCompensator((ShuntCompensatorImpl) connectable);
-                    break;
-
-                case TWO_WINDINGS_TRANSFORMER:
+                case BUSBAR_SECTION -> visitor.visitBusbarSection((BusbarSectionImpl) connectable);
+                case LINE -> {
+                    Line line = (Line) connectable;
+                    visitor.visitLine(line, line.getTerminal1() == terminal ? TwoSides.ONE
+                        : TwoSides.TWO);
+                }
+                case GENERATOR -> visitor.visitGenerator((GeneratorImpl) connectable);
+                case BATTERY -> visitor.visitBattery((BatteryImpl) connectable);
+                case SHUNT_COMPENSATOR -> visitor.visitShuntCompensator((ShuntCompensatorImpl) connectable);
+                case TWO_WINDINGS_TRANSFORMER -> {
                     TwoWindingsTransformer twt = (TwoWindingsTransformer) connectable;
                     visitor.visitTwoWindingsTransformer(twt,
-                            twt.getTerminal1() == terminal
-                            ? Branch.Side.ONE
-                            : Branch.Side.TWO);
-                    break;
-
-                case THREE_WINDINGS_TRANSFORMER:
+                        twt.getTerminal1() == terminal
+                            ? TwoSides.ONE
+                            : TwoSides.TWO);
+                }
+                case THREE_WINDINGS_TRANSFORMER -> {
                     ThreeWindingsTransformer thwt = (ThreeWindingsTransformer) connectable;
-                    ThreeWindingsTransformer.Side side;
+                    ThreeSides side;
                     if (thwt.getLeg1().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.ONE;
+                        side = ThreeSides.ONE;
                     } else if (thwt.getLeg2().getTerminal() == terminal) {
-                        side = ThreeWindingsTransformer.Side.TWO;
+                        side = ThreeSides.TWO;
                     } else {
-                        side = ThreeWindingsTransformer.Side.THREE;
+                        side = ThreeSides.THREE;
                     }
                     visitor.visitThreeWindingsTransformer(thwt, side);
-                    break;
-
-                case LOAD:
-                    visitor.visitLoad((LoadImpl) connectable);
-                    break;
-
-                case DANGLING_LINE:
-                    visitor.visitDanglingLine((DanglingLineImpl) connectable);
-                    break;
-
-                case STATIC_VAR_COMPENSATOR:
-                    visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
-                    break;
-
-                case HVDC_CONVERTER_STATION:
-                    visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
-                    break;
-
-                default:
-                    throw new AssertionError();
+                }
+                case LOAD -> visitor.visitLoad((LoadImpl) connectable);
+                case BOUNDARY_LINE -> visitor.visitBoundaryLine((BoundaryLineImpl) connectable);
+                case STATIC_VAR_COMPENSATOR -> visitor.visitStaticVarCompensator((StaticVarCompensator) connectable);
+                case HVDC_CONVERTER_STATION -> visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
+                case GROUND -> visitor.visitGround((GroundImpl) connectable);
+                case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
+                    AcDcConverter<?> converter = (AcDcConverter<?>) connectable;
+                    visitor.visitAcDcConverter(converter, converter.getTerminalNumber(terminal));
+                }
+                default -> throw new IllegalStateException();
             }
         }
     }

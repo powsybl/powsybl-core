@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -13,13 +14,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 public abstract class AbstractBatteryTest {
 
@@ -225,7 +225,7 @@ public abstract class AbstractBatteryTest {
         createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
 
         Battery battery = network.getBattery("testMultiVariant");
-        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        List<String> variantsToAdd = List.of("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
         variantManager.setWorkingVariant("s4");

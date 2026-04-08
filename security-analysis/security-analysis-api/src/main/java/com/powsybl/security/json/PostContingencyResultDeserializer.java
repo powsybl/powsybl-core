@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -14,23 +15,22 @@ import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class PostContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PostContingencyResult> {
+public class PostContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PostContingencyResult> {
 
     protected static final String CONTEXT_NAME = "PostContingencyResult";
 
-    PostContingencyResultDeserializer() {
+    public PostContingencyResultDeserializer() {
         super(PostContingencyResult.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         Contingency contingency = null;
         PostContingencyComputationStatus status = null;
         ConnectivityResult connectivityResult = null;
@@ -50,7 +50,7 @@ class PostContingencyResultDeserializer extends AbstractContingencyResultDeseria
             if (found) {
                 return true;
             }
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "contingency":
                     parser.nextToken();
                     parsingContext.contingency = JsonUtil.readValue(deserializationContext, parser, Contingency.class);
@@ -73,20 +73,17 @@ class PostContingencyResultDeserializer extends AbstractContingencyResultDeseria
         });
 
         if (parsingContext.connectivityResult == null) {
-            parsingContext.connectivityResult = new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet());
+            parsingContext.connectivityResult = ConnectivityResult.empty();
         }
 
         if (version.compareTo("1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
         }
-        if (commonParsingContext.networkResult != null) {
-            return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.networkResult, parsingContext.connectivityResult);
-        } else {
-            return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults,
-                    parsingContext.connectivityResult);
-        }
+        return new PostContingencyResult(
+                parsingContext.contingency, parsingContext.status,
+                commonParsingContext.limitViolationsResult,
+                Objects.requireNonNullElseGet(commonParsingContext.networkResult, () -> new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
+                parsingContext.connectivityResult, commonParsingContext.distributedActivePower);
     }
 }

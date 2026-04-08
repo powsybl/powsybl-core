@@ -3,19 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Results for one fault computation with current magnitude.
+ * Results for one fault with three-phase current magnitude.
  *
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class MagnitudeFaultResult extends AbstractFaultResult {
 
@@ -52,14 +53,14 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The three-phase current magnitude.
+     * The three-phase current magnitude [in A].
      */
     public double getCurrent() {
         return current;
     }
 
     /**
-     * The three-phase voltage magnitude.
+     * The three-phase voltage magnitude [in kV].
      */
     public double getVoltage() {
         return voltage;

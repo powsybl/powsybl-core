@@ -3,16 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
 import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.TripleStore;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
- * @author Luma Zamarreño <zamarrenolm@aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm@aia.es>}
  */
 @AutoService(CgmesImportPostProcessor.class)
 public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
@@ -42,10 +43,10 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, TripleStore tripleStore) {
+    public void process(Network network, CgmesModel cgmesModel) {
         Objects.requireNonNull(network);
         LOG.info("Execute {} post processor on network {}", getName(), network.getId());
-        for (PropertyBag sm : network.getExtension(CgmesModelExtension.class).getCgmesModel().synchronousMachines()) {
+        for (PropertyBag sm : cgmesModel.synchronousMachinesGenerators()) {
             String generatingUnitId = sm.getId("GeneratingUnit");
             if (generatingUnitId != null) {
                 processGenerator(network, sm, generatingUnitId);
@@ -70,7 +71,7 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
         }
         try {
             int code = Integer.parseInt(description1);
-            if (code > 0) {
+            if (code >= 0) {
                 g.newExtension(GeneratorEntsoeCategoryAdder.class)
                         .withCode(code)
                         .add();

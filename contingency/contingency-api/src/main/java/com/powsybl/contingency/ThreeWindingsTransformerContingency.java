@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
@@ -12,7 +13,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 import java.util.Objects;
 
 /**
- * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 public class ThreeWindingsTransformerContingency implements ContingencyElement {
 
@@ -39,8 +40,7 @@ public class ThreeWindingsTransformerContingency implements ContingencyElement {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof ThreeWindingsTransformerContingency) {
-            ThreeWindingsTransformerContingency that = (ThreeWindingsTransformerContingency) o;
+        if (o instanceof ThreeWindingsTransformerContingency that) {
             return Objects.equals(id, that.id);
         }
         return false;

@@ -3,11 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * Results detailed on the three phases of the voltages on a bus.
+ *
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class FortescueShortCircuitBusResults extends AbstractShortCircuitBusResults {
 
@@ -23,7 +26,7 @@ public class FortescueShortCircuitBusResults extends AbstractShortCircuitBusResu
     }
 
     /**
-     * Returns the voltage on the three phases after the fault.
+     * Returns the voltage on the three phases after the fault [in kV].
      */
     public FortescueValue getVoltage() {
         return voltage;

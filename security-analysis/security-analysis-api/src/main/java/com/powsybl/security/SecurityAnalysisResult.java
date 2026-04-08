@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -15,7 +16,7 @@ import com.powsybl.security.results.OperatorStrategyResult;
 import java.util.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisResult> {
 
@@ -28,15 +29,14 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final List<OperatorStrategyResult> operatorStrategyResults;
 
     public static SecurityAnalysisResult empty() {
-        return new SecurityAnalysisResult(new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), Collections.emptyList(),
-                Collections.emptyList(), Collections.emptyList()),
+        return new SecurityAnalysisResult(new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), NetworkResult.empty(), Double.NaN),
                 Collections.emptyList(), Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, NetworkResult.empty(), Double.NaN),
                 postContingencyResults, Collections.emptyList());
     }
 
@@ -47,9 +47,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<BusResult> preContingencyBusResults,
                                   List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults,
                                   List<OperatorStrategyResult> operatorStrategyResults) {
-        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, preContingencyBranchResults,
-                        preContingencyBusResults,
-                        preContingencyThreeWindingsTransformerResults),
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, preContingencyThreeWindingsTransformerResults), Double.NaN),
                 postContingencyResults, operatorStrategyResults);
     }
 

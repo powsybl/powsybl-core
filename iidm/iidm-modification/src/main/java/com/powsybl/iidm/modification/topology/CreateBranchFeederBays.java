@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
@@ -19,11 +20,11 @@ import java.util.Optional;
  * the busbar sections with a breaker and a closed disconnector each. The branch is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays {
 
-    private final BranchAdder<?> branchAdder;
+    private final BranchAdder<?, ?> branchAdder;
     private final String busOrBbsId1;
     private final String busOrBbsId2;
     private final Integer positionOrder1;
@@ -32,9 +33,12 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     private final String feederName2;
     private final ConnectablePosition.Direction direction1;
     private final ConnectablePosition.Direction direction2;
+    private final boolean logOrThrowIfIncorrectPositionOrder1;
+    private final boolean logOrThrowIfIncorrectPositionOrder2;
 
-    CreateBranchFeederBays(BranchAdder<?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
-                           String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
+    CreateBranchFeederBays(BranchAdder<?, ?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
+                           String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2,
+                           boolean logOrThrowIfIncorrectPositionOrder1, boolean logOrThrowIfIncorrectPositionOrder2) {
         super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
         this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1);
@@ -45,6 +49,13 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         this.feederName2 = feederName2;
         this.direction1 = Objects.requireNonNull(direction1);
         this.direction2 = Objects.requireNonNull(direction2);
+        this.logOrThrowIfIncorrectPositionOrder1 = logOrThrowIfIncorrectPositionOrder1;
+        this.logOrThrowIfIncorrectPositionOrder2 = logOrThrowIfIncorrectPositionOrder2;
+    }
+
+    @Override
+    public String getName() {
+        return "CreateBranchFeederBays";
     }
 
     @Override
@@ -55,7 +66,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return busOrBbsId2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -65,7 +76,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         } else if (side == 2) {
             branchAdder.setConnectableBus2(bus.getId()).setBus2(bus.getId()).setVoltageLevel2(voltageLevelId);
         } else {
-            throw createSideAssertionError(side);
+            throw createSideIllegalStateException(side);
         }
     }
 
@@ -76,19 +87,13 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         } else if (side == 2) {
             branchAdder.setNode2(node).setVoltageLevel2(voltageLevelId);
         } else {
-            throw createSideAssertionError(side);
+            throw createSideIllegalStateException(side);
         }
     }
 
     @Override
     protected Connectable<?> add() {
-        if (branchAdder instanceof LineAdder) {
-            return ((LineAdder) branchAdder).add();
-        } else if (branchAdder instanceof TwoWindingsTransformerAdder) {
-            return ((TwoWindingsTransformerAdder) branchAdder).add();
-        } else {
-            throw new AssertionError("Given BranchAdder not supported: " + branchAdder.getClass().getName());
-        }
+        return branchAdder.add();
     }
 
     @Override
@@ -100,7 +105,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return branch.getTerminal2().getVoltageLevel();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -111,7 +116,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return positionOrder2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -122,7 +127,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return Optional.ofNullable(feederName2);
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -133,7 +138,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return direction2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -145,7 +150,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return branch.getTerminal2().getNodeBreakerView().getNode();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -156,10 +161,20 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return connectablePositionAdder.newFeeder2();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
-    private static AssertionError createSideAssertionError(int side) {
-        return new AssertionError("Unexpected side: " + side);
+    @Override
+    protected boolean getLogOrThrowIfIncorrectPositionOrder(int side) {
+        if (side == 1) {
+            return logOrThrowIfIncorrectPositionOrder1;
+        } else if (side == 2) {
+            return logOrThrowIfIncorrectPositionOrder2;
+        }
+        throw createSideIllegalStateException(side);
+    }
+
+    private static IllegalStateException createSideIllegalStateException(int side) {
+        return new IllegalStateException("Unexpected side: " + side);
     }
 }

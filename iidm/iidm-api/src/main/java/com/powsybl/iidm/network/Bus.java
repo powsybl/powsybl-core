@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -11,11 +12,10 @@ import java.util.stream.Stream;
 
 /**
  * A bus is a set of equipments connected together through a closed switch.
+ * <p>It could be a configured object ot a result of a computation depending of the
+ * context.</p>
  *
- * It could be a configured object ot a result of a computation depending of the
- * context.
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Bus extends Identifiable<Bus> {
 
@@ -30,7 +30,7 @@ public interface Bus extends Identifiable<Bus> {
     double getV();
 
     /**
-     * Set the voltage magnituge of the bus in kV.
+     * Set the voltage magnitude of the bus in kV.
      */
     Bus setV(double v);
 
@@ -45,28 +45,50 @@ public interface Bus extends Identifiable<Bus> {
     Bus setAngle(double angle);
 
     /**
-     * Get the active power in MW injected by equipments connected to the bus.
+     * Get the active power in MW injected by equipment connected to the bus using the load sign convention (a positive value means that
+     * equipment connected to the bus consumes active power)
      */
     double getP();
 
     /**
-     * Get the reactive power in MVAR injected by equiments connected to the bus.
+     * Get the reactive power in MVAR injected by equipment connected to the bus using the load sign convention (a positive value means
+     * that the equipment connected to the bus consume reactive power).
      */
     double getQ();
 
+    /**
+     * Returns the fictitious active power injection to the bus if set, or 0. The value is in MW and uses the load sign convention (a positive value has the same effect as a load connected to the bus)
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+     */
     default double getFictitiousP0() {
         return 0.0;
     }
 
+    /**
+     * If supported by the implementation, adds a fictitious active power injection to the bus using the load sign convention (a positive value has the same effect as a load connected to the bus)
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+     * The method has no effect if the Bus implementation does not support fictitious injections.
+     * @param p0 fictitious load in MW, using the load sign convention.
+     */
     default Bus setFictitiousP0(double p0) {
         // do nothing
         return this;
     }
 
+    /**
+     * Returns the fictitious reactive power injection to the bus if set, or 0. The value is in MVar and uses the load sign convention (a positive value has the same effect as a load connected to the bus)
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+     */
     default double getFictitiousQ0() {
         return 0.0;
     }
 
+    /**
+     * If supported by the implementation, adds a fictitious reactive power injection to the bus using the load sign convention (a positive value has the same effect as a load connected to the bus)
+     * A fictitious injection is meant to be considered as a load by simulators or exporters. It is typically used to represent the remainder of a state estimator.
+     * The method has no effect if the Bus implementation does not support fictitious injections.
+     * @param q0 fictitious load in MVar, using the load sign convention.
+     */
     default Bus setFictitiousQ0(double q0) {
         // do nothing
         return this;
@@ -116,26 +138,8 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get 2 windings transformer connected to the bus.
-     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
-     */
-    @Deprecated
-    default Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
-        return getTwoWindingsTransformers();
-    }
-
-    /**
-     * Get 2 windings transformer connected to the bus.
      */
     Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
-
-    /**
-     * Get 2 windings transformer connected to the bus.
-     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
-     */
-    @Deprecated
-    default Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
-        return getTwoWindingsTransformerStream();
-    }
 
     /**
      * Get 3 windings transformers connected to the bus.
@@ -144,26 +148,8 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get 3 windings transformers connected to the bus.
-     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
-     */
-    @Deprecated
-    default Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
-        return getThreeWindingsTransformers();
-    }
-
-    /**
-     * Get 3 windings transformers connected to the bus.
      */
     Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
-
-    /**
-     * Get 3 windings transformers connected to the bus.
-     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
-     */
-    @Deprecated
-    default Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
-        return getThreeWindingsTransformerStream();
-    }
 
     /**
      * Get generators connected to the bus.
@@ -206,14 +192,28 @@ public interface Bus extends Identifiable<Bus> {
     Stream<ShuntCompensator> getShuntCompensatorStream();
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get boundary lines connected to the bus based on given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get all boundary lines connected to the bus.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
+    }
+
+    /**
+     * Get boundary lines connected to the bus based on given filter.
+     */
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
+
+     /**
+     * Get all boundary lines connected to the bus.
+     */
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
+    }
 
     /**
      * Get static VAR compensators connected to the bus.

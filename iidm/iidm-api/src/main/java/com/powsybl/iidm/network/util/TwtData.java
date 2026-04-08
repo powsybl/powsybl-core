@@ -3,28 +3,27 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
 import java.util.Objects;
 
+import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.ThreeSides;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class TwtData {
-
-    private static final String UNEXPECTED_SIDE = "Unexpected side";
 
     private final String id;
 
@@ -383,7 +382,7 @@ public class TwtData {
         Complex ysh = LinkData.kronAntenna(openLeg.y11(), openLeg.y12(), openLeg.y21(), openLeg.y22(), true);
         LinkData.BranchAdmittanceMatrix secondCloseLegMod = new LinkData.BranchAdmittanceMatrix(secondCloseLeg.y11(),
             secondCloseLeg.y12(), secondCloseLeg.y21(), secondCloseLeg.y22().add(ysh));
-        return LinkData.kronChain(firstCloseLeg, Branch.Side.TWO, secondCloseLegMod, Branch.Side.TWO);
+        return LinkData.kronChain(firstCloseLeg, TwoSides.TWO, secondCloseLegMod, TwoSides.TWO);
     }
 
     private Complex calculateOneConnectedLegShunt(LinkData.BranchAdmittanceMatrix closeLeg,
@@ -474,222 +473,147 @@ public class TwtData {
         return id;
     }
 
-    public double getComputedP(Side side) {
+    public double getComputedP(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return computedP1;
-            case TWO:
-                return computedP2;
-            case THREE:
-                return computedP3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> computedP1;
+            case TWO -> computedP2;
+            case THREE -> computedP3;
+        };
     }
 
-    public double getComputedQ(Side side) {
+    public double getComputedQ(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return computedQ1;
-            case TWO:
-                return computedQ2;
-            case THREE:
-                return computedQ3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> computedQ1;
+            case TWO -> computedQ2;
+            case THREE -> computedQ3;
+        };
     }
 
-    public double getP(Side side) {
+    public double getP(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return p1;
-            case TWO:
-                return p2;
-            case THREE:
-                return p3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> p1;
+            case TWO -> p2;
+            case THREE -> p3;
+        };
     }
 
-    public double getQ(Side side) {
+    public double getQ(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return q1;
-            case TWO:
-                return q2;
-            case THREE:
-                return q3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> q1;
+            case TWO -> q2;
+            case THREE -> q3;
+        };
     }
 
-    public double getU(Side side) {
+    public double getU(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return u1;
-            case TWO:
-                return u2;
-            case THREE:
-                return u3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> u1;
+            case TWO -> u2;
+            case THREE -> u3;
+        };
     }
 
     public double getStarU() {
         return starU;
     }
 
-    public double getTheta(Side side) {
+    public double getTheta(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return theta1;
-            case TWO:
-                return theta2;
-            case THREE:
-                return theta3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> theta1;
+            case TWO -> theta2;
+            case THREE -> theta3;
+        };
     }
 
     public double getStarTheta() {
         return starTheta;
     }
 
-    public double getR(Side side) {
+    public double getR(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return r1;
-            case TWO:
-                return r2;
-            case THREE:
-                return r3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> r1;
+            case TWO -> r2;
+            case THREE -> r3;
+        };
     }
 
-    public double getX(Side side) {
+    public double getX(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return x1;
-            case TWO:
-                return x2;
-            case THREE:
-                return x3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> x1;
+            case TWO -> x2;
+            case THREE -> x3;
+        };
     }
 
-    public double getG1(Side side) {
+    public double getG1(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return g11;
-            case TWO:
-                return g21;
-            case THREE:
-                return g31;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> g11;
+            case TWO -> g21;
+            case THREE -> g31;
+        };
     }
 
-    public double getB1(Side side) {
+    public double getB1(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return b11;
-            case TWO:
-                return b21;
-            case THREE:
-                return b31;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> b11;
+            case TWO -> b21;
+            case THREE -> b31;
+        };
     }
 
-    public double getG2(Side side) {
+    public double getG2(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return g12;
-            case TWO:
-                return g22;
-            case THREE:
-                return g32;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> g12;
+            case TWO -> g22;
+            case THREE -> g32;
+        };
     }
 
-    public double getB2(Side side) {
+    public double getB2(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return b12;
-            case TWO:
-                return b22;
-            case THREE:
-                return b32;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> b12;
+            case TWO -> b22;
+            case THREE -> b32;
+        };
     }
 
-    public double getRatedU(Side side) {
+    public double getRatedU(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return ratedU1;
-            case TWO:
-                return ratedU2;
-            case THREE:
-                return ratedU3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> ratedU1;
+            case TWO -> ratedU2;
+            case THREE -> ratedU3;
+        };
     }
 
-    public boolean isConnected(Side side) {
+    public boolean isConnected(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return connected1;
-            case TWO:
-                return connected2;
-            case THREE:
-                return connected3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> connected1;
+            case TWO -> connected2;
+            case THREE -> connected3;
+        };
     }
 
-    public boolean isMainComponent(Side side) {
+    public boolean isMainComponent(ThreeSides side) {
         Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return mainComponent1;
-            case TWO:
-                return mainComponent2;
-            case THREE:
-                return mainComponent3;
-            default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
-        }
+        return switch (side) {
+            case ONE -> mainComponent1;
+            case TWO -> mainComponent2;
+            case THREE -> mainComponent3;
+        };
     }
 
     public int getPhaseAngleClock2() {

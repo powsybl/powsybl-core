@@ -8,7 +8,9 @@
 package com.powsybl.shortcircuit;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * Three-phase voltage results on a bus after the short-circuit computation.
+ *
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class MagnitudeShortCircuitBusResults extends AbstractShortCircuitBusResults {
 
@@ -23,7 +25,7 @@ public class MagnitudeShortCircuitBusResults extends AbstractShortCircuitBusResu
     }
 
     /**
-     * Returns the three phase voltage magnitude after the fault (in kV).
+     * Returns the three phased voltage magnitude after the fault (in kV).
      */
     public double getVoltage() {
         return voltage;

@@ -3,16 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,7 +29,7 @@ import java.util.*;
  * Parameters for loadflow computation.
  * Extensions may be added, for instance for implementation-specific parameters.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
@@ -46,7 +52,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
          */
         PROPORTIONAL_TO_GENERATION_P_MAX,
         /**
-         * active power slack distribution on generators, proportional to generator maxP - targetP
+         * active power slack distribution on generators, proportional to generator maxP - targetP if active production is increased, and proportional to targetP - minP if decreased.
          */
         PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN,
         /**
@@ -63,10 +69,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         PROPORTIONAL_TO_CONFORM_LOAD,
     }
 
-    public enum ConnectedComponentMode {
-        MAIN,
-        ALL,
+    public enum ComponentMode {
+        MAIN_CONNECTED,
+        ALL_CONNECTED,
+        MAIN_SYNCHRONOUS;
+
+        @JsonCreator
+        public static ComponentMode fromString(String value) {
+            return switch (value) {
+                case "MAIN" -> MAIN_CONNECTED;
+                case "ALL" -> ALL_CONNECTED;
+                case "MAIN_CONNECTED" -> MAIN_CONNECTED;
+                case "ALL_CONNECTED" -> ALL_CONNECTED;
+                case "MAIN_SYNCHRONOUS" -> MAIN_SYNCHRONOUS;
+                default -> throw new IllegalArgumentException("ComponentMode unknown value: " + value);
+            };
+        }
     }
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
 
     // VERSION = 1.0 specificCompatibility
     // VERSION = 1.1 t2wtSplitShuntAdmittance
@@ -77,7 +98,9 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.6 shuntCompensatorVoltageControlOn instead of simulShunt
     // VERSION = 1.7 hvdcAcEmulation
     // VERSION = 1.8 noGeneratorReactiveLimits -> useReactiveLimits
-    public static final String VERSION = "1.8";
+    // VERSION = 1.9 dcPowerFactor
+    // VERSION = 1.10 componentMode instead of connectedComponentMode
+    public static final String VERSION = "1.10";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -86,14 +109,15 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
     public static final boolean DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_READ_SLACK_BUS = true;
-    public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
+    public static final boolean DEFAULT_WRITE_SLACK_BUS = true;
     public static final boolean DEFAULT_DC = false;
     public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;
     public static final boolean DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT = true;
-    public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = EnumSet.noneOf(Country.class);
-    public static final ConnectedComponentMode DEFAULT_CONNECTED_COMPONENT_MODE = ConnectedComponentMode.MAIN;
+    public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.unmodifiableSet(EnumSet.noneOf(Country.class));
+    public static final ComponentMode DEFAULT_COMPONENT_MODE = ComponentMode.MAIN_CONNECTED;
     public static final boolean DEFAULT_HVDC_AC_EMULATION_ON = true;
+    public static final double DEFAULT_DC_POWER_FACTOR = 1d;
 
     /**
      * Loads parameters from the default platform configuration.
@@ -106,7 +130,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
      * Load parameters from a provided platform configuration.
      */
     public static LoadFlowParameters load(PlatformConfig platformConfig) {
-        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters parameters = new LoadFlowParameters(platformConfig);
         load(parameters, platformConfig);
 
         parameters.loadExtensions(platformConfig);
@@ -122,97 +146,128 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
 
+        // Only the parameters present in platformConfig will be updated and no default value will be set for the absent parameters
+        // (unlike what is done for the other parameters classes).
+        // This is needed for the LoadFlowDefaultParametersLoader mechanism to work (else the default values defined
+        // by the loader will be overwritten by the hardcoded ones).
         platformConfig.getOptionalModuleConfig("load-flow-default-parameters")
                 .ifPresent(config -> {
-                    parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
-                    parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
-                    parameters.setUseReactiveLimits(!config.getBooleanProperty("noGeneratorReactiveLimits", !DEFAULT_USE_REACTIVE_LIMITS)); // overwritten by reactiveLimits
-                    parameters.setUseReactiveLimits(config.getBooleanProperty("useReactiveLimits", DEFAULT_USE_REACTIVE_LIMITS));
-                    parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
-                    // keep old tag name "specificCompatibility" for compatibility
-                    parameters.setTwtSplitShuntAdmittance(config.getBooleanProperty("twtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE)));
-                    parameters.setShuntCompensatorVoltageControlOn(config.getBooleanProperty("shuntCompensatorVoltageControlOn",
-                            config.getOptionalBooleanProperty("simulShunt").orElse(DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON)));
-                    parameters.setReadSlackBus(config.getBooleanProperty("readSlackBus", DEFAULT_READ_SLACK_BUS));
-                    parameters.setWriteSlackBus(config.getBooleanProperty("writeSlackBus", DEFAULT_WRITE_SLACK_BUS));
-                    parameters.setDc(config.getBooleanProperty("dc", DEFAULT_DC));
-                    parameters.setDistributedSlack(config.getBooleanProperty("distributedSlack", DEFAULT_DISTRIBUTED_SLACK));
-                    parameters.setBalanceType(config.getEnumProperty("balanceType", BalanceType.class, DEFAULT_BALANCE_TYPE));
-                    parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
-                    parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
-                    parameters.setConnectedComponentMode(config.getEnumProperty("connectedComponentMode", ConnectedComponentMode.class, DEFAULT_CONNECTED_COMPONENT_MODE));
+                    config.getOptionalEnumProperty("voltageInitMode", VoltageInitMode.class).ifPresent(parameters::setVoltageInitMode);
+                    config.getOptionalBooleanProperty("transformerVoltageControlOn").ifPresent(parameters::setTransformerVoltageControlOn);
+                    config.getOptionalBooleanProperty("useReactiveLimits").ifPresentOrElse(parameters::setUseReactiveLimits,
+                            () -> config.getOptionalBooleanProperty("noGeneratorReactiveLimits").ifPresent(value -> parameters.setUseReactiveLimits(!value)));
+                    config.getOptionalBooleanProperty("phaseShifterRegulationOn").ifPresent(parameters::setPhaseShifterRegulationOn);
+                    config.getOptionalBooleanProperty("twtSplitShuntAdmittance").ifPresentOrElse(parameters::setTwtSplitShuntAdmittance,
+                            () -> config.getOptionalBooleanProperty("specificCompatibility").ifPresent(parameters::setTwtSplitShuntAdmittance));
+                    config.getOptionalBooleanProperty("shuntCompensatorVoltageControlOn").ifPresentOrElse(parameters::setShuntCompensatorVoltageControlOn,
+                            () -> config.getOptionalBooleanProperty("simulShunt").ifPresent(parameters::setShuntCompensatorVoltageControlOn));
+                    config.getOptionalBooleanProperty("readSlackBus").ifPresent(parameters::setReadSlackBus);
+                    config.getOptionalBooleanProperty("writeSlackBus").ifPresent(parameters::setWriteSlackBus);
+                    config.getOptionalBooleanProperty("dc").ifPresent(parameters::setDc);
+                    config.getOptionalBooleanProperty("distributedSlack").ifPresent(parameters::setDistributedSlack);
+                    config.getOptionalEnumProperty("balanceType", BalanceType.class).ifPresent(parameters::setBalanceType);
+                    config.getOptionalBooleanProperty("dcUseTransformerRatio").ifPresent(parameters::setDcUseTransformerRatio);
+                    config.getOptionalEnumSetProperty("countriesToBalance", Country.class).ifPresent(parameters::setCountriesToBalance);
+                    config.getOptionalEnumProperty("componentMode", ComponentMode.class).ifPresentOrElse(parameters::setComponentMode,
+                            () -> config.getOptionalEnumProperty("connectedComponentMode", ComponentMode.class).ifPresent(parameters::setComponentMode));
+                    config.getOptionalBooleanProperty("hvdcAcEmulation").ifPresent(parameters::setHvdcAcEmulation);
+                    config.getOptionalDoubleProperty("dcPowerFactor").ifPresent(parameters::setDcPowerFactor);
                 });
     }
 
-    private VoltageInitMode voltageInitMode;
+    private VoltageInitMode voltageInitMode = DEFAULT_VOLTAGE_INIT_MODE;
 
-    private boolean transformerVoltageControlOn;
+    private boolean transformerVoltageControlOn = DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON;
 
-    private boolean useReactiveLimits;
+    private boolean useReactiveLimits = DEFAULT_USE_REACTIVE_LIMITS;
 
-    private boolean phaseShifterRegulationOn;
+    private boolean phaseShifterRegulationOn = DEFAULT_PHASE_SHIFTER_REGULATION_ON;
 
-    private boolean twtSplitShuntAdmittance;
+    private boolean twtSplitShuntAdmittance = DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE;
 
-    private boolean shuntCompensatorVoltageControlOn;
+    private boolean shuntCompensatorVoltageControlOn = DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON;
 
-    private boolean readSlackBus;
+    private boolean readSlackBus = DEFAULT_READ_SLACK_BUS;
 
-    private boolean writeSlackBus;
+    private boolean writeSlackBus = DEFAULT_WRITE_SLACK_BUS;
 
-    private boolean dc;
+    private boolean dc = DEFAULT_DC;
 
-    private boolean distributedSlack;
+    private boolean distributedSlack = DEFAULT_DISTRIBUTED_SLACK;
 
-    private BalanceType balanceType;
+    private BalanceType balanceType = DEFAULT_BALANCE_TYPE;
 
-    private boolean dcUseTransformerRatio;
+    private boolean dcUseTransformerRatio = DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT;
 
-    private Set<Country> countriesToBalance;
+    private Set<Country> countriesToBalance = DEFAULT_COUNTRIES_TO_BALANCE;
 
-    private ConnectedComponentMode connectedComponentMode;
+    private ComponentMode componentMode = DEFAULT_COMPONENT_MODE;
 
-    private boolean hvdcAcEmulation;
+    private boolean hvdcAcEmulation = DEFAULT_HVDC_AC_EMULATION_ON;
 
-    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean useReactiveLimits, boolean phaseShifterRegulationOn,
-                              boolean twtSplitShuntAdmittance, boolean shuntCompensatorVoltageControlOn, boolean readSlackBus, boolean writeSlackBus,
-                              boolean dc, boolean distributedSlack, BalanceType balanceType, boolean dcUseTransformerRatio,
-                              Set<Country> countriesToBalance, ConnectedComponentMode connectedComponentMode, boolean hvdcAcEmulation) {
-        this.voltageInitMode = voltageInitMode;
-        this.transformerVoltageControlOn = transformerVoltageControlOn;
-        this.useReactiveLimits = useReactiveLimits;
-        this.phaseShifterRegulationOn = phaseShifterRegulationOn;
-        this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
-        this.shuntCompensatorVoltageControlOn = shuntCompensatorVoltageControlOn;
-        this.readSlackBus = readSlackBus;
-        this.writeSlackBus = writeSlackBus;
-        this.dc = dc;
-        this.distributedSlack = distributedSlack;
-        this.balanceType = balanceType;
-        this.dcUseTransformerRatio = dcUseTransformerRatio;
-        this.countriesToBalance = countriesToBalance;
-        this.connectedComponentMode = connectedComponentMode;
-        this.hvdcAcEmulation = hvdcAcEmulation;
-    }
-
-    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean useReactiveLimits, boolean phaseShifterRegulationOn,
-                              boolean twtSplitShuntAdmittance) {
-        this(voltageInitMode, transformerVoltageControlOn, useReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
-                DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE, DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, DEFAULT_COUNTRIES_TO_BALANCE, DEFAULT_CONNECTED_COMPONENT_MODE, DEFAULT_HVDC_AC_EMULATION_ON);
-    }
-
-    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_USE_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
-    }
-
-    public LoadFlowParameters(VoltageInitMode voltageInitMode) {
-        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_USE_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
-    }
+    private double dcPowerFactor = DEFAULT_DC_POWER_FACTOR;
 
     public LoadFlowParameters() {
-        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_USE_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
+        this(PlatformConfig.defaultConfig());
+    }
+
+    protected LoadFlowParameters(PlatformConfig config) {
+        this(getDefaultParemtersLoaders(), config);
+    }
+
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
+        this(defaultParametersLoaders, PlatformConfig.defaultConfig());
+    }
+
+    public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(PlatformConfig config) {
+        return getDefaultLoadFlowParameterLoader(getDefaultParemtersLoaders(), config);
+    }
+
+    private static List<LoadFlowDefaultParametersLoader> getDefaultParemtersLoaders() {
+        return ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList();
+    }
+
+    public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
+        String selectedLoaderName;
+        Optional<LoadFlowDefaultParametersLoader> selectedLoader = Optional.empty();
+        selectedLoaderName = config.getOptionalModuleConfig("load-flow")
+                .flatMap(moduleConfig -> moduleConfig.getOptionalStringProperty("default-parameters-loader"))
+                .orElse(null);
+        if (selectedLoaderName != null) {
+            selectedLoader = defaultParametersLoaders.stream()
+                    .filter(loader -> loader.getSourceName().equals(selectedLoaderName))
+                    .findFirst();
+            if (selectedLoader.isEmpty()) {
+                LOGGER.warn("Parameter 'default-parameters-loader' of module 'load-flow' ({}) does not match any" +
+                        " LoadFlowDefaultParametersLoader found in the classpath", selectedLoaderName);
+            }
+        } else {
+            int numberOfLoadersFound = Objects.requireNonNull(defaultParametersLoaders).size();
+            if (numberOfLoadersFound > 1) {
+                List<String> names = defaultParametersLoaders.stream()
+                        .map(LoadFlowDefaultParametersLoader::getSourceName).toList();
+                String message = String.format("Multiple default loadflow parameter loader classes have been found in the class path : %s." +
+                        " Specify which one to use with the 'default-parameters-loader' parameter of 'load-flow' module " +
+                        "of Powsybl configuration.", names);
+                throw new PowsyblException(message);
+            } else if (numberOfLoadersFound == 1) {
+                selectedLoader = defaultParametersLoaders.stream().findFirst();
+            }
+        }
+        return selectedLoader;
+    }
+
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders, PlatformConfig config) {
+        // Check default-parameters-loader config parameter
+        Optional<LoadFlowDefaultParametersLoader> selectedLoader = getDefaultLoadFlowParameterLoader(defaultParametersLoaders, config);
+        if (selectedLoader.isPresent()) {
+            JsonLoadFlowParameters.update(this, selectedLoader.get().loadDefaultParametersFromFile());
+            LOGGER.debug("Default loadflow configuration has been updated using the reference from parameters loader '{}'",
+                    selectedLoader.get().getSourceName());
+        }
     }
 
     protected LoadFlowParameters(LoadFlowParameters other) {
@@ -230,8 +285,9 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         balanceType = other.balanceType;
         dcUseTransformerRatio = other.dcUseTransformerRatio;
         countriesToBalance = other.countriesToBalance;
-        connectedComponentMode = other.connectedComponentMode;
+        componentMode = other.componentMode;
         hvdcAcEmulation = other.hvdcAcEmulation;
+        dcPowerFactor = other.dcPowerFactor;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -261,23 +317,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isUseReactiveLimits} instead.
-     */
-    @Deprecated
-    public boolean isNoGeneratorReactiveLimits() {
-        return !useReactiveLimits;
-    }
-
-    /**
-     * @deprecated Use {@link #setNoGeneratorReactiveLimits} instead.
-     */
-    @Deprecated
-    public LoadFlowParameters setNoGeneratorReactiveLimits(boolean noGeneratorReactiveLimits) {
-        this.useReactiveLimits = !noGeneratorReactiveLimits;
-        return this;
-    }
-
     public boolean isPhaseShifterRegulationOn() {
         return phaseShifterRegulationOn;
     }
@@ -287,40 +326,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public boolean isSpecificCompatibility() {
-        return isTwtSplitShuntAdmittance();
-    }
-
-    /**
-     * @deprecated Use {@link #isTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public boolean isT2wtSplitShuntAdmittance() {
-        return isTwtSplitShuntAdmittance();
-    }
-
     public boolean isTwtSplitShuntAdmittance() {
         return twtSplitShuntAdmittance;
-    }
-
-    /**
-     * @deprecated Use {@link #setTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public LoadFlowParameters setSpecificCompatibility(boolean twtSplitShuntAdmittance) {
-        return setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
-    }
-
-    /**
-     * @deprecated Use {@link #setTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public LoadFlowParameters setT2wtSplitShuntAdmittance(boolean twtSplitShuntAdmittance) {
-        return setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
     }
 
     public LoadFlowParameters setTwtSplitShuntAdmittance(boolean twtSplitShuntAdmittance) {
@@ -328,24 +335,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isShuntCompensatorVoltageControlOn()} instead.
-     */
-    @Deprecated
-    public boolean isSimulShunt() {
-        return isShuntCompensatorVoltageControlOn();
-    }
-
     public boolean isShuntCompensatorVoltageControlOn() {
         return shuntCompensatorVoltageControlOn;
-    }
-
-    /**
-     * @deprecated Use {@link #setShuntCompensatorVoltageControlOn(boolean)} instead.
-     */
-    @Deprecated
-    public LoadFlowParameters setSimulShunt(boolean simulShunt) {
-        return setShuntCompensatorVoltageControlOn(simulShunt);
     }
 
     public LoadFlowParameters setShuntCompensatorVoltageControlOn(boolean shuntCompensatorVoltageControlOn) {
@@ -398,9 +389,56 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return balanceType;
     }
 
-    protected Map<String, Object> toMap() {
-        ImmutableMap.Builder<String, Object> immutableMapBuilder = ImmutableMap.builder();
-        immutableMapBuilder
+    public LoadFlowParameters setDcUseTransformerRatio(boolean dcUseTransformerRatio) {
+        this.dcUseTransformerRatio = dcUseTransformerRatio;
+        return this;
+    }
+
+    public boolean isDcUseTransformerRatio() {
+        return dcUseTransformerRatio;
+    }
+
+    public LoadFlowParameters setCountriesToBalance(Set<Country> countriesToBalance) {
+        this.countriesToBalance = Collections.unmodifiableSet(new HashSet<>(Objects.requireNonNull(countriesToBalance)));
+        return this;
+    }
+
+    public Set<Country> getCountriesToBalance() {
+        return Collections.unmodifiableSet(countriesToBalance);
+    }
+
+    public ComponentMode getComponentMode() {
+        return componentMode;
+    }
+
+    public LoadFlowParameters setComponentMode(ComponentMode componentMode) {
+        this.componentMode = componentMode;
+        return this;
+    }
+
+    public boolean isHvdcAcEmulation() {
+        return hvdcAcEmulation;
+    }
+
+    public LoadFlowParameters setHvdcAcEmulation(boolean hvdcAcEmulation) {
+        this.hvdcAcEmulation = hvdcAcEmulation;
+        return this;
+    }
+
+    public double getDcPowerFactor() {
+        return dcPowerFactor;
+    }
+
+    public LoadFlowParameters setDcPowerFactor(double dcPowerFactor) {
+        if (dcPowerFactor <= 0 || dcPowerFactor > 1) {
+            throw new IllegalArgumentException("Invalid DC power factor: " + dcPowerFactor);
+        }
+        this.dcPowerFactor = dcPowerFactor;
+        return this;
+    }
+
+    public Map<String, Object> toMap() {
+        return ImmutableMap.<String, Object>builder()
                 .put("voltageInitMode", voltageInitMode)
                 .put("transformerVoltageControlOn", transformerVoltageControlOn)
                 .put("useReactiveLimits", useReactiveLimits)
@@ -414,45 +452,10 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("balanceType", balanceType)
                 .put("dcUseTransformerRatio", dcUseTransformerRatio)
                 .put("countriesToBalance", countriesToBalance)
-                .put("computedConnectedComponentScope", connectedComponentMode)
-                .put("hvdcAcEmulation", hvdcAcEmulation);
-        return immutableMapBuilder.build();
-    }
-
-    public LoadFlowParameters setDcUseTransformerRatio(boolean dcUseTransformerRatio) {
-        this.dcUseTransformerRatio = dcUseTransformerRatio;
-        return this;
-    }
-
-    public boolean isDcUseTransformerRatio() {
-        return dcUseTransformerRatio;
-    }
-
-    public LoadFlowParameters setCountriesToBalance(Set<Country> countriesToBalance) {
-        this.countriesToBalance = Objects.requireNonNull(countriesToBalance);
-        return this;
-    }
-
-    public Set<Country> getCountriesToBalance() {
-        return Collections.unmodifiableSet(countriesToBalance);
-    }
-
-    public ConnectedComponentMode getConnectedComponentMode() {
-        return connectedComponentMode;
-    }
-
-    public LoadFlowParameters setConnectedComponentMode(ConnectedComponentMode connectedComponentMode) {
-        this.connectedComponentMode = connectedComponentMode;
-        return this;
-    }
-
-    public boolean isHvdcAcEmulation() {
-        return hvdcAcEmulation;
-    }
-
-    public LoadFlowParameters setHvdcAcEmulation(boolean hvdcAcEmulation) {
-        this.hvdcAcEmulation = hvdcAcEmulation;
-        return this;
+                .put("computedComponentMode", componentMode)
+                .put("hvdcAcEmulation", hvdcAcEmulation)
+                .put("dcPowerFactor", dcPowerFactor)
+                .build();
     }
 
     /**
@@ -482,10 +485,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return toMap().toString();
     }
 
-    private void loadExtensions(PlatformConfig platformConfig) {
+    protected void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            provider.loadSpecificParameters(platformConfig).ifPresent(loadFlowParametersExtension ->
-                    addExtension((Class) loadFlowParametersExtension.getClass(), loadFlowParametersExtension));
+            provider.getSpecificParametersClass().ifPresent(clazz -> {
+                Optional<Extension<LoadFlowParameters>> extension = Optional.ofNullable(getExtension(clazz));
+                extension.ifPresentOrElse(ext -> provider.updateSpecificParameters(ext, platformConfig),
+                        () -> provider.loadSpecificParameters(platformConfig)
+                                .ifPresent(ext -> addExtension((Class) ext.getClass(), ext)));
+            });
         }
     }
 }

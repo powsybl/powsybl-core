@@ -3,13 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class Comparison {
 
@@ -38,9 +40,9 @@ public class Comparison {
     public void compareBuses() {
         diff.current(expected);
         compareBuses(
-            expected.getBusBreakerView().getBusStream(),
-            actual.getBusBreakerView().getBusStream(),
-            this::compareBuses);
+                expected.getBusBreakerView().getBusStream(),
+                actual.getBusBreakerView().getBusStream(),
+                this::compareBuses);
     }
 
     public void compare() {
@@ -52,11 +54,8 @@ public class Comparison {
         // Compare CIM characteristics
         compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
-        // Compare SV metadata
-        compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
-
-        // Compare Ssh metadata
-        compareCgmesSshMetadata(expected.getExtension(CgmesSshMetadata.class), actual.getExtension(CgmesSshMetadata.class));
+        // Compare metadata
+        compareCgmesMetadata(expected.getExtension(CgmesMetadataModels.class), actual.getExtension(CgmesMetadataModels.class));
 
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
@@ -104,9 +103,9 @@ public class Comparison {
                 actual.getThreeWindingsTransformerStream(),
                 this::compareThreeWindingsTransformers);
         compare(
-                expected.getDanglingLineStream(),
-                actual.getDanglingLineStream(),
-                this::compareDanglingLines);
+                expected.getBoundaryLineStream(BoundaryLineFilter.ALL).filter(bl -> !bl.isPaired()),
+                actual.getBoundaryLineStream(BoundaryLineFilter.ALL).filter(bl -> !bl.isPaired()),
+                this::compareBoundaryLines);
         diff.end();
     }
 
@@ -159,54 +158,71 @@ public class Comparison {
         }
     }
 
-    private void compareCgmesSvMetadata(CgmesSvMetadata expected, CgmesSvMetadata actual) {
+    private void compareCgmesMetadata(CgmesMetadataModels expected, CgmesMetadataModels actual) {
         if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSvMetadata_extension");
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_extension");
             return;
         }
         if (expected != null) {
             if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
+                diff.missing(expected.getExtendable().getId() + "_cgmesMetadataModels_extension");
                 return;
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("svVersion", config.incremented ? expected.getSvVersion() + 1 : expected.getSvVersion(), actual.getSvVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
+            if (config.ignoreMissingMetadata) {
+                // All actual models should be in expected models
+                // But some expected models may be missing
+                for (CgmesMetadataModel actualModel : actual.getModels()) {
+                    Optional<CgmesMetadataModel> expectedModel = expected.getModelForSubsetModelingAuthoritySet(actualModel.getSubset(), actualModel.getModelingAuthoritySet());
+                    if (expectedModel.isEmpty()) {
+                        diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_Model " + actualModel.getId());
+                    } else {
+                        compareCgmesMetadataModels(expectedModel.get(), actualModel);
+                    }
                 }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
+            } else {
+                // If we are not ignoring models, the sorted models should be comparable one by one
+                if (expected.getModels().size() != actual.getModels().size()) {
+                    diff.compare("cgmesMetadataModels_size", expected.getModels().size(), actual.getModels().size());
+                }
+                List<CgmesMetadataModel> expectedModels = expected.getSortedModels();
+                List<CgmesMetadataModel> actualModels = actual.getSortedModels();
+                for (int k = 0; k < expectedModels.size(); k++) {
+                    compareCgmesMetadataModels(expectedModels.get(k), actualModels.get(k));
                 }
             }
         }
     }
 
-    private void compareCgmesSshMetadata(CgmesSshMetadata expected, CgmesSshMetadata actual) {
-        if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSshMetadata_extension");
-            return;
+    private void compareCgmesMetadataModels(CgmesMetadataModel expected, CgmesMetadataModel actual) {
+        String prefix = "CgmesMetadataModel " + expected.getId() + "_";
+        if (config.checkNetworkId) {
+            compare(prefix + "id", expected.getId(), actual.getId());
         }
-        if (expected != null) {
-            if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSshMetadata_extension");
-                return;
+        compare(prefix + "subset", expected.getSubset(), actual.getSubset());
+        compare(prefix + "description", expected.getDescription(), actual.getDescription());
+        // If subset has not been exported, the version has not been incremented
+        CgmesSubset subset = expected.getSubset();
+        int expectedVersion = expected.getVersion();
+        if (config.versionIncremented && config.isExportedSubset(subset)) {
+            expectedVersion++;
+        }
+        compare(prefix + "version", expectedVersion, actual.getVersion());
+        compare(prefix + "modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+        compare(prefix + "profiles", expected.getProfiles(), actual.getProfiles());
+        compare(prefix + "dependentOn", expected.getDependentOn(), actual.getDependentOn());
+        compare(prefix + "supersedes", expected.getSupersedes(), actual.getSupersedes());
+    }
+
+    void compare(String context, Set<String> expecteds, Set<String> actuals) {
+        for (String expected : expecteds) {
+            if (!actuals.contains(expected)) {
+                diff.missing(context + ": " + expected);
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("sshVersion", config.incremented ? expected.getSshVersion() + 1 : expected.getSshVersion(), actual.getSshVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
-                }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
-                }
+        }
+        for (
+            String actual : actuals) {
+            if (!expecteds.contains(actual)) {
+                diff.unexpected(context + ": " + actual);
             }
         }
     }
@@ -381,7 +397,7 @@ public class Comparison {
                 }
                 break;
             default:
-                throw new AssertionError("Unexpected shunt model type: " + expected.getModelType());
+                throw new IllegalStateException("Unexpected shunt model type: " + expected.getModelType());
         }
     }
 
@@ -490,7 +506,7 @@ public class Comparison {
                 break;
 
             default:
-                throw new AssertionError("Unexpected ReactiveLimitsKing value: " + expected.getKind());
+                throw new IllegalStateException("Unexpected ReactiveLimitsKing value: " + expected.getKind());
         }
     }
 
@@ -508,9 +524,9 @@ public class Comparison {
         // so we sort points by active power, then compare resulting lists point by point
         Comparator<Point> comparePoints = (p0, p1) -> Double.compare(p0.getP(), p1.getP());
         List<Point> e = expected.getPoints().stream().sorted(comparePoints)
-                .collect(Collectors.toList());
+                .toList();
         List<Point> a = actual.getPoints().stream().sorted(comparePoints)
-                .collect(Collectors.toList());
+                .toList();
         compare("reactiveCapabilityCurve.size", e.size(), a.size());
         for (int k = 0; k < e.size(); k++) {
             Point pe = e.get(k);
@@ -561,7 +577,7 @@ public class Comparison {
                 actual.getCurrentLimits2().orElse(null));
     }
 
-    private void compareDanglingLines(DanglingLine expected, DanglingLine actual) {
+    private void compareBoundaryLines(BoundaryLine expected, BoundaryLine actual) {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
@@ -572,7 +588,7 @@ public class Comparison {
         compare("b", expected.getB(), actual.getB());
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
-        compare("UcteXnodeCode", expected.getUcteXnodeCode(), actual.getUcteXnodeCode());
+        compare("pairingKey", expected.getPairingKey(), actual.getPairingKey());
         compareLoadingLimits(expected, actual,
                 expected.getActivePowerLimits().orElse(null),
                 actual.getActivePowerLimits().orElse(null));
@@ -733,9 +749,9 @@ public class Comparison {
                 actual.getRegulationValue());
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
-            TapChanger<TC, TCS> expected,
-            TapChanger<TC, TCS> actual,
+    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
+            TapChanger<TC, TCS, ?, ?> expected,
+            TapChanger<TC, TCS, ?, ?> actual,
             BiConsumer<TCS, TCS> testTapChangerStep1) {
         if (expected == null) {
             if (actual != null) {
@@ -795,7 +811,7 @@ public class Comparison {
         }
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
+    private <TC extends TapChanger<TC, TCS, ?, ?>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
             TCS expected,
             TCS actual,
             BiConsumer<TCS, TCS> testTapChangerStep1) {

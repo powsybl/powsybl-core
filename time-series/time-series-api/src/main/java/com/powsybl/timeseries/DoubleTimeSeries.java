@@ -3,17 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
 import java.nio.DoubleBuffer;
+import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeries> {
 
@@ -24,6 +27,19 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
     double[] toArray();
 
     static Iterator<DoubleMultiPoint> iterator(List<DoubleTimeSeries> timeSeriesList) {
+        return iterator(timeSeriesList, DoubleTimeSeries::iterator);
+    }
+
+    static Iterator<DoubleMultiPoint> compressedIterator(List<DoubleTimeSeries> timeSeriesList) {
+        return iterator(timeSeriesList, DoubleTimeSeries::compressedIterator);
+    }
+
+    static Iterator<DoubleMultiPoint> uncompressedIterator(List<DoubleTimeSeries> timeSeriesList) {
+        return iterator(timeSeriesList, DoubleTimeSeries::uncompressedIterator);
+    }
+
+    private static Iterator<DoubleMultiPoint> iterator(List<DoubleTimeSeries> timeSeriesList,
+                                                       Function<DoubleTimeSeries, Iterator<DoublePoint>> pointIteratorFunction) {
         Objects.requireNonNull(timeSeriesList);
 
         if (timeSeriesList.isEmpty()) {
@@ -39,38 +55,25 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
             throw new TimeSeriesException("Time series must have the same index");
         }
 
-        class DoublePointExt {
-
-            private final DoublePoint point;
-
-            private final int timeSeriesNum;
-
-            DoublePointExt(DoublePoint point, int timeSeriesNum) {
-                this.point = point;
-                this.timeSeriesNum = timeSeriesNum;
-            }
-
-            public DoublePoint getPoint() {
-                return point;
-            }
-
-            public int getTimeSeriesNum() {
-                return timeSeriesNum;
-            }
+        record DoublePointExt(DoublePoint point, int timeSeriesNum) {
         }
 
-        Map<Integer, List<DoublePointExt>> points = new TreeMap<>();
+        Map<Integer, List<DoublePointExt>> points = new HashMap<>();
         for (int timeSeriesNum = 0; timeSeriesNum < timeSeriesList.size(); timeSeriesNum++) {
             DoubleTimeSeries timeSeries = timeSeriesList.get(timeSeriesNum);
-            for (DoublePoint point : timeSeries) {
+            Iterator<DoublePoint> iterator = pointIteratorFunction.apply(timeSeries);
+            while (iterator.hasNext()) {
+                DoublePoint point = iterator.next();
                 points.computeIfAbsent(point.getIndex(), key -> new ArrayList<>())
-                        .add(new DoublePointExt(point, timeSeriesNum));
+                    .add(new DoublePointExt(point, timeSeriesNum));
             }
         }
 
-        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = points.entrySet().iterator();
+        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = points.entrySet().stream()
+            .sorted(Comparator.comparingInt(Map.Entry::getKey))
+            .iterator();
 
-        return new Iterator<DoubleMultiPoint>() {
+        return new Iterator<>() {
 
             private final double[] values = new double[timeSeriesList.size()];
 
@@ -85,7 +88,7 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
 
                 // update values
                 for (DoublePointExt point : e.getValue()) {
-                    values[point.getTimeSeriesNum()] = point.getPoint().getValue();
+                    values[point.timeSeriesNum()] = point.point().getValue();
                 }
 
                 return new DoubleMultiPoint() {
@@ -96,7 +99,12 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
 
                     @Override
                     public long getTime() {
-                        return e.getValue().get(0).getPoint().getTime();
+                        return getInstant().toEpochMilli();
+                    }
+
+                    @Override
+                    public Instant getInstant() {
+                        return e.getValue().getFirst().point().getInstant();
                     }
 
                     @Override

@@ -11,12 +11,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.AbstractEquipmentCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
-import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
+import com.powsybl.contingency.list.AbstractEquipmentCriterionContingencyList;
+import com.powsybl.iidm.criteria.Criterion;
+import com.powsybl.iidm.criteria.PropertyCriterion;
+import com.powsybl.iidm.criteria.RegexCriterion;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,40 +31,52 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
 
     protected static class ParsingContext {
         String name;
-        Criterion countryCriterion;
-        Criterion nominalVoltageCriterion;
-        List<PropertyCriterion> propertyCriteria;
-        RegexCriterion regexCriterion;
+        Criterion countryCriterion = null;
+        Criterion nominalVoltageCriterion = null;
+        List<PropertyCriterion> propertyCriteria = Collections.emptyList();
+        RegexCriterion regexCriterion = null;
     }
 
     protected boolean deserializeCommonAttributes(JsonParser parser, DeserializationContext ctx,
-                                                  ParsingContext parsingCtx, String name) throws IOException {
+                                                  ParsingContext parsingCtx, String name, String expectedType) throws IOException {
         switch (name) {
-            case "name":
+            case "name" -> {
                 parsingCtx.name = parser.nextTextValue();
                 return true;
-            case "countryCriterion":
+            }
+            case "countryCriterion" -> {
                 parser.nextToken();
                 parsingCtx.countryCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
-            case "nominalVoltageCriterion":
+            }
+            case "nominalVoltageCriterion" -> {
                 parser.nextToken();
                 parsingCtx.nominalVoltageCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
-            case "propertyCriteria":
+            }
+            case "propertyCriteria" -> {
                 parser.nextToken();
                 parsingCtx.propertyCriteria = JsonUtil.readList(ctx, parser, Criterion.class);
                 return true;
-            case "regexCriterion":
+            }
+            case "regexCriterion" -> {
                 parser.nextToken();
                 parsingCtx.regexCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
-            case "version":
-            case "type":
+            }
+            case "version" -> {
                 parser.nextToken();
                 return true;
-            default:
+            }
+            case "type" -> {
+                if (expectedType == null || !expectedType.equals(parser.nextTextValue())) {
+                    throw new IllegalStateException("type should be: " + expectedType);
+                }
+                return true;
+            }
+            default -> {
                 return false;
+            }
         }
     }
 

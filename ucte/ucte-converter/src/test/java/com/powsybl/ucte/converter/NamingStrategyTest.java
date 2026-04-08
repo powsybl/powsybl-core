@@ -1,8 +1,9 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.ucte.converter;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 class NamingStrategyTest {
 
@@ -66,12 +67,12 @@ class NamingStrategyTest {
         Bus bus1 = network.getVoltageLevel("B_SU1_1").getBusBreakerView().getBus("B_SU1_11");
         assertEquals(code1, strategy.getUcteNodeCode(bus1));
 
-        DanglingLine danglingLine = network.getDanglingLine("XG__F_21 F_SU1_21 1");
+        BoundaryLine boundaryLine = network.getBoundaryLine("XG__F_21 F_SU1_21 1");
         UcteNodeCode code2 = strategy.getUcteNodeCode("XG__F_21");
-        assertEquals(code2, strategy.getUcteNodeCode(danglingLine));
+        assertEquals(code2, strategy.getUcteNodeCode(boundaryLine));
 
         UcteElementId elementId1 = strategy.getUcteElementId("XG__F_21 F_SU1_21 1");
-        assertEquals(elementId1, strategy.getUcteElementId(danglingLine));
+        assertEquals(elementId1, strategy.getUcteElementId(boundaryLine));
 
         UcteElementId elementId2 = strategy.getUcteElementId("B_SU1_11 B_SU1_21 1");
         Branch branch = network.getBranch("B_SU1_11 B_SU1_21 1");

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.io.table;
 
@@ -19,7 +20,7 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class TableFormatterConfigTest {
 
@@ -48,6 +49,18 @@ class TableFormatterConfigTest {
 
             config = TableFormatterConfig.load(platformConfig);
             testConfig(config, Locale.US, '\t', "NaN", false, false);
+        }
+    }
+
+    @Test
+    void testLoadDefaultsNoModule() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            // Given
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+            // When
+            TableFormatterConfig config = TableFormatterConfig.load(platformConfig);
+            // Then
+            testConfig(config, Locale.ENGLISH, ';', "inv", true, true);
         }
     }
 }

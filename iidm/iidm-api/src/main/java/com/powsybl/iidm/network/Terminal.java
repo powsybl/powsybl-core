@@ -3,15 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * An equipment connection point in a substation topology.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Terminal {
 
@@ -108,59 +115,72 @@ public interface Terminal {
     Connectable getConnectable();
 
     /**
-     * Get the active power in MW injected at the terminal.
-     * <p>
+     * Get the active power in MW injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getP();
 
     /**
-     * Set the active power in MW injected at the terminal.
-     * <p>
+     * Set the active power in MW injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     Terminal setP(double p);
 
     /**
-     * Get the reactive power in MVAR injected at the terminal.
-     * <p>
+     * Get the reactive power in MVAR injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getQ();
 
     /**
-     * Set the reactive power in MVAR injected at the terminal.
-     * <p>
+     * Set the reactive power in MVAR injected at the terminal.<br/>
      * Depends on the working variant.
      * @see VariantManager
      */
     Terminal setQ(double q);
 
     /**
-     * Get the current in A at the terminal.
-     * <p>Depends on the working variant.
+     * Get the current in A at the terminal.<br/>
+     * Depends on the working variant.
      * @see VariantManager
      */
     double getI();
 
     /**
-     * Try to connect the terminal.
-     * <p>Depends on the working variant.
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
     boolean connect();
 
     /**
-     * Disconnect the terminal.
-     * <p>Depends on the working variant.
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
     boolean disconnect();
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable predicate telling if a switch is considered openable
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
 
     /**
      * Test if the terminal is connected.
@@ -173,6 +193,13 @@ public interface Terminal {
      * @param traverser traversal handler
      */
     void traverse(TopologyTraverser traverser);
+
+    /**
+     * Traverse the full network topology graph.
+     * @param traverser traversal handler
+     * @param traversalType traversal type
+     */
+    void traverse(TopologyTraverser traverser, TraversalType traversalType);
 
     /**
      * Topology traversal handler
@@ -199,4 +226,60 @@ public interface Terminal {
         TraverseResult traverse(Switch aSwitch);
 
     }
+
+    static Optional<ThreeSides> getConnectableSide(Terminal terminal) {
+        Connectable<?> c = terminal.getConnectable();
+        if (c instanceof Injection) {
+            return Optional.empty();
+        } else if (c instanceof Branch<?> branch) {
+            return Optional.of(branch.getSide(terminal).toThreeSides());
+        } else if (c instanceof ThreeWindingsTransformer transformer) {
+            return Optional.of(transformer.getSide(terminal));
+        } else if (c instanceof AcDcConverter<?>) {
+            return Optional.empty();
+        } else {
+            throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
+        }
+    }
+
+    static Terminal getTerminal(Identifiable<?> identifiable, ThreeSides side) {
+        if (identifiable instanceof Injection<?> injection) {
+            return injection.getTerminal();
+        } else if (identifiable instanceof Branch<?> branch) {
+            return branch.getTerminal(side.toTwoSides());
+        } else if (identifiable instanceof ThreeWindingsTransformer transformer) {
+            return transformer.getTerminal(side);
+        } else {
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
+        }
+    }
+
+    static Optional<TerminalNumber> getConnectableTerminalNumber(Terminal terminal) {
+        Connectable<?> c = terminal.getConnectable();
+        if (c instanceof AcDcConverter<?> acDcConverter) {
+            return Optional.of(acDcConverter.getTerminalNumber(terminal));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    static Terminal getTerminal(Identifiable<?> identifiable, TerminalNumber terminalNumber) {
+        if (identifiable instanceof AcDcConverter<?> acDcConverter) {
+            return acDcConverter.getTerminal(terminalNumber)
+                .orElseThrow(() -> new PowsyblException("This AC/DC converter does not have a second AC Terminal: " + identifiable.getId()));
+        } else {
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
+        }
+    }
+
+    ThreeSides getSide();
+
+    TerminalNumber getTerminalNumber();
+
+    /**
+     * Retrieves a list of objects that refer to the terminal.
+     *
+     * @return a list of referrer objects.
+     */
+    List<Object> getReferrers();
 }

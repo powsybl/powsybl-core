@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -10,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -23,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * API for elementary short-circuit computations.
  *
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public final class ShortCircuitAnalysis {
 
@@ -33,7 +34,7 @@ public final class ShortCircuitAnalysis {
     private static final String NOT_NULL_FAULT_MESSAGE = "Fault characteristics should not be null";
 
     private ShortCircuitAnalysis() {
-        throw new AssertionError("Utility class should not been instantiated");
+        throw new IllegalStateException("Utility class should not been instantiated");
     }
 
     public static final class Runner implements Versionable {
@@ -48,13 +49,14 @@ public final class ShortCircuitAnalysis {
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager,
                                                                       List<FaultParameters> faultParameters,
-                                                                      Reporter reporter) {
+                                                                      ReportNode reportNode) {
             Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
             Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
             Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
-            Objects.requireNonNull(reporter, "Reporter should not be null");
-            return provider.run(network, faults, parameters, computationManager, faultParameters, reporter);
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
+            validateParameters(parameters);
+            return provider.run(network, faults, parameters, computationManager, faultParameters, reportNode);
         }
 
         public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
@@ -66,15 +68,20 @@ public final class ShortCircuitAnalysis {
             Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
             Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
+            validateParameters(parameters);
             return provider.run(network, faults, parameters, computationManager, faultParameters);
+        }
+
+        private void validateParameters(ShortCircuitParameters shortCircuitParameters) {
+            shortCircuitParameters.validate();
         }
 
         public ShortCircuitAnalysisResult run(Network network, List<Fault> faults,
                                               ShortCircuitParameters parameters,
                                               ComputationManager computationManager,
                                               List<FaultParameters> faultParameters,
-                                              Reporter reporter) {
-            return runAsync(network, faults, parameters, computationManager, faultParameters, reporter).join();
+                                              ReportNode reportNode) {
+            return runAsync(network, faults, parameters, computationManager, faultParameters, reportNode).join();
         }
 
         public ShortCircuitAnalysisResult run(Network network, List<Fault> faults,
@@ -142,8 +149,8 @@ public final class ShortCircuitAnalysis {
                                                                          ShortCircuitParameters parameters,
                                                                          ComputationManager computationManager,
                                                                          List<FaultParameters> faultParameters,
-                                                                         Reporter reporter) {
-        return find().runAsync(network, faults, parameters, computationManager, faultParameters, reporter);
+                                                                         ReportNode reportNode) {
+        return find().runAsync(network, faults, parameters, computationManager, faultParameters, reportNode);
     }
 
     public static ShortCircuitAnalysisResult run(Network network,
@@ -151,8 +158,8 @@ public final class ShortCircuitAnalysis {
                                                  ShortCircuitParameters parameters,
                                                  ComputationManager computationManager,
                                                  List<FaultParameters> faultParameters,
-                                                 Reporter reporter) {
-        return find().run(network, faults, parameters, computationManager, faultParameters, reporter);
+                                                 ReportNode reportNode) {
+        return find().run(network, faults, parameters, computationManager, faultParameters, reportNode);
     }
 
     public static ShortCircuitAnalysisResult run(Network network,

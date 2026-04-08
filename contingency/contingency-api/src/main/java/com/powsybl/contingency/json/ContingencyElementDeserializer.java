@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -12,11 +13,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
+import com.powsybl.contingency.list.ContingencyList;
 
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> {
 
@@ -31,66 +33,50 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
         ContingencyElementType type = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "id":
-                    id = parser.nextTextValue();
-                    break;
-
-                case "voltageLevelId":
-                    voltageLevelId = parser.nextTextValue();
-                    break;
-
-                case "type":
+            switch (parser.currentName()) {
+                case "id" -> id = parser.nextTextValue();
+                case "voltageLevelId" -> voltageLevelId = parser.nextTextValue();
+                case "type" -> {
                     parser.nextToken();
                     type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
+        }
+        String version = (String) ctx.getAttribute(ContingencyListDeserializer.VERSION);
+        if (version == null) {  // assuming current version...
+            version = ContingencyList.VERSION;
         }
 
         if (type != null) {
-            switch (type) {
-                case BRANCH:
-                    return new BranchContingency(id, voltageLevelId);
-
-                case GENERATOR:
-                    return new GeneratorContingency(id);
-
-                case STATIC_VAR_COMPENSATOR:
-                    return new StaticVarCompensatorContingency(id);
-
-                case SHUNT_COMPENSATOR:
-                    return new ShuntCompensatorContingency(id);
-
-                case HVDC_LINE:
-                    return new HvdcLineContingency(id, voltageLevelId);
-
-                case BUSBAR_SECTION:
-                    return new BusbarSectionContingency(id);
-
-                case DANGLING_LINE:
-                    return new DanglingLineContingency(id);
-
-                case LINE:
-                    return new LineContingency(id, voltageLevelId);
-
-                case TWO_WINDINGS_TRANSFORMER:
-                    return new TwoWindingsTransformerContingency(id, voltageLevelId);
-
-                case THREE_WINDINGS_TRANSFORMER:
-                    return new ThreeWindingsTransformerContingency(id);
-
-                case LOAD:
-                    return new LoadContingency(id);
-
-                case BUS:
-                    return new BusContingency(id);
-
-                default:
-                    throw new AssertionError("Unexpected ContingencyElementType value: " + type);
-            }
+            return switch (type) {
+                case BRANCH -> new BranchContingency(id, voltageLevelId);
+                case GENERATOR -> new GeneratorContingency(id);
+                case STATIC_VAR_COMPENSATOR -> new StaticVarCompensatorContingency(id);
+                case SHUNT_COMPENSATOR -> new ShuntCompensatorContingency(id);
+                case HVDC_LINE -> new HvdcLineContingency(id, voltageLevelId);
+                case BUSBAR_SECTION -> new BusbarSectionContingency(id);
+                case DANGLING_LINE -> {
+                    JsonUtil.assertSupportedVersion("contingency type", version, "1.0");
+                    yield new BoundaryLineContingency(id);
+                }
+                case BOUNDARY_LINE -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion("contingency type", String.valueOf(ContingencyElementType.BOUNDARY_LINE), version, "1.1");
+                    yield new BoundaryLineContingency(id);
+                }
+                case LINE -> new LineContingency(id, voltageLevelId);
+                case TWO_WINDINGS_TRANSFORMER -> new TwoWindingsTransformerContingency(id, voltageLevelId);
+                case THREE_WINDINGS_TRANSFORMER -> new ThreeWindingsTransformerContingency(id);
+                case LOAD -> new LoadContingency(id);
+                case SWITCH -> new SwitchContingency(id);
+                case BATTERY -> new BatteryContingency(id);
+                case BUS -> new BusContingency(id);
+                case TIE_LINE -> new TieLineContingency(id, voltageLevelId);
+                case VOLTAGE_SOURCE_CONVERTER -> new VoltageSourceConverterContingency(id);
+                case DC_LINE -> new DcLineContingency(id);
+                case DC_GROUND -> new DcGroundContingency(id);
+                case DC_NODE -> new DcNodeContingency(id);
+            };
         }
 
         return null;

@@ -3,19 +3,19 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
+import com.powsybl.contingency.list.InjectionCriterionContingencyList;
 
 import java.io.IOException;
 
 /**
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class InjectionCriterionContingencyListSerializer extends StdSerializer<InjectionCriterionContingencyList> {
 
@@ -26,22 +26,9 @@ public class InjectionCriterionContingencyListSerializer extends StdSerializer<I
     @Override
     public void serialize(InjectionCriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", criterionContingencyList.getType());
-        jsonGenerator.writeStringField("version", ContingencyList.getVersion());
-        jsonGenerator.writeStringField("name", criterionContingencyList.getName());
+        CriterionContingencyListSerializer.serializeCommonHeadAttributes(criterionContingencyList, jsonGenerator);
         jsonGenerator.writeStringField("identifiableType", criterionContingencyList.getIdentifiableType().toString());
-        serializerProvider.defaultSerializeField("countryCriterion",
-                criterionContingencyList.getCountryCriterion(),
-                jsonGenerator);
-        serializerProvider.defaultSerializeField("nominalVoltageCriterion",
-                criterionContingencyList.getNominalVoltageCriterion(),
-                jsonGenerator);
-        serializerProvider.defaultSerializeField("propertyCriteria",
-                criterionContingencyList.getPropertyCriteria(),
-                jsonGenerator);
-        serializerProvider.defaultSerializeField("regexCriterion",
-                criterionContingencyList.getRegexCriterion(),
-                jsonGenerator);
+        CriterionContingencyListSerializer.serializeCommonCriterionAttributes(criterionContingencyList, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
 }

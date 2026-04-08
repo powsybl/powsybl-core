@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.networkModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,15 +20,10 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class EquivalentBranchConversionTest {
 
@@ -53,11 +50,11 @@ class EquivalentBranchConversionTest {
         assertEquals(0.000036646138, lineBaseVoltage2.getG2(), 1.0e-6);
         assertEquals(-0.000647699180, lineBaseVoltage2.getB2(), 1.0e-6);
 
-        DanglingLine dl = n.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
-        assertEquals(4.6, dl.getR(), 1.0e-6);
-        assertEquals(69.0, dl.getX(), 1.0e-6);
-        assertEquals(0.0, dl.getG(), 1.0e-6);
-        assertEquals(0.0, dl.getB(), 1.0e-6);
+        BoundaryLine bl = n.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertEquals(4.6, bl.getR(), 1.0e-6);
+        assertEquals(69.0, bl.getX(), 1.0e-6);
+        assertEquals(0.0, bl.getG(), 1.0e-6);
+        assertEquals(0.0, bl.getB(), 1.0e-6);
     }
 
     @Test
@@ -67,18 +64,5 @@ class EquivalentBranchConversionTest {
 
         Switch sw = n.getSwitch("b58bf21a-096a-4dae-9a01-3f03b60c24c7");
         assertTrue(sw.isFictitious());
-    }
-
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
-        Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        return n;
     }
 }

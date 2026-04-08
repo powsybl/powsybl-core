@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.util;
 
@@ -10,7 +11,7 @@ import java.util.Objects;
 import java.util.Random;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class Colors {
 
@@ -77,7 +78,7 @@ public final class Colors {
                 b = q;
                 break;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
         return new long[] {Math.round(r * 256), Math.round(g * 256), Math.round(b * 256)};
     }

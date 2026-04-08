@@ -3,26 +3,34 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.contingency.strategy.ConditionalActions;
+import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.condition.*;
+import com.powsybl.contingency.violations.*;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TerminalNumber;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.condition.AtLeastOneViolationCondition;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -30,31 +38,32 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ExporterTest extends AbstractConverterTest {
+class ExporterTest extends AbstractSerDeTest {
 
     private static final Network NETWORK = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", null, "activated_1_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, ThreeSides.ONE, null);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
 
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", null, "activated_2_1", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, ThreeSides.TWO, null);
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 
-        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110);
-        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
+        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110, new BusBreakerViolationLocation(List.of("BUSID")));
+        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115, new NodeBreakerViolationLocation("VL", Arrays.asList(0, 1)));
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
-        LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.ONE);
-        LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
+        LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.ONE);
+        LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.TWO);
 
         Contingency contingency = Contingency.builder("contingency")
                 .addBranch("NHV1_NHV2_2", "VLNHV1")
@@ -64,25 +73,57 @@ class ExporterTest extends AbstractConverterTest {
                 .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+                PostContingencyComputationStatus.CONVERGED,
+                new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2")),
+                NetworkResult.empty(),
+                ConnectivityResult.empty(),
+                2.34
+        );
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
         List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
-        operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"), new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
-                Collections.singletonList("actionId1")), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList()),
-                new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
-        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(postContingencyResult),
-                preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
+
+        var opStrategyResult1 = new OperatorStrategyResult(
+            new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
+                List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
+            List.of(new OperatorStrategyResult.ConditionalActionsResult("strategyId", PostContingencyComputationStatus.CONVERGED,
+                    new LimitViolationsResult(Collections.emptyList()),
+                    NetworkResult.empty(),
+                    3.45)
+            )
+        );
+
+        OperatorStrategy operatorStrategy2 = new OperatorStrategy("strategyId2", ContingencyContext.specificContingency("contingency1"),
+                List.of(
+                        new ConditionalActions("stage1", new BranchThresholdCondition("Line1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.GREATER_THAN, 2.0, TwoSides.ONE), List.of("actionId3")),
+                        new ConditionalActions("stage1", new ThreeWindingsTransformerThresholdCondition("3WTransformer1", AbstractThresholdCondition.Variable.REACTIVE_POWER, AbstractThresholdCondition.ComparisonType.NOT_EQUAL, 52.0, ThreeSides.THREE), List.of("actionId3")),
+                        new ConditionalActions("stage2", new InjectionThresholdCondition("Gen2", AbstractThresholdCondition.Variable.ACTIVE_POWER, AbstractThresholdCondition.ComparisonType.GREATER_THAN_OR_EQUALS, 2.0), List.of("actionId3", "actionId4")),
+                        new ConditionalActions("stage3", new AcDcConverterThresholdCondition("Converter1", AbstractThresholdCondition.Variable.CURRENT, AbstractThresholdCondition.ComparisonType.LESS_THAN_OR_EQUALS, 3.0, true, TerminalNumber.TWO), List.of("actionId3", "actionId4", "actionId5"))
+                )
+        );
+        var opStrategyResult2 = new OperatorStrategyResult(operatorStrategy2,
+                List.of(new OperatorStrategyResult.ConditionalActionsResult(
+                        operatorStrategy2.getId(),
+                        PostContingencyComputationStatus.CONVERGED,
+                        new LimitViolationsResult(Collections.emptyList()), NetworkResult.empty(), Double.NaN)
+                )
+        );
+
+        operatorStrategyResults.add(opStrategyResult1);
+        operatorStrategyResults.add(opStrategyResult2);
+        SecurityAnalysisResult result = new SecurityAnalysisResult(
+                new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults), 1.23),
+                Collections.singletonList(postContingencyResult), operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
     }
 
     @Test
     void testCompatibilityV1Deserialization() {
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.json"));
         Assertions.assertThat(result.getPreContingencyLimitViolationsResult().getLimitViolations()).hasSize(1);
@@ -105,16 +146,36 @@ class ExporterTest extends AbstractConverterTest {
         assertEquals(3.3, result.getPreContingencyResult().getNetworkResult().getBranchResult("branch1").getI2(), 0.01);
     }
 
-    @Test
-    void testCompatibilityV12Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.2.json"));
+    private static Stream<Arguments> provideArguments() {
+        return Stream.of(
+            Arguments.of("/SecurityAnalysisResultV1.2.json"),
+            Arguments.of("/SecurityAnalysisResultV1.3.json"),
+            Arguments.of("/SecurityAnalysisResultV1.4.json")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArguments")
+    void testCompatibilityV12To14Deserialization(String jsonFileName) {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
     }
 
-    @Test
-    void testCompatibilityV13Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.3.json"));
+    private static Stream<Arguments> provideArguments2() {
+        return Stream.of(
+            Arguments.of("/SecurityAnalysisResultV1.5.json"),
+            Arguments.of("/SecurityAnalysisResultV1.6.json"),
+            Arguments.of("/SecurityAnalysisResultV1.7.json"),
+            Arguments.of("/SecurityAnalysisResultV1.8.json")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArguments2")
+    void testCompatibilityV15Deserialization(String jsonFileName) {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().get(0).getStatus());
     }
 
     @Test
@@ -123,15 +184,15 @@ class ExporterTest extends AbstractConverterTest {
 
         roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, path, "JSON");
-        };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, path, "JSON");
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
-        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get(""), "JSON"));
+        Path path = Paths.get("");
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, path, "JSON"));
         // Check invalid format
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, tmpDir.resolve("data"), "XXX"));
+        Path pathInvalidFormat = tmpDir.resolve("data");
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, pathInvalidFormat, "XXX"));
     }
 
     @Test
@@ -140,15 +201,15 @@ class ExporterTest extends AbstractConverterTest {
 
         roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, null, path, "JSON");
-        };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, null, path, "JSON");
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
-        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get(""), "JSON"));
+        Path emptyPath = Paths.get("");
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, emptyPath, "JSON"));
         // Check invalid format
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, tmpDir.resolve("data"), "XXX"));
+        Path pathInvalidFormat = tmpDir.resolve("data");
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, pathInvalidFormat, "XXX"));
     }
 
     private static void writeJson(SecurityAnalysisResult result, Path path) {

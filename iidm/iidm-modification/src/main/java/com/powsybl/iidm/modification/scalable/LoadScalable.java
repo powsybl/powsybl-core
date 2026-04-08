@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
@@ -16,21 +17,21 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 
 /**
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-class LoadScalable extends AbstractInjectionScalable {
+public class LoadScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadScalable.class);
 
-    LoadScalable(String id) {
+    protected LoadScalable(String id) {
         super(id, 0., Double.MAX_VALUE);
     }
 
-    LoadScalable(String id, double maxValue) {
+    protected LoadScalable(String id, double maxValue) {
         super(id, 0., maxValue);
     }
 
-    LoadScalable(String id, double minValue, double maxValue) {
+    protected LoadScalable(String id, double minValue, double maxValue) {
         super(id, minValue, maxValue);
     }
 
@@ -40,7 +41,7 @@ class LoadScalable extends AbstractInjectionScalable {
 
         Load l = n.getLoad(id);
         if (l != null) {
-            l.setP0(0);
+            setP0(l, 0);
         }
     }
 
@@ -95,74 +96,103 @@ class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
-    private double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    /**
+     * {@inheritDoc}
+     *
+     * <ul>
+     * <li>If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely.</li>
+     * <li>If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely.</li>
+     * </ul>
+     */
+    @Override
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
+        Objects.requireNonNull(parameters);
+
+        if (parameters.getIgnoredInjectionIds().contains(id)) {
+            LOGGER.info("Scaling parameters' injections to be ignored contains load {}, discarded from scaling", id);
+            return 0;
+        }
 
         Load l = n.getLoad(id);
 
-        double done = 0;
         if (l == null) {
             LOGGER.warn("Load {} not found", id);
-            return done;
+            return 0;
         }
 
         Terminal t = l.getTerminal();
         if (!t.isConnected()) {
-            t.connect();
-            LOGGER.info("Connecting {}", l.getId());
+            if (parameters.isReconnect()) {
+                t.connect();
+                LOGGER.info("Connecting {}", l.getId());
+            } else {
+                LOGGER.info("Load {} is not connected, discarded from scaling", l.getId());
+                return 0.;
+            }
         }
 
-        double oldP0 = l.getP0();
-        double oldQ0 = l.getQ0();
+        return shiftLoad(asked, parameters, l);
+    }
+
+    private double shiftLoad(double asked, ScalingParameters parameters, Load l) {
+        double oldP0 = getP0(l);
+        double oldQ0 = getQ0(l);
         if (oldP0 < minValue || oldP0 > maxValue) {
             LOGGER.error("Error scaling LoadScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
             return 0.;
         }
 
         // We use natural load convention to compute the limits.
-        // The actual convention is taken into account afterwards.
+        // The actual convention is taken into account afterward.
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
-        if (scalingConvention == LOAD) {
+        double done;
+        if (parameters.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
-            l.setP0(oldP0 + done);
+            setP0(l, oldP0 + done);
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
-            l.setP0(oldP0 - done);
+            setP0(l, oldP0 - done);
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
-                l.getId(), oldP0, l.getP0());
+                l.getId(), oldP0, getP0(l));
 
-        if (constantPowerFactor) {
-            l.setQ0(l.getP0() * oldQ0 / oldP0);
+        if (parameters.isConstantPowerFactor() && oldP0 != 0) {
+            setQ0(l, getP0(l) * oldQ0 / oldP0);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
-                    l.getId(), oldQ0, l.getQ0());
+                    l.getId(), oldQ0, getQ0(l));
         }
 
         return done;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
-     */
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention, false);
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        Load load = network.getLoad(id);
+        if (load == null) {
+            LOGGER.warn("Load {} not found", id);
+            return 0.0;
+        } else {
+            return scalingConvention == LOAD ? getP0(load) : -getP0(load);
+        }
     }
 
-    @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention, true);
+    protected void setP0(Load l, double value) {
+        l.setP0(value);
     }
 
-    @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+    protected double getP0(Load l) {
+        return l.getP0();
+    }
+
+    protected void setQ0(Load l, double value) {
+        l.setQ0(value);
+    }
+
+    protected double getQ0(Load l) {
+        return l.getQ0();
     }
 }

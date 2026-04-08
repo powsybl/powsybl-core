@@ -3,31 +3,33 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.base.Strings;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable, MultiVariantObject {
 
-    protected final String id;
+    protected String id;
 
     protected String name;
 
     protected boolean fictitious = false;
 
-    protected final Properties properties = new Properties();
+    protected final PropertiesContainer properties = new PropertiesContainer();
 
     private final Set<String> aliasesWithoutType = new HashSet<>();
     private final Map<String, String> aliasesByType = new HashMap<>();
@@ -45,6 +47,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public String getId() {
         return id;
+    }
+
+    void replaceId(String newId) {
+        throw new PowsyblException("Cannot change ID");
     }
 
     @Override
@@ -159,52 +165,50 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     protected abstract String getTypeDescription();
 
     @Override
-    public String getMessageHeader() {
-        return getTypeDescription() + " '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader(getTypeDescription(), id);
     }
 
     public Properties getProperties() {
-        return properties;
+        return properties.getProperties();
     }
 
     @Override
     public boolean hasProperty() {
-        return !properties.isEmpty();
+        return properties.hasProperty();
     }
 
     @Override
     public boolean hasProperty(String key) {
-        return properties.containsKey(key);
+        return properties.hasProperty(key);
     }
 
     @Override
     public String getProperty(String key) {
-        Object val = properties.get(key);
-        return val != null ? val.toString() : null;
+        return properties.getProperty(key);
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        Object val = properties.getOrDefault(key, defaultValue);
-        return val != null ? val.toString() : null;
+        return properties.getProperty(key, defaultValue);
     }
 
     @Override
     public String setProperty(String key, String value) {
-        String oldValue = (String) properties.put(key, value);
+        String oldValue = properties.setProperty(key, value);
         if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
+            getNetwork().getListeners().notifyPropertyAdded(this, () -> getPropertyStringForNotification(key), value);
         } else {
-            getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, value);
+            getNetwork().getListeners().notifyPropertyReplaced(this, () -> getPropertyStringForNotification(key), oldValue, value);
         }
         return oldValue;
     }
 
     @Override
     public boolean removeProperty(String key) {
-        Object oldValue = properties.remove(key);
+        String oldValue = properties.removeProperty(key);
         if (oldValue != null) {
-            getNetwork().getListeners().notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+            getNetwork().getListeners().notifyPropertyRemoved(this, () -> getPropertyStringForNotification(key), oldValue);
             return true;
         }
         return false;
@@ -212,7 +216,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Set<String> getPropertyNames() {
-        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+        return properties.getPropertyNames();
     }
 
     @Override
@@ -250,5 +254,29 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
+    }
+
+    @Override
+    public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
+        return removeExtension(type, true);
+    }
+
+    public <E extends Extension<I>> boolean removeExtension(Class<E> type, boolean cleanup) {
+        E extension = getExtension(type);
+        NetworkListenerList listeners = getNetwork().getListeners();
+        if (extension != null) {
+            listeners.notifyExtensionBeforeRemoval(extension);
+            if (cleanup) {
+                extension.cleanup();
+            }
+            removeExtension(type, extension);
+            listeners.notifyExtensionAfterRemoval(this, extension.getName());
+            return true;
+        }
+        return false;
+    }
+
+    private static String getPropertyStringForNotification(String key) {
+        return "properties[" + key + "]";
     }
 }

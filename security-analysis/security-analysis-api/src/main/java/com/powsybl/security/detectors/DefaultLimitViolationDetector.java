@@ -3,38 +3,40 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.contingency.violations.LoadingLimitType;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
+import com.powsybl.security.*;
+import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+
+import static com.powsybl.security.LimitViolationDetection.createViolationLocation;
 
 /**
  * Implements the default behaviour for limit violation detection.
  *
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
-    private final float limitReduction;
+    private final double limitReductionValue;
     private final Set<LoadingLimitType> currentLimitTypes;
+    private final LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer;
 
-    public DefaultLimitViolationDetector(float limitReduction, Collection<LoadingLimitType> currentLimitTypes) {
-        if (limitReduction <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
+    public DefaultLimitViolationDetector(double limitReductionValue, Collection<LoadingLimitType> currentLimitTypes) {
+        if (limitReductionValue <= 0) {
+            throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
-        this.limitReduction = limitReduction;
+        this.limitReductionValue = limitReductionValue;
+        limitsComputer = new SimpleLimitsComputer(limitReductionValue);
         this.currentLimitTypes = EnumSet.copyOf(Objects.requireNonNull(currentLimitTypes));
     }
 
@@ -47,21 +49,37 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     @Override
-    public void checkCurrent(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.CURRENT);
     }
 
     @Override
-    public void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
+
+        checkLimitViolation(transformer, side, value, consumer, LimitType.CURRENT);
+    }
+
+    @Override
+    public void checkActivePower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.ACTIVE_POWER);
     }
 
     @Override
-    public void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkActivePower(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
+        checkLimitViolation(transformer, side, value, consumer, LimitType.ACTIVE_POWER);
+    }
+
+    @Override
+    public void checkApparentPower(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer) {
 
         checkLimitViolation(branch, side, value, consumer, LimitType.APPARENT_POWER);
+    }
+
+    @Override
+    public void checkApparentPower(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer) {
+        checkLimitViolation(transformer, side, value, consumer, LimitType.APPARENT_POWER);
     }
 
     @Override
@@ -69,31 +87,41 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), limitReduction, value));
+                    vl.getLowVoltageLimit(), limitReductionValue, value, createViolationLocation(bus)));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), limitReduction, value));
+                    vl.getHighVoltageLimit(), limitReductionValue, value, createViolationLocation(bus)));
         }
     }
 
-    public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
-
-        if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
-            consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    limitReduction,
-                    value,
-                    side));
-        } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            checkPermanentLimit(branch, side, value, consumer, type);
+    @Override
+    public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double value, Consumer<LimitViolation> consumer) {
+        if (Double.isNaN(value)) {
+            return;
         }
+        voltageAngleLimit.getLowLimit().ifPresent(
+            lowLimit -> {
+                if (value <= lowLimit) {
+                    consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
+                            limitReductionValue, value));
+                }
+            });
+        voltageAngleLimit.getHighLimit().ifPresent(
+            highLimit -> {
+                if (value >= highLimit) {
+                    consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
+                            limitReductionValue, value));
+                }
+            });
+    }
+
+    public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        LimitViolationDetection.checkLimitViolation(branch, side, value, type, currentLimitTypes, limitsComputer, consumer);
+    }
+
+    public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        LimitViolationDetection.checkLimitViolation(transformer, side, value, type, currentLimitTypes, limitsComputer, consumer);
     }
 }

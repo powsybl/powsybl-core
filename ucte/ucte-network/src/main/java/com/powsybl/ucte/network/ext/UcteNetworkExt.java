@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network.ext;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.ucte.network.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
@@ -17,10 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteNetworkExt implements UcteNetwork {
 
@@ -216,8 +216,8 @@ public class UcteNetworkExt implements UcteNetwork {
             node2voltageLevel = new TreeMap<>();
             Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
-                List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).collect(Collectors.toList());
-                UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(AssertionError::new);
+                List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).toList();
+                UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
                         = Multimaps.index(sortedNodes, UcteNodeCode::getVoltageLevelCode);
@@ -254,8 +254,8 @@ public class UcteNetworkExt implements UcteNetwork {
     }
 
     @Override
-    public void fix(Reporter reporter) {
-        network.fix(reporter);
+    public void fix(ReportNode reportNode) {
+        network.fix(reportNode);
     }
 
 }

@@ -3,17 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools;
 
-import com.google.common.collect.ImmutableMap;
-import org.joda.time.DateTime;
-
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractVersion implements Version {
 
@@ -61,11 +61,13 @@ public abstract class AbstractVersion implements Version {
     }
 
     public Map<String, String> toMap() {
-        return ImmutableMap.of("repositoryName", repositoryName,
-                               "mavenProjectVersion", mavenProjectVersion,
-                               "gitVersion", gitVersion,
-                               "gitBranch", gitBranch,
-                               "buildTimestamp", new DateTime(buildTimestamp).toString());
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("repositoryName", repositoryName);
+        map.put("mavenProjectVersion", mavenProjectVersion);
+        map.put("gitVersion", gitVersion);
+        map.put("gitBranch", gitBranch);
+        map.put("buildTimestamp", Version.convertBuildTimestamp(buildTimestamp));
+        return Collections.unmodifiableMap(map);
     }
 
     @Override

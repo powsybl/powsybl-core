@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.api;
@@ -17,7 +18,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class PropertyBags extends ArrayList<PropertyBag> {
 
@@ -31,30 +32,36 @@ public class PropertyBags extends ArrayList<PropertyBag> {
 
     public List<String> pluck(String property) {
         return stream()
-                .map(r -> r.get(property))
-                .sorted(Comparator.nullsLast(String::compareTo))
-                .collect(Collectors.toList());
+            .map(r -> r.get(property))
+            .sorted(Comparator.nullsLast(String::compareTo))
+            .collect(Collectors.toList());
     }
 
     public List<String> pluckLocals(String property) {
         return stream()
-                .map(r -> r.getLocal(property))
-                .sorted(Comparator.nullsLast(String::compareTo))
-                .collect(Collectors.toList());
+            .map(r -> r.getLocal(property))
+            .sorted(Comparator.nullsLast(String::compareTo))
+            .collect(Collectors.toList());
     }
 
     public List<String> pluckIdentifiers(String property) {
         return stream()
-                .map(r -> r.getId(property))
-                .sorted(Comparator.nullsLast(String::compareTo))
+            .map(r -> r.getId(property))
+            .sorted(Comparator.nullsLast(String::compareTo))
+            .collect(Collectors.toList());
+    }
+
+    public List<String> pluckLocalsUnsorted(String property) {
+        return stream()
+                .map(r -> r.getLocal(property))
                 .collect(Collectors.toList());
     }
 
     public PropertyBags pivot(
-            String idProperty,
-            String keyProperty,
-            List<String> pivotPropertyNames,
-            String valueProperty) {
+        String idProperty,
+        String keyProperty,
+        List<String> pivotPropertyNames,
+        String valueProperty) {
         int estimatedNumObjects = size() / pivotPropertyNames.size();
         Map<String, PropertyBag> objects = new HashMap<>(estimatedNumObjects);
         List<String> propertyNames = new ArrayList<>(pivotPropertyNames.size() + 1);
@@ -63,7 +70,7 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         forEach(b -> {
             String id = b.getId(idProperty);
             PropertyBag object = objects.computeIfAbsent(id, id1 -> {
-                PropertyBag o1 = new PropertyBag(propertyNames);
+                PropertyBag o1 = new PropertyBag(propertyNames, true, true);
                 o1.put(idProperty, id1);
                 return o1;
             });
@@ -75,10 +82,10 @@ public class PropertyBags extends ArrayList<PropertyBag> {
     }
 
     public PropertyBags pivotLocalNames(
-            String idProperty,
-            String keyProperty,
-            List<String> pivotPropertyLocalNames,
-            String valueProperty) {
+        String idProperty,
+        String keyProperty,
+        List<String> pivotPropertyLocalNames,
+        String valueProperty) {
         int estimatedNumObjects = size() / pivotPropertyLocalNames.size();
         Map<String, PropertyBag> objects = new HashMap<>(estimatedNumObjects);
         List<String> propertyNames = new ArrayList<>(pivotPropertyLocalNames.size() + 1);
@@ -87,7 +94,7 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         forEach(b -> {
             String id = b.getId(idProperty);
             PropertyBag object = objects.computeIfAbsent(id, id1 -> {
-                PropertyBag o1 = new PropertyBag(propertyNames);
+                PropertyBag o1 = new PropertyBag(propertyNames, true, true);
                 o1.put(idProperty, id1);
                 return o1;
             });
@@ -117,11 +124,10 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         StringBuilder s = new StringBuilder(size() * 80);
         s.append(names.stream().collect(Collectors.joining(columnSeparator)));
         s.append(lineSeparator);
-        s.append(stream()
-                .map(r -> names.stream()
-                        .map(n -> r.containsKey(n) ? getValue.apply(r, n) : "N/A")
-                        .collect(Collectors.joining(columnSeparator)))
-                .collect(Collectors.joining(lineSeparator)));
+        s.append(stream().map(r -> names.stream()
+            .map(n -> r.containsKey(n) ? getValue.apply(r, n) : "N/A")
+            .collect(Collectors.joining(columnSeparator)))
+            .collect(Collectors.joining(lineSeparator)));
         return s.toString();
     }
 }

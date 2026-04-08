@@ -1,0 +1,46 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.cgmes.conversion.naming;
+
+import com.powsybl.commons.PowsyblException;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+/**
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
+ */
+public final class NamingStrategyFactory {
+
+    public static final String IDENTITY = "identity";
+    public static final String CGMES = "cgmes";
+
+    public static final List<String> LIST = List.of(IDENTITY, CGMES);
+
+    public static NamingStrategy create(String impl, UUID uuidNamespace) {
+        Objects.requireNonNull(impl);
+
+        // First, try to find a provider via ServiceLoader
+        NamingStrategiesServiceLoader serviceLoader = new NamingStrategiesServiceLoader();
+        var providerOpt = serviceLoader.findProviderByName(impl);
+        if (providerOpt.isPresent()) {
+            return providerOpt.get().create(uuidNamespace);
+        }
+
+        // Fallback to built-in implementations for backward compatibility
+        return switch (impl) {
+            case IDENTITY -> new IdentityNamingStrategy();
+            case CGMES -> new CgmesNamingStrategy(uuidNamespace);
+            default -> throw new PowsyblException("Unknown naming strategy: " + impl);
+        };
+    }
+
+    private NamingStrategyFactory() {
+    }
+}

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
 
@@ -15,7 +16,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public enum ValidationType {
     FLOWS("branches_flows.csv"),
@@ -54,7 +55,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.INSTANCE.checkTransformers(network, config, folder.resolve(file));
             default:
-                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
+                throw new IllegalStateException(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
     }
 
@@ -78,7 +79,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.INSTANCE.checkTransformers(network, config, validationWriter);
             default:
-                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
+                throw new IllegalStateException(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
     }
 

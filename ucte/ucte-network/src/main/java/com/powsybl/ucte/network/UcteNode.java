@@ -3,12 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.ucte.network.util.UcteReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
@@ -326,18 +326,18 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
     }
 
     /**
-     * Gets three phase short circuit power (MVA).
+     * Gets three-phase short-circuit power (MVA).
      * <p>{@code Double.NaN} means undefined.
-     * @return three phase short circuit power (MVA)
+     * @return three-phase short-circuit power (MVA)
      */
     public double getThreePhaseShortCircuitPower() {
         return threePhaseShortCircuitPower;
     }
 
     /**
-     * Sets three phase short circuit power (MVA).
+     * Sets three-phase short-circuit power (MVA).
      * <p>{@code Double.NaN} means undefined.
-     * @param threePhaseShortCircuitPower three phase short circuit power (MVA)
+     * @param threePhaseShortCircuitPower three-phase short-circuit power (MVA)
      */
     public void setThreePhaseShortCircuitPower(double threePhaseShortCircuitPower) {
         this.threePhaseShortCircuitPower = threePhaseShortCircuitPower;
@@ -387,16 +387,16 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         //   - or active limits are both defined (min and max), one is non null and there are not equal
         //   - or reactive limits are both defined (min and max), one is non null and there are not equal
         return isRegulatingVoltage()
-                || (!Double.isNaN(activePowerGeneration) && activePowerGeneration != 0)
-                || (!Double.isNaN(reactivePowerGeneration) && reactivePowerGeneration != 0)
-                || (!Double.isNaN(minimumPermissibleActivePowerGeneration)
+                || !Double.isNaN(activePowerGeneration) && activePowerGeneration != 0
+                || !Double.isNaN(reactivePowerGeneration) && reactivePowerGeneration != 0
+                || !Double.isNaN(minimumPermissibleActivePowerGeneration)
                     && !Double.isNaN(maximumPermissibleActivePowerGeneration)
                     && (minimumPermissibleActivePowerGeneration != 0 || maximumPermissibleActivePowerGeneration != 0)
-                    && minimumPermissibleActivePowerGeneration != maximumPermissibleActivePowerGeneration)
-                || (!Double.isNaN(minimumPermissibleReactivePowerGeneration)
+                    && minimumPermissibleActivePowerGeneration != maximumPermissibleActivePowerGeneration
+                || !Double.isNaN(minimumPermissibleReactivePowerGeneration)
                     && !Double.isNaN(maximumPermissibleReactivePowerGeneration)
                     && (minimumPermissibleReactivePowerGeneration != 0 || maximumPermissibleReactivePowerGeneration != 0)
-                    && minimumPermissibleReactivePowerGeneration != maximumPermissibleReactivePowerGeneration);
+                    && minimumPermissibleReactivePowerGeneration != maximumPermissibleReactivePowerGeneration;
     }
 
     public boolean isRegulatingVoltage() {
@@ -410,26 +410,20 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
     }
 
     @Override
-    public void fix(Reporter reporter) {
+    public void fix(ReportNode reportNode) {
         if (isGenerator()) {
-            fixActivePower(reporter);
-            fixVoltage(reporter);
-            fixReactivePower(reporter);
+            fixActivePower(reportNode);
+            fixVoltage(reportNode);
+            fixReactivePower(reportNode);
         }
     }
 
-    private void fixActivePower(Reporter reporter) {
+    private void fixActivePower(ReportNode reportNode) {
         // ---- ACTIVE POWER FIXES ----
 
         // active power is undefined
         if (Double.isNaN(activePowerGeneration)) {
-
-            reporter.report(Report.builder()
-                .withKey("activePowerUndefined")
-                .withDefaultMessage("Node ${node}: active power is undefined, set value to 0")
-                .withValue("node", code.toString())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+            UcteReports.undefinedActivePower(reportNode, code.toString());
             LOGGER.warn("Node {}: active power is undefined, set value to 0", code);
             activePowerGeneration = 0;
         }
@@ -474,18 +468,12 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
     }
 
-    private void fixVoltage(Reporter reporter) {
+    private void fixVoltage(ReportNode reportNode) {
         // ---- VOLTAGE FIXES ----
 
         // PV and undefined voltage, switch to PQ
         if (isRegulatingVoltage() && (Double.isNaN(voltageReference) || voltageReference < 0.0001)) {
-            reporter.report(Report.builder()
-                .withKey("PvUndefinedVoltage")
-                .withDefaultMessage("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
-                .withValue("node", code.toString())
-                .withValue("voltageReference", voltageReference)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+            UcteReports.switchVoltageLevelTypeCOdeToPQ(reportNode, code.toString(), voltageReference);
             LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
                     code, voltageReference, UcteNodeTypeCode.PQ);
             typeCode = UcteNodeTypeCode.PQ;
@@ -502,17 +490,12 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
     }
 
-    private void fixReactivePower(Reporter reporter) {
+    private void fixReactivePower(ReportNode reportNode) {
         // ---- REACTIVE POWER FIXES ----
 
         // PQ and undefined reactive power
         if (!isRegulatingVoltage() && Double.isNaN(reactivePowerGeneration)) {
-            reporter.report(Report.builder()
-                .withKey("PqUndefinedReactivePower")
-                .withDefaultMessage("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
-                .withValue("node", code.toString())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+            UcteReports.nullifyVoltageLevelReactivePower(reportNode, code.toString());
             LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to 0", code);
             reactivePowerGeneration = 0;
         }
@@ -575,8 +558,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof UcteNode) {
-            UcteNode ucteNode = (UcteNode) obj;
+        if (obj instanceof UcteNode ucteNode) {
             return this.compareTo(ucteNode) == 0;
         }
         return false;

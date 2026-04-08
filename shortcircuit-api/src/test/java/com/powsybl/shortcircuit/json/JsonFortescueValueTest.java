@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.shortcircuit.FortescueValue;
 import org.junit.jupiter.api.Test;
 
@@ -25,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class JsonFortescueValueTest extends AbstractConverterTest {
+class JsonFortescueValueTest extends AbstractSerDeTest {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
@@ -61,7 +62,7 @@ class JsonFortescueValueTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FortescueValueInvalid.json"), fileSystem.getPath("/FortescueValueInvalid.json"));
 
         Path path = fileSystem.getPath("/FortescueValueInvalid.json");
-        AssertionError e = assertThrows(AssertionError.class, () -> read(path));
-        assertEquals("Unexpected field: unexpected", e.getMessage());
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> read(path));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 }

@@ -3,27 +3,43 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Coline Piloquet <coline.piloquet@rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet@rte-france.com>}
  */
 @AutoService(ShortCircuitAnalysisProvider.class)
 public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
+
+    public static final String DOUBLE_PARAMETER_NAME = "parameterDouble";
+    public static final String BOOLEAN_PARAMETER_NAME = "parameterBoolean";
+    public static final String STRING_PARAMETER_NAME = "parameterString";
+
+    public static final List<Parameter> PARAMETERS = List.of(new Parameter(DOUBLE_PARAMETER_NAME, ParameterType.DOUBLE, "a double parameter", 6.4),
+            new Parameter(BOOLEAN_PARAMETER_NAME, ParameterType.BOOLEAN, "a boolean parameter", false),
+            new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
 
     @Override
     public String getName() {
@@ -50,8 +66,10 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
                                                              List<FaultParameters> faultParameters,
-                                                             Reporter reporter) {
-        reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
+                                                             ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("MockShortCircuit")
+                .add();
         return run(network, faults, parameters, computationManager, faultParameters);
     }
 
@@ -62,5 +80,25 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
         FortescueFaultResult faultResult = new FortescueFaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),
                 new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
+    }
+
+    @Override
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.of(new ShortCircuitParametersTest.DummySerializer());
+    }
+
+    @Override
+    public Optional<Extension<ShortCircuitParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.of(new ShortCircuitParametersTest.DummyExtension());
+    }
+
+    @Override
+    public List<Parameter> getSpecificParameters() {
+        return PARAMETERS;
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        return platformConfig.getOptionalModuleConfig("dummy-sc-extension");
     }
 }

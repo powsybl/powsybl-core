@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractConnectedComponentWithTieLineBugTest {
 
@@ -60,33 +61,32 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .add();
+        BoundaryLine dl1 = vl1.newBoundaryLine()
+                .setBus("b1")
+                .setId("l1")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setPairingKey("XNODE")
+                .add();
+        BoundaryLine dl2 = vl2.newBoundaryLine()
+                .setBus("b2")
+                .setId("l2")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setPairingKey("XNODE")
+                .add();
         n.newTieLine()
                 .setId("l1 + l2")
-                .setVoltageLevel1("vl1")
-                .setConnectableBus1("b1")
-                .setBus1("b1")
-                .setVoltageLevel2("vl2")
-                .setConnectableBus2("b2")
-                .setBus2("b2")
-                .newHalfLine1()
-                    .setId("l1")
-                    .setR(1.0)
-                    .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
-                    .add()
-                .newHalfLine2()
-                    .setId("l2")
-                    .setR(1.0)
-                    .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
-                    .add()
-                .setUcteXnodeCode("XNODE")
+                .setBoundaryLine1(dl1.getId())
+                .setBoundaryLine2(dl2.getId())
                 .add();
         assertEquals(0, b1.getConnectedComponent().getNum());
         assertEquals(0, b2.getConnectedComponent().getNum());

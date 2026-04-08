@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -16,6 +17,7 @@ import org.threeten.extra.Interval;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TimeSeriesMetadataTest {
 
@@ -41,7 +43,7 @@ class TimeSeriesMetadataTest {
         assertSame(index, metadata.getIndex());
 
         // toString test
-        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startTime=2015-01-01T00:00:00Z, endTime=2015-01-01T01:00:00Z, spacing=PT15M))",
+        assertEquals("TimeSeriesMetadata(name=ts1, dataType=DOUBLE, tags={var1=value1}, index=RegularTimeSeriesIndex(startInstant=2015-01-01T00:00:00Z, endInstant=2015-01-01T01:00:00Z, timeStep=PT15M))",
                      metadata.toString());
 
         // test json
@@ -79,14 +81,102 @@ class TimeSeriesMetadataTest {
     }
 
     @Test
-    void testInfiniteIndex() throws IOException {
-        assertEquals("infiniteIndex", InfiniteTimeSeriesIndex.INSTANCE.getType());
-        assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
-        assertEquals(InfiniteTimeSeriesIndex.START_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));
-        assertEquals(InfiniteTimeSeriesIndex.END_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(1));
-        assertEquals("InfiniteTimeSeriesIndex()", InfiniteTimeSeriesIndex.INSTANCE.toString());
-        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), InfiniteTimeSeriesIndex.INSTANCE);
+    void testIrregularIndex() throws IOException {
+        TimeSeriesIndex index = IrregularTimeSeriesIndex.create(
+            Instant.parse("2015-01-01T00:00:00Z"),
+            Instant.parse("2015-01-02T00:00:00Z"),
+            Instant.parse("2015-01-04T00:00:00Z"),
+            Instant.parse("2015-01-10T00:00:00Z"));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
         TimeSeriesMetadata metadata2 = JsonUtil.parseJson(JsonUtil.toJson(metadata::writeJson), TimeSeriesMetadata::parseJson);
         assertEquals(metadata, metadata2);
+    }
+
+    @Test
+    void jsonErrorMetadataTests() {
+
+        // Initialisation
+        IllegalStateException e0;
+
+        // Both parameters (left, right) are missing
+        final String jsonRegularIndexError = String.join(System.lineSeparator(),
+            "[ {",
+            "  \"metadata\" : {",
+            "    \"name\" : \"ts\",",
+            "    \"dataType\" : \"DOUBLE\",",
+            "    \"tags\" : [ ],",
+            "    \"regularIndex\" : {",
+            "      \"error\" : 1420070400000,",
+            "      \"endTime\" : 1437350400000,",
+            "      \"spacing\" : 17280000000",
+            "    }",
+            "  },",
+            "  \"chunks\" : [ {",
+            "    \"offset\" : 0,",
+            "    \"values\" : [ 1.0, 2.0 ]",
+            "  } ]",
+            "}, {",
+            "  \"name\" : \"ts_calc_min\",",
+            "  \"expr\" : {",
+            "    \"binaryMin\" : {",
+            "    }",
+            "  }",
+            "} ]");
+        e0 = assertThrows(IllegalStateException.class, () -> TimeSeries.parseJson(jsonRegularIndexError));
+        assertEquals("Unexpected field error", e0.getMessage());
+
+        // Both parameters (left, right) are missing
+        final String jsonMetadataError = String.join(System.lineSeparator(),
+            "[ {",
+            "  \"metadata\" : {",
+            "    \"name\" : \"ts\",",
+            "    \"dataType\" : \"DOUBLE\",",
+            "    \"tags\" : [ ],",
+            "    \"error\" : {",
+            "      \"error\" : 1420070400000,",
+            "      \"endTime\" : 1437350400000,",
+            "      \"spacing\" : 17280000000",
+            "    }",
+            "  },",
+            "  \"chunks\" : [ {",
+            "    \"offset\" : 0,",
+            "    \"values\" : [ 1.0, 2.0 ]",
+            "  } ]",
+            "}, {",
+            "  \"name\" : \"ts_calc_min\",",
+            "  \"expr\" : {",
+            "    \"binaryMin\" : {",
+            "    }",
+            "  }",
+            "} ]");
+        e0 = assertThrows(IllegalStateException.class, () -> TimeSeries.parseJson(jsonMetadataError));
+        assertEquals("Unexpected field name error", e0.getMessage());
+
+        // Both parameters (left, right) are missing
+        final String jsontemp = String.join(System.lineSeparator(),
+            "[ {",
+            "  \"metadata\" : {",
+            "    \"name\" : \"ts\",",
+            "    \"dataType\" : \"DOUBLE\",",
+            "    \"tags\" : [ ],",
+            "    \"error\" : {",
+            "      \"error\" : 1420070400000,",
+            "      \"endTime\" : 1437350400000,",
+            "      \"spacing\" : 17280000000",
+            "    }",
+            "  },",
+            "  \"chunks\" : [ {",
+            "    \"offset\" : 0,",
+            "    \"values\" : [ 1.0, 2.0 ]",
+            "  } ]",
+            "}, {",
+            "  \"name\" : \"ts_calc_min\",",
+            "  \"expr\" : {",
+            "    \"binaryMin\" : {",
+            "    }",
+            "  }",
+            "} ]");
+        e0 = assertThrows(IllegalStateException.class, () -> TimeSeries.parseJson(jsontemp));
+        assertEquals("Unexpected field name error", e0.getMessage());
     }
 }

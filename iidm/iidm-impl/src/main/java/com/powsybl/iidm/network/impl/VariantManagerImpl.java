@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -20,7 +21,7 @@ import java.util.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class VariantManagerImpl implements VariantManager {
 
@@ -125,6 +126,9 @@ public class VariantManagerImpl implements VariantManager {
             throw new IllegalArgumentException("Empty target variant id list");
         }
         LOGGER.debug("Creating variants {}", targetVariantIds);
+        if (!mayOverwrite) {
+            checkExistingVariantIds(targetVariantIds);
+        }
         int sourceIndex = getVariantIndex(sourceVariantId);
         int initVariantArraySize = variantArraySize;
         int extendedCount = 0;
@@ -132,13 +136,9 @@ public class VariantManagerImpl implements VariantManager {
         List<Integer> overwritten = new ArrayList<>();
         for (String targetVariantId : targetVariantIds) {
             if (id2index.containsKey(targetVariantId)) {
-                if (mayOverwrite) {
-                    overwritten.add(id2index.get(targetVariantId));
+                overwritten.add(id2index.get(targetVariantId));
 
-                    network.getListeners().notifyVariantOverwritten(sourceVariantId, targetVariantId);
-                } else {
-                    throw new PowsyblException("Target variant '" + targetVariantId + "' already exists");
-                }
+                network.getListeners().notifyVariantOverwritten(sourceVariantId, targetVariantId);
             } else if (unusedIndexes.isEmpty()) {
                 // extend variant array size
                 id2index.put(targetVariantId, variantArraySize);
@@ -163,6 +163,16 @@ public class VariantManagerImpl implements VariantManager {
                 obj.extendVariantArraySize(initVariantArraySize, extendedCount, sourceIndex);
             }
             LOGGER.trace("Extending variant array size to {} (+{})", variantArraySize, extendedCount);
+        }
+    }
+
+    private void checkExistingVariantIds(List<String> targetVariantIds) {
+        List<String> alreadyExistingVariantIds = targetVariantIds.stream()
+                .filter(id2index::containsKey)
+                .toList();
+
+        if (!alreadyExistingVariantIds.isEmpty()) {
+            throw new PowsyblException("Target variants already exist: " + alreadyExistingVariantIds);
         }
     }
 

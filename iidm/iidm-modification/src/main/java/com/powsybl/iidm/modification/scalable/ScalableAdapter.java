@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
@@ -15,18 +16,34 @@ import java.util.Objects;
 class ScalableAdapter extends AbstractScalable {
 
     private final String id;
+    private Double minValue = null;
+    private Double maxValue = null;
+
+    public ScalableAdapter(String id, double minValue, double maxValue) {
+        this.id = Objects.requireNonNull(id);
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    }
 
     public ScalableAdapter(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
+    public ScalableAdapter(Injection<?> injection) {
+        Objects.requireNonNull(injection);
+        this.id = injection.getId();
+    }
+
     private Scalable getScalable(Network n) {
         Objects.requireNonNull(n);
-        Identifiable identifiable = n.getIdentifiable(id);
+        Identifiable<?> identifiable = n.getIdentifiable(id);
+        boolean withValues = minValue != null && maxValue != null;
         if (identifiable instanceof Generator) {
-            return new GeneratorScalable(id);
+            return withValues ? new GeneratorScalable(id, minValue, maxValue) : new GeneratorScalable(id);
         } else if (identifiable instanceof Load) {
-            return new LoadScalable(id);
+            return withValues ? new LoadScalable(id, minValue, maxValue) : new LoadScalable(id);
+        } else if (identifiable instanceof BoundaryLine) {
+            return withValues ? new BoundaryLineScalable(id, minValue, maxValue) : new BoundaryLineScalable(id);
         } else {
             throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
         }
@@ -58,7 +75,33 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return getScalable(n).scale(n, asked, scalingConvention);
+    public double scale(Network n, double asked, ScalingParameters parameters) {
+        return getScalable(n).scale(n, asked, parameters);
+    }
+
+    /**
+     * Compute the percentage of asked power available for the scale. It takes into account the scaling convention
+     * specified by the user and the sign of the asked power.
+     *
+     * @param network Network on which the scaling is done
+     * @param asked Asked power (can be positive or negative)
+     * @param scalingPercentage Percentage of the asked power that shall be distributed to the current injection
+     * @param scalingConvention Scaling convention (GENERATOR or LOAD)
+     * @return the percentage of asked power available for the scale on the current injection
+     */
+    double availablePowerInPercentageOfAsked(Network network, double asked, double scalingPercentage, ScalingConvention scalingConvention) {
+        Objects.requireNonNull(network);
+        if (getScalable(network) instanceof GeneratorScalable generatorScalable) {
+            return generatorScalable.availablePowerInPercentageOfAsked(network, asked, scalingPercentage, scalingConvention);
+        } else {
+            Identifiable<?> identifiable = network.getIdentifiable(id);
+            throw new PowsyblException(String.format("RESPECT_OF_DISTRIBUTION mode can only be used with a Generator, not %s",
+                identifiable.getClass()));
+        }
+    }
+
+    @Override
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        return getScalable(network).getSteadyStatePower(network, asked, scalingConvention);
     }
 }

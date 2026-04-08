@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.tripping.BusTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class BusContingency extends AbstractContingency {
 

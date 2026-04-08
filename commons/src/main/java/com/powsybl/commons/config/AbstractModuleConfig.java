@@ -3,15 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * Provides implementation for methods of {@link ModuleConfig}.
  * Implementations can focus on implementing the core getOptional* methods.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractModuleConfig implements ModuleConfig {
 
@@ -168,17 +168,7 @@ public abstract class AbstractModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public DateTime getDateTimeProperty(String name) {
+    public ZonedDateTime getDateTimeProperty(String name) {
         return getOptionalDateTimeProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
-    }
-
-    @Override
-    public Optional<Interval> getOptionalIntervalProperty(String name) {
-        return getOptionalStringProperty(name).map(Interval::parse);
-    }
-
-    @Override
-    public Interval getIntervalProperty(String name) {
-        return getOptionalIntervalProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 }

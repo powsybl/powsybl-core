@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -26,7 +27,7 @@ import com.powsybl.commons.PowsyblException;
 /**
  * A utility class to help finding providers using ServiceLoader.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  *
  */
 //Don't bother with generics because serviceloader doesn't return them
@@ -74,7 +75,7 @@ public final class ExtensionAdderProviders {
         }
         List<ExtensionAdderProvider> providers = providersForName.stream()
                 .filter(typeFilter)
-                .collect(Collectors.toList());
+                .toList();
 
         if (providers.isEmpty()) {
             LOGGER.error(

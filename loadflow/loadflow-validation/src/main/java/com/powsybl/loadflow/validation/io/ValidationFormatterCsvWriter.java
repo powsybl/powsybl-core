@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation.io;
 
@@ -10,21 +11,21 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.ThreeSides;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.it>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
 public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWriter {
 
@@ -65,7 +66,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             case TWTS3W:
                 return getTwt3wColumns();
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + validationType);
+                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
         }
     }
 
@@ -213,8 +214,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                            new Column("vscCSQ"),
                                            new Column("lineP"),
                                            new Column("lineQ"),
-                                           new Column("danglingLineP"),
-                                           new Column("danglingLineQ"),
+                                           new Column("boundaryLineP"),
+                                           new Column("boundaryLineQ"),
                                            new Column("twtP"),
                                            new Column("twtQ"),
                                            new Column("tltP"),
@@ -240,8 +241,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                new Column("vscCSQ" + POST_COMPUTATION_SUFFIX),
                                                new Column("lineP" + POST_COMPUTATION_SUFFIX),
                                                new Column("lineQ" + POST_COMPUTATION_SUFFIX),
-                                               new Column("danglingLineP" + POST_COMPUTATION_SUFFIX),
-                                               new Column("danglingLineQ" + POST_COMPUTATION_SUFFIX),
+                                               new Column("boundaryLineP" + POST_COMPUTATION_SUFFIX),
+                                               new Column("boundaryLineQ" + POST_COMPUTATION_SUFFIX),
                                                new Column("twtP" + POST_COMPUTATION_SUFFIX),
                                                new Column("twtQ" + POST_COMPUTATION_SUFFIX),
                                                new Column("tltP" + POST_COMPUTATION_SUFFIX),
@@ -268,6 +269,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             svcColumns = ArrayUtils.addAll(svcColumns,
                                            new Column(CONNECTED),
                                            new Column("regulationMode"),
+                                           new Column("regulating"),
                                            new Column("bMin"),
                                            new Column("bMax"),
                                            new Column(MAIN_COMPONENT),
@@ -286,6 +288,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                 svcColumns = ArrayUtils.addAll(svcColumns,
                                                new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
                                                new Column("regulationMode" + POST_COMPUTATION_SUFFIX),
+                                               new Column("regulating" + POST_COMPUTATION_SUFFIX),
                                                new Column("bMin" + POST_COMPUTATION_SUFFIX),
                                                new Column("bMax" + POST_COMPUTATION_SUFFIX),
                                                new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
@@ -606,7 +609,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     private TableFormatter write(boolean writeValues, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
                                  double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                                 double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
+                                 double boundaryLineP, double boundaryLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
                                  boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(incomingP)
@@ -626,8 +629,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(vscCSQ)
                                  .writeCell(lineP)
                                  .writeCell(lineQ)
-                                 .writeCell(danglingLineP)
-                                 .writeCell(danglingLineQ)
+                                 .writeCell(boundaryLineP)
+                                 .writeCell(boundaryLineQ)
                                  .writeCell(twtP)
                                  .writeCell(twtQ)
                                  .writeCell(tltP)
@@ -641,7 +644,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP, double shuntQ,
-                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
+                         double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double boundaryLineP, double boundaryLineQ,
                          double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, boolean validated, BusData busData, boolean found,
                          boolean writeValues) throws IOException {
         formatter.writeCell(busId);
@@ -649,32 +652,32 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             formatter = found ?
                     write(found, busData.incomingP, busData.incomingQ, busData.loadP, busData.loadQ, busData.genP, busData.genQ,
                             busData.shuntP, busData.shuntQ, busData.svcP, busData.svcQ, busData.vscCSP, busData.vscCSQ,
-                            busData.lineP, busData.lineQ, busData.danglingLineP, busData.danglingLineQ, busData.twtP, busData.twtQ,
+                            busData.lineP, busData.lineQ, busData.boundaryLineP, busData.boundaryLineQ, busData.twtP, busData.twtQ,
                             busData.tltP, busData.tltQ, busData.mainComponent, busData.validated) :
                     write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                             Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                             Double.NaN, false, false);
         }
         formatter = write(writeValues, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+                lineP, lineQ, boundaryLineP, boundaryLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
     }
 
     @Override
     protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                         boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
+                         boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
                         write(found, svcData.p, svcData.q, svcData.vControlled, svcData.vController, svcData.nominalVcontroller, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
-                              svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, Double.NaN, Double.NaN, false, false);
+                              svcData.connected, svcData.regulationMode, svcData.regulating, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
+        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
-                                 boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
+                                 boolean connected, RegulationMode regulationMode, boolean regulating, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -688,11 +691,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             formatter = writeValues ?
                         formatter.writeCell(connected)
                                  .writeCell(regulationMode.name())
+                                 .writeCell(regulating)
                                  .writeCell(bMin)
                                  .writeCell(bMax)
                                  .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(6);
+                        formatter.writeEmptyCells(7);
         }
         return formatter;
     }
@@ -735,7 +739,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
+                         int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
                          boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(twtId);
         if (compareResults) {
@@ -743,14 +747,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                         write(found, twtData.error, twtData.upIncrement, twtData.downIncrement, twtData.rho, twtData.rhoPreviousStep, twtData.rhoNextStep,
                               twtData.tapPosition, twtData.lowTapPosition, twtData.highTapPosition, twtData.targetV, twtData.regulatedSide, twtData.v,
                               twtData.connected, twtData.mainComponent, twtData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
         }
         write(writeValues, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV,
               regulatedSide, v, connected, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
-                                 int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
+                                 int tapPosition, int lowTapPosition, int highTapPosition, double targetV, TwoSides regulatedSide, double v, boolean connected,
                                  boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(error)
@@ -787,59 +791,59 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     private TableFormatter write(boolean writeValues, TwtData twtData, boolean validated) throws IOException {
         formatter = writeValues ?
-                    formatter.writeCell(twtData.getP(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.ONE))
-                             .writeCell(twtData.getP(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.TWO))
-                             .writeCell(twtData.getP(ThreeWindingsTransformer.Side.THREE))
-                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.THREE))
-                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.THREE))
-                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.THREE)) :
+                    formatter.writeCell(twtData.getP(ThreeSides.ONE))
+                             .writeCell(twtData.getComputedP(ThreeSides.ONE))
+                             .writeCell(twtData.getQ(ThreeSides.ONE))
+                             .writeCell(twtData.getComputedQ(ThreeSides.ONE))
+                             .writeCell(twtData.getP(ThreeSides.TWO))
+                             .writeCell(twtData.getComputedP(ThreeSides.TWO))
+                             .writeCell(twtData.getQ(ThreeSides.TWO))
+                             .writeCell(twtData.getComputedQ(ThreeSides.TWO))
+                             .writeCell(twtData.getP(ThreeSides.THREE))
+                             .writeCell(twtData.getComputedP(ThreeSides.THREE))
+                             .writeCell(twtData.getQ(ThreeSides.THREE))
+                             .writeCell(twtData.getComputedQ(ThreeSides.THREE)) :
                     formatter.writeEmptyCells(12);
         if (verbose) {
             formatter = writeValues ?
-                        formatter.writeCell(twtData.getU(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getU(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getU(ThreeWindingsTransformer.Side.THREE))
+                        formatter.writeCell(twtData.getU(ThreeSides.ONE))
+                                 .writeCell(twtData.getU(ThreeSides.TWO))
+                                 .writeCell(twtData.getU(ThreeSides.THREE))
                                  .writeCell(twtData.getStarU())
-                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getTheta(ThreeSides.ONE))
+                                 .writeCell(twtData.getTheta(ThreeSides.TWO))
+                                 .writeCell(twtData.getTheta(ThreeSides.THREE))
                                  .writeCell(twtData.getStarTheta())
-                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getG1(ThreeSides.ONE))
+                                 .writeCell(twtData.getB1(ThreeSides.ONE))
+                                 .writeCell(twtData.getG2(ThreeSides.ONE))
+                                 .writeCell(twtData.getB2(ThreeSides.ONE))
+                                 .writeCell(twtData.getG1(ThreeSides.TWO))
+                                 .writeCell(twtData.getB1(ThreeSides.TWO))
+                                 .writeCell(twtData.getG2(ThreeSides.TWO))
+                                 .writeCell(twtData.getB2(ThreeSides.TWO))
+                                 .writeCell(twtData.getG1(ThreeSides.THREE))
+                                 .writeCell(twtData.getB1(ThreeSides.THREE))
+                                 .writeCell(twtData.getG2(ThreeSides.THREE))
+                                 .writeCell(twtData.getB2(ThreeSides.THREE))
+                                 .writeCell(twtData.getR(ThreeSides.ONE))
+                                 .writeCell(twtData.getR(ThreeSides.TWO))
+                                 .writeCell(twtData.getR(ThreeSides.THREE))
+                                 .writeCell(twtData.getX(ThreeSides.ONE))
+                                 .writeCell(twtData.getX(ThreeSides.TWO))
+                                 .writeCell(twtData.getX(ThreeSides.THREE))
+                                 .writeCell(twtData.getRatedU(ThreeSides.ONE))
+                                 .writeCell(twtData.getRatedU(ThreeSides.TWO))
+                                 .writeCell(twtData.getRatedU(ThreeSides.THREE))
                                  .writeCell(twtData.getPhaseAngleClock2())
                                  .writeCell(twtData.getPhaseAngleClock3())
                                  .writeCell(twtData.getRatedU0())
-                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.THREE))
-                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.ONE))
-                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.TWO))
-                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.isConnected(ThreeSides.ONE))
+                                 .writeCell(twtData.isConnected(ThreeSides.TWO))
+                                 .writeCell(twtData.isConnected(ThreeSides.THREE))
+                                 .writeCell(twtData.isMainComponent(ThreeSides.ONE))
+                                 .writeCell(twtData.isMainComponent(ThreeSides.TWO))
+                                 .writeCell(twtData.isMainComponent(ThreeSides.THREE))
                                  .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCells(39);
         }

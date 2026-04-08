@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.converter;
 
@@ -23,7 +24,7 @@ import java.util.Properties;
 import java.util.function.ToDoubleFunction;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class IeeeCdfNetworkFactory {
 
@@ -104,11 +105,11 @@ public final class IeeeCdfNetworkFactory {
         // the nominal voltage provider given here follows no convention rules but is an assumption
         return create("ieee118cdf", networkFactory, null, ieeeCdfBus -> {
             if (ieeeCdfBus.getName().endsWith("V1")) {
-                return 138;
-            } else if (ieeeCdfBus.getName().endsWith("V2")) {
-                return 161;
-            } else if (ieeeCdfBus.getName().endsWith("V3")) {
                 return 345;
+            } else if (ieeeCdfBus.getName().endsWith("V2")) {
+                return 138;
+            } else if (ieeeCdfBus.getName().endsWith("V3")) {
+                return 161;
             } else {
                 throw new PowsyblException("Cannot find base voltage from bus name: '" + ieeeCdfBus.getName() + "'");
             }

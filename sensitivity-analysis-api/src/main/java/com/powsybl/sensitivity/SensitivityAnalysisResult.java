@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -10,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.contingency.Contingency;
+import com.powsybl.commons.json.JsonUtil;
 import org.jgrapht.alg.util.Triple;
 
 import java.io.IOException;
@@ -37,24 +38,32 @@ import java.util.*;
  *  For example, you can retrieve a sensitivity value as a double given the ID of a contingency, the ID of a variable
  *  and the ID of a function.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see SensitivityValue
  */
 public class SensitivityAnalysisResult {
 
+    public static final String VERSION = "1.1";
+
+    public static final String CONTEXT_NAME = "SensitivityAnalysisResult";
+
     private final List<SensitivityFactor> factors;
 
-    private final List<SensitivityContingencyStatus> contingencyStatuses;
+    private final List<SensitivityStateStatus> stateStatuses;
+
+    private final List<String> contingencyIds; // to have mapping index -> ID
+
+    private final List<String> operatorStrategyIds; // to have mapping index -> ID
 
     private final List<SensitivityValue> values;
 
-    private final Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
+    private final Map<SensitivityState, List<SensitivityValue>> valuesByState = new HashMap<>();
 
-    private final Map<SensitivityValueKey, SensitivityValue> valuesByContingencyIdAndFunctionAndVariable = new HashMap<>();
+    private final Map<SensitivityValueKey, SensitivityValue> valuesByKey = new HashMap<>();
 
-    private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
+    private final Map<Triple<SensitivityFunctionType, SensitivityState, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
-    private final Map<String, SensitivityContingencyStatus> statusByContingencyId = new HashMap<>();
+    private final Map<SensitivityState, SensitivityStateStatus> statusByState = new HashMap<>();
 
     public enum Status {
         SUCCESS,
@@ -62,30 +71,39 @@ public class SensitivityAnalysisResult {
         NO_IMPACT
     }
 
-    public static class SensitivityContingencyStatus {
+    public static class SensitivityStateStatus {
 
-        private final String contingencyId;
+        private final SensitivityState state;
 
         private final Status status;
 
-        public String getContingencyId() {
-            return contingencyId;
+        public SensitivityState getState() {
+            return state;
         }
 
         public Status getStatus() {
             return status;
         }
 
-        public SensitivityContingencyStatus(String contingencyId, Status status) {
-            this.contingencyId = Objects.requireNonNull(contingencyId);
+        public SensitivityStateStatus(SensitivityState state, Status status) {
+            this.state = Objects.requireNonNull(state);
             this.status = Objects.requireNonNull(status);
         }
 
-        public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
+        public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
+            writeJson(jsonGenerator, stateStatus.state, stateStatus.status);
+        }
+
+        public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state, Status status) {
             try {
                 jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("contingencyId", contingencyStatus.getContingencyId());
-                jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
+                if (state.contingencyId() != null) {
+                    jsonGenerator.writeStringField("contingencyId", state.contingencyId());
+                }
+                if (state.operatorStrategyId() != null) {
+                    jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
+                }
+                jsonGenerator.writeStringField("status", status.name());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -93,21 +111,23 @@ public class SensitivityAnalysisResult {
         }
 
         static final class ParsingContext {
-            private Contingency contingency;
+            private String contingencyId;
+            private String operatorStrategyId;
             private Status status;
         }
 
-        public static SensitivityContingencyStatus parseJson(JsonParser parser) {
+        public static SensitivityStateStatus parseJson(JsonParser parser, String version) {
             Objects.requireNonNull(parser);
 
-            var context = new SensitivityContingencyStatus.ParsingContext();
+            var context = new SensitivityStateStatus.ParsingContext();
             try {
                 JsonToken token;
                 while ((token = parser.nextToken()) != null) {
                     if (token == JsonToken.FIELD_NAME) {
-                        parseJson(parser, context);
+                        parseJson(parser, context, version == null ? VERSION : version);
                     } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
+                        return new SensitivityStateStatus(new SensitivityState(context.contingencyId, context.operatorStrategyId),
+                                                          context.status);
                     }
                 }
             } catch (IOException e) {
@@ -116,14 +136,25 @@ public class SensitivityAnalysisResult {
             throw new PowsyblException("Parsing error");
         }
 
-        private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
-            String fieldName = parser.getCurrentName();
+        private static void parseJson(JsonParser parser, SensitivityStateStatus.ParsingContext context, String version) throws IOException {
+            String fieldName = parser.currentName();
             switch (fieldName) {
                 case "contingencyId":
                     parser.nextToken();
-                    context.contingency = new Contingency(parser.getValueAsString());
+                    context.contingencyId = parser.getValueAsString();
+                    break;
+                case "operatorStrategyId":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyId", version, "1.1");
+                    parser.nextToken();
+                    context.operatorStrategyId = parser.getValueAsString();
                     break;
                 case "contingencyStatus":
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
+                    parser.nextToken();
+                    context.status = Status.valueOf(parser.getValueAsString());
+                    break;
+                case "status":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
                     parser.nextToken();
                     context.status = Status.valueOf(parser.getValueAsString());
                     break;
@@ -136,24 +167,31 @@ public class SensitivityAnalysisResult {
     /**
      * Sensitivity analysis result
      * @param factors the list of sensitivity factors that have been computed.
-     * @param contingencyStatuses the list of contingencies and their associated computation status.
+     * @param stateStatuses the list of states and their associated computation status.
+     * @param contingencyIds the list of contingency IDs that have been considered during the sensitivity analysis.
+     * @param operatorStrategyIds the list of operator strategy IDs that have been considered during the sensitivity analysis.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityContingencyStatus> contingencyStatuses, List<SensitivityValue> values) {
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityStateStatus> stateStatuses, List<String> contingencyIds,
+                                     List<String> operatorStrategyIds, List<SensitivityValue> values) {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
-        this.contingencyStatuses = Collections.unmodifiableList(Objects.requireNonNull(contingencyStatuses));
+        this.stateStatuses = Collections.unmodifiableList(Objects.requireNonNull(stateStatuses));
+        this.contingencyIds = Collections.unmodifiableList(Objects.requireNonNull(contingencyIds));
+        this.operatorStrategyIds = Collections.unmodifiableList(Objects.requireNonNull(operatorStrategyIds));
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
-            String contingencyId = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingencyId() : null;
-            valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
+            String contingencyId = value.getContingencyIndex() != -1 ? contingencyIds.get(value.getContingencyIndex()) : null;
+            String operatorStrategyId = value.getOperatorStrategyIndex() != -1 ? operatorStrategyIds.get(value.getOperatorStrategyIndex()) : null;
+            SensitivityState state = new SensitivityState(contingencyId, operatorStrategyId);
+            valuesByState.computeIfAbsent(state, k -> new ArrayList<>())
                     .add(value);
-            valuesByContingencyIdAndFunctionAndVariable.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType(), factor.getVariableType()), value);
-            functionReferenceByContingencyAndFunction.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
+            valuesByKey.put(new SensitivityValueKey(state, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType(), factor.getVariableType()), value);
+            functionReferenceByContingencyAndFunction.put(Triple.of(factor.getFunctionType(), state, factor.getFunctionId()), value.getFunctionReference());
         }
 
-        for (SensitivityContingencyStatus status : contingencyStatuses) {
-            this.statusByContingencyId.put(status.getContingencyId(), status);
+        for (SensitivityStateStatus stateStatus : stateStatuses) {
+            this.statusByState.put(stateStatus.getState(), stateStatus);
         }
     }
 
@@ -167,12 +205,30 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get a list of all the contingency statuses.
+     * Get a list of all the state statuses.
      *
-     * @return a list of all the contingency statuses.
+     * @return a list of all the state statuses.
      */
-    public List<SensitivityContingencyStatus> getContingencyStatuses() {
-        return contingencyStatuses;
+    public List<SensitivityStateStatus> getStateStatuses() {
+        return stateStatuses;
+    }
+
+    /**
+     * Retrieves the list of contingency IDs.
+     *
+     * @return a list of contingency IDs as strings.
+     */
+    public List<String> getContingencyIds() {
+        return contingencyIds;
+    }
+
+    /**
+     * Retrieves the list of operator strategy IDs.
+     *
+     * @return a list of strings representing the operator strategy IDs.
+     */
+    public List<String> getOperatorStrategyIds() {
+        return operatorStrategyIds;
     }
 
     /**
@@ -187,11 +243,12 @@ public class SensitivityAnalysisResult {
     /**
      * Get a list of sensitivity value associated to a given contingency id
      *
-     * @param contingencyId the ID of the considered contingency. Use null to get pre-contingency sensitivity values.
+     * @param state the considered state.
      * @return the sensitivity value associated to a given contingency ID.
      */
-    public List<SensitivityValue> getValues(String contingencyId) {
-        return valuesByContingencyId.getOrDefault(contingencyId, Collections.emptyList());
+    public List<SensitivityValue> getValues(SensitivityState state) {
+        Objects.requireNonNull(state);
+        return valuesByState.getOrDefault(state, Collections.emptyList());
     }
 
     /**
@@ -200,24 +257,29 @@ public class SensitivityAnalysisResult {
      * @return a list of all the pre-contingency sensitivity values.
      */
     public List<SensitivityValue> getPreContingencyValues() {
-        return valuesByContingencyId.getOrDefault(null, Collections.emptyList());
+        return valuesByState.getOrDefault(SensitivityState.PRE_CONTINGENCY, Collections.emptyList());
     }
 
     /**
      * Get the sensitivity value associated to a given function id and type and a given variable and for a specific contingency.
      *
-     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
+     * @param state the considered state.
      * @param variableId the sensitivity variable id.
      * @param functionId the sensitivity function id.
      * @param functionType the sensitivity function type.
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
-    public double getSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityFunctionType functionType, SensitivityVariableType variableType) {
-        SensitivityValue value = valuesByContingencyIdAndFunctionAndVariable.get(new SensitivityValueKey(contingencyId, variableId, functionId, functionType, variableType));
+    public double getSensitivityValue(SensitivityState state, String variableId, String functionId, SensitivityFunctionType functionType, SensitivityVariableType variableType) {
+        Objects.requireNonNull(state);
+        Objects.requireNonNull(variableId);
+        Objects.requireNonNull(functionId);
+        Objects.requireNonNull(functionType);
+        Objects.requireNonNull(variableType);
+        SensitivityValue value = valuesByKey.get(new SensitivityValueKey(state, variableId, functionId, functionType, variableType));
         if (value != null) {
             return value.getValue();
         }
-        throw new PowsyblException("Sensitivity value not found for contingency '" + contingencyId + "', function '"
+        throw new PowsyblException("Sensitivity value not found for contingency '" + state.contingencyId() + "', operator strategy '" + state.operatorStrategyId() + "', function '"
                                    + functionId + "', variable '" + variableId + "'" + "', functionType '" + functionType);
     }
 
@@ -230,7 +292,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getBranchFlow1SensitivityValue(String contingencyId, String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, variableType);
+        return getSensitivityValue(SensitivityState.postContingency(contingencyId), variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, variableType);
     }
 
     /**
@@ -242,7 +304,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getBranchFlow2SensitivityValue(String contingencyId, String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, variableType);
+        return getSensitivityValue(SensitivityState.postContingency(contingencyId), variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, variableType);
     }
 
     /**
@@ -254,7 +316,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getBranchFlow3SensitivityValue(String contingencyId, String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, variableType);
+        return getSensitivityValue(SensitivityState.postContingency(contingencyId), variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, variableType);
     }
 
     /**
@@ -266,7 +328,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getBranchCurrent1SensitivityValue(String contingencyId, String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1, variableType);
+        return getSensitivityValue(SensitivityState.postContingency(contingencyId), variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1, variableType);
     }
 
     /**
@@ -278,7 +340,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getBranchCurrent2SensitivityValue(String contingencyId, String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2, variableType);
+        return getSensitivityValue(SensitivityState.postContingency(contingencyId), variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2, variableType);
     }
 
     /**
@@ -290,7 +352,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getBranchCurrent3SensitivityValue(String contingencyId, String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_3, variableType);
+        return getSensitivityValue(SensitivityState.postContingency(contingencyId), variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_3, variableType);
     }
 
     /**
@@ -302,7 +364,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getBusVoltageSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BUS_VOLTAGE, variableType);
+        return getSensitivityValue(SensitivityState.postContingency(contingencyId), variableId, functionId, SensitivityFunctionType.BUS_VOLTAGE, variableType);
     }
 
     /**
@@ -314,7 +376,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getSensitivityValue(String variableId, String functionId, SensitivityFunctionType functionType, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, functionType, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, functionType, variableType);
     }
 
     /**
@@ -325,7 +387,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getBranchFlow1SensitivityValue(String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, variableType);
     }
 
     /**
@@ -336,7 +398,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getBranchFlow2SensitivityValue(String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, variableType);
     }
 
     /**
@@ -347,7 +409,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getBranchFlow3SensitivityValue(String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, variableType);
     }
 
     /**
@@ -358,7 +420,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getBranchCurrent1SensitivityValue(String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1, variableType);
     }
 
     /**
@@ -369,7 +431,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getBranchCurrent2SensitivityValue(String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2, variableType);
     }
 
     /**
@@ -380,7 +442,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getBranchCurrent3SensitivityValue(String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_3, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_3, variableType);
     }
 
     /**
@@ -391,22 +453,25 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getBusVoltageSensitivityValue(String variableId, String functionId, SensitivityVariableType variableType) {
-        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BUS_VOLTAGE, variableType);
+        return getSensitivityValue(SensitivityState.PRE_CONTINGENCY, variableId, functionId, SensitivityFunctionType.BUS_VOLTAGE, variableType);
     }
 
     /**
      * Get the function reference associated to a given contingency Id and a given function id and type.
      *
-     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
+     * @param state the considered state.
      * @param functionId sensitivity function id.
      * @param functionType sensitivity function type
      * @return the function reference value
      */
-    public double getFunctionReferenceValue(String contingencyId, String functionId, SensitivityFunctionType functionType) {
-        Double value = functionReferenceByContingencyAndFunction.get(Triple.of(functionType, contingencyId, functionId));
+    public double getFunctionReferenceValue(SensitivityState state, String functionId, SensitivityFunctionType functionType) {
+        Objects.requireNonNull(state);
+        Objects.requireNonNull(functionId);
+        Objects.requireNonNull(functionType);
+        Double value = functionReferenceByContingencyAndFunction.get(Triple.of(functionType, state, functionId));
         if (value == null) {
-            throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + functionId + "'"
-                                       + "', functionType '" + functionType);
+            throw new PowsyblException("Reference flow value not found for contingency '" + state.contingencyId() + "' and operator strategy '"
+                    + state.operatorStrategyId() + "', function '" + functionId + "'" + "', functionType '" + functionType);
         }
         return value;
     }
@@ -419,7 +484,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getBranchFlow1FunctionReferenceValue(String contingencyId, String functionId) {
-        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+        return getFunctionReferenceValue(SensitivityState.postContingency(contingencyId), functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
     }
 
     /**
@@ -430,7 +495,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getBranchFlow2FunctionReferenceValue(String contingencyId, String functionId) {
-        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+        return getFunctionReferenceValue(SensitivityState.postContingency(contingencyId), functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
     }
 
     /**
@@ -441,7 +506,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getBranchFlow3FunctionReferenceValue(String contingencyId, String functionId) {
-        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3);
+        return getFunctionReferenceValue(SensitivityState.postContingency(contingencyId), functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3);
     }
 
     /**
@@ -452,7 +517,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getBranchCurrent1FunctionReferenceValue(String contingencyId, String functionId) {
-        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
+        return getFunctionReferenceValue(SensitivityState.postContingency(contingencyId), functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
     }
 
     /**
@@ -463,7 +528,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getBranchCurrent2FunctionReferenceValue(String contingencyId, String functionId) {
-        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
+        return getFunctionReferenceValue(SensitivityState.postContingency(contingencyId), functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
     }
 
     /**
@@ -474,7 +539,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getBranchCurrent3FunctionReferenceValue(String contingencyId, String functionId) {
-        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_CURRENT_3);
+        return getFunctionReferenceValue(SensitivityState.postContingency(contingencyId), functionId, SensitivityFunctionType.BRANCH_CURRENT_3);
     }
 
     /**
@@ -485,7 +550,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getBusVoltageFunctionReferenceValue(String contingencyId, String functionId) {
-        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+        return getFunctionReferenceValue(SensitivityState.postContingency(contingencyId), functionId, SensitivityFunctionType.BUS_VOLTAGE);
     }
 
     /**
@@ -496,7 +561,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getFunctionReferenceValue(String functionId, SensitivityFunctionType functionType) {
-        return getFunctionReferenceValue(null, functionId, functionType);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, functionType);
     }
 
     /**
@@ -506,7 +571,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getBranchFlow1FunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
     }
 
     /**
@@ -516,7 +581,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getBranchFlow2FunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
     }
 
     /**
@@ -526,7 +591,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getBranchFlow3FunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_3);
     }
 
     /**
@@ -536,7 +601,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getBranchCurrent1FunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
     }
 
     /**
@@ -546,7 +611,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getBranchCurrent2FunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
     }
 
     /**
@@ -556,7 +621,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getBranchCurrent3FunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_CURRENT_3);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BRANCH_CURRENT_3);
     }
 
     /**
@@ -566,16 +631,17 @@ public class SensitivityAnalysisResult {
      * @return the function reference value.
      */
     public double getBusVoltageFunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+        return getFunctionReferenceValue(SensitivityState.PRE_CONTINGENCY, functionId, SensitivityFunctionType.BUS_VOLTAGE);
     }
 
     /**
-     * Get the status associated to a contingency id
+     * Get the status associated to a state
      *
-     * @param contingencyId The contingency id
+     * @param state The state
      * @return The associated status.
      */
-    public Status getContingencyStatus(String contingencyId) {
-        return statusByContingencyId.get(contingencyId).getStatus();
+    public Status getStateStatus(SensitivityState state) {
+        Objects.requireNonNull(state);
+        return statusByState.get(state).getStatus();
     }
 }

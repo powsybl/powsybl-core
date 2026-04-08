@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -14,7 +15,8 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -28,9 +30,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ExtensionTest extends AbstractConverterTest {
+class ExtensionTest extends AbstractSerDeTest {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
@@ -91,6 +93,18 @@ class ExtensionTest extends AbstractConverterTest {
         assertNull(foo.getExtension(BarExt.class));
     }
 
+    @Test
+    void testReadJsonWithReportNode() throws IOException {
+        final ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root_message").build();
+        Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/extensions.json"), reportNode);
+        assertEquals(1, foo.getExtensions().size());
+        assertNotNull(foo.getExtension(FooExt.class));
+        assertNull(foo.getExtension(BarExt.class));
+        assertEquals(1, reportNode.getChildren().size());
+        assertTrue(reportNode.getMessage().contains("root_message"));
+        assertTrue(reportNode.getChildren().getFirst().getMessage().contains("deserialize"));
+    }
+
     private void assertBadExtensionJsonThrows(Executable runnable) {
         PowsyblException exception = assertThrows(PowsyblException.class, runnable);
         assertTrue(exception.getMessage().contains("\"extensions\""),
@@ -136,6 +150,20 @@ class ExtensionTest extends AbstractConverterTest {
     }
 
     @Test
+    void testUpdateAndDeserializeWithReportNode() throws IOException {
+        final ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("root_message").build();
+        Foo foo = new Foo();
+        FooExt fooExt = new FooExt(false, "Hello");
+        foo.addExtension(FooExt.class, fooExt);
+        FooDeserializer.update(getClass().getResourceAsStream("/extensionsUpdate.json"), foo, reportNode);
+        assertTrue(foo.getExtension(FooExt.class).getValue());
+        assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
+        assertEquals(1, reportNode.getChildren().size());
+        assertTrue(reportNode.getMessage().contains("root_message"));
+        assertTrue(reportNode.getChildren().getFirst().getMessage().contains("deserialize_and_update"));
+    }
+
+    @Test
     void testBadUpdateAndDeserialize() throws IOException {
         assertBadExtensionJsonThrows(() -> {
             Foo foo = new Foo();
@@ -158,13 +186,13 @@ class ExtensionTest extends AbstractConverterTest {
 
     @Test
     void testProviderConflict() {
-        ExtensionXmlSerializer<?, ?> mock1 = Mockito.mock(ExtensionXmlSerializer.class);
+        ExtensionSerDe<?, ?> mock1 = Mockito.mock(ExtensionSerDe.class);
         Mockito.when(mock1.getExtensionName()).thenReturn("mock");
-        ExtensionXmlSerializer<?, ?> mock2 = Mockito.mock(ExtensionXmlSerializer.class);
+        ExtensionSerDe<?, ?> mock2 = Mockito.mock(ExtensionSerDe.class);
         Mockito.when(mock2.getExtensionName()).thenReturn("mock");
 
-        ExtensionXmlSerializer<?, ?>[] mocks = {mock1, mock2};
+        ExtensionSerDe<?, ?>[] mocks = {mock1, mock2};
 
-        assertThrows(IllegalStateException.class, () -> Arrays.stream(mocks).collect(Collectors.toMap(ExtensionXmlSerializer::getExtensionName, e -> e)));
+        assertThrows(IllegalStateException.class, () -> Arrays.stream(mocks).collect(Collectors.toMap(ExtensionSerDe::getExtensionName, e -> e)));
     }
 }

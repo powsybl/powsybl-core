@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
@@ -10,11 +11,10 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class GroupCommandImpl extends AbstractCommand implements GroupCommand {
 
@@ -79,7 +79,7 @@ class GroupCommandImpl extends AbstractCommand implements GroupCommand {
     public String toString(final int executionNumber) {
         return subCommands.stream()
                 .map(subCommand -> subCommand.toString(executionNumber))
-                .collect(Collectors.toList())
+                .toList()
                 .toString();
     }
 

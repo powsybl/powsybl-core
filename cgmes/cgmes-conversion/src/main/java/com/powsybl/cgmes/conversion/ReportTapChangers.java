@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -13,14 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class ReportTapChangers {
 
@@ -149,7 +149,7 @@ public class ReportTapChangers {
                 long ptc2 = tcs.stream().filter(tc -> end(tc) == 2 && isPhase(tc)).count();
                 long rtc3 = tcs.stream().filter(tc -> end(tc) == 3 && isRatio(tc)).count();
                 long ptc3 = tcs.stream().filter(tc -> end(tc) == 3 && isPhase(tc)).count();
-                List<Integer> steps = tcs.stream().map(this::steps).collect(Collectors.toList());
+                List<Integer> steps = tcs.stream().map(this::steps).toList();
                 boolean sameSteps = steps.isEmpty()
                         || steps.stream().allMatch(steps.get(0)::equals);
                 d.col(tcs.size());

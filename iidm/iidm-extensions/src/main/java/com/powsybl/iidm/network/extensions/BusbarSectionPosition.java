@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
@@ -20,7 +21,11 @@ import com.powsybl.iidm.network.BusbarSection;
  * The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions.
  * <p>
  * Similarly, the section indices induce an order of BusbarSections of a same busbar, which usually reflects their physical relative position.
- * @author Jon Harper <jon.harper at rte-france.com>
+ * <p>
+ * Note that, when used in conjunction with {@link com.powsybl.iidm.network.extensions.ConnectablePosition}, the busbar
+ * described by several BusBarSections having the same section index should have ascending connectable positions for
+ * ascending section indices.
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 public interface BusbarSectionPosition extends Extension<BusbarSection> {
 

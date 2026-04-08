@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
@@ -15,7 +16,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.extensions.FourSubstationsNodeBreakerWithExtensionsFactory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerWithExtensionsFactory;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.apache.commons.lang3.Range;
@@ -27,10 +28,10 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-class TopologyModificationUtilsTest extends AbstractConverterTest {
+class TopologyModificationUtilsTest extends AbstractSerDeTest {
 
     @Test
     void testFeederOrders() {

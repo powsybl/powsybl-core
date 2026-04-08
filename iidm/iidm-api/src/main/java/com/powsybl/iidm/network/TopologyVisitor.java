@@ -3,22 +3,23 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TopologyVisitor {
 
     void visitBusbarSection(BusbarSection section);
 
-    void visitLine(Line line, Branch.Side side);
+    void visitLine(Line line, TwoSides side);
 
-    void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side);
+    void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side);
 
-    void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side);
+    void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side);
 
     void visitGenerator(Generator generator);
 
@@ -30,10 +31,14 @@ public interface TopologyVisitor {
 
     void visitShuntCompensator(ShuntCompensator sc);
 
-    void visitDanglingLine(DanglingLine danglingLine);
+    void visitBoundaryLine(BoundaryLine boundaryLine);
 
     void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator);
 
     default void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
     }
+
+    void visitGround(Ground connectable);
+
+    void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber);
 }

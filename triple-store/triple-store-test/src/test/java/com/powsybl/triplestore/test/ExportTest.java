@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.triplestore.test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.triplestore.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 class ExportTest {
 
@@ -68,7 +69,7 @@ class ExportTest {
     }
 
     private PropertyBag createBaseVoltageProperties() {
-        PropertyBag baseVoltageProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "nominalVoltage"));
+        PropertyBag baseVoltageProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "nominalVoltage"), true);
         baseVoltageProperties.setClassPropertyNames(Arrays.asList("IdentifiedObject.name"));
         baseVoltageProperties.put("IdentifiedObject.name", bvName);
         baseVoltageProperties.put("nominalVoltage", Double.toString(nominalVoltage));
@@ -76,7 +77,7 @@ class ExportTest {
     }
 
     private PropertyBag createVoltageLevelProperties(String baseVoltageId, String vlName, String substationId) {
-        PropertyBag voltageLevelProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "Substation", "BaseVoltage"));
+        PropertyBag voltageLevelProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "Substation", "BaseVoltage"), true);
         voltageLevelProperties.setResourceNames(Arrays.asList("Substation", "BaseVoltage"));
         voltageLevelProperties.setClassPropertyNames(Arrays.asList("IdentifiedObject.name"));
         voltageLevelProperties.put("IdentifiedObject.name", vlName);
@@ -108,7 +109,7 @@ class ExportTest {
             checkRepository(exportTripleStore, baseVoltageMasterResourceId);
 
             // export triple store
-            DataSource dataSource = new FileDataSource(exportFolder, networkId + "_" + implementation);
+            DataSource dataSource = new DirectoryDataSource(exportFolder, networkId + "_" + implementation);
             exportTripleStore.write(dataSource);
 
             // create import triple store

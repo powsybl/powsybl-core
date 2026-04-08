@@ -8,68 +8,124 @@
 package com.powsybl.cgmes.conversion.test.conformity;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
 import java.io.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_EQUIVALENT_INJECTION_TERMINAL;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class CgmesConformity3ConversionTest {
+
     @Test
     void microGridBaseCaseBEMergedWithNL() {
-        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
+        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         assertNotEquals("unknown", be.getId());
         int nSubBE = be.getSubstationCount();
-        int nDlBE = be.getDanglingLineCount();
-        Network nl = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource());
+        int nDlBE = be.getBoundaryLineCount();
+        Network nl = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource(), importParams);
         assertNotEquals("unknown", nl.getId());
         int nSubNL = nl.getSubstationCount();
-        int nDlNL = nl.getDanglingLineCount();
-        // Both networks have the same number of dangling lines
+        int nDlNL = nl.getBoundaryLineCount();
+        // Both networks have the same number of boundary lines
         assertEquals(nDlBE, nDlNL);
-        be.merge(nl);
-        int nSub = be.getSubstationCount();
+
+        Network merge = Network.merge(be, nl);
+        int nSub = merge.getSubstationCount();
         assertEquals(nSubBE + nSubNL, nSub);
-        long nTl = be.getLineStream().filter(l -> l instanceof TieLine).count();
-        // All dangling lines must have been converted to tie lines
+        long nTl = merge.getTieLineCount();
+        // All boundary lines must have been converted to tie lines
         assertEquals(nDlBE, nTl);
 
+        for (TieLine tl : merge.getTieLines()) {
+            // The boundaryLine1 and boundaryLine1.boundary.bl must be the same object
+            // Both should correspond to objects at my level of merging
+            assertEquals(tl.getBoundaryLine1(), tl.getBoundaryLine1().getBoundary().getBoundaryLine());
+            assertEquals(tl.getBoundaryLine2(), tl.getBoundaryLine2().getBoundary().getBoundaryLine());
+        }
+        assertEquals(10, merge.getBoundaryLineCount());
+
         // Check SV export contains tie line terminals
-        checkExportSvTerminals(be);
+        checkExportSvTerminals(merge);
+    }
+
+    @Test
+    void microGridBaseCaseAssembled() {
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource());
+        checkExportSvTerminals(n);
+    }
+
+    @Test
+    void microGridBaseCaseAssembledSeparatingByFilename() {
+        Properties params = new Properties();
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.FILENAME.name());
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
+        assertEquals(2, n.getSubnetworks().size());
+        assertEquals(List.of("BE", "NL"),
+                n.getSubnetworks().stream()
+                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
+                        .sorted()
+                        .toList());
+        checkExportSvTerminals(n);
+    }
+
+    @Test
+    void microGridBaseCaseAssembledSeparatingByModelingAuthority() {
+        Properties params = new Properties();
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "true");
+        params.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY, CgmesImport.SubnetworkDefinedBy.MODELING_AUTHORITY.name());
+        Network n = Network.read(CgmesConformity3Catalog.microGridBaseCaseAssembled().dataSource(), params);
+        assertEquals(2, n.getSubnetworks().size());
+        assertEquals(List.of("BE", "NL"),
+                n.getSubnetworks().stream()
+                        .map(n1 -> n1.getSubstations().iterator().next().getCountry().map(Objects::toString).orElse(""))
+                        .sorted()
+                        .toList());
+        checkExportSvTerminals(n);
     }
 
     private void checkExportSvTerminals(Network network) {
         CgmesExportContext context = new CgmesExportContext(network);
-        context.getSvModelDescription().setVersion(2);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(true);
 
         byte[] xml = export(network, context);
 
         // For all tie lines we have exported the power flows with the right terminal identifiers
-        for (Line l : network.getLines()) {
-            if (l instanceof TieLine) {
-                TieLine tieLine = (TieLine) l;
-                String terminal1 = tieLine.getAliasFromType("CGMES.Terminal1").orElseThrow();
-                String terminal2 = tieLine.getAliasFromType("CGMES.Terminal2").orElseThrow();
-                assertEquals(tieLine.getProperty("CGMES.Terminal_1"), terminal1);
-                assertEquals(tieLine.getProperty("CGMES.Terminal_2"), terminal2);
-                String terminal1Resource = "#_" + terminal1;
-                String terminal2Resource = "#_" + terminal2;
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
-            }
+        for (TieLine tieLine : network.getTieLines()) {
+            String terminal1 = tieLine.getBoundaryLine1().getAliasFromType(ALIAS_TERMINAL1).orElseThrow();
+            String terminal2 = tieLine.getBoundaryLine2().getAliasFromType(ALIAS_TERMINAL1).orElseThrow();
+            String terminal1Resource = "#_" + terminal1;
+            String terminal2Resource = "#_" + terminal2;
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
+
+            String eiTerminal1 = tieLine.getBoundaryLine1().getProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
+            String eiTerminal2 = tieLine.getBoundaryLine2().getProperty(PROPERTY_EQUIVALENT_INJECTION_TERMINAL);
+            String eiTerminal1Resource = "#_" + eiTerminal1;
+            String eiTerminal2Resource = "#_" + eiTerminal2;
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal1Resource));
+            assertTrue(ConversionUtil.xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", eiTerminal2Resource));
         }
     }
 
@@ -82,24 +138,5 @@ class CgmesConformity3ConversionTest {
             throw new RuntimeException(e);
         }
         return baos.toByteArray();
-    }
-
-    private static boolean xmlContains(byte[] xml, String clazz, String ns, String attr, String expectedValue) {
-        try (InputStream is = new ByteArrayInputStream(xml)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
-            while (reader.hasNext()) {
-                if (reader.next() == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(clazz)) {
-                    String actualValue = reader.getAttributeValue(ns, attr);
-                    if (expectedValue.equals(actualValue)) {
-                        reader.close();
-                        return true;
-                    }
-                }
-            }
-            reader.close();
-        } catch (XMLStreamException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return false;
     }
 }

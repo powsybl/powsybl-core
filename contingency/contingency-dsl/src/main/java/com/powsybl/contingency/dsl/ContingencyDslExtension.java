@@ -12,7 +12,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.dsl.ExtendableDslExtension;
 
 /**
- * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ * @author Paul Bui-Quang {@literal <paul.buiquang at rte-france.com>}
  */
 public interface ContingencyDslExtension extends ExtendableDslExtension<Contingency> {
 }

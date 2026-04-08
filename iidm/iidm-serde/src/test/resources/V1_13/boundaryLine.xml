@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="P2" country="FR" tso="RTE" geographicalTags="B">
+        <iidm:voltageLevel id="VLHV2" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NHV2" v="389.9526763916016" angle="-3.5063576698303223"/>
+            </iidm:busBreakerTopology>
+            <iidm:danglingLine id="NHV1_NHV2_1" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
+            <iidm:danglingLine id="NHV1_NHV2_2" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NLOAD" v="147.57861328125" angle="-9.614486694335938"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD" p="600.0" q="200.0"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2" voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD" voltageLevelId2="VLLOAD" p1="600.8677978515625" q1="274.3769836425781" p2="-600.0" q2="-200.0">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="158.0" targetDeadband="0.0">
+                <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+</iidm:network>

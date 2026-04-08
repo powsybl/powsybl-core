@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.results;
 
@@ -17,7 +18,7 @@ import java.util.function.Function;
  *  - on post-contingency states
  *  - on post-corrective actions states
  *
- * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class NetworkResult {
 
@@ -26,6 +27,12 @@ public class NetworkResult {
     private final Map<String, BusResult> busResults;
 
     private final Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults;
+
+    private static final NetworkResult EMPTY = new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+
+    public static NetworkResult empty() {
+        return EMPTY;
+    }
 
     public NetworkResult(Collection<BranchResult> branchResults, Collection<BusResult> busResults,
                          Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -16,7 +17,7 @@ import java.util.stream.StreamSupport;
 /**
  * A class which allows to find the best terminal, according to given comparator or list of predicate, among several
  * terminals.
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public final class TerminalFinder {
 
@@ -85,7 +86,8 @@ public final class TerminalFinder {
         List<Predicate<Terminal>> rules = new ArrayList<>();
         rules.add(t -> t.getConnectable() instanceof BusbarSection);
         rules.add(t -> t.getConnectable() instanceof Injection);
-        rules.add(t -> t.getConnectable() instanceof Branch);
+        rules.add(t -> t.getConnectable() instanceof Line);
+        rules.add(t -> t.getConnectable() instanceof TwoWindingsTransformer);
         rules.add(t -> t.getConnectable() instanceof ThreeWindingsTransformer);
         rules.add(t -> t.getConnectable() instanceof HvdcConverterStation);
         rules.add(Objects::nonNull);

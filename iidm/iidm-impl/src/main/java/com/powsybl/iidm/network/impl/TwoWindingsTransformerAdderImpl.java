@@ -3,22 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.Optional;
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.copyOperationalLimits;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
 
-    private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
+
+    private final TwoWindingsTransformer copiedTwoWindingsTransformer;
 
     private double r = Double.NaN;
 
@@ -35,22 +35,19 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     private double ratedS = Double.NaN;
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
-        networkRef = null;
         this.substation = substation;
+        this.copiedTwoWindingsTransformer = null;
     }
 
-    TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
-        this.networkRef = networkRef;
-        substation = null;
+    TwoWindingsTransformerAdderImpl(SubstationImpl substation, TwoWindingsTransformer copiedTwoWindingsTransformer) {
+        this.substation = substation;
+        this.copiedTwoWindingsTransformer = copiedTwoWindingsTransformer;
+        TwoWindingsTransformerAdder.fillTwoWindingsTransformerAdder(this, copiedTwoWindingsTransformer);
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef)
-                .map(Ref::get)
-                .orElseGet(() -> Optional.ofNullable(substation)
-                        .map(SubstationImpl::getNetwork)
-                        .orElseThrow(() -> new PowsyblException("Two windings transformer has no container")));
+        return substation.getNetwork();
     }
 
     @Override
@@ -106,17 +103,11 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (substation != null) {
-            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
-                throw new ValidationException(this,
-                        "the 2 windings of the transformer shall belong to the substation '"
-                                + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
-                                + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "')");
-            }
-        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent()) {
+        if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
             throw new ValidationException(this,
-                    "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
-                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");
+                    "the 2 windings of the transformer shall belong to the substation '"
+                            + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                            + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "')");
         }
         if (Double.isNaN(ratedU1)) {
             ratedU1 = voltageLevel1.getNominalV();
@@ -136,25 +127,23 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkRatedS(this, ratedS);
 
         TwoWindingsTransformerImpl transformer
-                = new TwoWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(),
+                = new TwoWindingsTransformerImpl(substation.getNetworkRef(), id, getName(), isFictitious(),
                 (SubstationImpl) voltageLevel1.getSubstation().orElse(null),
                 r, x, g, b,
                 ratedU1, ratedU2, ratedS);
-        terminal1.setNum(1);
-        terminal2.setNum(2);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
 
-        // check that the two windings transformer is attachable on both side
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
+        copyOperationalLimits(copiedTwoWindingsTransformer, transformer);
 
-        voltageLevel1.attach(terminal1, false);
-        voltageLevel2.attach(terminal2, false);
+        // check that the two windings transformer is attachable on both side
+        voltageLevel1.getTopologyModel().attach(terminal1, true);
+        voltageLevel2.getTopologyModel().attach(terminal2, true);
+
+        voltageLevel1.getTopologyModel().attach(terminal1, false);
+        voltageLevel2.getTopologyModel().attach(terminal2, false);
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
         return transformer;
-
     }
-
 }

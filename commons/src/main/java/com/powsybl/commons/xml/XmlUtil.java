@@ -3,57 +3,62 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.xml;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.io.TreeDataReader;
 import javanet.staxutils.IndentingXMLStreamWriter;
+import org.apache.commons.csv.CSVFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.*;
-import java.io.*;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public final class XmlUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlUtil.class);
 
-    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createXMLInputFactoryInstance);
+    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createXMLOutputFactoryInstance);
+    private static final Supplier<DocumentBuilderFactory> DOCUMENT_BUILDER_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createDocumentBuilderFactoryInstance);
+    private static final Supplier<CSVFormat> CSV_FORMAT_SUPPLIER = Suppliers.memoize(XmlUtil::createCsvFormatInstance);
 
     private XmlUtil() {
     }
 
-    public interface XmlEventHandler {
-
-        void onStartElement() throws XMLStreamException;
-    }
-
-    /**
-     * An richer event handler which give element depth with each start event.
-     */
-    public interface XmlEventHandlerWithDepth {
-
-        void onStartElement(int elementDepth) throws XMLStreamException;
-    }
-
-    public static void readUntilStartElement(String path, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+    public static void readUntilStartElement(String path, XMLStreamReader reader, TreeDataReader.ChildNodeReader handler) throws XMLStreamException {
         Objects.requireNonNull(path);
         String[] elements = path.split("/");
         readUntilStartElement(elements, reader, handler);
     }
 
-    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, TreeDataReader.ChildNodeReader handler) throws XMLStreamException {
         Objects.requireNonNull(elements);
         if (elements.length == 0) {
             throw new PowsyblException("Empty element list");
@@ -66,7 +71,7 @@ public final class XmlUtil {
             }
         }
         if (handler != null) {
-            handler.onStartElement();
+            handler.onStartNode(elements[elements.length - 1]);
         }
     }
 
@@ -74,202 +79,92 @@ public final class XmlUtil {
         int event;
         while ((event = reader.next()) != XMLStreamConstants.END_DOCUMENT) {
             switch (event) {
-                case XMLStreamConstants.START_ELEMENT:
+                case XMLStreamConstants.START_ELEMENT -> {
                     if (reader.getLocalName().equals(startElement)) {
                         return true;
                     } else {
                         // Skip the current element
-                        readUntilEndElement(reader.getLocalName(), reader, null);
+                        skipSubElements(reader);
                     }
-                    break;
+                }
 
-                case XMLStreamConstants.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT -> {
                     if (reader.getLocalName().equals(endElement)) {
                         return false;
                     }
-                    break;
+                }
 
-                default:
-                    break;
+                default -> {
+                    // Do nothing
+                }
             }
         }
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
-    public static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler eventHandler) throws XMLStreamException {
-        return readUntilEndElementWithDepth(endElementName, reader, elementDepth -> {
-            if (eventHandler != null) {
-                eventHandler.onStartElement();
-            }
-        });
+    public static void skipSubElements(XMLStreamReader reader) {
+        readSubElements(reader, elementName -> skipSubElements(reader));
     }
 
-    public static String readUntilEndElementWithDepth(String endElementName, XMLStreamReader reader, XmlEventHandlerWithDepth eventHandler) throws XMLStreamException {
-        Objects.requireNonNull(endElementName);
+    public static void readSubElements(XMLStreamReader reader, TreeDataReader.ChildNodeReader childNodeReader) {
         Objects.requireNonNull(reader);
+        Objects.requireNonNull(childNodeReader);
 
-        String text = null;
-        int event;
-        int depth = 0;
-        while (!((event = reader.next()) == XMLStreamConstants.END_ELEMENT
-                && reader.getLocalName().equals(endElementName))) {
-            text = null;
-            switch (event) {
-                case XMLStreamConstants.START_ELEMENT:
-                    if (eventHandler != null) {
-                        String startLocalName = reader.getLocalName();
-                        eventHandler.onStartElement(depth);
-                        // if handler has already consumed end element we must decrease the depth
-                        if (reader.getEventType() == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(startLocalName)) {
-                            depth--;
-                        }
-                    }
-                    depth++;
-                    break;
-
-                case XMLStreamConstants.END_ELEMENT:
-                    depth--;
-                    break;
-
-                case XMLStreamConstants.CHARACTERS:
-                    text = reader.getText();
-                    break;
-
-                default:
-                    break;
+        try {
+            int event;
+            while ((event = reader.next()) != XMLStreamConstants.END_ELEMENT) {
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    childNodeReader.onStartNode(reader.getLocalName());
+                }
             }
-        }
-        return text;
-    }
-
-    public static String readText(String endElementName, XMLStreamReader reader) throws XMLStreamException {
-        return readUntilEndElement(endElementName, reader, () -> { });
-    }
-
-    public static void writeOptionalBoolean(String name, boolean value, boolean absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != absentValue) {
-            writer.writeAttribute(name, Boolean.toString(value));
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
-    public static void writeOptionalBoolean(String name, Optional<Boolean> value, XMLStreamWriter writer) throws XMLStreamException {
-        if (value.isPresent()) {
-            writer.writeAttribute(name, Boolean.toString(value.get()));
-        }
+    public static String readText(XMLStreamReader reader) throws XMLStreamException {
+        String text = reader.getElementText();
+        return text.isEmpty() ? null : text;
     }
 
-    public static void writeDouble(String name, double value, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Double.isNaN(value)) {
-            writer.writeAttribute(name, Double.toString(value));
-        }
-    }
-
-    public static void writeOptionalDouble(String name, double value, double absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Double.isNaN(value) && value != absentValue) {
-            writer.writeAttribute(name, Double.toString(value));
-        }
-    }
-
-    public static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Float.isNaN(value)) {
-            writer.writeAttribute(name, Float.toString(value));
-        }
-    }
-
-    public static void writeOptionalFloat(String name, float value, float absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Float.isNaN(value) && value != absentValue) {
-            writer.writeAttribute(name, Float.toString(value));
-        }
-    }
-
-    public static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(name, Integer.toString(value));
-    }
-
-    public static void writeOptionalInt(String name, int value, int absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != absentValue) {
-            writer.writeAttribute(name, Integer.toString(value));
-        }
-    }
-
-    public static void writeOptionalString(String name, String value, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != null) {
-            writer.writeAttribute(name, value);
-        }
-    }
-
-    public static <E extends Enum<E>> void writeOptionalEnum(String name, E value, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != null) {
-            writer.writeAttribute(name, value.name());
-        }
-    }
-
-    public static int readIntAttribute(XMLStreamReader reader, String attributeName) {
-        return Integer.parseInt(reader.getAttributeValue(null, attributeName));
-    }
-
-    public static boolean readBoolAttribute(XMLStreamReader reader, String attributeName) {
-        return Boolean.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    public static boolean readOptionalBoolAttribute(XMLStreamReader reader, String attributeName, boolean defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Boolean.valueOf(attributeValue) : defaultValue;
-    }
-
-    public static double readDoubleAttribute(XMLStreamReader reader, String attributeName) {
-        return Double.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    public static double readOptionalDoubleAttribute(XMLStreamReader reader, String attributeName) {
-        return readOptionalDoubleAttribute(reader, attributeName, Double.NaN);
-    }
-
-    public static double readOptionalDoubleAttribute(XMLStreamReader reader, String attributeName, double defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Double.valueOf(attributeValue) : defaultValue;
-    }
-
-    public static Integer readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
+    public static Integer readIntegerAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
     }
 
-    public static int readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName, int defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
+    public static OptionalInt readOptionalIntegerAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? OptionalInt.of(Integer.parseInt(attributeValue)) : OptionalInt.empty();
+    }
+
+    public static int readIntAttribute(XMLStreamReader reader, String name, int defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
     }
 
-    public static float readFloatAttribute(XMLStreamReader reader, String attributeName) {
-        return Float.valueOf(reader.getAttributeValue(null, attributeName));
+    public static Boolean readBooleanAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Boolean.valueOf(attributeValue) : null;
     }
 
-    public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName) {
-        return readOptionalFloatAttribute(reader, attributeName, Float.NaN);
+    public static boolean readBooleanAttribute(XMLStreamReader reader, String name, boolean defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Boolean.parseBoolean(attributeValue) : defaultValue;
     }
 
-    public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName, float defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
+    public static double readDoubleAttribute(XMLStreamReader reader, String name, double defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
     }
 
-    public static <E extends Enum<E>> E readOptionalEnum(XMLStreamReader reader, String attributeName, Class<E> enumClass) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Enum.valueOf(enumClass, attributeValue) : null;
+    public static OptionalDouble readOptionalDoubleAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? OptionalDouble.of(Double.parseDouble(attributeValue)) : OptionalDouble.empty();
     }
 
-    public static void consumeOptionalBoolAttribute(XMLStreamReader reader, String attributeName, Consumer<Boolean> consumer) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        if (attributeValue != null) {
-            consumer.accept(Boolean.parseBoolean(attributeValue));
-        }
-    }
-
-    public static void consumeOptionalIntAttribute(XMLStreamReader reader, String attributeName, IntConsumer consumer) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        if (attributeValue != null) {
-            consumer.accept(Integer.parseInt(attributeValue));
-        }
+    public static float readFloatAttribute(XMLStreamReader reader, String name, float defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Float.parseFloat(attributeValue) : defaultValue;
     }
 
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
@@ -315,5 +210,82 @@ public final class XmlUtil {
         } catch (XMLStreamException | IOException e) {
             LOGGER.error(e.toString(), e);
         }
+    }
+
+    public static void readEndElementOrThrow(XMLStreamReader reader) throws XMLStreamException {
+        if (reader.next() != XMLStreamConstants.END_ELEMENT) {
+            throw new PowsyblException("XMLStreamConstants.END_ELEMENT expected but found another event (eventType = '" + reader.getEventType() + "')");
+        }
+    }
+
+    private static XMLInputFactory createXMLInputFactoryInstance() {
+        LOGGER.info("Configuring StAX XMLInputFactory...");
+        LOGGER.info("Some properties may not be supported by your implementation.");
+        LOGGER.info("This may not be a problem because some are overlapping.");
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        setProperty(factory, XMLInputFactory.SUPPORT_DTD, false);
+        setProperty(factory, XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        setProperty(factory, XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+        // This causes XMLStreamException to be thrown if external DTDs are accessed.
+        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+        setProperty(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return factory;
+    }
+
+    private static void setProperty(XMLInputFactory factory, String property, Object value) {
+        try {
+            factory.setProperty(property, value);
+        } catch (IllegalArgumentException e) {
+            LOGGER.info("- Property unsupported by StAX implementation: {}", property);
+        }
+    }
+
+    private static XMLOutputFactory createXMLOutputFactoryInstance() {
+        return XMLOutputFactory.newFactory();
+    }
+
+    public static XMLOutputFactory getXMLOutputFactory() {
+        return XML_OUTPUT_FACTORY_SUPPLIER.get();
+    }
+
+    public static XMLInputFactory getXMLInputFactory() {
+        return XML_INPUT_FACTORY_SUPPLIER.get();
+    }
+
+    private static DocumentBuilderFactory createDocumentBuilderFactoryInstance() {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        factory.setNamespaceAware(true);
+        setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
+        setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+        return factory;
+    }
+
+    private static void setFeature(DocumentBuilderFactory factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (ParserConfigurationException e) {
+            LOGGER.warn("Unable to set feature {} to {}", feature, value);
+        }
+    }
+
+    public static DocumentBuilderFactory getDocumentBuilderFactory() {
+        return DOCUMENT_BUILDER_FACTORY_SUPPLIER.get();
+    }
+
+    public static CSVFormat getCsvFormat() {
+        return CSV_FORMAT_SUPPLIER.get();
+    }
+
+    private static CSVFormat createCsvFormatInstance() {
+        return CSVFormat.DEFAULT.builder().setRecordSeparator("").get();
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.contingency.json;
@@ -13,14 +14,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.contingency.list.DefaultContingencyList;
+import com.powsybl.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> {
 
@@ -33,26 +34,19 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
         List<Contingency> contingencies = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "contingencies":
+            switch (parser.currentName()) {
+                case "version" -> ctx.setAttribute("version", parser.nextTextValue());
+                case "name" -> name = parser.nextTextValue();
+                case "type" -> {
+                    if (!parser.nextTextValue().equals(DefaultContingencyList.TYPE)) {
+                        throw new IllegalStateException("type should be: " + DefaultContingencyList.TYPE);
+                    }
+                }
+                case "contingencies" -> {
                     parser.nextToken();
                     contingencies = JsonUtil.readList(ctx, parser, Contingency.class);
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

@@ -1,0 +1,87 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.cgmes.extensions;
+
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.AbstractExtensionSerDe;
+import com.powsybl.commons.extensions.ExtensionSerDe;
+import com.powsybl.commons.io.DeserializerContext;
+import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
+
+import java.util.Map;
+
+/**
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
+ */
+@AutoService(ExtensionSerDe.class)
+public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExtensionSerDe<C, CgmesTapChangers<C>> {
+
+    public static final String TAP_CHANGER_ROOT_ELEMENT = "tapChanger";
+    private static final String TAP_CHANGER_ARRAY_ELEMENT = "tapChangers";
+
+    public CgmesTapChangersSerDe() {
+        super("cgmesTapChangers", "network", CgmesTapChangers.class,
+                "cgmesTapChangers.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/cgmes_tap_changers/1_0", "ctc");
+    }
+
+    @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of(TAP_CHANGER_ARRAY_ELEMENT, TAP_CHANGER_ROOT_ELEMENT);
+    }
+
+    @Override
+    public void write(CgmesTapChangers<C> extension, SerializerContext context) {
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
+        TreeDataWriter writer = networkContext.getWriter();
+        writer.writeStartNodes();
+        for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
+            writer.writeStartNode(getNamespaceUri(), TAP_CHANGER_ROOT_ELEMENT);
+            writer.writeStringAttribute("id", networkContext.anonymizeFromMinimumVersion(tapChanger.getId(), IidmVersion.V_1_16));
+            writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
+            writer.writeStringAttribute("type", tapChanger.getType());
+            writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
+            Integer step = tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
+            writer.writeOptionalIntAttribute("step", step);
+            writer.writeStringAttribute("controlId", networkContext.anonymizeFromMinimumVersion(tapChanger.getControlId(), IidmVersion.V_1_16));
+            writer.writeEndNode();
+        }
+        writer.writeEndNodes();
+    }
+
+    @Override
+    public CgmesTapChangers<C> read(C extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
+        TreeDataReader reader = networkContext.getReader();
+        extendable.newExtension(CgmesTapChangersAdder.class).add();
+        CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);
+        reader.readChildNodes(elementName -> {
+            if (elementName.equals(TAP_CHANGER_ROOT_ELEMENT)) {
+                CgmesTapChangerAdder adder = tapChangers.newTapChanger()
+                        .setId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("id"), IidmVersion.V_1_16))
+                        .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
+                        .setType(reader.readStringAttribute("type"))
+                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false));
+                reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
+                adder.setControlId(networkContext.deanonymizeFromMinimumVersion(reader.readStringAttribute("controlId"), IidmVersion.V_1_16));
+                context.getReader().readEndNode();
+                adder.add();
+            } else {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'cgmesTapChangers'");
+            }
+        });
+        return extendable.getExtension(CgmesTapChangers.class);
+    }
+}

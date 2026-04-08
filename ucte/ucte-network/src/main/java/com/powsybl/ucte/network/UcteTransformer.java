@@ -3,14 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteTransformer extends UcteElement {
 
@@ -104,8 +105,8 @@ public class UcteTransformer extends UcteElement {
     }
 
     @Override
-    public void fix(Reporter reporter) {
-        UcteValidation.checkValidTransformerCharacteristics(this, reporter);
-        super.fix(reporter);
+    public void fix(ReportNode reportNode) {
+        UcteValidation.checkValidTransformerCharacteristics(this, reportNode);
+        super.fix(reportNode);
     }
 }

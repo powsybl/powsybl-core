@@ -3,27 +3,33 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.contingency.violations.BusBreakerViolationLocation;
+import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisResultDeserializer;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
+class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
 
     @Test
     void testGetFormats() {
@@ -51,7 +57,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
     @Test
     void testWriteJson() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithExtension();
-        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-with-extensions-results.json");
+        writeTest(result, this::writeJson, ComparisonUtils::assertTxtEquals, "/shortcircuit-with-extensions-results.json");
     }
 
     @Test
@@ -62,14 +68,20 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
 
     @Test
     void testJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
-        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-results-with-feeder-result.json");
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
+        writeTest(result, this::writeJson, ComparisonUtils::assertTxtEquals, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
     void roundTripJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
+    }
+
+    @Test
+    void roundTripJsonWithOperationalLimitsGroupId() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithOperationalLimitsGroupIdResults();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-operational-limits-group-id-v14.json");
     }
 
     @Test
@@ -78,7 +90,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
         assertEquals(1, result.getFaultResults().size());
         FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id");
-        assertEquals(1.0, faultResult.getCurrent().getDirectMagnitude(), 0);
+        assertEquals(1.0, faultResult.getCurrent().getPositiveMagnitude(), 0);
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
     }
@@ -95,6 +107,35 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
         assertEquals(2.0, faultResult.getVoltage(), 0);
     }
 
+    @Test
+    void readJsonFaultResultVersion12() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+            .read(getClass().getResourceAsStream("/shortcircuit-results-version12.json"));
+        assertEquals(1, result.getFaultResults().size());
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+        assertEquals(ThreeSides.ONE, faultResult.getFeederResults().getFirst().getSide());
+    }
+
+    @Test
+    void readJsonFaultResultVersion13() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+            .read(getClass().getResourceAsStream("/shortcircuit-results-version13.json"));
+        assertEquals(1, result.getFaultResults().size());
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+        ViolationLocation location = faultResult.getLimitViolations().getFirst().getViolationLocation().orElseThrow();
+        assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
+        BusBreakerViolationLocation locationBusBreaker = (BusBreakerViolationLocation) location;
+        assertEquals(List.of("BBS1"), locationBusBreaker.getBusIds());
+    }
+
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisResultExporters.export(result, path, "CSV", network);
@@ -103,7 +144,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
     @Test
     void testWriteCsv() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
-        writeTest(result, this::writeCsv, ComparisonUtils::compareTxt, "/shortcircuit-results.csv");
+        writeTest(result, this::writeCsv, ComparisonUtils::assertTxtEquals, "/shortcircuit-results.csv");
     }
 
     @Test
@@ -128,5 +169,15 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
     void roundTripJsonFailedResults() throws IOException {
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(new FailedFaultResult(new BusFault("id", "elementId"), FaultResult.Status.FAILURE)));
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-failed-result.json");
+    }
+
+    @Test
+    void roundTripWithMultipleFeederResults() throws IOException {
+        List<FeederResult> feederResults = new ArrayList<>();
+        feederResults.add(new MagnitudeFeederResult("connectableId1", 10));
+        feederResults.add(new MagnitudeFeederResult("connectableId2", 20));
+        MagnitudeFaultResult faultResult = new MagnitudeFaultResult(new BusFault("faultId", "busId"), 100, feederResults, Collections.EMPTY_LIST, 200, FaultResult.Status.SUCCESS);
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-multiple-feeder-results.json");
     }
 }

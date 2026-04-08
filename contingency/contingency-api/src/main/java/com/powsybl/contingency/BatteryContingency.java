@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.tripping.BatteryTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class BatteryContingency extends AbstractContingency {
 

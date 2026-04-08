@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -20,19 +21,11 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  * @see Battery
  * @see VoltageLevel
  */
-public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
-
-    /**
-     * @deprecated Use {@link #setTargetP(double)} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default BatteryAdder setP0(double p0) {
-        return setTargetP(p0);
-    }
+public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder> {
 
     /**
      * Set the target active power in MW.
@@ -40,14 +33,6 @@ public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
      * @see VariantManager
      */
     BatteryAdder setTargetP(double targetP);
-
-    /**
-     * @deprecated Use {@link #setTargetQ(double)} instead.
-     */
-    @Deprecated(since = "4.9.0")
-    default BatteryAdder setQ0(double q0) {
-        return setTargetQ(q0);
-    }
 
     /**
      * Set the target reactive power in MVar.
@@ -77,5 +62,6 @@ public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
      *      - minP <= p0 <= maxP
      * @return {@link Battery}
      */
+    @Override
     Battery add();
 }

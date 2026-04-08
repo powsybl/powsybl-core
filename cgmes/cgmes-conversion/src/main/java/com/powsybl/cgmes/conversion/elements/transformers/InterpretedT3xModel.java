@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements.transformers;
@@ -11,8 +12,8 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.transformers.CgmesT3xModel.CgmesEnd;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public class InterpretedT3xModel {
 
@@ -66,6 +67,7 @@ public class InterpretedT3xModel {
         final TapChangerConversion.InterpretedEnd end1;
         final InterpretedEnd2 end2;
         final boolean structuralRatioAtEnd2;
+        final Double ratedS;
 
         /**
          * Maps Cgmes ratioTapChangers, phaseTapChangers, shuntAdmittances and
@@ -86,6 +88,7 @@ public class InterpretedT3xModel {
             this.end2 = new InterpretedEnd2(windingInterpretedShunt.g2, windingInterpretedShunt.b2,
                     windingInterpretedTapChanger.ratioTapChanger2, windingInterpretedTapChanger.phaseTapChanger2);
             this.structuralRatioAtEnd2 = windingStructuralRatioAtEnd2;
+            this.ratedS = cgmesEnd.ratedS;
         }
 
         /**

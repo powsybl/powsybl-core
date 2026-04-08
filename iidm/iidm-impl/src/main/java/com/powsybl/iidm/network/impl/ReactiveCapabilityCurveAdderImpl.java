@@ -3,14 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
+import com.powsybl.iidm.network.util.NetworkReports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,18 +17,18 @@ import java.util.TreeMap;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable> extends AbstractPropertiesHolder implements ReactiveCapabilityCurveAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveAdderImpl.class);
 
-    private final OWNER owner;
+    private final O owner;
 
     private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
-    private class PointAdderImpl implements PointAdder {
+    private final class PointAdderImpl extends AbstractPropertiesHolder implements PointAdder {
 
         private double p = Double.NaN;
 
@@ -74,6 +73,8 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
                             minQ + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
                 } else {
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
+                    NetworkReports.parentHasDuplicatePointForActivePower(owner.getNetwork().getReportNodeContext().getReportNode(),
+                            owner.getMessageHeader().id(), p);
                 }
             }
             // TODO: to be activated in IIDM v1.1
@@ -81,18 +82,20 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
             //     throw new ValidationException(owner,
             //             "maximum reactive power is expected to be greater than or equal to minimum reactive power");
             // }
-            points.put(p, new PointImpl(p, minQ, maxQ));
+            PointImpl pointImpl = new PointImpl(p, minQ, maxQ);
+            this.copyPropertiesTo(pointImpl);
+            points.put(p, pointImpl);
             return ReactiveCapabilityCurveAdderImpl.this;
         }
 
     }
 
-    ReactiveCapabilityCurveAdderImpl(OWNER owner) {
+    ReactiveCapabilityCurveAdderImpl(O owner) {
         this.owner = owner;
     }
 
     @Override
-    public PointAdderImpl beginPoint() {
+    public PointAdder beginPoint() {
         return new PointAdderImpl();
     }
 
@@ -101,7 +104,8 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
         if (points.size() < 2) {
             throw new ValidationException(owner, "a reactive capability curve should have at least two points");
         }
-        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points);
+        ReactiveCapabilityCurveImpl curve = new ReactiveCapabilityCurveImpl(points, owner.getMessageHeader().toString());
+        this.copyPropertiesTo(curve);
         owner.setReactiveLimits(curve);
         return curve;
     }

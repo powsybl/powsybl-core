@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractTopologyTraverserTest {
 
@@ -251,12 +252,35 @@ public abstract class AbstractTopologyTraverserTest {
                 visited);
     }
 
+    @Test
+    public void testTerminateTraverser() {
+        Network network = createMixedNodeBreakerBusBreakerNetwork();
+        Terminal startGNbv = network.getGenerator("G").getTerminal();
+        List<Pair<String, Integer>> visited1 = getVisitedList(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited1);
+
+        List<Pair<String, Integer>> visited2 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of(Pair.of("G", 0)), visited2);
+
+        List<Pair<String, Integer>> visited3 = getVisitedList(startGNbv, s -> TraverseResult.CONTINUE,
+                t -> t.getConnectable() instanceof BusbarSection ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("G", 0), Pair.of("BBS1", 0)), visited3);
+
+        Terminal startLBbv = network.getLoad("LD2").getTerminal();
+        List<Pair<String, Integer>> visited4 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of(Pair.of("LD2", 0)), visited4);
+
+        List<Pair<String, Integer>> visited5 = getVisitedList(startLBbv, s -> TraverseResult.CONTINUE,
+                t -> t.getConnectable().getId().equals("L2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of(Pair.of("LD2", 0), Pair.of("L2", 1)), visited5);
+    }
+
     protected List<Pair<String, Integer>> getVisitedList(Terminal start, Function<Switch, TraverseResult> switchTest) {
         return getVisitedList(start, switchTest, t -> TraverseResult.CONTINUE);
     }
 
     protected List<Pair<String, Integer>> getVisitedList(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
-        return getVisitedStream(start, switchTest, terminalTest).collect(Collectors.toList());
+        return getVisitedStream(start, switchTest, terminalTest).toList();
     }
 
     protected Set<Pair<String, Integer>> getVisitedSet(Terminal start, Function<Switch, TraverseResult> switchTest) {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion;
 
@@ -13,13 +14,18 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
+
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 
 public class RegulatingControlMappingForStaticVarCompensators {
@@ -31,14 +37,12 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     public static void initialize(StaticVarCompensatorAdder adder) {
-        adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+        adder.setRegulating(false);
     }
 
     public void add(String iidmId, PropertyBag sm) {
         String rcId = RegulatingControlMapping.getRegulatingControlId(sm);
-        boolean controlEnabled = sm.asBoolean("controlEnabled", false);
         double defaultTargetVoltage = sm.asDouble("voltageSetPoint");
-        double defaultTargetReactivePower = sm.asDouble("q");
         String defaultRegulationMode = sm.getId("controlMode");
 
         if (mapping.containsKey(iidmId)) {
@@ -48,9 +52,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         CgmesRegulatingControlForStaticVarCompensator rc = new CgmesRegulatingControlForStaticVarCompensator();
         rc.regulatingControlId = rcId;
-        rc.controlEnabled = controlEnabled;
         rc.defaultTargetVoltage = defaultTargetVoltage;
-        rc.defaultTargetReactivePower = defaultTargetReactivePower;
         rc.defaultRegulationMode = defaultRegulationMode;
 
         mapping.put(iidmId, rc);
@@ -61,111 +63,93 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void apply(StaticVarCompensator svc) {
-        CgmesRegulatingControlForStaticVarCompensator rd = mapping.get(svc.getId());
-        apply(svc, rd);
-    }
-
-    private void apply(StaticVarCompensator svc, CgmesRegulatingControlForStaticVarCompensator rc) {
+        CgmesRegulatingControlForStaticVarCompensator rc = mapping.get(svc.getId());
         if (rc == null) {
             return;
         }
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing("Regulating control Id not defined");
-            setDefaultRegulatingControl(rc, svc, false);
+            LOG.trace("Regulating control Id not present for static var compensator {}", svc.getId());
+            setDefaultRegulatingControl(rc, svc);
             return;
         }
 
         RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
         if (control == null) {
             context.missing(String.format("Regulating control %s", controlId));
-            setDefaultRegulatingControl(rc, svc, false);
+            setDefaultRegulatingControl(rc, svc);
             return;
         }
 
-        control.setCorrectlySet(setRegulatingControl(rc, control, svc));
+        setRegulatingControl(rc, control, svc);
     }
 
-    private boolean setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
+    private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
+        svc.setRegulatingTerminal(svc.getTerminal());
+        if (RegulatingControlMapping.isControlModeReactivePower(rc.defaultRegulationMode)) {
+            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        } else {
+            if (!RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode)) {
+                context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
+            }
+            setDefaultRegulatingControlData(rc, svc);
+            svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        }
+    }
 
-        // Take default terminal if it has not been defined in CGMES files (it is never null)
-        Terminal regulatingTerminal = RegulatingTerminalMapper
-                .mapForVoltageControl(control.cgmesTerminal, context)
-                .orElse(svc.getTerminal());
-
-        double targetVoltage = Double.NaN;
-        double targetReactivePower = Double.NaN;
-        StaticVarCompensator.RegulationMode regulationMode;
-
+    private void setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
         boolean okSet = false;
-        if (!control.enabled && rc.controlEnabled) {
-            context.fixed("SVCControlEnabledStatus", () -> String.format("Regulating control of %s is disabled but controlEnabled property is set to true." +
-                    "Equipment properties are used to set local default regulation if local default regulation is reactive power. Else, regulation is disabled.", svc.getId()));
-            setDefaultRegulatingControl(rc, svc, true);
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
+            okSet = setRegulatingControlVoltage(rc, control, svc);
+        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
+            okSet = setRegulatingControlReactivePower(rc, control, svc);
+        } else {
+            context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. RegulationMode set to VOLTAGE", svc.getId()));
+            okSet = setRegulatingControlVoltage(rc, control, svc);
+        }
+
+        // Always save the original RC id, even if we cannot complete setting all the regulation data
+        svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rc.regulatingControlId);
+        control.setCorrectlySet(okSet);
+    }
+
+    private boolean setRegulatingControlVoltage(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
+        setDefaultRegulatingControlData(rc, svc);
+        Terminal regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context).orElse(svc.getTerminal());
+        svc.setRegulatingTerminal(regulatingTerminal).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        return true;
+    }
+
+    private boolean setRegulatingControlReactivePower(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
+        RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
+                .mapForFlowControl(control.cgmesTerminal, context)
+                .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(null, 1));
+        if (mappedRegulatingTerminal.getTerminal() == null) {
+            context.ignored(rc.regulatingControlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
             return false;
         }
-        if (RegulatingControlMapping.isControlModeVoltage(control.mode.toLowerCase())) {
-            regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
-            targetVoltage = control.targetValue;
-            okSet = true;
-        } else if (isControlModeReactivePower(control.mode.toLowerCase())) {
-            regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
-            targetReactivePower = control.targetValue;
-            okSet = true;
-        } else {
-            context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
-            regulationMode = StaticVarCompensator.RegulationMode.OFF;
-        }
+        svc.setRegulatingTerminal(mappedRegulatingTerminal.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
 
-        svc.setVoltageSetpoint(targetVoltage);
-        svc.setReactivePowerSetpoint(targetReactivePower);
-        if (control.enabled && rc.controlEnabled) {
-            svc.setRegulationMode(regulationMode);
-        }
-        svc.setRegulatingTerminal(regulatingTerminal);
-
-        svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rc.regulatingControlId);
-        return okSet;
+        svc.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
+        return true;
     }
 
-    private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc, boolean onlyReactivePowerReg) {
-
-        double targetVoltage = Double.NaN;
-        double targetReactivePower = Double.NaN;
-        StaticVarCompensator.RegulationMode regulationMode;
-
-        if (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase())) {
-            regulationMode = onlyReactivePowerReg ? StaticVarCompensator.RegulationMode.OFF : StaticVarCompensator.RegulationMode.VOLTAGE;
-            targetVoltage = rc.defaultTargetVoltage;
-        } else if (isControlModeReactivePower(rc.defaultRegulationMode.toLowerCase())) {
-            regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
-            targetReactivePower = rc.defaultTargetReactivePower;
-        } else {
-            context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
-            regulationMode = StaticVarCompensator.RegulationMode.OFF;
-        }
-
-        svc.setVoltageSetpoint(targetVoltage);
-        svc.setReactivePowerSetpoint(targetReactivePower);
-        if (rc.controlEnabled) {
-            svc.setRegulationMode(regulationMode);
+    private void setDefaultRegulatingControlData(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
+        if (!Double.isNaN(rc.defaultTargetVoltage)) {
+            svc.setProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(rc.defaultTargetVoltage));
         }
     }
 
-    private static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.endsWith("reactivepower");
-    }
-
-    private static class CgmesRegulatingControlForStaticVarCompensator {
+    private static final class CgmesRegulatingControlForStaticVarCompensator {
         String regulatingControlId;
-        boolean controlEnabled;
         double defaultTargetVoltage;
-        double defaultTargetReactivePower;
         String defaultRegulationMode;
     }
 
     private final RegulatingControlMapping parent;
     private final Map<String, CgmesRegulatingControlForStaticVarCompensator> mapping;
     private final Context context;
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForStaticVarCompensators.class);
 }

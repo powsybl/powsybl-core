@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> {
 
@@ -37,7 +37,7 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
         Set<String> disconnectedElements = Collections.emptySet();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "createdSynchronousComponentCount":
                     parser.nextToken();
                     createdSynchronousComponentCount = parser.getIntValue();
@@ -59,7 +59,7 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
                     disconnectedElements = JsonUtil.readSet(deserializationContext, parser, String.class);
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

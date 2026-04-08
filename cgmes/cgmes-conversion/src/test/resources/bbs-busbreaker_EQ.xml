@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<md:FullModel rdf:about="urn:uuid:test">
+		<md:Model.scenarioTime>2024-02-26T00:00:00Z</md:Model.scenarioTime>
+		<md:Model.created>2024-02-26T00:00:00Z</md:Model.created>
+		<md:Model.description>test busbarsection without TN</md:Model.description>
+		<md:Model.version>1</md:Model.version>
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+	</md:FullModel>
+	<cim:BusbarSection rdf:ID="_bbs">
+		<cim:Equipment.EquipmentContainer rdf:resource="#_bbs_vl"/>
+		<cim:IdentifiedObject.name>BBS152</cim:IdentifiedObject.name>
+	</cim:BusbarSection>
+	<cim:Terminal rdf:ID="_bbs_t">
+		<cim:Terminal.ConductingEquipment rdf:resource="#_bbs"/>
+		<cim:Terminal.ConnectivityNode rdf:resource="#_bbs_cn"/>
+		<cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
+	</cim:Terminal>
+	<cim:ConnectivityNode rdf:ID="_bbs_cn">
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_bbs_vl"/>
+		<cim:IdentifiedObject.name>BBS152    </cim:IdentifiedObject.name>
+	</cim:ConnectivityNode>
+	<cim:Substation rdf:ID="_bbs_s">
+		<cim:Substation.Region rdf:resource="#_bbs_sgr"/>
+		<cim:IdentifiedObject.name>BBS152</cim:IdentifiedObject.name>
+	</cim:Substation>
+	<cim:VoltageLevel rdf:ID="_bbs_vl">
+		<cim:VoltageLevel.BaseVoltage rdf:resource="#_b8e17237e0ca4fca9e4e285b80ab30d0"/>
+		<cim:VoltageLevel.Substation rdf:resource="#_bbs_s"/>
+		<cim:IdentifiedObject.name>BBS_110</cim:IdentifiedObject.name>
+	</cim:VoltageLevel>
+	<cim:SubGeographicalRegion rdf:ID="_bbs_sgr">
+		<cim:SubGeographicalRegion.Region rdf:resource="#_bbs_gr"/>
+		<cim:IdentifiedObject.name>Subgeographical Region</cim:IdentifiedObject.name>
+	</cim:SubGeographicalRegion>
+	<cim:GeographicalRegion rdf:ID="_bbs_gr">
+		<cim:IdentifiedObject.name>AQ</cim:IdentifiedObject.name>
+	</cim:GeographicalRegion>
+	<cim:BaseVoltage rdf:ID="_b8e17237e0ca4fca9e4e285b80ab30d0">
+		<cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+		<cim:IdentifiedObject.name>AC-110</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>Base voltage for 110 kV</cim:IdentifiedObject.description>
+	</cim:BaseVoltage>
+</rdf:RDF>

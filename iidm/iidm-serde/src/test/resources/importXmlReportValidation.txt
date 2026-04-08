@@ -1,0 +1,5 @@
++ test reportNode
+   + Validation warnings
+      Transformer 'NHV2_NLOAD' has both Ratio and Phase Tap Changer.
+   + XIIDM import done
+      Network sim1 is imported from XML format.

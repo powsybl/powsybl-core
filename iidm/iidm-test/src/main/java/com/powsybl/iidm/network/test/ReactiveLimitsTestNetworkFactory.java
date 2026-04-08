@@ -3,16 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 import java.util.Objects;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public final class ReactiveLimitsTestNetworkFactory {
 
@@ -27,7 +28,7 @@ public final class ReactiveLimitsTestNetworkFactory {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("ReactiveLimits", "???");
-        network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
+        network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

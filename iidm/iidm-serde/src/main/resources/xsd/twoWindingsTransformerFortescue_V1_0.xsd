@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2023, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:t2f="http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name="WindingConnectionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Y"/>
+            <xs:enumeration value="Y_GROUNDED"/>
+            <xs:enumeration value="DELTA"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="twoWindingsTransformerFortescue">
+        <xs:complexType>
+            <xs:attribute name="rz" type="xs:double"/>
+            <xs:attribute name="xz" type="xs:double"/>
+            <xs:attribute name="freeFluxes" use="required" type="xs:boolean"/>
+            <xs:attribute name="connectionType1" use="required" type="t2f:WindingConnectionType"/>
+            <xs:attribute name="connectionType2" use="required" type="t2f:WindingConnectionType"/>
+            <xs:attribute name="groundingR1" type="xs:double"/>
+            <xs:attribute name="groundingX1" type="xs:double"/>
+            <xs:attribute name="groundingR2" type="xs:double"/>
+            <xs:attribute name="groundingX2" type="xs:double"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

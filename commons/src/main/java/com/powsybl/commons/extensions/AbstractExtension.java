@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractExtension<T> implements Extension<T> {
 
@@ -28,10 +29,14 @@ public abstract class AbstractExtension<T> implements Extension<T> {
     }
 
     public void setExtendable(T extendable) {
-        if ((extendable != null) && (this.extendable != null) && (this.extendable != extendable)) {
+        if (extendable != null && this.extendable != null && this.extendable != extendable) {
             throw new PowsyblException("Extension is already associated to the extendable " + this.extendable);
         }
-
         this.extendable = extendable;
+    }
+
+    @Override
+    public void cleanup() {
+        // nothing by default
     }
 }

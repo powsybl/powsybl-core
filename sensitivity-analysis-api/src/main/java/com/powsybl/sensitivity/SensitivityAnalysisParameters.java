@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -21,9 +22,22 @@ import java.util.Objects;
  */
 public class SensitivityAnalysisParameters extends AbstractExtendable<SensitivityAnalysisParameters> {
 
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.2";
+
+    static final double FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final SensitivityOperatorStrategiesCalculationMode SENSITIVITY_OPERATOR_STRATEGY_CALCULATION_MODE_DEFAULT_VALUE = SensitivityOperatorStrategiesCalculationMode.NONE;
+
+    private double flowFlowSensitivityValueThreshold = FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+    private double voltageVoltageSensitivityValueThreshold = VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+    private double flowVoltageSensitivityValueThreshold = FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+    private double angleFlowSensitivityValueThreshold = ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+
+    private SensitivityOperatorStrategiesCalculationMode operatorStrategiesCalculationMode = SENSITIVITY_OPERATOR_STRATEGY_CALCULATION_MODE_DEFAULT_VALUE;
 
     /**
      * Load parameters from platform default config.
@@ -40,7 +54,6 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
 
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.readExtensions(platformConfig);
-
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
 
         return parameters;
@@ -59,6 +72,85 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
 
     public SensitivityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
+        return this;
+    }
+
+    public SensitivityAnalysisParameters setFlowFlowSensitivityValueThreshold(double threshold) {
+        flowFlowSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     * FlowFlowSensitivityValueThreshold is the threshold under which sensitivity values having
+     * variable type among INJECTION_ACTIVE_POWER, INJECTION_REACTIVE_POWER and HVDC_LINE_ACTIVE_POWER
+     * and function type among BRANCH_ACTIVE_POWER_1/2/3, BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3
+     * will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getFlowFlowSensitivityValueThreshold() {
+        return flowFlowSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setVoltageVoltageSensitivityValueThreshold(double threshold) {
+        voltageVoltageSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     * VoltageVoltageSensitivityValueThreshold is the threshold under which sensitivity values having
+     * variable type BUS_TARGET_VOLTAGE
+     * and function type BUS_VOLTAGE will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getVoltageVoltageSensitivityValueThreshold() {
+        return voltageVoltageSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setFlowVoltageSensitivityValueThreshold(double threshold) {
+        flowVoltageSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     * FlowVoltageSensitivityValueThreshold is the threshold under which sensitivity values
+     * having variable type among INJECTION_REACTIVE_POWER and function type among BUS_VOLTAGE
+     * or variable type among BUS_TARGET_VOLTAGE and function type among
+     * BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3  will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getFlowVoltageSensitivityValueThreshold() {
+        return flowVoltageSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setAngleFlowSensitivityValueThreshold(double threshold) {
+        angleFlowSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     *  AngleFlowSensitivityValueThreshold is the threshold under which sensitivity values having
+     *  variable type among TRANSFORMER_PHASE and TRANSFORMER_PHASE_1/2/3
+     *  and function type among BRANCH_ACTIVE_POWER_1/2/3, BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3
+     *  will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getAngleFlowSensitivityValueThreshold() {
+        return angleFlowSensitivityValueThreshold;
+    }
+
+    /**
+     * Retrieves the calculation mode used for operator strategies sensitivities.
+     *
+     * @return The current {@code SensitivityOperatorStrategyCalculationMode} defining how
+     *         operator strategies sensitivities are calculated. Possible values include:
+     *         NONE, ALL_CONTINGENCIES, or ONLY_OPERATOR_STRATEGIES.
+     */
+    public SensitivityOperatorStrategiesCalculationMode getOperatorStrategiesCalculationMode() {
+        return operatorStrategiesCalculationMode;
+    }
+
+    public SensitivityAnalysisParameters setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode operatorStrategiesCalculationMode) {
+        this.operatorStrategiesCalculationMode = Objects.requireNonNull(operatorStrategiesCalculationMode);
         return this;
     }
 }

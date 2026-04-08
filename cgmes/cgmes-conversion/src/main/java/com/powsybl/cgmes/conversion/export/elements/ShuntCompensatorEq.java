@@ -3,9 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 
@@ -13,7 +15,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public final class ShuntCompensatorEq {
 
@@ -31,8 +33,9 @@ public final class ShuntCompensatorEq {
     private static final String EQ_NONLINEARSHUNTCOMPENSATOR_G = "NonlinearShuntCompensatorPoint.g";
 
     public static void write(String id, String shuntCompensatorName, int normalSections, int maximumSections, double nomU, ShuntCompensatorModelType modelType,
-                             double bPerSection, double gPerSection, String regulatingControlId, String equipmentContainer, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(shuntCompensatorModelClassName(modelType), id, shuntCompensatorName, cimNamespace, writer);
+                             double bPerSection, double gPerSection, String regulatingControlId, String equipmentContainer, String cimNamespace, XMLStreamWriter writer,
+                             CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(shuntCompensatorModelClassName(modelType), id, shuntCompensatorName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_SHUNTCOMPENSATOR_NORMALSECTIONS);
         writer.writeCharacters(CgmesExportUtil.format(normalSections));
         writer.writeEndElement();
@@ -50,22 +53,24 @@ public final class ShuntCompensatorEq {
                 writer.writeCharacters(CgmesExportUtil.format(bPerSection));
             }
             writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
             if (!Double.isNaN(gPerSection)) {
-                writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
                 writer.writeCharacters(CgmesExportUtil.format(gPerSection));
-                writer.writeEndElement();
+            } else {
+                writer.writeCharacters("0");
             }
+            writer.writeEndElement();
         }
         if (regulatingControlId != null) {
-            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer);
+            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer, context);
         }
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
-    public static void writePoint(String id, String shuntId, int sectionNumber, double b, double g, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartId("NonlinearShuntCompensatorPoint", id, false, cimNamespace, writer);
-        CgmesExportUtil.writeReference("NonlinearShuntCompensatorPoint.NonlinearShuntCompensator", shuntId, cimNamespace, writer);
+    public static void writePoint(String id, String shuntId, int sectionNumber, double b, double g, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartId("NonlinearShuntCompensatorPoint", id, false, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("NonlinearShuntCompensatorPoint.NonlinearShuntCompensator", shuntId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_NONLINEARSHUNTCOMPENSATOR_SECTIONNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(sectionNumber));
         writer.writeEndElement();

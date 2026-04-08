@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.triplestore.api.test;
 
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class TripleStoreUtilsTest {
 
@@ -29,7 +30,7 @@ class TripleStoreUtilsTest {
         Mockito.when(queryCatalog.get(Mockito.anyString())).thenReturn(null);
         Mockito.when(queryCatalog.get("test")).thenReturn("test");
         PropertyBags bags = new PropertyBags();
-        PropertyBag p = new PropertyBag(List.of("test"));
+        PropertyBag p = new PropertyBag(List.of("test"), true);
         p.put("test", "test");
         bags.add(p);
         Mockito.when(tripleStore.query("test")).thenReturn(bags);

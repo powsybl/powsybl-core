@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -20,7 +21,7 @@ import java.util.Objects;
  * a pre-contingency value). The value is the impact of the variable change on the monitored equipment. The function
  * reference gives the level of the function in the network pre-contingency state.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see SensitivityFactor
  */
 public class SensitivityValue {
@@ -28,6 +29,8 @@ public class SensitivityValue {
     private final int factorIndex;
 
     private final int contingencyIndex;
+
+    private final int operatorStrategyIndex;
 
     private final double value;
 
@@ -38,15 +41,17 @@ public class SensitivityValue {
      *
      * @param factorIndex the sensitivity factor index
      * @param contingencyIndex the contingency index, -1 for pre-contingency state.
+     * @param operatorStrategyIndex the operator strategy index, -1 for post-contingency state without operator strategy.
      * @param value the sensitivity value, as a result of the computation.
      * @param functionReference the value of the sensitivity function in the pre-contingency state.
      */
-    public SensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+    public SensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
         this.factorIndex = factorIndex;
         if (contingencyIndex < -1) {
             throw new IllegalArgumentException("Invalid contingency index: " + contingencyIndex);
         }
         this.contingencyIndex = contingencyIndex;
+        this.operatorStrategyIndex = operatorStrategyIndex;
         this.value = value;
         this.functionReference = functionReference;
     }
@@ -57,6 +62,10 @@ public class SensitivityValue {
 
     public int getContingencyIndex() {
         return contingencyIndex;
+    }
+
+    public int getOperatorStrategyIndex() {
+        return operatorStrategyIndex;
     }
 
     public double getValue() {
@@ -72,6 +81,7 @@ public class SensitivityValue {
         return "SensitivityValue(" +
                 "factorIndex=" + factorIndex +
                 ", contingencyIndex='" + contingencyIndex + '\'' +
+                ", operatorStrategyIndex='" + operatorStrategyIndex + '\'' +
                 ", value=" + value +
                 ", functionReference=" + functionReference +
                 ')';
@@ -79,7 +89,8 @@ public class SensitivityValue {
 
     static final class ParsingContext {
         private int factorIndex;
-        private int contingencyIndex;
+        private int contingencyIndex = -1;
+        private int operatorStrategyIndex = -1;
         private double value;
         private double functionReference;
     }
@@ -94,7 +105,8 @@ public class SensitivityValue {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.value, context.functionReference);
+                    return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.operatorStrategyIndex,
+                                                context.value, context.functionReference);
                 }
             }
         } catch (IOException e) {
@@ -104,7 +116,7 @@ public class SensitivityValue {
     }
 
     private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         switch (fieldName) {
             case "factorIndex":
                 parser.nextToken();
@@ -113,6 +125,10 @@ public class SensitivityValue {
             case "contingencyIndex":
                 parser.nextToken();
                 context.contingencyIndex = parser.getIntValue();
+                break;
+            case "operatorStrategyIndex":
+                parser.nextToken();
+                context.operatorStrategyIndex = parser.getIntValue();
                 break;
             case "value":
                 parser.nextToken();
@@ -128,12 +144,13 @@ public class SensitivityValue {
     }
 
     public static void writeJson(JsonGenerator generator, SensitivityValue value) {
-        writeJson(generator, value.factorIndex, value.contingencyIndex, value.value, value.functionReference);
+        writeJson(generator, value.factorIndex, value.contingencyIndex, value.operatorStrategyIndex, value.value, value.functionReference);
     }
 
     static void writeJson(JsonGenerator jsonGenerator,
                           int factorIndex,
                           int contingencyIndex,
+                          int operatorStrategyIndex,
                           double value,
                           double functionReference) {
         try {
@@ -141,6 +158,9 @@ public class SensitivityValue {
             jsonGenerator.writeNumberField("factorIndex", factorIndex);
             if (contingencyIndex != -1) {
                 jsonGenerator.writeNumberField("contingencyIndex", contingencyIndex);
+            }
+            if (operatorStrategyIndex != -1) {
+                jsonGenerator.writeNumberField("operatorStrategyIndex", operatorStrategyIndex);
             }
             jsonGenerator.writeNumberField("value", value);
             jsonGenerator.writeNumberField("functionReference", functionReference);

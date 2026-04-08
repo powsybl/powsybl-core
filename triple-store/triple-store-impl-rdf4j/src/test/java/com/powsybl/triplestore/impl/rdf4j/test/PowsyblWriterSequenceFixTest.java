@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.impl.rdf4j.test;
@@ -41,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class PowsyblWriterSequenceFixTest {
 
@@ -55,13 +56,13 @@ class PowsyblWriterSequenceFixTest {
 
     @BeforeEach
     void setUp() {
-        PropertyBag object = new PropertyBag(objectProperties);
+        PropertyBag object = new PropertyBag(objectProperties, true);
         object.put("id", "object1");
         object.put("property1", "object1-property1-value");
         object.put("property2", "object1-property2-value");
         objects.add(object);
 
-        object = new PropertyBag(objectProperties);
+        object = new PropertyBag(objectProperties, true);
         object.put("id", "object2");
         object.put("property1", "object2-property1-value");
         object.put("property2", "object2-property2-value");
@@ -125,13 +126,13 @@ class PowsyblWriterSequenceFixTest {
         ts.write(ds);
 
         try (InputStream is = ds.newInputStream(contextName)) {
-            compareXml(getClass().getResourceAsStream(expected), is);
+            assertXmlEquals(getClass().getResourceAsStream(expected), is);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void compareXml(InputStream expected, InputStream actual) {
+    private static void assertXmlEquals(InputStream expected, InputStream actual) {
         Source sexpected = Input.fromStream(expected).build();
         Source sactual = Input.fromStream(actual).build();
         Diff myDiff = DiffBuilder

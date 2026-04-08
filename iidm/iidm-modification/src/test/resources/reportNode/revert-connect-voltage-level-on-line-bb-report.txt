@@ -1,0 +1,5 @@
++ Testing reportNode to revert connecting a voltage level on a line in bus/breaker network
+   Line NHV1_NHV2_1_1 removed
+   Line NHV1_NHV2_1_2 removed
+   Line NHV1_NHV2_1 created
+   Voltage level NHV1_NHV2_1_VL#0 removed

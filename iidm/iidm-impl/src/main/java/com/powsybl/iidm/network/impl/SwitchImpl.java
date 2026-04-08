@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -11,7 +12,7 @@ import com.powsybl.iidm.network.*;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVariantObject {
 
@@ -43,6 +44,11 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     }
 
     @Override
+    public Network getParentNetwork() {
+        return voltageLevel.getParentNetwork();
+    }
+
+    @Override
     public VoltageLevelExt getVoltageLevel() {
         return voltageLevel;
     }
@@ -64,9 +70,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.open.get(index);
         if (oldValue != open) {
             this.open.set(index, open);
+            voltageLevel.getTopologyModel().invalidateCache(isRetained());
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
-            voltageLevel.invalidateCache(isRetained());
         }
     }
 
@@ -85,9 +91,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
             this.retained.set(index, retained);
+            voltageLevel.getTopologyModel().invalidateCache();
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
-            voltageLevel.invalidateCache();
         }
     }
 
@@ -96,7 +102,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.fictitious;
         if (oldValue != fictitious) {
             this.fictitious = fictitious;
-            voltageLevel.invalidateCache();
+            voltageLevel.getTopologyModel().invalidateCache();
             NetworkImpl network = getNetwork();
             network.getListeners().notifyUpdate(this, "fictitious", oldValue, fictitious);
         }

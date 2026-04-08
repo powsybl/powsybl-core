@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -15,7 +16,7 @@ import java.util.Objects;
  * sparse matrix implementations. In the case of sparse matrix additional usage constraint could be added and specified
  * in the javadoc for instance in the order a matrix has to be filled.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Matrix {
 
@@ -87,14 +88,6 @@ public interface Matrix {
          * @param value the value at position ({@code i}, {@code j})
          */
         void onElement(int i, int j, double value);
-
-        /**
-         * @deprecated Use {@link #onElement(int, int, double)} instead.
-         */
-        @Deprecated
-        default void onValue(int i, int j, double value) {
-            onElement(i, j, value);
-        }
     }
 
     /**
@@ -105,27 +98,11 @@ public interface Matrix {
     int getRowCount();
 
     /**
-     * @deprecated Use {@link #getRowCount()} instead.
-     */
-    @Deprecated
-    default int getM() {
-        return getRowCount();
-    }
-
-    /**
      * Get column count.
      *
      * @return column count
      */
     int getColumnCount();
-
-    /**
-     * @deprecated Use {@link #getColumnCount()} instead.
-     */
-    @Deprecated
-    default int getN() {
-        return getColumnCount();
-    }
 
     /**
      * Set value at row {@code i} and column {@code j}.
@@ -135,14 +112,6 @@ public interface Matrix {
      * @param value the value to set at row {@code i} and column {@code j}
      */
     void set(int i, int j, double value);
-
-    /**
-     * @deprecated Use {@link #set(int, int, double)} instead.
-     */
-    @Deprecated
-    default void setValue(int i, int j, double value) {
-        set(i, j, value);
-    }
 
     /**
      * Add value at row {@code i} and column {@code j}.
@@ -204,14 +173,6 @@ public interface Matrix {
      * @param value the value to add at element index {@code index}
      */
     void addQuickAtIndex(int index, double value);
-
-    /**
-     * @deprecated Use {@link #add(int, int, double)} instead.
-     */
-    @Deprecated
-    default void addValue(int i, int j, double value) {
-        add(i, j, value);
-    }
 
     /**
      * Fill matrix with zeros.

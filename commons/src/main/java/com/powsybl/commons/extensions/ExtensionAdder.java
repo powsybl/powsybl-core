@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -10,7 +11,7 @@ package com.powsybl.commons.extensions;
  * An ExtensionAdder is a builder for an extension that is built and then added
  * to an extendable.
  *
- * @author Jon Harper <jon.harper at rte-france.com>
+ * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 // Can't use "T extends Extendable<T>" here because T is used in Extendable::newExtensionAdder
 // to ensure that ExtensionAdder::T is the same as Extendable::O and Extendable doesn't declare

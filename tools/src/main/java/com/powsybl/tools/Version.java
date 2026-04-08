@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools;
 
@@ -12,15 +13,16 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface Version {
 
@@ -47,7 +49,7 @@ public interface Version {
                                  .writeCell(version.getMavenProjectVersion())
                                  .writeCell(version.getGitBranch())
                                  .writeCell(version.getGitVersion())
-                                 .writeCell(new DateTime(version.getBuildTimestamp()).toString());
+                                 .writeCell(convertBuildTimestamp(version.getBuildTimestamp()));
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -57,6 +59,10 @@ public interface Version {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    static String convertBuildTimestamp(Long buildTimestamp) {
+        return Instant.ofEpochMilli(buildTimestamp).atZone(ZoneOffset.UTC).toString();
     }
 
     String getRepositoryName();

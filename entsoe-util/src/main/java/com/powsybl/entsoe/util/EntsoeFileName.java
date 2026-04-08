@@ -3,31 +3,32 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.entsoe.util;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class EntsoeFileName {
 
     private static final Pattern DATE_REGEX = Pattern.compile("(\\d{4})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2}).*");
 
-    private final DateTime date;
+    private final ZonedDateTime date;
 
     private final int forecastDistance;
 
     private final EntsoeGeographicalCode geographicalCode;
 
     public static EntsoeFileName parse(String str) {
-        DateTime date = DateTime.now();
+        ZonedDateTime date = ZonedDateTime.now();
         int forecastDistance = 0;
         EntsoeGeographicalCode geographicalCode = null;
         Matcher m = DATE_REGEX.matcher(str);
@@ -38,7 +39,7 @@ public class EntsoeFileName {
             int dayOfMonth = Integer.parseInt(m.group(3));
             int hourOfDay = Integer.parseInt(m.group(4));
             int minute = Integer.parseInt(m.group(5));
-            date = new DateTime(year, month, dayOfMonth, hourOfDay, minute, DateTimeZone.forID("Europe/Paris"));
+            date = ZonedDateTime.of(year, month, dayOfMonth, hourOfDay, minute, 0, 0, ZoneId.of("Europe/Paris"));
 
             // extract horizon and forecast distance
             if (str.contains("FO")) {
@@ -58,13 +59,13 @@ public class EntsoeFileName {
         return new EntsoeFileName(date, forecastDistance, geographicalCode);
     }
 
-    protected EntsoeFileName(DateTime date, int forecastDistance, EntsoeGeographicalCode geographicalCode) {
+    protected EntsoeFileName(ZonedDateTime date, int forecastDistance, EntsoeGeographicalCode geographicalCode) {
         this.date = date;
         this.forecastDistance = forecastDistance;
         this.geographicalCode = geographicalCode;
     }
 
-    public DateTime getDate() {
+    public ZonedDateTime getDate() {
         return date;
     }
 

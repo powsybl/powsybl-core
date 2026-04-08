@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.tripping;
 
@@ -15,12 +16,12 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class TrippingTopologyTraverserTest {
 
     @Test
-    void test() {
+    void testAc() {
         Network network = Network.create("test", "");
         Substation s1 = network.newSubstation()
                 .setId("s1")
@@ -80,5 +81,78 @@ class TrippingTopologyTraverserTest {
         assertTrue(switchesToOpen.isEmpty());
         assertEquals(1, terminalsToDisconnect.size());
         assertEquals("BusTerminal[b2]", terminalsToDisconnect.iterator().next().toString());
+    }
+
+    @Test
+    void testDc() {
+        Network network = Network.create("test", "");
+        network.newDcNode().
+                setId("dn1").
+                setNominalV(400.).
+                add();
+        network.newDcNode().
+                setId("dn2").
+                setNominalV(400.).
+                add();
+        DcLine dcLine = network.newDcLine()
+                .setId("dcLine")
+                .setDcNode1("dn1")
+                .setDcNode2("dn2")
+                .setR(0.1)
+                .add();
+        Substation s1 = network.newSubstation()
+                .setId("s1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("vl1")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setNominalV(400)
+                .add();
+        vl1.getBusBreakerView().newBus()
+                .setId("b1")
+                .add();
+        VoltageSourceConverter converter = vl1.newVoltageSourceConverter()
+                .setIdleLoss(0.5)
+                .setSwitchingLoss(1.0)
+                .setResistiveLoss(0.2)
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(-50.)
+                .setId("conv")
+                .setBus1("b1")
+                .setDcNode1("dn1")
+                .setDcNode2("dn2")
+                .setDcConnected1(true)
+                .setDcConnected2(true)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.0)
+                .add();
+
+        Set<DcTerminal> dcTerminalsToDisconnect = new HashSet<>();
+        Set<DcSwitch> dcSwitchesToOpen = new HashSet<>();
+        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal1(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
+
+        dcTerminalsToDisconnect.clear();
+        TrippingTopologyTraverser.traverse(dcLine.getDcTerminal2(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
+
+        dcTerminalsToDisconnect.clear();
+        TrippingTopologyTraverser.traverse(converter.getDcTerminal1(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
+
+        dcTerminalsToDisconnect.clear();
+        TrippingTopologyTraverser.traverse(converter.getDcTerminal2(), dcSwitchesToOpen, dcTerminalsToDisconnect, null);
+        assertEquals(1, dcTerminalsToDisconnect.size());
+        assertTrue(dcSwitchesToOpen.isEmpty());
+
+        Set<Terminal> terminalsToDisconnect = new HashSet<>();
+        Set<Switch> switchesToOpen = new HashSet<>();
+        TrippingTopologyTraverser.traverse(converter.getTerminal1(), switchesToOpen, terminalsToDisconnect, null);
+        assertTrue(switchesToOpen.isEmpty());
+        assertEquals(1, terminalsToDisconnect.size());
     }
 }

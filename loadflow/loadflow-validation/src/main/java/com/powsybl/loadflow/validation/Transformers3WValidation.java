@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow.validation;
 
@@ -18,14 +19,14 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
- * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
 public final class Transformers3WValidation extends AbstractTransformersValidation {
 
@@ -78,9 +79,9 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         boolean validated = true;
         TwtData twtData = new TwtData(twt, phaseAngleClock2, phaseAngleClock3, config.getEpsilonX(),
             config.applyReactanceCorrection(), config.getLoadFlowParameters().isTwtSplitShuntAdmittance());
-        validated &= checkLeg(twtData, Side.ONE, config);
-        validated &= checkLeg(twtData, Side.TWO, config);
-        validated &= checkLeg(twtData, Side.THREE, config);
+        validated &= checkLeg(twtData, ThreeSides.ONE, config);
+        validated &= checkLeg(twtData, ThreeSides.TWO, config);
+        validated &= checkLeg(twtData, ThreeSides.THREE, config);
 
         try {
             twtsWriter.write(twt.getId(), twtData, validated);
@@ -91,7 +92,7 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         return validated;
     }
 
-    private static boolean checkLeg(TwtData twtData, Side side, ValidationConfig config) {
+    private static boolean checkLeg(TwtData twtData, ThreeSides side, ValidationConfig config) {
         boolean validated = true;
         if (twtData.isConnected(side) && twtData.isMainComponent(side)) {
             if (ValidationUtils.areNaN(config, twtData.getP(side), twtData.getComputedP(side)) || Math.abs(twtData.getP(side) - twtData.getComputedP(side)) > config.getThreshold()) {

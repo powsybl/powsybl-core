@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -14,6 +15,8 @@ import java.util.OptionalInt;
  *     <li>Use {@link #INJECTION_ACTIVE_POWER} to model a change on the production of a generator or on a group of generators, on
  * the consumption of a load or on a group of loads or on GLSK (for Generation and Load Shift keys) that describes a
  * linear combination of power injection shifts on generators and loads. The variable increase is in MW.</li>
+ *     <li>Use {@link #INJECTION_REACTIVE_POWER} to model a change on the reactive production of a generator or on
+ * the reactive consumption of a load. The variable increase is in MVar.</li>
  *     <li>Use {@link #TRANSFORMER_PHASE} to model the change of the tap position of a phase tap changer of a two windings transformer
  * or a three windings transformer that contains only one phase tap changer. The increase is in degree.</li>
  *     <li>Use {@link #BUS_TARGET_VOLTAGE} to model an increase of the voltage target of a generator, a static var compensator, a two
@@ -22,11 +25,13 @@ import java.util.OptionalInt;
  *     <li>Use {@link #TRANSFORMER_PHASE_1}, {@link #TRANSFORMER_PHASE_2} or {@link #TRANSFORMER_PHASE_3} to model the change of the tap position of a phase
  * tap changer of a three windings transformer that contains several phase tap changers.</li>
  * </ul>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public enum SensitivityVariableType {
     /** increase in MW */
     INJECTION_ACTIVE_POWER,
+    /** increase in MVar */
+    INJECTION_REACTIVE_POWER,
     /** increase in degrees */
     TRANSFORMER_PHASE,
     /** increase in kV */

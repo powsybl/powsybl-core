@@ -1,0 +1,7 @@
++ Testing reportNode for reverting create line on line in node/breaker network
+   Line CJ_1 removed
+   Line CJ_2 removed
+   Line testLine removed
+   Line CJ_NEW created
+   Voltage level CJ_VL removed
+   Voltage level VLTEST removed

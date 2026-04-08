@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools.autocompletion;
 
@@ -14,7 +15,7 @@ import java.util.Objects;
  * Tries to guess option argument type, to guide autocompletion.
  * Works based on option name or argument name.
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at gmail.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at gmail.com>}
  */
 public class OptionTypeMapper {
 
@@ -44,8 +45,7 @@ public class OptionTypeMapper {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof Key) {
-                Key key = (Key) o;
+            if (o instanceof Key key) {
                 return regex.equals(key.regex) && type == key.type;
             }
             return false;
@@ -128,7 +128,7 @@ public class OptionTypeMapper {
                     });
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         if (option.getType() == null) {

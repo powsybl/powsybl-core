@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -12,7 +13,7 @@ import com.powsybl.iidm.network.ValidationException;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@gmail.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@gmail.com>}
  */
 class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
 
@@ -39,6 +40,11 @@ class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
             throw new ValidationException(connectable, "incorrect reactive limits type "
                     + type.getName() + ", expected " + reactiveLimits.getClass());
         }
+    }
+
+    @Override
+    public NetworkImpl getNetwork() {
+        return connectable.getNetwork();
     }
 
     @Override

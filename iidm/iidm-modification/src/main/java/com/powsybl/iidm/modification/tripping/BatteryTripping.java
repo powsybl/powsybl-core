@@ -12,12 +12,17 @@ import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class BatteryTripping extends AbstractInjectionTripping {
 
     public BatteryTripping(String id) {
         super(id);
+    }
+
+    @Override
+    public String getName() {
+        return "BatteryTripping";
     }
 
     @Override

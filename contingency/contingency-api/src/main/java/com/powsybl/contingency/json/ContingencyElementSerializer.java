@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -16,7 +17,7 @@ import com.powsybl.contingency.ContingencyElement;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ContingencyElementSerializer extends StdSerializer<ContingencyElement> {
 
@@ -29,8 +30,7 @@ public class ContingencyElementSerializer extends StdSerializer<ContingencyEleme
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("id", contingencyElement.getId());
         jsonGenerator.writeStringField("type", contingencyElement.getType().name());
-        if (contingencyElement instanceof AbstractSidedContingency) {
-            AbstractSidedContingency sidedContingency = (AbstractSidedContingency) contingencyElement;
+        if (contingencyElement instanceof AbstractSidedContingency sidedContingency) {
             JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", sidedContingency.getVoltageLevelId());
         }
         jsonGenerator.writeEndObject();

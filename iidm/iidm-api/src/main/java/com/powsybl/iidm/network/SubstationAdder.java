@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -20,11 +21,11 @@ package com.powsybl.iidm.network;
  *        .add();
  *</pre>
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see Substation
  * @see Network
  */
-public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
+public interface SubstationAdder extends IdentifiableAdder<Substation, SubstationAdder> {
 
     SubstationAdder setCountry(Country country);
 
@@ -32,5 +33,6 @@ public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
 
     SubstationAdder setGeographicalTags(String... tags);
 
+    @Override
     Substation add();
 }

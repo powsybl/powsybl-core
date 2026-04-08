@@ -3,13 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +15,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public abstract class AbstractLccTest {
 
@@ -70,9 +68,9 @@ public abstract class AbstractLccTest {
         assertSame(hvdcLine, cs1.getHvdcLine());
         assertSame(hvdcLine, cs2.getHvdcLine());
         assertSame(cs1, hvdcLine.getConverterStation1());
-        assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
+        assertSame(cs1, hvdcLine.getConverterStation(TwoSides.ONE));
         assertSame(cs2, hvdcLine.getConverterStation2());
-        assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
+        assertSame(cs2, hvdcLine.getConverterStation(TwoSides.TWO));
 
         if (cs1.getOtherConverterStation().isPresent()) {
             assertEquals(cs2, cs1.getOtherConverterStation().get());

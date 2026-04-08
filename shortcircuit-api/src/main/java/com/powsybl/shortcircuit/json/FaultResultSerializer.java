@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 public class FaultResultSerializer extends StdSerializer<FaultResult> {
 
@@ -36,8 +37,8 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (faultResult.getTimeConstant() != null) {
             jsonGenerator.writeStringField("timeConstant", faultResult.getTimeConstant().toString());
         }
-        if (faultResult instanceof FortescueFaultResult) {
-            fortescueResultSerialization((FortescueFaultResult) faultResult, jsonGenerator, serializerProvider);
+        if (faultResult instanceof FortescueFaultResult fortescueFaultResult) {
+            fortescueResultSerialization(fortescueFaultResult, jsonGenerator, serializerProvider);
 
         } else if (faultResult instanceof MagnitudeFaultResult) {
             magnitudeResultSerialization(faultResult, jsonGenerator, serializerProvider);

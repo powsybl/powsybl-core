@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -19,7 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 class TopologyTester {
 
@@ -34,13 +36,13 @@ class TopologyTester {
     // When we create the voltage-level connectivity at node-breaker level we will
     // be able to
     // set the retained flag for each switch and this problem will be avoided
-    // For connectivity created at bus-breaker level we can not set the "retained"
+    // For connectivity created at bus-breaker level we cannot set the "retained"
     // flag
     boolean test(boolean strict) {
         // Only makes sense if the network has been obtained
         // from CGMES node-breaker detailed data
-        if (!network.getProperty(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL)
-                .equals(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER)) {
+        CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
+        if (cimCharacteristics == null || cimCharacteristics.getTopologyKind() != CgmesTopologyKind.NODE_BREAKER) {
             return true;
         }
         Map<String, Set<String>> tpcns = new HashMap<>();

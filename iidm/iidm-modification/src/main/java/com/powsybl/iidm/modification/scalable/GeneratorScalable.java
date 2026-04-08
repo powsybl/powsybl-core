@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
@@ -17,18 +18,18 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Ameni Walha <ameni.walha at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-class GeneratorScalable extends AbstractInjectionScalable {
+public class GeneratorScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorScalable.class);
 
-    GeneratorScalable(String id) {
+    protected GeneratorScalable(String id) {
         super(id);
     }
 
-    GeneratorScalable(String id, double minValue, double maxValue) {
+    protected GeneratorScalable(String id, double minValue, double maxValue) {
         super(id, minValue, maxValue);
     }
 
@@ -38,7 +39,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         Generator g = n.getGenerator(id);
         if (g != null) {
-            g.setTargetP(0);
+            setTargetP(g, 0);
         }
     }
 
@@ -102,13 +103,20 @@ class GeneratorScalable extends AbstractInjectionScalable {
     /**
      * {@inheritDoc}
      *
-     * If scalingConvention is GENERATOR, the generator active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is LOAD, the generator active power decreases for positive "asked" and increases inversely
+     * <ul>
+     * <li>If scalingConvention is GENERATOR, the generator active power increases for positive "asked" and decreases inversely.</li>
+     * <li>If scalingConvention is LOAD, the generator active power decreases for positive "asked" and increases inversely.</li>
+     * </ul>
      */
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
+        Objects.requireNonNull(parameters);
+
+        if (parameters.getIgnoredInjectionIds().contains(id)) {
+            LOGGER.info("Scaling parameters' injections to be ignored contains generator {}, discarded from scaling", id);
+            return 0;
+        }
 
         Generator g = n.getGenerator(id);
         double done = 0;
@@ -119,14 +127,19 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         Terminal t = g.getTerminal();
         if (!t.isConnected()) {
-            new ConnectGenerator(g.getId()).apply(n);
-            LOGGER.info("Connecting {}", g.getId());
+            if (parameters.isReconnect()) {
+                new ConnectGenerator(g.getId()).apply(n);
+                LOGGER.info("Connecting {}", g.getId());
+            } else {
+                LOGGER.info("Generator {} is not connected, discarded from scaling", g.getId());
+                return 0.;
+            }
         }
 
-        double oldTargetP = g.getTargetP();
+        double oldTargetP = getTargetP(g);
         double minimumTargetP = minimumTargetP(g);
         double maximumTargetP = maximumTargetP(g);
-        if (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP) {
+        if (!parameters.isAllowsGeneratorOutOfActivePowerLimits() && (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP)) {
             LOGGER.error("Error scaling GeneratorScalable {}: Initial P is not in the range [Pmin, Pmax], skipped", id);
             return 0.;
         }
@@ -136,17 +149,64 @@ class GeneratorScalable extends AbstractInjectionScalable {
         double availableUp = maximumTargetP - oldTargetP;
         double availableDown = oldTargetP - minimumTargetP;
 
-        if (scalingConvention == GENERATOR) {
+        if (parameters.getScalingConvention() == GENERATOR) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
-            g.setTargetP(oldTargetP + done);
+            setTargetP(g, oldTargetP + done);
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
-            g.setTargetP(oldTargetP - done);
+            setTargetP(g, oldTargetP - done);
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} (pmax={})",
-                    g.getId(), oldTargetP, g.getTargetP(), g.getMaxP());
+                    g.getId(), oldTargetP, getTargetP(g), g.getMaxP());
 
         return done;
+    }
+
+    /**
+     * Compute the percentage of asked power available for the scale. It takes into account the scaling convention
+     * specified by the user and the sign of the asked power.
+     *
+     * @param network Network on which the scaling is done
+     * @param asked Asked power (can be positive or negative)
+     * @param scalingPercentage Percentage of the asked power that shall be distributed to the current injection
+     * @param scalingConvention Scaling convention (GENERATOR or LOAD)
+     * @return the percentage of asked power available for the scale on the current injection
+     */
+    double availablePowerInPercentageOfAsked(Network network, double asked, double scalingPercentage, ScalingConvention scalingConvention) {
+        var generator = network.getGenerator(id);
+
+        // In LOAD convention, a positive scale will imply a decrease of generators target power
+        var askedPower = asked * scalingPercentage / 100;
+        if (scalingConvention == LOAD) {
+            askedPower = -askedPower;
+        }
+
+        if (askedPower >= 0) {
+            var availablePower = Math.min(generator.getMaxP(), maxValue) - getTargetP(generator);
+            return askedPower > availablePower ? availablePower / askedPower : 100.0;
+        } else {
+            var availablePower = Math.max(generator.getMinP(), minValue) - getTargetP(generator);
+            return askedPower < availablePower ? availablePower / askedPower : 100.0;
+        }
+    }
+
+    @Override
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        Generator generator = network.getGenerator(id);
+        if (generator == null) {
+            LOGGER.warn("Generator {} not found", id);
+            return 0.0;
+        } else {
+            return scalingConvention == GENERATOR ? getTargetP(generator) : -getTargetP(generator);
+        }
+    }
+
+    protected void setTargetP(Generator g, double value) {
+        g.setTargetP(value);
+    }
+
+    protected double getTargetP(Generator g) {
+        return g.getTargetP();
     }
 }

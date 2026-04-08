@@ -3,16 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model;
 
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public enum CgmesSubset {
     // TODO Each subset has a "main" profile URL plus additional optional profiles
@@ -48,13 +47,21 @@ public enum CgmesSubset {
     EQUIPMENT_BOUNDARY("EQ_BD") {
         @Override
         public boolean isValidName(String contextName) {
-            return super.isValidName(contextName) || (EQUIPMENT.isValidName(contextName) && isBoundary(contextName));
+            return super.isValidName(contextName)
+                    || EQUIPMENT.isValidBaseName(contextName) && isBoundary(contextName);
         }
     },
     TOPOLOGY_BOUNDARY("TP_BD") {
         @Override
         public boolean isValidName(String contextName) {
-            return super.isValidName(contextName) || (TOPOLOGY.isValidName(contextName) && isBoundary(contextName));
+            return super.isValidName(contextName)
+                    || TOPOLOGY.isValidBaseName(contextName) && isBoundary(contextName);
+        }
+    },
+    UNKNOWN("unknown") {
+        @Override
+        public boolean isValidName(String contextName) {
+            return false;
         }
     };
 
@@ -76,6 +83,10 @@ public enum CgmesSubset {
     }
 
     public boolean isValidName(String contextName) {
+        return isValidBaseName(contextName);
+    }
+
+    private boolean isValidBaseName(String contextName) {
         return contextName.contains(validName0) || contextName.contains(validName1);
     }
 
@@ -86,7 +97,7 @@ public enum CgmesSubset {
     private final String identifier;
     private final String validName0;
     private final String validName1;
-    private static final Map<String, String> PROFILE = ImmutableMap.of(
+    private static final Map<String, String> PROFILE = Map.of(
         "SV", "StateVariables",
         "EQ", "EquipmentCore",
         "SSH", "SteadyStateHypothesis",

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -24,7 +25,7 @@ class ExtensionAdderProvidersTest {
     private interface SimpleExtendable extends Extendable<SimpleExtendable> {
     }
 
-    private static class SimpleExtendableImpl2
+    private static final class SimpleExtendableImpl2
             extends AbstractExtendable<SimpleExtendable> implements SimpleExtendable {
         @Override
         public String getImplementationName() {
@@ -41,11 +42,11 @@ class ExtensionAdderProvidersTest {
         }
     }
 
-    private static class SimpleExtensionImpl extends AbstractExtension<SimpleExtendable>
+    private static final class SimpleExtensionImpl extends AbstractExtension<SimpleExtendable>
             implements SimpleExtension {
     }
 
-    private static class SimpleExtensionImpl2 extends AbstractExtension<SimpleExtendable>
+    private static final class SimpleExtensionImpl2 extends AbstractExtension<SimpleExtendable>
             implements SimpleExtension {
     }
 
@@ -81,7 +82,7 @@ class ExtensionAdderProvidersTest {
         }
     }
 
-    private static class SimpleExtensionAdderImplProvider
+    private static final class SimpleExtensionAdderImplProvider
             implements
             ExtensionAdderProvider<SimpleExtendable, SimpleExtension, SimpleExtensionAdderImpl> {
         @Override
@@ -132,7 +133,7 @@ class ExtensionAdderProvidersTest {
     private interface GenericExtendable<G extends GenericExtendable<G>> extends Extendable<G> {
     }
 
-    private static class GenericExtendableImpl2<G extends GenericExtendable<G>>
+    private static final class GenericExtendableImpl2<G extends GenericExtendable<G>>
             extends AbstractExtendable<G> implements GenericExtendable<G> {
         @Override
         public String getImplementationName() {
@@ -143,7 +144,7 @@ class ExtensionAdderProvidersTest {
     private interface SpecificExtendable extends GenericExtendable<SpecificExtendable> {
     }
 
-    private static class SpecificExtendableImpl2
+    private static final class SpecificExtendableImpl2
             extends AbstractExtendable<SpecificExtendable>
             implements SpecificExtendable {
         @Override
@@ -161,12 +162,12 @@ class ExtensionAdderProvidersTest {
         }
     }
 
-    private static class GenericExtensionImpl<G extends GenericExtendable<G>>
+    private static final class GenericExtensionImpl<G extends GenericExtendable<G>>
             extends AbstractExtension<G>
             implements GenericExtension<G> {
     }
 
-    private static class GenericExtensionImpl2<G extends GenericExtendable<G>>
+    private static final class GenericExtensionImpl2<G extends GenericExtendable<G>>
             extends AbstractExtension<G>
             implements GenericExtension<G> {
     }
@@ -204,7 +205,7 @@ class ExtensionAdderProvidersTest {
         }
     }
 
-    private static class GenericExtensionAdderImplProvider<G extends GenericExtendable<G>>
+    private static final class GenericExtensionAdderImplProvider<G extends GenericExtendable<G>>
             implements
             ExtensionAdderProvider<G, GenericExtension<G>, GenericExtensionAdderImpl<G>> {
         @Override

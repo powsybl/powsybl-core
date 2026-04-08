@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -31,7 +32,7 @@ import java.util.Collection;
  * |     *     *
  * |
  *</pre>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see Generator,Battery
  */
 public interface ReactiveCapabilityCurve extends ReactiveLimits {
@@ -40,7 +41,7 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
      * A point of the reactive capability curve, for a given active power the
      * minimal and the maximal value for the reactive power.
      */
-    public interface Point {
+    interface Point extends PropertiesHolder {
 
         double getP();
 
@@ -69,4 +70,15 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
      */
     double getMaxP();
 
+    /**
+     * Get the reactive power minimum value of the curve (with the possibility of extrapolating slope of reactive
+     * limits outside active limits)
+     */
+    double getMinQ(double p, boolean extrapolateReactiveLimitSlope);
+
+    /**
+     * Get the reactive power maximum value of the curve (with the possibility of extrapolating slope of reactive
+     * limits outside active limits)
+     */
+    double getMaxQ(double p, boolean extrapolateReactiveLimitSlope);
 }

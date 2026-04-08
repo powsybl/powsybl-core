@@ -3,28 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVisitor {
 
     public abstract void visitTerminal(Terminal t);
 
-    private void visitBranch(Branch branch, Branch.Side side) {
-        switch (side) {
-            case ONE:
-                visitTerminal(branch.getTerminal1());
-                break;
-            case TWO:
-                visitTerminal(branch.getTerminal2());
-                break;
-            default:
-                throw new AssertionError();
-        }
+    private void visitBranch(Branch branch, TwoSides side) {
+        visitTerminal(branch.getTerminal(side));
     }
 
     @Override
@@ -33,30 +25,18 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitLine(Line line, Branch.Side side) {
+    public void visitLine(Line line, TwoSides side) {
         visitBranch(line, side);
     }
 
     @Override
-    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
         visitBranch(transformer, side);
     }
 
     @Override
-    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
-        switch (side) {
-            case ONE:
-                visitTerminal(transformer.getLeg1().getTerminal());
-                break;
-            case TWO:
-                visitTerminal(transformer.getLeg2().getTerminal());
-                break;
-            case THREE:
-                visitTerminal(transformer.getLeg3().getTerminal());
-                break;
-            default:
-                throw new AssertionError();
-        }
+    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
+        visitTerminal(transformer.getTerminal(side));
     }
 
     private void visitInjection(Injection injection) {
@@ -84,8 +64,8 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
-        visitInjection(danglingLine);
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
+        visitInjection(boundaryLine);
     }
 
     @Override
@@ -96,5 +76,15 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     @Override
     public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
         visitInjection(converterStation);
+    }
+
+    @Override
+    public void visitGround(Ground ground) {
+        visitInjection(ground);
+    }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+        converter.getTerminal(terminalNumber).ifPresent(this::visitTerminal);
     }
 }

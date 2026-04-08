@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.config;
 
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
- * @author Florian Dupuy <florian.dupuy at rte-france.com>
+ * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 class BaseVoltagesConfigTest {
 
@@ -54,11 +55,11 @@ class BaseVoltagesConfigTest {
         assertEquals(Collections.singletonList("Default"), config.getProfiles());
 
         assertFalse(config.getBaseVoltageName(500, "Default").isPresent());
-        assertEquals("vl300to500", config.getBaseVoltageName(450, "Default").orElseThrow(AssertionError::new));
-        assertEquals("vl300to500", config.getBaseVoltageName(400, "Default").orElseThrow(AssertionError::new));
-        assertEquals("vl300to500", config.getBaseVoltageName(300, "Default").orElseThrow(AssertionError::new));
-        assertEquals("vl180to300", config.getBaseVoltageName(250, "Default").orElseThrow(AssertionError::new));
-        assertEquals("vl180to300", config.getBaseVoltageName(180, "Default").orElseThrow(AssertionError::new));
+        assertEquals("vl300to500", config.getBaseVoltageName(450, "Default").orElseThrow(IllegalStateException::new));
+        assertEquals("vl300to500", config.getBaseVoltageName(400, "Default").orElseThrow(IllegalStateException::new));
+        assertEquals("vl300to500", config.getBaseVoltageName(300, "Default").orElseThrow(IllegalStateException::new));
+        assertEquals("vl180to300", config.getBaseVoltageName(250, "Default").orElseThrow(IllegalStateException::new));
+        assertEquals("vl180to300", config.getBaseVoltageName(180, "Default").orElseThrow(IllegalStateException::new));
         assertFalse(config.getBaseVoltageName(700, "Default").isPresent());
         assertFalse(config.getBaseVoltageName(400, "unknownProfile").isPresent());
     }

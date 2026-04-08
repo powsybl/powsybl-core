@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.tripping;
 
@@ -13,7 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 final class TrippingTopologyTraverser {
 
@@ -24,6 +25,11 @@ final class TrippingTopologyTraverser {
         return !aSwitch.isOpen() &&
                 !aSwitch.isFictitious() &&
                 aSwitch.getKind() == SwitchKind.BREAKER;
+    }
+
+    private static boolean isOpenable(DcSwitch aSwitch) {
+        return !aSwitch.isOpen() &&
+                !aSwitch.isFictitious();
     }
 
     static void traverse(Terminal terminal, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
@@ -56,6 +62,34 @@ final class TrippingTopologyTraverser {
                 if (isOpenable(aSwitch)) {
                     // Traverser stops on current path as contingency opens the openable switch
                     switchesToOpen.add(aSwitch);
+                    return TraverseResult.TERMINATE_PATH;
+                }
+                return aSwitch.isOpen() ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
+            }
+        });
+    }
+
+    static void traverse(DcTerminal terminal, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
+        Objects.requireNonNull(terminal);
+        Objects.requireNonNull(dcTerminalsToDisconnect);
+
+        terminal.traverse(new DcTerminal.TopologyTraverser() {
+            @Override
+            public TraverseResult traverse(DcTerminal terminal, boolean connected) {
+                if (connected) {
+                    dcTerminalsToDisconnect.add(terminal);
+                    if (traversedDcTerminals != null) {
+                        traversedDcTerminals.add(terminal);
+                    }
+                }
+                return TraverseResult.TERMINATE_PATH;
+            }
+
+            @Override
+            public TraverseResult traverse(DcSwitch aSwitch) {
+                if (isOpenable(aSwitch)) {
+                    // Traverser stops on current path as contingency opens the openable switch
+                    dcSwitchesToOpen.add(aSwitch);
                     return TraverseResult.TERMINATE_PATH;
                 }
                 return aSwitch.isOpen() ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;

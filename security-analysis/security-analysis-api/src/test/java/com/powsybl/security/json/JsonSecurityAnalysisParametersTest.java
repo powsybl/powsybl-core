@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -22,22 +22,23 @@ import java.io.InputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
+public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
 
     @Test
     void roundTrip() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.2);
-        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.1.json");
+        parameters.setIntermediateResultsInOperatorStrategy(true);
+        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.2.json");
     }
 
     @Test
     void writeExtension() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonSecurityAnalysisParameters::write, ComparisonUtils::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
+        writeTest(parameters, JsonSecurityAnalysisParameters::write, ComparisonUtils::assertTxtEquals, "/SecurityAnalysisParametersWithExtension.json");
     }
 
     @Test
@@ -59,7 +60,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     @Test
     void readError() {
         InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisParametersInvalid.json");
-        assertThrows(AssertionError.class, () -> JsonSecurityAnalysisParameters.read(inputStream), "Unexpected field: unexpected");
+        assertThrows(IllegalStateException.class, () -> JsonSecurityAnalysisParameters.read(inputStream), "Unexpected field: unexpected");
     }
 
     @Test
@@ -90,6 +91,15 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
         SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters
                 .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.1.json"));
         assertEquals(0.2, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), 0.0001);
+        assertFalse(parameters.getIntermediateResultsInOperatorStrategy());
+    }
+
+    @Test
+    void readJsonVersion12() {
+        SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.2.json"));
+        assertEquals(0.2, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), 0.0001);
+        assertTrue(parameters.getIntermediateResultsInOperatorStrategy());
     }
 
     @Test

@@ -3,14 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.io;
 
-import java.util.regex.Pattern;
+import com.google.re2j.Pattern;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 public enum FileFormat {
     LEGACY_TEXT('\'', ','),
@@ -20,6 +21,10 @@ public enum FileFormat {
     public static final String VALID_DELIMITERS = ", ";
 
     public static final Pattern LEGACY_TEXT_QUOTED_OR_WHITESPACE = Pattern.compile("('[^']*')|( )+");
+
+    public static final String REMOVE_COMMENT_REGEX = "('[^']*')|([^/']+)|(/.*)";
+
+    public static final Pattern LEGACY_QUOTED_OR_NON_QUOTED_TEXT = Pattern.compile("'[^']*'|[^']+");
 
     FileFormat(char quote, char defaultDelimiter) {
         this.quote = quote;

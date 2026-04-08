@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity.json;
 
@@ -16,12 +17,15 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class SensitivityAnalysisResultDeserializer extends StdDeserializer<SensitivityAnalysisResult> {
+
+    public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
     protected SensitivityAnalysisResultDeserializer() {
         super(SensitivityAnalysisResult.class);
@@ -30,14 +34,17 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
     @Override
     public SensitivityAnalysisResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String version = null;
-        List<SensitivityValue> sensitivityValues = null;
-        List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = null;
-        List<SensitivityFactor> factors = null;
+        List<SensitivityValue> sensitivityValues = Collections.emptyList();
+        List<SensitivityAnalysisResult.SensitivityStateStatus> stateStatus = Collections.emptyList();
+        List<String> contingencyIds = Collections.emptyList();
+        List<String> operatorStrategyIds = Collections.emptyList();
+        List<SensitivityFactor> factors = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
                     break;
 
                 case "sensitivityFactors":
@@ -51,18 +58,44 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     break;
 
                 case "contingencyStatus":
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
                     parser.nextToken();
-                    contingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityContingencyStatus.class);
+                    stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
                     break;
+
+                case "stateStatus":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: stateStatus", version, "1.1");
+                    parser.nextToken();
+                    stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
+                    break;
+
+                case "contingencyIds":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyIds", version, "1.1");
+                    parser.nextToken();
+                    contingencyIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                    break;
+
+                case "operatorStrategyIds":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: operatorStrategyIds", version, "1.1");
+                    parser.nextToken();
+                    operatorStrategyIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                    break;
+
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 
-        if (version == null || !version.equals("1.0")) {
-            //Only 1.0 version is supported for now
-            throw new AssertionError("Version different than 1.0 not supported.");
+        if (version == null || !version.equals("1.0") && !version.equals("1.1")) {
+            throw new IllegalStateException("Only version 1.0 and 1.1 are supported.");
         }
-        return new SensitivityAnalysisResult(factors, contingencyStatus, sensitivityValues);
+        if ("1.0".equals(version)) {
+            // In 1.0 the contingency IDs and the mapping contingency index -> ID were directly taken from 'contingencyStatus' list.
+            // Therefore for this version, the "contingencyIds" tag was not encountered.
+            // Note that these elements cannot be computed from the state statuses (for versions >= 1.1) because
+            // they also contain some post operator strategy statuses and are not indexed by contingency
+            contingencyIds = stateStatus.stream().map(s -> s.getState().contingencyId()).toList();
+        }
+        return new SensitivityAnalysisResult(factors, stateStatus, contingencyIds, operatorStrategyIds, sensitivityValues);
     }
 }

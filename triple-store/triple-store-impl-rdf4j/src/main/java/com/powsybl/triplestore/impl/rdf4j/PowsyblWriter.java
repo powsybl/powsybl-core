@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.impl.rdf4j;
@@ -20,12 +21,12 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Literals;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.vocabulary.XSD;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.rdfxml.RDFXMLWriter;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class PowsyblWriter extends RDFXMLWriter {
 
@@ -105,8 +106,9 @@ public class PowsyblWriter extends RDFXMLWriter {
             }
         }
         if (prefix != null && prefix.equals("data")) {
-            if (ctxt.contains("_SSH_") || (ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer"))
-                    || (ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode"))) {
+            if (ctxt.contains("_SSH_")
+                    || ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer")
+                    || ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode")) {
                 attName = "about";
                 value = "#" + uri.getLocalName();
             } else {
@@ -141,8 +143,7 @@ public class PowsyblWriter extends RDFXMLWriter {
     private void writeResource(Value obj) throws IOException {
         Resource objRes = (Resource) obj;
 
-        if (objRes instanceof BNode) {
-            BNode bNode = (BNode) objRes;
+        if (objRes instanceof BNode bNode) {
             writeAttribute(RDF.NAMESPACE, "nodeID", getValidNodeId(bNode));
         } else {
             IRI uri = (IRI) objRes;
@@ -173,7 +174,7 @@ public class PowsyblWriter extends RDFXMLWriter {
 
             if (isXMLLiteral) {
                 writeAttribute(RDF.NAMESPACE, "parseType", "Literal");
-            } else if (!datatype.equals(XMLSchema.STRING)) {
+            } else if (!datatype.equals(XSD.STRING)) {
                 writeAttribute(RDF.NAMESPACE, "datatype", datatype.toString());
             }
         }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class ConnectGeneratorTest {
     private Network network;
@@ -46,7 +47,7 @@ class ConnectGeneratorTest {
     }
 
     @Test
-    void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
+    void testWithAlreadyConnectedGenerators() {
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
@@ -54,11 +55,72 @@ class ConnectGeneratorTest {
     }
 
     @Test
-    void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
+    void testWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(99., g2.getTargetV(), 0.01);
+        assertEquals(22.0, g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testConnectGeneratorWithWrongTargetV() {
+        g2.setVoltageRegulatorOn(true);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        new ConnectGenerator(g2.getId()).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(33, g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testConnectGeneratorWithWrongTargetV2() {
+        // heterogeneous controls not taken into account yet.
+        double shuntTargetV = 123;
+        network.getShuntCompensatorStream().forEach(sc -> {
+            sc.setTargetV(shuntTargetV);
+            sc.setTargetDeadband(1);
+            sc.setVoltageRegulatorOn(true);
+        });
+        g2.setVoltageRegulatorOn(true);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        new ConnectGenerator(g2.getId()).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(33.0, g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testConnectGeneratorWithNoNetworkInformation() {
+        g3.setVoltageRegulatorOn(false);
+        g2.setVoltageRegulatorOn(false);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        g2.setTargetV(Double.NaN);
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        modifs.setVoltageRegulatorOn(true); // no targetV provided!
+        modifs.setConnected(true);
+        new GeneratorModification(g2.getId(), modifs).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ConnectGenerator("ID");
+        assertEquals("ConnectGenerator", networkModification.getName());
+
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        networkModification = new GeneratorModification("ID", modifs);
+        assertEquals("GeneratorModification", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        ConnectGenerator modification = new ConnectGenerator("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g2.getId());
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g3.getId());
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }
 }

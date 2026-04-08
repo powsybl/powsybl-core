@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -10,7 +11,7 @@ import com.univocity.parsers.annotations.Parsed;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class PsseFixedShunt {
 
@@ -67,5 +68,15 @@ public class PsseFixedShunt {
 
     public void setBl(double bl) {
         this.bl = bl;
+    }
+
+    public PsseFixedShunt copy() {
+        PsseFixedShunt copy = new PsseFixedShunt();
+        copy.i = this.i;
+        copy.id = this.id;
+        copy.status = this.status;
+        copy.gl = this.gl;
+        copy.bl = this.bl;
+        return copy;
     }
 }

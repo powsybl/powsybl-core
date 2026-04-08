@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.converter;
 
@@ -11,31 +12,27 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.iidm.network.Exporter;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
-import org.joda.time.DateTime;
+import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-import static com.powsybl.ucte.converter.util.UcteConstants.*;
+import static com.powsybl.ucte.converter.util.UcteConverterConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 
 /**
@@ -49,9 +46,15 @@ public class UcteExporter implements Exporter {
 
     public static final String NAMING_STRATEGY = "ucte.export.naming-strategy";
 
-    private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
+    public static final String COMBINE_PHASE_ANGLE_REGULATION = "ucte.export.combine-phase-angle-regulation";
 
-    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER);
+    private static final Parameter NAMING_STRATEGY_PARAMETER
+            = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
+
+    private static final Parameter COMBINE_PHASE_ANGLE_REGULATION_PARAMETER
+            = new Parameter(COMBINE_PHASE_ANGLE_REGULATION, ParameterType.BOOLEAN, "Combine phase and angle regulation", false);
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
 
     private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
             = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices());
@@ -84,8 +87,10 @@ public class UcteExporter implements Exporter {
 
         String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
+        namingStrategy.initializeNetwork(network);
+        boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation);
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
@@ -97,7 +102,7 @@ public class UcteExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return STATIC_PARAMETERS;
+        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), defaultValueConfig);
     }
 
     private static boolean isYNode(Bus bus) {
@@ -109,8 +114,8 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isDanglingLineYNode(DanglingLine danglingLine) {
-        return isYNode(danglingLine.getTerminal().getBusBreakerView().getConnectableBus());
+    private static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
+        return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
     private static boolean isTransformerYNode(TwoWindingsTransformer twoWindingsTransformer) {
@@ -126,7 +131,7 @@ public class UcteExporter implements Exporter {
      * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy) {
+    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
 
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
@@ -139,36 +144,27 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(namingStrategy);
+        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation);
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
 
-        for (Substation substation : network.getSubstations()) {
-            for (VoltageLevel voltageLevel : substation.getVoltageLevels()) {
-                for (Bus bus : voltageLevel.getBusBreakerView().getBuses()) {
-                    if (isYNode(bus)) {
-                        LOGGER.warn("Ignoring YNode {}", bus.getId());
-                    } else {
-                        convertBus(ucteNetwork, bus, context);
-                    }
+        network.getSubstations().forEach(substation -> substation.getVoltageLevels().forEach(voltageLevel -> {
+            voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
+                if (isYNode(bus)) {
+                    LOGGER.warn("Ignoring YNode {}", bus.getId());
+                } else {
+                    convertBus(ucteNetwork, bus, context);
                 }
-                for (Switch sw : voltageLevel.getBusBreakerView().getSwitches()) {
-                    convertSwitch(ucteNetwork, sw, context);
-                }
-            }
-        }
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            convertDanglingLine(ucteNetwork, danglingLine, context);
-        }
-        for (Line line : network.getLines()) {
-            convertLine(ucteNetwork, line, context);
-        }
-        for (TwoWindingsTransformer transformer : network.getTwoWindingsTransformers()) {
-            convertTwoWindingsTransformer(ucteNetwork, transformer, context);
-        }
+            });
+            voltageLevel.getBusBreakerView().getSwitches().forEach(sw -> convertSwitch(ucteNetwork, sw, context));
+        }));
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(boundaryLine -> convertBoundaryLine(ucteNetwork, boundaryLine, context));
+        network.getLines().forEach(line -> convertLine(ucteNetwork, line, context));
+        network.getTieLines().forEach(tieLine -> convertTieLine(ucteNetwork, tieLine, context));
+        network.getTwoWindingsTransformers().forEach(transformer -> convertTwoWindingsTransformer(ucteNetwork, transformer, context));
 
-        ucteNetwork.getComments().add("Generated by powsybl, " + DateTime.now());
+        ucteNetwork.getComments().add("Generated by powsybl, " + ZonedDateTime.now());
         ucteNetwork.getComments().add("Case date: " + network.getCaseDate());
         return ucteNetwork;
     }
@@ -302,31 +298,31 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Create a {@link UcteNode} object from a DanglingLine and add it to the {@link UcteNetwork}.
+     * Create a {@link UcteNode} object from a BoundaryLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
-     * @param danglingLine The danglingLine used to create the XNode
+     * @param boundaryLine The boundaryLine used to create the XNode
      * @param context The context used to store temporary data during the conversion
      */
-    private static void convertXNode(UcteNetwork ucteNetwork, DanglingLine danglingLine, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(danglingLine);
-        String geographicalName = danglingLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
+    private static void convertXNode(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
+        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(boundaryLine);
+        String geographicalName = boundaryLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(danglingLine);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(boundaryLine);
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
-        ucteNode.setActiveLoad(danglingLine.getP0());
-        ucteNode.setReactiveLoad(danglingLine.getQ0());
-        double generatorTargetP = danglingLine.getGeneration().getTargetP();
+        ucteNode.setActiveLoad(boundaryLine.getP0());
+        ucteNode.setReactiveLoad(boundaryLine.getQ0());
+        double generatorTargetP = boundaryLine.getGeneration().getTargetP();
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
-        double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
+        double generatorTargetQ = boundaryLine.getGeneration().getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+        if (boundaryLine.getGeneration().isVoltageRegulationOn()) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference(danglingLine.getGeneration().getTargetV());
-            double minP = danglingLine.getGeneration().getMinP();
-            double maxP = danglingLine.getGeneration().getMaxP();
-            double minQ = danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
-            double maxQ = danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
+            ucteNode.setVoltageReference(boundaryLine.getGeneration().getTargetV());
+            double minP = boundaryLine.getGeneration().getMinP();
+            double maxP = boundaryLine.getGeneration().getMaxP();
+            double minQ = boundaryLine.getGeneration().getReactiveLimits().getMinQ(boundaryLine.getGeneration().getTargetP());
+            double maxQ = boundaryLine.getGeneration().getReactiveLimits().getMaxQ(boundaryLine.getGeneration().getTargetP());
             if (minP != -DEFAULT_POWER_LIMIT) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }
@@ -343,21 +339,6 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Create a {@link UcteNode} object from a MergedXnode and add it to the {@link UcteNetwork}.
-     *
-     * @param ucteNetwork The target network in ucte
-     * @param mergedXnode The MergedXnode extension used to create the XNode
-     * @param context The context used to store temporary data during the conversion
-     */
-    private static void convertXNode(UcteNetwork ucteNetwork, MergedXnode mergedXnode, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(mergedXnode.getCode());
-        String geographicalName = mergedXnode.getExtendable().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
-
-        UcteNodeStatus xnodeStatus = getXnodeStatus(mergedXnode.getExtendable());
-        convertXNode(ucteNetwork, xnodeCode, geographicalName, xnodeStatus);
-    }
-
-    /**
      * Create a {@link UcteNode} object from a TieLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
@@ -365,9 +346,9 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
-        String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(tieLine);
+        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
+        String geographicalName = mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
@@ -437,11 +418,6 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertLine(UcteNetwork ucteNetwork, Line line, UcteExporterContext context) {
-        if (line.isTieLine()) {
-            convertTieLine(ucteNetwork, line, context);
-            return;
-        }
-
         LOGGER.trace("Converting line {}", line.getId());
 
         UcteElementId lineId = context.getNamingStrategy().getUcteElementId(line);
@@ -460,68 +436,6 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Convert a tie line to two {@link UcteLine} connected by a Xnode. In IIDM, tie lines might be instance of {@link TieLine} or have {@link MergedXnode} extension.
-     *
-     * @param ucteNetwork The target UcteNetwork
-     * @param line The tie line to dispatch
-     * @param context The context used to store temporary data during the conversion
-     */
-    private static void convertTieLine(UcteNetwork ucteNetwork, Line line, UcteExporterContext context) {
-        MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
-        if (mergedXnode != null) {
-            convertTieLine(ucteNetwork, mergedXnode, context);
-        } else if (line instanceof TieLine) {
-            convertTieLine(ucteNetwork, (TieLine) line, context);
-        } else {
-            throw new AssertionError("Unexpected TieLine type: " + line.getClass());
-        }
-    }
-
-    /**
-     * Convert a {@link MergedXnode} to two {@link UcteLine} connected by a Xnode. Add the two {@link UcteLine} and the {@link UcteNode} to the network.
-     *
-     * @param ucteNetwork The target UcteNetwork
-     * @param mergedXnode The MergedXnode extension used to create the XNode
-     * @param context The context used to store temporary data during the conversion
-     */
-    private static void convertTieLine(UcteNetwork ucteNetwork, MergedXnode mergedXnode, UcteExporterContext context) {
-        Line line = mergedXnode.getExtendable();
-
-        LOGGER.trace("Converting TieLine {}", line.getId());
-
-        // Create XNode
-        convertXNode(ucteNetwork, mergedXnode, context);
-
-        // Create half line 1
-        UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine1Name());
-        String elementName1 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-        UcteElementStatus status1 = line instanceof TieLine ? getStatusHalf((TieLine) line, Branch.Side.ONE) : getStatus(line, Branch.Side.ONE);
-        UcteLine ucteLine1 = new UcteLine(
-                ucteElementId1,
-                status1,
-                line.getR() * mergedXnode.getRdp(),
-                line.getX() * mergedXnode.getXdp(),
-                line.getB1(),
-                line.getCurrentLimits1().map(l -> (int) l.getPermanentLimit()).orElse(null),
-                elementName1);
-        ucteNetwork.addLine(ucteLine1);
-
-        // Create half line2
-        UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine2Name());
-        String elementName2 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
-        UcteElementStatus status2 = line instanceof TieLine ? getStatusHalf((TieLine) line, Branch.Side.TWO) : getStatus(line, Branch.Side.TWO);
-        UcteLine ucteLine2 = new UcteLine(
-                ucteElementId2,
-                status2,
-                line.getR() * (1.0d - mergedXnode.getRdp()),
-                line.getX() * (1.0d - mergedXnode.getXdp()),
-                line.getB2(),
-                line.getCurrentLimits2().map(l -> (int) l.getPermanentLimit()).orElse(null),
-                elementName2);
-        ucteNetwork.addLine(ucteLine2);
-    }
-
-    /**
      * Convert a {@link TieLine} to two {@link UcteLine} connected by a Xnode. Add the two {@link UcteLine} and the {@link UcteNode} to the network.
      *
      * @param ucteNetwork The target UcteNetwork
@@ -534,76 +448,102 @@ public class UcteExporter implements Exporter {
         // Create XNode
         convertXNode(ucteNetwork, tieLine, context);
 
-        // Create half line 1
-        TieLine.HalfLine half1 = tieLine.getHalf1();
-        UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(half1.getId());
-        String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-        UcteElementStatus status1 = getStatusHalf(tieLine, Branch.Side.ONE);
+        // Create boundary line 1
+        BoundaryLine boundaryLine1 = tieLine.getBoundaryLine1();
+        UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(boundaryLine1.getId());
+        String elementName1 = boundaryLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        UcteElementStatus status1 = getStatusHalf(tieLine, TwoSides.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
-                half1.getR(),
-                half1.getX(),
-                half1.getB1() + half1.getB2(),
-                tieLine.getCurrentLimits1().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                boundaryLine1.getR(),
+                boundaryLine1.getX(),
+                boundaryLine1.getB(),
+                tieLine.getBoundaryLine1().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
-        // Create half line2
-        TieLine.HalfLine half2 = tieLine.getHalf2();
-        UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(half2.getId());
-        String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
-        UcteElementStatus status2 = getStatusHalf(tieLine, Branch.Side.TWO);
+        // Create boundary line2
+        BoundaryLine boundaryLine2 = tieLine.getBoundaryLine2();
+        UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(boundaryLine2.getId());
+        String elementName2 = boundaryLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        UcteElementStatus status2 = getStatusHalf(tieLine, TwoSides.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
-                half2.getR(),
-                half2.getX(),
-                half2.getB1() + half2.getB2(),
-                tieLine.getCurrentLimits2().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                boundaryLine2.getR(),
+                boundaryLine2.getX(),
+                boundaryLine2.getB(),
+                tieLine.getBoundaryLine2().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
 
     /**
-     * Convert a {@link DanglingLine} object to an {@link UcteNode} and a {@link UcteLine} objects.
+     * Convert a {@link BoundaryLine} object to an {@link UcteNode} and a {@link UcteLine} objects.
      *
      * @param ucteNetwork The target network in ucte
-     * @param danglingLine The danglingLine to convert to UCTE
+     * @param boundaryLine The boundaryLine to convert to UCTE
      * @param context The context used to store temporary data during the conversion
      */
-    private static void convertDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine, UcteExporterContext context) {
-        LOGGER.trace("Converting DanglingLine {}", danglingLine.getId());
+    private static void convertBoundaryLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
+        LOGGER.trace("Converting BoundaryLine {}", boundaryLine.getId());
 
         // Create XNode
-        convertXNode(ucteNetwork, danglingLine, context);
+        convertXNode(ucteNetwork, boundaryLine, context);
 
         // Always create the XNode,
-        // But do not export the dangling line if it was related to a YNode
+        // But do not export the boundary line if it was related to a YNode
         // The corresponding transformer will be connected to the XNode
-        if (isDanglingLineYNode(danglingLine)) {
-            LOGGER.warn("Ignoring DanglingLine at YNode in the export {}", danglingLine.getId());
+        if (isBoundaryLineYNode(boundaryLine)) {
+            LOGGER.warn("Ignoring BoundaryLine at YNode in the export {}", boundaryLine.getId());
             return;
         }
 
         // Create line
-        UcteElementId elementId = context.getNamingStrategy().getUcteElementId(danglingLine);
-        String elementName = danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        UcteElementStatus ucteElementStatus = getStatus(danglingLine);
+        UcteElementId elementId = context.getNamingStrategy().getUcteElementId(boundaryLine);
+        String elementName = boundaryLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        UcteElementStatus ucteElementStatus = getStatus(boundaryLine);
 
         UcteLine ucteLine = new UcteLine(
                 elementId,
                 ucteElementStatus,
-                danglingLine.getR(),
-                danglingLine.getX(),
-                danglingLine.getB(),
-                danglingLine.getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                boundaryLine.getR(),
+                boundaryLine.getX(),
+                boundaryLine.getB(),
+                boundaryLine.getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
 
+    private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key) {
+        String value;
+        String value1 = identifiable1.getProperty(key, "");
+        String value2 = identifiable2.getProperty(key, "");
+        if (value1.equals(value2)) {
+            value = value1;
+        } else if (value1.isEmpty()) {
+            value = value2;
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", key, value2);
+        } else if (value2.isEmpty()) {
+            value = value1;
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", key, value1);
+        } else {
+            // Inconsistent values, declare the result value empty
+            value = "";
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Ignoring the property on the merged line",
+                    key,
+                    value1,
+                    value2);
+        }
+        return value;
+    }
+
     private static UcteNodeStatus getXnodeStatus(Identifiable<?> identifiable) {
-        String statusNode = identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode");
+        return getXnodeStatus(identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
+    }
+
+    private static UcteNodeStatus getXnodeStatus(String statusNode) {
         UcteNodeStatus ucteNodeStatus = UcteNodeStatus.REAL;
         if (statusNode != null && statusNode.equals(UcteNodeStatus.EQUIVALENT.toString())) {
             ucteNodeStatus = UcteNodeStatus.EQUIVALENT;
@@ -635,15 +575,15 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UcteElementStatus getStatus(Branch<?> branch, Branch.Side side) {
-        if (branch.isFictitious()) {
-            if (branch.getTerminal(side).isConnected()) {
+    private static UcteElementStatus getStatusHalf(TieLine tieLine, TwoSides side) {
+        if (tieLine.getBoundaryLine(side).isFictitious()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
             }
         } else {
-            if (branch.getTerminal(side).isConnected()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
@@ -651,39 +591,23 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UcteElementStatus getStatusHalf(TieLine tieLine, Branch.Side side) {
-        if (tieLine.getHalf(side).isFictitious()) {
-            if (tieLine.getTerminal(side).isConnected()) {
-                return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
-            } else {
-                return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-            }
-        } else {
-            if (tieLine.getTerminal(side).isConnected()) {
-                return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
-            } else {
-                return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
-            }
-        }
-    }
-
-    private static UcteElementStatus getStatus(DanglingLine danglingLine) {
-        if (Boolean.parseBoolean(danglingLine.getProperty(IS_COUPLER_PROPERTY_KEY, "false"))) {
-            if (danglingLine.getTerminal().isConnected()) {
+    private static UcteElementStatus getStatus(BoundaryLine boundaryLine) {
+        if (Boolean.parseBoolean(boundaryLine.getProperty(IS_COUPLER_PROPERTY_KEY, "false"))) {
+            if (boundaryLine.getTerminal().isConnected()) {
                 return UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
             } else {
                 return UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION;
             }
         }
 
-        if (danglingLine.isFictitious()) {
-            if (danglingLine.getTerminal().isConnected()) {
+        if (boundaryLine.isFictitious()) {
+            if (boundaryLine.getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
             }
         } else {
-            if (danglingLine.getTerminal().isConnected()) {
+            if (boundaryLine.getTerminal().isConnected()) {
                 return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
@@ -716,7 +640,6 @@ public class UcteExporter implements Exporter {
      * @param ucteNetwork The target UcteNetwork
      * @param twoWindingsTransformer The two windings transformer we want to convert
      * @param context The context used to store temporary data during the conversion
-     * @see UcteExporter#convertRegulation(UcteNetwork, UcteElementId, TwoWindingsTransformer)
      */
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         if (isTransformerYNode(twoWindingsTransformer)) {
@@ -748,7 +671,7 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getG());
         ucteNetwork.addTransformer(ucteTransformer);
 
-        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer);
+        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context.withCombinePhaseAngleRegulation());
     }
 
     /**
@@ -760,12 +683,12 @@ public class UcteExporter implements Exporter {
      * @param ucteElementId The UcteElementId corresponding to the TwoWindingsTransformer
      * @param twoWindingsTransformer The TwoWindingTransformer we want to convert
      */
-    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
+    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         if (twoWindingsTransformer.hasRatioTapChanger() || twoWindingsTransformer.hasPhaseTapChanger()) {
             UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
                     .map(rtc -> convertRatioTapChanger(twoWindingsTransformer)).orElse(null);
             UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
-                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer)).orElse(null);
+                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, combinePhaseAngleRegulation)).orElse(null);
             UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
             ucteNetwork.addRegulation(ucteRegulation);
         }
@@ -801,7 +724,7 @@ public class UcteExporter implements Exporter {
      * @see UcteAngleRegulation
      * @see UcteExporter#findRegulationType(TwoWindingsTransformer)
      */
-    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         LOGGER.trace("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
         UcteAngleRegulationType ucteAngleRegulationType = findRegulationType(twoWindingsTransformer);
         if (ucteAngleRegulationType == UcteAngleRegulationType.SYMM) {
@@ -812,8 +735,9 @@ public class UcteExporter implements Exporter {
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
-            return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer),
-                    calculateAsymmAngleTheta(twoWindingsTransformer),
+            Complex duAndAngle = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation);
+            return new UcteAngleRegulation(duAndAngle.abs(),
+                    Math.toDegrees(duAndAngle.getArgument()),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
                     twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
                     calculateAngleP(twoWindingsTransformer),
@@ -906,7 +830,7 @@ public class UcteExporter implements Exporter {
             if (namingStrategies.size() > 1 && name == null) {
                 // several naming strategies and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> namingStrategyNames = namingStrategies.stream().map(NamingStrategy::getName).collect(Collectors.toList());
+                List<String> namingStrategyNames = namingStrategies.stream().map(NamingStrategy::getName).toList();
                 throw new PowsyblException("Several naming strategy implementations found (" + namingStrategyNames
                         + "), you must add properties to select the implementation");
             }

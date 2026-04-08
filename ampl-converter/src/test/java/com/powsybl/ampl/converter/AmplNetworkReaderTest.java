@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter;
 
@@ -23,7 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 class AmplNetworkReaderTest {
 
@@ -55,8 +56,8 @@ class AmplNetworkReaderTest {
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         twt.getLeg1().newPhaseTapChanger()
                 .setTapPosition(1)
-                .setRegulationTerminal(twt.getTerminal(ThreeWindingsTransformer.Side.TWO))
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationTerminal(twt.getTerminal(ThreeSides.TWO))
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(200)
                 .beginStep()
                     .setAlpha(-20.0)
@@ -143,8 +144,8 @@ class AmplNetworkReaderTest {
     }
 
     @Test
-    void readDanglingLines() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+    void readBoundaryLines() throws IOException {
+        Network network = BoundaryLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("dl",
@@ -152,7 +153,7 @@ class AmplNetworkReaderTest {
                         "dl_branches.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
-        testDLBranches(network, reader);
+        testBoundaryLineBranches(network, reader);
     }
 
     @Test
@@ -232,6 +233,20 @@ class AmplNetworkReaderTest {
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testBatteries(network, reader);
+    }
+
+    @Test
+    void testMatchingQuote() {
+        Map<String, Integer> expectedTokens = Map.ofEntries(Map.entry("key some_value_without_spaces", 2),
+                Map.entry("key \"value with spaces in doubles quotes\"", 2),
+                Map.entry("key 'value with spaces in single quotes'", 2));
+        for (Map.Entry<String, Integer> entry : expectedTokens.entrySet()) {
+            String str = entry.getKey();
+            Integer expectedNbTokens = entry.getValue();
+            assertEquals(expectedNbTokens, AmplNetworkReader.parseExceptIfBetweenQuotes(str).size(),
+                    "The number of tokens parsed is wrong");
+        }
+
     }
 
     private void testGenerators(Network network, AmplNetworkReader reader) throws IOException {
@@ -400,14 +415,14 @@ class AmplNetworkReaderTest {
         assertEquals(-113, twt2.getLeg3().getTerminal().getQ(), 0.0);
     }
 
-    private void testDLBranches(Network network, AmplNetworkReader reader) throws IOException {
-        DanglingLine dl = network.getDanglingLine("DL");
+    private void testBoundaryLineBranches(Network network, AmplNetworkReader reader) throws IOException {
+        BoundaryLine dl = network.getBoundaryLine("BL");
         assertTrue(Double.isNaN(dl.getTerminal().getP()));
         assertTrue(Double.isNaN(dl.getTerminal().getQ()));
 
         reader.readBranches();
 
-        DanglingLine dl2 = network.getDanglingLine("DL");
+        BoundaryLine dl2 = network.getBoundaryLine("BL");
         assertEquals(-100, dl2.getTerminal().getP(), 0.0);
         assertEquals(-110, dl2.getTerminal().getQ(), 0.0);
     }

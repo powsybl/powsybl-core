@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.alternatives.test;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 class TripleStoreWriteTest {
 
@@ -56,6 +57,9 @@ class TripleStoreWriteTest {
             assertEquals(9, model.tripleStore().contextNames().size());
 
             for (CgmesSubset subset : CgmesSubset.values()) {
+                if (subset == CgmesSubset.UNKNOWN) {
+                    continue;
+                }
                 DataSource ds1 = DataSourceUtil.createDataSource(fileSystem.getPath("/"), "cgmes", CompressionFormat.ZIP, null);
                 model.write(ds1, subset);
 

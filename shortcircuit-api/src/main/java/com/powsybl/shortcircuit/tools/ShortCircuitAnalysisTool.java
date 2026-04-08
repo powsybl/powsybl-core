@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.tools;
 
@@ -83,7 +84,7 @@ public class ShortCircuitAnalysisTool implements Tool {
     static Network readNetwork(CommandLine line, ToolRunningContext context) {
         ToolOptions options = new ToolOptions(line, context);
         Path caseFile = options.getPath(CASE_FILE_OPTION)
-                .orElseThrow(AssertionError::new);
+                .orElseThrow(IllegalStateException::new);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         return Network.read(caseFile);
     }

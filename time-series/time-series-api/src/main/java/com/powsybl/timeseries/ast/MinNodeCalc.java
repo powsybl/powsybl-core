@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -13,7 +14,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class MinNodeCalc extends AbstractMinMaxNodeCalc {
 
@@ -72,8 +73,8 @@ public class MinNodeCalc extends AbstractMinMaxNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof MinNodeCalc) {
-            return ((MinNodeCalc) obj).child.equals(child) && ((MinNodeCalc) obj).value == value;
+        if (obj instanceof MinNodeCalc minNodeCalc) {
+            return minNodeCalc.child.equals(child) && minNodeCalc.value == value;
         }
         return false;
     }

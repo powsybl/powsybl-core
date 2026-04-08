@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -15,7 +16,7 @@ import java.util.stream.StreamSupport;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 final class Substations {
 
@@ -50,12 +51,12 @@ final class Substations {
     static void checkRemovability(Substation substation) {
         for (VoltageLevel vl : substation.getVoltageLevels()) {
             for (Connectable connectable : vl.getConnectables()) {
-                if (connectable instanceof Branch) {
-                    checkRemovability(substation, (Branch) connectable);
-                } else if (connectable instanceof ThreeWindingsTransformer) {
-                    checkRemovability(substation, (ThreeWindingsTransformer) connectable);
-                } else if (connectable instanceof HvdcConverterStation) {
-                    checkRemovability(substation, (HvdcConverterStation) connectable);
+                if (connectable instanceof Branch<?> branch) {
+                    checkRemovability(substation, branch);
+                } else if (connectable instanceof ThreeWindingsTransformer twt) {
+                    checkRemovability(substation, twt);
+                } else if (connectable instanceof HvdcConverterStation<?> hvdcConverterStation) {
+                    checkRemovability(substation, hvdcConverterStation);
                 }
             }
         }
@@ -64,7 +65,7 @@ final class Substations {
     private static void checkRemovability(Substation substation, Branch branch) {
         Substation s1 = branch.getTerminal1().getVoltageLevel().getSubstation().orElse(null);
         Substation s2 = branch.getTerminal2().getVoltageLevel().getSubstation().orElse(null);
-        if ((s1 != substation) || (s2 != substation)) {
+        if (s1 != substation || s2 != substation) {
             throw createIsolationException(substation);
         }
     }
@@ -73,7 +74,7 @@ final class Substations {
         Substation s1 = twt.getLeg1().getTerminal().getVoltageLevel().getSubstation().orElse(null);
         Substation s2 = twt.getLeg2().getTerminal().getVoltageLevel().getSubstation().orElse(null);
         Substation s3 = twt.getLeg3().getTerminal().getVoltageLevel().getSubstation().orElse(null);
-        if ((s1 != substation) || (s2 != substation) || (s3 != substation)) {
+        if (s1 != substation || s2 != substation || s3 != substation) {
             throw createIsolationException(substation);
         }
     }
@@ -83,7 +84,7 @@ final class Substations {
         if (hvdcLine != null) {
             Substation s1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().orElse(null);
             Substation s2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation().orElse(null);
-            if ((s1 != substation) || (s2 != substation)) {
+            if (s1 != substation || s2 != substation) {
                 throw createIsolationException(substation);
             }
         }

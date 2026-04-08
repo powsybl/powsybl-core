@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -10,14 +11,22 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DoublePoint extends AbstractPoint {
 
     private final double value;
 
+    /**
+     * @deprecated Replaced by {@link #DoublePoint(int, Instant, double)}
+     */
+    @Deprecated(since = "6.7.0")
     public DoublePoint(int index, long time, double value) {
-        super(index, time);
+        this(index, Instant.ofEpochMilli(time), value);
+    }
+
+    public DoublePoint(int index, Instant instant, double value) {
+        super(index, instant);
         this.value = value;
     }
 
@@ -27,21 +36,21 @@ public class DoublePoint extends AbstractPoint {
 
     @Override
     public int hashCode() {
-        return Objects.hash(index, time, value);
+        return Objects.hash(index, instant, value);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DoublePoint) {
-            DoublePoint other = (DoublePoint) obj;
-            return index == other.index && time == other.time
-                    && ((Double.isNaN(value) && Double.isNaN(other.value)) || value == other.value);
+        if (obj instanceof DoublePoint other) {
+            return index == other.index && instant.equals(other.instant)
+                    && (Double.isNaN(value) && Double.isNaN(other.value)
+                        || value == other.value);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "DoublePoint(index=" + index + ", time=" + Instant.ofEpochMilli(time) + ", value=" + value + ")";
+        return "DoublePoint(index=" + index + ", instant=" + instant + ", value=" + value + ")";
     }
 }

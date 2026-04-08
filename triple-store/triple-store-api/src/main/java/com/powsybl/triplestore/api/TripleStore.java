@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.api;
@@ -21,7 +22,7 @@ import java.util.function.Consumer;
  * A triple is a data entity composed of subject-predicate-object.
  * Adding a name to a triple allows to separate them in contexts or named graphs.
  *
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface TripleStore {
 
@@ -165,4 +166,7 @@ public interface TripleStore {
      */
     String getImplementationName();
 
+    default void close() {
+        // Do nothing
+    }
 }
