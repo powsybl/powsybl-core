@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
 class DetailedHvdcConverterTest {
+    // @todo create iidm tests for DGS import of DcSwitch
+    // @todo check why DC-BL_DGS_V1_model1-1-1.dgs is marked as added by git.
 
     // test tolerance for double values.
     // Only makes sense for values that are neither too big nor too small.
@@ -310,6 +312,7 @@ class DetailedHvdcConverterTest {
 
     @Test
     void testElmCoupNoTyp() {
+        // @todo add comments to new tests
         Network network = importDgs("MTDC-ElmCoup_no-type");
 
         DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector with default state");

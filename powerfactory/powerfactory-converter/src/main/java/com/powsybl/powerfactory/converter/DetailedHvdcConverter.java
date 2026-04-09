@@ -86,46 +86,55 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             // Add grounds
             Set<DataObject> elmGndswt = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmGndswt").stream()).collect(Collectors.toSet());
 
-            // Add switches / breakers (ElmCoup)
-            // Gather all ElmCoup dataObject
-            //  those where both terminals are in dcElmTerms will be filtered later on
-            // @todo filter here
-            Set<DataObject> allElmCoup = getDcSwitchObjs(elmNets, dcElmTerms);
+            // Add switches / breakers (ElmCoup) where both ends are in the DC network
+            Set<DataObject> dcElmCoup = getDcSwitchObjs(elmNets, dcElmTerms);
 
-            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt, allElmCoup);
+            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt, dcElmCoup);
         }
 
         private static @NonNull Set<DataObject> getDcSwitchObjs(List<DataObject> elmNets, Set<DataObject> dcElmTerms) {
             assert dcElmTerms != null;
             assert dcElmTerms.isEmpty() || ELMTERM.equals(dcElmTerms.iterator().next().getDataClassName());
 
+            // List of all ElmCoup elements, AC and DC
             List<DataObject> elmCoups = elmNets.stream()
                     .flatMap(elmNet -> elmNet.search(".*.ElmCoup").stream())
                     .toList();
 
+            // List of ElmCoup which are connected to both AC and DC terminals
             Set<DataObject> dcElmCoup = new HashSet<>();
 
             if (elmCoups.isEmpty()) {
                 return dcElmCoup;
             }
-
             DataClass elmCoupClass = elmCoups.getFirst().getDataClass();
 
             // Count the number of DC terminals connected to each ElmCoup and add when 2 is reached
-            Set<DataObject> dcElmCoup1Term = new HashSet<>(); // ElmCoup where 1 DC terminal was already encountered
 
+            // List of cubicles connected to DC terminals
             List<DataObject> connectedCubic = dcElmTerms.stream().flatMap(e -> e.getChildrenByClass("StaCubic").stream()).toList();
+            // List of ElmCoup that are connected to at least one DC terminal, with repetitions
             List<DataObject> connectedElmCoup = connectedCubic.stream()
                     .map(cubic -> cubic.getObjectAttributeValue("obj_id").resolve())
-                    .filter(Optional::isPresent).map(Optional::get)
-                    .filter(obj -> elmCoupClass.equals(obj.getDataClass()))
+                    .filter(Optional::isPresent).map(Optional::get) // all equipment connected to at least one DC terminal
+                    .filter(obj -> elmCoupClass.equals(obj.getDataClass())) // Keep only ElmCoup
                     .toList();
 
+            Set<DataObject> dcElmCoup1Term = new HashSet<>(); // ElmCoup where 1 DC terminal was already encountered
             for (DataObject elmCoup : connectedElmCoup) {
+                // Try insertion in intermediate set dcElmCoup1Term
+                // If already present, the switch is connected to 2 DC terminals. It is therefore added to our set of
+                // DC switches and removed from the set of switches with exactly one DC connection.
                 if (!dcElmCoup1Term.add(elmCoup)) {
                     dcElmCoup.add(elmCoup);
                     dcElmCoup1Term.remove(elmCoup);
                 }
+            }
+
+            // There is an issue with ElmCoup which are connected to only one DC terminal
+            if (!dcElmCoup1Term.isEmpty()) {
+                DataObject badElmCoup = dcElmCoup1Term.iterator().next();
+                throw new PowerFactoryException("ElmCoup " + badElmCoup.getId() + " is connected to a single DC terminal.");
             }
 
             return dcElmCoup;
@@ -221,45 +230,48 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     }
 
-    private static void addDcSwitch(DataObject coup, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
+    /**
+     * Add a DcSwitch to `network` with the data in `elmCoup`
+     * @param elmCoup data object with DC switch.
+     * @param network where to add the DcSwitch.
+     * @param objIdDcNodeRef map from objects to DC nodes.
+     */
+    private static void addDcSwitch(DataObject elmCoup, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
         // Find the nodes
-        List<DcNodeRef> dcNodeRefs = objIdDcNodeRef.get(coup.getId());
+        List<String> dcNodeIds = getAndCheckDcNodes(elmCoup, 2, objIdDcNodeRef);
 
-        if (dcNodeRefs == null) { // the ElmCoup is either disconnected or connected only to AC nodes
-            return;
-        } else if (dcNodeRefs.size() == 1) {  // the ElmCoup is either disconnected on one end or connected to an AC node and a DC node
-            throw new PowerFactoryException("ElmCoup " + coup.getId() + " is connected to a single DC node.");
-        } else {
-            List<String> dcNodeIds = dcNodeRefs.stream()
-                    .sorted(Comparator.comparing(dcNodeRef -> dcNodeRef.busIndexIn))
-                    .map(DcNodeRef::dcNodeId)
-                    .toList();
+        // disconnector unless explicitly a breaker
+        String aUsage = elmCoup.findStringAttributeValue("aUsage").orElse("dct");
+        DcSwitchKind kind = switch (aUsage) {
+            case "dct" -> DcSwitchKind.DISCONNECTOR;
+            case "cbk" -> DcSwitchKind.BREAKER;
+            case null, default -> throw new PowerFactoryException("Wrong aUsage value in ElmCoup " + elmCoup.getId());
+        };
 
-            String aUsage = coup.findStringAttributeValue("aUsage").orElse("dct");
-            DcSwitchKind kind = switch (aUsage) {
-                case "dct" -> DcSwitchKind.DISCONNECTOR;
-                case "cbk" -> DcSwitchKind.BREAKER;
-                case null, default -> throw new PowerFactoryException("Wrong aUsage value in ElmCoup " + coup.getId());
-            };
+        // connected unless explicitely disconnected
+        int onOff = elmCoup.findIntAttributeValue("on_off").orElse(1);
 
-            int onOff = coup.findIntAttributeValue("on_off").orElse(1);
+        // get resistance in TypSwitch if present, otherwise default to zero
+        double r = getSwitchResistance(elmCoup);
 
-            // get resistance in TypSwitch if present, otherwise default to zero
-            double r = getSwitchResistance(coup);
-
-            network.newDcSwitch()
-                    .setId(idInNetworkString(coup))
-                    .setDcNode1(dcNodeIds.getFirst())
-                    .setDcNode2(dcNodeIds.getLast())
-                    .setOpen(onOff == 0)
-                    .setKind(kind)
-                    .setR(r)
-                    .add();
-        }
+        network.newDcSwitch()
+                .setId(idInNetworkString(elmCoup))
+                .setDcNode1(dcNodeIds.getFirst())
+                .setDcNode2(dcNodeIds.getLast())
+                .setOpen(onOff == 0)
+                .setKind(kind)
+                .setR(r)
+                .add();
     }
 
-    private static double getSwitchResistance(DataObject coup) {
-        Optional<DataObject> typSwitch = coup.findObjectAttributeValue("typ_id")
+    /**
+     * get resistance of DC switch if present in a related TypSwitch.
+     * @param elmCoup data object of the DC switch
+     * @return resistance of the switch if present in the related TypSwitch
+     * or zero if absent or if no related TypSwitch.
+     */
+    private static double getSwitchResistance(DataObject elmCoup) {
+        Optional<DataObject> typSwitch = elmCoup.findObjectAttributeValue("typ_id")
                 .flatMap(DataObjectRef::resolve);
         return (double) typSwitch.map(t -> t.findFloatAttributeValue("R_on").orElse(0.0f)).orElse(0.0f);
     }
