@@ -102,10 +102,10 @@ class ExternalGridConverter extends AbstractConverter {
             double usetpoint = elmXnet.findFloatAttributeValue("usetp").orElse(Float.NaN);
             double referenceAngle = elmXnet.findFloatAttributeValue("phiini").orElse(Float.NaN);
 
-            double minP = elmXnet.findFloatAttributeValue("Pmin_uc").orElse((float) Math.min(target.p * sign.p, 0.0));
-            double maxP = elmXnet.findFloatAttributeValue("MaxS").orElse((float) Math.max(target.p * sign.p, 0.0));
-            double minQ = elmXnet.findFloatAttributeValue("cQ_min").orElse((float) Math.min(target.q * sign.q, 0.0));
-            double maxQ = elmXnet.findFloatAttributeValue("cQ_max").orElse((float) Math.max(target.q * sign.q, 0.0));
+            double minP = elmXnet.findFloatAttributeValue("Pmin_uc").orElse(-Float.MAX_VALUE);
+            double maxP = elmXnet.findFloatAttributeValue("MaxS").orElse(Float.MAX_VALUE);
+            double minQ = elmXnet.findFloatAttributeValue("cQ_min").orElse(-Float.MAX_VALUE);
+            double maxQ = elmXnet.findFloatAttributeValue("cQ_max").orElse(Float.MAX_VALUE);
 
             if (!valid(busType, target, usetpoint, referenceAngle)) {
                 throw new PowerFactoryException("Unexpected target values '" + elmXnet.getLocName() + "'");
