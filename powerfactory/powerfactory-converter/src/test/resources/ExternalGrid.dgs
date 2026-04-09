@@ -16,9 +16,13 @@ $$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fl
   6;lne_1_2_1;;8;27;52;1;0;0;1;0
 
 
-$$ElmXnet;ID(a:40);loc_name(a:80);for_name(a:100);fold_id(p);snss(r);rntxn(r);z2tz1(r);snssmin(r);rntxnmin(r);z2tz1min(r);chr_name(a:40);bustp(a:2);pgini(r);qgini(r);phiini(r);usetp(r);outserv(i);Kpf(r);K(r)
-  7;external_grid_3_1;Xnet_3_1;8;10000;0.1;1;8000;0.1;1.0;;SL;0;0;0;1.1;0;0;0
-
+$$ElmXnet;ID(a:40);loc_name(a:80);for_name(a:100);fold_id(p);snss(r);rntxn(r);z2tz1(r);snssmin(r);rntxnmin(r);z2tz1min(r);chr_name(a:40);bustp(a:2);pgini(r);qgini(r);sgini(r);cosgini(r);phiini(r);usetp(r);outserv(i);Kpf(r);K(r)
+  7;external_grid_3_1;Xnet_3_1;8;10000;0.1;1;8000;0.1;1.0;;SL;10;5;;;0;1.1;0;0;0
+ 30;external_grid_30_1;Xnet_30_1;8;10000;0.1;1;8000;0.1;1.0;;SL;10;;15;;0;1.1;0;0;0
+ 31;external_grid_31_1;Xnet_31_1;8;10000;0.1;1;8000;0.1;1.0;;SL;;5;15;;0;1.1;0;0;0
+ 32;external_grid_32_1;Xnet_32_1;8;10000;0.1;1;8000;0.1;1.0;;SL;10;;;0,98;0;1.1;0;0;0
+ 33;external_grid_33_1;Xnet_33_1;8;10000;0.1;1;8000;0.1;1.0;;SL;;5;;0,98;0;1.1;0;0;0
+ 34;external_grid_34_1;Xnet_34_1;8;10000;0.1;1;8000;0.1;1.0;;SL;;;15;0,98;0;1.1;0;0;0
 
 $$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
   8;1 aux_1;;;60;
@@ -31,7 +35,7 @@ $$ElmSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);cCategory(a
 $$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i);outserv(i);GPSlat(r);GPSlon(r);vtarget(r);m:u(r);m:phiu(r)
   10;1 Bus 1-Slack;;8;;0;0;400;230,9401;0;0;0;0;1;1,05999994277954;0
   11;2 Bus 2;;8;;0;0;400;230,9401;0;0;0;0;1;1,04657487761001;-1,46124506647397
-  12;3 Bus 2-Load;;8;;0;0;20;11,54701;0;0;0;0;1;1,04026508640743;-2,09383399110034
+  12;3 Bus 2-Xnet;;8;;0;0;20;11,54701;0;0;0;0;1;1,04026508640743;-2,09383399110034
 
 
 $$ElmTr2;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);typ_id(p);ntnum(i);outserv(i);nntap(i);i_auto(i);ntrcn(i);usetp(r);usp_low(r);usp_up(r);t2ldc(i)
@@ -47,8 +51,13 @@ $$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_bus(i);obj_id(p
   16;sym_1_1;;10;0;9;0;1;2
   17;lne_1_2_1;;11;1;6;0;1;2
   18;trf_2_3_1;;11;0;13;0;1;2
-  19;lod_3_1;;12;0;7;0;1;2
+  19;external_grid_3_1;;12;0;7;0;1;2
   20;trf_2_3_1;;12;1;13;0;1;2
+  40;external_grid_30_1;;12;0;30;0;1;2
+  41;external_grid_31_1;;12;0;31;0;1;2
+  42;external_grid_32_1;;12;0;32;0;1;2
+  43;external_grid_33_1;;12;0;33;0;1;2
+  44;external_grid_34_1;;12;0;34;0;1;2
 
 
 $$StaSwitch;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);on_off(i);typ_id(p);aUsage(a)

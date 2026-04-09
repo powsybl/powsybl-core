@@ -16,9 +16,13 @@ $$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fl
   6;lne_1_2_1;;8;27;52;1;0;0;1;0
 
 
-$$ElmLodmv;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);slini(r);plini(r);outserv(i)
-  7;lod_3_1;;8;28;55,9017;50;0
-
+$$ElmLodmv;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);plini(r);qlini(r);slini(r);coslini(r);outserv(i)
+  7;lod_3_1;;8;28;10;5;;;0
+ 31;lod_31_1;;8;28;10;;15;;0
+ 32;lod_32_1;;8;28;;5;15;;0
+ 33;lod_33_1;;8;28;10;;;0,98;0
+ 34;lod_34_1;;8;28;;5;;0,98;0
+ 35;lod_35_1;;8;28;;;15;0,98;0
 
 $$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
   8;1 aux_1;;;60;
@@ -49,6 +53,11 @@ $$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_bus(i);obj_id(p
   18;trf_2_3_1;;11;0;13;0;1;2
   19;lod_3_1;;12;0;7;0;1;2
   20;trf_2_3_1;;12;1;13;0;1;2
+  41;lod_31_1;;12;0;31;0;1;2
+  42;lod_32_1;;12;0;32;0;1;2
+  43;lod_33_1;;12;0;33;0;1;2
+  44;lod_34_1;;12;0;34;0;1;2
+  45;lod_35_1;;12;0;35;0;1;2
 
 
 $$StaSwitch;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);on_off(i);typ_id(p);aUsage(a)
