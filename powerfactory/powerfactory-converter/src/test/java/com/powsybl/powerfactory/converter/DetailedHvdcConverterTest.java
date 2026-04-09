@@ -308,6 +308,73 @@ class DetailedHvdcConverterTest {
         assertEquals("Node_dc_r_ground 9", ground29.getDcTerminal().getDcNode().getId());
     }
 
+    @Test
+    void testElmCoupNoTyp() {
+        Network network = importDgs("MTDC-ElmCoup_no-type");
+
+        DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector with default state");
+        DcSwitch dcSwitch23 = network.getDcSwitch("Closed DC Disconnector");
+        DcSwitch dcSwitch24 = network.getDcSwitch("Open DC Disconnector");
+        DcSwitch dcSwitch25 = network.getDcSwitch("DC Breaker");
+        DcSwitch dcSwitch26 = network.getDcSwitch("DC Disconnector with default aUsage");
+
+        assertNotNull(dcSwitch22);
+        assertNotNull(dcSwitch23);
+        assertNotNull(dcSwitch24);
+        assertNotNull(dcSwitch25);
+        assertNotNull(dcSwitch26);
+
+        assertEquals(5, network.getDcSwitchCount());
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch22.getKind());
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch23.getKind());
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch24.getKind());
+        assertEquals(DcSwitchKind.BREAKER, dcSwitch25.getKind());
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch26.getKind());
+
+        assertFalse(dcSwitch22.isOpen());
+        assertFalse(dcSwitch23.isOpen());
+        assertTrue(dcSwitch24.isOpen());
+        assertFalse(dcSwitch25.isOpen());
+        assertFalse(dcSwitch26.isOpen());
+
+        assertEquals(0.0, dcSwitch22.getR());
+        assertEquals(0.0, dcSwitch23.getR());
+        assertEquals(0.0, dcSwitch24.getR());
+        assertEquals(0.0, dcSwitch25.getR());
+        assertEquals(0.0, dcSwitch26.getR());
+    }
+
+    @Test
+    void testElmCoupTypSwitch() {
+        Network network = importDgs("MTDC-ElmCoup_TypSwitch");
+
+        DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector without type");
+        DcSwitch dcSwitch23 = network.getDcSwitch("DC Disconnector with type no R");
+        DcSwitch dcSwitch24 = network.getDcSwitch("DC Disconnector with type and R");
+
+        assertNotNull(dcSwitch22);
+        assertNotNull(dcSwitch23);
+        assertNotNull(dcSwitch24);
+
+        assertEquals(3, network.getDcSwitchCount());
+
+        assertEquals(0.0, dcSwitch22.getR());
+        assertEquals(0.0, dcSwitch23.getR());
+        assertEquals(0.01, dcSwitch24.getR(), ABSOLUTE_DELTA);
+    }
+
+    @Test
+    void testElmCoupAcDc() {
+        Network network = importDgs("MTDC-ElmCoup_ACDC");
+
+        DcSwitch dcSwitch21 = network.getDcSwitch("DC Disconnector");
+        DcSwitch dcSwitch22 = network.getDcSwitch("AC Disconnector");
+
+        assertNotNull(dcSwitch21);
+        assertNull(dcSwitch22);
+        assertEquals(1, network.getSwitchCount());
+    }
+
     private Network importDgs(String id) {
 
         Properties importParams = new Properties();

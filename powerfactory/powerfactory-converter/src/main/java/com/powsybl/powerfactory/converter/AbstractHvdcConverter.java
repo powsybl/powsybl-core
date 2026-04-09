@@ -25,6 +25,8 @@ abstract class AbstractHvdcConverter extends AbstractConverter {
         super(importContext, network);
     }
 
+    abstract boolean isDcObject(DataObject obj);
+
     /**
      * Check if a given DGS terminal is in a DC subgrid.
      *

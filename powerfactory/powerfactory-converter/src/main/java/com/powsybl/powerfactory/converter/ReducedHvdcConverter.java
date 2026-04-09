@@ -40,6 +40,11 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
     }
 
     @Override
+    boolean isDcObject(DataObject obj) {
+        return dcElmLnes.contains(obj) || dcElmTerms.contains(obj);
+    }
+
+    @Override
     boolean isDcLink(DataObject elmLne) {
         return dcElmLnes.contains(elmLne);
     }

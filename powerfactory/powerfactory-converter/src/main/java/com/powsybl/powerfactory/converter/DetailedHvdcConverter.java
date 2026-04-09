@@ -8,16 +8,16 @@
 
 package com.powsybl.powerfactory.converter;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.AcDcConverter.ControlMode;
-import com.powsybl.iidm.network.DcNode;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageSourceConverterAdder;
+
 import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
+import com.powsybl.powerfactory.model.DataClass;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     private record DcGridData(Set<DataObject> dcElmLnes,
                               Set<DataObject> dcElmTerms,
                               Set<DataObject> acDcConverters,
-                              Set<DataObject> elmGndswt) {
+                              Set<DataObject> elmGndswt,
+                              Set<DataObject> elmCoup) {
 
         /**
          * Create the data model by reading from the PowerFactory data models.
@@ -85,7 +86,50 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             // Add grounds
             Set<DataObject> elmGndswt = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmGndswt").stream()).collect(Collectors.toSet());
 
-            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt);
+            // Add switches / breakers (ElmCoup)
+            // Gather all ElmCoup dataObject
+            //  those where both terminals are in dcElmTerms will be filtered later on
+            // @todo filter here
+            Set<DataObject> allElmCoup = getDcSwitchObjs(elmNets, dcElmTerms);
+
+            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt, allElmCoup);
+        }
+
+        private static @NonNull Set<DataObject> getDcSwitchObjs(List<DataObject> elmNets, Set<DataObject> dcElmTerms) {
+            assert dcElmTerms != null;
+            assert dcElmTerms.isEmpty() || ELMTERM.equals(dcElmTerms.iterator().next().getDataClassName());
+
+            List<DataObject> elmCoups = elmNets.stream()
+                    .flatMap(elmNet -> elmNet.search(".*.ElmCoup").stream())
+                    .toList();
+
+            Set<DataObject> dcElmCoup = new HashSet<>();
+
+            if (elmCoups.isEmpty()) {
+                return dcElmCoup;
+            }
+
+            DataClass elmCoupClass = elmCoups.getFirst().getDataClass();
+
+            // Count the number of DC terminals connected to each ElmCoup and add when 2 is reached
+            Set<DataObject> dcElmCoup1Term = new HashSet<>(); // ElmCoup where 1 DC terminal was already encountered
+
+            List<DataObject> connectedCubic = dcElmTerms.stream().flatMap(e -> e.getChildrenByClass("StaCubic").stream()).toList();
+            List<DataObject> connectedElmCoup = connectedCubic.stream()
+                    .map(cubic -> cubic.getObjectAttributeValue("obj_id").resolve())
+                    .filter(Optional::isPresent).map(Optional::get)
+                    .filter(obj -> elmCoupClass.equals(obj.getDataClass()))
+                    .toList();
+
+            for (DataObject elmCoup : connectedElmCoup) {
+                if (!dcElmCoup1Term.add(elmCoup)) {
+                    dcElmCoup.add(elmCoup);
+                    dcElmCoup1Term.remove(elmCoup);
+                }
+            }
+
+            return dcElmCoup;
+
         }
 
     } // private record DcGridData
@@ -93,10 +137,19 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     DetailedHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
-        final int nRead = gridData.acDcConverters.size()
+        final int nRead = gridData.acDcConverters.size() // @todo update with all elements
                 + gridData.dcElmLnes.size()
                 + gridData.dcElmTerms.size();
         LOGGER.info("{} data objects read from the DGS file for detailed DC data .", nRead);
+    }
+
+    @Override
+    boolean isDcObject(DataObject obj) {
+        return gridData.dcElmTerms.contains(obj)
+                || gridData.dcElmLnes.contains(obj)
+                || gridData.acDcConverters.contains(obj)
+                || gridData.elmGndswt.contains(obj)
+                || gridData.elmCoup.contains(obj);
     }
 
     @Override
@@ -152,12 +205,63 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 .forEachOrdered(line -> addDcLine(line, network, objIdDcNodeRef));
 
         // create and connect grounds
-        LOGGER.debug("Creating {} DC grounds.", 0);
+        LOGGER.debug("Creating {} DC grounds.", gridData.elmGndswt.size());
         gridData.elmGndswt.stream()
                 .sorted(Comparator.comparing(DataObject::getId))
                 .forEachOrdered(gnd -> addDcGround(gnd, network, objIdDcNodeRef));
 
         LOGGER.debug("DC subnetworks created.");
+
+        // create DC switches
+        LOGGER.debug("Creating DC switches.");
+
+        gridData.elmCoup.stream()
+                .sorted(Comparator.comparing(DataObject::getId))
+                .forEachOrdered(coup -> addDcSwitch(coup, network, objIdDcNodeRef));
+
+    }
+
+    private static void addDcSwitch(DataObject coup, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
+        // Find the nodes
+        List<DcNodeRef> dcNodeRefs = objIdDcNodeRef.get(coup.getId());
+
+        if (dcNodeRefs == null) { // the ElmCoup is either disconnected or connected only to AC nodes
+            return;
+        } else if (dcNodeRefs.size() == 1) {  // the ElmCoup is either disconnected on one end or connected to an AC node and a DC node
+            throw new PowerFactoryException("ElmCoup " + coup.getId() + " is connected to a single DC node.");
+        } else {
+            List<String> dcNodeIds = dcNodeRefs.stream()
+                    .sorted(Comparator.comparing(dcNodeRef -> dcNodeRef.busIndexIn))
+                    .map(DcNodeRef::dcNodeId)
+                    .toList();
+
+            String aUsage = coup.findStringAttributeValue("aUsage").orElse("dct");
+            DcSwitchKind kind = switch (aUsage) {
+                case "dct" -> DcSwitchKind.DISCONNECTOR;
+                case "cbk" -> DcSwitchKind.BREAKER;
+                case null, default -> throw new PowerFactoryException("Wrong aUsage value in ElmCoup " + coup.getId());
+            };
+
+            int onOff = coup.findIntAttributeValue("on_off").orElse(1);
+
+            // get resistance in TypSwitch if present, otherwise default to zero
+            double r = getSwitchResistance(coup);
+
+            network.newDcSwitch()
+                    .setId(idInNetworkString(coup))
+                    .setDcNode1(dcNodeIds.getFirst())
+                    .setDcNode2(dcNodeIds.getLast())
+                    .setOpen(onOff == 0)
+                    .setKind(kind)
+                    .setR(r)
+                    .add();
+        }
+    }
+
+    private static double getSwitchResistance(DataObject coup) {
+        Optional<DataObject> typSwitch = coup.findObjectAttributeValue("typ_id")
+                .flatMap(DataObjectRef::resolve);
+        return (double) typSwitch.map(t -> t.findFloatAttributeValue("R_on").orElse(0.0f)).orElse(0.0f);
     }
 
     /**

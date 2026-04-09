@@ -1,0 +1,33 @@
+$$General;ID(a:40);Descr(a:40);Val(a:255)
+1;Version;5.0
+
+$$ElmNet;ID(a:40);loc_name(a:80);for_name(a:100);fold_id(p);frnom(r);pDiagram(p)
+4;Grid;;;50;15
+
+$$ElmTerm;ID(a:40);loc_name(a:80);fold_id(p);systype(i);uknom(r);unknom(r)
+11;central DC terminal;4;1;500;500
+12;DC terminal 12;4;1;500;500
+13;DC terminal 13;4;1;500;500
+14;DC terminal 14;4;1;500;500
+15;DC terminal 15;4;1;500;500
+16;DC terminal 16;4;1;500;500
+
+$$ElmCoup;ID(a:40);loc_name(a:80);fold_id(p);on_off(i);aUsage(a:4)
+22;DC Disconnector with default state;4;;dct
+23;Closed DC Disconnector;4;1;dct
+24;Open DC Disconnector;4;0;dct
+25;DC Breaker;4;;cbk
+26;DC Disconnector with default aUsage;4;;
+
+$$StaCubic;ID(a:40);loc_name(a:80);fold_id(p);obj_bus(i);obj_id(p)
+32;switch cubicle 32;11;0;22
+33;switch cubicle 33;11;0;23
+34;switch cubicle 34;11;0;24
+35;switch cubicle 35;11;0;25
+36;switch cubicle 36;11;0;26
+42;switch cubicle 42;12;1;22
+43;switch cubicle 43;13;1;23
+44;switch cubicle 44;14;1;24
+45;switch cubicle 45;15;1;25
+46;switch cubicle 46;16;1;26
+
