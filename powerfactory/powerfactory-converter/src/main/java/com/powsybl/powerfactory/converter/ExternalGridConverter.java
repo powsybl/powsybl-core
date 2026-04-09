@@ -75,19 +75,17 @@ class ExternalGridConverter extends AbstractConverter {
         private final double p;
         private final double q;
         private final double voltageSetpointpu;
-        private final double referenceAngle;
         private final double minP;
         private final double maxP;
         private final double minQ;
         private final double maxQ;
 
-        private ExternalGridModel(BusType type, double p, double q, double voltageSetpointpu, double referenceAngle,
-            double minP, double maxP, double minQ, double maxQ) {
+        private ExternalGridModel(BusType type, double p, double q, double voltageSetpointpu,
+                                  double minP, double maxP, double minQ, double maxQ) {
             this.type = type;
             this.p = p;
             this.q = q;
             this.voltageSetpointpu = voltageSetpointpu;
-            this.referenceAngle = referenceAngle;
             this.minP = minP;
             this.maxP = maxP;
             this.minQ = minQ;
@@ -102,18 +100,18 @@ class ExternalGridConverter extends AbstractConverter {
             PQ sign = calculateSignPQ(elmXnet);
 
             double usetpoint = elmXnet.findFloatAttributeValue("usetp").orElse(Float.NaN);
-            double referenceAngle = elmXnet.findFloatAttributeValue("phini").orElse(Float.NaN);
+            double referenceAngle = elmXnet.findFloatAttributeValue("phiini").orElse(Float.NaN);
 
-            double minP = elmXnet.getFloatAttributeValue("Pmin_uc");
-            double maxP = elmXnet.getFloatAttributeValue("Pmax_uc");
-            double minQ = elmXnet.getFloatAttributeValue("q_min");
-            double maxQ = elmXnet.getFloatAttributeValue("q_max");
+            double minP = elmXnet.findFloatAttributeValue("Pmin_uc").orElse((float) Math.min(target.p * sign.p, 0.0));
+            double maxP = elmXnet.findFloatAttributeValue("MaxS").orElse((float) Math.max(target.p * sign.p, 0.0));
+            double minQ = elmXnet.findFloatAttributeValue("cQ_min").orElse((float) Math.min(target.q * sign.q, 0.0));
+            double maxQ = elmXnet.findFloatAttributeValue("cQ_max").orElse((float) Math.max(target.q * sign.q, 0.0));
 
             if (!valid(busType, target, usetpoint, referenceAngle)) {
                 throw new PowerFactoryException("Unexpected target values '" + elmXnet.getLocName() + "'");
             }
 
-            return new ExternalGridModel(busType, target.p * sign.p, target.q * sign.q, usetpoint, referenceAngle, minP, maxP, minQ, maxQ);
+            return new ExternalGridModel(busType, target.p * sign.p, target.q * sign.q, usetpoint, minP, maxP, minQ, maxQ);
         }
 
         // In powerfactory a positive value for P is considered to be a generated active power and
@@ -163,26 +161,19 @@ class ExternalGridConverter extends AbstractConverter {
         }
 
         private static boolean valid(BusType busType, PQ target, double targetV, double targetA) {
-            switch (busType) {
-                case PQ:
-                case PV:
-                    return !Double.isNaN(target.p) && !Double.isNaN(target.q) && !Double.isNaN(targetV);
-                case SLACK:
-                    return !Double.isNaN(target.p) && !Double.isNaN(target.q) && !Double.isNaN(targetV) && !Double.isNaN(targetA);
-            }
-            return false;
+            return switch (busType) {
+                case PQ, PV -> !Double.isNaN(target.p) && !Double.isNaN(target.q) && !Double.isNaN(targetV);
+                case SLACK -> !Double.isNaN(target.p) && !Double.isNaN(target.q) && !Double.isNaN(targetV) && !Double.isNaN(targetA);
+            };
         }
     }
 
     private static BusType bustpToBusType(String bustp) {
-        if (bustp.equals("PQ")) {
-            return BusType.PQ;
-        } else if (bustp.equals("PV")) {
-            return BusType.PV;
-        } else if (bustp.equals("SL")) {
-            return BusType.SLACK;
-        } else {
-            throw new PowerFactoryException("Unexpected bustp '" + bustp + "'");
-        }
+        return switch (bustp) {
+            case "PQ" -> BusType.PQ;
+            case "PV" -> BusType.PV;
+            case "SL" -> BusType.SLACK;
+            default -> throw new PowerFactoryException("Unexpected bustp '" + bustp + "'");
+        };
     }
 }
