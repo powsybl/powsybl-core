@@ -114,7 +114,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             LimitReductionListSerDeUtil.write(reductionList, bos);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_groupV1.1.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_groupV1.2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             // Should not happen
             fail();
