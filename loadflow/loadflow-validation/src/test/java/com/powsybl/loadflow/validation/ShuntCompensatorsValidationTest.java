@@ -7,30 +7,36 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
     private double q = 170.50537;
     private double p = Float.NaN;
-    private int currentSectionCount = 1;
+    private final int currentSectionCount = 1;
     private final int maximumSectionCount = 1;
     private final double bPerSection = -0.0010387811;
     private final double v = 405.14175;
@@ -133,5 +139,60 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.INSTANCE, ValidationType.SHUNTS);
         assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));
+    }
+
+    @DisplayName("Rule 1: |p| < e")
+    @ParameterizedTest(name = "connected p={0} => valid={1}")
+    @MethodSource("connectedShuntPCase")
+    void checkShuntShouldSucceedRulePMustBeZero(double p, boolean expectedValid) {
+        when(shuntTerminal.getP()).thenReturn(p);
+        boolean result = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, result);
+    }
+
+    private static Stream<Arguments> connectedShuntPCase() {
+        // threshold = 0.01
+        return Stream.of(
+                Arguments.of(Double.NaN, true),
+                Arguments.of(0.0, true),
+                Arguments.of(0.011, false), // |p| > threshold
+                Arguments.of(-0.011, false) // |p| > threshold
+        );
+    }
+
+    @DisplayName("Rule 2: q must match expectedQ: | q + expectedQ | <= ε")
+    @ParameterizedTest(name = "epsilon={0} => valid={1}")
+    @CsvSource({"0.000,  true", "0.009,  true", "-0.009, true", "0.010,  true", "0.011,  false", "-0.011, false"})
+    void checkShuntsShouldSucceedRuleQMatchExpectedQ(double epsilon, boolean expectedValid) {
+        // Given
+        // connected and mainComponent = true, threshold = 0.01
+        when(shuntTerminal.getP()).thenReturn(Double.NaN); // Rule1 OK
+        double expectedQ = -bPerSection * currentSectionCount * v * v;
+        when(shuntTerminal.getQ()).thenReturn(expectedQ + epsilon);
+        boolean result = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, result);
+    }
+
+    @DisplayName("Rule 3: if the shunt is disconnected, q should be undefined or 0")
+    @ParameterizedTest(name = "disconnected q={0} => valid={1}")
+    @MethodSource("disconnectedShuntCase")
+    void checkShuntsShouldSucceedRuleWhenDisconnectedShuntQMustBeUndefinedOrZero(double qValue, boolean expectedValid) {
+        when(shuntBusView.getBus()).thenReturn(null); // disconnect shunt
+        // assert that shunt is disconnected
+        assertFalse(shunt.getTerminal().isConnected());
+        when(shuntTerminal.getQ()).thenReturn(qValue);
+        boolean valid = ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.INSTANCE);
+        assertEquals(expectedValid, valid);
+    }
+
+    private static Stream<Arguments> disconnectedShuntCase() {
+        // threshold = 0.01
+        return Stream.of(
+                Arguments.of(Double.NaN, true),
+                Arguments.of(0.0, true),
+                Arguments.of(0.001, true), // |q| <= threshold
+                Arguments.of(0.011, false),  // |q| > threshold
+                Arguments.of(-0.011, false)  // |q| > threshold
+        );
     }
 }

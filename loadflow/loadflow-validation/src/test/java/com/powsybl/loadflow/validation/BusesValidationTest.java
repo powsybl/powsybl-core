@@ -9,6 +9,9 @@ package com.powsybl.loadflow.validation;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -16,6 +19,7 @@ import java.util.stream.Stream;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -26,6 +30,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class BusesValidationTest extends AbstractValidationTest {
 
@@ -55,6 +60,7 @@ class BusesValidationTest extends AbstractValidationTest {
     private BoundaryLine boundaryLine;
 
     @BeforeEach
+    @Override
     void setUp() throws IOException {
         super.setUp();
 
@@ -183,11 +189,11 @@ class BusesValidationTest extends AbstractValidationTest {
 
     @Test
     void checkNetworkBuses() throws IOException {
-        Network.BusView networkBusView = Mockito.mock(Network.BusView.class);
-        Mockito.when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
-        Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getId()).thenReturn("network");
-        Mockito.when(network.getBusView()).thenReturn(networkBusView);
+        Network.BusView networkBusView = mock(Network.BusView.class);
+        when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
+        Network network = mock(Network.class);
+        when(network.getId()).thenReturn("network");
+        when(network.getBusView()).thenReturn(networkBusView);
 
         assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));
         assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, data));
@@ -199,7 +205,7 @@ class BusesValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
 
         // Consider paired boundaryLines
-        Mockito.when(boundaryLine.isPaired()).thenReturn(true);
+        when(boundaryLine.isPaired()).thenReturn(true);
 
         assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));
         assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, data));
@@ -210,4 +216,57 @@ class BusesValidationTest extends AbstractValidationTest {
         validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.INSTANCE, ValidationType.BUSES);
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
     }
+
+    // Rule: |incomingP + loadP| <= threshold and |incomingQ + loadQ| <= threshold"
+    @DisplayName("P and Q balanced")
+    @Test
+    void checkBusesShouldSucceedWhenPAndQBalanced() {
+        // Given threshold (0.01)
+        Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -50.0);
+        // When
+        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertTrue(result);
+    }
+
+    @DisplayName("P and Q unbalanced")
+    @Test
+    void checkBusesShouldSucceedWhenPAndQUnbalanced() {
+        // Given threshold (0.01)
+        Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -49.8);
+        // When
+        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(result);
+    }
+
+    private Bus mockBusForBalance(double loadP, double loadQ, double genP, double genQ) {
+        Terminal loadTerminal = mock(Terminal.class);
+        when(loadTerminal.getP()).thenReturn(loadP);
+        when(loadTerminal.getQ()).thenReturn(loadQ);
+        Load load = mock(Load.class);
+        when(load.getTerminal()).thenReturn(loadTerminal);
+        Terminal genTerminal = mock(Terminal.class);
+        when(genTerminal.getP()).thenReturn(genP);
+        when(genTerminal.getQ()).thenReturn(genQ);
+        Generator generator = mock(Generator.class);
+        when(generator.getTerminal()).thenReturn(genTerminal);
+
+        Bus busForBalance = mock(Bus.class);
+        when(busForBalance.getId()).thenReturn("bus-test");
+        when(busForBalance.isInMainConnectedComponent()).thenReturn(true);
+        when(busForBalance.getLoadStream()).thenAnswer(i -> Stream.of(load));
+        when(busForBalance.getGeneratorStream()).thenAnswer(i -> Stream.of(generator));
+        // other contributors = 0
+        when(busForBalance.getBatteryStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getShuntCompensatorStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getStaticVarCompensatorStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getVscConverterStationStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getLineStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getBoundaryLineStream(any())).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getTwoWindingsTransformerStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getThreeWindingsTransformerStream()).thenAnswer(i -> Stream.empty());
+        return busForBalance;
+    }
+
 }
