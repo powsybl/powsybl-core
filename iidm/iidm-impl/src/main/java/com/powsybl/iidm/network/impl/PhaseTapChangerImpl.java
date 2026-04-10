@@ -7,10 +7,19 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
-import gnu.trove.list.array.TDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -24,7 +33,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList regulationValue;
+    private final ExtendedDoubleArrayList regulationValue;
 
     PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
@@ -33,10 +42,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         super(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, targetDeadband, "phase tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
-        this.regulationValue = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.regulationValue.add(regulationValue);
-        }
+        this.regulationValue = new ExtendedDoubleArrayList(variantArraySize, regulationValue);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
@@ -107,7 +113,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public double getRegulationValue() {
-        return regulationValue.get(network.get().getVariantIndex());
+        return regulationValue.getDouble(network.get().getVariantIndex());
     }
 
     @Override
@@ -159,16 +165,13 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        regulationValue.ensureCapacity(regulationValue.size() + number);
-        for (int i = 0; i < number; i++) {
-            regulationValue.add(regulationValue.get(sourceIndex));
-        }
+        regulationValue.growAndFill(number, regulationValue.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        regulationValue.remove(regulationValue.size() - number, number);
+        regulationValue.removeElements(number);
     }
 
     @Override
@@ -181,7 +184,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            regulationValue.set(index, regulationValue.get(sourceIndex));
+            regulationValue.set(index, regulationValue.getDouble(sourceIndex));
         }
     }
 

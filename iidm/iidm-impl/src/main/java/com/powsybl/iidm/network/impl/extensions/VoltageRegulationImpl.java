@@ -8,21 +8,23 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import com.powsybl.iidm.network.impl.TerminalExt;
-import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExtension<Battery> implements VoltageRegulation {
 
-    private final TBooleanArrayList voltageRegulatorOn;
+    private final ExtendedBooleanArrayList voltageRegulatorOn;
 
-    private final TDoubleArrayList targetV;
+    private final ExtendedDoubleArrayList targetV;
 
     private Terminal regulatingTerminal;
 
@@ -34,12 +36,8 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
         }
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         setRegulatingTerminal(regulatingTerminal);
-        this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
-        this.targetV = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.voltageRegulatorOn.add(voltageRegulatorOn);
-            this.targetV.add(targetV);
-        }
+        this.voltageRegulatorOn = new ExtendedBooleanArrayList(variantArraySize, voltageRegulatorOn);
+        this.targetV = new ExtendedDoubleArrayList(variantArraySize, targetV);
     }
 
     private static void checkRegulatingTerminal(Terminal regulatingTerminal, Network network) {
@@ -68,7 +66,7 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(getVariantIndex());
+        return voltageRegulatorOn.getBoolean(getVariantIndex());
     }
 
     @Override
@@ -78,7 +76,7 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
 
     @Override
     public double getTargetV() {
-        return targetV.get(getVariantIndex());
+        return targetV.getDouble(getVariantIndex());
     }
 
     @Override
@@ -88,18 +86,14 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
-        targetV.ensureCapacity(targetV.size() + number);
-        for (int i = 0; i < number; ++i) {
-            voltageRegulatorOn.add(voltageRegulatorOn.get(sourceIndex));
-            targetV.add(targetV.get(sourceIndex));
-        }
+        voltageRegulatorOn.growAndFill(number, voltageRegulatorOn.getBoolean(sourceIndex));
+        targetV.growAndFill(number, targetV.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
-        targetV.remove(targetV.size() - number, number);
+        voltageRegulatorOn.removeElements(number);
+        targetV.removeElements(number);
     }
 
     @Override
@@ -110,8 +104,8 @@ public class VoltageRegulationImpl extends AbstractMultiVariantIdentifiableExten
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            voltageRegulatorOn.set(index, voltageRegulatorOn.get(sourceIndex));
-            targetV.set(index, targetV.get(sourceIndex));
+            voltageRegulatorOn.set(index, voltageRegulatorOn.getBoolean(sourceIndex));
+            targetV.set(index, targetV.getDouble(sourceIndex));
         }
     }
 
