@@ -161,7 +161,7 @@ public abstract class AbstractConverter {
     static PQ calculatePQFromQandPowerFactor(double q, double powerFactor) {
         double disc = 1.0 - powerFactor * powerFactor;
         double p;
-        if (disc >= 0 && powerFactor != 1.0) {
+        if (disc > 0) {
             p = q * powerFactor / Math.sqrt(disc);
         } else {
             throw new PowerFactoryException(String.format("Unexpected powerFactor %.2f Mvar %.2f", powerFactor, q));
