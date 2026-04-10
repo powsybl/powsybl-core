@@ -36,14 +36,6 @@ abstract class AbstractHvdcConverter extends AbstractConverter {
     abstract boolean isDcNode(DataObject elmTerm);
 
     /**
-     * Check if a given DGS line is in a DC subgrid.
-     *
-     * @param elmLne Line to check.
-     * @return true iff the line is in a DC subgrid.
-     */
-    abstract boolean isDcLink(DataObject elmLne);
-
-    /**
      * Create the DC subgrids in the network.
      */
     abstract void create();

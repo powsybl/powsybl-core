@@ -167,11 +167,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         return gridData.dcElmTerms.contains(elmTerm);
     }
 
-    @Override
-    boolean isDcLink(DataObject elmLne) {
-        return gridData.dcElmLnes.contains(elmLne);
-    }
-
     /**
      * Record representation of the StaCubic content.
      * @param busIndexIn // obj_bud in the DGS file - connector id for the equipment.
