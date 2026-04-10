@@ -7,6 +7,7 @@
  */
 package com.powsybl.contingency.violations;
 
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoSides;
 
@@ -27,84 +28,159 @@ public class LimitViolationBuilder {
     private LimitViolationType type;
     private Double limit;
     private String limitName;
-    private Integer duration;
+    private Integer duration = Integer.MAX_VALUE;
     private double reduction = 1.0;
     private Double value;
     private ThreeSides side;
     private ViolationLocation violationLocation;
 
+    /**
+     * @param type The type of limit which has been violated.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder type(LimitViolationType type) {
         this.type = requireNonNull(type);
         return this;
     }
 
+    /**
+     * @param subjectId The identifier of the network equipment on which the violation occurred.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder subject(String subjectId) {
         this.subjectId = requireNonNull(subjectId);
         return this;
     }
 
+    /**
+     * @param subjectName An optional name of the network equipment on which the violation occurred.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder subjectName(String subjectName) {
         this.subjectName = subjectName;
         return this;
     }
 
+    /**
+     * @param id The {@link OperationalLimitsGroup} due to which this violation occurred.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder operationalLimitsGroupId(String id) {
         this.operationalLimitsGroupId = id;
         return this;
     }
 
+    /**
+     * @param location Detailed information about the location of the violation.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder violationLocation(ViolationLocation location) {
         this.violationLocation = location;
         return this;
     }
 
+    /**
+     * @param name An optional name for the limit which has been violated.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder limitName(String name) {
         this.limitName = name;
         return this;
     }
 
+    /**
+     * @param duration The acceptable duration, in seconds, associated to the violation value.
+     *                 Default is {@link Integer#MAX_VALUE}.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder duration(int duration) {
         this.duration = duration;
         return this;
     }
 
+    /**
+     * @param duration The acceptable duration, in <code>unit</code> of time, associated to the violation value.
+     * @param unit the time unit to be used.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder duration(int duration, TimeUnit unit) {
         this.duration = (int) unit.toSeconds(duration);
         return this;
     }
 
+    /**
+     * @param limit The value of the limit which has been violated.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder limit(double limit) {
         this.limit = limit;
         return this;
     }
 
+    /**
+     * @param value The actual value of the physical value which triggered the detection of a violation.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder value(double value) {
         this.value = value;
         return this;
     }
 
+    /**
+     * @param reduction The limit reduction factor used for violation detection.
+     *                  Default is 1.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder reduction(double reduction) {
         this.reduction = reduction;
         return this;
     }
 
+    /**
+     * @param side The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder side(ThreeSides side) {
         this.side = requireNonNull(side);
         return this;
     }
 
+    /**
+     * @param side side The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder side(TwoSides side) {
         return side(requireNonNull(side).toThreeSides());
     }
 
+    /**
+     * Sets the side as {@link ThreeSides#ONE}.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder side1() {
         return side(TwoSides.ONE);
     }
 
+    /**
+     * Sets the side as {@link ThreeSides#TWO}.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder side2() {
         return side(TwoSides.TWO);
     }
 
+    /**
+     * Sets the side as {@link ThreeSides#THREE}.
+     * @return this {@link LimitViolationBuilder}
+     */
+    public LimitViolationBuilder side3() {
+        return side(ThreeSides.THREE);
+    }
+
+    /**
+     * Sets the violation type as {@link LimitViolationType#CURRENT}.
+     * @return this {@link LimitViolationBuilder}
+     */
     public LimitViolationBuilder current() {
         return type(LimitViolationType.CURRENT);
     }
