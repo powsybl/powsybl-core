@@ -64,7 +64,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             Set<DataObject> dcElmLnes = new HashSet<>();
             List<DataObject> elmLines = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmLne").stream()).toList();
             for (DataObject elmLne : elmLines) {
-                DataObjectRef typLneRef = elmLne.getObjectAttributeValue("typ_id");
+                DataObjectRef typLneRef = elmLne.getObjectAttributeValue(TYP_ID);
                 DataObject typLne = typLneRef.resolve().orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
                 int lineSysType = typLne.findIntAttributeValue("systp").orElseThrow(() -> new PowerFactoryException("Missing systp for TypLne " + typLne.getId() + "."));
                 if (lineSysType == 1) {
@@ -92,6 +92,12 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt, dcElmCoup);
         }
 
+        /**
+         * Gather data of DC ElmCoup from the PowerFactory data model.
+         * @param elmNets network elements where to find the ElmCoup.
+         * @param dcElmTerms DC terminals.
+         * @return set of ElmCoup data objects that are connected to 2 DC terminals.
+         */
         private static @NonNull Set<DataObject> getDcSwitchObjs(List<DataObject> elmNets, Set<DataObject> dcElmTerms) {
             assert dcElmTerms != null;
             assert dcElmTerms.isEmpty() || ELMTERM.equals(dcElmTerms.iterator().next().getDataClassName());
@@ -265,9 +271,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * or zero if absent or if no related TypSwitch.
      */
     private static double getSwitchResistance(DataObject elmCoup) {
-        Optional<DataObject> typSwitch = elmCoup.findObjectAttributeValue("typ_id")
+        Optional<DataObject> typSwitch = elmCoup.findObjectAttributeValue(TYP_ID)
                 .flatMap(DataObjectRef::resolve);
-        return (double) typSwitch.map(t -> t.findFloatAttributeValue("R_on").orElse(0.0f)).orElse(0.0f);
+        return typSwitch.map(t -> t.findFloatAttributeValue("R_on").orElse(0.0f)).orElse(0.0f);
     }
 
     /**
@@ -428,7 +434,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         double lineLength = line.getFloatAttributeValue("dline"); // km
         int numberOfParallelLines = line.findIntAttributeValue("nlnum").orElse(1);
 
-        DataObject lineType = line.getObjectAttributeValue("typ_id").resolve().orElseThrow(() -> new PowerFactoryException("Missing line type referenced by DC line " + line.getId() + "."));
+        DataObject lineType = line.getObjectAttributeValue(TYP_ID).resolve().orElseThrow(() -> new PowerFactoryException("Missing line type referenced by DC line " + line.getId() + "."));
 
         int lineSysType = lineType.findIntAttributeValue("systype").orElse(1);
         if (lineSysType != 1) {
