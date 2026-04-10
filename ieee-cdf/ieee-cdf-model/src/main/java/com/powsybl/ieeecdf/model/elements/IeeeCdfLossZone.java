@@ -1,14 +1,11 @@
-/**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2019-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.ieeecdf.model;
-
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
+package com.powsybl.ieeecdf.model.elements;
 
 /**
  * <p>
@@ -22,20 +19,16 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class IeeeCdfLossZone {
+public class IeeeCdfLossZone extends AbstractIeeeElement {
 
     /**
      * Loss zone number
      */
-    @FixedWidth(from = 0, to = 3)
-    @Parsed
     private int number;
 
     /**
      * Loss zone name
      */
-    @FixedWidth(from = 4, to = 16)
-    @Parsed
     private String name;
 
     public int getNumber() {
