@@ -100,7 +100,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.8 noGeneratorReactiveLimits -> useReactiveLimits
     // VERSION = 1.9 dcPowerFactor
     // VERSION = 1.10 componentMode instead of connectedComponentMode
-    public static final String VERSION = "1.10";
+    // VERSION = 1.11 debugDir
+    public static final String VERSION = "1.11";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -118,6 +119,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final ComponentMode DEFAULT_COMPONENT_MODE = ComponentMode.MAIN_CONNECTED;
     public static final boolean DEFAULT_HVDC_AC_EMULATION_ON = true;
     public static final double DEFAULT_DC_POWER_FACTOR = 1d;
+    public static final String DEFAULT_DEBUG_DIR = null;
 
     /**
      * Loads parameters from the default platform configuration.
@@ -172,6 +174,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                             () -> config.getOptionalEnumProperty("connectedComponentMode", ComponentMode.class).ifPresent(parameters::setComponentMode));
                     config.getOptionalBooleanProperty("hvdcAcEmulation").ifPresent(parameters::setHvdcAcEmulation);
                     config.getOptionalDoubleProperty("dcPowerFactor").ifPresent(parameters::setDcPowerFactor);
+                    config.getOptionalStringProperty("debugDir").ifPresent(parameters::setDebugDir);
                 });
     }
 
@@ -207,12 +210,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private double dcPowerFactor = DEFAULT_DC_POWER_FACTOR;
 
+    private String debugDir = DEFAULT_DEBUG_DIR;
+
     public LoadFlowParameters() {
         this(PlatformConfig.defaultConfig());
     }
 
     protected LoadFlowParameters(PlatformConfig config) {
-        this(getDefaultParemtersLoaders(), config);
+        this(getDefaultParametersLoaders(), config);
     }
 
     public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
@@ -220,10 +225,10 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     public static Optional<LoadFlowDefaultParametersLoader> getDefaultLoadFlowParameterLoader(PlatformConfig config) {
-        return getDefaultLoadFlowParameterLoader(getDefaultParemtersLoaders(), config);
+        return getDefaultLoadFlowParameterLoader(getDefaultParametersLoaders(), config);
     }
 
-    private static List<LoadFlowDefaultParametersLoader> getDefaultParemtersLoaders() {
+    private static List<LoadFlowDefaultParametersLoader> getDefaultParametersLoaders() {
         return ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
                 .stream()
                 .map(ServiceLoader.Provider::get)
@@ -288,6 +293,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         componentMode = other.componentMode;
         hvdcAcEmulation = other.hvdcAcEmulation;
         dcPowerFactor = other.dcPowerFactor;
+        debugDir = other.debugDir;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -437,8 +443,20 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    /**
+     * @param debugDir the debug directory where execution files will be dumped
+     */
+    public LoadFlowParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
+        return this;
+    }
+
     public Map<String, Object> toMap() {
-        return ImmutableMap.<String, Object>builder()
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder()
                 .put("voltageInitMode", voltageInitMode)
                 .put("transformerVoltageControlOn", transformerVoltageControlOn)
                 .put("useReactiveLimits", useReactiveLimits)
@@ -454,8 +472,11 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("countriesToBalance", countriesToBalance)
                 .put("computedComponentMode", componentMode)
                 .put("hvdcAcEmulation", hvdcAcEmulation)
-                .put("dcPowerFactor", dcPowerFactor)
-                .build();
+                .put("dcPowerFactor", dcPowerFactor);
+        if (debugDir != null) {
+            builder.put("debugDir", debugDir);
+        }
+        return builder.build();
     }
 
     /**

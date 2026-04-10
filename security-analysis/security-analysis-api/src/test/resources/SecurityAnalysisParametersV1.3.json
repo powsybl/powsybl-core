@@ -1,13 +1,14 @@
 {
   "version" : "1.3",
   "increased-violations-parameters" : {
-    "flow-proportional-threshold" : 0.1,
+    "flow-proportional-threshold" : 0.2,
     "low-voltage-proportional-threshold" : 0.0,
     "low-voltage-absolute-threshold" : 0.0,
     "high-voltage-proportional-threshold" : 0.0,
     "high-voltage-absolute-threshold" : 0.0
   },
-  "intermediate-results-in-operator-strategy" : false,
+  "intermediate-results-in-operator-strategy" : true,
+  "debugDir" : "/tmp/debugDir",
   "load-flow-parameters" : {
     "version" : "1.11",
     "voltageInitMode" : "UNIFORM_VALUES",
@@ -26,8 +27,5 @@
     "componentMode" : "MAIN_CONNECTED",
     "hvdcAcEmulation" : true,
     "dcPowerFactor" : 1.0
-  },
-  "extensions" : {
-    "dummy-extension" : { }
   }
 }
