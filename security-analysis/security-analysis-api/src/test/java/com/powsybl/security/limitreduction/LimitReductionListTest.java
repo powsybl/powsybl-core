@@ -126,7 +126,7 @@ class LimitReductionListTest {
 
     @Test
     void unsupportedLimitReductionValues() {
-        String expectedMessage = "Limit reduction value should be equal or more than 0";
+        String expectedMessage = "Limit reduction value should be equal or greater than 0";
         Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, -0.5, true));
         assertEquals(expectedMessage, e.getMessage());
     }
