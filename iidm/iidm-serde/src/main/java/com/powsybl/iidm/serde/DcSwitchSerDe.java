@@ -7,7 +7,12 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DcSwitch;
+import com.powsybl.iidm.network.DcSwitchAdder;
+import com.powsybl.iidm.network.DcSwitchKind;
+import com.powsybl.iidm.network.Network;
+
+import java.util.OptionalDouble;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -29,6 +34,9 @@ public class DcSwitchSerDe extends AbstractSimpleIdentifiableSerDe<DcSwitch, DcS
         context.getWriter().writeStringAttribute("dcNode2", dcSwitch.getDcNode2().getId());
         context.getWriter().writeEnumAttribute("kind", dcSwitch.getKind());
         context.getWriter().writeBooleanAttribute("open", dcSwitch.isOpen());
+        // Optional if read otherwise, but always written
+        double r = dcSwitch.getR();
+        context.getWriter().writeOptionalDoubleAttribute("r", r == 0.0 ? null : r);
     }
 
     @Override
@@ -42,11 +50,15 @@ public class DcSwitchSerDe extends AbstractSimpleIdentifiableSerDe<DcSwitch, DcS
         String dcNode2Id = context.getReader().readStringAttribute("dcNode2");
         DcSwitchKind kind = context.getReader().readEnumAttribute("kind", DcSwitchKind.class);
         boolean open = context.getReader().readBooleanAttribute("open");
+
+        OptionalDouble r = context.getReader().readOptionalDoubleAttribute("r");
+
         return adder
                 .setDcNode1(dcNode1Id)
                 .setDcNode2(dcNode2Id)
                 .setKind(kind)
                 .setOpen(open)
+                .setR(r.orElse(0.0)) // 0.0 Ohm as default value
                 .add();
     }
 

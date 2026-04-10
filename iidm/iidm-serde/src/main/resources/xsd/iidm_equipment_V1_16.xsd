@@ -912,6 +912,7 @@
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="kind" use="required" type="iidm:DcSwitchKind"/>
                 <xs:attribute name="open" use="required" type="xs:boolean"/>
+                <xs:attribute name="r" use="optional" type="xs:double" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
