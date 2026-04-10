@@ -13,13 +13,13 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
+import com.google.re2j.Pattern;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.timeseries.ast.NodeCalc;
-import com.univocity.parsers.common.ParsingContext;
-import com.univocity.parsers.common.ResultIterator;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
+import de.siegmar.fastcsv.reader.CsvParseException;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.CsvRecord;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -40,7 +40,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,6 +58,7 @@ import java.util.stream.Stream;
 public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>> extends Iterable<P> {
 
     Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
+    Pattern WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN = Pattern.compile("Record (\\d+) has (\\d+) fields, but first record had (\\d+) fields");
 
     int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = -1;
 
@@ -342,17 +342,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             return stringValues;
         }
 
-        int getVersion(String[] tokens, ReportNode reportNode) {
+        int getVersion(CsvRecord rec, ReportNode reportNode) {
             // Initialisation at the default unversioned value
             int version = DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES;
 
             // Change the value if it is versioned
             if (timeSeriesCsvConfig.versioned()) {
-                version = Integer.parseInt(tokens[1]);
+                version = Integer.parseInt(rec.getField(1));
 
                 // If the version is equals to the default version, either log a warning or throw an exception
                 if (version == DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES) {
-                    String line = String.join(";", tokens);
+                    String line = String.join(";", rec.getFields().stream().map(str -> str.isEmpty() ? "null" : str).toList());
                     if (timeSeriesCsvConfig.withStrictVersioningImport()) {
                         throw new TimeSeriesException(String.format("The version number for a versioned TimeSeries cannot be equals to the default version number (%s) at line \"%s\"",
                             DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
@@ -401,24 +401,24 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
 
-        void parseLineDuplicate(String[] tokens) {
-            Instant time = parseTokenTime(tokens[0]);
-            if (instants.isEmpty() || !instants.get(instants.size() - 1).equals(time)) {
-                parseTokenData(tokens);
+        void parseLineDuplicate(CsvRecord rec) {
+            Instant time = parseTokenTime(rec.getField(0));
+            if (instants.isEmpty() || !instants.getLast().equals(time)) {
+                parseTokenData(rec);
                 instants.add(time);
             } else {
                 LOGGER.warn("Row with the same time have already been read, the row will be skipped");
             }
         }
 
-        void parseLine(String[] tokens) {
-            parseTokenData(tokens);
-            instants.add(parseTokenTime(tokens[0]));
+        void parseLine(CsvRecord rec) {
+            parseTokenData(rec);
+            instants.add(parseTokenTime(rec.getField(0)));
         }
 
-        void parseTokenData(String[] tokens) {
-            for (int i = fixedColumns; i < tokens.length; i++) {
-                String token = tokens[i] != null ? tokens[i].trim() : "";
+        void parseTokenData(CsvRecord rec) {
+            for (int i = fixedColumns; i < rec.getFieldCount(); i++) {
+                String token = rec.getField(i) != null ? rec.getField(i).trim() : "";
                 parseToken(i, token);
             }
         }
@@ -461,7 +461,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
             List<TimeSeries> timeSeriesList = new ArrayList<>(names.size());
             for (int i = 0; i < names.size(); i++) {
-                if (Objects.isNull(names.get(i))) {
+                if (Objects.isNull(names.get(i)) || names.get(i).isEmpty() || names.get(i).isBlank()) {
                     LOGGER.warn("Timeseries without name");
                     continue;
                 }
@@ -511,43 +511,50 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
-    static void readCsvValues(ResultIterator<String[], ParsingContext> iterator, CsvParsingContext context,
+    static void readCsvValues(Iterator<CsvRecord> iterator, CsvParsingContext context,
                               Map<Integer, List<TimeSeries>> timeSeriesPerVersion, ReportNode reportNode) {
         int currentVersion = Integer.MIN_VALUE;
-        Consumer<String[]> lineparser = context.timeSeriesCsvConfig.isSkipDuplicateTimeEntry()
+        Consumer<CsvRecord> lineparser = context.timeSeriesCsvConfig.isSkipDuplicateTimeEntry()
                 ? context::parseLineDuplicate
                 : context::parseLine;
-        while (iterator.hasNext()) {
-            String[] tokens = iterator.next();
+        try {
+            while (iterator.hasNext()) {
+                CsvRecord rec = iterator.next();
 
-            if (tokens.length != context.expectedTokens()) {
-                throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header");
-            }
+                if (rec.getFieldCount() != context.expectedTokens()) {
+                    throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header");
+                }
 
-            int version = context.getVersion(tokens, reportNode);
-            if (currentVersion == Integer.MIN_VALUE) {
-                currentVersion = version;
-            } else if (version != currentVersion) {
-                timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
-                context.reInit();
-                currentVersion = version;
+                int version = context.getVersion(rec, reportNode);
+                if (currentVersion == Integer.MIN_VALUE) {
+                    currentVersion = version;
+                } else if (version != currentVersion) {
+                    timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
+                    context.reInit();
+                    currentVersion = version;
+                }
+                lineparser.accept(rec);
             }
-            lineparser.accept(tokens);
+        } catch (CsvParseException e) {
+            if (WRONG_NUMBER_OF_FIELDS_IN_RECORD_PATTERN.matcher(e.getCause().getMessage()).find()) {
+                throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header", e);
+            }
+            throw e;
         }
         timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
     }
 
-    static CsvParsingContext readCsvHeader(ResultIterator<String[], ParsingContext> iterator, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+    static CsvParsingContext readCsvHeader(Iterator<CsvRecord> iterator, TimeSeriesCsvConfig timeSeriesCsvConfig) {
         if (!iterator.hasNext()) {
             throw new TimeSeriesException("CSV header is missing");
         }
-        String[] tokens = iterator.next();
+        CsvRecord headerRecord = iterator.next();
 
-        checkCsvHeader(timeSeriesCsvConfig, tokens);
+        checkCsvHeader(timeSeriesCsvConfig, headerRecord);
 
         List<String> duplicates = new ArrayList<>();
         Set<String> namesWithoutDuplicates = new HashSet<>();
-        for (String token : tokens) {
+        for (String token : headerRecord.getFields()) {
             if (!namesWithoutDuplicates.add(token)) {
                 duplicates.add(token);
             }
@@ -555,15 +562,15 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         if (!duplicates.isEmpty()) {
             throw new TimeSeriesException("Bad CSV header, there are duplicates in time series names " + duplicates);
         }
-        List<String> names = Arrays.asList(tokens).subList(timeSeriesCsvConfig.versioned() ? 2 : 1, tokens.length);
+        List<String> names = headerRecord.getFields().subList(timeSeriesCsvConfig.versioned() ? 2 : 1, headerRecord.getFieldCount());
         return new CsvParsingContext(names, timeSeriesCsvConfig);
     }
 
-    static void checkCsvHeader(TimeSeriesCsvConfig timeSeriesCsvConfig, String[] tokens) {
+    static void checkCsvHeader(TimeSeriesCsvConfig timeSeriesCsvConfig, CsvRecord headerRecord) {
         String separatorStr = Character.toString(timeSeriesCsvConfig.separator());
-        if (timeSeriesCsvConfig.versioned() && (tokens.length < 3 || !"time".equalsIgnoreCase(tokens[0]) || !"version".equalsIgnoreCase(tokens[1]))) {
+        if (timeSeriesCsvConfig.versioned() && (headerRecord.getFieldCount() < 3 || !"time".equalsIgnoreCase(headerRecord.getField(0)) || !"version".equalsIgnoreCase(headerRecord.getField(1)))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "version" + separatorStr + "...");
-        } else if (tokens.length < 2 || !"time".equalsIgnoreCase(tokens[0])) {
+        } else if (headerRecord.getFieldCount() < 2 || !"time".equalsIgnoreCase(headerRecord.getField(0))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
     }
@@ -580,16 +587,18 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = new HashMap<>();
 
-        CsvParserSettings settings = new CsvParserSettings();
-        settings.getFormat().setDelimiter(timeSeriesCsvConfig.separator());
-        settings.getFormat().setQuoteEscape('"');
-        settings.getFormat().setLineSeparator(System.lineSeparator());
-        settings.setMaxColumns(timeSeriesCsvConfig.getMaxColumns());
-        CsvParser csvParser = new CsvParser(settings);
-        ResultIterator<String[], ParsingContext> iterator = csvParser.iterate(reader).iterator();
-        CsvParsingContext context = readCsvHeader(iterator, timeSeriesCsvConfig);
-        readCsvValues(iterator, context, timeSeriesPerVersion, reportNode);
+        try (CsvReader<CsvRecord> csvReader = CsvReader.builder()
+            .fieldSeparator(timeSeriesCsvConfig.separator())
+            .quoteCharacter('"')
+            .ofCsvRecord(reader)) {
 
+            Iterator<CsvRecord> iterator = csvReader.iterator();
+            CsvParsingContext context = readCsvHeader(iterator, timeSeriesCsvConfig);
+            readCsvValues(iterator, context, timeSeriesPerVersion, reportNode);
+
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         long timing = stopwatch.elapsed(TimeUnit.MILLISECONDS);
         LOGGER.info("{} time series loaded from CSV in {} ms",
                 timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(),
