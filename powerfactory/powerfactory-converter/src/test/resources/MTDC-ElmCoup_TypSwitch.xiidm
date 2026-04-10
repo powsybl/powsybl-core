@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="MTDC-ElmCoup_TypSwitch" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="central DC terminal" name="central DC terminal" nominalV="500.0"/>
+    <iidm:dcNode id="DC terminal 12" name="DC terminal 12" nominalV="500.0"/>
+    <iidm:dcNode id="DC terminal 13" name="DC terminal 13" nominalV="500.0"/>
+    <iidm:dcNode id="DC terminal 14" name="DC terminal 14" nominalV="500.0"/>
+    <iidm:dcSwitch id="DC Disconnector without type" dcNode1="central DC terminal" dcNode2="DC terminal 12" kind="DISCONNECTOR" open="false"/>
+    <iidm:dcSwitch id="DC Disconnector with type no R" dcNode1="central DC terminal" dcNode2="DC terminal 13" kind="DISCONNECTOR" open="false"/>
+    <iidm:dcSwitch id="DC Disconnector with type and R" dcNode1="central DC terminal" dcNode2="DC terminal 14" kind="DISCONNECTOR" open="false" r="0.009999999776482582"/>
+</iidm:network>

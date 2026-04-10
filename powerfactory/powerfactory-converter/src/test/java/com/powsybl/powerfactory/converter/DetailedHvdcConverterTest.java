@@ -22,9 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
 class DetailedHvdcConverterTest {
-    // @todo create iidm tests for DGS import of DcSwitch
-    // @todo check why DC-BL_DGS_V1_model1-1-1.dgs is marked as added by git.
-
     // test tolerance for double values.
     // Only makes sense for values that are neither too big nor too small.
     // This is twice machine epsilon for single precision
@@ -312,7 +309,7 @@ class DetailedHvdcConverterTest {
 
     @Test
     void testElmCoupNoTyp() {
-        // @todo add comments to new tests
+        // Check basic import of ElmCoup in DGS files.
         Network network = importDgs("MTDC-ElmCoup_no-type");
 
         DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector with default state");
@@ -326,20 +323,21 @@ class DetailedHvdcConverterTest {
         assertNotNull(dcSwitch24);
         assertNotNull(dcSwitch25);
         assertNotNull(dcSwitch26);
-
         assertEquals(5, network.getDcSwitchCount());
-        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch22.getKind());
-        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch23.getKind());
-        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch24.getKind());
-        assertEquals(DcSwitchKind.BREAKER, dcSwitch25.getKind());
-        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch26.getKind());
 
-        assertFalse(dcSwitch22.isOpen());
-        assertFalse(dcSwitch23.isOpen());
-        assertTrue(dcSwitch24.isOpen());
-        assertFalse(dcSwitch25.isOpen());
-        assertFalse(dcSwitch26.isOpen());
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch22.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch23.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch24.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.BREAKER, dcSwitch25.getKind()); // aUsage = "cbk"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch26.getKind()); // aUsage unspecified
 
+        assertFalse(dcSwitch22.isOpen()); // on_off unspecified
+        assertFalse(dcSwitch23.isOpen()); // on_off = 1
+        assertTrue(dcSwitch24.isOpen()); // on_off = 0
+        assertFalse(dcSwitch25.isOpen()); // on_off unspecified
+        assertFalse(dcSwitch26.isOpen()); // on_off unspecified
+
+        // no TypSwitch, default resistance value is zero
         assertEquals(0.0, dcSwitch22.getR());
         assertEquals(0.0, dcSwitch23.getR());
         assertEquals(0.0, dcSwitch24.getR());
@@ -349,6 +347,7 @@ class DetailedHvdcConverterTest {
 
     @Test
     void testElmCoupTypSwitch() {
+        // Check import of resistance with TypSwitch
         Network network = importDgs("MTDC-ElmCoup_TypSwitch");
 
         DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector without type");
@@ -361,13 +360,14 @@ class DetailedHvdcConverterTest {
 
         assertEquals(3, network.getDcSwitchCount());
 
-        assertEquals(0.0, dcSwitch22.getR());
-        assertEquals(0.0, dcSwitch23.getR());
-        assertEquals(0.01, dcSwitch24.getR(), ABSOLUTE_DELTA);
+        assertEquals(0.0, dcSwitch22.getR()); // no TypSwitch
+        assertEquals(0.0, dcSwitch23.getR()); // TypSwitch with unspecified resistance
+        assertEquals(0.01, dcSwitch24.getR(), ABSOLUTE_DELTA); // TypSwitch with R_On = 0.01
     }
 
     @Test
     void testElmCoupAcDc() {
+        // Check that AC and DC ElmCoup don't interfere.
         Network network = importDgs("MTDC-ElmCoup_ACDC");
 
         DcSwitch dcSwitch21 = network.getDcSwitch("DC Disconnector");
@@ -375,6 +375,7 @@ class DetailedHvdcConverterTest {
 
         assertNotNull(dcSwitch21);
         assertNull(dcSwitch22);
+        // cannot check for presence because the default name is used.
         assertEquals(1, network.getSwitchCount());
     }
 

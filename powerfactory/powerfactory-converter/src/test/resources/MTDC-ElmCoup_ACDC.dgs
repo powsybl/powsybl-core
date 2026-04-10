@@ -1,3 +1,8 @@
+* 2 DC terminals 11 and 12 connected by a disconnector
+* and 2 AC terminals 13 and 14 connected by a disconnector.
+* This checks that DC disconnectors are properly ignored in the AC
+* network and vice-versa.
+
 $$General;ID(a:40);Descr(a:40);Val(a:255)
 1;Version;5.0
 

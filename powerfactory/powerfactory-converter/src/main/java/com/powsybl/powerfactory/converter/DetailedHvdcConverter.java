@@ -141,15 +141,16 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
         }
 
+        int getCount() {
+            return dcElmLnes.size() + dcElmTerms.size() + acDcConverters.size() + elmGndswt.size() + elmCoup.size();
+        }
+
     } // private record DcGridData
 
     DetailedHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
-        final int nRead = gridData.acDcConverters.size() // @todo update with all elements
-                + gridData.dcElmLnes.size()
-                + gridData.dcElmTerms.size();
-        LOGGER.info("{} data objects read from the DGS file for detailed DC data .", nRead);
+        LOGGER.info("{} data objects read from the DGS file for detailed DC data .", gridData.getCount());
     }
 
     @Override
@@ -219,15 +220,13 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 .sorted(Comparator.comparing(DataObject::getId))
                 .forEachOrdered(gnd -> addDcGround(gnd, network, objIdDcNodeRef));
 
-        LOGGER.debug("DC subnetworks created.");
-
         // create DC switches
-        LOGGER.debug("Creating DC switches.");
-
+        LOGGER.debug("Creating {} DC switches.", gridData.elmCoup.size());
         gridData.elmCoup.stream()
                 .sorted(Comparator.comparing(DataObject::getId))
                 .forEachOrdered(coup -> addDcSwitch(coup, network, objIdDcNodeRef));
 
+        LOGGER.debug("DC subnetworks created.");
     }
 
     /**
