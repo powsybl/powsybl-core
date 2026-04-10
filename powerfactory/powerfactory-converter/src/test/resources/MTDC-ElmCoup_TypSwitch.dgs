@@ -1,3 +1,7 @@
+* Central DC terminal 11 connected to DC terminals 12, 13 and 14 with 
+* DC disconnectors with TypSwitch and a defined resistance in one case.
+* This allows checking that resistance is correctly imported.
+
 $$General;ID(a:40);Descr(a:40);Val(a:255)
 1;Version;5.0
 

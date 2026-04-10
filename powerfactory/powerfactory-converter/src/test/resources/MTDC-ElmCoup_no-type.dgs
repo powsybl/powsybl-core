@@ -1,3 +1,6 @@
+* Central DC terminal 11 connected to DC terminals 12 to 16 with 
+* DC disconnectors without TypSwitch and various configurations.
+
 $$General;ID(a:40);Descr(a:40);Val(a:255)
 1;Version;5.0
 
