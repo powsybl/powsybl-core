@@ -7,6 +7,8 @@
  */
 package com.powsybl.powerfactory.converter;
 
+import java.util.Optional;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
@@ -49,10 +51,54 @@ class LoadConverter extends AbstractConverter {
 
         private static LoadModel create(DataObject elmLod) {
 
-            float p0 = elmLod.getFloatAttributeValue("plini");
-            float q0 = elmLod.getFloatAttributeValue("qlini");
+            PQ pq = calculatePQ(elmLod);
+            PQ sign = calculateSignPQ(elmLod);
 
-            return new LoadModel(p0, q0);
+            return new LoadModel(pq.p * sign.p, pq.q * sign.q);
+        }
+
+        private static PQ calculatePQ(DataObject elmLod) {
+
+            Optional<Float> plini = elmLod.findFloatAttributeValue("plini");
+            Optional<Float> qlini = elmLod.findFloatAttributeValue("qlini");
+            Optional<Float> slini = elmLod.findFloatAttributeValue("slini");
+            Optional<Float> coslini = elmLod.findFloatAttributeValue("coslini");
+
+            PQ target;
+            if (plini.isPresent() && qlini.isPresent()) {
+                target = new PQ(plini.get(), qlini.get());
+            } else if (plini.isPresent() && slini.isPresent()) {
+                target = calculatePQFromPandS(plini.get(), slini.get());
+            } else if (qlini.isPresent() && slini.isPresent()) {
+                target = calculatePQFromQandS(qlini.get(), slini.get());
+            } else if (plini.isPresent() && coslini.isPresent()) {
+                target = calculatePQFromPandPowerFactor(plini.get(), coslini.get());
+            } else if (qlini.isPresent() && coslini.isPresent()) {
+                target = calculatePQFromQandPowerFactor(qlini.get(), coslini.get());
+            } else if (slini.isPresent() && coslini.isPresent()) {
+                target = calculatePQFromSandPowerFactor(slini.get(), coslini.get());
+            } else {
+                target = new PQ(Double.NaN, Double.NaN);
+            }
+
+            return target;
+        }
+
+        private static PQ calculateSignPQ(DataObject elmLod) {
+
+            Optional<Float> plini = elmLod.findFloatAttributeValue("plini");
+            Optional<Float> qlini = elmLod.findFloatAttributeValue("qlini");
+
+            double signP = 1;
+            if (plini.isEmpty() && qlini.isPresent()) {
+                signP = Math.signum(qlini.get());
+            }
+            double signQ = 1;
+            if (qlini.isEmpty() && plini.isPresent()) {
+                signP = Math.signum(plini.get());
+            }
+
+            return new PQ(signP, signQ);
         }
     }
 }
