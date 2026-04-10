@@ -13,10 +13,16 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.univocity.parsers.annotations.Format;
-import com.univocity.parsers.annotations.Parsed;
+import de.siegmar.fastcsv.reader.CsvRecord;
 
 import java.io.IOException;
+
+import static com.powsybl.psse.model.io.Util.parseDoubleFromRecord;
+import static com.powsybl.psse.model.io.Util.parseFloatFromRecord;
+import static com.powsybl.psse.model.io.Util.parseIntFromRecord;
+import static com.powsybl.psse.model.io.Util.parseStringFromRecord;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_1;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TITLE_2;
 
 /**
  *
@@ -24,37 +30,50 @@ import java.io.IOException;
  */
 public class PsseCaseIdentification {
 
-    @Parsed
     private int ic = 0;
-
-    @Parsed
     private double sbase = 100;
 
-    @Parsed
-    // Accept floats and write a maximum of two decimal places
-    // Do not write decimal point if decimal part is 0
-    @Format(formats = {"0.##"})
     // Similar way writing revision for Json,
     // but relying on PsseVersion class
     @JsonSerialize(using = RevisionSerializer.class)
     private float rev = 33;
 
-    @Parsed
-    @Format(formats = {"0"})
     private double xfrrat = Double.NaN;
-
-    @Parsed
-    @Format(formats = {"0"})
     private double nxfrat = Double.NaN;
-
-    @Parsed
     private double basfrq = Double.NaN;
-
-    @Parsed(defaultNullRead = "")
     private String title1;
-
-    @Parsed(defaultNullRead = "")
     private String title2;
+
+    public static PsseCaseIdentification fromRecord(CsvRecord rec, String[] headers) {
+        PsseCaseIdentification psseCaseIdentification = new PsseCaseIdentification();
+        psseCaseIdentification.setIc(parseIntFromRecord(rec, 0, headers, "ic"));
+        psseCaseIdentification.setSbase(parseDoubleFromRecord(rec, 100d, headers, "sbase"));
+        psseCaseIdentification.setRev(parseFloatFromRecord(rec, 33f, headers, "rev"));
+        psseCaseIdentification.setXfrrat(parseDoubleFromRecord(rec, Double.NaN, headers, "xfrrat"));
+        psseCaseIdentification.setNxfrat(parseDoubleFromRecord(rec, Double.NaN, headers, "nxfrat"));
+        psseCaseIdentification.setBasfrq(parseDoubleFromRecord(rec, Double.NaN, headers, "basfrq"));
+        psseCaseIdentification.setTitle1(parseStringFromRecord(rec, "", headers, STR_TITLE_1));
+        psseCaseIdentification.setTitle2(parseStringFromRecord(rec, "", headers, STR_TITLE_2));
+        return psseCaseIdentification;
+    }
+
+    public static String[] toRecord(PsseCaseIdentification psseCaseIdentification, String[] headers) {
+        String[] row = new String[headers.length];
+        for (int i = 0; i < headers.length; i++) {
+            row[i] = switch (headers[i]) {
+                case "ic" -> String.valueOf(psseCaseIdentification.getIc());
+                case "sbase" -> String.valueOf(psseCaseIdentification.getSbase());
+                case "rev" -> PsseVersion.fromRevision(psseCaseIdentification.getRev()).toString();
+                case "xfrrat" -> String.format("%.0f", psseCaseIdentification.getXfrrat());
+                case "nxfrat" -> String.format("%.0f", psseCaseIdentification.getNxfrat());
+                case "basfrq" -> String.valueOf(psseCaseIdentification.getBasfrq());
+                case STR_TITLE_1 -> psseCaseIdentification.getTitle1();
+                case STR_TITLE_2 -> psseCaseIdentification.getTitle2();
+                default -> throw new PsseException("Unsupported header: " + headers[i]);
+            };
+        }
+        return row;
+    }
 
     public int getIc() {
         return ic;
