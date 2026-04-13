@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.Test;
 
@@ -31,20 +30,107 @@ class LimitViolationsResultEquivalenceTest {
     void equivalent() {
         LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.INSTANCE);
 
-        LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
-        LimitViolation sameLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
-        LimitViolation line1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.TWO);
-        LimitViolation sameLine1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.TWO);
-        LimitViolation similarLine1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, TwoSides.TWO);
-        LimitViolation differentLine1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1101.0, TwoSides.TWO);
-        LimitViolation line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
-        LimitViolation sameLine2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
-        LimitViolation smallLine2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 1, 900.09, TwoSides.TWO);
-        LimitViolation vl1Violation1 = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
-        LimitViolation sameVl1Violation1 = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
-        LimitViolation vl1Violation2 = new LimitViolation("VL1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 200.0, 1, 250.0);
-        LimitViolation sameVl1Violation2 = new LimitViolation("VL1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 200.0, 1, 250.0);
-        LimitViolation smallVl2Violation = new LimitViolation("VL2", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 200.09);
+        LimitViolation line1Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95)
+            .value(1100)
+            .side1()
+            .build();
+        LimitViolation sameLine1Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95)
+            .value(1100)
+            .side1()
+            .build();
+        LimitViolation line1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95)
+            .value(1100)
+            .side2()
+            .build();
+        LimitViolation sameLine1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95)
+            .value(1100)
+            .side2()
+            .build();
+        LimitViolation similarLine1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95)
+            .value(1100.09)
+            .side2()
+            .build();
+        LimitViolation differentLine1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95)
+            .value(1101)
+            .side2()
+            .build();
+        LimitViolation line2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(900.0)
+            .reduction(0.95)
+            .value(950)
+            .side1()
+            .build();
+        LimitViolation sameLine2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(900.0)
+            .reduction(0.95)
+            .value(950)
+            .side1()
+            .build();
+        LimitViolation smallLine2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(900.0)
+            .value(900.09)
+            .side2()
+            .build();
+        LimitViolation vl1Violation1 = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(200.0)
+            .value(250)
+            .build();
+        LimitViolation sameVl1Violation1 = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(200.0)
+            .value(250)
+            .build();
+        LimitViolation vl1Violation2 = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
+            .limit(200.0)
+            .value(250)
+            .build();
+        LimitViolation sameVl1Violation2 = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
+            .limit(200.0)
+            .value(250)
+            .build();
+        LimitViolation smallVl2Violation = LimitViolation.builder()
+            .subject("VL2")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(200.0)
+            .value(200.09)
+            .build();
 
         // computation ko in both results
         LimitViolationsResult result1 = new LimitViolationsResult(Collections.emptyList(),

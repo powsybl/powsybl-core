@@ -362,6 +362,9 @@ The corresponding targets are:
 ### Line
 
 PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `ACLineSegment`.
+The attribute `ConductingEquipment.BaseVoltage` is written from the `nominalV` of the voltage level on both sides of the line:
+- if the nominal voltage is the same on both sides of the `Line`, then the `BaseVoltage` is set to this nominal voltage,
+- otherwise, it is set to the highest nominal voltage.
 
 <span style="color: red">TODO details</span>
 
