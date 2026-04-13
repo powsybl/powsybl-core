@@ -466,6 +466,9 @@ at the regulated terminal with the regulation value.
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
+If the IIDM `TwoWindingsTransformer` does not have a `ratedS`, then a default value of `100` is exported for `PowerTransformerEnd.ratedS` as this field is mandatory.
+The `ratedS` will be the same on both ends of the `PowerTransformer`.
+
 If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
 `SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
 
