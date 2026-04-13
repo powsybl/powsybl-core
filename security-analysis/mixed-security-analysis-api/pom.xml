@@ -9,7 +9,9 @@
         <version>7.3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>mixed-security-analysis</artifactId>
+    <artifactId>mixed-security-analysis-api</artifactId>
+    <name>Mixed-Mode Security Analysis API</name>
+    <description>An API for running mixed-mode (static and dynamic) security analyses.</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -30,11 +32,6 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-open-loadflow</artifactId>
             <version>2.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-dynaflow</artifactId>
-            <version>3.2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

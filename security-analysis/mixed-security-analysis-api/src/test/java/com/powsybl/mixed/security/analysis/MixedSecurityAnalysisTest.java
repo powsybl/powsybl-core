@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -185,7 +184,7 @@ class MixedSecurityAnalysisTest {
     }
 
     @Test
-    void testSwitchOnSpsTriggered() throws IOException {
+    void testSwitchOnSpsTriggered() {
         // 1. Load the network
         Network network = EurostagTutorialExample1Factory.create();
 
