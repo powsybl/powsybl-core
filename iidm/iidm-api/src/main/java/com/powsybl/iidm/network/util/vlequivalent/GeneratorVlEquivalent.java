@@ -22,6 +22,7 @@ public class GeneratorVlEquivalent extends AbstractInjectionVlEquivalent {
     private final double targetV;
     private final double ratedS;
     private final ReactiveLimits reactiveLimits;
+    private final boolean isCondenser;
 
     /**
      * Calculate the characteristics of an equivalent generator for a voltage level containing only a generator and linked to another voltage level with a two-winding transformer.
@@ -33,7 +34,8 @@ public class GeneratorVlEquivalent extends AbstractInjectionVlEquivalent {
     }
 
     public GeneratorVlEquivalent(Generator generator, TwoWindingsTransformer transformer) {
-        super(generator.getId(), generator.getOptionalName().orElse(null), generator.getTargetP(), generator.getTargetQ(), transformer);
+        super(generator, generator.getTargetP(), generator.getTargetQ(), transformer);
+        this.isCondenser = generator.isCondenser();
         this.energySource = generator.getEnergySource();
         this.minP = generator.getMinP();
         this.maxP = generator.getMaxP();
@@ -82,11 +84,7 @@ public class GeneratorVlEquivalent extends AbstractInjectionVlEquivalent {
         return reactiveLimits;
     }
 
-    public double getTargetP() {
-        return activePower;
-    }
-
-    public double getTargetQ() {
-        return reactivePower;
+    public boolean isCondenser() {
+        return isCondenser;
     }
 }

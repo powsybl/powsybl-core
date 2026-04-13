@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util.vlequivalent;
 
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
@@ -15,12 +16,14 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 public abstract class AbstractInjectionVlEquivalent {
     private final String id;
     private final String name;
+    private final boolean isFictitious;
     protected final double activePower;
     protected final double reactivePower;
 
-    protected AbstractInjectionVlEquivalent(String id, String name, double activePower, double reactivePower, TwoWindingsTransformer transformer) {
-        this.id = id;
-        this.name = name;
+    protected AbstractInjectionVlEquivalent(Injection<?> injection, double activePower, double reactivePower, TwoWindingsTransformer transformer) {
+        this.id = injection.getId();
+        this.name = injection.getOptionalName().orElse(null);
+        this.isFictitious = injection.isFictitious();
         if (!transformer.hasPhaseTapChanger()) {
             this.activePower = activePower;
             this.reactivePower = reactivePower;
@@ -42,4 +45,15 @@ public abstract class AbstractInjectionVlEquivalent {
         return name;
     }
 
+    public boolean isFictitious() {
+        return isFictitious;
+    }
+
+    public double getActivePower() {
+        return activePower;
+    }
+
+    public double getReactivePower() {
+        return reactivePower;
+    }
 }

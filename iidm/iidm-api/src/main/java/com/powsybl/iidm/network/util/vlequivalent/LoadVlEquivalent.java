@@ -26,7 +26,7 @@ public class LoadVlEquivalent extends AbstractInjectionVlEquivalent {
     }
 
     public LoadVlEquivalent(Load load, TwoWindingsTransformer transformer) {
-        super(load.getId(), load.getOptionalName().orElse(null), load.getP0(), load.getQ0(), transformer);
+        super(load, load.getP0(), load.getQ0(), transformer);
         this.type = load.getLoadType();
     }
 
@@ -34,11 +34,4 @@ public class LoadVlEquivalent extends AbstractInjectionVlEquivalent {
         return type;
     }
 
-    public double getP0() {
-        return activePower;
-    }
-
-    public double getQ0() {
-        return reactivePower;
-    }
 }

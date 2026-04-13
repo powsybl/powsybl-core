@@ -29,7 +29,7 @@ public class BatteryVlEquivalent extends AbstractInjectionVlEquivalent {
     }
 
     public BatteryVlEquivalent(Battery battery, TwoWindingsTransformer transformer) {
-        super(battery.getId(), battery.getOptionalName().orElse(null), battery.getTargetP(), battery.getTargetQ(), transformer);
+        super(battery, battery.getTargetP(), battery.getTargetQ(), transformer);
         // the min and max do not change, as a transformer will keep the apparent power equal on both sides, meaning the range of active power does not change either
         this.minP = battery.getMinP();
         this.maxP = battery.getMaxP();
@@ -42,14 +42,6 @@ public class BatteryVlEquivalent extends AbstractInjectionVlEquivalent {
 
     public double getMaxP() {
         return maxP;
-    }
-
-    public double getTargetP() {
-        return activePower;
-    }
-
-    public double getTargetQ() {
-        return reactivePower;
     }
 
     public ReactiveLimits getReactiveLimits() {
