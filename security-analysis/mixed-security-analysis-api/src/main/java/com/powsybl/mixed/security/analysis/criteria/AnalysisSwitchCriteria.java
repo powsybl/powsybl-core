@@ -40,7 +40,7 @@ public class AnalysisSwitchCriteria {
         return switch (criterion.toUpperCase()) {
             case "FAILED" -> evaluateNonConvergence(result);
             case "LIMIT_VIOLATIONS" -> evaluateLimitViolations(result);
-            case "SPS_TRIGGERED" -> evaluateSpsTriggered(result);
+            case "SPS_TRIGGERED" -> evaluateSpsTriggered();
             default -> {
                 LOGGER.warn("Unknown criterion: {}", criterion);
                 yield false;
@@ -64,7 +64,7 @@ public class AnalysisSwitchCriteria {
         return hasViolations;
     }
 
-    private boolean evaluateSpsTriggered(PostContingencyResult result) {
+    private boolean evaluateSpsTriggered() {
         return true;
     }
 }
