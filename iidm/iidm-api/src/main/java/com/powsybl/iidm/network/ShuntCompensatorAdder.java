@@ -15,7 +15,7 @@ package com.powsybl.iidm.network;
  * Example:
  *<pre>
  *    VoltageLevel vl = ...
- *    ShuntCompensator s = vl.newShunt()
+ *    ShuntCompensator s = vl.newShuntCompensator()
  *            .setId("s1")
  *            ...
  *        .add();
