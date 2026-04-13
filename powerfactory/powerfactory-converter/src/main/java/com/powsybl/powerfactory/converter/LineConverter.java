@@ -12,6 +12,8 @@ import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,20 +25,29 @@ import java.util.Optional;
 
 class LineConverter extends AbstractConverter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineConverter.class);
+
     LineConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
 
     void create(DataObject elmLne) {
-        List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
+        List<NodeRef> nodeRefs = checkNodes(elmLne, 0, 1, 2);
+        if (nodeRefs.isEmpty()) {
+            LOGGER.warn("ElmLne discarded as it does not have any connection '{}'", elmLne);
+            return;
+        }
         Optional<LineModel> lineModel = LineModel.createFromElmLne(elmLne);
         if (lineModel.isEmpty()) {
             return;
         }
         NodeRef end1 = nodeRefs.get(0);
-        NodeRef end2 = nodeRefs.get(1);
-
-        createLine(end1, end2, elmLne.getLocName(), lineModel.get());
+        if (nodeRefs.size() == 2) {
+            NodeRef end2 = nodeRefs.get(1);
+            createLine(end1, end2, elmLne.getLocName(), lineModel.get());
+        } else {
+            LOGGER.warn("ElmLne discarded as it does not have two connections '{}'", elmLne);
+        }
     }
 
     void createTower(DataObject elmTow) {

@@ -13,10 +13,7 @@ import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -91,12 +88,19 @@ public abstract class AbstractConverter {
 
     List<NodeRef> findNodes(DataObject obj) {
         List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
+        if (nodeRefs == null) {
+            return Collections.emptyList();
+        }
         return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
     }
 
-    List<NodeRef> checkNodes(DataObject obj, int connections) {
+    List<NodeRef> checkNodes(DataObject obj, Integer... connections) {
+        return checkNodes(obj, Set.of(connections));
+    }
+
+    List<NodeRef> checkNodes(DataObject obj, Set<Integer> connections) {
         List<NodeRef> nodeRefs = findNodes(obj);
-        if (nodeRefs == null || nodeRefs.size() != connections) {
+        if (nodeRefs == null || !connections.contains(nodeRefs.size())) {
             throw new PowerFactoryException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connections for '" + obj + "'");
         }
