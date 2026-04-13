@@ -15,5 +15,6 @@ public enum PostContingencyComputationStatus {
     MAX_ITERATION_REACHED,
     SOLVER_FAILED,
     FAILED,
-    NO_IMPACT
+    NO_IMPACT,
+    SPS_TRIGGERED
 }

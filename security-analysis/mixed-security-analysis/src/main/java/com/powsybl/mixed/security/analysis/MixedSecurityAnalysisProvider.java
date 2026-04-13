@@ -63,7 +63,7 @@ public class MixedSecurityAnalysisProvider implements SecurityAnalysisProvider {
         LOGGER.info("Starting mixed-mode security analysis for network: {}", network.getId());
 
         MixedModeParametersExtension extension = runParameters.getSecurityAnalysisParameters().getExtension(MixedModeParametersExtension.class);
-        if(extension == null) {
+        if (extension == null) {
 
             LOGGER.warn("MixedModeParametersExtension configuration is missing from SecurityAnalysisRunParameters, using defaults.");
             extension = (MixedModeParametersExtension) loadSpecificParameters(PlatformConfig.defaultConfig()).orElseThrow(() ->

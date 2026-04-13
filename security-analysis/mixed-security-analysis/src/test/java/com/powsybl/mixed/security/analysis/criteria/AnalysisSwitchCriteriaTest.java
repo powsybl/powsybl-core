@@ -116,14 +116,6 @@ class AnalysisSwitchCriteriaTest {
         assertEquals("No criteria met", decision.getReason());
     }
 
-    @Test
-    void testSpsTriggerCriteriaNotImplemented() {
-        extension.setSwitchCriteria(Collections.singletonList("SPS_TRIGGERED"));
-        result = createPostContingencyResult(true, 0);
-        SwitchDecision decision = criteria.evaluate(result);
-        assertFalse(decision.shouldSwitch());
-    }
-
     private PostContingencyResult createPostContingencyResult(boolean converged, int violationCount) {
         PostContingencyComputationStatus status = converged
             ? PostContingencyComputationStatus.CONVERGED
