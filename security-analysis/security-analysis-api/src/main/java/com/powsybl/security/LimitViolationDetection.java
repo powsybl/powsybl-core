@@ -267,13 +267,29 @@ public final class LimitViolationDetection {
     static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), 1., value, createViolationLocation(bus)));
+            consumer.accept(
+                LimitViolation.builder()
+                .subject(vl.getId())
+                .subjectName(vl.getOptionalName().orElse(null))
+                .type(LimitViolationType.LOW_VOLTAGE)
+                .limit(vl.getLowVoltageLimit())
+                .value(value)
+                .violationLocation(createViolationLocation(bus))
+                .build()
+            );
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), 1., value, createViolationLocation(bus)));
+            consumer.accept(
+                LimitViolation.builder()
+                    .subject(vl.getId())
+                    .subjectName(vl.getOptionalName().orElse(null))
+                    .type(LimitViolationType.HIGH_VOLTAGE)
+                    .limit(vl.getHighVoltageLimit())
+                    .value(value)
+                    .violationLocation(createViolationLocation(bus))
+                    .build()
+            );
         }
     }
 
@@ -311,15 +327,27 @@ public final class LimitViolationDetection {
         voltageAngleLimit.getLowLimit().ifPresent(
                 lowLimit -> {
                     if (value <= lowLimit) {
-                        consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
-                                1., value));
+                        consumer.accept(
+                            LimitViolation.builder()
+                                .subject(voltageAngleLimit.getId())
+                                .type(LimitViolationType.LOW_VOLTAGE_ANGLE)
+                                .limit(lowLimit)
+                                .value(value)
+                                .build()
+                        );
                     }
                 });
         voltageAngleLimit.getHighLimit().ifPresent(
                 highLimit -> {
                     if (value >= highLimit) {
-                        consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
-                                1., value));
+                        consumer.accept(
+                            LimitViolation.builder()
+                                .subject(voltageAngleLimit.getId())
+                                .type(LimitViolationType.HIGH_VOLTAGE_ANGLE)
+                                .limit(highLimit)
+                                .value(value)
+                                .build()
+                        );
                     }
                 });
     }

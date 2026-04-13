@@ -88,12 +88,53 @@ class LimitViolationFilterTest {
                 .to(network.getLine("LINE1").getTerminal2())
                 .add();
 
-        LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000.0, 1, 1100.0, TwoSides.ONE);
-        LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 900.0, 1, 950.0, TwoSides.TWO);
-        LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
-        LimitViolation line1ViolationAcP = new LimitViolation("VL1", LimitViolationType.ACTIVE_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, TwoSides.ONE);
-        LimitViolation line1ViolationApP = new LimitViolation("VL1", LimitViolationType.APPARENT_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, TwoSides.TWO);
-        LimitViolation voltageAngleLimit = new LimitViolation("val", LimitViolationType.HIGH_VOLTAGE_ANGLE, "", Integer.MAX_VALUE, 0.25, 1, 0.26);
+        LimitViolation line1Violation = new LimitViolationBuilder()
+            .subject("LINE1")
+            .type(LimitViolationType.CURRENT)
+            .limitName("")
+            .limit(1000.0)
+            .value(1100.0)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation line2Violation = LimitViolation.builder()
+            .subject("LINE2")
+            .type(LimitViolationType.CURRENT)
+            .limitName("")
+            .duration(Integer.MAX_VALUE)
+            .limit(900.0)
+            .value(950.0)
+            .side(TwoSides.TWO)
+            .build();
+        LimitViolation vl1Violation = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(200.0)
+            .value(250.0)
+            .build();
+        LimitViolation line1ViolationAcP = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.ACTIVE_POWER)
+            .limitName("")
+            .limit(200.0)
+            .value(250.0)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation line1ViolationApP = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.APPARENT_POWER)
+            .limitName("")
+            .limit(200.0)
+            .reduction(1)
+            .value(250.0)
+            .side(TwoSides.TWO)
+            .build();
+        LimitViolation voltageAngleLimit = LimitViolation.builder()
+            .subject("val")
+            .type(LimitViolationType.HIGH_VOLTAGE_ANGLE)
+            .limitName("")
+            .limit(0.25)
+            .value(0.26)
+            .build();
 
         LimitViolationFilter filter = new LimitViolationFilter();
         List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation, line1ViolationAcP, line1ViolationApP, voltageAngleLimit), network);
