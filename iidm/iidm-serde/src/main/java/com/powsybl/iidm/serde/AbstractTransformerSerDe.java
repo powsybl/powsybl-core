@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
@@ -93,10 +94,11 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         writeTapChanger(rtc, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> writeTargetDeadband(rtc.getTargetDeadband(), context));
         context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, rtc.hasLoadTapChangingCapabilities());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulationValue()));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", rtc.getRegulatingTargetV()));
         IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () -> {
-            context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, rtc.getRegulationMode());
-            context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, rtc.getRegulationValue());
+            VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
+            context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, voltageRegulation != null ? voltageRegulation.getMode() : null);
+            context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, voltageRegulation != null ? voltageRegulation.getTargetValue() : Double.NaN);
         });
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> TerminalRefSerDe.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF));
 

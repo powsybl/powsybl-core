@@ -187,8 +187,8 @@ final class TransformersTestUtils {
         strings.add(String.valueOf(rtc.getTapPosition()));
         strings.add(rtc.getRegulationTerminal().getBusView().getBus().getId());
         strings.add(String.valueOf(rtc.getTargetV()));
-        strings.add(String.valueOf(rtc.getRegulationValue()));
-        strings.add(String.valueOf(rtc.getRegulationMode()));
+        strings.add(String.valueOf(rtc.getVoltageRegulation().getTargetValue()));
+        strings.add(String.valueOf(rtc.getVoltageRegulation().getMode()));
         strings.add(String.valueOf(rtc.getTargetDeadband()));
         strings.add(String.valueOf(rtc.isRegulating()));
         strings.add(String.valueOf(rtc.getStepCount()));

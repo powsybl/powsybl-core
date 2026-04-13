@@ -131,8 +131,8 @@ public abstract class AbstractTapChangerHolderTest {
 
         assertEquals(existingRatioTapChanger.getTapPosition(), newRatioTapChanger.getTapPosition());
         assertEquals(existingRatioTapChanger.getLowTapPosition(), newRatioTapChanger.getLowTapPosition());
-        assertEquals(existingRatioTapChanger.getRegulationValue(), newRatioTapChanger.getRegulationValue());
-        assertEquals(existingRatioTapChanger.getRegulationMode(), newRatioTapChanger.getRegulationMode());
+        assertEquals(existingRatioTapChanger.getVoltageRegulation().getTargetValue(), newRatioTapChanger.getVoltageRegulation().getTargetValue());
+        assertEquals(existingRatioTapChanger.getVoltageRegulation().getMode(), newRatioTapChanger.getVoltageRegulation().getMode());
         assertEquals(existingRatioTapChanger.isRegulating(), newRatioTapChanger.isRegulating());
         assertEquals(existingRatioTapChanger.getTargetDeadband(), newRatioTapChanger.getTargetDeadband());
         assertEquals(existingRatioTapChanger.getRegulationTerminal(), newRatioTapChanger.getRegulationTerminal());

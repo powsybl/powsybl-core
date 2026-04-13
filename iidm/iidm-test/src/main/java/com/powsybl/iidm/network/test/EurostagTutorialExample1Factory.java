@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.time.ZonedDateTime;
 
@@ -889,10 +890,11 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithReactiveTcc() {
         Network network = create();
-        network.getTwoWindingsTransformer(NHV2_NLOAD)
-                .getRatioTapChanger()
-                .setRegulationMode(RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        VoltageRegulation voltageRegulation = network.getTwoWindingsTransformer(NHV2_NLOAD)
+            .getRatioTapChanger()
+            .getVoltageRegulation();
+        voltageRegulation.setTargetValue(100);
+        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
         return network;
     }
 
@@ -1063,10 +1065,11 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network create3wWithReactiveTcc() {
         Network network = createWith3wWithVoltageControl();
-        network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
-                .getRatioTapChanger()
-                .setRegulationMode(RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        VoltageRegulation voltageRegulation = network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
+            .getRatioTapChanger()
+            .getVoltageRegulation();
+        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
+        voltageRegulation.setTargetValue(100);
         return network;
     }
 

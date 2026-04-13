@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
 import java.util.Optional;
 
 /**
@@ -27,15 +30,19 @@ public interface RatioTapChangerHolder {
      */
     default RatioTapChangerAdder newRatioTapChanger(RatioTapChanger ratioTapChanger) {
         RatioTapChangerAdder adder = this.newRatioTapChanger()
-                .setRegulationTerminal(ratioTapChanger.getRegulationTerminal())
-                .setRegulationMode(ratioTapChanger.getRegulationMode())
-                .setRegulationValue(ratioTapChanger.getRegulationValue())
                 .setLoadTapChangingCapabilities(ratioTapChanger.hasLoadTapChangingCapabilities())
-                .setTargetV(ratioTapChanger.getRegulatingTargetV())
                 .setLowTapPosition(ratioTapChanger.getLowTapPosition())
-                .setTapPosition(ratioTapChanger.getTapPosition())
-                .setRegulating(ratioTapChanger.isRegulating())
-                .setTargetDeadband(ratioTapChanger.getTargetDeadband());
+                .setTapPosition(ratioTapChanger.getTapPosition());
+        if (ratioTapChanger.getVoltageRegulation() != null) {
+            VoltageRegulation voltageRegulation = ratioTapChanger.getVoltageRegulation();
+            VoltageRegulationAdder<Validable> voltageRegulationAdder = adder.newVoltageRegulation()
+                .withRegulating(voltageRegulation.isRegulating())
+                .withTerminal(voltageRegulation.getTerminal())
+                .withMode(voltageRegulation.getMode())
+                .withTargetValue(voltageRegulation.getTargetValue())
+                .withTargetDeadband(voltageRegulation.getTargetDeadband());
+            voltageRegulationAdder.add();
+        }
         for (int tapPosition = ratioTapChanger.getLowTapPosition(); tapPosition <= ratioTapChanger.getHighTapPosition(); tapPosition++) {
             RatioTapChangerStep step = ratioTapChanger.getStep(tapPosition);
             adder.beginStep()

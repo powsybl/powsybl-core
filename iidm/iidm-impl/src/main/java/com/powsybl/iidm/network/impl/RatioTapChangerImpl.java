@@ -170,25 +170,16 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
         });
-//        NetworkImpl n = getNetwork();
-//        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
-//                getRegulatingTerminal(), getRegulationMode(), regulationValue,
-//                n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-//        int variantIndex = network.get().getVariantIndex();
-//        double oldValue = this.regulationValue.set(variantIndex, regulationValue);
-//        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-//        n.invalidateValidationLevel();
-//        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
         return this;
     }
 
     @Override
+    @Deprecated(forRemoval = true, since = "7.2.0")
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulationTerminal,
                 getRegulationMode(), getRegulationValue(), n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         n.invalidateValidationLevel();
-        // TODO MSA
         getOptionalVoltageRegulation().ifPresent(regulation -> {
             Terminal oldValue = regulation.getTerminal();
             regulation.setTerminal(regulationTerminal);
@@ -205,6 +196,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    @Deprecated(forRemoval = true, since = "7.2.0")
     public RatioTapChanger setTargetDeadband(double targetDeadband) {
         getOptionalVoltageRegulation().ifPresent(regulation -> {
             double oldValue = regulation.getTargetDeadband();
@@ -268,6 +260,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
         return null;
     }
 
