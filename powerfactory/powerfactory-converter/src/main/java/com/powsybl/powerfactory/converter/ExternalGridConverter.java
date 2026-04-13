@@ -7,8 +7,6 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.Optional;
-
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -97,7 +95,7 @@ class ExternalGridConverter extends AbstractConverter {
             BusType busType = bustpToBusType(elmXnet.getStringAttributeValue("bustp"));
 
             PQ target = calculateTargetPQ(elmXnet);
-            PQ sign = calculateSignPQ(elmXnet);
+            PQ sign = calculatePQSign(elmXnet, "pgini", "qgini");
 
             double usetpoint = elmXnet.findFloatAttributeValue("usetp").orElse(Float.NaN);
             double referenceAngle = elmXnet.findFloatAttributeValue("phiini").orElse(Float.NaN);
@@ -118,46 +116,13 @@ class ExternalGridConverter extends AbstractConverter {
         // a negative value is considered to be a consumed active power
         private static PQ calculateTargetPQ(DataObject elmXnet) {
 
-            Optional<Float> pgini = elmXnet.findFloatAttributeValue("pgini");
-            Optional<Float> qgini = elmXnet.findFloatAttributeValue("qgini");
-            Optional<Float> sgini = elmXnet.findFloatAttributeValue("sgini");
-            Optional<Float> cosgini = elmXnet.findFloatAttributeValue("cosgini");
+            String modeInp = elmXnet.findStringAttributeValue("mode_inp").orElse(null);
+            Double pgini = float2Double(elmXnet.findFloatAttributeValue("pgini").orElse(null));
+            Double qgini = float2Double(elmXnet.findFloatAttributeValue("qgini").orElse(null));
+            Double sgini = float2Double(elmXnet.findFloatAttributeValue("sgini").orElse(null));
+            Double cosgini = float2Double(elmXnet.findFloatAttributeValue("cosgini").orElse(null));
 
-            PQ target;
-            if (pgini.isPresent() && qgini.isPresent()) {
-                target = new PQ(pgini.get(), qgini.get());
-            } else if (pgini.isPresent() && sgini.isPresent()) {
-                target = calculatePQFromPandS(pgini.get(), sgini.get());
-            } else if (qgini.isPresent() && sgini.isPresent()) {
-                target = calculatePQFromQandS(qgini.get(), sgini.get());
-            } else if (pgini.isPresent() && cosgini.isPresent()) {
-                target = calculatePQFromPandPowerFactor(pgini.get(), cosgini.get());
-            } else if (qgini.isPresent() && cosgini.isPresent()) {
-                target = calculatePQFromQandPowerFactor(qgini.get(), cosgini.get());
-            } else if (sgini.isPresent() && cosgini.isPresent()) {
-                target = calculatePQFromSandPowerFactor(sgini.get(), cosgini.get());
-            } else {
-                target = new PQ(Double.NaN, Double.NaN);
-            }
-
-            return target;
-        }
-
-        private static PQ calculateSignPQ(DataObject elmXnet) {
-
-            Optional<Float> pgini = elmXnet.findFloatAttributeValue("pgini");
-            Optional<Float> qgini = elmXnet.findFloatAttributeValue("qgini");
-
-            double signP = 1;
-            if (pgini.isEmpty() && qgini.isPresent()) {
-                signP = Math.signum(qgini.get());
-            }
-            double signQ = 1;
-            if (qgini.isEmpty() && pgini.isPresent()) {
-                signP = Math.signum(pgini.get());
-            }
-
-            return new PQ(signP, signQ);
+            return calculate(modeInp, pgini, qgini, sgini, cosgini);
         }
 
         private static boolean valid(BusType busType, PQ target, double targetV, double targetA) {

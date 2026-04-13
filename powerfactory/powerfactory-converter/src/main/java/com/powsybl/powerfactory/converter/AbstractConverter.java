@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.List;
@@ -123,7 +125,64 @@ public abstract class AbstractConverter {
         }
     }
 
-    static PQ calculatePQFromPandS(double p, double s) {
+    static Double float2Double(Float f) {
+        return f != null ? f.doubleValue() : null;
+    }
+
+    private enum Mode { PQ, PS, QS, PC, QC, SC, NAN }
+
+    static PQ calculate(String modeInp, Double p, Double q, Double s, Double cosPhi) {
+
+        return switch (detectMode(modeInp, p, q, s, cosPhi)) {
+            case PQ -> new PQ(p, q);
+            case PS -> calculatePQFromPandS(p, s);
+            case QS -> calculatePQFromQandS(q, s);
+            case PC -> calculatePQFromPandPowerFactor(p, cosPhi);
+            case QC -> calculatePQFromQandPowerFactor(q, cosPhi);
+            case SC -> calculatePQFromSandPowerFactor(s, cosPhi);
+            case NAN -> new PQ(Double.NaN, Double.NaN);
+        };
+    }
+
+    private static Mode detectMode(String modeInp, Double p, Double q, Double s, Double cosPhi) {
+        if (modeInp != null) {
+            return switch (modeInp) {
+                case "PQ" -> Mode.PQ;
+                case "SP" -> Mode.PS;
+                case "SQ" -> Mode.QS;
+                case "PC" -> Mode.PC;
+                case "QC" -> Mode.QC;
+                case "SC" -> Mode.SC;
+                case "EC" -> {
+                    LOGGER.warn("mode_inp {} not supported ", modeInp);
+                    yield Mode.NAN;
+                }
+                default -> throw new PowerFactoryException(String.format("Unexpected mode_inp %s", modeInp));
+            };
+        }
+        if (p != null && q != null) {
+            return Mode.PQ;
+        }
+        if (p != null && s != null) {
+            return Mode.PS;
+        }
+        if (q != null && s != null) {
+            return Mode.QS;
+        }
+        if (p != null && cosPhi != null) {
+            return Mode.PC;
+        }
+        if (q != null && cosPhi != null) {
+            return Mode.QC;
+        }
+        if (s != null && cosPhi != null) {
+            return Mode.SC;
+        }
+
+        return Mode.NAN;
+    }
+
+    private static PQ calculatePQFromPandS(double p, double s) {
         double q2 = s * s - p * p;
         double q;
         if (q2 >= 0) {
@@ -135,7 +194,7 @@ public abstract class AbstractConverter {
         return new PQ(p, q);
     }
 
-    static PQ calculatePQFromQandS(double q, double s) {
+    private static PQ calculatePQFromQandS(double q, double s) {
         double p2 = s * s - q * q;
         double p;
         if (p2 >= 0) {
@@ -147,7 +206,7 @@ public abstract class AbstractConverter {
         return new PQ(p, q);
     }
 
-    static PQ calculatePQFromPandPowerFactor(double p, double powerFactor) {
+    private static PQ calculatePQFromPandPowerFactor(double p, double powerFactor) {
         double disc = 1.0 - powerFactor * powerFactor;
         double q;
         if (disc >= 0 && powerFactor != 0.0) {
@@ -158,7 +217,7 @@ public abstract class AbstractConverter {
         return new PQ(p, q);
     }
 
-    static PQ calculatePQFromQandPowerFactor(double q, double powerFactor) {
+    private static PQ calculatePQFromQandPowerFactor(double q, double powerFactor) {
         double disc = 1.0 - powerFactor * powerFactor;
         double p;
         if (disc > 0) {
@@ -169,7 +228,7 @@ public abstract class AbstractConverter {
         return new PQ(p, q);
     }
 
-    static PQ calculatePQFromSandPowerFactor(double s, double powerFactor) {
+    private static PQ calculatePQFromSandPowerFactor(double s, double powerFactor) {
         double disc = 1.0 - powerFactor * powerFactor;
         double p = s * powerFactor;
         double q;
@@ -181,6 +240,23 @@ public abstract class AbstractConverter {
         return new PQ(p, q);
     }
 
+    static PQ calculatePQSign(DataObject elmObject, String pSignAttribute, String qSignAttribute) {
+
+        Optional<Float> pgini = elmObject.findFloatAttributeValue(pSignAttribute);
+        Optional<Float> qgini = elmObject.findFloatAttributeValue(qSignAttribute);
+
+        double signP = 1;
+        if (pgini.isEmpty() && qgini.isPresent()) {
+            signP = Math.signum(qgini.get());
+        }
+        double signQ = 1;
+        if (qgini.isEmpty() && pgini.isPresent()) {
+            signP = Math.signum(pgini.get());
+        }
+
+        return new PQ(signP, signQ);
+    }
+
     static class PQ {
         final double p;
         final double q;
@@ -190,4 +266,6 @@ public abstract class AbstractConverter {
             this.q = q;
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConverter.class);
 }

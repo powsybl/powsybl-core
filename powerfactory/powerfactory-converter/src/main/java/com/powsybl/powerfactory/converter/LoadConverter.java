@@ -7,8 +7,7 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.Optional;
-
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
@@ -26,7 +25,7 @@ class LoadConverter extends AbstractConverter {
     }
 
     void create(DataObject elmLod) {
-        NodeRef nodeRef = checkNodes(elmLod, 1).get(0);
+        NodeRef nodeRef = checkNodes(elmLod, 1).getFirst();
         LoadModel loadModel = LoadModel.create(elmLod);
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
@@ -37,68 +36,81 @@ class LoadConverter extends AbstractConverter {
             .setP0(loadModel.p0)
             .setQ0(loadModel.q0)
             .add();
+
+        // ElmLodmv can have also a generator
+        if ("ElmLodmv".equals(elmLod.getDataClassName())) {
+            createGeneratorFromLoad(elmLod, vl, nodeRef);
+        }
+    }
+
+    private static void createGeneratorFromLoad(DataObject elmLod, VoltageLevel vl, NodeRef nodeRef) {
+        GeneratorModel generatorModel = GeneratorModel.create(elmLod);
+        if (generatorModel.isDefined()) {
+            int newNode = vl.getNodeBreakerView().getMaximumNodeIndex() + 1;
+            vl.getNodeBreakerView().newInternalConnection().setNode1(nodeRef.node).setNode2(newNode).add();
+            Generator generator = vl.newGenerator()
+                    .setId(elmLod.getLocName() + "-G")
+                    .setEnsureIdUnicity(true)
+                    .setNode(newNode)
+                    .setTargetP(-generatorModel.p0)
+                    .setTargetQ(-generatorModel.q0)
+                    .setVoltageRegulatorOn(false)
+                    .setMaxP(-generatorModel.p0)
+                    .setMinP(-generatorModel.p0)
+                    .add();
+            generator.newMinMaxReactiveLimits()
+                    .setMinQ(-generatorModel.q0)
+                    .setMaxQ(-generatorModel.q0)
+                    .add();
+        }
     }
 
     // Only constant power load is considered. Powerfactory supports ZIP load model
-    private static final class LoadModel {
-        private final double p0;
-        private final double q0;
-
-        private LoadModel(double p0, double q0) {
-            this.p0 = p0;
-            this.q0 = q0;
-        }
+    private record LoadModel(double p0, double q0) {
 
         private static LoadModel create(DataObject elmLod) {
 
-            PQ pq = calculatePQ(elmLod);
-            PQ sign = calculateSignPQ(elmLod);
+            PQ pq = calculateLoadPQ(elmLod);
+            PQ sign = calculatePQSign(elmLod, "plini", "qlini");
 
             return new LoadModel(pq.p * sign.p, pq.q * sign.q);
         }
 
-        private static PQ calculatePQ(DataObject elmLod) {
+        private static PQ calculateLoadPQ(DataObject elmLod) {
 
-            Optional<Float> plini = elmLod.findFloatAttributeValue("plini");
-            Optional<Float> qlini = elmLod.findFloatAttributeValue("qlini");
-            Optional<Float> slini = elmLod.findFloatAttributeValue("slini");
-            Optional<Float> coslini = elmLod.findFloatAttributeValue("coslini");
+            String modeInp = elmLod.findStringAttributeValue("mode_inp").orElse(null);
+            Double plini = float2Double(elmLod.findFloatAttributeValue("plini").orElse(null));
+            Double qlini = float2Double(elmLod.findFloatAttributeValue("qlini").orElse(null));
+            Double slini = float2Double(elmLod.findFloatAttributeValue("slini").orElse(null));
+            Double coslini = float2Double(elmLod.findFloatAttributeValue("coslini").orElse(null));
 
-            PQ target;
-            if (plini.isPresent() && qlini.isPresent()) {
-                target = new PQ(plini.get(), qlini.get());
-            } else if (plini.isPresent() && slini.isPresent()) {
-                target = calculatePQFromPandS(plini.get(), slini.get());
-            } else if (qlini.isPresent() && slini.isPresent()) {
-                target = calculatePQFromQandS(qlini.get(), slini.get());
-            } else if (plini.isPresent() && coslini.isPresent()) {
-                target = calculatePQFromPandPowerFactor(plini.get(), coslini.get());
-            } else if (qlini.isPresent() && coslini.isPresent()) {
-                target = calculatePQFromQandPowerFactor(qlini.get(), coslini.get());
-            } else if (slini.isPresent() && coslini.isPresent()) {
-                target = calculatePQFromSandPowerFactor(slini.get(), coslini.get());
-            } else {
-                target = new PQ(Double.NaN, Double.NaN);
-            }
-
-            return target;
-        }
-
-        private static PQ calculateSignPQ(DataObject elmLod) {
-
-            Optional<Float> plini = elmLod.findFloatAttributeValue("plini");
-            Optional<Float> qlini = elmLod.findFloatAttributeValue("qlini");
-
-            double signP = 1;
-            if (plini.isEmpty() && qlini.isPresent()) {
-                signP = Math.signum(qlini.get());
-            }
-            double signQ = 1;
-            if (qlini.isEmpty() && plini.isPresent()) {
-                signP = Math.signum(plini.get());
-            }
-
-            return new PQ(signP, signQ);
+            return calculate(modeInp, plini, qlini, slini, coslini);
         }
     }
+
+    private record GeneratorModel(double p0, double q0) {
+
+        private static GeneratorModel create(DataObject elmLod) {
+
+            PQ pq = calculateGeneratorPQ(elmLod);
+            PQ sign = calculatePQSign(elmLod, "pgini", "qgini");
+
+            return new GeneratorModel(-pq.p * sign.p, -pq.q * sign.q);
+        }
+
+        private boolean isDefined() {
+            return !Double.isNaN(this.p0) && !Double.isNaN(this.q0);
+        }
+
+        private static PQ calculateGeneratorPQ(DataObject elmLod) {
+
+            Double pgini = float2Double(elmLod.findFloatAttributeValue("pgini").orElse(null));
+            Double qgini = float2Double(elmLod.findFloatAttributeValue("qgini").orElse(null));
+            Double sgini = float2Double(elmLod.findFloatAttributeValue("sgini").orElse(null));
+            Double cosgini = float2Double(elmLod.findFloatAttributeValue("cosgini").orElse(null));
+
+            return calculate(null, pgini, qgini, sgini, cosgini);
+        }
+    }
+
 }

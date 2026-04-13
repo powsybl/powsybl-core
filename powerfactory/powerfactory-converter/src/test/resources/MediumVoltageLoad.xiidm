@@ -32,8 +32,12 @@
                 <iidm:internalConnection node1="0" node2="5"/>
                 <iidm:internalConnection node1="0" node2="6"/>
                 <iidm:internalConnection node1="0" node2="7"/>
-                <iidm:bus v="20.805301666259766" angle="-2.0938339233398438" nodes="0,1,2,3,4,5,6,7"/>
+                <iidm:internalConnection node1="5" node2="8"/>
+                <iidm:bus v="20.805301666259766" angle="-2.0938339233398438" nodes="0,1,2,3,4,5,6,7,8"/>
             </iidm:nodeBreakerTopology>
+            <iidm:generator id="lod_33_1-G" energySource="OTHER" minP="0.019999999552965164" maxP="0.019999999552965164" voltageRegulatorOn="false" targetP="0.019999999552965164" targetQ="0.0" node="8">
+                <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+            </iidm:generator>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="10.0" q0="5.0" node="1"/>
             <iidm:load id="lod_31_1" loadType="UNDEFINED" p0="10.0" q0="11.180339887498949" node="3"/>
             <iidm:load id="lod_32_1" loadType="UNDEFINED" p0="14.142135623730951" q0="5.0" node="4"/>

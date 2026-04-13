@@ -16,13 +16,13 @@ $$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fl
   6;lne_1_2_1;;8;27;52;1;0;0;1;0
 
 
-$$ElmLodmv;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);plini(r);qlini(r);slini(r);coslini(r);outserv(i)
-  7;lod_3_1;;8;28;10;5;;;0
- 31;lod_31_1;;8;28;10;;15;;0
- 32;lod_32_1;;8;28;;5;15;;0
- 33;lod_33_1;;8;28;10;;;0,98;0
- 34;lod_34_1;;8;28;;5;;0,98;0
- 35;lod_35_1;;8;28;;;15;0,98;0
+$$ElmLodmv;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);plini(r);qlini(r);slini(r);coslini(r);outserv(i);mode_inp(a:6);pgini(r);sgini(r);cosgini(r)
+  7;lod_3_1;;8;28;10;5;;;0;;;;
+ 31;lod_31_1;;8;28;10;;15;;0;;;;
+ 32;lod_32_1;;8;28;;5;15;;0;;;;
+ 33;lod_33_1;;8;28;10;;;0,98;0;PC;0.02;0.02;1
+ 34;lod_34_1;;8;28;;5;;0,98;0;;;;
+ 35;lod_35_1;;8;28;;;15;0,98;0;;;
 
 $$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
   8;1 aux_1;;;60;
