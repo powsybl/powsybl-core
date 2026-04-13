@@ -26,8 +26,12 @@ public class SwitchDecision {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SwitchDecision that = (SwitchDecision) o;
         return shouldSwitch == that.shouldSwitch && Objects.equals(reason, that.reason);
     }
@@ -40,9 +44,9 @@ public class SwitchDecision {
     @Override
     public String toString() {
         return "SwitchDecision{" +
-                "shouldSwitch=" + shouldSwitch +
-                ", reason='" + reason + '\'' +
-                '}';
+            "shouldSwitch=" + shouldSwitch +
+            ", reason='" + reason + '\'' +
+            '}';
     }
 }
 

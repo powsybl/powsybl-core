@@ -12,12 +12,16 @@ import java.util.Objects;
  *
  * @author Riad Benradi {@literal <riad.benradi at rte-france.com>}
  */
+
 public class AnalysisSwitchCriteria {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AnalysisSwitchCriteria.class);
     private final MixedModeParametersExtension extension;
+
     public AnalysisSwitchCriteria(MixedModeParametersExtension extension) {
         this.extension = Objects.requireNonNull(extension);
     }
+
     public SwitchDecision evaluate(PostContingencyResult result) {
         Objects.requireNonNull(result);
         if (extension.getSwitchCriteria() == null || extension.getSwitchCriteria().isEmpty()) {
@@ -31,6 +35,7 @@ public class AnalysisSwitchCriteria {
         }
         return new SwitchDecision(false, "No criteria met");
     }
+
     private boolean evaluateCriterion(PostContingencyResult result, String criterion) {
         return switch (criterion.toUpperCase()) {
             case "FAILED" -> evaluateNonConvergence(result);
@@ -42,11 +47,11 @@ public class AnalysisSwitchCriteria {
             }
         };
     }
+
     private boolean evaluateNonConvergence(PostContingencyResult result) {
         boolean converged = result.getStatus() == PostContingencyComputationStatus.CONVERGED;
         if (!converged) {
-            LOGGER.debug("Non-convergence detected for contingency {}", 
-                result.getContingency().getId());
+            LOGGER.debug("Non-convergence detected for contingency {}", result.getContingency().getId());
         }
         return !converged;
     }
@@ -54,12 +59,12 @@ public class AnalysisSwitchCriteria {
     private boolean evaluateLimitViolations(PostContingencyResult result) {
         boolean hasViolations = !result.getLimitViolationsResult().getLimitViolations().isEmpty();
         if (hasViolations) {
-            LOGGER.debug("Limit violations detected for contingency {}", 
-                result.getContingency().getId());
+            LOGGER.debug("Limit violations detected for contingency {}", result.getContingency().getId());
         }
         return hasViolations;
     }
+
     private boolean evaluateSpsTriggered(PostContingencyResult result) {
-        return false;
+        return true;
     }
 }

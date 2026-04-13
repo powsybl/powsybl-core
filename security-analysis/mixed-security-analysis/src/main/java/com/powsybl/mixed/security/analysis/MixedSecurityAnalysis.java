@@ -58,8 +58,7 @@ public class MixedSecurityAnalysis {
      */
     public CompletableFuture<SecurityAnalysisReport> run() {
         LOGGER.info("Starting mixed-mode security analysis");
-        LOGGER.debug("Static simulator: {}, Dynamic simulator: {}", 
-            extension.getStaticSimulator(), extension.getDynamicSimulator());
+        LOGGER.debug("Static simulator: {}, Dynamic simulator: {}", extension.getStaticSimulator(), extension.getDynamicSimulator());
 
         // Step 1: Get all contingencies
         List<Contingency> allContingencies = contingenciesProvider.getContingencies(network);
@@ -70,16 +69,15 @@ public class MixedSecurityAnalysis {
         SecurityAnalysisProvider staticProvider = findProvider(staticProviderName);
 
         CompletableFuture<SecurityAnalysisReport> staticAnalysisFuture = staticProvider.run(
-                network, workingVariantId, contingenciesProvider, runParameters);
+            network, workingVariantId, contingenciesProvider, runParameters);
 
         // Step 3: Chain dynamic analysis based on static results
         return staticAnalysisFuture.thenCompose(staticReport -> {
             LOGGER.info("Static analysis completed");
-            
             // Evaluate switch criteria
             AnalysisSwitchCriteria switchCriteria = new AnalysisSwitchCriteria(extension);
             List<String> contingenciesToRunDynamic = identifyDynamicContingencies(
-                    staticReport.getResult(), switchCriteria);
+                staticReport.getResult(), switchCriteria);
 
             LOGGER.info("Contingencies requiring dynamic analysis: {}", contingenciesToRunDynamic.size());
 
@@ -91,7 +89,7 @@ public class MixedSecurityAnalysis {
 
             // Run dynamic analysis on filtered contingencies
             return runDynamicAnalysis(contingenciesToRunDynamic, allContingencies)
-                    .thenApply(dynamicReport -> mergeResults(staticReport, dynamicReport));
+                .thenApply(dynamicReport -> mergeResults(staticReport, dynamicReport));
         }).exceptionally(ex -> {
             LOGGER.error("Error during mixed-mode security analysis", ex);
             return new SecurityAnalysisReport(SecurityAnalysisResult.empty());
@@ -114,8 +112,7 @@ public class MixedSecurityAnalysis {
      */
     private boolean shouldRunDynamic(PostContingencyResult result, AnalysisSwitchCriteria switchCriteria) {
         SwitchDecision decision = switchCriteria.evaluate(result);
-        LOGGER.debug("Contingency {} - Switch decision: {}", 
-            result.getContingency().getId(), decision.getReason());
+        LOGGER.debug("Contingency {} - Switch decision: {}", result.getContingency().getId(), decision.getReason());
         return decision.shouldSwitch();
     }
 
@@ -127,10 +124,10 @@ public class MixedSecurityAnalysis {
                                                                           List<Contingency> allContingencies) {
         LOGGER.info("Starting dynamic analysis pass for {} contingencies", contingencyIds.size());
 
-        ContingenciesProvider filteredProvider = (net) ->
-                allContingencies.stream()
-                .filter(c -> contingencyIds.contains(c.getId()))
-                .collect(Collectors.toList());
+        ContingenciesProvider filteredProvider = network ->
+            allContingencies.stream()
+            .filter(c -> contingencyIds.contains(c.getId()))
+            .collect(Collectors.toList());
 
         String dynamicProviderName = extension.getDynamicSimulator();
         SecurityAnalysisProvider dynamicProvider = findProvider(dynamicProviderName);
@@ -144,10 +141,8 @@ public class MixedSecurityAnalysis {
      * - If analyzed in dynamic pass: use dynamic result
      * - Otherwise: use static result
      */
-    private SecurityAnalysisReport mergeResults(SecurityAnalysisReport staticReport, 
-                                                SecurityAnalysisReport dynamicReport) {
+    private SecurityAnalysisReport mergeResults(SecurityAnalysisReport staticReport, SecurityAnalysisReport dynamicReport) {
         LOGGER.info("Merging static and dynamic analysis results");
-
         SecurityAnalysisResult staticResult = staticReport.getResult();
         SecurityAnalysisResult dynamicResult = dynamicReport.getResult();
 

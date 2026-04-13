@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 class MixedSecurityAnalysisProviderTest {
     @Mock
     private Network network;
@@ -21,21 +22,25 @@ class MixedSecurityAnalysisProviderTest {
     @Mock
     private SecurityAnalysisRunParameters runParameters;
     private MixedSecurityAnalysisProvider provider;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         provider = new MixedSecurityAnalysisProvider();
     }
+
     @Test
     void testProviderName() {
         assertEquals("MixedSecurityAnalysis", provider.getName());
     }
+
     @Test
     void testProviderVersion() {
         String version = provider.getVersion();
         assertNotNull(version);
         assertFalse(version.isEmpty());
     }
+
     @Test
     void testRunMissingExtensionThrows() {
         SecurityAnalysisParameters mockSaParams = mock(SecurityAnalysisParameters.class);

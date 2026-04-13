@@ -6,26 +6,31 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 class MixedModeParametersExtensionTest {
     private MixedModeParametersExtension extension;
+
     @BeforeEach
     void setUp() {
         extension = new MixedModeParametersExtension();
     }
+
     @Test
     void testDefaultValues() {
         assertNull(extension.getStaticSimulator());
         assertNull(extension.getDynamicSimulator());
         assertNull(extension.getSwitchCriteria());
     }
+
     @Test
     void testSetGetStaticSimulator() {
         extension.setStaticSimulator("load-flow");
         assertEquals("load-flow", extension.getStaticSimulator());
     }
+
     @Test
     void testSetGetDynamicSimulator() {
         extension.setDynamicSimulator("dynaflow");
         assertEquals("dynaflow", extension.getDynamicSimulator());
     }
+
     @Test
     void testSetGetSwitchCriteria() {
         extension.setSwitchCriteria(Arrays.asList("NON_CONVERGENCE", "LIMIT_VIOLATIONS"));
@@ -40,11 +45,13 @@ class MixedModeParametersExtensionTest {
         assertNotNull(extension.getSwitchCriteria());
         assertEquals(0, extension.getSwitchCriteria().size());
     }
+
     @Test
     void testSetNullSwitchCriteria() {
         extension.setSwitchCriteria(null);
         assertNull(extension.getSwitchCriteria());
     }
+
     @Test
     void testCompleteConfiguration() {
         extension.setStaticSimulator("load-flow");

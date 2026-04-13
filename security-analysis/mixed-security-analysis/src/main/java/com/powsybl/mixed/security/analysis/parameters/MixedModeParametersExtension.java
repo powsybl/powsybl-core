@@ -17,25 +17,18 @@ public class MixedModeParametersExtension extends AbstractExtension<SecurityAnal
     public static final String NAME = "mixed-mode-analysis";
     /**
      * The name of the static simulator to use for the first pass.
-     * For example: "load-flow"
      */
     private String staticSimulator;
 
     /**
      * The name of the dynamic simulator to use for the second pass (for complex cases).
-     * For example: "dynaflow"
      */
     private String dynamicSimulator;
 
     /**
      * The list of criteria that trigger a switch to the dynamic simulator.
-     * Possible values: "NON_CONVERGENCE", "SEVERITY_THRESHOLD".
      */
     private List<String> switchCriteria;
-
-    // --- Getters and Setters ---
-    // These are necessary so that configuration tools like Jackson (used by PowSybl)
-    // can populate the fields of this object.
 
     public String getStaticSimulator() {
         return staticSimulator;
