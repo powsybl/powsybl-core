@@ -86,7 +86,7 @@ BinaryRemedialAction --* "*" Action
 class RangeRemedialAction {
   - Optional<Step> step
   - Range range
-  - Set<RangeAction> rangeActions
+  - Map<RangeAction, double> rangeActionsAndKeys
   + Set<Action> toActions(double setPoint)
 }
 note bottom
@@ -164,8 +164,6 @@ interface ContinuousRangeAction {
 ContinuousRangeAction --|> RangeAction
 
 class LoadRangeAction {
- - double pMin
- - double pMax
  + LoadAction toAction(double setPoint)
 }
 LoadRangeAction --|> ContinuousRangeAction
@@ -206,6 +204,30 @@ interface TemporalRangeAction {
 }
 note right: Clone of some range actions but with a case date
 }
+
+note bottom of TemporalRangeAction
+Gradient up/down
+Max utilisations en nombre d'activation
+Max utilisations en temps
+Max temps de fonctionnement par jour
+Emax Max utilisations en énergie
+Emin
+Lead time (temps pour aller de zéro à la consigne)
+Lag time (temps pour aller de la consigne non nulle à zéro)
+Pallier
+Temps marche min
+Temps arrêt min
+Domin (min up time par ajustement)
+Domax (max up time par ajustement)
+Domin demarrage ()
+DNA
+Nombre de démarrage max sur une journée
+Can start up, Can shut down (peut être pas intertemporel)
+Seuil minimal d'ajustement (delta minimum)
+Ajustement début/fin sur heure ronde
+
+Limitation nombre max activation sur sous-groupe de parades
+end note
 
 
 @enduml
