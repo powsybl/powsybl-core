@@ -84,32 +84,33 @@ class BinaryRemedialAction {
 BinaryRemedialAction --* "*" Action
 
 class RangeRemedialAction {
-  - Range range
   - Optional<Step> step
-  - boolean isIntegerValue
+  - Range range
   - Set<RangeAction> rangeActions
   + Set<Action> toActions(double setPoint)
 }
 note bottom
  Questions ouvertes:
   - comment gérer le minimum type puissance min de fonctionnement ?
+  => Résolu: avec des unions
 end note
 RangeRemedialAction --* "*" RangeAction
 RangeRemedialAction --* "1" Range
 RangeRemedialAction --* "1" Step
-note left of RangeRemedialAction::isIntegerValue
+note left of RangeRemedialAction::step
  Lié à l'optimisation
  Exemple: Counter-trading par pas de 100 MW
 end note
 
 interface Range{
- + UnionRange toUnionOfAbsoluteContinuousRanges(double initialSetPoint)
- + isValidSetpoint(double setPoint, double initialSetPoint)
 }
 note bottom
   Pas évident comment le rendre user friendly ?
   Est-ce qu'il est mieux de laisser parcourir l'arbre des ranges par l'optim ?
   On peut simplifier ça en interdisant l'union et avec les exclusivités entre parades
+  Méthodes niceToHave:
+ + UnionRange toUnionOfAbsoluteContinuousRanges(double initialSetPoint)
+ + isValidSetpoint(double setPoint, double initialSetPoint)
 end note
 Range <|-- ContinuousRange
 Range <|-- IntersectionRange
