@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -29,15 +28,76 @@ class LimitViolationComparatorTest {
 
     @Test
     void compare() {
-        LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
-        LimitViolation line1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.TWO);
-        LimitViolation line2Violation1 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
-        LimitViolation line2Violation2 = new LimitViolation(EurostagTutorialExample1Factory.NHV1_NHV2_2, null, "group_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, ThreeSides.ONE, null);
-        LimitViolation line2Violation3 = new LimitViolation(EurostagTutorialExample1Factory.NHV1_NHV2_2, null, "group_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, ThreeSides.ONE, null);
-        LimitViolation vl1Violation1 = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
-        LimitViolation vl1Violation2 = new LimitViolation("VL1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 200.0, 1, 250.0);
-        LimitViolation line1AcPViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.ACTIVE_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
-        LimitViolation line2AppViolation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
+        LimitViolation line1Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.0)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation line1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.0)
+            .side(TwoSides.TWO)
+            .build();
+        LimitViolation line2Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(900.0)
+            .reduction(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation line2Violation2 = LimitViolation.builder()
+            .subject(EurostagTutorialExample1Factory.NHV1_NHV2_2)
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId("group_2")
+            .limit(900.0)
+            .reduction(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation line2Violation3 = LimitViolation.builder()
+            .subject(EurostagTutorialExample1Factory.NHV1_NHV2_2)
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId("group_1")
+            .limit(900.0)
+            .reduction(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation vl1Violation1 = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(200.0)
+            .value(250.0)
+            .build();
+        LimitViolation vl1Violation2 = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
+            .limit(200.0)
+            .value(250.0)
+            .build();
+        LimitViolation line1AcPViolation = LimitViolation.builder()
+            .subject(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+            .type(LimitViolationType.ACTIVE_POWER)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.0)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation line2AppViolation = LimitViolation.builder()
+            .subject(EurostagTutorialExample1Factory.NHV1_NHV2_2)
+            .type(LimitViolationType.APPARENT_POWER)
+            .limit(900.0)
+            .reduction(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
 
         List<LimitViolation> violations = Arrays.asList(line1Violation2, vl1Violation1, line2Violation2, line2Violation3, line2Violation1, line1Violation1, vl1Violation2, line1AcPViolation, line2AppViolation);
         Collections.sort(violations, new LimitViolationComparator());
