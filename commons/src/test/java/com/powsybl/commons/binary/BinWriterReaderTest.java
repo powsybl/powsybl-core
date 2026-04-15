@@ -7,11 +7,12 @@
  */
 package com.powsybl.commons.binary;
 
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Collections;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -90,6 +91,149 @@ class BinWriterReaderTest {
         assertEquals("hello", reader.readStringAttribute("c"));
 
         reader.readEndNode();
+        reader.close();
+    }
+
+    @Test
+    void testAllTypesRoundTrip() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeDoubleAttribute("d", 3.14);
+            writer.writeDoubleAttribute("d2", 1.0, 0.0);
+            writer.writeFloatAttribute("f", 2.71f);
+            writer.writeIntAttribute("i", 42);
+            writer.writeIntAttribute("i2", 5, 0);
+            writer.writeBooleanAttribute("b", true);
+            writer.writeBooleanAttribute("b2", false, true);
+            writer.writeStringAttribute("s", "hello");
+            writer.writeEnumAttribute("e", Thread.State.BLOCKED);
+            writer.writeIntArrayAttribute("ia", List.of(1, 2, 3));
+            writer.writeStringArrayAttribute("sa", List.of("x", "y"));
+        });
+
+        assertEquals(3.14, reader.readDoubleAttribute("d"), 1e-9);
+        assertEquals(1.0, reader.readDoubleAttribute("d2", 0.0), 1e-9);
+        assertEquals(2.71f, reader.readFloatAttribute("f"), 1e-6f);
+        assertEquals(42, reader.readIntAttribute("i"));
+        assertEquals(5, reader.readIntAttribute("i2", 0));
+        assertTrue(reader.readBooleanAttribute("b"));
+        assertFalse(reader.readBooleanAttribute("b2", true));
+        assertEquals("hello", reader.readStringAttribute("s"));
+        assertEquals(Thread.State.BLOCKED, reader.readEnumAttribute("e", Thread.State.class));
+        assertEquals(List.of(1, 2, 3), reader.readIntArrayAttribute("ia"));
+        assertEquals(List.of("x", "y"), reader.readStringArrayAttribute("sa"));
+
+        reader.readEndNode();
+        reader.close();
+    }
+
+    @Test
+    void testOptionalTypesRoundTrip() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeOptionalDoubleAttribute("d", 3.14);
+            writer.writeOptionalIntAttribute("i", 42);
+            writer.writeOptionalBooleanAttribute("b", true);
+        });
+
+        OptionalDouble d = reader.readOptionalDoubleAttribute("d");
+        assertTrue(d.isPresent());
+        assertEquals(3.14, d.getAsDouble(), 1e-9);
+
+        OptionalInt i = reader.readOptionalIntAttribute("i");
+        assertTrue(i.isPresent());
+        assertEquals(42, i.getAsInt());
+
+        Optional<Boolean> b = reader.readOptionalBooleanAttribute("b");
+        assertTrue(b.isPresent());
+        assertTrue(b.get());
+
+        reader.readEndNode();
+        reader.close();
+    }
+
+    @Test
+    void testSkipRemainingAttributes() {
+        // Writes attrs of every type, reads only the first one.
+        // readEndNode must skip the remaining ones → exercises skipRemainingAttributes + all skipTypedValue branches.
+        BinReader reader = roundTrip(writer -> {
+            writer.writeIntAttribute("a", 1);
+            writer.writeDoubleAttribute("b", 2.0);
+            writer.writeFloatAttribute("c", 3.0f);
+            writer.writeBooleanAttribute("d", true);
+            writer.writeStringAttribute("e", "skip");
+            writer.writeEnumAttribute("f", Thread.State.RUNNABLE);
+            writer.writeIntArrayAttribute("g", List.of(1, 2));
+            writer.writeStringArrayAttribute("h", List.of("x"));
+        });
+
+        assertEquals(1, reader.readIntAttribute("a"));
+        // All remaining attrs skipped by readEndNode
+        reader.readEndNode();
+        reader.close();
+    }
+
+    @Test
+    void testReadChildNodes() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeStartNode(null, "child1");
+            writer.writeIntAttribute("x", 10);
+            writer.writeEndNode();
+            writer.writeStartNode(null, "child2");
+            writer.writeStringAttribute("y", "hello");
+            writer.writeEndNode();
+        });
+
+        List<String> visited = new ArrayList<>();
+        reader.readChildNodes(nodeName -> {
+            visited.add(nodeName);
+            reader.readEndNode();
+        });
+        assertEquals(List.of("child1", "child2"), visited);
+        reader.close();
+    }
+
+    @Test
+    void testSkipNode() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeStartNode(null, "child");
+            writer.writeIntAttribute("x", 42);
+            writer.writeStartNode(null, "grandchild");
+            writer.writeBooleanAttribute("flag", true);
+            writer.writeEndNode();
+            writer.writeEndNode();
+        });
+
+        // skipNode must recursively skip attrs and children at all depths
+        reader.readChildNodes(nodeName -> reader.skipNode());
+        reader.close();
+    }
+
+    @Test
+    void testNodeContent() {
+        BinReader reader = roundTrip(writer -> writer.writeNodeContent("hello content"));
+        assertEquals("hello content", reader.readContent());
+        reader.close();
+    }
+
+    @Test
+    void testAbsentNodeContent() {
+        BinReader reader = roundTrip(writer -> { /* no content written */ });
+        assertNull(reader.readContent());
+        reader.close();
+    }
+
+    @Test
+    void testInvalidMagicNumber() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (BinWriter writer = new BinWriter(baos, MAGIC, ROOT_VERSION)) {
+            writer.setVersions(Collections.emptyMap());
+            writer.writeStartNode(null, "root");
+            writer.writeEndNode();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        byte[] wrongMagic = {0x00, 0x00, 0x00, 0x00};
+        BinReader reader = new BinReader(new ByteArrayInputStream(baos.toByteArray()), wrongMagic);
+        assertThrows(PowsyblException.class, reader::readHeader);
         reader.close();
     }
 }
