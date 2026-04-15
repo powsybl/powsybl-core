@@ -78,7 +78,7 @@ public class BinReader implements TreeDataReader {
     }
 
     private void readAttrDictionary() throws IOException {
-        int nbEntries = dis.readShort();
+        int nbEntries = dis.readUnsignedShort();
         attrNames = new String[nbEntries + 1];
         attrTypes = new byte[nbEntries + 1];
         for (int i = 0; i < nbEntries; i++) {
