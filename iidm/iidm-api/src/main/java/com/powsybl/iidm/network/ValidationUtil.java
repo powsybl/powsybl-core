@@ -978,8 +978,7 @@ public final class ValidationUtil {
     }
 
     private static ValidationLevel checkVoltageRegulationDeadband(@NonNull Validable owner, double targetDeadband, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
-        if ((classHolder == RatioTapChanger.class || classHolder == ShuntCompensator.class)
-            && Double.isNaN(targetDeadband)) {
+        if (classHolder == ShuntCompensator.class && Double.isNaN(targetDeadband)) {
             throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.targetDeadband. Must be not null for RatioTapChanger and ShuntCompensator", actionOnError,
                 id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
             return ValidationLevel.EQUIPMENT;

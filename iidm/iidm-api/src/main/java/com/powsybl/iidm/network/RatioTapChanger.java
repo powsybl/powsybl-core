@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
-
 /**
  * A ratio tap changer that is associated to a transformer to control the voltage or reactive power.
  *
@@ -18,8 +16,7 @@ public interface RatioTapChanger extends TapChanger<
     RatioTapChanger,
     RatioTapChangerStep,
     RatioTapChangerStepsReplacer,
-    RatioTapChangerStepsReplacer.StepAdder>,
-    VoltageRegulationHolder {
+    RatioTapChangerStepsReplacer.StepAdder> {
 
     enum RegulationMode {
         VOLTAGE,
@@ -28,22 +25,27 @@ public interface RatioTapChanger extends TapChanger<
 
     /**
      * Get the regulation mode.
-     * Supported modes are {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE} and {@link com.powsybl.iidm.network.regulation.RegulationMode#REACTIVE_POWER}.
+     * Supported modes are {@link RegulationMode#VOLTAGE} and {@link RegulationMode#REACTIVE_POWER}.
      * @return the regulation mode.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
     RegulationMode getRegulationMode();
 
     /**
      * Set the regulation mode.
-     * Supported modes are {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE} and {@link com.powsybl.iidm.network.regulation.RegulationMode#REACTIVE_POWER}.
+     * Supported modes are {@link RegulationMode#VOLTAGE} and {@link RegulationMode#REACTIVE_POWER}.
      * @param regulationMode the regulation mode.
      * @return itself for method chaining
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
-    RatioTapChanger setRegulationMode(RegulationMode regulationMode);
+    RatioTapChanger setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    /**
+     * Get the regulation value.
+     *   - a setpoint in kV in case of {@link RegulationMode#VOLTAGE} regulation
+     *   - a setpoint in MVar in case of {@link RegulationMode#REACTIVE_POWER} regulation
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
     double getRegulationValue();
 
     /**
@@ -54,13 +56,12 @@ public interface RatioTapChanger extends TapChanger<
      * @param regulationValue the regulation value.
      * @return itself for method chaining.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
     RatioTapChanger setRegulationValue(double regulationValue);
 
     /**
      * Get the target voltage in kV.
      * <p>
-     * Returns NaN if the regulation mode is not {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE}.
+     * Returns NaN if the regulation mode is not {@link RegulationMode#VOLTAGE}.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
@@ -68,7 +69,7 @@ public interface RatioTapChanger extends TapChanger<
     double getTargetV();
 
     /**
-     * Set the target voltage in kV and sets regulating mode to {@link com.powsybl.iidm.network.regulation.RegulationMode#VOLTAGE}.
+     * Set the target voltage in kV and sets regulating mode to {@link RegulationMode#VOLTAGE}.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
