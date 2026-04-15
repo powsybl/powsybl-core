@@ -277,6 +277,16 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
     }
 
+    @Test
+    void mediumVoltageLoad() {
+        assertTrue(importAndCompareXiidm("MediumVoltageLoad"));
+    }
+
+    @Test
+    void externalGrid() {
+        assertTrue(importAndCompareXiidm("ExternalGrid"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
