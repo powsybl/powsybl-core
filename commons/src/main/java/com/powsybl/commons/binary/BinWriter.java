@@ -129,7 +129,7 @@ public class BinWriter implements TreeDataWriter {
 
     @Override
     public void writeNodeContent(String value) {
-        writeAttrIndex(BinUtil.CONTENT_ATTR_NAME, TYPE_STRING);
+        writeAttrIndex("", TYPE_STRING_CONTENT);
         writeString(value, attrDos);
     }
 

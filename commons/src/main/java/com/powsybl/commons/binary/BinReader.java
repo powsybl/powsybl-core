@@ -111,7 +111,7 @@ public class BinReader implements TreeDataReader {
             case TYPE_FLOAT -> dis.readFloat();
             case TYPE_INT -> dis.readInt();
             case TYPE_BOOLEAN -> dis.readBoolean();
-            case TYPE_STRING -> readString();
+            case TYPE_STRING, TYPE_STRING_CONTENT -> readString();
             case TYPE_ENUM -> (int) dis.readShort();
             case TYPE_INT_ARRAY -> readIntArrayRaw();
             case TYPE_STRING_ARRAY -> readStringArrayRaw();
@@ -308,7 +308,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public String readContent() {
         try {
-            if (!isNextAttr(BinUtil.CONTENT_ATTR_NAME)) {
+            if (nextAttrIdx == END_ATTRS || attrTypes[nextAttrIdx] != TYPE_STRING_CONTENT) {
                 readEndNode();
                 return null;
             }
