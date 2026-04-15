@@ -33,9 +33,6 @@ public class BinWriter implements TreeDataWriter {
 
     private record AttrKey(String name, byte type) { }
 
-    private final ByteArrayOutputStream attrBuffer = new ByteArrayOutputStream();
-    private final DataOutputStream attrDos = new DataOutputStream(attrBuffer);
-
     private boolean attrBlockTerminated = false;
 
     public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
@@ -99,10 +96,7 @@ public class BinWriter implements TreeDataWriter {
     private void flushCurrentNodeAttrsIfNeeded() {
         if (!attrBlockTerminated) {
             try {
-                attrDos.flush();
-                tmpDos.write(attrBuffer.toByteArray());
                 tmpDos.writeByte(END_ATTRS);
-                attrBuffer.reset();
                 attrBlockTerminated = true;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -116,7 +110,7 @@ public class BinWriter implements TreeDataWriter {
             throw new PowsyblException("Binary format: too many distinct attribute (name, type) pairs (max 255)");
         }
         try {
-            attrDos.writeByte(index);
+            tmpDos.writeByte(index);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -130,13 +124,13 @@ public class BinWriter implements TreeDataWriter {
     @Override
     public void writeNodeContent(String value) {
         writeAttrIndex("", TYPE_STRING_CONTENT);
-        writeString(value, attrDos);
+        writeString(value, tmpDos);
     }
 
     @Override
     public void writeStringAttribute(String name, String value) {
         writeAttrIndex(name, TYPE_STRING);
-        writeString(value, attrDos);
+        writeString(value, tmpDos);
     }
 
     @Override
@@ -146,7 +140,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_DOUBLE);
         try {
-            attrDos.writeDouble(value);
+            tmpDos.writeDouble(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -160,7 +154,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_DOUBLE);
         try {
-            attrDos.writeDouble(value);
+            tmpDos.writeDouble(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -173,7 +167,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_DOUBLE);
         try {
-            attrDos.writeDouble(value);
+            tmpDos.writeDouble(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -186,7 +180,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_FLOAT);
         try {
-            attrDos.writeFloat(value);
+            tmpDos.writeFloat(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -196,7 +190,7 @@ public class BinWriter implements TreeDataWriter {
     public void writeIntAttribute(String name, int value) {
         writeAttrIndex(name, TYPE_INT);
         try {
-            attrDos.writeInt(value);
+            tmpDos.writeInt(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -209,7 +203,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_INT);
         try {
-            attrDos.writeInt(value);
+            tmpDos.writeInt(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -222,7 +216,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_INT);
         try {
-            attrDos.writeInt(value);
+            tmpDos.writeInt(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -232,7 +226,7 @@ public class BinWriter implements TreeDataWriter {
     public void writeBooleanAttribute(String name, boolean value) {
         writeAttrIndex(name, TYPE_BOOLEAN);
         try {
-            attrDos.writeBoolean(value);
+            tmpDos.writeBoolean(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -245,7 +239,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_BOOLEAN);
         try {
-            attrDos.writeBoolean(value);
+            tmpDos.writeBoolean(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -258,7 +252,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_BOOLEAN);
         try {
-            attrDos.writeBoolean(value);
+            tmpDos.writeBoolean(value);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -271,7 +265,7 @@ public class BinWriter implements TreeDataWriter {
         }
         writeAttrIndex(name, TYPE_ENUM);
         try {
-            attrDos.writeShort(value.ordinal());
+            tmpDos.writeShort(value.ordinal());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -281,9 +275,9 @@ public class BinWriter implements TreeDataWriter {
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
         writeAttrIndex(name, TYPE_INT_ARRAY);
         try {
-            attrDos.writeShort(values.size());
+            tmpDos.writeShort(values.size());
             for (int v : values) {
-                attrDos.writeInt(v);
+                tmpDos.writeInt(v);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -294,9 +288,9 @@ public class BinWriter implements TreeDataWriter {
     public void writeStringArrayAttribute(String name, Collection<String> values) {
         writeAttrIndex(name, TYPE_STRING_ARRAY);
         try {
-            attrDos.writeShort(values.size());
+            tmpDos.writeShort(values.size());
             for (String s : values) {
-                writeString(s, attrDos);
+                writeString(s, tmpDos);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
