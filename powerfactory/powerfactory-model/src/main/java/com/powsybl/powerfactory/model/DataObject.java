@@ -206,11 +206,6 @@ public class DataObject {
         return findObjectAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object", name));
     }
 
-    public DataObject setObjectAttributeValueJAM(String name, long id) {
-        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(id, index));
-        return this;
-    }
-
     public DataObject setObjectAttributeValue(String name, Long id) {
         setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(id, index));
         return this;
