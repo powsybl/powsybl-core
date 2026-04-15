@@ -26,6 +26,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     static final String ROOT_ELEMENT_NAME = "generator";
     static final String ARRAY_ELEMENT_NAME = "generators";
     static final String REGULATING_TERMINAL = "regulatingTerminal";
+    private static final String TARGET_V = "targetV";
+    private static final String TARGET_Q = "targetQ";
 
     @Override
     protected String getRootElementName() {
@@ -72,9 +74,9 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
             } else {
                 targetV = g.getTargetV();
             }
-            context.getWriter().writeDoubleAttribute("targetV", targetV);
+            context.getWriter().writeDoubleAttribute(TARGET_V, targetV);
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("targetV", g.getTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, g.getTargetV()));
     }
 
     private static void writeTargetQ(Generator g, NetworkSerializerContext context) {
@@ -86,10 +88,10 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
                 // In distant reactive power regulation, the VoltageRegulation's targetValue is exported in the old "RemoteReactivePowerControl" extension.
                 targetQ = g.getTargetQ();
             }
-            context.getWriter().writeDoubleAttribute("targetQ", targetQ);
+            context.getWriter().writeDoubleAttribute(TARGET_Q, targetQ);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
-            context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ()));
+            context.getWriter().writeDoubleAttribute(TARGET_Q, g.getTargetQ()));
     }
 
     @Override
@@ -123,8 +125,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
             .setRatedS(ratedS);
         Boolean voltageRegulatorOn = readVoltageRegulatorOnByVersion(context);
         double targetP = context.getReader().readDoubleAttribute("targetP");
-        double targetV = context.getReader().readDoubleAttribute("targetV");
-        double targetQ = context.getReader().readDoubleAttribute("targetQ");
+        double targetV = context.getReader().readDoubleAttribute(TARGET_V);
+        double targetQ = context.getReader().readDoubleAttribute(TARGET_Q);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
             adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         adder.setTargetP(targetP);

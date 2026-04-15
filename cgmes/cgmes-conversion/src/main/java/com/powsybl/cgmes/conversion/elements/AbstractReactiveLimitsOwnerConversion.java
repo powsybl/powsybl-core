@@ -35,6 +35,7 @@ import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVol
  */
 public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractConductingEquipmentConversion {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractReactiveLimitsOwnerConversion.class);
+    private static final String GENERATOR = "generator";
 
     public AbstractReactiveLimitsOwnerConversion(
         String type,
@@ -167,7 +168,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         } else if (isControlModeReactivePower(mode)) {
             updateRegulatingControlReactivePower(generator, controlEnabled, context);
         } else {
-            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "generator") + " " + generator.getId());
+            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, GENERATOR) + " " + generator.getId());
         }
     }
 
@@ -194,7 +195,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
     private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
-        if (logMissingVoltageRegulation(generator, LOGGER, "generator", "regulation won't be updated")) {
+        if (logMissingVoltageRegulation(generator, LOGGER, GENERATOR, "regulation won't be updated")) {
             return;
         }
         if (regulatingOn) {
@@ -209,7 +210,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
-        if (logMissingVoltageRegulation(generator, LOGGER, "generator", "regulating control won't be updated")) {
+        if (logMissingVoltageRegulation(generator, LOGGER, GENERATOR, "regulating control won't be updated")) {
             return;
         }
         VoltageRegulation voltageRegulation = generator.getVoltageRegulation();

@@ -29,6 +29,8 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWriter {
 
+    private static final String REGULATION_MODE = "regulationMode";
+    private static final String REGULATING = "regulating";
     private final boolean verbose;
 
     public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
@@ -162,8 +164,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                  new Column(CONNECTED),
-                                                 new Column("regulationMode"),
-                                                 new Column("regulating"),
+                                                 new Column(REGULATION_MODE),
+                                                 new Column(REGULATING),
                                                  new Column("minP"),
                                                  new Column("maxP"),
                                                  new Column("minQ"),
@@ -183,8 +185,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             if (verbose) {
                 generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                      new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
-                                                     new Column("regulationMode" + POST_COMPUTATION_SUFFIX),
-                                                     new Column("regulating" + POST_COMPUTATION_SUFFIX),
+                                                     new Column(REGULATION_MODE + POST_COMPUTATION_SUFFIX),
+                                                     new Column(REGULATING + POST_COMPUTATION_SUFFIX),
                                                      new Column("minP" + POST_COMPUTATION_SUFFIX),
                                                      new Column("maxP" + POST_COMPUTATION_SUFFIX),
                                                      new Column("minQ" + POST_COMPUTATION_SUFFIX),
@@ -270,8 +272,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             svcColumns = ArrayUtils.addAll(svcColumns,
                                            new Column(CONNECTED),
-                                           new Column("regulationMode"),
-                                           new Column("regulating"),
+                                           new Column(REGULATION_MODE),
+                                           new Column(REGULATING),
                                            new Column("bMin"),
                                            new Column("bMax"),
                                            new Column(MAIN_COMPONENT),
@@ -289,8 +291,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             if (verbose) {
                 svcColumns = ArrayUtils.addAll(svcColumns,
                                                new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
-                                               new Column("regulationMode" + POST_COMPUTATION_SUFFIX),
-                                               new Column("regulating" + POST_COMPUTATION_SUFFIX),
+                                               new Column(REGULATION_MODE + POST_COMPUTATION_SUFFIX),
+                                               new Column(REGULATING + POST_COMPUTATION_SUFFIX),
                                                new Column("bMin" + POST_COMPUTATION_SUFFIX),
                                                new Column("bMax" + POST_COMPUTATION_SUFFIX),
                                                new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
