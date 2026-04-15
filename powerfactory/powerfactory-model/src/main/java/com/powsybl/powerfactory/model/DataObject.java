@@ -206,8 +206,18 @@ public class DataObject {
         return findObjectAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object", name));
     }
 
-    public DataObject setObjectAttributeValue(String name, long id) {
+    public DataObject setObjectAttributeValueJAM(String name, long id) {
         setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(id, index));
+        return this;
+    }
+
+    public DataObject setObjectAttributeValue(String name, Long id) {
+        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(id, index));
+        return this;
+    }
+
+    public DataObject setObjectAttributeValue(String name, String foreignKey) {
+        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(foreignKey, index));
         return this;
     }
 
@@ -223,6 +233,14 @@ public class DataObject {
     public DataObject setObjectVectorAttributeValue(String name, List<Long> ids) {
         List<DataObjectRef> value = Objects.requireNonNull(ids).stream()
                 .map(objId -> new DataObjectRef(objId, index))
+                .collect(Collectors.toList());
+        setGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR, value);
+        return this;
+    }
+
+    public DataObject setObjectVectorAttributeValueByForeignKey(String name, List<String> foreignKeys) {
+        List<DataObjectRef> value = Objects.requireNonNull(foreignKeys).stream()
+                .map(objForeignKey -> new DataObjectRef(objForeignKey, index))
                 .collect(Collectors.toList());
         setGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR, value);
         return this;

@@ -20,10 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -416,7 +413,7 @@ public class DgsParser {
                     read(fields, context::parseFloat, handler::onRealValue);
                     break;
                 case OBJECT:
-                    read(fields, Long::parseLong, handler::onObjectValue);
+                    read(fields, Function.identity(), handler::onObjectValue);
                     break;
                 default:
                     throw new PowerFactoryException("Unexpected attribute type:" + attributeType);
@@ -452,8 +449,8 @@ public class DgsParser {
                     readVector(fields, context::parseDouble, handler::onDoubleVectorValue);
                     break;
                 case OBJECT_VECTOR:
-                    // Read object numbers as long integers
-                    readVector(fields, Long::parseLong, handler::onObjectVectorValue);
+                    // Read object numbers and foreignKeys as string
+                    readVector(fields, Function.identity(), handler::onObjectVectorValue);
                     break;
                 default:
                     throw new PowerFactoryException("Unexpected vector attribute type:" + attributeType);
