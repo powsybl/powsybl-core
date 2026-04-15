@@ -116,6 +116,7 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
      * <p>Depends on the working variant.
      * @see VariantManager
      */
+    @Override
     double getTargetQ();
 
     /**
