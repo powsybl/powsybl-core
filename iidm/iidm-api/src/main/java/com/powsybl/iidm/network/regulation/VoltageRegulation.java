@@ -75,6 +75,11 @@ public interface VoltageRegulation {
     void setTerminal(Terminal terminal);
 
     /**
+     * To remove the terminal. Do the same as setTerminal(null)
+     */
+    void removeTerminal();
+
+    /**
      * RegulationMode is an enum describing the kinds of regulation. It has the following values:
      * <ul>
      *     <li>VOLTAGE</li>
@@ -115,9 +120,4 @@ public interface VoltageRegulation {
      * @see VariantManager
      */
     boolean setRegulating(boolean regulating);
-
-    /**
-     * To remove the terminal. Do the same as setTerminal(null)
-     */
-    void removeTerminal();
 }
