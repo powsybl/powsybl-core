@@ -100,12 +100,12 @@ public class BinReader implements TreeDataReader {
 
     private void skipRemainingAttributes() throws IOException {
         while (nextAttrIdx != END_ATTRS) {
-            readTypedValue(attrTypes[nextAttrIdx]);
+            skipTypedValue(attrTypes[nextAttrIdx]);
             nextAttrIdx = dis.readUnsignedShort();
         }
     }
 
-    private void readTypedValue(byte typeTag) throws IOException {
+    private void skipTypedValue(byte typeTag) throws IOException {
         switch (typeTag) {
             case TYPE_DOUBLE -> dis.readDouble();
             case TYPE_FLOAT -> dis.readFloat();
