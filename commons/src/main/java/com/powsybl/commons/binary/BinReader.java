@@ -87,25 +87,15 @@ public class BinReader implements TreeDataReader {
         }
     }
 
-    private Object readAttrValue(String name) {
-        try {
-            if (nextAttrIdx == END_ATTRS) {
-                return null;
-            }
-            String attrName = attrNames[nextAttrIdx];
-            if (attrName == null) {
-                throw new PowsyblException("Cannot read attribute: unknown attribute name index " + nextAttrIdx);
-            }
-            if (!name.equals(attrName)) {
-                return null;
-            }
-            byte typeTag = attrTypes[nextAttrIdx];
-            Object value = readTypedValue(typeTag);
-            nextAttrIdx = dis.readUnsignedByte();
-            return value;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    private boolean isNextAttr(String name) {
+        if (nextAttrIdx == END_ATTRS) {
+            return false;
         }
+        String attrName = attrNames[nextAttrIdx];
+        if (attrName == null) {
+            throw new PowsyblException("Cannot read attribute: unknown attribute name index " + nextAttrIdx);
+        }
+        return name.equals(attrName);
     }
 
     private void skipRemainingAttributes() throws IOException {
@@ -165,74 +155,134 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public double readDoubleAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof Double d ? d : Double.NaN;
+        return readDoubleAttribute(name, Double.NaN);
     }
 
     @Override
     public double readDoubleAttribute(String name, double defaultValue) {
-        Object val = readAttrValue(name);
-        return val instanceof Double d ? d : defaultValue;
+        try {
+            if (!isNextAttr(name)) {
+                return defaultValue;
+            }
+            double val = dis.readDouble();
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public OptionalDouble readOptionalDoubleAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof Double d ? OptionalDouble.of(d) : OptionalDouble.empty();
+        try {
+            if (!isNextAttr(name)) {
+                return OptionalDouble.empty();
+            }
+            OptionalDouble val = OptionalDouble.of(dis.readDouble());
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public float readFloatAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof Float f ? f : Float.NaN;
+        return readFloatAttribute(name, Float.NaN);
     }
 
     @Override
     public float readFloatAttribute(String name, float defaultValue) {
-        Object val = readAttrValue(name);
-        return val instanceof Float f ? f : defaultValue;
+        try {
+            if (!isNextAttr(name)) {
+                return defaultValue;
+            }
+            float val = dis.readFloat();
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public String readStringAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof String s ? s : null;
+        try {
+            if (!isNextAttr(name)) {
+                return null;
+            }
+            String val = readString();
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public int readIntAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof Integer i ? i : 0;
+        return readIntAttribute(name, 0);
     }
 
     @Override
     public int readIntAttribute(String name, int defaultValue) {
-        Object val = readAttrValue(name);
-        return val instanceof Integer i ? i : defaultValue;
+        try {
+            if (!isNextAttr(name)) {
+                return defaultValue;
+            }
+            int val = dis.readInt();
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public OptionalInt readOptionalIntAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof Integer i ? OptionalInt.of(i) : OptionalInt.empty();
+        try {
+            if (!isNextAttr(name)) {
+                return OptionalInt.empty();
+            }
+            OptionalInt val = OptionalInt.of(dis.readInt());
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public boolean readBooleanAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof Boolean b ? b : false;
+        return readBooleanAttribute(name, false);
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
-        Object val = readAttrValue(name);
-        return val instanceof Boolean b ? b : defaultValue;
+        try {
+            if (!isNextAttr(name)) {
+                return defaultValue;
+            }
+            boolean val = dis.readBoolean();
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public Optional<Boolean> readOptionalBooleanAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof Boolean b ? Optional.of(b) : Optional.empty();
+        try {
+            if (!isNextAttr(name)) {
+                return Optional.empty();
+            }
+            Optional<Boolean> val = Optional.of(dis.readBoolean());
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
@@ -242,35 +292,61 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
-        Object val = readAttrValue(name);
-        if (val instanceof Integer ordinal) {
-            T[] constants = clazz.getEnumConstants();
-            if (ordinal >= 0 && ordinal < constants.length) {
-                return constants[ordinal];
+        try {
+            if (!isNextAttr(name)) {
+                return defaultValue;
             }
+            int ordinal = dis.readShort();
+            nextAttrIdx = dis.readUnsignedByte();
+            T[] constants = clazz.getEnumConstants();
+            return ordinal >= 0 && ordinal < constants.length ? constants[ordinal] : defaultValue;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return defaultValue;
     }
 
     @Override
     public String readContent() {
-        Object val = readAttrValue(BinUtil.CONTENT_ATTR_NAME);
-        readEndNode();
-        return val instanceof String s ? s : null;
+        try {
+            if (!isNextAttr(BinUtil.CONTENT_ATTR_NAME)) {
+                readEndNode();
+                return null;
+            }
+            String val = readString();
+            nextAttrIdx = dis.readUnsignedByte();
+            readEndNode();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<Integer> readIntArrayAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof List<?> list ? (List<Integer>) list : Collections.emptyList();
+        try {
+            if (!isNextAttr(name)) {
+                return Collections.emptyList();
+            }
+            List<Integer> val = readIntArrayRaw();
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<String> readStringArrayAttribute(String name) {
-        Object val = readAttrValue(name);
-        return val instanceof List<?> list ? (List<String>) list : Collections.emptyList();
+        try {
+            if (!isNextAttr(name)) {
+                return Collections.emptyList();
+            }
+            List<String> val = readStringArrayRaw();
+            nextAttrIdx = dis.readUnsignedByte();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
