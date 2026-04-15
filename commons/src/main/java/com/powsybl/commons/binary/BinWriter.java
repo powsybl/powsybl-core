@@ -96,7 +96,7 @@ public class BinWriter extends AbstractTreeDataWriter {
     private void flushCurrentNodeAttrsIfNeeded() {
         if (!attrBlockTerminated) {
             try {
-                tmpDos.writeByte(END_ATTRS);
+                tmpDos.writeShort(END_ATTRS);
                 attrBlockTerminated = true;
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -106,11 +106,11 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     private void writeAttrIndex(String name, byte type) {
         int index = attrNamesIndex.computeIfAbsent(new AttrKey(name, type), k -> 1 + attrNamesIndex.size());
-        if (index > 255) {
-            throw new PowsyblException("Binary format: too many distinct attribute (name, type) pairs (max 255)");
+        if (index > MAX_ATTR_IDX) {
+            throw new PowsyblException("Binary format: too many distinct attribute (name, type) pairs (max " + MAX_ATTR_IDX + ")");
         }
         try {
-            tmpDos.writeByte(index);
+            tmpDos.writeShort(index);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

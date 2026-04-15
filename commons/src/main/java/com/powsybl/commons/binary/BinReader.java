@@ -46,7 +46,7 @@ public class BinReader implements TreeDataReader {
             TreeDataHeader header = new TreeDataHeader(readString(), readExtensionVersions());
             readNodeDictionary();
             readAttrDictionary();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return header;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -101,7 +101,7 @@ public class BinReader implements TreeDataReader {
     private void skipRemainingAttributes() throws IOException {
         while (nextAttrIdx != END_ATTRS) {
             readTypedValue(attrTypes[nextAttrIdx]);
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
         }
     }
 
@@ -165,7 +165,7 @@ public class BinReader implements TreeDataReader {
                 return defaultValue;
             }
             double val = dis.readDouble();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -179,7 +179,7 @@ public class BinReader implements TreeDataReader {
                 return OptionalDouble.empty();
             }
             OptionalDouble val = OptionalDouble.of(dis.readDouble());
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -198,7 +198,7 @@ public class BinReader implements TreeDataReader {
                 return defaultValue;
             }
             float val = dis.readFloat();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -212,7 +212,7 @@ public class BinReader implements TreeDataReader {
                 return null;
             }
             String val = readString();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -231,7 +231,7 @@ public class BinReader implements TreeDataReader {
                 return defaultValue;
             }
             int val = dis.readInt();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -245,7 +245,7 @@ public class BinReader implements TreeDataReader {
                 return OptionalInt.empty();
             }
             OptionalInt val = OptionalInt.of(dis.readInt());
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -264,7 +264,7 @@ public class BinReader implements TreeDataReader {
                 return defaultValue;
             }
             boolean val = dis.readBoolean();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -278,7 +278,7 @@ public class BinReader implements TreeDataReader {
                 return Optional.empty();
             }
             Optional<Boolean> val = Optional.of(dis.readBoolean());
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -297,7 +297,7 @@ public class BinReader implements TreeDataReader {
                 return defaultValue;
             }
             int ordinal = dis.readShort();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             T[] constants = clazz.getEnumConstants();
             return ordinal >= 0 && ordinal < constants.length ? constants[ordinal] : defaultValue;
         } catch (IOException e) {
@@ -313,7 +313,7 @@ public class BinReader implements TreeDataReader {
                 return null;
             }
             String val = readString();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             readEndNode();
             return val;
         } catch (IOException e) {
@@ -328,7 +328,7 @@ public class BinReader implements TreeDataReader {
                 return Collections.emptyList();
             }
             List<Integer> val = readIntArrayRaw();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -342,7 +342,7 @@ public class BinReader implements TreeDataReader {
                 return Collections.emptyList();
             }
             List<String> val = readStringArrayRaw();
-            nextAttrIdx = dis.readUnsignedByte();
+            nextAttrIdx = dis.readUnsignedShort();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -364,7 +364,7 @@ public class BinReader implements TreeDataReader {
                 if (nodeName == null) {
                     throw new PowsyblException("Cannot read child node: unknown node name index " + nodeNameIndex);
                 }
-                nextAttrIdx = dis.readUnsignedByte();
+                nextAttrIdx = dis.readUnsignedShort();
                 childNodeReader.onStartNode(nodeName);
             }
         } catch (IOException e) {
