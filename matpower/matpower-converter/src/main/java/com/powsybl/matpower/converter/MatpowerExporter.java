@@ -282,8 +282,8 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
-    private static void createDanglingLineBuses(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private static void createBoundaryLineBuses(Network network, MatpowerModel model, Context context) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
@@ -355,7 +355,7 @@ public class MatpowerExporter implements Exporter {
             }
         }
 
-        createDanglingLineBuses(network, model, context);
+        createBoundaryLineBuses(network, model, context);
         createTransformerStarBuses(network, model, context);
     }
 
@@ -464,12 +464,37 @@ public class MatpowerExporter implements Exporter {
         }
 
         @Override
+        public void addSelectedOperationalLimitsGroups(String... ids) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void removeOperationalLimitsGroup(String id) {
             throw new UnsupportedOperationException();
         }
 
         @Override
         public void cancelSelectedOperationalLimitsGroup() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deselectOperationalLimitsGroups(String... ids) {
             throw new UnsupportedOperationException();
         }
 
@@ -604,8 +629,8 @@ public class MatpowerExporter implements Exporter {
 
     private void createTieLines(Network network, MatpowerModel model, Context context) {
         for (TieLine l : network.getTieLines()) {
-            Terminal t1 = l.getDanglingLine1().getTerminal();
-            Terminal t2 = l.getDanglingLine2().getTerminal();
+            Terminal t1 = l.getBoundaryLine1().getTerminal();
+            Terminal t2 = l.getBoundaryLine2().getTerminal();
             createMBranch(l.getId(), t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
                     .ifPresent(branch -> {
                         createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(l, TwoSides.TWO)),
@@ -661,8 +686,8 @@ public class MatpowerExporter implements Exporter {
             + (nominalVoltageAtEnd - nominalVoltageAtOtherEnd) * nominalVoltageAtEnd * transmissionAdmittance) / sBase;
     }
 
-    private void createDanglingLineBranches(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private void createBoundaryLineBranches(Network network, MatpowerModel model, Context context) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
@@ -752,12 +777,12 @@ public class MatpowerExporter implements Exporter {
         createLines(network, model, context);
         createTieLines(network, model, context);
         createTransformers2(network, model, context);
-        createDanglingLineBranches(network, model, context);
+        createBoundaryLineBranches(network, model, context);
         createTransformerLegs(network, model, context);
     }
 
-    private void findDanglingLineGenerators(Network network, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private void findBoundaryLineGenerators(Network network, Context context) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
@@ -1123,7 +1148,7 @@ public class MatpowerExporter implements Exporter {
         createBranches(network, model, context);
         findGenerators(network, context);
         findStaticVarCompensatorGenerators(network, context);
-        findDanglingLineGenerators(network, context);
+        findBoundaryLineGenerators(network, context);
         createDcLines(network, model, context);
 
         createGeneratorsAndDefinePVBuses(model, context);

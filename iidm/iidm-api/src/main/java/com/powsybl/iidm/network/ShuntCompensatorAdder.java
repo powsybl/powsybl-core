@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
  * Example:
  *<pre>
  *    VoltageLevel vl = ...
- *    ShuntCompensator s = vl.newShunt()
+ *    ShuntCompensator s = vl.newShuntCompensator()
  *            .setId("s1")
  *            ...
  *        .add();

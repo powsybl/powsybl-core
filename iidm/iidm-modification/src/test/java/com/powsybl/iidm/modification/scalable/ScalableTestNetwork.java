@@ -106,7 +106,7 @@ final class ScalableTestNetwork {
         return network;
     }
 
-    static Network createNetworkWithDanglingLine() {
+    static Network createNetworkWithBoundaryLine() {
         Network network = Network.create("network", "test");
         Substation s = network.newSubstation()
                 .setId("s")
@@ -176,7 +176,7 @@ final class ScalableTestNetwork {
         vl2.getBusBreakerView().newBus()
                 .setId("bus2")
                 .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
                 .setId("dl2")
                 .setBus("bus2")
                 .setConnectableBus("bus2")
@@ -206,7 +206,7 @@ final class ScalableTestNetwork {
         return network;
     }
 
-    static Network createNetworkwithDanglingLineAndBattery() {
+    static Network createNetworkwithBoundaryLineAndBattery() {
         Network network = Network.create("network", "test");
 
         // Substation
@@ -297,7 +297,7 @@ final class ScalableTestNetwork {
         vl2.getBusBreakerView().newBus()
             .setId("bus2")
             .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
             .setId("dl1")
             .setBus("bus2")
             .setConnectableBus("bus2")

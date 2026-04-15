@@ -8,11 +8,9 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.fasterxml.uuid.Generators;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.CgmesExport.ExportParameters;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
+import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
@@ -30,34 +28,24 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.EquipmentExport.hasDifferentTNsAtBothEnds;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
-import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refGeneratingUnit;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class CgmesExportContext {
 
-    private static final String GENERATING_UNIT = "GeneratingUnit";
-
-    private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
-    private static final String REGION_ID = "regionId";
-    private static final String REGION_NAME = "regionName";
     private static final String DEFAULT_REGION = "default region";
-    public static final String SUB_REGION_ID = "subRegionId";
-    private static final String BOUNDARY_EQ_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
-    private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.NODE_BREAKER;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
     private ReportNode reportNode = ReportNode.NO_OP;
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
-    private NamingStrategy namingStrategy = new NamingStrategy.Identity();
+    private NamingStrategy namingStrategy = new IdentityNamingStrategy();
     private String modelingAuthoritySet = null;
     private String modelDescription = null;
     private String modelVersion = null;
@@ -95,10 +83,13 @@ public class CgmesExportContext {
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
-    private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
-
-    private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
-    private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
+    record BaseVoltageSource(Double nominalV, String id, Source source) { }
+    record Region(String id, String name, Source source) { }
+    record SubRegion(String id, String name, String regionId) { }
+    private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
+    private final Map<String, Region> regionsById = new HashMap<>();
+    private final Map<String, SubRegion> subRegionsById = new HashMap<>();
+    private final Map<String, String> substationsSubRegion = new HashMap<>();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
@@ -146,7 +137,8 @@ public class CgmesExportContext {
         computeTopologyKind(exportParameters, network);
         computeModelingAuthoritySet(exportParameters, referenceDataProvider);
         computeBoundaryIds(exportParameters, network);
-        addIidmMappings(network);
+        computeSubstationMapping(network);
+        computeBaseVoltageMapping(network);
     }
 
     private void addParameters(ExportParameters exportParameters) {
@@ -230,8 +222,8 @@ public class CgmesExportContext {
             setBoundaryEqId(exportParameters.boundaryEqId());
         } else if (referenceDataProvider != null && referenceDataProvider.getEquipmentBoundaryId() != null) {
             setBoundaryEqId(referenceDataProvider.getEquipmentBoundaryId());
-        } else if (network.hasProperty(BOUNDARY_EQ_ID_PROPERTY)) {
-            setBoundaryEqId(network.getProperty(BOUNDARY_EQ_ID_PROPERTY));
+        } else if (network.hasProperty(PROPERTY_EQ_BD_ID)) {
+            setBoundaryEqId(network.getProperty(PROPERTY_EQ_BD_ID));
         }
 
         // Boundary TP id
@@ -239,8 +231,8 @@ public class CgmesExportContext {
             setBoundaryTpId(exportParameters.boundaryTpId());
         } else if (referenceDataProvider != null && referenceDataProvider.getTopologyBoundaryId() != null) {
             setBoundaryTpId(referenceDataProvider.getTopologyBoundaryId());
-        } else if (network.hasProperty(BOUNDARY_TP_ID_PROPERTY)) {
-            setBoundaryTpId(network.getProperty(BOUNDARY_TP_ID_PROPERTY));
+        } else if (network.hasProperty(PROPERTY_TP_BD_ID)) {
+            setBoundaryTpId(network.getProperty(PROPERTY_TP_BD_ID));
         }
     }
 
@@ -248,124 +240,94 @@ public class CgmesExportContext {
         return referenceDataProvider;
     }
 
-    public void addIidmMappings(Network network) {
-        // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
-        // TODO add option to skip this part (if from CGMES)
-        addIidmMappingsSubstations(network);
-        BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
-        if (bvMapping == null) {
-            network.newExtension(BaseVoltageMappingAdder.class).add();
-            bvMapping = network.getExtension(BaseVoltageMapping.class);
+    private void computeSubstationMapping(Network network) {
+        // A GeographicalRegion corresponding to the sourcing actor may be defined in the reference data.
+        Region regionRef = null;
+        if (referenceDataProvider != null && referenceDataProvider.getSourcingActorRegion() != null) {
+            Pair<String, String> sourcingActorRegion = referenceDataProvider.getSourcingActorRegion();
+            regionRef = new Region(sourcingActorRegion.getLeft(), sourcingActorRegion.getRight(), Source.BOUNDARY);
+            regionsById.put(regionRef.id(), regionRef);
         }
-        addIidmMappingsBaseVoltages(bvMapping, network);
-        addIidmMappingsTerminals(network);
-        addIidmMappingsDcTerminals(network);
-        addIidmMappingsGenerators(network);
-        addIidmMappingsBatteries(network);
-        addIidmMappingsShuntCompensators(network);
-        addIidmMappingsStaticVarCompensators(network);
-        addIidmMappingsEndsAndTapChangers(network);
-        addIidmMappingsEquivalentInjection(network);
-    }
-
-    private void addIidmMappingsSubstations(Network network) {
         for (Substation substation : network.getSubstations()) {
-            String regionName;
-            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID)) {
-                Pair<String, String> region = getCreateRegion(substation);
-                String regionId = region.getLeft();
-                regionName = region.getRight();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID, regionId);
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME, regionName);
-            } else {
-                // Only add with this name if the id is not already mapped
-                // We cannot have the same id mapped to two different names
-                String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID);
-                regionName = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME);
-                if (!regionsIdsByRegionName.containsValue(regionId)) {
-                    regionsIdsByRegionName.computeIfAbsent(regionName, k -> regionId);
-                }
-            }
-            String geoTag;
-            if (substation.getGeographicalTags().size() == 1) {
-                geoTag = substation.getGeographicalTags().iterator().next();
-            } else {
-                geoTag = regionName;
-            }
-            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID)) {
-                String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesId(ref(k), SUB_GEOGRAPHICAL_REGION));
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID, id);
-            } else {
-                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID));
-            }
+            Region region = getOrCreateRegion(substation, regionRef);
+            String subRegionId = getOrCreateSubRegion(substation, region);
+            substationsSubRegion.put(substation.getId(), subRegionId);
         }
     }
 
-    private Pair<String, String> getCreateRegion(Substation substation) {
-        // The current substation does not have explicit information for geographical region,
-        // Try to obtain it from the reference data based on the current sourcing actor we are using for export
-        Pair<String, String> region = null;
-        if (referenceDataProvider != null) {
-            region = referenceDataProvider.getSourcingActorRegion();
+    private Region getOrCreateRegion(Substation substation, Region regionRef) {
+        String regionId;
+        Region region;
+        String defaultRegionName = substation.hasProperty(PROPERTY_REGION_NAME) ?
+                substation.getProperty(PROPERTY_REGION_NAME) :
+                substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
+
+        if (substation.hasProperty(PROPERTY_REGION_ID)) {
+            regionId = namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_REGION_ID);
+            region = new Region(regionId, defaultRegionName, Source.IGM);
+        } else if (regionRef != null) {
+            regionId = regionRef.id();
+            region = regionRef;
+        } else {
+            regionId = namingStrategy.getCgmesId(ref(defaultRegionName), GEOGRAPHICAL_REGION);
+            region = new Region(regionId, defaultRegionName, Source.IGM);
         }
-        if (region == null) {
-            // If no information is available from reference data,
-            // Just create a new geographical region using country name as name
-            String regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
-            String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> namingStrategy.getCgmesId(ref(k), GEOGRAPHICAL_REGION));
-            region = Pair.of(regionId, regionName);
-        }
-        return region;
+
+        // Note that if regionId matches the one from the reference data,
+        // it won't be added here (it has already been added with source BOUNDARY)
+        // and as a result won't be in the EQ export (as intended since it's in the EQBD).
+        return regionsById.computeIfAbsent(regionId, k -> region);
     }
 
-    private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
+    private String getOrCreateSubRegion(Substation substation, Region region) {
+        Set<String> geoTags = substation.getGeographicalTags();
+        String subRegionName = geoTags.size() == 1 ? geoTags.iterator().next() : region.name;
+        String subRegionId = substation.hasProperty(PROPERTY_SUB_REGION_ID) ?
+                namingStrategy.getCgmesIdFromProperty(substation, PROPERTY_SUB_REGION_ID) :
+                namingStrategy.getCgmesId(ref(subRegionName), SUB_GEOGRAPHICAL_REGION);
+        subRegionsById.computeIfAbsent(subRegionId, k -> new SubRegion(subRegionId, subRegionName, region.id));
+
+        return subRegionId;
+    }
+
+    private void computeBaseVoltageMapping(Network network) {
         DecimalFormat noTrailingZerosFormat = new DecimalFormat("0.##");
-        if (mapping.isBaseVoltageEmpty()) {
-            // Here we do not have previous information about base voltages
-            // (The mapping is filled when the Network has been imported from CGMES)
-            // Now that we want to export, we may find some base voltages are defined in the reference data
-            for (VoltageLevel vl : network.getVoltageLevels()) {
-                double nominalV = vl.getNominalV();
-                // Only create a new unique id if no reference data exists
-                String baseVoltageId = null;
-                if (referenceDataProvider != null) {
-                    baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
-                    if (baseVoltageId != null) {
-                        mapping.addBaseVoltage(nominalV, baseVoltageId, Source.BOUNDARY);
+
+        // Retrieve reference BaseVoltage mapping stored in the dedicated extension.
+        // This may not match exactly the base voltages used in the network.
+        BaseVoltageMapping bvMappingExtension = network.getExtension(BaseVoltageMapping.class);
+        Map<Double, BaseVoltageMapping.BaseVoltageSource> referenceBvMapping = bvMappingExtension == null ?
+            new HashMap<>() :
+            bvMappingExtension.getBaseVoltages();
+
+        // Create the mapping (nominalV/id/source) for this network's base voltages.
+        network.getVoltageLevelStream()
+            .map(VoltageLevel::getNominalV)
+            .distinct()
+            .forEach(nominalV -> {
+                BaseVoltageSource bvSource;
+                // If it exists in the extension, keep it.
+                if (referenceBvMapping.containsKey(nominalV)) {
+                    BaseVoltageMapping.BaseVoltageSource referenceBvSource = referenceBvMapping.get(nominalV);
+                    bvSource = new BaseVoltageSource(nominalV, referenceBvSource.getId(), referenceBvSource.getSource());
+                } else {
+                    // Try to retrieve the BaseVoltage id from reference data.
+                    String baseVoltageId = null;
+                    Source source = null;
+                    if (referenceDataProvider != null) {
+                        baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
+                        source = Source.BOUNDARY;
                     }
+                    if (baseVoltageId == null) {
+                        // If not in the reference data, create a new unique id.
+                        CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
+                        baseVoltageId = namingStrategy.getCgmesId(vref, BASE_VOLTAGE);
+                        source = Source.IGM;
+                    }
+                    bvSource = new BaseVoltageSource(nominalV, baseVoltageId, source);
                 }
-                if (baseVoltageId == null && mapping.getBaseVoltage(nominalV) == null) {
-                    CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
-                    baseVoltageId = namingStrategy.getCgmesId(vref, BASE_VOLTAGE);
-                    mapping.addBaseVoltage(nominalV, baseVoltageId, Source.IGM);
-                }
-            }
-        }
-        Map<Double, BaseVoltageMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
-        baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
-    }
-
-    private void addIidmMappingsTerminals(Network network) {
-        for (Connectable<?> c : network.getConnectables()) {
-            if (isExportedEquipment(c)) {
-                for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c);
-                }
-            }
-        }
-        addIidmMappingsSwitchTerminals(network);
-        addIidmMappingsHvdcTerminals(network);
-    }
-
-    private void addIidmMappingsDcTerminals(Network network) {
-        for (DcConnectable<?> c : network.getDcConnectables()) {
-            if (isExportedEquipment(c)) {
-                for (DcTerminal t : c.getDcTerminals()) {
-                    addIidmMappingsDcTerminal(t, c);
-                }
-            }
-        }
-        addIidmMappingsDcSwitchTerminals(network);
+                baseVoltageMapping.put(nominalV, bvSource);
+            });
     }
 
     public boolean isExportEquipment() {
@@ -383,239 +345,12 @@ public class CgmesExportContext {
             ignored = load.isFictitious()
                     || isCim16BusBranchExport() && CgmesNames.STATION_SUPPLY.equals(CgmesExportUtil.loadClassName(load));
         } else if (c instanceof Switch sw) {
-            ignored = sw.isFictitious() && "true".equals(sw.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
-                    || isCim16BusBranchExport() && sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "").equals("GroundDisconnector")
+            ignored = sw.isFictitious() && "true".equals(sw.getProperty(PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL))
+                    || isCim16BusBranchExport() && sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "").equals("GroundDisconnector")
                     || isBusBranchExport() && !sw.isRetained()
                     || isBusBranchExport() && !hasDifferentTNsAtBothEnds(sw);
         }
         return !ignored;
-    }
-
-    private void addIidmMappingsSwitchTerminals(Network network) {
-        for (Switch sw : network.getSwitches()) {
-            addCgmesIdIfAbsent(sw, CgmesNames.TERMINAL, TERMINAL, 1);
-            addCgmesIdIfAbsent(sw, CgmesNames.TERMINAL, TERMINAL, 2);
-        }
-    }
-
-    private void addIidmMappingsHvdcTerminals(Network network) {
-        for (HvdcLine line : network.getHvdcLines()) {
-            addCgmesIdIfAbsent(line, CgmesNames.DC_TERMINAL, TERMINAL, 1);
-            addCgmesIdIfAbsent(line, CgmesNames.DC_TERMINAL, TERMINAL, 2);
-            addCgmesIdIfAbsent(line.getConverterStation1(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 1);
-            addCgmesIdIfAbsent(line.getConverterStation1(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 2);
-            addCgmesIdIfAbsent(line.getConverterStation2(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 1);
-            addCgmesIdIfAbsent(line.getConverterStation2(), CgmesNames.DC_TERMINAL, ACDC_CONVERTER_DC_TERMINAL, 2);
-        }
-    }
-
-    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
-        if (c instanceof DanglingLine) {
-            String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
-            if (terminalId == null) {
-                // Legacy: in previous versions, dangling line terminals were recorded in a different alias
-                // read it, remove it and store in the standard alias for equipment terminal (Terminal1)
-                terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
-                if (terminalId != null) {
-                    c.removeAlias(terminalId);
-                } else {
-                    terminalId = namingStrategy.getCgmesId(refTyped(c), TERMINAL);
-                }
-                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
-            }
-            String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
-            if (boundaryId == null) {
-                boundaryId = namingStrategy.getCgmesId(refTyped(c), BOUNDARY_TERMINAL);
-                c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
-            }
-        } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
-            addCgmesIdIfAbsent(c, CgmesNames.TERMINAL, TERMINAL, sequenceNumber);
-        }
-    }
-
-    private void addIidmMappingsDcTerminal(DcTerminal t, DcConnectable<?> c) {
-        int sequenceNumber = CgmesExportUtil.getDcTerminalSequenceNumber(t);
-        addCgmesIdIfAbsent(c, CgmesNames.DC_TERMINAL, DC_TERMINAL, sequenceNumber);
-    }
-
-    private void addIidmMappingsDcSwitchTerminals(Network network) {
-        for (DcSwitch dcSwitch : network.getDcSwitches()) {
-            addCgmesIdIfAbsent(dcSwitch, CgmesNames.DC_TERMINAL, DC_TERMINAL, 1);
-            addCgmesIdIfAbsent(dcSwitch, CgmesNames.DC_TERMINAL, DC_TERMINAL, 2);
-        }
-    }
-
-    private void addCgmesIdIfAbsent(Identifiable<?> identifiable, String aliasType, CgmesObjectReference.Part part, int sequenceNumber) {
-        String aliasValue = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasType + sequenceNumber).orElse(null);
-        if (aliasValue == null) {
-            aliasValue = namingStrategy.getCgmesId(refTyped(identifiable), part, ref(sequenceNumber));
-            identifiable.addAlias(aliasValue, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasType + sequenceNumber);
-        }
-    }
-
-    private static boolean isCondenser(Generator generator) {
-        return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), CgmesExportUtil.obtainCurve(generator), generator.isCondenser()).contains("condenser");
-    }
-
-    private void addIidmMappingsGenerators(Network network) {
-        for (Generator generator : network.getGenerators()) {
-            // Condensers should not have generating units
-            if (!isCondenser(generator)) {
-                String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
-                if (generatingUnit == null) {
-                    generatingUnit = namingStrategy.getCgmesId(ref(generator), refGeneratingUnit(generator));
-                    generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
-                }
-            }
-            String regulatingControlId = generator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && hasRegulatingControlCapability(generator)) {
-                regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
-                generator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
-            }
-        }
-    }
-
-    private static boolean hasRegulatingControlCapability(Generator generator) {
-        return generator.getVoltageRegulation() != null && hasReactiveCapability(generator);
-    }
-
-    private static boolean hasReactiveCapability(Generator generator) {
-        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
-        if (reactiveLimits == null) {
-            return false;
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
-            return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
-        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
-            return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
-        }
-        return false;
-    }
-
-    private static boolean hasReactiveCapability(ReactiveCapabilityCurve rcc) {
-        for (ReactiveCapabilityCurve.Point point : rcc.getPoints()) {
-            if (point.getMaxQ() != point.getMinQ()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean hasReactiveCapability(MinMaxReactiveLimits mmrl) {
-        return mmrl.getMaxQ() != mmrl.getMinQ();
-    }
-
-    private void addIidmMappingsBatteries(Network network) {
-        for (Battery battery : network.getBatteries()) {
-            String generatingUnit = battery.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
-            if (generatingUnit == null) {
-                generatingUnit = namingStrategy.getCgmesId(refTyped(battery), Part.GENERATING_UNIT);
-                battery.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
-            }
-            // TODO regulation
-        }
-    }
-
-    private void addIidmMappingsShuntCompensators(Network network) {
-        for (ShuntCompensator shuntCompensator : network.getShuntCompensators()) {
-            if ("true".equals(shuntCompensator.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
-                continue;
-            }
-            String regulatingControlId = shuntCompensator.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            if (regulatingControlId == null && shuntCompensator.getVoltageRegulation() != null
-                && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getVoltageRegulation().getTargetValue())
-                || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
-                regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
-                shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
-            }
-        }
-    }
-
-    private void addIidmMappingsStaticVarCompensators(Network network) {
-        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            String regulatingControlId = svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL);
-            boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getRegulatingTargetV());
-            boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getRegulatingTargetQ());
-            if (regulatingControlId == null && (validReactiveSetpoint
-                                                || validVoltageSetpoint
-                                                || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
-                regulatingControlId = namingStrategy.getCgmesId(ref(svc), Part.REGULATING_CONTROL);
-                svc.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, regulatingControlId);
-            }
-        }
-    }
-
-    private void addIidmMappingsEndsAndTapChangers(Network network) {
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            addIidmTransformerEnd(twt, 1);
-            addIidmTransformerEnd(twt, 2);
-            //  For two winding transformers we cannot check-and-add based on endNumber
-            //  The resulting IIDM tap changer is always at end1
-            //  But the original position of tap changer could be 1 or 2
-            addIidmTapChanger2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
-            addIidmTapChanger2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            addIidmTransformerEnd(twt, 1);
-            addIidmTransformerEnd(twt, 2);
-            addIidmTransformerEnd(twt, 3);
-            addIidmTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1);
-            addIidmTapChanger(twt, twt.getLeg1().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1);
-            addIidmTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 2);
-            addIidmTapChanger(twt, twt.getLeg2().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 2);
-            addIidmTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 3);
-            addIidmTapChanger(twt, twt.getLeg3().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 3);
-        }
-    }
-
-    private void addIidmTransformerEnd(Identifiable<?> eq, int end) {
-        String endId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end).orElse(null);
-        if (endId == null) {
-            endId = namingStrategy.getCgmesId(ref(eq), combo(TRANSFORMER_END, ref(end)));
-            eq.addAlias(endId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end);
-        }
-    }
-
-    private void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?, ?, ?> tc, String typeChangerTypeName, int endNumber) {
-        if (tc != null) {
-            String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
-            if (eq.getAliasFromType(aliasType).isEmpty()) {
-                Part ratioPhasePart = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER : RATIO_TAP_CHANGER;
-                String newTapChangerId = namingStrategy.getCgmesId(refTyped(eq), ratioPhasePart, ref(endNumber));
-                eq.addAlias(newTapChangerId, aliasType);
-            }
-        }
-    }
-
-    private void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?, ?, ?> tc, String typeChangerTypeName) {
-        if (tc != null) {
-            String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 1;
-            String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 2;
-            // Only create a new identifier, always at end 1,
-            // If no previous identifiers were found
-            // Neither at end 1 nor at end 2
-            if (eq.getAliasFromType(aliasType1).isEmpty() && eq.getAliasFromType(aliasType2).isEmpty()) {
-                Part ratioPhasePart = Objects.equals(typeChangerTypeName, CgmesNames.PHASE_TAP_CHANGER) ? PHASE_TAP_CHANGER : RATIO_TAP_CHANGER;
-                String newTapChangerId = namingStrategy.getCgmesId(refTyped(eq), ratioPhasePart, ref(1));
-                eq.addAlias(newTapChangerId, aliasType1);
-            }
-        }
-    }
-
-    private void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            String alias;
-            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
-            if (alias == null) {
-                String equivalentInjectionId = namingStrategy.getCgmesId(refTyped(danglingLine), EQUIVALENT_INJECTION);
-                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION, equivalentInjectionId);
-            }
-            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-            if (alias == null) {
-                String equivalentInjectionTerminalId = namingStrategy.getCgmesId(refTyped(danglingLine), EQUIVALENT_INJECTION, TERMINAL);
-                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
-            }
-        }
     }
 
     public int getCimVersion() {
@@ -751,20 +486,24 @@ public class CgmesExportContext {
         return this;
     }
 
-    public BaseVoltageMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
-        return baseVoltageByNominalVoltageMapping.get(nominalV);
+    public Set<BaseVoltageSource> getBaseVoltageSources() {
+        return new HashSet<>(baseVoltageMapping.values());
     }
 
-    public Collection<String> getRegionsIds() {
-        return Collections.unmodifiableSet(regionsIdsByRegionName.values());
+    public String getBaseVoltageIdFromNominalV(double nominalV) {
+        return baseVoltageMapping.get(nominalV).id();
     }
 
-    public String getRegionName(String regionId) {
-        return regionsIdsByRegionName.inverse().get(regionId);
+    protected Set<Region> getRegions() {
+        return new HashSet<>(regionsById.values());
     }
 
-    public String getSubRegionName(String subRegionId) {
-        return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
+    protected Set<SubRegion> getSubRegions() {
+        return new HashSet<>(subRegionsById.values());
+    }
+
+    protected String getSubstationSubRegion(String substationId) {
+        return substationsSubRegion.get(substationId);
     }
 
     public CgmesExportContext setReportNode(ReportNode reportNode) {

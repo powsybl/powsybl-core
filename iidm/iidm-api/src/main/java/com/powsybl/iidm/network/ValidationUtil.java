@@ -860,11 +860,11 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getTargetP(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getRegulatingTargetQ(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, battery.getVoltageRegulation(), battery.getNetwork(), Generator.class, actionOnError, reportNode));
-            } else if (identifiable instanceof DanglingLine danglingLine) {
-                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), actionOnError, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), actionOnError, reportNode));
-                validationLevel = checkGenerationOnDanglingLine(validationLevel, validable, danglingLine, actionOnError, reportNode);
-                validationLevel = checkOperationalLimitsGroups(validable, danglingLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
+            } else if (identifiable instanceof BoundaryLine boundaryLine) {
+                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, boundaryLine.getP0(), actionOnError, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, boundaryLine.getQ0(), actionOnError, reportNode));
+                validationLevel = checkGenerationOnBoundaryLine(validationLevel, validable, boundaryLine, actionOnError, reportNode);
+                validationLevel = checkOperationalLimitsGroups(validable, boundaryLine.getOperationalLimitsGroups(), validationLevel, actionOnError, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), actionOnError, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, generator.getVoltageRegulation(), generator.getNetwork(), Generator.class, actionOnError, reportNode));
@@ -893,9 +893,9 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    private static ValidationLevel checkGenerationOnDanglingLine(ValidationLevel previous, Validable validable, DanglingLine danglingLine, ActionOnError actionOnError, ReportNode reportNode) {
+    private static ValidationLevel checkGenerationOnBoundaryLine(ValidationLevel previous, Validable validable, BoundaryLine boundaryLine, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = previous;
-        DanglingLine.Generation generation = danglingLine.getGeneration();
+        BoundaryLine.Generation generation = boundaryLine.getGeneration();
         if (generation != null) {
             validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), actionOnError, reportNode));
             validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), actionOnError, reportNode));

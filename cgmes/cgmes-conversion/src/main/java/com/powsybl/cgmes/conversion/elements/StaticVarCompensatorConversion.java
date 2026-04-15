@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForStaticVarCompensators;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.StaticVarCompensator;
@@ -23,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
@@ -115,7 +115,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     }
 
     private static double findDefaultEquipmentTargetV(StaticVarCompensator staticVarCompensator) {
-        String defaultTargetVoltage = staticVarCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.SVC_EQ_VOLTAGE_SET_POINT);
+        String defaultTargetVoltage = staticVarCompensator.getProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT);
         return defaultTargetVoltage != null ? Double.parseDouble(defaultTargetVoltage) : Double.NaN;
     }
 

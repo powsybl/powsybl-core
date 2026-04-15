@@ -11,16 +11,22 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.Measurements;
-import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
-import com.powsybl.iidm.serde.IidmSerDeConstants;
+import com.powsybl.iidm.serde.*;
+import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -68,4 +74,79 @@ class MeasurementsXmlTest extends AbstractIidmSerDeTest {
 
         allFormatsRoundTripTest(network, "measRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
+
+    @Test
+    void testAnonymizedMeasurementsIdsWhenExported() {
+        //Given
+        Network network = EurostagTutorialExample1Factory.create();
+        Load load = network.getLoad("LOAD");
+        load.newExtension(MeasurementsAdder.class).add();
+        load.getExtension(Measurements.class)
+                .newMeasurement()
+                .setId("Measurement_ID")
+                .setType(Measurement.Type.OTHER)
+                .setValue(0)
+                .setValid(false)
+                .putProperty("source", "test")
+                .add();
+        Measurements measurements = load.getExtension(Measurements.class);
+        assertNotNull(measurements);
+
+        testForAllVersionsSince(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            Anonymizer anonymizer = NetworkSerDe.write(network, exportOptions, os);
+            // Then check anonymized id != original id
+            String anonymizedMeasurementId = anonymizer.anonymizeString("Measurement_ID");
+            assertNotEquals("Measurement_ID", anonymizedMeasurementId);
+            // Then check xml content (contain only anonymized id)
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"" + anonymizedMeasurementId + "\""));
+            assertFalse(xmlContent.contains("id=\"Measurement_ID\""));
+            // Then check import without anonymizer
+            Network importedNetwork1 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
+            assertWhenImport(importedNetwork1, anonymizer.anonymizeString("LOAD"), anonymizedMeasurementId);
+            // Then check import with anonymizer
+            Network importedNetwork2 = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()), new ImportOptions(), anonymizer);
+            assertWhenImport(importedNetwork2, "LOAD", "Measurement_ID");
+        });
+    }
+
+    private void assertWhenImport(Network importedNetwork, String loadID, String expectedMeasurementId) {
+        Load importedLoad = importedNetwork.getLoad(loadID);
+        Measurements importedMeasurements = importedLoad.getExtension(Measurements.class);
+        assertNotNull(importedMeasurements);
+        assertEquals(1, importedMeasurements.getMeasurements().size());
+        Measurement importedDiscreteMeasurement = (Measurement) importedMeasurements.getMeasurements().stream().findFirst().get();
+        assertEquals(expectedMeasurementId, importedDiscreteMeasurement.getId());
+    }
+
+    @Test
+    void testOldIIdmNoAnonymizedMeasurementsWhenExported() {
+        //Given
+        Network network = EurostagTutorialExample1Factory.create();
+        Load load = network.getLoad("LOAD");
+        load.newExtension(MeasurementsAdder.class).add();
+        load.getExtension(Measurements.class)
+                .newMeasurement()
+                .setId("Measurement_ID")
+                .setType(Measurement.Type.OTHER)
+                .setValue(0)
+                .setValid(false)
+                .putProperty("source", "test")
+                .add();
+        Measurements measurements = load.getExtension(Measurements.class);
+        assertNotNull(measurements);
+
+        testForAllPreviousVersions(IidmVersion.V_1_16, version -> {
+            ExportOptions exportOptions = new ExportOptions().setVersion(version.toString(".")).setAnonymized(true);
+            // When Export (with anonymized option)
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            NetworkSerDe.write(network, exportOptions, os);
+            String xmlContent = os.toString(StandardCharsets.UTF_8);
+            assertTrue(xmlContent.contains("id=\"Measurement_ID\""));
+        });
+    }
+
 }

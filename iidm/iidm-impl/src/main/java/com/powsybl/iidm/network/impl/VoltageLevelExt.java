@@ -17,7 +17,17 @@ import com.powsybl.commons.ref.Ref;
  */
 interface VoltageLevelExt extends VoltageLevel, MultiVariantObject, Validable {
 
-    interface NodeBreakerViewExt extends NodeBreakerView {
+    interface NodeBreakerViewExt extends NodeBreakerView, MultiVariantObject {
+
+        /**
+         * Returns true if any node has a non-zero fictitious active power injection.
+         */
+        boolean hasFictitiousP0();
+
+        /**
+         * Returns true if any node has a non-zero fictitious reactive power injection.
+         */
+        boolean hasFictitiousQ0();
 
     }
 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="MTDC-3-VSC-ACDC-links" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="DC pos VSC 31" name="DC pos VSC 31" nominalV="500.0"/>
+    <iidm:dcNode id="DC neutral VSC 31" name="DC neutral VSC 31" nominalV="500.0"/>
+    <iidm:dcNode id="DC neutral VSC 32" name="DC neutral VSC 32" nominalV="500.0"/>
+    <iidm:dcNode id="DC neg VSC 32" name="DC neg VSC 32" nominalV="500.0"/>
+    <iidm:dcNode id="DC neg VSC 33" name="DC neg VSC 33" nominalV="500.0"/>
+    <iidm:dcNode id="DC pos VSC 33" name="DC pos VSC 33" nominalV="500.0"/>
+    <iidm:dcLine id="DC line 0 31-32" dcNode1="DC neutral VSC 31" dcNode2="DC neutral VSC 32" r="5.000000074505806" connected1="true" connected2="true"/>
+    <iidm:dcLine id="DC line - 32-33" dcNode1="DC neg VSC 32" dcNode2="DC neg VSC 33" r="5.000000074505806" connected1="true" connected2="true"/>
+    <iidm:dcLine id="DC line + 31-33" dcNode1="DC pos VSC 33" dcNode2="DC pos VSC 31" r="5.000000074505806" connected1="true" connected2="true"/>
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="VL1" nominalV="500.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL1_AC node 1" node="0"/>
+                <iidm:internalConnection node1="0" node2="1"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:voltageSourceConverter id="HVDC Converter 1" dcNode1="DC pos VSC 31" dcConnected1="true" dcNode2="DC neutral VSC 31" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="1">
+                <iidm:pccTerminal id="HVDC Converter 1" number="ONE"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="425.0"/>
+            </iidm:voltageSourceConverter>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2">
+        <iidm:voltageLevel id="VL2" nominalV="500.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL2_AC node 2" node="0"/>
+                <iidm:internalConnection node1="0" node2="1"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:voltageSourceConverter id="HVDC Converter 2" dcNode1="DC neutral VSC 32" dcConnected1="true" dcNode2="DC neg VSC 32" dcConnected2="true" idleLoss="14.400001144409202" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="600.0000238418579" node1="1">
+                <iidm:pccTerminal id="HVDC Converter 2" number="ONE"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="340.0000050663948"/>
+            </iidm:voltageSourceConverter>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S3">
+        <iidm:voltageLevel id="VL3" nominalV="500.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL3_AC node 3" node="0"/>
+                <iidm:internalConnection node1="0" node2="1"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:voltageSourceConverter id="HVDC Converter 3" dcNode1="DC neg VSC 33" dcConnected1="true" dcNode2="DC pos VSC 33" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="1">
+                <iidm:pccTerminal id="HVDC Converter 3" number="ONE"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="-100.0"/>
+            </iidm:voltageSourceConverter>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

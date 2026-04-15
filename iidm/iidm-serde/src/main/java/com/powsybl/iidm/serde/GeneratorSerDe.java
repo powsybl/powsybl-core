@@ -25,6 +25,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
 
     static final String ROOT_ELEMENT_NAME = "generator";
     static final String ARRAY_ELEMENT_NAME = "generators";
+    static final String REGULATING_TERMINAL = "regulatingTerminal";
 
     @Override
     protected String getRootElementName() {
@@ -98,7 +99,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
                 && g.getVoltageRegulation().getTerminal() != null
                 && g != g.getVoltageRegulation().getTerminal().getConnectable()
                 && g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
-                TerminalRefSerDe.writeTerminalRef(g.getVoltageRegulation().getTerminal(), context, "regulatingTerminal");
+                TerminalRefSerDe.writeTerminalRef(g.getVoltageRegulation().getTerminal(), context, REGULATING_TERMINAL);
             }
         });
         ReactiveLimitsSerDe.INSTANCE.write(g, context);
@@ -143,7 +144,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     protected void readSubElements(Generator g, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case "regulatingTerminal" ->
+                case REGULATING_TERMINAL ->
                     TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), terminal -> {
                         if (g.getVoltageRegulation() != null) {
                             g.getVoltageRegulation().setTerminal(terminal);

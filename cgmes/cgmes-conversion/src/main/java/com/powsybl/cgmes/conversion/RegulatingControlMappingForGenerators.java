@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -23,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
 
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -109,7 +111,7 @@ public class RegulatingControlMappingForGenerators {
                     .add();
         }
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE, control.mode);
+        gen.setProperty(PROPERTY_MODE, control.mode);
 
         return true;
     }
@@ -142,8 +144,8 @@ public class RegulatingControlMappingForGenerators {
         }
 
         gen.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, controlId);
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE, control.mode);
-        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
+        gen.setProperty(PROPERTY_MODE, control.mode);
+        gen.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
 
         return true;
     }
