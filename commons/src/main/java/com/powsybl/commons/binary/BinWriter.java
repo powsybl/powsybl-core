@@ -8,7 +8,7 @@
 package com.powsybl.commons.binary;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.io.AbstractTreeDataWriter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ import static com.powsybl.commons.binary.BinUtil.*;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class BinWriter implements TreeDataWriter {
+public class BinWriter extends AbstractTreeDataWriter {
 
     private final String rootVersion;
     private final DataOutputStream dos;
@@ -161,19 +161,6 @@ public class BinWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeOptionalDoubleAttribute(String name, Double value) {
-        if (value == null) {
-            return;
-        }
-        writeAttrIndex(name, TYPE_DOUBLE);
-        try {
-            tmpDos.writeDouble(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
     public void writeFloatAttribute(String name, float value) {
         if (Float.isNaN(value)) {
             return;
@@ -210,19 +197,6 @@ public class BinWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeOptionalIntAttribute(String name, Integer value) {
-        if (value == null) {
-            return;
-        }
-        writeAttrIndex(name, TYPE_INT);
-        try {
-            tmpDos.writeInt(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
     public void writeBooleanAttribute(String name, boolean value) {
         writeAttrIndex(name, TYPE_BOOLEAN);
         try {
@@ -235,19 +209,6 @@ public class BinWriter implements TreeDataWriter {
     @Override
     public void writeBooleanAttribute(String name, boolean value, boolean absentValue) {
         if (value == absentValue) {
-            return;
-        }
-        writeAttrIndex(name, TYPE_BOOLEAN);
-        try {
-            tmpDos.writeBoolean(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void writeOptionalBooleanAttribute(String name, Boolean value) {
-        if (value == null) {
             return;
         }
         writeAttrIndex(name, TYPE_BOOLEAN);
