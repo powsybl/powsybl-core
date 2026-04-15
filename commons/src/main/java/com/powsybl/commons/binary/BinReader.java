@@ -87,15 +87,15 @@ public class BinReader implements TreeDataReader {
         }
     }
 
-    private boolean isNextAttr(String name) {
+    private boolean isAttrAbsent(String name) {
         if (nextAttrIdx == END_ATTRS) {
-            return false;
+            return true;
         }
         String attrName = attrNames[nextAttrIdx];
         if (attrName == null) {
             throw new PowsyblException("Cannot read attribute: unknown attribute name index " + nextAttrIdx);
         }
-        return name.equals(attrName);
+        return !name.equals(attrName);
     }
 
     private void skipRemainingAttributes() throws IOException {
@@ -105,18 +105,18 @@ public class BinReader implements TreeDataReader {
         }
     }
 
-    private Object readTypedValue(byte typeTag) throws IOException {
-        return switch (typeTag) {
+    private void readTypedValue(byte typeTag) throws IOException {
+        switch (typeTag) {
             case TYPE_DOUBLE -> dis.readDouble();
             case TYPE_FLOAT -> dis.readFloat();
             case TYPE_INT -> dis.readInt();
             case TYPE_BOOLEAN -> dis.readBoolean();
             case TYPE_STRING, TYPE_STRING_CONTENT -> readString();
-            case TYPE_ENUM -> (int) dis.readShort();
+            case TYPE_ENUM -> dis.readShort();
             case TYPE_INT_ARRAY -> readIntArrayRaw();
             case TYPE_STRING_ARRAY -> readStringArrayRaw();
             default -> throw new PowsyblException("Binary format: unknown attribute type tag " + typeTag);
-        };
+        }
     }
 
     private List<Integer> readIntArrayRaw() throws IOException {
@@ -161,7 +161,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public double readDoubleAttribute(String name, double defaultValue) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return defaultValue;
             }
             double val = dis.readDouble();
@@ -175,7 +175,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public OptionalDouble readOptionalDoubleAttribute(String name) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return OptionalDouble.empty();
             }
             OptionalDouble val = OptionalDouble.of(dis.readDouble());
@@ -194,7 +194,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public float readFloatAttribute(String name, float defaultValue) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return defaultValue;
             }
             float val = dis.readFloat();
@@ -208,7 +208,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public String readStringAttribute(String name) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return null;
             }
             String val = readString();
@@ -227,7 +227,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public int readIntAttribute(String name, int defaultValue) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return defaultValue;
             }
             int val = dis.readInt();
@@ -241,7 +241,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public OptionalInt readOptionalIntAttribute(String name) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return OptionalInt.empty();
             }
             OptionalInt val = OptionalInt.of(dis.readInt());
@@ -260,7 +260,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return defaultValue;
             }
             boolean val = dis.readBoolean();
@@ -274,7 +274,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public Optional<Boolean> readOptionalBooleanAttribute(String name) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return Optional.empty();
             }
             Optional<Boolean> val = Optional.of(dis.readBoolean());
@@ -293,7 +293,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return defaultValue;
             }
             int ordinal = dis.readShort();
@@ -324,7 +324,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public List<Integer> readIntArrayAttribute(String name) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return Collections.emptyList();
             }
             List<Integer> val = readIntArrayRaw();
@@ -338,7 +338,7 @@ public class BinReader implements TreeDataReader {
     @Override
     public List<String> readStringArrayAttribute(String name) {
         try {
-            if (!isNextAttr(name)) {
+            if (isAttrAbsent(name)) {
                 return Collections.emptyList();
             }
             List<String> val = readStringArrayRaw();
