@@ -42,5 +42,5 @@ public interface DgsHandler {
 
     void onDoubleVectorValue(String attributeName, List<Double> values);
 
-    void onObjectVectorValue(String attributeName, List<Long> ids);
+    void onObjectVectorValue(String attributeName, List<String> objectReferences);
 }
