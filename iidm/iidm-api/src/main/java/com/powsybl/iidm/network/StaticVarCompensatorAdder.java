@@ -23,20 +23,35 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
 
     StaticVarCompensatorAdder setTargetV(double targetV);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setRegulating(boolean regulating);
 
     VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation();
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default StaticVarCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not yet implemented");

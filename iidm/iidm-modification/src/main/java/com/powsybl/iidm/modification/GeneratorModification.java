@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 
 import java.util.Objects;
@@ -225,11 +226,17 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.regulating = regulating;
         }
 
+        /**
+         * @deprecated use {@link VoltageRegulation#isRegulating()} instead
+         */
         @Deprecated(forRemoval = true, since = "7.2.0")
         public Boolean getVoltageRegulatorOn() {
             return this.voltageRegulationMode != null && this.voltageRegulationMode == RegulationMode.VOLTAGE;
         }
 
+        /**
+         * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
+         */
         @Deprecated(forRemoval = true, since = "7.2.0")
         public void setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
             if (Boolean.TRUE.equals(voltageRegulatorOn)) {

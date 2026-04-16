@@ -39,21 +39,33 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
 
     VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation();
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();

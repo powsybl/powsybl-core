@@ -149,7 +149,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    @Deprecated(forRemoval = true, since = "7.2.0")
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         if (voltageRegulation != null) {
