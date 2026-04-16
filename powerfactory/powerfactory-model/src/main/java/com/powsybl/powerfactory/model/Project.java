@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalLong;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -116,7 +117,8 @@ public class Project extends AbstractPowerFactoryData {
     public StudyCase getActiveStudyCase() {
         // get active study case
         DataObject studyCaseObj = rootObject.getObjectAttributeValue("pCase").resolve().orElseThrow();
-        Instant studyTime = Instant.ofEpochSecond(studyCaseObj.getLongAttributeValue("iStudyTime"));
+        OptionalLong time = studyCaseObj.findLongAttributeValue("iStudyTime");
+        Instant studyTime = Instant.ofEpochSecond(time.orElseGet(() -> Instant.now().getEpochSecond()));
         String studyCaseName = rootObject.getLocName() + " - " + studyCaseObj.getLocName();
         DataObject netDataObj = rootObject.getChild("Network Model", "Network Data").orElseThrow();
         List<DataObject> elmNets = netDataObj.getChildrenByClass("ElmNet");

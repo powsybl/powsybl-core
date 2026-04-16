@@ -15,10 +15,7 @@ import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -93,14 +90,14 @@ public abstract class AbstractConverter {
 
     List<NodeRef> findNodes(DataObject obj) {
         List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
-        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
+        return nodeRefs != null ? nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList()) : Collections.emptyList();
     }
 
     List<NodeRef> checkNodes(DataObject obj, int connections) {
         List<NodeRef> nodeRefs = findNodes(obj);
         if (nodeRefs == null || nodeRefs.size() != connections) {
             throw new PowerFactoryException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
-                    + ") of connections for '" + obj + "'");
+                    + ") of connections for '" + obj.getId() + " " + obj + "'");
         }
         return nodeRefs;
     }
@@ -132,7 +129,6 @@ public abstract class AbstractConverter {
     private enum Mode { PQ, PS, QS, PC, QC, SC, NAN }
 
     static PQ calculate(String modeInp, Double p, Double q, Double s, Double cosPhi) {
-
         return switch (detectMode(modeInp, p, q, s, cosPhi)) {
             case PQ -> new PQ(p, q);
             case PS -> calculatePQFromPandS(p, s);
@@ -145,21 +141,26 @@ public abstract class AbstractConverter {
     }
 
     private static Mode detectMode(String modeInp, Double p, Double q, Double s, Double cosPhi) {
+
         if (modeInp != null) {
-            return switch (modeInp) {
-                case "PQ" -> Mode.PQ;
-                case "SP" -> Mode.PS;
-                case "SQ" -> Mode.QS;
-                case "PC" -> Mode.PC;
-                case "QC" -> Mode.QC;
-                case "SC" -> Mode.SC;
-                case "EC" -> {
+            Mode mode = switch (modeInp) {
+                case "PQ" -> checkMode(p, q, Mode.PQ);
+                case "SP" -> checkMode(p, s, Mode.PS);
+                case "SQ" -> checkMode(q, s, Mode.QS);
+                case "PC" -> checkMode(p, cosPhi, Mode.PC);
+                case "QC" -> checkMode(q, cosPhi, Mode.QC);
+                case "SC" -> checkMode(s, cosPhi, Mode.SC);
+                case "EC", "DEF" -> {
                     LOGGER.warn("mode_inp {} not supported ", modeInp);
                     yield Mode.NAN;
                 }
                 default -> throw new PowerFactoryException(String.format("Unexpected mode_inp %s", modeInp));
             };
+            if (mode != Mode.NAN) {
+                return mode;
+            }
         }
+
         if (p != null && q != null) {
             return Mode.PQ;
         }
@@ -180,6 +181,10 @@ public abstract class AbstractConverter {
         }
 
         return Mode.NAN;
+    }
+
+    private static Mode checkMode(Double value1, Double value2, Mode mode) {
+        return value1 != null && value2 != null ? mode : Mode.NAN;
     }
 
     private static PQ calculatePQFromPandS(double p, double s) {
