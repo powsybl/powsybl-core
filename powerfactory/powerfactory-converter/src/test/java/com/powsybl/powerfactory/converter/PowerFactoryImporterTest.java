@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
 class PowerFactoryImporterTest extends AbstractSerDeTest {
 
@@ -43,7 +45,6 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     void testBase() {
         PowerFactoryImporter importer = new PowerFactoryImporter();
         assertEquals("POWER-FACTORY", importer.getFormat());
-        assertTrue(importer.getParameters().isEmpty());
         assertEquals("PowerFactory to IIDM converter", importer.getComment());
         assertEquals(List.of("json", "dgs", "properties"), importer.getSupportedExtensions());
     }
@@ -75,10 +76,14 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     }
 
     private Network importAndCompareXml(String id, String fileExtension) {
+        return importAndCompareXml(id, fileExtension, null);
+    }
+
+    private Network importAndCompareXml(String id, String fileExtension, Properties parameters) {
         Network network = new PowerFactoryImporter()
                 .importData(new ResourceDataSource(id, new ResourceSet("/", id + fileExtension)),
                         NetworkFactory.findDefault(),
-                        null);
+                        parameters);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
         network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
@@ -270,6 +275,16 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     @Test
     void slackIpctrl() {
         assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
+    }
+
+    @Test
+    void mediumVoltageLoad() {
+        assertTrue(importAndCompareXiidm("MediumVoltageLoad"));
+    }
+
+    @Test
+    void externalGrid() {
+        assertTrue(importAndCompareXiidm("ExternalGrid"));
     }
 
     private boolean importAndCompareXiidm(String powerfactoryCase) {
@@ -500,6 +515,25 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     @Test
     void threeMibPhaseWinding12() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding12", 575.835158, 0.09));
+    }
+
+    @Test
+    void simpleAcDcCases() {
+        Properties importParams = new Properties();
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
+
+        importAndCompareXml("MTDC-3-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-4-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants3", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants4", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss3", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {

@@ -1,5 +1,5 @@
 # load-flow-action-simulator
-The `load-flow-action-simulator` module is used by the [action-simulator]() tool if it's configured to use the `LoadFlowActionSimulator` implementation.
+The `load-flow-action-simulator` module is used by the [action-simulator](../itools/action-simulator.md) tool if it's configured to use the `LoadFlowActionSimulator` implementation.
 
 ## Properties
 
@@ -13,7 +13,7 @@ Set the `ignore-pre-contingency-violations` to `true` to ignore the pre-continge
 
 **load-flow-name**<br>
 The `load-flow-name` property is an optional property that defines the implementation name to use for running the load flow.
-If this property is not set, the default load flow implementation is used. See [Loadflow Configuration](load-flow.md) to
+If this property is not set, the default load flow implementation is used. See [Loadflow Configuration](../../simulation/loadflow/configuration.md#implementation) to
 configure the default load flow.
 
 **max-iterations**<br>

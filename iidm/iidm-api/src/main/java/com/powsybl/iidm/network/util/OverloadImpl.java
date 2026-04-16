@@ -23,25 +23,28 @@ public class OverloadImpl implements Overload {
 
     private final String previousLimitName;
 
+    private final String operationalLimitsGroupId;
+
     private final double previousLimit;
     private final double limitReductionCoefficient;
 
-    public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit) {
-        this(temporaryLimit, previousLimitName, previousLimit, 1);
+    public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, String operationalLimitsGroupId) {
+        this(temporaryLimit, previousLimitName, previousLimit, 1, operationalLimitsGroupId);
     }
 
-    public OverloadImpl(String previousLimitName, double previousLimit, double limitReductionCoefficient) {
-        this(UNACCEPTABLE_LIMIT, previousLimitName, previousLimit, limitReductionCoefficient);
+    public OverloadImpl(String previousLimitName, double previousLimit, double limitReductionCoefficient, String operationalLimitsGroupId) {
+        this(UNACCEPTABLE_LIMIT, previousLimitName, previousLimit, limitReductionCoefficient, operationalLimitsGroupId);
     }
 
-    public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, double limitReductionCoefficient) {
+    public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, double limitReductionCoefficient, String operationalLimitsGroupId) {
         this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
         this.previousLimitName = previousLimitName;
         this.previousLimit = previousLimit;
         this.limitReductionCoefficient = limitReductionCoefficient;
+        this.operationalLimitsGroupId = operationalLimitsGroupId;
     }
 
-    private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new LoadingLimits.TemporaryLimit() {
+    private static final class UnacceptableTemporaryLimit extends UnsupportedPropertiesHolder implements LoadingLimits.TemporaryLimit {
         @Override
         public String getName() {
             return "Unacceptable";
@@ -61,7 +64,9 @@ public class OverloadImpl implements Overload {
         public boolean isFictitious() {
             return true;
         }
-    };
+    }
+
+    private static final LoadingLimits.TemporaryLimit UNACCEPTABLE_LIMIT = new UnacceptableTemporaryLimit();
 
     @Override
     public LoadingLimits.TemporaryLimit getTemporaryLimit() {
@@ -81,5 +86,10 @@ public class OverloadImpl implements Overload {
     @Override
     public double getLimitReductionCoefficient() {
         return limitReductionCoefficient;
+    }
+
+    @Override
+    public String getOperationalLimitsGroupId() {
+        return operationalLimitsGroupId;
     }
 }

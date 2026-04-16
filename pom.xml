@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>7.2.0-SNAPSHOT</version>
+    <version>7.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -118,7 +118,8 @@
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>4.0.26</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
-        <jackson.version>2.19.0</jackson.version>
+        <jackson.version>2.21.1</jackson.version>
+        <jackson-annotations.version>2.21</jackson-annotations.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.2</jgrapht.version>
         <jimfs.version>1.3.0</jimfs.version>
@@ -139,7 +140,7 @@
         <snakeyaml.version>2.4</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
-        <testcontainers.version>1.21.0</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <threeten.version>1.8.0</threeten.version>
         <!-- trove4j seems abandoned - to be replaced ? -->
         <trove4j.version>3.0.3</trove4j.version>
@@ -678,7 +679,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
