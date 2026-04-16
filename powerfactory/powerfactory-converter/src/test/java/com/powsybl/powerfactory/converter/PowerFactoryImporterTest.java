@@ -287,6 +287,11 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(importAndCompareXiidm("ExternalGrid"));
     }
 
+    @Test
+    void robustnessTest() {
+        assertTrue(importAndCompareXiidm("robustness"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
