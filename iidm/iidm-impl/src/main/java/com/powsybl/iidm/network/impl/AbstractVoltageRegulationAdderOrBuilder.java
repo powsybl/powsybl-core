@@ -26,7 +26,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
 
     protected final Class<? extends VoltageRegulationHolder> classHolder;
     protected final P parent;
-    protected final Consumer<VoltageRegulationImpl> setVoltageRegulation;
+    protected final Consumer<VoltageRegulationImpl> voltageRegulationSetter;
     protected final Ref<NetworkImpl> network;
     protected double targetValue = Double.NaN;
     protected double targetDeadband = Double.NaN;
@@ -35,10 +35,10 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected RegulationMode mode = null;
     protected boolean regulating = true;
 
-    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder> classHolder, P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> setVoltageRegulation) {
+    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder> classHolder, P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> voltageRegulationSetter) {
         this.classHolder = classHolder;
         this.parent = parent;
-        this.setVoltageRegulation = setVoltageRegulation;
+        this.voltageRegulationSetter = voltageRegulationSetter;
         this.network = network;
     }
 

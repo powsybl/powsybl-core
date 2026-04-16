@@ -29,7 +29,7 @@ public class VoltageRegulationBuilderImpl<P extends VoltageRegulationHolder> ext
     @Override
     public VoltageRegulation build() {
         VoltageRegulationImpl voltageRegulation = createVoltageRegulation();
-        this.setVoltageRegulation.accept(voltageRegulation);
+        this.voltageRegulationSetter.accept(voltageRegulation);
         return voltageRegulation;
     }
 }

@@ -104,10 +104,10 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     @Override
     public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(Battery.class, this, getNetworkRef(), this::setVoltageRegulations);
+        return new VoltageRegulationAdderImpl<>(Battery.class, this, getNetworkRef(), this::setVoltageRegulation);
     }
 
-    private void setVoltageRegulations(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
         this.voltageRegulation = voltageRegulation;
     }
 }
