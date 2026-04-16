@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * Simple {@link NetworkModification} for a VSC converter station.
@@ -33,12 +34,20 @@ public class VscConverterStationModification extends AbstractSetpointModificatio
 
     @Override
     protected void setVoltageSetpoint(VscConverterStation networkElement, Double voltageSetpoint) {
-        networkElement.setVoltageSetpoint(voltageSetpoint);
+        if (networkElement.getVoltageRegulation() != null && networkElement.isWithMode(RegulationMode.VOLTAGE)) {
+            networkElement.getVoltageRegulation().setTargetValue(voltageSetpoint);
+        } else {
+            networkElement.setTargetV(voltageSetpoint);
+        }
     }
 
     @Override
     protected void setReactivePowerSetpoint(VscConverterStation networkElement, Double reactivePowerSetpoint) {
-        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint);
+        if (networkElement.getVoltageRegulation() != null && networkElement.isWithMode(RegulationMode.REACTIVE_POWER)) {
+            networkElement.getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
+        } else {
+            networkElement.setTargetQ(reactivePowerSetpoint);
+        }
     }
 
     @Override

@@ -663,8 +663,10 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setId("GEN")
             .setTargetP(0.0)
             .setTargetQ(0)
-            .setTargetV(100)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(100.0)
+                .add()
             .setMinP(0)
             .setMaxP(1000);
         new CreateFeederBayBuilder()

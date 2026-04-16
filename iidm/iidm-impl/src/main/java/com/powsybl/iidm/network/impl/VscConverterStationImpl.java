@@ -82,14 +82,16 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            if (isWithMode(RegulationMode.VOLTAGE)) {
-                double oldValue = regulation.getTargetValue();
-                regulation.setTargetValue(voltageSetpoint);
-                String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-                notifyUpdate("reactivePowerSetpoint", variantId, oldValue, voltageSetpoint);
-            }
-        });
+        double oldValue;
+        if (voltageRegulation != null && isWithMode(RegulationMode.VOLTAGE)) {
+            oldValue = voltageRegulation.getTargetValue();
+            voltageRegulation.setTargetValue(voltageSetpoint);
+        } else {
+            oldValue = this.getTargetV();
+            this.setTargetV(voltageSetpoint);
+        }
+        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
 
@@ -110,14 +112,16 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            if (isWithMode(RegulationMode.REACTIVE_POWER)) {
-                double oldValue = regulation.getTargetValue();
-                regulation.setTargetValue(reactivePowerSetpoint);
-                String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-                notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
-            }
-        });
+        double oldValue;
+        if (voltageRegulation != null && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            oldValue = voltageRegulation.getTargetValue();
+            voltageRegulation.setTargetValue(reactivePowerSetpoint);
+        } else {
+            oldValue = this.getTargetQ();
+            this.setTargetQ(reactivePowerSetpoint);
+        }
+        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
 

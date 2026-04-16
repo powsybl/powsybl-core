@@ -496,8 +496,9 @@ public final class SteadyStateHypothesisExport {
                 targetValue = 0;
                 multiplier = "k";
             }
+            boolean controlEnabled = svc.getVoltageRegulation() != null && svc.getVoltageRegulation().isRegulating();
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                svc.isRegulating(), targetDeadband, targetValue, multiplier);
+                controlEnabled, targetDeadband, targetValue, multiplier);
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }

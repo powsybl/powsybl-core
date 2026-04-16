@@ -348,7 +348,8 @@ public abstract class AbstractGeneratorTest {
         generator.getVoltageRegulation().setRegulating(false);
         generator.setTargetP(12.1);
         generator.setTargetQ(9.2);
-        generator.setTargetV(9.3, 4.2);
+        generator.getVoltageRegulation().setTargetValue(9.3);
+        generator.setTargetV(4.2);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -359,7 +360,8 @@ public abstract class AbstractGeneratorTest {
         assertEquals(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
         assertEquals(12.1, generator.getTargetP(), 0.0);
         assertEquals(9.2, generator.getTargetQ(), 0.0);
-        assertEquals(9.3, generator.getTargetV(), 0.0);
+        assertEquals(4.2, generator.getTargetV(), 0.0);
+        assertEquals(9.3, generator.getRegulatingTargetV(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);

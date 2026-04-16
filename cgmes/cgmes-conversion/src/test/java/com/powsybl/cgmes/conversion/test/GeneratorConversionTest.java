@@ -233,8 +233,10 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(0.0)
-            .setTargetQ(10.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withTargetValue(10.0)
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .add()
             .setCondenser(false)
             .add();
         generator4.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
