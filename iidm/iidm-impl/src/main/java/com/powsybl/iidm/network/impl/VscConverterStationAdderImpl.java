@@ -104,9 +104,4 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         return converterStation;
     }
 
-    @Override
-    protected void validate() {
-        super.validate();
-    }
-
 }

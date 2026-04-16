@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
-import java.util.Map;
-
 /**
  * VSC converter station.
  *
