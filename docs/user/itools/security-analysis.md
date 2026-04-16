@@ -17,7 +17,9 @@ load-flow:
 There are two main implementations for the `ContingenciesProviderFactory` that can be used.
 - JSON contingencies list: `com.powsybl.contingency.JsonContingenciesProviderFactory`
 - Groovy DSL contingencies list: `com.powsybl.contingency.dsl.GroovyDslContingenciesProviderFactor`
+
 ## Usage
+
 ``` shell
 $> itools security-analysis --help
 usage: itools [OPTIONS] security-analysis [--actions-file <FILE>] --case-file
