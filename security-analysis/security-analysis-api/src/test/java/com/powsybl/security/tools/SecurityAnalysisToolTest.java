@@ -306,7 +306,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     void shouldSucceedParseLimitReductionsFile() throws IOException {
         //Given
         byte[] limitReductionsBytes;
-        try (InputStream is = getClass().getResourceAsStream("/LimitReductions.json")) {
+        try (InputStream is = getClass().getResourceAsStream("/LimitReductionsV1.1.json")) {
             assertNotNull(is);
             limitReductionsBytes = is.readAllBytes();
         }
