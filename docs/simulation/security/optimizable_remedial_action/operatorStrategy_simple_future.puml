@@ -1,6 +1,5 @@
 @startuml
 
-'namespace mvp {
 
 namespace existing {
 
@@ -97,7 +96,7 @@ end note
 RangeRemedialAction --* "*" RangeAction
 RangeRemedialAction --* "1" Range
 RangeRemedialAction --* "1" Step
-note left of RangeRemedialAction::step
+note right of RangeRemedialAction::step
  Lié à l'optimisation
  Exemple: Counter-trading par pas de 100 MW
 end note
@@ -144,66 +143,37 @@ interface RangeAction {
   - boolean isIntegerValue
   + Action toAction(double setPoint)
 }
+note bottom: Clone of "set point based actions" but without "set point"
 note left of RangeAction::isIntegerValue
  Lié à la physique
  Exemple: PST
 end note
-'note bottom: Clone of some actions but without "set point"
 
-interface DiscreteRangeAction {
-}
-DiscreteRangeAction --|> RangeAction
-
-class AbstractTapChangerRegulationAction {
-
-}
-PhaseTapChangerTapPositionRangeAction --|> DiscreteRangeAction
-
-interface ContinuousRangeAction {
-}
-ContinuousRangeAction --|> RangeAction
+PhaseTapChangerTapPositionRangeAction --|> RangeAction
 
 class LoadRangeAction {
  + LoadAction toAction(double setPoint)
 }
-LoadRangeAction --|> ContinuousRangeAction
+LoadRangeAction --|> RangeAction
 
-
-
-
-interface SetpointBasedAction {
-}
-SetpointBasedAction --|> Action
-
-class AbstractLoadAction {
-}
-AbstractLoadAction --|> SetpointBasedAction
-
-class MultipleActionWithKey {
-}
-MultipleActionWithKey --|> SetpointBasedAction
-'end namespace mvp
-'}
-
-namespace niceToHave {
 class ExclusiveOptimizableRemedialActionGroup {
   - List<String> exclusiveRemedialActionIds
   - int limitOfSelectedRemedialActions
 }
 ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
 
+namespace niceToHave-wip {
 class TemporalRangeRemedialAction {
   - Set<TemporalRangeAction> temporalRangeActions
   + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
 }
 TemporalRangeRemedialAction --* "*" TemporalRangeAction
-TemporalRangeRemedialAction --|> OptimizableRemedialAction
+TemporalRangeRemedialAction "?" --|> "?" OptimizableRemedialAction
 
 interface TemporalRangeAction {
     + Action toAction(ZonedDateTime caseDate, double setPoint)
 }
 note right: Clone of some range actions but with a case date
-}
 
 note bottom of TemporalRangeAction
 Gradient up/down
@@ -229,5 +199,6 @@ Ajustement début/fin sur heure ronde
 Limitation nombre max activation sur sous-groupe de parades
 end note
 
+}
 
 @enduml
