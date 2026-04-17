@@ -250,8 +250,7 @@ public abstract class AbstractNetworksTest {
             ).containsExactlyInAnyOrder(
                 batteryTransformerId,
                 EurostagTutorialExample1Factory.NHV2_NLOAD,
-                EurostagTutorialExample1Factory.NGEN_NHV1,
-                "TB2"
+                EurostagTutorialExample1Factory.NGEN_NHV1
             );
     }
 }

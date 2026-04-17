@@ -481,6 +481,7 @@ public final class Networks {
     public static Stream<ReducibleTransformerData> getReducibleTransformerDataStream(Network network) {
         return network.getVoltageLevelStream()
             .filter(v -> StreamSupport.stream(v.getConnectables().spliterator(), false).allMatch(c -> isReducibleElement(c.getType())))
+            .filter(v -> StreamSupport.stream(v.getSwitches().spliterator(), false).noneMatch(Switch::isOpen))
             .flatMap(v -> v.getTwoWindingsTransformerStream()
                 .map(t -> new ReducibleTransformerData(
                     t,
