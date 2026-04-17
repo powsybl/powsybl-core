@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -474,5 +476,36 @@ public final class Networks {
         network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::applySolvedValues);
         network.getThreeWindingsTransformerStream().forEach(ThreeWindingsTransformer::applySolvedValues);
         network.getShuntCompensatorStream().forEach(ShuntCompensator::applySolvedValues);
+    }
+
+    public static Stream<ReducibleTransformerData> getReducibleTransformerDataStream(Network network) {
+        return network.getVoltageLevelStream()
+            .filter(v -> StreamSupport.stream(v.getConnectables().spliterator(), false).allMatch(c -> isReducibleElement(c.getType())))
+            .flatMap(v -> v.getTwoWindingsTransformerStream()
+                .map(t -> new ReducibleTransformerData(
+                    t,
+                    getTransformerVoltageLevelSide(t, v))
+                )
+            );
+    }
+
+    /**
+     * The voltage elements on the <code>reducibleSide</code> of the <code>transformer</code> and the transformer can be
+     * reduced into a single generator equivalent to the active / reactive power on the terminal of the side opposite to <code>reducibleSide</code>
+     * @param transformer
+     * @param reducibleSide
+     */
+    public record ReducibleTransformerData(TwoWindingsTransformer transformer, TwoSides reducibleSide) { }
+
+    private static boolean isReducibleElement(IdentifiableType type) {
+        return type == IdentifiableType.TWO_WINDINGS_TRANSFORMER
+            || type == IdentifiableType.GENERATOR
+            || type == IdentifiableType.LOAD
+            || type == IdentifiableType.BUSBAR_SECTION
+            || type == IdentifiableType.BATTERY;
+    }
+
+    private static TwoSides getTransformerVoltageLevelSide(TwoWindingsTransformer transformer, VoltageLevel voltageLevel) {
+        return transformer.getTerminal(TwoSides.ONE).getVoltageLevel().getId().equals(voltageLevel.getId()) ? TwoSides.ONE : TwoSides.TWO;
     }
 }
