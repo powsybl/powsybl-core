@@ -9,15 +9,15 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.extensions.LineMutualCoupling;
-import com.powsybl.iidm.network.extensions.LineMutualCouplingAdder;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.LineCouplingsAdder;
+import com.powsybl.iidm.network.extensions.LineCouplings;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
-public class LineMutualCouplingAdderImplProvider implements ExtensionAdderProvider<Line, LineMutualCoupling, LineMutualCouplingAdder> {
+public class LineCouplingsAdderImplProvider implements ExtensionAdderProvider<Network, LineCouplings, LineCouplingsAdder> {
 
     @Override
     public String getImplementationName() {
@@ -26,17 +26,17 @@ public class LineMutualCouplingAdderImplProvider implements ExtensionAdderProvid
 
     @Override
     public String getExtensionName() {
-        return LineMutualCoupling.NAME;
+        return LineCouplings.NAME;
     }
 
     @Override
-    public Class<LineMutualCouplingAdder> getAdderClass() {
-        return LineMutualCouplingAdder.class;
+    public Class<LineCouplingsAdder> getAdderClass() {
+        return LineCouplingsAdder.class;
     }
 
     @Override
-    public LineMutualCouplingAdder newAdder(Line extendable) {
-        return new LineMutualCouplingAdderImpl(extendable);
+    public LineCouplingsAdder newAdder(Network extendable) {
+        return new LineCouplingsAdderImpl(extendable);
     }
 
 }

@@ -7,32 +7,43 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Line;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-public interface LineMutualCoupling extends Extension<Line> {
+public interface MutualCoupling {
 
-    String NAME = "lineMutualCoupling";
+    Line getLine1();
 
-    @Override
-    default String getName() {
-        return NAME;
-    }
+    void setLine1(Line line1);
 
-    /**
-     * The mutual coupling resistance of the line (in Ohm).
-     */
+    Line getLine2();
+
+    void setLine2(Line line2);
+
     double getR();
 
     void setR(double r);
 
-    /**
-     * The mutual coupling reactance of the line (in Ohm).
-     */
     double getX();
 
     void setX(double x);
+
+    double getLine1Start();
+
+    void setLine1Start(double line1Start);
+
+    double getLine2Start();
+
+    void setLine2Start(double line2Start);
+
+    double getLine1End();
+
+    void setLine1End(double line1End);
+
+    double getLine2End();
+
+    void setLine2End(double line2End);
+
 }

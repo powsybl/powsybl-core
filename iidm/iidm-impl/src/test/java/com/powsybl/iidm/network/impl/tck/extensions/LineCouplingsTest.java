@@ -5,17 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.extensions;
+package com.powsybl.iidm.network.impl.tck.extensions;
 
-import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.tck.extensions.AbstractLineCouplingsTest;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-public interface LineMutualCouplingAdder extends ExtensionAdder<Line, LineMutualCoupling> {
-
-    LineMutualCouplingAdder withR(double r);
-
-    LineMutualCouplingAdder withX(double x);
+class LineCouplingsTest extends AbstractLineCouplingsTest {
 }
