@@ -8,8 +8,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -75,20 +76,8 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn != null && voltageRegulation == null) {
             voltageRegulatorOn = false;
         }
-        if (voltageRegulatorOn != null && voltageRegulation == null) {
-            RegulationMode mode;
-            double targetValue;
-            if (!Double.isNaN(voltageSetpoint)) {
-                mode = RegulationMode.VOLTAGE;
-                targetValue = voltageSetpoint;
-            } else {
-                mode = RegulationMode.REACTIVE_POWER;
-                targetValue = reactivePowerSetpoint;
-            }
-            this.newVoltageRegulation()
-                .withMode(mode)
-                .withTargetValue(targetValue)
-                .add();
+        if (voltageRegulation == null) {
+            createVoltageRegulationBackwardCompatibility(this.newVoltageRegulation(), voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, null);
         }
         ValidationUtil.checkRegulatingTerminal(this, this.pccTerminal, network);
         VoltageSourceConverterImpl dcVsConverter = new VoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
