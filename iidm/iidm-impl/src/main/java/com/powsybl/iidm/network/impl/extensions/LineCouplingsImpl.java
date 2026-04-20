@@ -59,7 +59,6 @@ public class LineCouplingsImpl extends AbstractExtension<Network> implements Lin
             .findFirst();
     }
 
-
     @Override
     public boolean removeMutualCoupling(MutualCoupling mutualCoupling) {
         return mutualCouplings.remove(mutualCoupling);

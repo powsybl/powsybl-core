@@ -7,16 +7,21 @@
  */
 package com.powsybl.iidm.network.tck.extensions;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.LineCouplingsAdder;
 import com.powsybl.iidm.network.extensions.LineCouplings;
 import com.powsybl.iidm.network.extensions.MutualCoupling;
+import com.powsybl.iidm.network.extensions.MutualCouplingAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -47,5 +52,141 @@ public abstract class AbstractLineCouplingsTest {
         assertEquals(0, mutualCoupling.getLine2Start());
         assertEquals(1, mutualCoupling.getLine1End());
         assertEquals(1, mutualCoupling.getLine2End());
+    }
+
+    @Test
+    void testSameLine() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        Line line = network.getLine("NHV1_NHV2_1");
+        MutualCouplingAdder adder = network.getExtension(LineCouplings.class)
+            .newMutualCoupling()
+            .withLine1(line)
+            .withLine2(line)
+            .withR(0.1)
+            .withX(0.2);
+
+        PowsyblException exception = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Lines must be different.", exception.getMessage());
+    }
+
+    @Test
+    void testNullLine() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        Line line = network.getLine("NHV1_NHV2_1");
+        MutualCouplingAdder adder = network.getExtension(LineCouplings.class)
+            .newMutualCoupling()
+            .withLine1(line)
+            .withLine2(null)
+            .withR(0.1)
+            .withX(0.2);
+
+        PowsyblException exception = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Lines cannot be null.", exception.getMessage());
+    }
+
+    @Test
+    void testInvalidPositions() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        MutualCouplingAdder adder = network.getExtension(LineCouplings.class)
+            .newMutualCoupling()
+            .withLine1(network.getLine("NHV1_NHV2_1"))
+            .withLine2(network.getLine("NHV1_NHV2_2"))
+            .withR(0.1)
+            .withX(0.2)
+            .withLine1Start(0.8)
+            .withLine1End(0.2);
+
+        PowsyblException exception = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Invalid line1 positions: start=0.8, end=0.2", exception.getMessage());
+    }
+
+    @Test
+    void testPositionsOutOfBounds() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        MutualCouplingAdder adder = network.getExtension(LineCouplings.class)
+            .newMutualCoupling()
+            .withLine1(network.getLine("NHV1_NHV2_1"))
+            .withLine2(network.getLine("NHV1_NHV2_2"))
+            .withR(0.1)
+            .withX(0.2)
+            .withLine1Start(-0.5)
+            .withLine1End(2.0);
+
+        PowsyblException exception = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Invalid line1 positions: start=-0.5, end=2.0", exception.getMessage());
+    }
+
+    @Test
+    void testDuplicateCoupling() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        LineCouplings lc = network.getExtension(LineCouplings.class);
+
+        lc.newMutualCoupling()
+            .withLine1(network.getLine("NHV1_NHV2_1"))
+            .withLine2(network.getLine("NHV1_NHV2_2"))
+            .withR(0.1)
+            .withX(0.2)
+            .add();
+
+        MutualCouplingAdder adder = lc.newMutualCoupling()
+            .withLine1(network.getLine("NHV1_NHV2_2")) // reversed order
+            .withLine2(network.getLine("NHV1_NHV2_1"))
+            .withR(0.3)
+            .withX(0.4);
+
+        PowsyblException exception = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Mutual coupling already exists between lines NHV1_NHV2_2 and NHV1_NHV2_1", exception.getMessage());
+    }
+
+    @Test
+    void testFindSymmetric() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        LineCouplings lc = network.getExtension(LineCouplings.class);
+
+        Line l1 = network.getLine("NHV1_NHV2_1");
+        Line l2 = network.getLine("NHV1_NHV2_2");
+
+        lc.newMutualCoupling()
+            .withLine1(l1)
+            .withLine2(l2)
+            .withR(0.1)
+            .withX(0.2)
+            .add();
+
+        assertTrue(lc.findMutualCoupling(l1, l2).isPresent());
+        assertTrue(lc.findMutualCoupling(l2, l1).isPresent());
+    }
+
+    @Test
+    void testRemoveByLines() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        LineCouplings lc = network.getExtension(LineCouplings.class);
+
+        Line l1 = network.getLine("NHV1_NHV2_1");
+        Line l2 = network.getLine("NHV1_NHV2_2");
+
+        lc.newMutualCoupling()
+            .withLine1(l1)
+            .withLine2(l2)
+            .withR(0.1)
+            .withX(0.2)
+            .add();
+
+        assertTrue(lc.removeMutualCoupling(l2, l1)); // reversed
+        assertEquals(0, lc.getMutualCouplings().size());
     }
 }
