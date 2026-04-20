@@ -8,8 +8,8 @@
 package com.powsybl.security.interceptors;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;

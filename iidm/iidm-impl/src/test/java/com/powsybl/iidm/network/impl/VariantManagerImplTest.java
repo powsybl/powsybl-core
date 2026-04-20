@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -357,6 +358,32 @@ class VariantManagerImplTest {
         manager.cloneVariant(variante1, VariantManagerConstants.INITIAL_VARIANT_ID, true);
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(605.0, generator.getTargetP(), 0.0);
+    }
+
+    @Test
+    void testOverwriteVariantOrNot() {
+        String variant1 = "v1";
+        String variant2 = "v2";
+        List<String> targetVariants = List.of(variant1, variant2);
+
+        Network network = EurostagTutorialExample1Factory.create();
+        VariantManagerImpl manager = assertInstanceOf(VariantManagerImpl.class, network.getVariantManager());
+
+        Generator generator = network.getGenerator("GEN");
+        assertEquals(607.0, generator.getTargetP(), 0.0);
+
+        // Clone a first variant
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variant1);
+        assertEquals(2, manager.getVariantArraySize());
+
+        // Try to clone two new variants, including one already existing, without overwriting
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, targetVariants, false));
+        assertEquals("Target variants already exist: [v1]", exception.getMessage());
+        assertEquals(2, manager.getVariantArraySize());
+
+        // Clone the two variants, including one already existing, with overwriting
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, targetVariants, true);
+        assertEquals(3, manager.getVariantArraySize());
     }
 
     @Test

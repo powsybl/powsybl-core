@@ -13,7 +13,7 @@ Every extension is considered as serializable unless explicitly specified as non
 
 (active-power-control-extension)=
 ## Active power control
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#generic-parameters) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#optional-properties) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
 |----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
@@ -179,7 +179,20 @@ This extension enables to replace the operational limits of a DC line in AC emul
 (generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
 
-<span style="color: red">TODO</span>
+This extension enables to store the entso-e category code of a given generator, which represents a combination of fuel and type.
+For instance category 26 is for hydro run-of-river generating units. It is mainly used in TYNDP works.
+This extension is attached to a [generator](network_subnetwork.md#generator).
+
+| Attribute | Type | Unit | Required | Default value | Description          |
+|-----------|------|------|----------|---------------|----------------------|
+| code      | int  | -    | yes      | -             | The entso-e category |
+
+Here is how to add a generator entsoe-e category extension to a generator:
+```java
+generator.newExtension(GeneratorEntsoeCategoryAdder.class)
+    .withCode(4)
+    .add();
+```
 
 (generator-startup)=
 ## Generator startup
@@ -420,11 +433,9 @@ A balanced load is described by its active power setpoint $P0$ and its reactive 
 This extension is used to describe the power asymmetry for each ABC phase. In the three-phase representation, the complex power injected at a bus $i$ is constant for each phase and represented by three complex values:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=S_{A}=P_{A}+j.Q_{A} \\
 S_{Bi_{Load}}=S_{B}=P_{B}+j.Q_{B} \\
 S_{Ci_{Load}}=S_{C}=P_{C}+j.Q_{C} \\
-\end{align}
 $$
 
 But for a balanced load flow, the constant power load $P$ and $Q$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three-phase representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
@@ -444,31 +455,25 @@ $$ 0 = -S_{1i_{Load}} +\sum_{j=\delta(i)}^{} S_{1ij} $$
 We must take into account that many loads are still balanced and information related to balanced loads is sufficient. The extension proposes a delta approach where unbalances are expressed in the extension. Supposing that:
 
 $$
-\begin{align}
 \Delta P_{Ai_{Load}}, \Delta Q_{Ai_{Load}},
 \Delta P_{Bi_{Load}}, \Delta Q_{Bi_{Load}},
 \Delta P_{Ci_{Load}}, \Delta Q_{Ci_{Load}}
-\end{align}
 $$
 
 are provided in input through the extension. The three-phase power values used as inputs of an unbalanced load flow calculation are:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=(P_{Load}+\Delta P_{Ai_{Load}})+j.(Q_{Load}+\Delta Q_{Ai_{Load}}) \\
 S_{Bi_{Load}}=(P_{Load}+\Delta P_{Bi_{Load}})+j.(Q_{Load}+\Delta Q_{Bi_{Load}}) \\
 S_{Ci_{Load}}=(P_{Load}+\Delta P_{Ci_{Load}})+j.(Q_{Load}+\Delta Q_{Ci_{Load}}) \\
-\end{align}
 $$
 
 As a consequence, if no extension provided for the load, the unbalanced load flow will use in input:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=P_{Load}+j.Q_{Load} \\
 S_{Bi_{Load}}=P_{Load}+j.Q_{Load} \\
 S_{Ci_{Load}}=P_{Load}+j.Q_{Load} \\
-\end{align}
 $$
 
 | Attribute | Type   | Unit | Required | Default value | Description                                                                                                                                                                      |
@@ -544,7 +549,7 @@ The Measurement class characteristics are the following:
 ## Operating status
 
 This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
-three-winding transformers, HVDC line and a dangling line. The status could be:
+three-winding transformers, HVDC line and a boundary line. The status could be:
 - `IN_OPERATION`: equipment in service.
 - `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
 - `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
@@ -615,9 +620,9 @@ This extension is used for generators with a remote reactive control.
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
 of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
 Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
-[`isReadSlackBus`](../simulation/loadflow/configuration.md#generic-parameters). Use this extension after a computation to attach
+[`readSlackBus`](../simulation/loadflow/configuration.md#optional-properties). Use this extension after a computation to attach
 to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
-default load flow parameter [`isWriteSlackBus`](../simulation/loadflow/configuration.md#generic-parameters).
+default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#optional-properties).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 

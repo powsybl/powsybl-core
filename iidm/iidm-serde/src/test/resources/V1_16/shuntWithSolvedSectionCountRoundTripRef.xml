@@ -5,11 +5,11 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="SHUNT" sectionCount="1" solvedSectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1">
+            <iidm:shuntCompensator id="SHUNT" sectionCount="1" solvedSectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1">
                 <iidm:alias>Alias</iidm:alias>
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
                 <iidm:regulatingTerminal id="LOAD"/>
-            </iidm:shunt>
+            </iidm:shuntCompensator>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S2" country="FR">

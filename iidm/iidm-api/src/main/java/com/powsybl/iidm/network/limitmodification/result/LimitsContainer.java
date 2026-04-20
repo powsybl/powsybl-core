@@ -17,8 +17,20 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
  */
 public interface LimitsContainer<L> {
 
+    /**
+     * @return the id of the {@link com.powsybl.iidm.network.OperationalLimitsGroup} the limits of this container are part of
+     */
+    String getOperationalLimitsGroupId();
+
+    /**
+     * Changed limits after the computation, to get the original limit, use {@link #getOriginalLimits()}
+     * @return the altered limit after computation by {@link LimitsComputer}
+     */
     L getLimits();
 
+    /**
+     * @return the original limits before computation by {@link LimitsComputer}
+     */
     L getOriginalLimits();
 
     /**

@@ -30,12 +30,13 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     }
 
     private static final class ParsingContext {
-        float value;
+        double value;
         LimitType limitType;
         Boolean monitoringOnly;
         ContingencyContext contingencyContext;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
+        List<String> operationalLimitsGroupIdsSelection;
     }
 
     @Override
@@ -45,7 +46,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
             switch (fieldName) {
                 case "value" -> {
                     parser.nextToken();
-                    context.value = parser.readValueAs(Float.class);
+                    context.value = parser.readValueAs(Double.class);
                     return true;
                 }
                 case "limitType" -> {
@@ -71,13 +72,18 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
                     context.durationCriteria = JsonUtil.readList(deserializationContext, parser, LimitDurationCriterion.class);
                     return true;
                 }
+                case "operationalLimitsGroupIdsSelection" -> {
+                    parser.nextToken();
+                    context.operationalLimitsGroupIdsSelection = JsonUtil.readList(deserializationContext, parser, String.class);
+                    return true;
+                }
                 default -> {
                     return false;
                 }
             }
         });
         LimitReduction.Builder builder = LimitReduction.builder(checkAttribute(context.limitType, "limitType"),
-                        checkAttribute(context.value, "value"))
+                checkAttribute(context.value, "value"))
                 .withMonitoringOnly(checkAttribute(context.monitoringOnly, "monitoringOnly"))
                 .withContingencyContext(checkAttribute(context.contingencyContext, "contingencyContext"));
         if (context.networkElementCriteria != null) {
@@ -85,6 +91,9 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
         }
         if (context.durationCriteria != null) {
             builder.withLimitDurationCriteria(context.durationCriteria);
+        }
+        if (context.operationalLimitsGroupIdsSelection != null) {
+            builder.withOperationalLimitsGroupIdSelection(context.operationalLimitsGroupIdsSelection);
         }
         return builder.build();
     }

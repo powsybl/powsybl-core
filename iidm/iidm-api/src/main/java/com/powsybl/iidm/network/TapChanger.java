@@ -20,7 +20,7 @@ public interface TapChanger<
     C extends TapChanger<C, S, R, A>,
     S extends TapChangerStep<S>,
     R extends TapChangerStepsReplacer<R, A>,
-    A extends TapChangerStepAdder<A, R>> {
+    A extends TapChangerStepAdder<A, R>> extends PropertiesHolder {
 
     /**
      * Get the load tap changing capabilities status.

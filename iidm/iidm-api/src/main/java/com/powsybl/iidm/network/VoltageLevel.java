@@ -192,7 +192,6 @@ import java.util.stream.Stream;
  *        .setId("VL1")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl1.getNodeBreakerView().setNodeCount(8);
  *    // create busbar sections BBS1 and BBS2
  *    vl1.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS1")
@@ -217,19 +216,19 @@ import java.util.stream.Stream;
  *        .setId("BR1")
  *        .setOpen(false)
  *        .setNode1(1)
- *        .setNode1(2)
+ *        .setNode2(2)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI1")
  *        .setOpen(false)
  *        .setNode1(2)
- *        .setNode1(3)
+ *        .setNode2(3)
  *        .add();
  *    vl1.getNodeBreakerView().newDisconnector()
  *        .setId("DI2")
  *        .setOpen(true)
  *        .setNode1(2)
- *        .setNode1(4)
+ *        .setNode2(4)
  *        .add();
  *    // connect load LD
  *    ...
@@ -246,7 +245,6 @@ import java.util.stream.Stream;
  *        .setId("VL2")
  *        .setTopologyKind(TopologyKind.NODE_BREAKER)
  *        .add();
- *    vl2.getNodeBreakerView().setNodeCount(3);
  *    // create busbar section BBS3
  *    vl2.getNodeBreakerView().newBusbarSection()
  *        .setId("BBS3")
@@ -1147,38 +1145,38 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getShuntCompensatorCount();
 
     /**
-     * Get a builder to create a new dangling line.
+     * Get a builder to create a new boundary line.
      */
-    DanglingLineAdder newDanglingLine();
+    BoundaryLineAdder newBoundaryLine();
 
     /**
-     * Get the dangling lines in this voltage level which correspond to given filter.
+     * Get the boundary lines in this voltage level which correspond to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all dangling lines in this voltage level.
+     * Get all boundary lines in this voltage level.
      */
-    default Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLines(DanglingLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling lines in this voltage level which correspond to given filter.
+     * Get the boundary lines in this voltage level which correspond to given filter.
      */
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
    /**
-     * Get all dangling lines in this voltage level.
+     * Get all boundary lines in this voltage level.
      */
-    default Stream<DanglingLine> getDanglingLineStream() {
-        return getDanglingLineStream(DanglingLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get dangling line count.
+     * Get boundary line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
      * Get a builder to create a new static var compensator.

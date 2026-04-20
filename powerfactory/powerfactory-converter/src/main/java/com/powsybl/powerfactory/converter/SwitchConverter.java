@@ -34,7 +34,7 @@ class SwitchConverter extends AbstractConverter {
     void createFromElmCoup(DataObject elmCoup) {
         List<NodeRef> nodeRefs = findNodes(elmCoup);
         if (nodeRefs.size() != 2) {
-            LOGGER.warn("ElemCoup discarded as it does not have two ends '{}'", elmCoup);
+            LOGGER.warn("ElemCoup discarded as it does not have two ends {} '{}'", elmCoup.getId(), elmCoup);
             return;
         }
         NodeRef nodeRef1 = nodeRefs.get(0);

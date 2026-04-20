@@ -4,15 +4,19 @@ A load flow result is considered *acceptable* if it describes a feasible steady-
 More practically, generations of practitioners have set quasi-standard ways to describe them that makes it possible to define precise rules.
 They are described below for the different elements of the network.
 
+See the documentation [here](../user/configuration/loadflow-validation.md) to configure correctly this module.
+
 (loadflow-validation-buses)=
 ## Buses
 
 The first law of Kirchhoff must be satisfied for every bus for active and reactive power:
 
-$$\begin{equation}
+$$
+\begin{aligned}
 \left| \sum_{branches} P + \sum_{injections} P \right| \leq \epsilon \\
-\left| \sum_{branches} Q + \sum_{injections} Q \right| \leq \epsilon \\
-\end{equation}$$
+\left| \sum_{branches} Q + \sum_{injections} Q \right| \leq \epsilon
+\end{aligned}
+$$
 
 (loadflow-validation-branches)=
 ## Branches
@@ -81,17 +85,19 @@ depending on the adjustment mode (the sums run over all the units participating 
 
 If the voltage regulation is deactivated, it is expected that:
 
-$\left| targetQ - Q \right| < \epsilon$
+$$\left| targetQ - Q \right| < \epsilon$$
 
 If the voltage regulation is activated, the generator is modeled as a $PV$ node.
 The voltage target should be reached, except if reactive bounds are hit. Then, the generator is switched to $PQ$ node and the reactive power should be equal to a limit.
 Mathematically speaking, one of the following 3 conditions should be met:
 
-\begin{align*}
+$$
+\begin{aligned}
 |V - targetV| & \leq && \epsilon && \& && minQ & \leq & Q \leq maxQ \\
 V - targetV & < & -& \epsilon && \& && |Q-maxQ| & \leq & \epsilon \\
 targetV - V & < && \epsilon && \& && |Q-minQ| & \leq & \epsilon \\
-\end{align*}
+\end{aligned}
+$$
 
 (loadflow-validation-loads)=
 ## Loads
@@ -101,10 +107,15 @@ To be implemented, with tests similar to generators with voltage regulation.
 ## Shunts
 A shunt is expected not to generate or absorb active power:
 
-$\left| P \right| < \epsilon$
+$$
+\left| P \right| < \epsilon
+$$
 
 A shunt is expected to generate reactive power according to the number of activated sections and to the susceptance per section $B$:
-$\left| Q + \text{#sections} * B  V^2 \right| < \epsilon$
+
+$$
+\left| Q + \#\text{sections} * B  V^2 \right| < \epsilon
+$$
 
 (loadflow-validation-static-var-compensators)=
 ## Static VAR Compensators
