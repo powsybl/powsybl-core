@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.OptionalDouble;
@@ -23,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-@Disabled("TODO MSA fix me")
 class StaticVarCompensatorModificationTest {
 
     private Network network;
