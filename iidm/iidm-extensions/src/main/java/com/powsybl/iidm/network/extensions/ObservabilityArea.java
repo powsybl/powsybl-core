@@ -32,9 +32,15 @@ import java.util.Set;
  *     the current bus-breaker topology, for buses which have not changed since the "snapshot".</li>
  * </ul>
  *
- * <p>No effort is made to keep the object valid when the network structure is changed,
- * such as removing a line from the voltage level. Business processes involving that
- * kind of structural change should take care of removing this extension as necessary.
+ * <p>This extension should not handle any logic to invalidate observability results after topological changes.
+ * Indeed, observability results are tightly coupled to the topology, so any topological change could invalidate them.
+ * It is rather challenging to evaluate the impact of a topological change on observability results.
+ * Therefore, it is the responsibility of the user to manage the observability areas when topological changes occur.
+ *
+ * <p>To guarantee a minimum of consistency, the extension provides a method to check if the observability
+ * areas are still valid, according to the current topology. It should return false if some
+ * topological elements (buses, nodes,...) associated with the observability areas are missing.
+ *
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
