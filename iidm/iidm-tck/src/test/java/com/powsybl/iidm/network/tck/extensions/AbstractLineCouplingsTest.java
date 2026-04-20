@@ -186,7 +186,28 @@ public abstract class AbstractLineCouplingsTest {
             .withX(0.2)
             .add();
 
-        assertTrue(lc.removeMutualCoupling(l2, l1)); // reversed
+        assertTrue(lc.removeMutualCoupling(l2, l1));
+        assertEquals(0, lc.getMutualCouplings().size());
+    }
+
+    @Test
+    void testRemoveByMutualCoupling() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        LineCouplings lc = network.getExtension(LineCouplings.class);
+
+        Line l1 = network.getLine("NHV1_NHV2_1");
+        Line l2 = network.getLine("NHV1_NHV2_2");
+
+        lc.newMutualCoupling()
+            .withLine1(l1)
+            .withLine2(l2)
+            .withR(0.1)
+            .withX(0.2)
+            .add();
+
+        assertTrue(lc.removeMutualCoupling(lc.getMutualCouplings().getFirst()));
         assertEquals(0, lc.getMutualCouplings().size());
     }
 
