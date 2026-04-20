@@ -58,11 +58,11 @@ class BinWriterReaderTest {
         assertEquals(99.0, reader.readDoubleAttribute("d", 99.0), 0.0);
         assertTrue(reader.readOptionalDoubleAttribute("d").isEmpty());
 
-        assertEquals(0, reader.readIntAttribute("i"));
+        assertThrows(PowsyblException.class, () -> reader.readIntAttribute("i"));
         assertEquals(7, reader.readIntAttribute("i", 7));
         assertTrue(reader.readOptionalIntAttribute("i").isEmpty());
 
-        assertFalse(reader.readBooleanAttribute("b"));
+        assertThrows(PowsyblException.class, () -> reader.readBooleanAttribute("b"));
         assertTrue(reader.readBooleanAttribute("b", true));
         assertTrue(reader.readOptionalBooleanAttribute("b").isEmpty());
 

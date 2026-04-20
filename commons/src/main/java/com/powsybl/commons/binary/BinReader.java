@@ -25,12 +25,10 @@ public class BinReader extends AbstractTreeDataReader {
     private final DataInputStream dis;
     private final byte[] binaryMagicNumber;
 
-    private String[] nodeNames;
+    private String[] names;
 
-    private String[] attrNames;
-    private byte[] attrTypes;
-
-    private int nextAttrIdx = END_ATTRS;
+    private int nextNameIdx = END_NODE;
+    private byte nextType;
 
     public BinReader(InputStream is, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = binaryMagicNumber;
@@ -41,9 +39,8 @@ public class BinReader extends AbstractTreeDataReader {
     public TreeDataHeader readHeader() {
         TreeDataHeader header = super.readHeader();
         try {
-            readNodeDictionary();
-            readAttrDictionary();
-            nextAttrIdx = dis.readUnsignedShort();
+            readNamesDictionary();
+            peekNextEntry();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -81,39 +78,40 @@ public class BinReader extends AbstractTreeDataReader {
         }
     }
 
-    private void readNodeDictionary() throws IOException {
-        int nbEntries = dis.readShort();
-        nodeNames = new String[nbEntries + 1];
+    private void readNamesDictionary() throws IOException {
+        int nbEntries = dis.readUnsignedShort();
+        names = new String[nbEntries + 1];
         for (int i = 0; i < nbEntries; i++) {
-            nodeNames[i + 1] = readString();
+            names[i + 1] = readString();
         }
     }
 
-    private void readAttrDictionary() throws IOException {
-        int nbEntries = dis.readUnsignedShort();
-        attrNames = new String[nbEntries + 1];
-        attrTypes = new byte[nbEntries + 1];
-        for (int i = 0; i < nbEntries; i++) {
-            attrNames[i + 1] = readString();
-            attrTypes[i + 1] = dis.readByte();
+    private void peekNextEntry() throws IOException {
+        try {
+            nextNameIdx = dis.readUnsignedShort();
+            if (nextNameIdx != END_NODE) {
+                nextType = dis.readByte();
+            }
+        } catch (EOFException e) {
+            nextNameIdx = END_NODE;
         }
     }
 
     private boolean isAttrAbsent(String name) {
-        if (nextAttrIdx == END_ATTRS) {
+        if (nextNameIdx == END_NODE || nextType == TYPE_OBJECT) {
             return true;
         }
-        String attrName = attrNames[nextAttrIdx];
-        if (attrName == null) {
-            throw new PowsyblException("Cannot read attribute: unknown attribute name index " + nextAttrIdx);
+        String entryName = names[nextNameIdx];
+        if (entryName == null) {
+            throw new PowsyblException("Cannot read attribute: unknown name index " + nextNameIdx);
         }
-        return !name.equals(attrName);
+        return !name.equals(entryName);
     }
 
     private void skipRemainingAttributes() throws IOException {
-        while (nextAttrIdx != END_ATTRS) {
-            skipTypedValue(attrTypes[nextAttrIdx]);
-            nextAttrIdx = dis.readUnsignedShort();
+        while (nextNameIdx != END_NODE && nextType != TYPE_OBJECT) {
+            skipTypedValue(nextType);
+            peekNextEntry();
         }
     }
 
@@ -126,7 +124,7 @@ public class BinReader extends AbstractTreeDataReader {
             case TYPE_ENUM -> dis.skipNBytes(2);
             case TYPE_INT_ARRAY -> skipIntArray();
             case TYPE_STRING_ARRAY -> skipStringArray();
-            default -> throw new PowsyblException("Binary format: unknown attribute type tag " + typeTag);
+            default -> throw new PowsyblException("Binary format: unknown type tag " + typeTag);
         }
     }
 
@@ -139,8 +137,8 @@ public class BinReader extends AbstractTreeDataReader {
 
     private void skipIntArray() throws IOException {
         int count = dis.readShort();
-        for (int i = 0; i < count; i++) {
-            dis.skipNBytes(4);
+        if (count > 0) {
+            dis.skipNBytes(4L * count);
         }
     }
 
@@ -192,7 +190,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return defaultValue;
             }
             double val = dis.readDouble();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -206,7 +204,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return OptionalDouble.empty();
             }
             OptionalDouble val = OptionalDouble.of(dis.readDouble());
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -220,7 +218,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return defaultValue;
             }
             float val = dis.readFloat();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -234,7 +232,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return null;
             }
             String val = readString();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -248,7 +246,7 @@ public class BinReader extends AbstractTreeDataReader {
         }
         try {
             int val = dis.readInt();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -262,7 +260,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return defaultValue;
             }
             int val = dis.readInt();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -276,7 +274,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return OptionalInt.empty();
             }
             OptionalInt val = OptionalInt.of(dis.readInt());
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -286,12 +284,12 @@ public class BinReader extends AbstractTreeDataReader {
     @Override
     public boolean readBooleanAttribute(String name) {
         if (isAttrAbsent(name)) {
-            throw new PowsyblException("Binary parsing: expected attribute '" + name + "' is missing");
+            throw new PowsyblException("Missing required boolean attribute: " + name);
         }
         try {
-            boolean value = dis.readBoolean();
-            nextAttrIdx = dis.readUnsignedShort();
-            return value;
+            boolean val = dis.readBoolean();
+            peekNextEntry();
+            return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -304,7 +302,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return defaultValue;
             }
             boolean val = dis.readBoolean();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -318,7 +316,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return Optional.empty();
             }
             Optional<Boolean> val = Optional.of(dis.readBoolean());
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -332,7 +330,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return defaultValue;
             }
             int ordinal = dis.readShort();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             T[] constants = clazz.getEnumConstants();
             return ordinal >= 0 && ordinal < constants.length ? constants[ordinal] : defaultValue;
         } catch (IOException e) {
@@ -343,12 +341,12 @@ public class BinReader extends AbstractTreeDataReader {
     @Override
     public String readContent() {
         try {
-            if (nextAttrIdx == END_ATTRS || attrTypes[nextAttrIdx] != TYPE_STRING_CONTENT) {
+            if (nextNameIdx == END_NODE || nextType != TYPE_STRING_CONTENT) {
                 readEndNode();
                 return null;
             }
             String val = readString();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             readEndNode();
             return val;
         } catch (IOException e) {
@@ -363,7 +361,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return Collections.emptyList();
             }
             List<Integer> val = readIntArrayRaw();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -377,7 +375,7 @@ public class BinReader extends AbstractTreeDataReader {
                 return Collections.emptyList();
             }
             List<String> val = readStringArrayRaw();
-            nextAttrIdx = dis.readUnsignedShort();
+            peekNextEntry();
             return val;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -393,15 +391,15 @@ public class BinReader extends AbstractTreeDataReader {
     public void readChildNodes(ChildNodeReader childNodeReader) {
         try {
             skipRemainingAttributes();
-            int nodeNameIndex;
-            while ((nodeNameIndex = dis.readShort()) != END_NODE) {
-                String nodeName = nodeNames[nodeNameIndex];
+            while (nextNameIdx != END_NODE) {
+                String nodeName = names[nextNameIdx];
                 if (nodeName == null) {
-                    throw new PowsyblException("Cannot read child node: unknown node name index " + nodeNameIndex);
+                    throw new PowsyblException("Cannot read child node: unknown name index " + nextNameIdx);
                 }
-                nextAttrIdx = dis.readUnsignedShort();
+                peekNextEntry();
                 childNodeReader.onStartNode(nodeName);
             }
+            peekNextEntry();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -411,10 +409,10 @@ public class BinReader extends AbstractTreeDataReader {
     public void readEndNode() {
         try {
             skipRemainingAttributes();
-            int nextIndex = dis.readShort();
-            if (nextIndex != END_NODE) {
-                throw new PowsyblException("Binary parsing: expected end node but got " + nextIndex);
+            if (nextNameIdx != END_NODE) {
+                throw new PowsyblException("Binary parsing: expected end node but got name index " + nextNameIdx);
             }
+            peekNextEntry();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -28,12 +28,7 @@ public class BinWriter extends AbstractTreeDataWriter {
     private final byte[] binaryMagicNumber;
     private Map<String, String> extensionVersions = Collections.emptyMap();
 
-    private final Map<String, Integer> nodeNamesIndex = new LinkedHashMap<>();
-    private final Map<AttrKey, Integer> attrNamesIndex = new LinkedHashMap<>();
-
-    private record AttrKey(String name, byte type) { }
-
-    private boolean attrBlockTerminated = false;
+    private final Map<String, Integer> namesIndex = new LinkedHashMap<>();
 
     public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
@@ -77,40 +72,26 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeStartNode(String namespace, String name) {
-        if (nodeNamesIndex.isEmpty()) {
-            nodeNamesIndex.put(name, 1); // root element is not a child of another node, hence index is not expected
+        if (namesIndex.isEmpty()) {
+            namesIndex.put(name, 1); // root element is not a child of another node, hence index is not expected
         } else {
-            flushCurrentNodeAttrsIfNeeded();
-            int index = nodeNamesIndex.computeIfAbsent(name, n -> 1 + nodeNamesIndex.size());
-            writeIndex(index, tmpDos);
+            writeEntry(name, TYPE_OBJECT);
         }
-        attrBlockTerminated = false;
     }
 
     @Override
     public void writeEndNode() {
-        flushCurrentNodeAttrsIfNeeded();
         writeIndex(END_NODE, tmpDos);
     }
 
-    private void flushCurrentNodeAttrsIfNeeded() {
-        if (!attrBlockTerminated) {
-            try {
-                tmpDos.writeShort(END_ATTRS);
-                attrBlockTerminated = true;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+    private void writeEntry(String name, byte type) {
+        int index = namesIndex.computeIfAbsent(name, n -> 1 + namesIndex.size());
+        if (index > MAX_NAME_IDX) {
+            throw new PowsyblException("Binary format: too many distinct names (max " + MAX_NAME_IDX + ")");
         }
-    }
-
-    private void writeAttrIndex(String name, byte type) {
-        int index = attrNamesIndex.computeIfAbsent(new AttrKey(name, type), k -> 1 + attrNamesIndex.size());
-        if (index > MAX_ATTR_IDX) {
-            throw new PowsyblException("Binary format: too many distinct attribute (name, type) pairs (max " + MAX_ATTR_IDX + ")");
-        }
+        writeIndex(index, tmpDos);
         try {
-            tmpDos.writeShort(index);
+            tmpDos.writeByte(type);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -123,27 +104,19 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeNodeContent(String value) {
-        writeAttrIndex("", TYPE_STRING_CONTENT);
+        writeEntry("", TYPE_STRING_CONTENT);
         writeString(value, tmpDos);
     }
 
     @Override
     public void writeStringAttribute(String name, String value) {
-        writeAttrIndex(name, TYPE_STRING);
+        writeEntry(name, TYPE_STRING);
         writeString(value, tmpDos);
     }
 
     @Override
     public void writeDoubleAttribute(String name, double value) {
-        if (Double.isNaN(value)) {
-            return;
-        }
-        writeAttrIndex(name, TYPE_DOUBLE);
-        try {
-            tmpDos.writeDouble(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        writeDoubleAttribute(name, value, Double.NaN);
     }
 
     @Override
@@ -152,7 +125,7 @@ public class BinWriter extends AbstractTreeDataWriter {
         if (isAbsent) {
             return;
         }
-        writeAttrIndex(name, TYPE_DOUBLE);
+        writeEntry(name, TYPE_DOUBLE);
         try {
             tmpDos.writeDouble(value);
         } catch (IOException e) {
@@ -165,7 +138,7 @@ public class BinWriter extends AbstractTreeDataWriter {
         if (Float.isNaN(value)) {
             return;
         }
-        writeAttrIndex(name, TYPE_FLOAT);
+        writeEntry(name, TYPE_FLOAT);
         try {
             tmpDos.writeFloat(value);
         } catch (IOException e) {
@@ -175,7 +148,7 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeIntAttribute(String name, int value) {
-        writeAttrIndex(name, TYPE_INT);
+        writeEntry(name, TYPE_INT);
         try {
             tmpDos.writeInt(value);
         } catch (IOException e) {
@@ -188,17 +161,12 @@ public class BinWriter extends AbstractTreeDataWriter {
         if (value == absentValue) {
             return;
         }
-        writeAttrIndex(name, TYPE_INT);
-        try {
-            tmpDos.writeInt(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        writeIntAttribute(name, value);
     }
 
     @Override
     public void writeBooleanAttribute(String name, boolean value) {
-        writeAttrIndex(name, TYPE_BOOLEAN);
+        writeEntry(name, TYPE_BOOLEAN);
         try {
             tmpDos.writeBoolean(value);
         } catch (IOException e) {
@@ -211,12 +179,7 @@ public class BinWriter extends AbstractTreeDataWriter {
         if (value == absentValue) {
             return;
         }
-        writeAttrIndex(name, TYPE_BOOLEAN);
-        try {
-            tmpDos.writeBoolean(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        writeBooleanAttribute(name, value);
     }
 
     @Override
@@ -224,7 +187,7 @@ public class BinWriter extends AbstractTreeDataWriter {
         if (value == null) {
             return;
         }
-        writeAttrIndex(name, TYPE_ENUM);
+        writeEntry(name, TYPE_ENUM);
         try {
             tmpDos.writeShort(value.ordinal());
         } catch (IOException e) {
@@ -234,7 +197,7 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
-        writeAttrIndex(name, TYPE_INT_ARRAY);
+        writeEntry(name, TYPE_INT_ARRAY);
         try {
             tmpDos.writeShort(values.size());
             for (int v : values) {
@@ -247,7 +210,7 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
-        writeAttrIndex(name, TYPE_STRING_ARRAY);
+        writeEntry(name, TYPE_STRING_ARRAY);
         try {
             tmpDos.writeShort(values.size());
             for (String s : values) {
@@ -261,7 +224,6 @@ public class BinWriter extends AbstractTreeDataWriter {
     @Override
     public void close() {
         try {
-            flushCurrentNodeAttrsIfNeeded();
             tmpDos.flush();
             writeHeader();
             dos.write(buffer.toByteArray());
@@ -285,18 +247,8 @@ public class BinWriter extends AbstractTreeDataWriter {
             writeString(extensionVersion, dos);
         });
 
-        writeIndex(nodeNamesIndex.size(), dos);
-        nodeNamesIndex.forEach((name, index) -> writeString(name, dos));
-
-        writeIndex(attrNamesIndex.size(), dos);
-        attrNamesIndex.forEach((key, index) -> {
-            writeString(key.name(), dos);
-            try {
-                dos.writeByte(key.type());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        writeIndex(namesIndex.size(), dos);
+        namesIndex.keySet().forEach(name -> writeString(name, dos));
     }
 
     @Override
