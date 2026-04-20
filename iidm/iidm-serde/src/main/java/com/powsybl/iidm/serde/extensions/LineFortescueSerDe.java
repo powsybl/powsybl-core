@@ -52,8 +52,8 @@ public class LineFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe
         Version extVersion = getExtensionVersionToExport(context);
         if (extVersion.isGreaterThan(Version.V_1_0)) {
             context.getWriter().writeDoubleAttribute("g1z", lineFortescue.getG1z(), Double.NaN);
-            context.getWriter().writeDoubleAttribute("g2z", lineFortescue.getG2z(), Double.NaN);
             context.getWriter().writeDoubleAttribute("b1z", lineFortescue.getB1z(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("g2z", lineFortescue.getG2z(), Double.NaN);
             context.getWriter().writeDoubleAttribute("b2z", lineFortescue.getB2z(), Double.NaN);
         }
         context.getWriter().writeBooleanAttribute("openPhaseA", lineFortescue.isOpenPhaseA(), false);
@@ -72,8 +72,8 @@ public class LineFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe
         Version extVersion = getExtensionVersionImported(context);
         if (extVersion.isGreaterThan(Version.V_1_0)) {
             g1z = context.getReader().readDoubleAttribute("g1z");
-            g2z = context.getReader().readDoubleAttribute("g2z");
             b1z = context.getReader().readDoubleAttribute("b1z");
+            g2z = context.getReader().readDoubleAttribute("g2z");
             b2z = context.getReader().readDoubleAttribute("b2z");
         }
         boolean openPhaseA = context.getReader().readBooleanAttribute("openPhaseA", false);

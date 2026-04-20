@@ -63,6 +63,46 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
     }
 
     @Override
+    public double getG1z() {
+        return g1z;
+    }
+
+    @Override
+    public void setG1z(double g1z) {
+        this.g1z = g1z;
+    }
+
+    @Override
+    public double getB1z() {
+        return b1z;
+    }
+
+    @Override
+    public void setB1z(double b1z) {
+        this.b1z = b1z;
+    }
+
+    @Override
+    public double getG2z() {
+        return g2z;
+    }
+
+    @Override
+    public void setG2z(double g2z) {
+        this.g2z = g2z;
+    }
+
+    @Override
+    public double getB2z() {
+        return b2z;
+    }
+
+    @Override
+    public void setB2z(double b2z) {
+        this.b2z = b2z;
+    }
+
+    @Override
     public boolean isOpenPhaseA() {
         return openPhaseA;
     }
@@ -90,45 +130,5 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
     @Override
     public void setOpenPhaseC(boolean openPhaseC) {
         this.openPhaseC = openPhaseC;
-    }
-
-    @Override
-    public double getB1z() {
-        return b1z;
-    }
-
-    @Override
-    public void setB1z(double b1z) {
-        this.b1z = b1z;
-    }
-
-    @Override
-    public double getB2z() {
-        return b2z;
-    }
-
-    @Override
-    public void setB2z(double b2z) {
-        this.b2z = b2z;
-    }
-
-    @Override
-    public double getG1z() {
-        return g1z;
-    }
-
-    @Override
-    public void setG1z(double g1z) {
-        this.g1z = g1z;
-    }
-
-    @Override
-    public double getG2z() {
-        return g2z;
-    }
-
-    @Override
-    public void setG2z(double g2z) {
-        this.g2z = g2z;
     }
 }
