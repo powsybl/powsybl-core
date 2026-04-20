@@ -40,6 +40,7 @@ In the PowSyBl grid model, the Network contains [substations](#substation), whic
 The `SourceFormat` attribute is a required attribute that indicates the origin of the network model automatically set by the [importers](../grid_exchange_formats/index.md). If the case date and the forecast distance cannot be found in the case file, the network is considered as a snapshot: the case date is set to the current date, and the forecast distance is set to `0`.
 
 **Available extensions**
+- [Line Couplings](extensions.md#line-couplings)
 
 (substation)=
 ## Substation
