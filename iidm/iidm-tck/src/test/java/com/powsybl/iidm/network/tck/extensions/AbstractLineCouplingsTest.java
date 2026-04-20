@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -86,6 +87,13 @@ public abstract class AbstractLineCouplingsTest {
 
         PowsyblException exception = assertThrows(PowsyblException.class, adder::add);
         assertEquals("Lines cannot be null.", exception.getMessage());
+
+        adder.withLine1(null)
+            .withLine2(line);
+
+        PowsyblException exception2 = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Lines cannot be null.", exception2.getMessage());
+
     }
 
     @Test
@@ -185,6 +193,9 @@ public abstract class AbstractLineCouplingsTest {
             .withR(0.1)
             .withX(0.2)
             .add();
+
+        // Test with mutual coupling that does not exist
+        assertFalse(lc.removeMutualCoupling(l1, l1));
 
         assertTrue(lc.removeMutualCoupling(l2, l1));
         assertEquals(0, lc.getMutualCouplings().size());
