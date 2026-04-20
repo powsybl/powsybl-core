@@ -41,8 +41,8 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
 
     @Override
     protected LineFortescueImpl createExtension(Line line) {
-        LineFortescueImpl.LineFortescueAdmittances lineFortescueAdmittances = new LineFortescueImpl.LineFortescueAdmittances(g1z, b1z, g2z, b2z);
-        return new LineFortescueImpl(line, rz, xz, lineFortescueAdmittances, openPhaseA, openPhaseB, openPhaseC);
+        LineFortescue.Admittances admittances = new LineFortescue.Admittances(g1z, b1z, g2z, b2z);
+        return new LineFortescueImpl(line, rz, xz, admittances, openPhaseA, openPhaseB, openPhaseC);
     }
 
     @Override

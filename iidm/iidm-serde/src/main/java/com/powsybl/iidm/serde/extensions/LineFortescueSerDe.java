@@ -51,10 +51,11 @@ public class LineFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe
         context.getWriter().writeDoubleAttribute("xz", lineFortescue.getXz(), Double.NaN);
         Version extVersion = getExtensionVersionToExport(context);
         if (extVersion.isGreaterThan(Version.V_1_0)) {
-            context.getWriter().writeDoubleAttribute("g1z", lineFortescue.getG1z(), Double.NaN);
-            context.getWriter().writeDoubleAttribute("b1z", lineFortescue.getB1z(), Double.NaN);
-            context.getWriter().writeDoubleAttribute("g2z", lineFortescue.getG2z(), Double.NaN);
-            context.getWriter().writeDoubleAttribute("b2z", lineFortescue.getB2z(), Double.NaN);
+            LineFortescue.Admittances admittances = lineFortescue.getAdmittances();
+            context.getWriter().writeDoubleAttribute("g1z", admittances.g1z(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("b1z", admittances.b1z(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("g2z", admittances.g2z(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("b2z", admittances.b2z(), Double.NaN);
         }
         context.getWriter().writeBooleanAttribute("openPhaseA", lineFortescue.isOpenPhaseA(), false);
         context.getWriter().writeBooleanAttribute("openPhaseB", lineFortescue.isOpenPhaseB(), false);
