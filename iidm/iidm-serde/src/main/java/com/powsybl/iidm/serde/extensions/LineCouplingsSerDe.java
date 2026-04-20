@@ -16,10 +16,7 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.LineCouplings;
-import com.powsybl.iidm.network.extensions.LineCouplingsAdder;
-import com.powsybl.iidm.network.extensions.MutualCoupling;
-import com.powsybl.iidm.network.extensions.MutualCouplingAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.serde.IidmVersion;
 
 import java.util.Map;
@@ -68,10 +65,10 @@ public class LineCouplingsSerDe extends AbstractVersionableNetworkExtensionSerDe
             writer.writeStringAttribute("line2", mutualCoupling.getLine2().getId());
             writer.writeDoubleAttribute("r", mutualCoupling.getR());
             writer.writeDoubleAttribute("x", mutualCoupling.getX());
-            writer.writeDoubleAttribute("line1Start", mutualCoupling.getLine1Start(), 0);
-            writer.writeDoubleAttribute("line2Start", mutualCoupling.getLine2Start(), 0);
-            writer.writeDoubleAttribute("line1End", mutualCoupling.getLine1End(), 1);
-            writer.writeDoubleAttribute("line2End", mutualCoupling.getLine2End(), 1);
+            writer.writeDoubleAttribute("line1Start", mutualCoupling.getLine1Segment().start(), 0);
+            writer.writeDoubleAttribute("line1End", mutualCoupling.getLine1Segment().end(), 1);
+            writer.writeDoubleAttribute("line2Start", mutualCoupling.getLine2Segment().start(), 0);
+            writer.writeDoubleAttribute("line2End", mutualCoupling.getLine2Segment().end(), 1);
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -87,10 +84,8 @@ public class LineCouplingsSerDe extends AbstractVersionableNetworkExtensionSerDe
                 String line2Id = reader.readStringAttribute("line2");
                 double r = reader.readDoubleAttribute("r");
                 double x = reader.readDoubleAttribute("x");
-                double line1Start = reader.readDoubleAttribute("line1Start", 0);
-                double line2Start = reader.readDoubleAttribute("line2Start", 0);
-                double line1End = reader.readDoubleAttribute("line1End", 1);
-                double line2End = reader.readDoubleAttribute("line2End", 1);
+                LineSegment segment1 = readSegment(reader, "line1Start", "line1End");
+                LineSegment segment2 = readSegment(reader, "line2Start", "line2End");
 
                 Line line1 = network.getLine(line1Id);
                 Line line2 = network.getLine(line2Id);
@@ -107,10 +102,8 @@ public class LineCouplingsSerDe extends AbstractVersionableNetworkExtensionSerDe
                     .withLine2(line2)
                     .withR(r)
                     .withX(x)
-                    .withLine1Start(line1Start)
-                    .withLine2Start(line2Start)
-                    .withLine1End(line1End)
-                    .withLine2End(line2End)
+                    .withLine1Segment(segment1)
+                    .withLine2Segment(segment2)
                     .add();
 
                 reader.readEndNode();
@@ -119,6 +112,16 @@ public class LineCouplingsSerDe extends AbstractVersionableNetworkExtensionSerDe
             }
         });
         return extension;
+    }
+
+    private static LineSegment readSegment(TreeDataReader reader,
+                                           String startAttr,
+                                           String endAttr) {
+
+        return new LineSegment(
+            reader.readDoubleAttribute(startAttr, 0),
+            reader.readDoubleAttribute(endAttr, 1)
+        );
     }
 
     @Override

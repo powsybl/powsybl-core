@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.extensions.LineSegment;
 import com.powsybl.iidm.network.extensions.MutualCoupling;
 
 import java.util.Objects;
@@ -18,26 +18,22 @@ import java.util.Objects;
  */
 public class MutualCouplingImpl implements MutualCoupling {
 
-    private Line line1;
-    private Line line2;
+    private final Line line1;
+    private final Line line2;
 
     private double r;
     private double x;
 
-    private double line1Start;
-    private double line2Start;
-    private double line1End;
-    private double line2End;
+    private LineSegment line1Segment;
+    private LineSegment line2Segment;
 
-    MutualCouplingImpl(Line line1, Line line2, double r, double x, double line1Start, double line1End, double line2Start, double line2End) {
+    MutualCouplingImpl(Line line1, Line line2, double r, double x, LineSegment line1Segment, LineSegment line2Segment) {
         this.line1 = Objects.requireNonNull(line1);
         this.line2 = Objects.requireNonNull(line2);
         this.r = r;
         this.x = x;
-        this.line1Start = line1Start;
-        this.line1End = line1End;
-        this.line2Start = line2Start;
-        this.line2End = line2End;
+        this.line1Segment = Objects.requireNonNull(line1Segment);
+        this.line2Segment = Objects.requireNonNull(line2Segment);
     }
 
     @Override
@@ -71,44 +67,22 @@ public class MutualCouplingImpl implements MutualCoupling {
     }
 
     @Override
-    public double getLine1Start() {
-        return line1Start;
+    public LineSegment getLine1Segment() {
+        return line1Segment;
     }
 
     @Override
-    public double getLine2Start() {
-        return line2Start;
+    public LineSegment getLine2Segment() {
+        return line2Segment;
     }
 
     @Override
-    public double getLine1End() {
-        return line1End;
+    public void setLine1Segment(LineSegment lineSegment) {
+        this.line1Segment = Objects.requireNonNull(lineSegment);
     }
 
     @Override
-    public double getLine2End() {
-        return line2End;
-    }
-
-    @Override
-    public void setLine1Position(double line1Start, double line1End) {
-        if (!isValidPosition(line1Start, line1End)) {
-            throw new PowsyblException("Invalid line1 positions: start=" + line1Start + ", end=" + line1End);
-        }
-        this.line1Start = line1Start;
-        this.line1End = line1End;
-    }
-
-    @Override
-    public void setLine2Position(double line2Start, double line2End) {
-        if (!isValidPosition(line2Start, line2End)) {
-            throw new PowsyblException("Invalid line2 positions: start=" + line2Start + ", end=" + line2End);
-        }
-        this.line2Start = line2Start;
-        this.line2End = line2End;
-    }
-
-    private boolean isValidPosition(double start, double end) {
-        return start >= 0 && start <= end && end <= 1;
+    public void setLine2Segment(LineSegment lineSegment) {
+        this.line2Segment = Objects.requireNonNull(lineSegment);
     }
 }

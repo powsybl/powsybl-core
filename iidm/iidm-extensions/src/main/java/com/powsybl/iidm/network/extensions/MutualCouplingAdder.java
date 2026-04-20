@@ -45,36 +45,20 @@ public interface MutualCouplingAdder {
     MutualCouplingAdder withX(double x);
 
     /**
-     * Sets the starting position of the mutual coupling on the first line.
-     * The position is a proportion of the line length and is between 0 and 1.
-     * @param start the starting position
+     * Sets the position of the mutual coupling on the first line.
+     * The positions are a proportion of the line length and are between 0 and 1.
+     * @param segment the segment of the line
      * @return the current mutual coupling adder
      */
-    MutualCouplingAdder withLine1Start(double start);
+    MutualCouplingAdder withLine1Segment(LineSegment segment);
 
     /**
-     * Sets the ending position of the mutual coupling on the first line.
-     * The position is a proportion of the line length and is between 0 and 1.
-     * @param end the ending position
+     * Sets the position of the mutual coupling on the second line.
+     * The positions are a proportion of the line length and are between 0 and 1.
+     * @param segment the segment of the line
      * @return the current mutual coupling adder
      */
-    MutualCouplingAdder withLine1End(double end);
-
-    /**
-     * Sets the starting position of the mutual coupling on the second line.
-     * The position is a proportion of the line length and is between 0 and 1.
-     * @param start the starting position
-     * @return the current mutual coupling adder
-     */
-    MutualCouplingAdder withLine2Start(double start);
-
-    /**
-     * Sets the ending position of the mutual coupling on the second line.
-     * The position is a proportion of the line length and is between 0 and 1.
-     * @param end the ending position
-     * @return the current mutual coupling adder
-     */
-    MutualCouplingAdder withLine2End(double end);
+    MutualCouplingAdder withLine2Segment(LineSegment segment);
 
     /**
      * Adds the mutual coupling.

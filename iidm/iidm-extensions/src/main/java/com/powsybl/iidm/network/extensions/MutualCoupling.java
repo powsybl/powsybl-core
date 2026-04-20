@@ -53,47 +53,31 @@ public interface MutualCoupling {
     void setX(double x);
 
     /**
-     * Gets the starting position of the mutual coupling on the first line.
-     * The position is a proportion of the line length and is between 0 and 1.
+     * Gets the starting and ending position of the mutual coupling on the first line.
+     * The positions are a proportion of the line length and are between 0 and 1.
      * @return the starting position
      */
-    double getLine1Start();
+    LineSegment getLine1Segment();
 
     /**
-     * Gets the starting position of the mutual coupling on the second line.
-     * The position is a proportion of the line length and is between 0 and 1.
+     * Gets the starting and ending position of the mutual coupling on the second line.
+     * The positions are a proportion of the line length and are between 0 and 1.
      * @return the starting position
      */
-    double getLine2Start();
-
-    /**
-     * Gets the ending position of the mutual coupling on the first line.
-     * The position is a proportion of the line length and is between 0 and 1.
-     * @return the ending position
-     */
-    double getLine1End();
-
-    /**
-     * Gets the ending position of the mutual coupling on the second line.
-     * The position is a proportion of the line length and is between 0 and 1.
-     * @return the ending position
-     */
-    double getLine2End();
+    LineSegment getLine2Segment();
 
     /**
      * Sets the starting and ending position of the mutual coupling on the second line.
      * The positions are a proportion of the line length and are between 0 and 1.
-     * @param line1Start the starting position
-     * @param line1End the ending position
+     * @param line1Segment the segment on line 1
      */
-    void setLine1Position(double line1Start, double line1End);
+    void setLine1Segment(LineSegment line1Segment);
 
     /**
      * Sets the starting and ending position of the mutual coupling on the second line.
      * The positions are a proportion of the line length and are between 0 and 1.
-     * @param line2Start the starting position
-     * @param line2End the ending position
+     * @param line2Segment the segment on line 2
      */
-    void setLine2Position(double line2Start, double line2End);
+    void setLine2Segment(LineSegment line2Segment);
 
 }

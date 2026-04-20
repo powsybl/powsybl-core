@@ -330,18 +330,17 @@ This extension models the mutual coupling between two lines. It is attached to t
 
 The attributes of a `MutualCoupling` are:
 
-| Attribute  | Type   | Unit | Required | Default value | Description                                                     |
-|------------|--------|------|----------|---------------|-----------------------------------------------------------------|
-| line1      | Line   | -    | yes      | -             | The first coupled line                                          |
-| line2      | Line   | -    | yes      | -             | The second coupled line                                         |
-| r          | double | Ω    | yes      | -             | The mutual coupling resistance                                  |
-| x          | double | Ω    | yes      | -             | The mutual coupling reactance                                   |
-| line1Start | double | -    | no       | 0             | The starting position of the mutual coupling on the first line  |
-| line1End   | double | -    | no       | 1             | The ending position of the mutual coupling on the first line    |
-| line2Start | double | -    | no       | 0             | The starting position of the mutual coupling on the second line |
-| line2End   | double | -    | no       | 1             | The ending position of the mutual coupling on the second line   |
+| Attribute    | Type        | Unit | Required | Default value | Description                                                   |
+|--------------|-------------|------|----------|---------------|---------------------------------------------------------------|
+| line1        | Line        | -    | yes      | -             | The first coupled line                                        |
+| line2        | Line        | -    | yes      | -             | The second coupled line                                       |
+| r            | double      | Ω    | yes      | -             | The mutual coupling resistance                                |
+| x            | double      | Ω    | yes      | -             | The mutual coupling reactance                                 |
+| line1Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the first line (0 to 1)  |
+| line2Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the second line (0 to 1) |
 
-The position of the mutual coupling is expressed as a ratio between 0 and 1, with the constraint that: 0 ≤ start ≤ end ≤ 1
+The position of the mutual coupling is expressed as a ratio between 0 and 1, through a `LineSegment` object.
+A `LineSegment` has a start and an end position, with the constraint that: 0 ≤ start ≤ end ≤ 1
 Mutual coupling is symmetric: a coupling between line1 and line2 is equivalent to a coupling between line2 and line1.
 The list of mutual couplings cannot contain duplicates or symmetrical couplings.
 
