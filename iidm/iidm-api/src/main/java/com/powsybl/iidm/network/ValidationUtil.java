@@ -933,7 +933,6 @@ public final class ValidationUtil {
      */
     private static ValidationLevel checkVoltageRegulation(@NonNull Validable owner, VoltageRegulation voltageRegulation, Network network, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-        // TODO MSA change NetworkReports for each checkVoltageRegulation
         // Only validate when the regulation is true
         // This means that we can set all attributes when regulating is false and then validate them when we set regulating to true
         if (voltageRegulation != null) {
@@ -961,7 +960,7 @@ public final class ValidationUtil {
     private static ValidationLevel checkVoltageRegulationTargetValue(@NonNull Validable owner, double targetValue, RegulationMode mode, ActionOnError actionOnError, ReportNode reportNode) {
         if (Double.isNaN(targetValue)) {
             throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.targetValue", actionOnError,
-                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+                id -> NetworkReports.invalidVoltageRegulationTargetValue(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         }
         if (mode == RegulationMode.VOLTAGE) {
@@ -980,7 +979,7 @@ public final class ValidationUtil {
     private static ValidationLevel checkVoltageRegulationDeadband(@NonNull Validable owner, double targetDeadband, Class<? extends VoltageRegulationHolder> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
         if (classHolder == ShuntCompensator.class && Double.isNaN(targetDeadband)) {
             throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.targetDeadband. Must be not null for RatioTapChanger and ShuntCompensator", actionOnError,
-                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+                id -> NetworkReports.invalidVoltageRegulationDeadband(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         }
         if (targetDeadband < 0) {
@@ -1000,7 +999,7 @@ public final class ValidationUtil {
         Set<RegulationMode> slopeMode = Set.of(com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE_PER_REACTIVE_POWER, com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
         if (mode != null && Double.isNaN(slope) && slopeMode.contains(mode)) {
             throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.slope. Must be not null for regulationMode VOLTAGE_PER_REACTIVE_POWER and REACTIVE_POWER_PER_ACTIVE_POWER", actionOnError,
-                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+                id -> NetworkReports.invalidVoltageRegulationSlope(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -1016,7 +1015,7 @@ public final class ValidationUtil {
     private static ValidationLevel checkVoltageRegulationTerminal(@NonNull Validable owner, Terminal terminal, Network network, ActionOnError actionOnError, ReportNode reportNode) {
         if (terminal != null && terminal.getVoltageLevel().getNetwork() != network) {
             throwExceptionOrLogError(owner, "voltageRegulation.terminal is not part of the network", actionOnError,
-                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+                id -> NetworkReports.invalidVoltageRegulationTerminal(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -1032,7 +1031,7 @@ public final class ValidationUtil {
     private static <T extends VoltageRegulationHolder> ValidationLevel checkVoltageRegulationMode(@NonNull Validable owner, RegulationMode mode, Class<T> classHolder, ActionOnError actionOnError, ReportNode reportNode) {
         if (mode == null) {
             throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.regulationMode", actionOnError,
-                id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+                id -> NetworkReports.invalidVoltageRegulationMode(reportNode, id));
             return ValidationLevel.EQUIPMENT;
         } else {
             // CHECK ALLOWED MODE
@@ -1042,7 +1041,7 @@ public final class ValidationUtil {
                 String message = String.format("The current regulationMode is %s but allowed modes are %s",
                     mode, allowedModesString);
                 throwExceptionOrLogError(owner, message, actionOnError,
-                    id -> NetworkReports.invalidVoltageRegulationSection(reportNode, id));
+                    id -> NetworkReports.invalidVoltageRegulationModeAllowed(reportNode, id, mode.name(), allowedModesString));
                 return ValidationLevel.EQUIPMENT;
             }
         }
