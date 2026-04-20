@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -83,30 +84,12 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
 
     private static void readVoltageRegulationPrevious116(VoltageSourceConverterAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
-            Boolean voltageRegulatorOn = voltageRegulatorOnRef.get();
-            RegulationMode regulationMode;
-            if (voltageRegulatorOn == null) {
-                if (!Double.isNaN(voltageSetpoint.get())) {
-                    regulationMode = RegulationMode.VOLTAGE;
-                } else if (!Double.isNaN(reactivePowerSetpoint.get())) {
-                    regulationMode = RegulationMode.REACTIVE_POWER;
-                } else {
-                    regulationMode = RegulationMode.VOLTAGE;
-                }
-            } else {
-                regulationMode = voltageRegulatorOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
-            }
-            double targetValue;
-            if (regulationMode == RegulationMode.REACTIVE_POWER) {
-                targetValue = reactivePowerSetpoint.get();
-                adder.setTargetV(voltageSetpoint.get());
-            } else {
-                targetValue = voltageSetpoint.get();
-                adder.setTargetQ(reactivePowerSetpoint.get());
-            }
+            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
+            adder.setTargetV(voltageRegulationData.targetV());
+            adder.setTargetQ(voltageRegulationData.targetQ());
             adder.newVoltageRegulation()
-                .withTargetValue(targetValue)
-                .withMode(regulationMode)
+                .withTargetValue(voltageRegulationData.targetValue())
+                .withMode(voltageRegulationData.regulationMode())
                 .add();
         });
     }

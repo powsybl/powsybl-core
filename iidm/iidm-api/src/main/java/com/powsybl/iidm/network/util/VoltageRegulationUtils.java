@@ -107,4 +107,32 @@ public final class VoltageRegulationUtils {
         return false;
     }
 
+    public static VoltageRegulationData buildVoltageRegulationData(Boolean voltageRegulatorOn, Double voltageSetpoint, Double reactivePowerSetpoint) {
+        RegulationMode regulationMode;
+        if (voltageRegulatorOn == null) {
+            if (!Double.isNaN(voltageSetpoint)) {
+                regulationMode = RegulationMode.VOLTAGE;
+            } else if (!Double.isNaN(reactivePowerSetpoint)) {
+                regulationMode = RegulationMode.REACTIVE_POWER;
+            } else {
+                regulationMode = RegulationMode.VOLTAGE;
+            }
+        } else {
+            regulationMode = voltageRegulatorOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
+        }
+        double targetValue;
+        double targetV = Double.NaN;
+        double targetQ = Double.NaN;
+        if (regulationMode == RegulationMode.REACTIVE_POWER) {
+            targetValue = reactivePowerSetpoint;
+            targetV = voltageSetpoint;
+        } else {
+            targetValue = voltageSetpoint;
+            targetQ = reactivePowerSetpoint;
+        }
+        return new VoltageRegulationData(regulationMode, targetV, targetQ, targetValue);
+    }
+
+    public record VoltageRegulationData(RegulationMode regulationMode, double targetV, double targetQ, double targetValue) { }
+
 }
