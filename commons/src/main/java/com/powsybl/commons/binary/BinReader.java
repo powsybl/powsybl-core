@@ -418,6 +418,14 @@ public class BinReader extends AbstractTreeDataReader {
         }
     }
 
+    boolean readEndOfStream() {
+        try {
+            return dis.read() == -1;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void close() {
         try {

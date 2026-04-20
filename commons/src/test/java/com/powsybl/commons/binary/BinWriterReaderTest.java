@@ -204,6 +204,7 @@ class BinWriterReaderTest {
 
         // skipNode must recursively skip attrs and children at all depths
         reader.readChildNodes(nodeName -> reader.skipNode());
+        assertTrue(reader.readEndOfStream());
         reader.close();
     }
 
