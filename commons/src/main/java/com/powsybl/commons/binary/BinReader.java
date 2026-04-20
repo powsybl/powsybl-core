@@ -8,8 +8,8 @@
 package com.powsybl.commons.binary;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.AbstractTreeDataReader;
 import com.powsybl.commons.io.TreeDataHeader;
-import com.powsybl.commons.io.TreeDataReader;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +20,7 @@ import static com.powsybl.commons.binary.BinUtil.*;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class BinReader implements TreeDataReader {
+public class BinReader extends AbstractTreeDataReader {
 
     private final DataInputStream dis;
     private final byte[] binaryMagicNumber;
@@ -32,25 +32,32 @@ public class BinReader implements TreeDataReader {
 
     private int nextAttrIdx = END_ATTRS;
 
-    private static final int BUFFER_SIZE = 1024 * 1024;
-
     public BinReader(InputStream is, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = binaryMagicNumber;
-        this.dis = new DataInputStream(new BufferedInputStream(Objects.requireNonNull(is), BUFFER_SIZE));
+        this.dis = new DataInputStream(new BufferedInputStream(Objects.requireNonNull(is)));
     }
 
     @Override
     public TreeDataHeader readHeader() {
+        TreeDataHeader header = super.readHeader();
         try {
-            readMagicNumber();
-            TreeDataHeader header = new TreeDataHeader(readString(), readExtensionVersions());
             readNodeDictionary();
             readAttrDictionary();
             nextAttrIdx = dis.readUnsignedShort();
-            return header;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        return header;
+    }
+
+    @Override
+    protected String readRootVersion() {
+        try {
+            readMagicNumber();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return readString();
     }
 
     private void readMagicNumber() throws IOException {
@@ -60,13 +67,18 @@ public class BinReader implements TreeDataReader {
         }
     }
 
-    public Map<String, String> readExtensionVersions() throws IOException {
-        int nbVersions = dis.readShort();
-        Map<String, String> versions = new HashMap<>();
-        for (int i = 0; i < nbVersions; i++) {
-            versions.put(readString(), readString());
+    @Override
+    protected Map<String, String> readExtensionVersions() {
+        try {
+            int nbVersions = dis.readShort();
+            Map<String, String> versions = new HashMap<>();
+            for (int i = 0; i < nbVersions; i++) {
+                versions.put(readString(), readString());
+            }
+            return versions;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return versions;
     }
 
     private void readNodeDictionary() throws IOException {
@@ -107,15 +119,35 @@ public class BinReader implements TreeDataReader {
 
     private void skipTypedValue(byte typeTag) throws IOException {
         switch (typeTag) {
-            case TYPE_DOUBLE -> dis.readDouble();
-            case TYPE_FLOAT -> dis.readFloat();
-            case TYPE_INT -> dis.readInt();
-            case TYPE_BOOLEAN -> dis.readBoolean();
-            case TYPE_STRING, TYPE_STRING_CONTENT -> readString();
-            case TYPE_ENUM -> dis.readShort();
-            case TYPE_INT_ARRAY -> readIntArrayRaw();
-            case TYPE_STRING_ARRAY -> readStringArrayRaw();
+            case TYPE_DOUBLE -> dis.skipNBytes(8);
+            case TYPE_FLOAT, TYPE_INT -> dis.skipNBytes(4);
+            case TYPE_BOOLEAN -> dis.skipNBytes(1);
+            case TYPE_STRING, TYPE_STRING_CONTENT -> skipString();
+            case TYPE_ENUM -> dis.skipNBytes(2);
+            case TYPE_INT_ARRAY -> skipIntArray();
+            case TYPE_STRING_ARRAY -> skipStringArray();
             default -> throw new PowsyblException("Binary format: unknown attribute type tag " + typeTag);
+        }
+    }
+
+    private void skipString() throws IOException {
+        int len = dis.readShort();
+        if (len > 0) {
+            dis.skipNBytes(len);
+        }
+    }
+
+    private void skipIntArray() throws IOException {
+        int count = dis.readShort();
+        for (int i = 0; i < count; i++) {
+            dis.skipNBytes(4);
+        }
+    }
+
+    private void skipStringArray() throws IOException {
+        int count = dis.readShort();
+        for (int i = 0; i < count; i++) {
+            skipString();
         }
     }
 
@@ -154,11 +186,6 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
-    public double readDoubleAttribute(String name) {
-        return readDoubleAttribute(name, Double.NaN);
-    }
-
-    @Override
     public double readDoubleAttribute(String name, double defaultValue) {
         try {
             if (isAttrAbsent(name)) {
@@ -184,11 +211,6 @@ public class BinReader implements TreeDataReader {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public float readFloatAttribute(String name) {
-        return readFloatAttribute(name, Float.NaN);
     }
 
     @Override
@@ -221,7 +243,16 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public int readIntAttribute(String name) {
-        return readIntAttribute(name, 0);
+        if (isAttrAbsent(name)) {
+            throw new PowsyblException("Missing required int attribute: " + name);
+        }
+        try {
+            int val = dis.readInt();
+            nextAttrIdx = dis.readUnsignedShort();
+            return val;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
@@ -254,7 +285,16 @@ public class BinReader implements TreeDataReader {
 
     @Override
     public boolean readBooleanAttribute(String name) {
-        return readBooleanAttribute(name, false);
+        if (isAttrAbsent(name)) {
+            throw new PowsyblException("Binary parsing: expected attribute '" + name + "' is missing");
+        }
+        try {
+            boolean value = dis.readBoolean();
+            nextAttrIdx = dis.readUnsignedShort();
+            return value;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
@@ -283,11 +323,6 @@ public class BinReader implements TreeDataReader {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz) {
-        return readEnumAttribute(name, clazz, null);
     }
 
     @Override
