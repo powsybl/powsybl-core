@@ -323,16 +323,42 @@ This extension models the homopolar line data to be used for asymmetrical short-
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
-(line-mutual-coupling)=
-## Line Mutual Coupling
+(line-couplings-extension)=
+## Line Couplings
 
-This extension models the mutual coupling of two lines.
-It should be added to a line. 
+This extension models the mutual coupling between two lines. It is attached to the `Network` object and contains a list of mutual couplings.
 
-| Attribute | Type   | Unit | Required | Default value | Description                                |
-|-----------|--------|------|----------|---------------|--------------------------------------------|
-| r         | double | Ω    | no       | -             | The mutual coupling resistance of the line |
-| x         | double | Ω    | no       | -             | The mutual coupling reactance of the line  |
+The attributes of a `MutualCoupling` are:
+
+| Attribute  | Type   | Unit | Required | Default value | Description                                                     |
+|------------|--------|------|----------|---------------|-----------------------------------------------------------------|
+| line1      | Line   | -    | yes      | -             | The first coupled line                                          |
+| line2      | Line   | -    | yes      | -             | The second coupled line                                         |
+| r          | double | Ω    | yes      | -             | The mutual coupling resistance                                  |
+| x          | double | Ω    | yes      | -             | The mutual coupling reactance                                   |
+| line1Start | double | -    | no       | 0             | The starting position of the mutual coupling on the first line  |
+| line1End   | double | -    | no       | 1             | The ending position of the mutual coupling on the first line    |
+| line2Start | double | -    | no       | 0             | The starting position of the mutual coupling on the second line |
+| line2End   | double | -    | no       | 1             | The ending position of the mutual coupling on the second line   |
+
+The position of the mutual coupling is expressed as a ratio between 0 and 1, with the constraint that: 0 ≤ start ≤ end ≤ 1
+Mutual coupling is symmetric: a coupling between line1 and line2 is equivalent to a coupling between line2 and line1.
+The list of mutual couplings cannot contain duplicates or symmetrical couplings.
+
+Example of code to add a mutual coupling:
+
+```java
+Line line1 = network.getLine("L1");
+Line line2 = network.getLine("L2");
+network.newExtension(LineCouplingsAdder.class).add();
+network.getExtension(LineCouplings.class)
+    .newMutualCoupling()
+    .withLine1(line1)
+    .withLine2(line2)
+    .withR(0.1)
+    .withX(0.4)
+    .add();
+```
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
