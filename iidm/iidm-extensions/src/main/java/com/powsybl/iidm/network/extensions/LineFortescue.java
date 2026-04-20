@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Line;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface LineFortescue extends Extension<Line> {
+    record Admittances(double g1z, double b1z, double g2z, double b2z) {
+    }
 
     String NAME = "lineFortescue";
 
@@ -37,21 +39,41 @@ public interface LineFortescue extends Extension<Line> {
 
     void setXz(double xz);
 
-    double getG1z();
+    default double getG1z() {
+        return getAdmittances().g1z();
+    }
 
-    void setG1z(double g1z);
+    default void setG1z(double g1z) {
+        setAdmittances(new Admittances(g1z, getAdmittances().b1z(), getAdmittances().g2z(), getAdmittances().b2z()));
+    }
 
-    double getB1z();
+    default double getB1z() {
+        return getAdmittances().b1z();
+    }
 
-    void setB1z(double b1z);
+    default void setB1z(double b1z) {
+        setAdmittances(new Admittances(getAdmittances().g1z(), b1z, getAdmittances().g2z(), getAdmittances().b2z()));
+    }
 
-    double getG2z();
+    default double getG2z() {
+        return getAdmittances().g2z();
+    }
 
-    void setG2z(double g2z);
+    default void setG2z(double g2z) {
+        setAdmittances(new Admittances(getAdmittances().g1z(), getAdmittances().b1z(), g2z, getAdmittances().b2z()));
+    }
 
-    double getB2z();
+    default double getB2z() {
+        return getAdmittances().b2z();
+    }
 
-    void setB2z(double b2z);
+    default void setB2z(double b2z) {
+        setAdmittances(new Admittances(getAdmittances().g1z(), getAdmittances().b1z(), getAdmittances().g2z(), b2z));
+    }
+
+    Admittances getAdmittances();
+
+    void setAdmittances(Admittances admittances);
 
     boolean isOpenPhaseA();
 
