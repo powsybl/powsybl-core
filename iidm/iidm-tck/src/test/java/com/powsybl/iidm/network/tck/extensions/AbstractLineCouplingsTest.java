@@ -139,7 +139,7 @@ public abstract class AbstractLineCouplingsTest {
             .add();
 
         MutualCouplingAdder adder = lc.newMutualCoupling()
-            .withLine1(network.getLine("NHV1_NHV2_2")) // reversed order
+            .withLine1(network.getLine("NHV1_NHV2_2"))
             .withLine2(network.getLine("NHV1_NHV2_1"))
             .withR(0.3)
             .withX(0.4);
