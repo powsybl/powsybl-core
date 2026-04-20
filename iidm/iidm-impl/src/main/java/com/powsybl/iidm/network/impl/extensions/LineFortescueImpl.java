@@ -20,26 +20,29 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
     private double rz;
     private double xz;
 
-    private double b1z;
-    private double b2z;
     private double g1z;
+    private double b1z;
     private double g2z;
+    private double b2z;
 
     private boolean openPhaseA;
     private boolean openPhaseB;
     private boolean openPhaseC;
 
-    public LineFortescueImpl(Line line, double rz, double xz, double b1z, double b2z, double g1z, double g2z, boolean openPhaseA, boolean openPhaseB, boolean openPhaseC) {
+    public LineFortescueImpl(Line line, double rz, double xz, LineFortescueAdmittances lineFortescueAdmittances, boolean openPhaseA, boolean openPhaseB, boolean openPhaseC) {
         super(line);
         this.rz = rz;
         this.xz = xz;
-        this.b1z = b1z;
-        this.b2z = b2z;
-        this.g1z = g1z;
-        this.g2z = g2z;
+        this.g1z = lineFortescueAdmittances.g1z();
+        this.b1z = lineFortescueAdmittances.b1z();
+        this.g2z = lineFortescueAdmittances.g2z();
+        this.b2z = lineFortescueAdmittances.b2z();
         this.openPhaseA = openPhaseA;
         this.openPhaseB = openPhaseB;
         this.openPhaseC = openPhaseC;
+    }
+
+    record LineFortescueAdmittances(double g1z, double b1z, double g2z, double b2z) {
     }
 
     @Override
