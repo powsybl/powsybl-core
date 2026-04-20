@@ -19,8 +19,12 @@ import com.powsybl.iidm.network.extensions.LineFortescueAdder;
 public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFortescue> implements LineFortescueAdder {
 
     private double rz = Double.NaN;
-
     private double xz = Double.NaN;
+
+    private double b1z = Double.NaN;
+    private double b2z = Double.NaN;
+    private double g1z = Double.NaN;
+    private double g2z = Double.NaN;
 
     private boolean openPhaseA = false;
     private boolean openPhaseB = false;
@@ -37,7 +41,8 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
 
     @Override
     protected LineFortescueImpl createExtension(Line line) {
-        return new LineFortescueImpl(line, rz, xz, openPhaseA, openPhaseB, openPhaseC);
+        LineFortescue.Admittances admittances = new LineFortescue.Admittances(g1z, b1z, g2z, b2z);
+        return new LineFortescueImpl(line, rz, xz, admittances, openPhaseA, openPhaseB, openPhaseC);
     }
 
     @Override
@@ -49,6 +54,30 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
     @Override
     public LineFortescueAdderImpl withXz(double xz) {
         this.xz = xz;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withG1z(double g1z) {
+        this.g1z = g1z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withB1z(double b1z) {
+        this.b1z = b1z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withG2z(double g2z) {
+        this.g2z = g2z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withB2z(double b2z) {
+        this.b2z = b2z;
         return this;
     }
 
