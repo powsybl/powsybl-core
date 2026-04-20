@@ -57,6 +57,30 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
     }
 
     @Override
+    public LineFortescueAdderImpl withG1z(double g1z) {
+        this.g1z = g1z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withB1z(double b1z) {
+        this.b1z = b1z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withG2z(double g2z) {
+        this.g2z = g2z;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdderImpl withB2z(double b2z) {
+        this.b2z = b2z;
+        return this;
+    }
+
+    @Override
     public LineFortescueAdder withOpenPhaseA(boolean openPhaseA) {
         this.openPhaseA = openPhaseA;
         return this;
@@ -73,29 +97,4 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
         this.openPhaseC = openPhaseC;
         return this;
     }
-
-    @Override
-    public LineFortescueAdderImpl withB1z(double b1z) {
-        this.b1z = b1z;
-        return this;
-    }
-
-    @Override
-    public LineFortescueAdderImpl withB2z(double b2z) {
-        this.b2z = b2z;
-        return this;
-    }
-
-    @Override
-    public LineFortescueAdderImpl withG1z(double g1z) {
-        this.g1z = g1z;
-        return this;
-    }
-
-    @Override
-    public LineFortescueAdderImpl withG2z(double g2z) {
-        this.g2z = g2z;
-        return this;
-    }
-
 }

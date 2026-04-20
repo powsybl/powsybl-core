@@ -17,8 +17,8 @@
             <xs:attribute name="rz" type="xs:double"/>
             <xs:attribute name="xz" type="xs:double"/>
             <xs:attribute name="g1z" type="xs:double"/>
-            <xs:attribute name="g2z" type="xs:double"/>
             <xs:attribute name="b1z" type="xs:double"/>
+            <xs:attribute name="g2z" type="xs:double"/>
             <xs:attribute name="b2z" type="xs:double"/>
             <xs:attribute name="openPhaseA" type="xs:boolean"/>
             <xs:attribute name="openPhaseB" type="xs:boolean"/>
