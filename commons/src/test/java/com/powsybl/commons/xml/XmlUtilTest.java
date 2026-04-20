@@ -194,7 +194,7 @@ class XmlUtilTest {
 
     @Test
     void testSchemaFactory() {
-        SchemaFactory factory = XmlUtil.newSchemaFactory();
+        SchemaFactory factory = XmlUtil.createSchemaFactoryInstance();
         assertNotNull(factory);
         try {
             Object value1 = factory.getProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);

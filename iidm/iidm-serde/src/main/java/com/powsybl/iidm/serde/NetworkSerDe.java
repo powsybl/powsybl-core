@@ -66,7 +66,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
-import static com.powsybl.commons.xml.XmlUtil.newSchemaFactory;
+import static com.powsybl.commons.xml.XmlUtil.createSchemaFactoryInstance;
 import static com.powsybl.iidm.serde.AbstractTreeDataImporter.SUFFIX_MAPPING;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.IIDM_PREFIX;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.INDENT;
@@ -144,7 +144,7 @@ public final class NetworkSerDe {
         for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
         }
-        SchemaFactory factory = newSchemaFactory();
+        SchemaFactory factory = createSchemaFactoryInstance();
         try {
             int length = IidmVersion.values().length + (int) Arrays.stream(IidmVersion.values())
                     .filter(IidmVersion::supportEquipmentValidationLevel).count();
@@ -177,17 +177,14 @@ public final class NetworkSerDe {
         byte[] xmlBytes;
         try {
             xmlBytes = is.readAllBytes();
-            checkNamespace(xmlBytes, version);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        checkNamespace(xmlBytes, version);
         // XSD validation
-        Schema schema;
-        if (extensionsSupplier == DefaultExtensionsSupplier.getInstance()) {
-            schema = DEFAULT_SCHEMAS_SUPPLIER.get().computeIfAbsent(version, v -> createSchema(DefaultExtensionsSupplier.getInstance(), v));
-        } else {
-            schema = createSchema(extensionsSupplier, version);
-        }
+        Schema schema = extensionsSupplier == DefaultExtensionsSupplier.getInstance() ?
+                DEFAULT_SCHEMAS_SUPPLIER.get().computeIfAbsent(version, v -> createSchema(DefaultExtensionsSupplier.getInstance(), v)) :
+                createSchema(extensionsSupplier, version);
         try {
             schema.newValidator().validate(new StreamSource(new ByteArrayInputStream(xmlBytes)));
         } catch (IOException e) {
@@ -201,19 +198,22 @@ public final class NetworkSerDe {
         Objects.requireNonNull(extensionsSupplier);
         Objects.requireNonNull(version);
 
-        SchemaFactory factory = newSchemaFactory();
+        SchemaFactory factory = createSchemaFactoryInstance();
         try {
-            List<Source> sources = new ArrayList<>();
+            List<Source> additionalExtensionSchemas = getExtensionSources(extensionsSupplier, version);
+            int length = version.supportEquipmentValidationLevel() ? 2 : 1;
+            Source[] sources = new Source[additionalExtensionSchemas.size() + length];
             // iidm: source
-            sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd())));
+            sources[0] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd()));
             // equipment: source
             if (version.supportEquipmentValidationLevel()) {
-                sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd(false))));
+                sources[1] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd(false)));
             }
             // extension: sources
-            sources.addAll(getExtensionSources(extensionsSupplier, version));
-
-            return factory.newSchema(sources.toArray(Source[]::new));
+            for (int k = 0; k < additionalExtensionSchemas.size(); k++) {
+                sources[length + k] = additionalExtensionSchemas.get(k);
+            }
+            return factory.newSchema(sources);
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
         } catch (IOException e) {
@@ -263,11 +263,11 @@ public final class NetworkSerDe {
     }
 
     private static void checkNamespace(byte[] xmlBytes, IidmVersion validationVersion) {
-        String actualNs = readRootNamespace(xmlBytes);
-        boolean matches = actualNs.equals(validationVersion.getNamespaceURI())
-                || validationVersion.supportEquipmentValidationLevel() && actualNs.equals(validationVersion.getNamespaceURI(false));
+        String actualNamespace = readRootNamespace(xmlBytes);
+        boolean matches = actualNamespace.equals(validationVersion.getNamespaceURI())
+                || validationVersion.supportEquipmentValidationLevel() && actualNamespace.equals(validationVersion.getNamespaceURI(false));
         if (!matches) {
-            throw new PowsyblException("Namespace mismatch: expected validation version " + validationVersion.toString(".") + ", found namespace " + actualNs);
+            throw new PowsyblException("Namespace mismatch: expected validation version " + validationVersion.toString(".") + ", found namespace " + actualNamespace);
         }
     }
 
