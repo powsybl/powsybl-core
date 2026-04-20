@@ -46,6 +46,7 @@ public interface MutualCouplingAdder {
 
     /**
      * Sets the starting position of the mutual coupling on the first line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @param start the starting position
      * @return the current mutual coupling adder
      */
@@ -53,6 +54,7 @@ public interface MutualCouplingAdder {
 
     /**
      * Sets the ending position of the mutual coupling on the first line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @param end the ending position
      * @return the current mutual coupling adder
      */
@@ -60,6 +62,7 @@ public interface MutualCouplingAdder {
 
     /**
      * Sets the starting position of the mutual coupling on the second line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @param start the starting position
      * @return the current mutual coupling adder
      */
@@ -67,6 +70,7 @@ public interface MutualCouplingAdder {
 
     /**
      * Sets the ending position of the mutual coupling on the second line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @param end the ending position
      * @return the current mutual coupling adder
      */

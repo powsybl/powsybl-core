@@ -54,30 +54,35 @@ public interface MutualCoupling {
 
     /**
      * Gets the starting position of the mutual coupling on the first line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @return the starting position
      */
     double getLine1Start();
 
     /**
      * Gets the starting position of the mutual coupling on the second line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @return the starting position
      */
     double getLine2Start();
 
     /**
      * Gets the ending position of the mutual coupling on the first line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @return the ending position
      */
     double getLine1End();
 
     /**
      * Gets the ending position of the mutual coupling on the second line.
+     * The position is a proportion of the line length and is between 0 and 1.
      * @return the ending position
      */
     double getLine2End();
 
     /**
      * Sets the starting and ending position of the mutual coupling on the second line.
+     * The positions are a proportion of the line length and are between 0 and 1.
      * @param line1Start the starting position
      * @param line1End the ending position
      */
@@ -85,6 +90,7 @@ public interface MutualCoupling {
 
     /**
      * Sets the starting and ending position of the mutual coupling on the second line.
+     * The positions are a proportion of the line length and are between 0 and 1.
      * @param line2Start the starting position
      * @param line2End the ending position
      */
