@@ -8,9 +8,11 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
@@ -29,4 +31,10 @@ public interface LineCouplings extends Extension<Network> {
     LineCouplings add(MutualCoupling mutualCoupling);
 
     MutualCouplingAdder newMutualCoupling();
+
+    Optional<MutualCoupling> findMutualCoupling(Line line1, Line line2);
+
+    boolean removeMutualCoupling(MutualCoupling mutualCoupling);
+
+    boolean removeMutualCoupling(Line line1, Line line2);
 }
