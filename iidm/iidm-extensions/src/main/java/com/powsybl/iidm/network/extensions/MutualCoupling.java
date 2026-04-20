@@ -23,22 +23,10 @@ public interface MutualCoupling {
     Line getLine1();
 
     /**
-     * Sets the first line.
-     * @param line1 the first line
-     */
-    void setLine1(Line line1);
-
-    /**
      * Gets the second line.
      * @return the second line
      */
     Line getLine2();
-
-    /**
-     * Sets the second line.
-     * @param line2 the second line
-     */
-    void setLine2(Line line2);
 
     /**
      * Gets the mutual coupling resistance.
@@ -71,22 +59,10 @@ public interface MutualCoupling {
     double getLine1Start();
 
     /**
-     * Sets the starting position of the mutual coupling on the first line.
-     * @param line1Start the starting position
-     */
-    void setLine1Start(double line1Start);
-
-    /**
      * Gets the starting position of the mutual coupling on the second line.
      * @return the starting position
      */
     double getLine2Start();
-
-    /**
-     * Sets the starting position of the mutual coupling on the second line.
-     * @param line2Start the starting position
-     */
-    void setLine2Start(double line2Start);
 
     /**
      * Gets the ending position of the mutual coupling on the first line.
@@ -95,21 +71,23 @@ public interface MutualCoupling {
     double getLine1End();
 
     /**
-     * Sets the ending position of the mutual coupling on the first line.
-     * @param line1End the ending position
-     */
-    void setLine1End(double line1End);
-
-    /**
      * Gets the ending position of the mutual coupling on the second line.
      * @return the ending position
      */
     double getLine2End();
 
     /**
-     * Sets the ending position of the mutual coupling on the second line.
+     * Sets the starting and ending position of the mutual coupling on the second line.
+     * @param line1Start the starting position
+     * @param line1End the ending position
+     */
+    void setLine1Position(double line1Start, double line1End);
+
+    /**
+     * Sets the starting and ending position of the mutual coupling on the second line.
+     * @param line2Start the starting position
      * @param line2End the ending position
      */
-    void setLine2End(double line2End);
+    void setLine2Position(double line2Start, double line2End);
 
 }

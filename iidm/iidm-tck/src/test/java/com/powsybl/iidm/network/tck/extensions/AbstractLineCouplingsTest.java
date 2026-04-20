@@ -189,4 +189,62 @@ public abstract class AbstractLineCouplingsTest {
         assertTrue(lc.removeMutualCoupling(l2, l1)); // reversed
         assertEquals(0, lc.getMutualCouplings().size());
     }
+
+    @Test
+    void testSetters() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        Line l1 = network.getLine("NHV1_NHV2_1");
+        Line l2 = network.getLine("NHV1_NHV2_2");
+
+        MutualCoupling mc = network.getExtension(LineCouplings.class)
+            .newMutualCoupling()
+            .withLine1(l1)
+            .withLine2(l2)
+            .withR(0.1)
+            .withX(0.2)
+            .add();
+
+        assertEquals(0.1, mc.getR());
+        assertEquals(0.2, mc.getX());
+        assertEquals(0, mc.getLine1Start());
+        assertEquals(1, mc.getLine1End());
+        assertEquals(0, mc.getLine2Start());
+        assertEquals(1, mc.getLine2End());
+
+        mc.setR(0.5);
+        mc.setX(1.2);
+        mc.setLine1Position(0.2, 0.8);
+        mc.setLine2Position(0.1, 0.9);
+
+        assertEquals(0.5, mc.getR());
+        assertEquals(1.2, mc.getX());
+        assertEquals(0.2, mc.getLine1Start());
+        assertEquals(0.8, mc.getLine1End());
+        assertEquals(0.1, mc.getLine2Start());
+        assertEquals(0.9, mc.getLine2End());
+    }
+
+    @Test
+    void testSetInvalidLinePosition() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(LineCouplingsAdder.class).add();
+
+        MutualCoupling mc = network.getExtension(LineCouplings.class)
+            .newMutualCoupling()
+            .withLine1(network.getLine("NHV1_NHV2_1"))
+            .withLine2(network.getLine("NHV1_NHV2_2"))
+            .withR(0.1)
+            .withX(0.2)
+            .withLine1Start(0.5)
+            .withLine1End(0.8)
+            .add();
+
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> mc.setLine1Position(0.6, 0.4));
+        assertEquals("Invalid line1 positions: start=0.6, end=0.4", exception.getMessage());
+
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> mc.setLine2Position(-0.5, 1.1));
+        assertEquals("Invalid line2 positions: start=-0.5, end=1.1", exception2.getMessage());
+    }
 }

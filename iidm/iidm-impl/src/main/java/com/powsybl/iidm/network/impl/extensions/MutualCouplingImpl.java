@@ -46,25 +46,8 @@ public class MutualCouplingImpl implements MutualCoupling {
     }
 
     @Override
-    public void setLine1(Line line1) {
-        if (Objects.equals(line1.getId(), this.line2.getId())) {
-            throw new PowsyblException("Lines must be different.");
-        }
-        this.line1 = Objects.requireNonNull(line1);
-    }
-
-    @Override
     public Line getLine2() {
         return line2;
-    }
-
-    @Override
-    public void setLine2(Line line2) {
-        if (Objects.equals(this.line1.getId(), line2.getId())) {
-            throw new PowsyblException("Lines must be different.");
-        }
-
-        this.line2 = Objects.requireNonNull(line2);
     }
 
     @Override
@@ -93,24 +76,8 @@ public class MutualCouplingImpl implements MutualCoupling {
     }
 
     @Override
-    public void setLine1Start(double line1Start) {
-        if (!isValidPosition(line1Start, this.line1End)) {
-            throw new PowsyblException("Invalid line1 positions: start=" + line1Start + ", end=" + this.line1End);
-        }
-        this.line1Start = line1Start;
-    }
-
-    @Override
     public double getLine2Start() {
         return line2Start;
-    }
-
-    @Override
-    public void setLine2Start(double line2Start) {
-        if (!isValidPosition(line2Start, this.line2End)) {
-            throw new PowsyblException("Invalid line2 positions: start=" + line2Start + ", end=" + this.line2End);
-        }
-        this.line2Start = line2Start;
     }
 
     @Override
@@ -119,23 +86,25 @@ public class MutualCouplingImpl implements MutualCoupling {
     }
 
     @Override
-    public void setLine1End(double line1End) {
-        if (!isValidPosition(this.line1Start, line1End)) {
-            throw new PowsyblException("Invalid line1 positions: start=" + this.line1Start + ", end=" + line1End);
-        }
-        this.line1End = line1End;
-    }
-
-    @Override
     public double getLine2End() {
         return line2End;
     }
 
     @Override
-    public void setLine2End(double line2End) {
-        if (!isValidPosition(this.line2Start, line2End)) {
-            throw new PowsyblException("Invalid line2 positions: start=" + this.line2Start + ", end=" + line2End);
+    public void setLine1Position(double line1Start, double line1End) {
+        if (!isValidPosition(line1Start, line1End)) {
+            throw new PowsyblException("Invalid line1 positions: start=" + line1Start + ", end=" + line1End);
         }
+        this.line1Start = line1Start;
+        this.line1End = line1End;
+    }
+
+    @Override
+    public void setLine2Position(double line2Start, double line2End) {
+        if (!isValidPosition(line2Start, line2End)) {
+            throw new PowsyblException("Invalid line2 positions: start=" + line2Start + ", end=" + line2End);
+        }
+        this.line2Start = line2Start;
         this.line2End = line2End;
     }
 
