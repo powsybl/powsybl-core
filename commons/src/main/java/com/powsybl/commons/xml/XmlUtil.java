@@ -184,17 +184,21 @@ public final class XmlUtil {
 
     public static SchemaFactory createSchemaFactoryInstance() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        setProperty(factory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        } catch (SAXException e) {
+            logUnsupportedProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
+        }
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        } catch (SAXException e) {
+            logUnsupportedProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
+        }
         return factory;
     }
 
-    private static void setProperty(SchemaFactory factory, String property, String propertyValue) {
-        try {
-            factory.setProperty(property, propertyValue);
-        } catch (SAXException e) {
-            LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
-        }
+    private static void logUnsupportedProperty(String property) {
+        LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
     }
 
     private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter) throws XMLStreamException {
