@@ -13,14 +13,13 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationImpl implements VoltageRegulation, MultiVariantObject, Referrer<Terminal> {
+public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     private Validable validable;
     private final Class<? extends VoltageRegulationHolder> classHolder;

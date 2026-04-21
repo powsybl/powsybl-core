@@ -31,11 +31,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                 double targetP, double targetQ,
-                VoltageRegulationImpl voltageRegulation,
+                VoltageRegulationExt voltageRegulation,
                 double minP, double maxP) {
         super(ref, id, name, fictitious);
         this.minP = minP;
@@ -249,7 +249,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this.voltageRegulation;
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
@@ -260,17 +260,17 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
+        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
         return this.voltageRegulation;
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::removeTerminal);
         this.voltageRegulation = null;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

@@ -31,7 +31,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     // attributes depending on the variant
 
@@ -46,7 +46,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
-                  VoltageRegulationImpl voltageRegulation,
+                  VoltageRegulationExt voltageRegulation,
                   double targetP, double targetQ, double targetV,
                   double ratedS, boolean isCondenser) {
         super(network, id, name, fictitious);
@@ -313,11 +313,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public VoltageRegulationImpl getVoltageRegulation() {
+    public VoltageRegulationExt getVoltageRegulation() {
         return this.voltageRegulation;
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
@@ -328,17 +328,17 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
+        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
         return this.voltageRegulation;
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::removeTerminal);
         this.voltageRegulation = null;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

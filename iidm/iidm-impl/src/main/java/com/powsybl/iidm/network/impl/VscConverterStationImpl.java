@@ -30,10 +30,10 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final TDoubleArrayList targetV;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
-                            double targetQ, double targetV, VoltageRegulationImpl voltageRegulation) {
+                            double targetQ, double targetV, VoltageRegulationExt voltageRegulation) {
         super(ref, id, name, fictitious, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.targetQ = new TDoubleArrayList(variantArraySize);
@@ -186,7 +186,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
+        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
         return this.voltageRegulation;
     }
 
@@ -195,13 +195,13 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         return this.voltageRegulation;
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::removeTerminal);
         this.voltageRegulation = null;
     }
 
@@ -246,7 +246,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         super.remove();
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

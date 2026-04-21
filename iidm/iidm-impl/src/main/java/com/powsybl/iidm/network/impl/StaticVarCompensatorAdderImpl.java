@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -36,7 +37,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private Boolean regulating;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.voltageLevel = Objects.requireNonNull(vl);
@@ -101,13 +102,10 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         return this;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
-    }
-
     @Override
     public VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, getNetworkRef(), this::setVoltageRegulation);
+        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
+        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, getNetworkRef(), voltageRegulationConsumer);
     }
 
     @Override

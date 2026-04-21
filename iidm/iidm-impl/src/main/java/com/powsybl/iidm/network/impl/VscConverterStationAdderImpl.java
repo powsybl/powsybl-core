@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
+import java.util.function.Consumer;
+
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
@@ -30,7 +32,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     private double targetV = Double.NaN;
 
-    private VoltageRegulationImpl voltageRegulation = null;
+    private VoltageRegulationExt voltageRegulation = null;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -65,10 +67,6 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         return this;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
-    }
-
     @Override
     public VscConverterStationAdder setTargetV(double targetV) {
         this.targetV = targetV;
@@ -83,7 +81,8 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     @Override
     public VoltageRegulationAdder<VscConverterStationAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(VscConverterStation.class, this, getNetworkRef(), this::setVoltageRegulation);
+        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
+        return new VoltageRegulationAdderImpl<>(VscConverterStation.class, this, getNetworkRef(), voltageRegulationConsumer);
     }
 
     @Override

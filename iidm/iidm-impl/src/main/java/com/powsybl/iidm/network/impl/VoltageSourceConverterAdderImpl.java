@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
+import java.util.function.Consumer;
+
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
@@ -22,7 +24,7 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
     private double reactivePowerSetpoint = Double.NaN;
     private double targetQ = Double.NaN;
     private double targetV = Double.NaN;
-    private VoltageRegulationImpl voltageRegulation = null;
+    private VoltageRegulationExt voltageRegulation = null;
 
     VoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -35,7 +37,8 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
 
     @Override
     public VoltageRegulationAdder<VoltageSourceConverterAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(VoltageSourceConverter.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
+        return new VoltageRegulationAdderImpl<>(VoltageSourceConverter.class, this, getNetwork().getRef(), voltageRegulationConsumer);
     }
 
     @Override
@@ -93,7 +96,4 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         return this;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
-    }
 }

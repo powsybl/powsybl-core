@@ -26,7 +26,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
 
     protected final Class<? extends VoltageRegulationHolder> classHolder;
     protected final P parent;
-    protected final Consumer<VoltageRegulationImpl> voltageRegulationSetter;
+    protected final Consumer<VoltageRegulationExt> voltageRegulationSetter;
     protected final Ref<NetworkImpl> network;
     protected double targetValue = Double.NaN;
     protected double targetDeadband = Double.NaN;
@@ -35,7 +35,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected RegulationMode mode = null;
     protected boolean regulating = true;
 
-    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder> classHolder, P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationImpl> voltageRegulationSetter) {
+    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder> classHolder, P parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationExt> voltageRegulationSetter) {
         this.classHolder = classHolder;
         this.parent = parent;
         this.voltageRegulationSetter = voltageRegulationSetter;
@@ -81,7 +81,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     /**
      * Validates and creates a new instance of VoltageRegulation
      */
-    protected @NonNull VoltageRegulationImpl createVoltageRegulation() {
+    protected @NonNull VoltageRegulationExt createVoltageRegulation() {
         // VALIDATION
         if (parent instanceof Validable validable) {
             // MODE

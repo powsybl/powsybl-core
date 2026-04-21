@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 /**
@@ -31,7 +32,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     private boolean voltageRegulatorOn = false;
 
@@ -192,7 +193,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     @Override
     public VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, getNetworkRef(), this::setVoltageRegulation);
+        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
+        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, getNetworkRef(), voltageRegulationConsumer);
     }
 
     @Override
@@ -246,10 +248,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         network.getIndex().checkAndAdd(shunt);
         network.getListeners().notifyCreation(shunt);
         return shunt;
-    }
-
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
     }
 
 }

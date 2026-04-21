@@ -14,6 +14,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
 import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
+
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
@@ -426,7 +429,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         converterAdder.setDcNode2(dcNodesIds.getLast());
 
         converterAdder.setControlMode(controlMode);
-        converterAdder.setVoltageRegulatorOn(acVoltageRegulation);
+        VoltageRegulationAdder<VoltageSourceConverterAdder> voltageRegulationAdder = converterAdder.newVoltageRegulation();
+        RegulationMode regulationMode = acVoltageRegulation ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
+        voltageRegulationAdder.withMode(regulationMode);
 
         double targetVdc = pfParams.uSetVoltageDcPu * pfParams.unomDc;
         if (!Double.isFinite(targetVdc) && controlMode == ControlMode.V_DC) {
@@ -438,7 +443,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         if (!Double.isFinite(voltageSetPointAc) && acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has V_AC control but unspecified target V_AC.");
         }
-        converterAdder.setVoltageSetpoint(voltageSetPointAc);
+        if (RegulationMode.VOLTAGE.equals(regulationMode)) {
+            voltageRegulationAdder.withTargetValue(voltageSetPointAc);
+        }
 
         // Loss model
         double idleLoss = computeIdleLoss(controlMode, pfParams.pnold, pfParams.uSetVoltageDcPu);
@@ -454,12 +461,15 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         if (!Double.isFinite(pfParams.qsetp) && !acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has Q control but undefined Q.");
         }
-        converterAdder.setReactivePowerSetpoint(-pfParams.qsetp);
+        if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
+            voltageRegulationAdder.withTargetValue(-pfParams.qsetp);
+        }
         if (!Double.isFinite(pfParams.psetp) && controlMode == ControlMode.P_PCC) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has P control but undefined P.");
         }
         converterAdder.setTargetP(-pfParams.psetp);
 
+        voltageRegulationAdder.add();
         converterAdder.add();
     }
 

@@ -24,7 +24,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     private final ShuntCompensatorModelExt model;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     // attributes depending on the variant
 
@@ -37,7 +37,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     ShuntCompensatorImpl(Ref<NetworkImpl> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          Integer sectionCount, Integer solvedSectionCount,
-                         VoltageRegulationImpl voltageRegulation) {
+                         VoltageRegulationExt voltageRegulation) {
         super(network, id, name, fictitious);
         this.network = network;
         this.voltageRegulation = voltageRegulation;
@@ -302,7 +302,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
+        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
         return this.voltageRegulation;
     }
 
@@ -313,15 +313,15 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::removeTerminal);
         this.voltageRegulation = null;
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

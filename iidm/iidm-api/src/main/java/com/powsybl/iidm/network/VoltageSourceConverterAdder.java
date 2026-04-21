@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 /**
@@ -21,19 +22,19 @@ public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageS
     VoltageSourceConverterAdder setTargetV(double targetV);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated use {@link VoltageRegulationAdder#withTargetValue(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated use {@link VoltageRegulationAdder#withTargetValue(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     VoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
