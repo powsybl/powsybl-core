@@ -49,6 +49,31 @@ public abstract class AbstractSwitchSetRetainedTest {
         return network;
     }
 
+    private Network createNetwork2() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS1")
+                .setNode(0)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .setRetained(true)
+                .add();
+        return network;
+    }
+
     @Test
     public void test() {
         Network network = createNetwork();
@@ -89,4 +114,23 @@ public abstract class AbstractSwitchSetRetainedTest {
         List<Bus> buses2 = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(buses0, buses2);
     }
+
+    @Test
+    void testIssue3200WithRetainedSwitch() {
+        Network network = createNetwork2();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        Bus bus1 = vl.getBusBreakerView().getBus("VL_0");
+        Bus bus2 = vl.getBusBreakerView().getBus("VL_1");
+
+        bus1.setV(123.0);
+        assertEquals(123.0, bus1.getV(), 0.0);
+        assertEquals(123.0, bus2.getV(), 0.0);
+
+        vl.getNodeBreakerView().getSwitch("B1").setOpen(true);
+
+        vl.getBusBreakerView().getBus("VL_0").setV(456.0);
+        assertEquals(456.0, bus1.getV(), 0.0);
+        assertEquals(Float.NaN, bus2.getV(), 0.0);
+    }
+
 }
