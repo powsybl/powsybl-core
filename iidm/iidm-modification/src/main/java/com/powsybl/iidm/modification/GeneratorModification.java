@@ -65,24 +65,13 @@ public class GeneratorModification extends AbstractNetworkModification {
             skipOtherConnectionChange = true;
         }
         if (modifs.getVoltageRegulationMode() != null) {
-            double targetValue = modifs.getVoltageRegulationTargetValue() != null ? modifs.getVoltageRegulationTargetValue() : Double.NaN;
-            switch (modifs.getVoltageRegulationMode()) {
-                case VOLTAGE -> {
-                    if (Double.isNaN(targetValue)) {
-                        targetValue = g.getTargetV();
-                    }
-                    if (Double.isNaN(targetValue)) {
-                        targetValue = getPlausibleTargetV(g);
-                        g.setTargetV(targetValue);
-                    }
-                }
-                case REACTIVE_POWER -> {
-                    if (Double.isNaN(targetValue)) {
-                        targetValue = g.getTargetQ();
-                    }
-                }
-                default -> throw new IllegalStateException("Unexpected value: " + modifs.getVoltageRegulationMode() + " not yet implemented");
-            }
+            double targetValue = switch (modifs.getVoltageRegulationMode()) {
+                case VOLTAGE -> computeVoltageTarget(modifs, g);
+                case REACTIVE_POWER -> computeReactiveTarget(modifs, g);
+                default -> throw new IllegalStateException(
+                    "Unexpected value: " + modifs.getVoltageRegulationMode() + " not yet implemented"
+                );
+            };
             g.newVoltageRegulation()
                 .withTargetValue(targetValue)
                 .withMode(modifs.getVoltageRegulationMode())
@@ -91,6 +80,34 @@ public class GeneratorModification extends AbstractNetworkModification {
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
             applyTargetP(g, skipOtherConnectionChange);
         }
+    }
+
+    private double computeVoltageTarget(Modifs modifs, Generator generator) {
+        Double fromModifs = modifs.getVoltageRegulationTargetValue();
+        if (isNotNullAndNotNaN(fromModifs)) {
+            return fromModifs;
+        }
+
+        double fromGenerator = generator.getTargetV();
+        if (!Double.isNaN(fromGenerator)) {
+            return fromGenerator;
+        }
+
+        double plausible = getPlausibleTargetV(generator);
+        generator.setTargetV(plausible);
+        return plausible;
+    }
+
+    private double computeReactiveTarget(Modifs modifs, Generator generator) {
+        Double fromModifs = modifs.getVoltageRegulationTargetValue();
+        if (isNotNullAndNotNaN(fromModifs)) {
+            return fromModifs;
+        }
+        return generator.getTargetQ();
+    }
+
+    private static boolean isNotNullAndNotNaN(Double value) {
+        return value != null && !value.isNaN();
     }
 
     private double getPlausibleTargetV(Generator g) {
