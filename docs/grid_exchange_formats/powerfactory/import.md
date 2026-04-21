@@ -86,6 +86,15 @@ The following type of control mode is setup for VSCs, depending on the value of 
 
 Values 0, 1, 2, 7 and 8 are not supported and will raise a PowerFactoryException during the import.
 
+### Switches and breakers
+ElmCoup are imported as DcSwitch if they are connected to 2 DC terminals. They are supposed initially closed
+unless `on_off` is present and set to 0. Their _kinds_ are `DISCONNECTOR` by default, which may be overridden
+to `BREAKER` if `aUsage` is set to `cbk`. Kind may be explicitly set to `DISCONNECTOR` by specifying
+`aUsage = dct`.
+
+When a `TypSwitch` is provided with `typ_id`, the resistance value `R_on`  id taken into account. Other
+properties of the switch are disregarded for the DC network. 
+
 ### Limitations (_detailed_)
 - The only supported AC-DC converters are VSCs in `ElmVsc`.
 - For now PCC control is not taken into account and the VSC is connected to a single terminal.

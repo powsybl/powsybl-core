@@ -268,6 +268,9 @@ public class PowerFactoryImporter implements Importer {
      */
     private static void processEquipment(ImportContext importContext, AbstractHvdcConverter hvdcConverter,
                                          Network network, List<DataObject> slackObjects, DataObject obj) {
+        if (hvdcConverter.isDcObject(obj)) {
+            return;
+        }
         switch (obj.getDataClassName()) {
             case "ElmCoup":
                 new SwitchConverter(importContext, network).createFromElmCoup(obj);
@@ -296,9 +299,7 @@ public class PowerFactoryImporter implements Importer {
                 break;
 
             case "ElmLne":
-                if (!hvdcConverter.isDcLink(obj)) {
-                    new LineConverter(importContext, network).create(obj);
-                }
+                new LineConverter(importContext, network).create(obj);
                 break;
             case "ElmTow":
                 new LineConverter(importContext, network).createTower(obj);

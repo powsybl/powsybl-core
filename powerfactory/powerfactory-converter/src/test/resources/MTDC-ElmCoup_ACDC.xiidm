@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="MTDC-ElmCoup_ACDC" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:dcNode id="DC terminal 11" name="DC terminal 11" nominalV="500.0"/>
+    <iidm:dcNode id="DC terminal 12" name="DC terminal 12" nominalV="500.0"/>
+    <iidm:dcSwitch id="DC Disconnector" dcNode1="DC terminal 11" dcNode2="DC terminal 12" kind="DISCONNECTOR" open="false"/>
+    <iidm:substation id="S13">
+        <iidm:voltageLevel id="VL13" nominalV="165.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL13_AC terminal 13" node="0"/>
+                <iidm:busbarSection id="VL13_AC terminal 14" node="1"/>
+                <iidm:switch id="VL13_AC Disconnector" kind="BREAKER" retained="false" open="true" node1="0" node2="1"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

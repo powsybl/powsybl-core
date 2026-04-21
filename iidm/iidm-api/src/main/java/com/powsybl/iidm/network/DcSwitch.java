@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 /**
  * A DC Switch within a DC system. A DC Switch connects two DC Nodes and can be opened or closed.
+ * A DC Switch may have a non-negative resistance to model losses.
  *
  * <p> To create a DcSwitch, see {@link DcSwitchAdder}
  *
@@ -48,7 +49,6 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">Kind</td>
  *             <td style="border: 1px solid black">DcSwitchKind</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The DC switch kind: DISCONNECTOR or BREAKER</td>
  *         </tr>
@@ -60,6 +60,14 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">Open status of the DC Switch</td>
  *         </tr>
+ *         <tr>
+ *              <td style="border: 1px solid black">r</td>
+ *              <td style="border: 1px solid black">double</td>
+ *              <td style="border: 1px solid black">&Omega;</td>
+ *              <td style="border: 1px solid black">No</td>
+ *              <td style="border: 1px solid black">0.0</td>
+ *              <td style="border: 1px solid black">Resistance of the DC Switch</td>
+ *          </tr>
  *     </tbody>
  * </table>
  *
@@ -102,4 +110,8 @@ public interface DcSwitch extends Identifiable<DcSwitch> {
      * Remove the DC Switch from the network
      */
     void remove();
+
+    double getR();
+
+    DcSwitch setR(double r);
 }

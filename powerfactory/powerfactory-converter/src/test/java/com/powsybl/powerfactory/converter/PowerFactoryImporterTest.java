@@ -539,6 +539,9 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
         importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
         importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_no-type", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_TypSwitch", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_ACDC", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {
