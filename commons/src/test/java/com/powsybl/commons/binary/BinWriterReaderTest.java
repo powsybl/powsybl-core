@@ -33,7 +33,7 @@ class BinWriterReaderTest {
             action.run(writer);
             writer.writeEndNode();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new PowsyblException(e);
         }
         BinReader reader = new BinReader(new ByteArrayInputStream(baos.toByteArray()), MAGIC);
         reader.readHeader();
