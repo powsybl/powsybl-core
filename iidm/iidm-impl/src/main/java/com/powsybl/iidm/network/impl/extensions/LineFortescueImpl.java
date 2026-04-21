@@ -66,7 +66,6 @@ public class LineFortescueImpl extends AbstractExtension<Line> implements LineFo
         this.xz = xz;
     }
 
-
     @Override
     public boolean isOpenPhaseA() {
         return openPhaseA;
