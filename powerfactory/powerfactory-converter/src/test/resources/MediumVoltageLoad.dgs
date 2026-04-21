@@ -16,9 +16,13 @@ $$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fl
   6;lne_1_2_1;;8;27;52;1;0;0;1;0
 
 
-$$ElmLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);mode_inp(a:3);slini(r);plini(r);qlini(r);coslini(r);pf_recap(i);scale0(r);i_scale(i);outserv(i);classif(a:20)
-  7;lod_3_1;;8;28;PQ;55,9017;50;25;0,894427;0;1;0;0;
-
+$$ElmLodmv;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);plini(r);qlini(r);slini(r);coslini(r);outserv(i);mode_inp(a:6);pgini(r);sgini(r);cosgini(r)
+  7;lod_3_1;;8;28;10;5;;;0;;;;
+ 31;lod_31_1;;8;28;10;;15;;0;;;;
+ 32;lod_32_1;;8;28;;5;15;;0;;;;
+ 33;lod_33_1;;8;28;10;;;0,98;0;PC;0.02;0.02;1
+ 34;lod_34_1;;8;28;;5;;0,98;0;;;;
+ 35;lod_35_1;;8;28;;;15;0,98;0;;;
 
 $$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
   8;1 aux_1;;;60;
@@ -29,9 +33,9 @@ $$ElmSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);cCategory(a
 
 
 $$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i);outserv(i);GPSlat(r);GPSlon(r);vtarget(r);m:u(r);m:phiu(r)
-  10;1 Bus 1-Slack;;31;;0;0;400;230,9401;0;0;0;0;1;1,05999994277954;0
-  11;2 Bus 2;;32;;0;0;400;230,9401;0;0;0;0;1;1,04657487761001;-1,46124506647397
-  12;3 Bus 2-Load;;33;;0;0;20;11,54701;0;0;0;0;1;1,04026508640743;-2,09383399110034
+  10;1 Bus 1-Slack;;8;;0;0;400;230,9401;0;0;0;0;1;1,05999994277954;0
+  11;2 Bus 2;;8;;0;0;400;230,9401;0;0;0;0;1;1,04657487761001;-1,46124506647397
+  12;3 Bus 2-Load;;8;;0;0;20;11,54701;0;0;0;0;1;1,04026508640743;-2,09383399110034
 
 
 $$ElmTr2;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);typ_id(p);ntnum(i);outserv(i);nntap(i);i_auto(i);ntrcn(i);usetp(r);usp_low(r);usp_up(r);t2ldc(i)
@@ -49,6 +53,11 @@ $$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_bus(i);obj_id(p
   18;trf_2_3_1;;11;0;13;0;1;2
   19;lod_3_1;;12;0;7;0;1;2
   20;trf_2_3_1;;12;1;13;0;1;2
+  41;lod_31_1;;12;0;31;0;1;2
+  42;lod_32_1;;12;0;32;0;1;2
+  43;lod_33_1;;12;0;33;0;1;2
+  44;lod_34_1;;12;0;34;0;1;2
+  45;lod_35_1;;12;0;35;0;1;2
 
 
 $$StaSwitch;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);on_off(i);typ_id(p);aUsage(a)
@@ -74,15 +83,3 @@ $$TypSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sgn(r);ugn(r);cosn(r)
 
 $$TypTr2;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);nt2ph(i);strn(r);frnom(r);utrn_h(r);utrn_l(r);uktr(r);pcutr(r);uk0tr(r);ur0tr(r);tr2cn_h(a:2);tr2cn_l(a:2);nt2ag(r);curmg(r);pfe(r);zx0hl_n(r);itapch(i);tap_side(i);dutap(r);phitr(r);nntap0(i);ntpmn(i);ntpmx(i);manuf(a:20)
   30;ttrf_2_3_1;;8;3;29,76;60;400;20;0,727407;6,908129;0;0;D;D;0;0;0;100;1;0;5;0;0;-2;2;
-
-$$ElmSubstat;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sShort(a:6);sType(a:80);GPSlat(r);GPSlon(r)
-  31;VoltageLevel1-400;;34;;;49,95646302;11,45051847
-  32;VoltageLevel2-400;;35;;;49,95646302;11,45051847
-
-$$ElmTrfstat;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p)
-  33;VoltageLevel2-20;;35
-
-$$ElmSite;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sType(a:80);GPSlat(r);GPSlon(r)
-  34;Substation1;;8;;49,95646302;11,45051847
-  35;Substation2;;8;;50,89789337;11,01545826
-  
