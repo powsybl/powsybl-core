@@ -50,14 +50,14 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         // Test for the current version
         allFormatsRoundTripTest(network, "/dcSwitchResistanceRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
-        // backward compatibility - checks from version 1.16
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchResistanceRoundTripRef.xml", IidmVersion.V_1_16);
+        // backward compatibility - checks from version 1.17
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchResistanceRoundTripRef.xml", IidmVersion.V_1_17);
 
     }
 
     @Test
     void testDefaultResistanceValue() throws IOException, URISyntaxException {
-        String fileName = getVersionedNetworkPath("dcSwitchRoundTripRef.xml", IidmVersion.V_1_16);
+        String fileName = getVersionedNetworkPath("dcSwitchRoundTripRef.xml", CURRENT_IIDM_VERSION);
         Path path = Path.of(Objects.requireNonNull(getClass().getResource(fileName)).toURI());
         try (InputStream is = Files.newInputStream(path)) {
             Network network = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.XML), null);
