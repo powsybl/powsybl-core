@@ -145,6 +145,8 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public boolean setRegulating(boolean regulating) {
+        // TODO OPE changing "regulating" or the "regulationMode" should trigger the check of all the attributes
+        // See for instance the check for the slope. It depends on "regulating" and "regulationMode".
         ValidationUtil.checkVoltageRegulation(validable, this, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.regulating.set(getCurrentIndex(), regulating);
     }
