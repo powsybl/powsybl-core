@@ -25,10 +25,10 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "/lineCommutatedConverterRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility - checks from version 1.15
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
 
         // Note: we do not test here failing for all versions < 1.15: LineCommutatedConverter cannot exist without DcNode,
         // hence the DcNode SerDe test is sufficient.

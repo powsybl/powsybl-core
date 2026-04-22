@@ -56,7 +56,7 @@ class ThreeWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTes
                     .withGroundingX(0.5d)
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/fortescue/threeWindingsTransformerFortescueRef.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/fortescue/threeWindingsTransformerFortescueRef.xml");
 
         var twt2 = network2.getThreeWindingsTransformer("3WT");
         assertNotNull(twt2);

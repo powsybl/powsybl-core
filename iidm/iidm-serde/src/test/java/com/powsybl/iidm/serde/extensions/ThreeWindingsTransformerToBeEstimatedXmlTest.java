@@ -34,6 +34,6 @@ class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractIidmSerDeTest
                 .withRatioTapChanger3Status(true)
                 .add();
 
-        allFormatsRoundTripTest(network, "threeWindingsTransformerToBeEstimated.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "threeWindingsTransformerToBeEstimated.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 }

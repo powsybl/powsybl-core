@@ -70,7 +70,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
         network.getGenerator("G4").newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
 
         // Check with latest version
-        Network network2 = allFormatsRoundTripTest(network, "/generatorEntsoeCategoryRef.xml", IidmVersion.V_1_16);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/generatorEntsoeCategoryRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
         assertEqualsEntsoeCategory(network2.getGenerator("G0"), 0);
         assertEqualsEntsoeCategory(network2.getGenerator("G4"), 4);
 
