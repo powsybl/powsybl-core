@@ -246,6 +246,15 @@ class ContingencyJsonTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readOrderedJsonList() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/identifierContingencyListOrdered.json"), fileSystem.getPath("/identifierContingencyListOrdered.json"));
+
+        ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/identifierContingencyListOrdered.json"));
+        assertEquals("list1", contingencyList.getName());
+        assertEquals("identifier", contingencyList.getType());
+    }
+
+    @Test
     void readJsonListContingenciesWithOptionalName() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 

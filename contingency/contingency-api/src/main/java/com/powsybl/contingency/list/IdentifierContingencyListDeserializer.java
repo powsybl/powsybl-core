@@ -10,6 +10,7 @@ package com.powsybl.contingency.list;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
@@ -35,7 +36,8 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
     public IdentifierContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
         String version = null;
-        List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
+        JsonNode identifiersNode = null;
+        boolean checkIdentifiableType = false;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String test = parser.currentName();
             switch (test) {
@@ -44,8 +46,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                     JsonUtil.setSourceVersion(deserializationContext, version, IDENTIFIER_LIST_VERSION);
                 }
                 case "identifiableType" -> {
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType",
-                            version, "1.0");
+                    checkIdentifiableType = true;
                     parser.nextToken();
                 }
                 case "name" -> name = parser.nextTextValue();
@@ -56,10 +57,20 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                 }
                 case "identifiers" -> {
                     parser.nextToken();
-                    networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                    identifiersNode = parser.readValueAsTree();
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
+        }
+        if (checkIdentifiableType) {
+            JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType",
+                    version, "1.0");
+        }
+        List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
+        if (identifiersNode != null) {
+            JsonParser identifiersParser = identifiersNode.traverse(parser.getCodec());
+            identifiersParser.nextToken(); // positioned on START_ARRAY
+            networkElementIdentifiers = JsonUtil.readList(deserializationContext, identifiersParser, NetworkElementIdentifier.class);
         }
         return new IdentifierContingencyList(name, networkElementIdentifiers);
     }

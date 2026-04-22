@@ -1,0 +1,47 @@
+{
+  "identifiers": [
+    {
+      "contingencyId": "contingencyId1",
+      "identifier": "identifier",
+      "type": "ID_BASED"
+    },
+    {
+      "contingencyId": "contingencyId2",
+      "order": "1",
+      "type": "VOLTAGE_LEVELS_AND_ORDER",
+      "voltageLevelId1": "vl1",
+      "voltageLevelId2": "vl2"
+    },
+    {
+      "contingencyId": "contingencyId3",
+      "identifierList": [
+        {
+          "identifier": "identifier",
+          "type": "ID_BASED"
+        }
+      ],
+      "type": "LIST"
+    },
+    {
+      "contingencyId": "contingencyId4",
+      "identifier": "identifier?",
+      "type": "ID_WITH_WILDCARDS",
+      "wildcard": "?"
+    },
+    {
+      "contingencyId": "substationId",
+      "substationOrVoltageLevelId": "substationId",
+      "type": "SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS",
+      "voltageLevelIdentifiableTypes": [
+        "LINE"
+      ]
+    },
+    {
+      "identifier": "identifier2",
+      "type": "ID_BASED"
+    }
+  ],
+  "name": "list1",
+  "type": "identifier",
+  "version": "1.3"
+}
