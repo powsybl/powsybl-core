@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.OptionalDouble;
@@ -23,14 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-@Disabled("TODO MSA fix me")
 class VscConverterStationModificationTest {
 
     private Network network;
     private VscConverterStation vsc;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = FourSubstationsNodeBreakerFactory.create();
         assertTrue(network.getVscConverterStationCount() > 0);
         vsc = network.getVscConverterStations().iterator().next();
@@ -62,8 +60,8 @@ class VscConverterStationModificationTest {
         VscConverterStationModification modif2 = new VscConverterStationModification(vsc.getId(), 1.,
             2.);
         modif2.apply(network, true, ReportNode.NO_OP);
-        assertEquals(1, vsc.getVoltageSetpoint(), "Failed to modify network during apply.");
-        assertEquals(2, vsc.getReactivePowerSetpoint(), "Failed to modify network during apply.");
+        assertEquals(1, vsc.getRegulatingTargetV(), "Failed to modify network during apply.");
+        assertEquals(2, vsc.getRegulatingTargetQ(), "Failed to modify network during apply.");
     }
 
     @Test

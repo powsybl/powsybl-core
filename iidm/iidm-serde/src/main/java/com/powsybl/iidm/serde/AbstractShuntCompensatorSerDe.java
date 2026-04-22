@@ -26,6 +26,7 @@ import static com.powsybl.iidm.serde.ConnectableSerDeUtil.writeNodeOrBus;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Samir Romdhani {@literal <samir.romdhani_externe at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiableSerDe<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
 
@@ -78,7 +79,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             OptionalInt solvedSectionCount = context.getReader().readOptionalIntAttribute("solvedSectionCount");
             solvedSectionCount.ifPresent(adder::setSolvedSectionCount);
         });
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_15, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
             double targetV = context.getReader().readDoubleAttribute("targetV");
             double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
@@ -153,7 +154,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     }
 
     private static void writeRegulationAttributes(String rootElementName, ShuntCompensator sc, NetworkSerializerContext context) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
             IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(rootElementName, "voltageRegulatorOn", sc.isRegulatingWithMode(RegulationMode.VOLTAGE), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
             IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetV", sc.getRegulatingTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
@@ -186,9 +187,9 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> writeModel(sc, context));
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmSerDeUtil.assertMinimumVersion(rootElementName, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-            IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_15, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
         }
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(sc.getVoltageRegulation(), context, sc));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(sc.getVoltageRegulation(), context, sc));
     }
 
     @Override
@@ -202,15 +203,18 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, getBPerSection(sc, context.getVersion()));
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, sc.getMaximumSectionCount());
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> PropertiesSerDe.write(sc.getModel(), context));
             context.getWriter().writeEndNode();
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
                 context.getWriter().writeStartNodes();
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> PropertiesSerDe.write(sc.getModel(), context));
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SECTION_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> PropertiesSerDe.write(s, context));
                     context.getWriter().writeEndNode();
                 }
                 context.getWriter().writeEndNodes();
@@ -225,59 +229,78 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case REGULATING_TERMINAL -> {
-                    SubElementTerminalAttributes terminalAttributes = getSubElementTerminal(context);
-                    toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
-                        () -> {
-                            if (sc.getVoltageRegulation() != null) {
-                                sc.getVoltageRegulation().setTerminal(TerminalRefSerDe.resolve(terminalAttributes.regId(), terminalAttributes.regSide(), terminalAttributes.regNumber(), sc.getNetwork()));
-                            }
-                        }));
-                }
-                case SHUNT_LINEAR_MODEL -> {
-                    IidmSerDeUtil.assertMinimumVersion(rootElementName, SHUNT_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
-                    double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
-                    double gPerSection = context.getReader().readDoubleAttribute("gPerSection");
-                    int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
-                    context.getReader().readEndNode();
-                    adder.newLinearModel()
-                            .setBPerSection(bPerSection)
-                            .setGPerSection(gPerSection)
-                            .setMaximumSectionCount(maximumSectionCount)
-                            .add();
-                }
-                case SHUNT_NON_LINEAR_MODEL -> {
-                    IidmSerDeUtil.assertMinimumVersion(rootElementName, SHUNT_NON_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
-                    ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-                    context.getReader().readChildNodes(nodeName -> {
-                        if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName)) {
-                            double b = context.getReader().readDoubleAttribute("b");
-                            double g = context.getReader().readDoubleAttribute("g");
-                            modelAdder.beginSection()
-                                    .setB(b)
-                                    .setG(g)
-                                    .endSection();
-                            context.getReader().readEndNode();
-                        } else {
-                            throw new PowsyblException("Unknown element name '" + nodeName + "' in '" + id + "'");
-                        }
-                    });
-                    modelAdder.add();
-                }
-                case VoltageRegulationSerDe.ELEMENT_NAME -> {
-                    VoltageRegulationSerDe.readVoltageRegulation(adder.newVoltageRegulation(), context);
-                    context.getReader().readChildNodes(subElementName -> {
-                        if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
-                            SubElementTerminalAttributes terminalAttributes = getSubElementTerminal(context);
-                            toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
-                                () -> sc.getVoltageRegulation().setTerminal(TerminalRefSerDe.resolve(terminalAttributes.regId(), terminalAttributes.regSide(), terminalAttributes.regNumber(), sc.getNetwork()))));
-
-                        } else {
-                            throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
-                        }
-                    });
-                }
+                case REGULATING_TERMINAL -> readRegulatingTerminal(toApply, context);
+                case SHUNT_LINEAR_MODEL -> readShuntLinearModel(adder, context);
+                case SHUNT_NON_LINEAR_MODEL -> readShuntNonLinearModel(id, adder, context);
+                case VoltageRegulationSerDe.ELEMENT_NAME -> readVoltageRegulation(toApply, adder, context);
                 default -> readSubElement(elementName, id, toApply, context);
+            }
+        });
+    }
+
+    private static void readRegulatingTerminal(List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
+        TerminalRefSerDe.TerminalData data = TerminalRefSerDe.readTerminalData(context);
+        toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+            () -> {
+                if (sc.getVoltageRegulation() != null) {
+                    sc.getVoltageRegulation().setTerminal(TerminalRefSerDe.resolve(data.id(), data.side(), data.number(), sc.getNetwork()));
+                }
+            }));
+    }
+
+    private void readShuntNonLinearModel(String id, ShuntCompensatorAdder adder, NetworkDeserializerContext context) {
+        IidmSerDeUtil.assertMinimumVersion(rootElementName, SHUNT_NON_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+        ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
+        context.getReader().readChildNodes(nodeName -> {
+            if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(nodeName)) {
+                PropertiesSerDe.read(modelAdder, context);
+            } else if (SECTION_ROOT_ELEMENT_NAME.equals(nodeName)) {
+                double b = context.getReader().readDoubleAttribute("b");
+                double g = context.getReader().readDoubleAttribute("g");
+                ShuntCompensatorNonLinearModelAdder.SectionAdder sectionAdder = modelAdder.beginSection()
+                        .setB(b)
+                        .setG(g);
+                context.getReader().readChildNodes(sectionNodeName -> {
+                    if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(sectionNodeName)) {
+                        PropertiesSerDe.read(sectionAdder, context);
+                    }
+                });
+                sectionAdder.endSection();
+            } else {
+                throw new PowsyblException("Unknown element name '" + nodeName + "' in '" + id + "'");
+            }
+        });
+        modelAdder.add();
+    }
+
+    private void readShuntLinearModel(ShuntCompensatorAdder adder, NetworkDeserializerContext context) {
+        IidmSerDeUtil.assertMinimumVersion(rootElementName, SHUNT_LINEAR_MODEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+        double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
+        double gPerSection = context.getReader().readDoubleAttribute("gPerSection");
+        int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
+        ShuntCompensatorLinearModelAdder linearAdder = adder.newLinearModel()
+                .setBPerSection(bPerSection)
+                .setGPerSection(gPerSection)
+                .setMaximumSectionCount(maximumSectionCount);
+        context.getReader().readChildNodes(nodeName -> {
+            if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(nodeName)) {
+                PropertiesSerDe.read(linearAdder, context);
+            }
+        });
+        linearAdder.add();
+    }
+
+    private void readVoltageRegulation(List<Consumer<ShuntCompensator>> toApply, ShuntCompensatorAdder adder, NetworkDeserializerContext context) {
+        VoltageRegulationSerDe.readVoltageRegulation(adder.newVoltageRegulation(), context);
+        context.getReader().readChildNodes(subElementName -> {
+            if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
+                SubElementTerminalAttributes terminalAttributes = getSubElementTerminal(context);
+                toApply.add(sc -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                    // The VoltageRegulation is not null here (was created juste before)
+                    () -> sc.getVoltageRegulation().setTerminal(TerminalRefSerDe.resolve(terminalAttributes.regId(), terminalAttributes.regSide(), terminalAttributes.regNumber(), sc.getNetwork()))));
+
+            } else {
+                throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
             }
         });
     }

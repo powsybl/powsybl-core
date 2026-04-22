@@ -10,18 +10,21 @@ package com.powsybl.cgmes.conversion.elements.dc;
 
 import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.dc.AbstractDCConductingEquipmentConversion.isDcTerminalConnected;
 import static com.powsybl.cgmes.model.CgmesNames.VS_CONVERTER;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -30,6 +33,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     int numberOfAcTerminals;
     static final double DEFAULT_POWER_FACTOR = 1.0 / Math.hypot(1.0, 0.5);  // Default power factor calculated with Q = P / 2
+    private static final Logger LOGGER = LoggerFactory.getLogger(AcDcConverterConversion.class);
 
     public AcDcConverterConversion(PropertyBag p, Context context) {
         super(CgmesNames.ACDC_CONVERTER, p, context);
@@ -164,14 +168,14 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     private void addAliasesAndProperties(AcDcConverter<?> converter) {
         if (numberOfAcTerminals == 1) {
-            converter.addAlias(p.getId(CgmesNames.TERMINAL), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, context.config().isEnsureIdAliasUnicity());
+            converter.addAlias(p.getId(CgmesNames.TERMINAL), ALIAS_TERMINAL1, context.config().isEnsureIdAliasUnicity());
         } else {
-            converter.addAlias(p.getId(CgmesNames.TERMINAL1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, context.config().isEnsureIdAliasUnicity());
-            converter.addAlias(p.getId(CgmesNames.TERMINAL2), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, context.config().isEnsureIdAliasUnicity());
+            converter.addAlias(p.getId(CgmesNames.TERMINAL1), ALIAS_TERMINAL1, context.config().isEnsureIdAliasUnicity());
+            converter.addAlias(p.getId(CgmesNames.TERMINAL2), ALIAS_TERMINAL2, context.config().isEnsureIdAliasUnicity());
         }
-        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
-        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL2), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
-        converter.setProperty(Conversion.PROPERTY_CGMES_DC_CONVERTER_UNIT, p.getId("DCConverterUnit"));
+        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL1), ALIAS_DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
+        converter.addAlias(p.getId(CgmesNames.DC_TERMINAL2), ALIAS_DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
+        converter.setProperty(PROPERTY_DC_CONVERTER_UNIT, p.getId("DCConverterUnit"));
     }
 
     public static void update(AcDcConverter<?> converter, PropertyBag cgmesData, Context context) {
@@ -232,6 +236,9 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static void updateReactivePowerControl(VoltageSourceConverter vsc, PropertyBag cgmesData, Context context) {
+        if (logMissingVoltageRegulation(vsc, LOGGER, "converter station", "reactive power control won't be updated")) {
+            return;
+        }
         String qPccControl = cgmesData.getLocal("qPccControl");
         if (qPccControl != null && qPccControl.endsWith("voltagePcc")) {
             double defaultVoltageSetpoint = getDefaultValue(null, vsc.getRegulatingTargetV(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);

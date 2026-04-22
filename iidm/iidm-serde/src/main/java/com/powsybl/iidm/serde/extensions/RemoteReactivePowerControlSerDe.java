@@ -30,7 +30,7 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 public class RemoteReactivePowerControlSerDe extends AbstractExtensionSerDe<Generator, RemoteReactivePowerControl>
         implements ExtinctExtensionSerDe<Generator, RemoteReactivePowerControl> {
 
-    public static final IidmVersion LAST_SUPPORTED_VERSION = IidmVersion.V_1_15;
+    public static final IidmVersion LAST_SUPPORTED_VERSION = IidmVersion.V_1_16;
 
     public RemoteReactivePowerControlSerDe() {
         super(RemoteReactivePowerControl.NAME, "network", RemoteReactivePowerControl.class,

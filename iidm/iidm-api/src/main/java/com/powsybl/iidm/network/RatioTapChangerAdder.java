@@ -29,5 +29,4 @@ public interface RatioTapChangerAdder extends TapChangerAdder<
     RatioTapChangerAdder setRegulationValue(double regulationValue);
 
     RatioTapChangerAdder setTargetV(double targetV);
-
 }

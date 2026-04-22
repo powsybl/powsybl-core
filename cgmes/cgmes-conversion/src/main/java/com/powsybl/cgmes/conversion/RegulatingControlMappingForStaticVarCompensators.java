@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
@@ -21,6 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
 
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -119,7 +121,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
     private boolean setRegulatingControlVoltage(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
         setDefaultRegulatingControlData(rc, svc);
         Terminal regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context).orElse(svc.getTerminal());
-        svc.setRegulatingTerminal(regulatingTerminal).setRegulationMode(RegulationMode.VOLTAGE);
+        svc.getVoltageRegulation().setTerminal(regulatingTerminal);
+        svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         return true;
     }
 
@@ -131,15 +134,16 @@ public class RegulatingControlMappingForStaticVarCompensators {
             context.ignored(rc.regulatingControlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
             return false;
         }
-        svc.setRegulatingTerminal(mappedRegulatingTerminal.getTerminal()).setRegulationMode(RegulationMode.REACTIVE_POWER);
+        svc.getVoltageRegulation().setTerminal(mappedRegulatingTerminal.getTerminal());
+        svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
 
-        svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
+        svc.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
         return true;
     }
 
     private void setDefaultRegulatingControlData(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
         if (!Double.isNaN(rc.defaultTargetVoltage)) {
-            svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(rc.defaultTargetVoltage));
+            svc.setProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(rc.defaultTargetVoltage));
         }
     }
 

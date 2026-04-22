@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 /**
@@ -17,7 +18,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
  * Example:
  *<pre>
  *    VoltageLevel vl = ...
- *    ShuntCompensator s = vl.newShunt()
+ *    ShuntCompensator s = vl.newShuntCompensator()
  *            .setId("s1")
  *            ...
  *        .add();
@@ -39,21 +40,33 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
 
     VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation();
 
+    /**
+     * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link VoltageRegulationAdder#withTargetValue(double)} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated use {@link VoltageRegulationAdder#withTargetDeadband(double)} instead
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();

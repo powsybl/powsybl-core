@@ -23,7 +23,7 @@ public class RemoteReactivePowerControl implements Extension<Generator> {
     private double targetQ;
     private Terminal regulatingTerminal;
     private boolean enabled;
-    public static String NAME = "generatorRemoteReactivePowerControl";
+    public static final String NAME = "generatorRemoteReactivePowerControl";
     private Generator extendable;
 
     public RemoteReactivePowerControl(Generator generator, double targetQ, Terminal regulatingTerminal, boolean enabled) {
@@ -36,6 +36,7 @@ public class RemoteReactivePowerControl implements Extension<Generator> {
                 + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
                 + getExtendable().getParentNetwork().getId() + ")");
         }
+        //TODO OPE: to remove (after the extinct extensions management is merged)
         if (generator.getVoltageRegulation() == null) {
             generator.newVoltageRegulation()
                 .withTargetValue(targetQ)

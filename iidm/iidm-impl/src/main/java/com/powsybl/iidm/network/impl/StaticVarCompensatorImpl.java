@@ -29,14 +29,14 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     private double bMax;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     // attributes depending on the variant
     private final TDoubleArrayList targetQ;
     private final TDoubleArrayList targetV;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax,
-                             VoltageRegulationImpl voltageRegulation, Ref<NetworkImpl> ref, double targetQ, double targetV) {
+                             VoltageRegulationExt voltageRegulation, Ref<NetworkImpl> ref, double targetQ, double targetV) {
         super(ref, id, name, fictitious);
         this.bMin = bMin;
         this.bMax = bMax;
@@ -251,7 +251,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.setVoltageRegulation((VoltageRegulationImpl) voltageRegulation);
+        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
         return this.voltageRegulation;
     }
 
@@ -260,17 +260,17 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         return this.voltageRegulation;
     }
 
-    private Optional<VoltageRegulationImpl> getOptionalVoltageRegulation() {
+    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
         return Optional.ofNullable(this.voltageRegulation);
     }
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationImpl::removeTerminal);
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::removeTerminal);
         this.voltageRegulation = null;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
+    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         this.removeVoltageRegulation();
         this.voltageRegulation = voltageRegulation;
     }

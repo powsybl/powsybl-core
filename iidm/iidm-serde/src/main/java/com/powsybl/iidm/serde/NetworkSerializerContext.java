@@ -89,6 +89,10 @@ public class NetworkSerializerContext extends AbstractNetworkSerDeContext<Export
         return voltageLevelExportTopologyLevel.get(voltageLevelId);
     }
 
+    public String anonymizeFromMinimumVersion(String val, IidmVersion version) {
+        return getVersion().compareTo(version) >= 0 ? getAnonymizer().anonymizeString(val) : val;
+    }
+
     public void addExtinctExtensionsToSerialize(String identifiableId, Extension<? extends Identifiable<?>> extension) {
         extinctExtensionsToSerializeByIdentifiable.computeIfAbsent(identifiableId, k -> new ArrayList<>()).add(extension);
     }

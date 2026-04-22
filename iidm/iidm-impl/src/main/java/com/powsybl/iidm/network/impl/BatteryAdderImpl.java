@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * {@inheritDoc}
@@ -29,7 +30,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    private VoltageRegulationImpl voltageRegulation = null;
+    private VoltageRegulationExt voltageRegulation = null;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -104,10 +105,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     @Override
     public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(Battery.class, this, getNetworkRef(), this::setVoltageRegulations);
-    }
-
-    private void setVoltageRegulations(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
+        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
+        return new VoltageRegulationAdderImpl<>(Battery.class, this, getNetworkRef(), voltageRegulationConsumer);
     }
 }

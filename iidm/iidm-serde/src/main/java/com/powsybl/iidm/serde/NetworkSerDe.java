@@ -89,7 +89,8 @@ public final class NetworkSerDe {
             Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
             Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
             Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),
-            Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(BoundaryLineSerDe.ARRAY_ELEMENT_NAME, BoundaryLineSerDe.ROOT_ELEMENT_NAME),
+            Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME), // For backward-compatibility with IIDM versions < 1.16
             Map.entry(DcNodeSerDe.ARRAY_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME),
             Map.entry(DcGroundSerDe.ARRAY_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME),
             Map.entry(DcLineSerDe.ARRAY_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME),
@@ -264,9 +265,10 @@ public final class NetworkSerDe {
             Collection<? extends Extension<? extends Identifiable<?>>> extensions =
                     Stream.concat(identifiable.getExtensions().stream(), context.getExtinctExtensionsToSerialize(identifiable.getId()))
                     .filter(e -> {
-                        ExtensionSerDe<?, ?> extensionSerializer = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
+                        ExtensionSerDe extensionSerializer = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
                         return isExtensionIncluded(extensionSerializer, context.getOptions()) &&
-                                canTheExtensionBeWritten(extensionSerializer, context.getVersion(), context.getOptions());
+                                canTheExtensionBeWritten(extensionSerializer, context.getVersion(), context.getOptions()) &&
+                                extensionSerializer.isSerializable(e, context);
                     }).toList();
 
             if (!extensions.isEmpty()) {
@@ -628,7 +630,7 @@ public final class NetworkSerDe {
         // Main case: the element has to be written
         // - if the element is directly in the network (not in one of its subnetworks)
         // - and if it's not a network itself (linked to previous corner case)
-        return element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK;
+        return n.equals(element.getParentNetwork()) && element.getType() != IdentifiableType.NETWORK;
     }
 
     private static boolean supportSubnetworksExport(NetworkSerializerContext context) {

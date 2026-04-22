@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
@@ -169,7 +170,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * please use {@link Generator#getVoltageRegulation()}
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isVoltageRegulatorOn();
@@ -179,10 +180,14 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
+    /**
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead.
+     */
     @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
 
@@ -219,6 +224,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * </p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link Generator#getTargetV()} instead.
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     double getEquivalentLocalTargetV();
@@ -231,6 +237,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @param targetV the voltage target in kV (see {@link Generator#getTargetV()}).
      * @param equivalentLocalTargetV the local target in kV (see {@link Generator#getEquivalentLocalTargetV()}).
      * @see VariantManager
+     * @deprecated use {@link Generator#setTargetV(double)} instead.
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setTargetV(double targetV, double equivalentLocalTargetV);

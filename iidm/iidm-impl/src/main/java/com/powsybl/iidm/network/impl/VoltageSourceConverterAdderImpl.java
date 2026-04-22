@@ -10,6 +10,10 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
+import java.util.function.Consumer;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -20,7 +24,7 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
     private double reactivePowerSetpoint = Double.NaN;
     private double targetQ = Double.NaN;
     private double targetV = Double.NaN;
-    private VoltageRegulationImpl voltageRegulation = null;
+    private VoltageRegulationExt voltageRegulation = null;
 
     VoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -33,7 +37,8 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
 
     @Override
     public VoltageRegulationAdder<VoltageSourceConverterAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(VoltageSourceConverter.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
+        return new VoltageRegulationAdderImpl<>(VoltageSourceConverter.class, this, getNetwork().getRef(), voltageRegulationConsumer);
     }
 
     @Override
@@ -74,6 +79,9 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn != null && voltageRegulation == null) {
             voltageRegulatorOn = false;
         }
+        if (voltageRegulation == null) {
+            createVoltageRegulationBackwardCompatibility(this.newVoltageRegulation(), voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, null);
+        }
         ValidationUtil.checkRegulatingTerminal(this, this.pccTerminal, network);
         VoltageSourceConverterImpl dcVsConverter = new VoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
@@ -88,7 +96,4 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         return this;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
-    }
 }

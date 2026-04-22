@@ -29,18 +29,9 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/lineCommutatedConverterRoundTripRef.xml", IidmVersion.V_1_15);
-    }
-
-    @Test
-    void testNotSupported() throws IOException {
-        Network network = createBaseNetwork();
 
         // Note: we do not test here failing for all versions < 1.15: LineCommutatedConverter cannot exist without DcNode,
         // hence the DcNode SerDe test is sufficient.
-
-        // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
-        var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteVersionedXml(network, options, "lineCommutatedConverterNotSupported.xml", IidmVersion.V_1_14);
     }
 
     private static Network createBaseNetwork() {

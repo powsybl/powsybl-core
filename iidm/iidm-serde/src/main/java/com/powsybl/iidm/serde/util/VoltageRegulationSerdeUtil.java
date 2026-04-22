@@ -20,23 +20,23 @@ public final class VoltageRegulationSerdeUtil {
         /* This utility class should not be instantiated */
     }
 
-    public static void writeVoltageSetpointByVersion(VoltageRegulationHolder voltageRegulationHolder, NetworkSerializerContext context) {
+    public static void writeVoltageSetpoint(VoltageRegulationHolder voltageRegulationHolder, NetworkSerializerContext context) {
         double voltageSetpoint;
         if (voltageRegulationHolder.isWithMode(RegulationMode.REACTIVE_POWER)) {
             voltageSetpoint = voltageRegulationHolder.getTargetV();
         } else {
             voltageSetpoint = voltageRegulationHolder.getVoltageRegulation() != null ? voltageRegulationHolder.getVoltageRegulation().getTargetValue() : Double.NaN;
         }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
     }
 
-    public static void writeReactivePowerSetpointByVersion(VoltageRegulationHolder voltageRegulationHolder, NetworkSerializerContext context) {
+    public static void writeReactivePowerSetpoint(VoltageRegulationHolder voltageRegulationHolder, NetworkSerializerContext context) {
         double reactivePowerSetpoint;
         if (voltageRegulationHolder.isWithMode(RegulationMode.VOLTAGE)) {
             reactivePowerSetpoint = voltageRegulationHolder.getTargetQ();
         } else {
             reactivePowerSetpoint = voltageRegulationHolder.getVoltageRegulation() != null ? voltageRegulationHolder.getVoltageRegulation().getTargetValue() : Double.NaN;
         }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
     }
 }

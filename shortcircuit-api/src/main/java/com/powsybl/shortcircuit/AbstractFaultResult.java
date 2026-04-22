@@ -8,7 +8,7 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 import java.time.Duration;
 import java.util.ArrayList;

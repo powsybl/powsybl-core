@@ -15,7 +15,6 @@ import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -181,6 +180,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a given test for all IIDM versions between <code>minVersion</code> and <code>maxVersion</code> (both included)
+     */
+    protected void testForAllVersionsBetween(IidmVersion minVersion, IidmVersion maxVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0
+                        && v.compareTo(maxVersion) <= 0)
+                .forEach(test);
+    }
+
+    /**
      * Execute a write test for the given network, for all IIDM versions strictly older than a given maximum IIDM
      * version, and compare to the given versioned xml reference test resource.
      */
@@ -200,6 +209,15 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
                     (n, p) -> NetworkSerDe.write(n, exportOptions.setVersion(version.toString(".")), p),
                     getVersionedNetworkPath(filename, version));
         }
+    }
+
+    /**
+     * Write the network to all the specified versions between <code>minVersion</code> and <code>maxVersion</code> (both included), and compare with the corresponding versioned file <code>filename</code>
+     */
+    protected void testWriteVersionedXmlBetweenVersions(Network network, ExportOptions exportOptions, String filename, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        testWriteVersionedXml(network, exportOptions, filename, Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) <= 0)
+            .toArray(IidmVersion[]::new));
     }
 
     private static IidmVersion[] allPreviousVersions(IidmVersion maxVersionExcluded) {
@@ -314,9 +332,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         TreeDataFormat previousFormat = options.getFormat();
         options.setFormat(format);
         Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
-        try (InputStream is = Files.newInputStream(path); InputStream tmpIs = Files.newInputStream(path)) {
-
-            String actualString = new String(tmpIs.readAllBytes(), StandardCharsets.UTF_8);
+        try (InputStream is = Files.newInputStream(path)) {
             Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(format), anonymizer);
             options.setFormat(previousFormat);
             return networkOutput;

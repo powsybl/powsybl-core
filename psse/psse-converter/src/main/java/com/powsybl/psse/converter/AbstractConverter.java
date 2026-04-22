@@ -240,10 +240,10 @@ public abstract class AbstractConverter {
                 if (connectable.getType() == IdentifiableType.HVDC_CONVERTER_STATION) {
                     HvdcConverterStation<?> converterStation = (HvdcConverterStation<?>) connectable;
                     equipmentListToBeExported.add(converterStation.getHvdcLine().getId());
-                } else if (connectable.getType() == IdentifiableType.DANGLING_LINE) {
-                    DanglingLine danglingLine = (DanglingLine) connectable;
-                    if (danglingLine.isPaired()) {
-                        TieLine tieLine = danglingLine.getTieLine().orElseThrow();
+                } else if (connectable.getType() == IdentifiableType.BOUNDARY_LINE) {
+                    BoundaryLine boundaryLine = (BoundaryLine) connectable;
+                    if (boundaryLine.isPaired()) {
+                        TieLine tieLine = boundaryLine.getTieLine().orElseThrow();
                         equipmentListToBeExported.add(tieLine.getId());
                     } else {
                         equipmentListToBeExported.add(connectable.getId());
@@ -258,7 +258,7 @@ public abstract class AbstractConverter {
 
     private static boolean isEquipmentToBeExported(IdentifiableType type) {
         return switch (type) {
-            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, DANGLING_LINE, BATTERY ->
+            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, BOUNDARY_LINE, BATTERY ->
                 true;
             case BUSBAR_SECTION, HVDC_LINE, SWITCH, TIE_LINE -> false;
             default -> throw new PsseException("Unexpected equipment type: " + type.name());
@@ -278,8 +278,8 @@ public abstract class AbstractConverter {
                 terminals.add(hvdcLine.getConverterStation2().getTerminal());
             } else if (identifiable != null && identifiable.getType() == IdentifiableType.TIE_LINE) {
                 TieLine tieLine = (TieLine) identifiable;
-                terminals.add(tieLine.getDanglingLine1().getTerminal());
-                terminals.add(tieLine.getDanglingLine2().getTerminal());
+                terminals.add(tieLine.getBoundaryLine1().getTerminal());
+                terminals.add(tieLine.getBoundaryLine2().getTerminal());
             } else {
                 throw new PsseException("Unexpected identifiable: " + equipmentId);
             }
@@ -313,7 +313,7 @@ public abstract class AbstractConverter {
         return switch (identifiable.getType()) {
             case LOAD, BATTERY -> PsseEquipmentType.PSSE_LOAD.getTextCode();
             case GENERATOR -> PsseEquipmentType.PSSE_GENERATOR.getTextCode();
-            case LINE, TIE_LINE, DANGLING_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
+            case LINE, TIE_LINE, BOUNDARY_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
             case TWO_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_TWO_WINDING.getTextCode();
             case THREE_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_THREE_WINDING.getTextCode();
             case SHUNT_COMPENSATOR -> {
@@ -376,15 +376,25 @@ public abstract class AbstractConverter {
                 .map(Terminal.BusView::getBus);
     }
 
-    static Bus getTerminalConnectableBusView(Terminal terminal) {
-        return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
+    static Bus resolveTerminalBus(Terminal terminal) {
+        Bus bus;
+        if ((bus = terminal.getBusView().getBus()) != null) {
+            return bus;
+        }
+        if ((bus = terminal.getBusView().getConnectableBus()) != null) {
+            return bus;
+        }
+        if ((bus = terminal.getBusBreakerView().getBus()) != null) {
+            return bus;
+        }
+        return terminal.getBusBreakerView().getConnectableBus();
     }
 
     static int getTerminalBusI(Terminal terminal, ContextExport contextExport) {
         if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {
             return contextExport.getFullExport().getBusI(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode()).orElseThrow();
         } else {
-            Bus bus = getTerminalConnectableBusView(terminal);
+            Bus bus = resolveTerminalBus(terminal);
             return contextExport.getFullExport().getBusI(bus).orElseThrow();
         }
     }

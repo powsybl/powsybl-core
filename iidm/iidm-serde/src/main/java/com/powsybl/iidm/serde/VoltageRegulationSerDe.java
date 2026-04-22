@@ -36,7 +36,7 @@ public final class VoltageRegulationSerDe {
     }
 
     public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, VoltageRegulationHolder holder) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
             if (voltageRegulation != null) {
                 String namespace = context.getVersion().getNamespaceURI(context.isValid());
                 writeVoltageRegulation(voltageRegulation, context, namespace, holder);

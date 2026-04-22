@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_REGULATING_CONTROL;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -41,7 +41,7 @@ class SvcExportTest extends AbstractSerDeTest {
         assertNotNull(svc);
         assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         assertFalse(svc.getVoltageRegulation().isRegulating());
-        assertEquals(rcId, svc.getProperty(Conversion.PROPERTY_REGULATING_CONTROL));
+        assertEquals(rcId, svc.getProperty(PROPERTY_REGULATING_CONTROL));
         assertEquals(231.123, svc.getRegulatingTargetV(), 0.0);
 
         // Do a full export and check that output files contain the reference to the RC

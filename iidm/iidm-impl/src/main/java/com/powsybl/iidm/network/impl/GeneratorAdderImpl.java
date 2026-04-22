@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 
+import java.util.function.Consumer;
+
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
@@ -26,7 +28,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulationImpl voltageRegulation;
+    private VoltageRegulationExt voltageRegulation;
 
     private Boolean voltageRegulatorOn;
 
@@ -152,16 +154,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public NetworkImpl getNetwork() {
-        return getNetworkRef().get();
-    }
-
-    @Override
     public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(Generator.class, this, getNetworkRef(), this::setVoltageRegulation);
-    }
-
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
+        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
+        return new VoltageRegulationAdderImpl<>(Generator.class, this, getNetworkRef(), voltageRegulationConsumer);
     }
 }

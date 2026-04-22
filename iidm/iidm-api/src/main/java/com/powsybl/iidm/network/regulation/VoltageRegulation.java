@@ -30,8 +30,14 @@ public interface VoltageRegulation {
     double setTargetValue(double targetValue);
 
     /**
-     * The targetDeadband is only pertinent for objects with discrete (as opposed to continuous) voltage regulation,
+     * <p>
+     *     Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the tap changer is regulating.
+     * </p>
+     * <p>
+     *     The targetDeadband is only pertinent for objects with discrete (as opposed to continuous) voltage regulation,
      * which is the case for {@link RatioTapChanger} and {@link ShuntCompensator}
+     * </p>
      * @see VariantManager
      */
     double getTargetDeadband();
@@ -75,6 +81,11 @@ public interface VoltageRegulation {
     void setTerminal(Terminal terminal);
 
     /**
+     * To remove the terminal. Do the same as setTerminal(null)
+     */
+    void removeTerminal();
+
+    /**
      * RegulationMode is an enum describing the kinds of regulation. It has the following values:
      * <ul>
      *     <li>VOLTAGE</li>
@@ -115,9 +126,4 @@ public interface VoltageRegulation {
      * @see VariantManager
      */
     boolean setRegulating(boolean regulating);
-
-    /**
-     * To remove the terminal. Do the same as setTerminal(null)
-     */
-    void removeTerminal();
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="ieee14" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="ieee14" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S37">
         <iidm:voltageLevel id="VL37" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -132,7 +132,7 @@
                 <iidm:shuntLinearModel bPerSection="9.976895751953126E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_4_7_1" r="0.0" x="39.824814049530026" g="0.0" b="-0.0" ratedU1="134.96400451660156" ratedU2="138.0" ratedS="100.0" node1="5" voltageLevelId1="VL45" node2="10" voltageLevelId2="VL45">
+        <iidm:twoWindingsTransformer id="trf_4_7_1" r="0.0" x="39.824814049530026" g="0.0" b="0.0" ratedU1="134.96400451660156" ratedU2="138.0" ratedS="100.0" node1="5" voltageLevelId1="VL45" node2="10" voltageLevelId2="VL45">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="75" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8865664915043474"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.864526139533094"/>
@@ -296,7 +296,7 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6551667851728639"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="trf_4_9_1" r="0.0" x="105.91891925811768" g="0.0" b="-0.0" ratedU1="133.7220001220703" ratedU2="138.0" ratedS="100.0" node1="6" voltageLevelId1="VL45" node2="17" voltageLevelId2="VL45">
+        <iidm:twoWindingsTransformer id="trf_4_9_1" r="0.0" x="105.91891925811768" g="0.0" b="0.0" ratedU1="133.7220001220703" ratedU2="138.0" ratedS="100.0" node1="6" voltageLevelId1="VL45" node2="17" voltageLevelId2="VL45">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="74" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.864526139533094"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8429948259912872"/>
@@ -485,7 +485,7 @@
             <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="7.599999904632568" q0="1.600000023841858" node="4"/>
             <iidm:load id="lod_6_1" loadType="UNDEFINED" p0="11.199999809265137" q0="7.5" node="10"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_5_6_1" r="0.0" x="47.99468816070557" g="0.0" b="-0.0" ratedU1="128.61599731445312" ratedU2="138.0" ratedS="100.0" node1="5" voltageLevelId1="VL46" node2="12" voltageLevelId2="VL46">
+        <iidm:twoWindingsTransformer id="trf_5_6_1" r="0.0" x="47.99468816070557" g="0.0" b="0.0" ratedU1="128.61599731445312" ratedU2="138.0" ratedS="100.0" node1="5" voltageLevelId1="VL46" node2="12" voltageLevelId2="VL46">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="68" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.742390304643878"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7235731866568458"/>

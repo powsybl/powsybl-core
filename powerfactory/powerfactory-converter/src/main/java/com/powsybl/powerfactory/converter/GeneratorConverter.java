@@ -33,7 +33,7 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     void create(DataObject elmSym) {
-        NodeRef nodeRef = checkNodes(elmSym, 1).get(0);
+        NodeRef nodeRef = checkNodes(elmSym, 1).getFirst();
         GeneratorModel generatorModel = GeneratorModel.create(elmSym);
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);

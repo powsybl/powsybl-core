@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
@@ -22,6 +21,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Arrays;
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -63,17 +64,17 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
+        generator.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
         String type = p.getLocal("type");
         if (type != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
+            generator.setProperty(PROPERTY_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
         }
     }
 
     private void convertGenerator(Generator g) {
         String generatingUnit = p.getId(CgmesNames.GENERATING_UNIT);
         if (generatingUnit != null) {
-            g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.GENERATING_UNIT, generatingUnit);
+            g.setProperty(PROPERTY_GENERATING_UNIT, generatingUnit);
         }
         addGeneratingUnitProperties(g, p);
     }
@@ -82,22 +83,22 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
         String initialP = p.getLocal(CgmesNames.INITIAL_P);
         if (initialP != null) {
-            generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.INITIAL_P, initialP);
+            generator.setProperty(PROPERTY_INITIAL_P, initialP);
         }
         String hydroPlantStorageType = p.getLocal("hydroPlantStorageType");
         if (hydroPlantStorageType != null) {
-            generator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
+            generator.setProperty(PROPERTY_HYDRO_PLANT_STORAGE_TYPE, hydroPlantStorageType.replace("HydroPlantStorageKind.", ""));
         }
         String fossilFuelType = String.join(";",
                 Arrays.stream(p.getLocals("fossilFuelTypeList", ";"))
                         .map(ff -> ff.replace("FuelType.", ""))
                         .toList());
         if (!fossilFuelType.isEmpty()) {
-            generator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, fossilFuelType);
+            generator.setProperty(PROPERTY_FOSSIL_FUEL_TYPE, fossilFuelType);
         }
         String windGenUnitType = p.getLocal("windGenUnitType");
         if (windGenUnitType != null) {
-            generator.setProperty(Conversion.PROPERTY_WIND_GEN_UNIT_TYPE, windGenUnitType.replace("WindGenUnitKind.", ""));
+            generator.setProperty(PROPERTY_WIND_GEN_UNIT_TYPE, windGenUnitType.replace("WindGenUnitKind.", ""));
         }
     }
 
@@ -137,7 +138,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
         generator.setTargetP(targetP).setTargetQ(targetQ);
 
-        String generatingUnitId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.GENERATING_UNIT);
+        String generatingUnitId = generator.getProperty(PROPERTY_GENERATING_UNIT);
         if (generatingUnitId != null) {
             updateGeneratingUnit(generator, generatingUnitId, context);
         }
@@ -147,7 +148,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     }
 
     private static double getInitialP(Generator generator) {
-        String initialP = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.INITIAL_P);
+        String initialP = generator.getProperty(PROPERTY_INITIAL_P);
         return initialP != null ? Double.parseDouble(initialP) : 0.0;
     }
 
@@ -174,7 +175,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
                     .withParticipationFactor(normalPF)
                     .add();
         } else {
-            generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_PF, String.valueOf(normalPF));
+            generator.setProperty(PROPERTY_NORMAL_PF, String.valueOf(normalPF));
         }
     }
 }

@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.List;
+
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
 import static com.powsybl.iidm.modification.util.ModificationReports.lostTwoWindingsTransformerExtensions;
@@ -173,10 +175,13 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         modifyNetworkForFlowsNotWellOrientedTest(); // t2w2 not well oriented, t3w related leg is "3WT-Leg2-notWellOriented"
         modifyNetworkForLoadingLimitsAtBothEndsTest();
 
-        t2w1.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-summer");
+        t2w1.newOperationalLimitsGroup1("other group");
+        t2w1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "OperationalLimitsGroup-summer", "other group");
         t2w1.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
-        network.getTwoWindingsTransformer("3WT-Leg1").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-summer");
-        network.getTwoWindingsTransformer("3WT-Leg1").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+        TwoWindingsTransformer actualT2w1 = network.getTwoWindingsTransformer("3WT-Leg1");
+        actualT2w1.newOperationalLimitsGroup1("other group");
+        actualT2w1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "OperationalLimitsGroup-summer", "other group");
+        actualT2w1.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
 
         t2w2.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
         t2w2.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
@@ -193,7 +198,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
 
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-notWellOriented-3WT-Leg3");
 
-        assertEquals("OperationalLimitsGroup-summer", t3w.getLeg1().getSelectedOperationalLimitsGroupId().orElseThrow());
+        assertEquals(List.of("OperationalLimitsGroup-summer", "other group"), t3w.getLeg1().getAllSelectedOperationalLimitsGroupIdsOrdered());
         assertEquals("OperationalLimitsGroup-winter-end2", t3w.getLeg2().getSelectedOperationalLimitsGroupId().orElseThrow());
         assertEquals("OperationalLimitsGroup-winter", t3w.getLeg3().getSelectedOperationalLimitsGroupId().orElseThrow());
     }
