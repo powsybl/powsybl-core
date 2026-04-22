@@ -32,7 +32,7 @@ public interface DgsHandler {
 
     void onRealValue(String attributeName, float value);
 
-    void onObjectValue(String attributeName, long id);
+    void onObjectValue(String attributeName, String objectReference);
 
     void onDoubleMatrixValue(String attributeName, RealMatrix value);
 
@@ -42,5 +42,5 @@ public interface DgsHandler {
 
     void onDoubleVectorValue(String attributeName, List<Double> values);
 
-    void onObjectVectorValue(String attributeName, List<Long> ids);
+    void onObjectVectorValue(String attributeName, List<String> objectReferences);
 }
