@@ -17,4 +17,8 @@ public class TimeSeriesException extends PowsyblException {
     public TimeSeriesException(String msg) {
         super(msg);
     }
+
+    public TimeSeriesException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }
