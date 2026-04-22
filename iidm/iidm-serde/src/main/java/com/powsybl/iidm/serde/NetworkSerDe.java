@@ -109,6 +109,12 @@ public final class NetworkSerDe {
         validate(is, DefaultExtensionsSupplier.getInstance());
     }
 
+    /**
+     * Validates an IIDM network XML stream against the schemas for the specified IIDM version
+     *
+     * @param is the IIDM network input stream to validate
+     * @param version the IIDM version used for validation
+     */
     public static void validate(InputStream is, IidmVersion version) {
         validate(is, version, DefaultExtensionsSupplier.getInstance());
     }
@@ -168,6 +174,24 @@ public final class NetworkSerDe {
         }
     }
 
+    /**
+     * Validates an IIDM network XML stream against the schemas for the specified IIDM version
+     * <p>This method validates the IIDM network in two steps: it first verifies that the root {@code <network>} namespace is consistent
+     * with the requested {@code version}, then performs XSD validation with schemas provided by {@code extensionsSupplier}.</p>
+     *
+     * <p><strong>Warning:</strong> The full network file is read into memory as a preparation step for validation</p>
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * try (InputStream is = getClass().getResourceAsStream(path)) {
+     *     NetworkSerDe.validate(is, IidmVersion.V_1_16, DefaultExtensionsSupplier.getInstance());
+     * }
+     * }</pre>
+     *
+     * @param is the IIDM network input stream to validate
+     * @param version the IIDM version used for validation
+     * @param extensionsSupplier the extension supplier used to resolve extension schemas
+     */
     public static void validate(InputStream is, IidmVersion version, ExtensionsSupplier extensionsSupplier) {
         Objects.requireNonNull(is);
         Objects.requireNonNull(version);
@@ -262,6 +286,13 @@ public final class NetworkSerDe {
         return extensions;
     }
 
+    /**
+     * Verifies that the XML root namespace matches the requested IIDM version
+     *
+     * @param xmlBytes XML document content as bytes
+     * @param validationVersion expected IIDM version
+     * @throws PowsyblException if the root namespace does not match the expected version
+     */
     private static void checkNamespace(byte[] xmlBytes, IidmVersion validationVersion) {
         String actualNamespace = readRootNamespace(xmlBytes);
         boolean matches = actualNamespace.equals(validationVersion.getNamespaceURI())
@@ -323,8 +354,19 @@ public final class NetworkSerDe {
     /**
      * Read the namespace declared on {@code <network>} element
      *
+     * <p>Example:</p>
+     * <pre>{@code
+     * <?xml version="1.0" encoding="UTF-8"?>
+     *      <network xmlns="http://www.powsybl.org/schema/iidm/1_10" id="n1">
+     *      ...
+     *      </network>
+     * }</pre>
+     *
+     * <p>For the XML above, this method return
+     * {@code "http://www.powsybl.org/schema/iidm/1_10"}.</p>
+     *
      * @param xmlBytes XML document content as bytes
-     * @return Namespace URI
+     * @return the namespace URI specified on the root element
      */
     private static String readRootNamespace(byte[] xmlBytes) {
         try {
