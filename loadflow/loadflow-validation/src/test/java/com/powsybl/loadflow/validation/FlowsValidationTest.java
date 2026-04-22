@@ -14,7 +14,11 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -22,11 +26,13 @@ import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class FlowsValidationTest extends AbstractValidationTest {
 
@@ -64,6 +70,7 @@ class FlowsValidationTest extends AbstractValidationTest {
     private ValidationConfig strictConfigSpecificCompatibility;
 
     @BeforeEach
+    @Override
     void setUp() throws IOException {
         super.setUp();
 
@@ -283,5 +290,89 @@ class FlowsValidationTest extends AbstractValidationTest {
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.INSTANCE, ValidationType.FLOWS);
         assertTrue(ValidationType.FLOWS.check(network, looseConfig, validationWriter));
+    }
+
+    @DisplayName("Rule 1: checks disconnected terminal 1 : P and Q must be undefined or ~0")
+    @Test
+    void checkFlowsShouldSucceedRuleWhenDisconnectedTerminal1PQShouldBeUndefinedOrZero() {
+        // Given
+        // threshold: 0.01
+        BusView busViewTerminal1 = mock(BusView.class);
+        when(busViewTerminal1.getBus()).thenReturn(null); // disconnect flow: line, tieLine, TWT
+        when(terminal1.getBusView()).thenReturn(busViewTerminal1);
+        // When
+        boolean validationLineResult = FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTieLineResult = FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTransformerResult = FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(validationLineResult);
+        assertFalse(validationTieLineResult);
+        assertFalse(validationTransformerResult);
+        // p is outside tolerance
+        assertTrue(Math.abs(terminal1.getP()) > 0.01);
+        // q is outside tolerance
+        assertTrue(Math.abs(terminal1.getQ()) > 0.01);
+    }
+
+    @DisplayName("Rule 1: checks disconnected terminal 2 : P and Q must be undefined or ~0")
+    @Test
+    void checkFlowsShouldSucceedRuleWhenDisconnectedTerminal2PQShouldBeUndefinedOrZero() {
+        // Given
+        // threshold: 0.01
+        BusView busViewTerminal2 = mock(BusView.class);
+        when(busViewTerminal2.getBus()).thenReturn(null); // disconnect flow: line, tieLine, TWT
+        when(terminal2.getBusView()).thenReturn(busViewTerminal2);
+        // When
+        boolean validationLineResult = FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTieLineResult = FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTransformerResult = FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(validationLineResult);
+        assertFalse(validationTieLineResult);
+        assertFalse(validationTransformerResult);
+        // p is outside tolerance
+        assertTrue(Math.abs(terminal1.getP()) > 0.01);
+        // q is outside tolerance
+        assertTrue(Math.abs(terminal1.getQ()) > 0.01);
+    }
+
+    @DisplayName("Rule 2: checks connected terminal : P and Q should follows Pcalc and Qcalc (consistent)")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("connectedTerminalCases")
+    void checkFlowsShouldSucceedRuleWhenConnectedTerminalAndPQConsistent(String caseName, double p1, double q1, double p2, double q2, boolean expectedValid) {
+        // Given
+        when(terminal1.getP()).thenReturn(p1); // P, terminal1
+        when(terminal1.getQ()).thenReturn(q1); // Q, terminal1
+        when(terminal2.getP()).thenReturn(p2); // P, terminal2
+        when(terminal2.getQ()).thenReturn(q2); // Q, terminal2
+        // When
+        boolean validationLineResult = FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTieLineResult = FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.INSTANCE);
+        boolean validationTransformerResult = FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertEquals(expectedValid, validationLineResult);
+        assertEquals(expectedValid, validationTieLineResult);
+        assertEquals(expectedValid, validationTransformerResult);
+    }
+
+    private static Stream<Arguments> connectedTerminalCases() {
+        // threshold = 0.01
+        // connected terminal 1
+        // branch ComputedP1: 39.50497415111174
+        // branch ComputedQ1: -3.729703101282256
+        double computedP1 = 39.50497415111174;
+        double computedQ1 = -3.729703101282256;
+        // connected terminal 2
+        // branch ComputedP2: -39.50385098344379
+        // branch ComputedQ2: 3.7415805993708426
+        double computedP2 = -39.50385098344379;
+        double computedQ2 = 3.7415805993708426;
+        return Stream.of(
+                Arguments.of("Terminal 1/2: |P - Pcalc| <= ε and |Q - Qcalc| <= ε -> valid", computedP1, computedQ1, computedP2, computedQ2, true),
+                Arguments.of("Terminal 1: |P - Pcalc| > ε and |Q - Qcalc| <= ε -> invalid", computedP1 + 0.02, computedQ1, computedP2, computedQ2, false),
+                Arguments.of("Terminal 1: |P - Pcalc| <= ε and |Q - Qcalc| > ε -> invalid", computedP1, computedQ1 + 0.02, computedP2, computedQ2, false),
+                Arguments.of("Terminal 2: |P - Pcalc| > ε and |Q - Qcalc| <= ε -> invalid", computedP1, computedQ1, computedP2 + 0.02, computedQ2, false),
+                Arguments.of("Terminal 1: |P - Pcalc| <= ε and |Q - Qcalc| > ε -> invalid", computedP1, computedQ1, computedP2, computedQ2 + 0.02, false)
+        );
     }
 }

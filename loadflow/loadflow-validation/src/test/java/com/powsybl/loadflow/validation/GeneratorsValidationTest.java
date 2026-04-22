@@ -7,15 +7,22 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Bus;
@@ -29,6 +36,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class GeneratorsValidationTest extends AbstractValidationTest {
 
@@ -257,6 +265,128 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1, generator2));
 
         assertTrue(GeneratorsValidation.INSTANCE.checkGenerators(network, looseConfig, NullWriter.INSTANCE));
+    }
+
+    @DisplayName("Rule 1: A validation error should be detected if there is both a voltage and a target but no p or q")
+    @Test
+    void checkGeneratorsShouldSucceedRuleWhenPAndQMissingButTargetsExist() {
+        // Given
+        when(genTerminal.getP()).thenReturn(Double.NaN);
+        when(genTerminal.getQ()).thenReturn(Double.NaN);
+        when(generator.getTargetP()).thenReturn(10.0);
+        when(generator.getTargetQ()).thenReturn(10.0);
+        // When
+        boolean result = GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(result);
+    }
+
+    @DisplayName("Rule 2: If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation pass")
+    @ParameterizedTest(name = "noRequirementIfReactiveBoundInversion flag={0} => valid={1}")
+    @CsvSource({"true, true", "false, false"})
+    void checkGeneratorsShouldSucceedRuleWhenReactiveBoundsInvertedAndFlagEnabled(boolean noRequirementIfReactiveBoundInversion, boolean expectedValid) {
+        // Given
+        strictConfig.setNoRequirementIfReactiveBoundInversion(noRequirementIfReactiveBoundInversion);
+        // maxQ < minQ
+        ReactiveLimits invertedLimits = mock(ReactiveLimits.class);
+        when(invertedLimits.getMinQ(anyDouble())).thenReturn(0.0);
+        when(invertedLimits.getMaxQ(anyDouble())).thenReturn(-10.0);
+        when(generator.getReactiveLimits()).thenReturn(invertedLimits);
+        when(genTerminal.getQ()).thenReturn(5.0); // bypassed by rule 1
+        // When
+        boolean result = GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertEquals(expectedValid, result);
+    }
+
+    @DisplayName("Rule 3: Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation pass")
+    @ParameterizedTest(name = "noRequirementIfReactiveBoundInversion flag={0} => valid={1}")
+    @CsvSource({"true, true", "false, false"})
+    void checkGeneratorsShouldSucceedRuleWhenTargetPOutsideBoundsAndFlagEnabled(boolean noRequirementIfReactiveBoundInversion, boolean expectedValid) {
+        // Given
+        strictConfig.setNoRequirementIfSetpointOutsidePowerBounds(noRequirementIfReactiveBoundInversion);
+        when(generator.getMinP()).thenReturn(20.0);
+        when(generator.getMaxP()).thenReturn(30.0);
+        when(generator.getTargetP()).thenReturn(40.0); // outside [minP=20.0, maxP=30.0]
+        // When
+        boolean result = GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertEquals(expectedValid, result);
+    }
+
+    @DisplayName("Rule 4: Active power p matches expected setpoint = TargetP")
+    @Test
+    void checkGeneratorsShouldSucceedRuleWhenActivePowerNotMatchExpectedP() {
+        // Given
+        when(generator.getTargetP()).thenReturn(20.0);
+        when(genTerminal.getP()).thenReturn(-22.0);
+        // When
+        boolean result = GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(result);
+    }
+
+    @DisplayName("Rule 5: If voltage regulator is disabled, reactive power Q matches targetQ")
+    @Test
+    void checkGeneratorsShouldSucceedRuleWhenVoltageRegulatorDisabledAndQNotMatchTargetQ() {
+        // Given
+        when(generator.isVoltageRegulatorOn()).thenReturn(false);
+        // keep p consistent
+        when(generator.getTargetP()).thenReturn(20.0);
+        when(genTerminal.getP()).thenReturn(-20.0);
+
+        when(generator.getTargetQ()).thenReturn(10.0);
+        when(genTerminal.getQ()).thenReturn(-12.0); // expected q = -targetQ = -10
+        // When
+        boolean result = GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(result);
+    }
+
+    @DisplayName("Rule 6: If voltage regulator is enabled, reactive power q follow V/targetV logic")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("cases")
+    void checkGeneratorsShouldSucceedRuleWhenVoltageRegulationEnabled(String caseName, double v, double q, boolean expectedValid) {
+        // Given
+        strictConfig.setNoRequirementIfReactiveBoundInversion(false);
+        strictConfig.setNoRequirementIfSetpointOutsidePowerBounds(false);
+        Bus genBus = generator.getTerminal().getBusView().getBus();
+        when(genBus.getV()).thenReturn(v);
+        when(generator.isVoltageRegulatorOn()).thenReturn(true);
+        // keep p consistent
+        when(generator.getTargetP()).thenReturn(20.0);
+        when(genTerminal.getP()).thenReturn(-20.0);
+
+        // minQ and maxQ [-10, 0]
+        ReactiveLimits reactiveLimits = mock(ReactiveLimits.class);
+        when(reactiveLimits.getMinQ(anyDouble())).thenReturn(-10.0);
+        when(reactiveLimits.getMaxQ(anyDouble())).thenReturn(0.0);
+        when(generator.getReactiveLimits()).thenReturn(reactiveLimits);
+        // q
+        when(genTerminal.getQ()).thenReturn(q);
+        // When
+        boolean result = GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertEquals(expectedValid, result, caseName);
+    }
+
+    private static Stream<Arguments> cases() {
+        return Stream.of(
+                // TargetV 380
+                // V > targetV + threshold -> qGen ~= minQ (-10) -> q ~= +10
+                Arguments.of("V > TargetV -> qGen ~ minQ -> valid", 400.0, 10.0, true),
+                Arguments.of("V > TargetV -> qGen not ~ minQ -> invalid", 400.0, 5.0, false),
+
+                // TargetV 380
+                // V < targetV - threshold -> qGen ~= maxQ (0) -> q ~= 0
+                Arguments.of("V < TargetV -> qGen ~ maxQ -> valid", 360.0, 0.0, true),
+                Arguments.of("V < TargetV -> qGen not ~ maxQ -> invalid", 360.0, 5.0, false),
+
+                // TargetV 380
+                // |V-targetV| <= threshold -> qGen in [minQ, maxQ] = [-10, 0]
+                Arguments.of("V ~ TargetV -> qGen within bounds -> valid", 380.0, 5.0, true),
+                Arguments.of("V ~ TargetV -> qGen out of bounds -> invalid", 380.0, 11.0, false)
+        );
     }
 
 }

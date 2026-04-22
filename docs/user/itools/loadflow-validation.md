@@ -156,7 +156,18 @@ incomplete to go through the rest of the validation.
 In this section, we go into more details about the checks performed by the validation feature of load-flow results available in PowSyBl.
 
 ### Buses
-If all values are present, or if only one value is missing, the result is considered to be consistent.
+The bus active and reactive power balances are considered consistent when:
+
+$$
+\begin{aligned}
+\left| \sum_{load} P + \sum_{injections} P \right| \leq \epsilon \\
+\left| \sum_{load} Q + \sum_{injections} Q \right| \leq \epsilon
+\end{aligned}
+$$
+
+- `P injections` and `Q injections` are the sums of connected injections (generators, batteries, shunts, SVCs, VSC, lines, dangling lines, and transformers)
+- `P load` and `Q load` are the sums of connected loads.
+
 Note that if the result contains only the voltages (phase and angle), the PowSyBl validation provides a load-flow results completion feature.
 It can be used to compute the flows from the voltages to ensure the result consistency, with the run-computation option of
 the PowSyBl validation.
@@ -177,6 +188,8 @@ check more leniently.
 
 In case the voltages are available but not the powers, the result completion feature of the PowSyBl validation
 can be used to recompute them using the validation equations (meaning that the branch validation tests will always be OK, so that it allows performing the bus validation tests).
+
+In case of disconnected branch, $P_i$ and $Q_i$ must be undefined or approximately equal to zero.
 
 ### Three-winding transformers
 <span style="color: red">To be implemented, based on a conversion into 3 two-winding transformers.</span>
@@ -211,16 +224,18 @@ $$
 \end{aligned}
 $$
 
-In the PowSyBl validation, there are a few tricks to handle special cases:
+In the PowSyBl validation, there are a few tricks to handle special cases before applying the nominal active/reactive/voltage rules
+- if `P` or `Q` is missing, validation fails if setpoints are defined and non-zero
 - if $minQ > maxQ$, then the values are switched to recover a meaningful interval if `noRequirementIfReactiveBoundInversion = false`
 - in case of a missing value, the corresponding test is OK
-- $minQ$ and $maxQ$ are function of $P$. If $targetP$ is outside $[minP, maxP]$, no test is done.
+- $minQ$ and $maxQ$ are function of $P$. If $targetP$ is outside $[minP, maxP]$, and `noRequirementIfSetpointOutsidePowerBounds = true`, generator validation checks are skipped.
 
 ### Loads
 <span style="color: red">To be implemented, with tests similar to generators with voltage regulation.</span>
 
-### Shunts
-The two following conditions must be fulfilled in valid results:
+### Shunt Compensator
+#### Linear model
+For connected shunts, the two following conditions must be fulfilled for valid results:
 
 $$
 \begin{aligned}
@@ -229,22 +244,24 @@ $$
 \end{aligned}
 $$
 
+Additional condition for disconnected shunts:
+- If the shunt is disconnected, `Q` must be undefined or equal to `0`
+
 ### Static VAR Compensators
-The following conditions must be fulfilled in valid results:
-$targetP = 0MW$ 
-- If the regulation mode is `OFF`, then
+The following conditions must be fulfilled for valid results:
 
-$$\left| targetQ - Q \right| < \epsilon$$
+- If the regulation is disabled, then $|Q| <= \epsilon$.
+- Static VAR Compensators behave like generators producing zero active power: $|P - targetP| <= \epsilon$, with $targetP = 0$ MW.
+- If `P` or `Q` is missing, then reactive power setpoint must be undefined equal to `0`
+- If the regulation mode is `REACTIVE_POWER`, same checks as a generator without voltage regulation:
 
-- If the regulation mode is `REACTIVE_POWER`, same checks as a generator without voltage regulation
+  $|Q - reactivePowerSetpoint| <= \epsilon$.
 - If the regulation mode is `VOLTAGE`, same checks as a generator with voltage regulation with the following bounds:
 
-$$
-\begin{aligned}
-minQ = - B_{max} * V^2 \\
-maxQ = - B_{min} * V^2
-\end{aligned}
-$$
+    $minQ = -Bmax * V^2$ and $maxQ = -Bmin * V^2$.
+    - If $V < voltageSetpoint$, then `Q` must match `maxQ`.
+    - If $V > voltageSetpoint$, then `Q` must match `minQ`.
+    - If $|V - voltageSetpoint| <= \epsilon$, then `Q` must be within `[minQ, maxQ]`.
 
 ### HVDC lines
 <span style="color: red">To be done.</span>
