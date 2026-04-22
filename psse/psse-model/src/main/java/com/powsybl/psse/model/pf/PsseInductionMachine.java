@@ -7,8 +7,19 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.NullString;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -17,141 +28,124 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseInductionMachine {
 
+    private static final Map<String, PsseFieldDefinition<PsseInductionMachine, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_33_35 = {STR_I, STR_ID, STR_ST, STR_SC, STR_DC, STR_AREA, STR_ZONE,
+        STR_OWNER, STR_TC, STR_BC, STR_MBASE, STR_RATEKV, STR_PC, STR_PSET, STR_H, STR_A, STR_B, STR_D, STR_E, STR_RA,
+        STR_XA, STR_XM, STR_R1, STR_X1, STR_R2, STR_X2, STR_X3, STR_E1, STR_SE1, STR_E2, STR_SE2, STR_IA1, STR_IA2, STR_XAMULT};
+    private static final String[] FIELD_NAMES_35X = {STR_IBUS, STR_IMID, STR_STAT, STR_SCODE, STR_DCODE, STR_AREA,
+        STR_ZONE, STR_OWNER, STR_TCODE, STR_BCODE, STR_MBASE, STR_RATEKV, STR_PCODE, STR_PSET, STR_HCONST, STR_ACONST,
+        STR_BCONST, STR_DCONST, STR_ECONST, STR_RA, STR_XA, STR_XM, STR_R1, STR_X1, STR_R2, STR_X2, STR_X3, STR_E1,
+        STR_SE1, STR_E2, STR_SE2, STR_IA1, STR_IA2, STR_XAMULT};
+
     // This dataBlock is valid since version 33
-
-    @Parsed(field = {"i", "ibus"})
     private int i;
-
-    @Parsed(field = {"id", "imid"}, defaultNullRead = "1")
     private String id;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int stat = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int scode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int dcode = 2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int area = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int zone = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int owner = -1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int tcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int bcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double mbase = -1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double ratekv = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private int pcode = 1;
-
-    @NullString(nulls = {"null"})
-    @Parsed
+    private int stat = defaultIntegerFor(STR_STAT, FIELDS);
+    private int scode = defaultIntegerFor(STR_SCODE, FIELDS);
+    private int dcode = defaultIntegerFor(STR_DCODE, FIELDS);
+    private int area = defaultIntegerFor(STR_AREA, FIELDS);
+    private int zone = defaultIntegerFor(STR_ZONE, FIELDS);
+    private int owner = defaultIntegerFor(STR_OWNER, FIELDS);
+    private int tcode = defaultIntegerFor(STR_TCODE, FIELDS);
+    private int bcode = defaultIntegerFor(STR_BCODE, FIELDS);
+    private double mbase = defaultDoubleFor(STR_MBASE, FIELDS);
+    private double ratekv = defaultDoubleFor(STR_RATEKV, FIELDS);
+    private int pcode = defaultIntegerFor(STR_PCODE, FIELDS);
     private Double pset;
+    private double h = defaultDoubleFor(STR_H, FIELDS);
+    private double a = defaultDoubleFor(STR_A, FIELDS);
+    private double b = defaultDoubleFor(STR_B, FIELDS);
+    private double d = defaultDoubleFor(STR_D, FIELDS);
+    private double e = defaultDoubleFor(STR_E, FIELDS);
+    private double ra = defaultDoubleFor(STR_RA, FIELDS);
+    private double xa = defaultDoubleFor(STR_XA, FIELDS);
+    private double xm = defaultDoubleFor(STR_XM, FIELDS);
+    private double r1 = defaultDoubleFor(STR_R1, FIELDS);
+    private double x1 = defaultDoubleFor(STR_X1, FIELDS);
+    private double r2 = defaultDoubleFor(STR_R2, FIELDS);
+    private double x2 = defaultDoubleFor(STR_X2, FIELDS);
+    private double x3 = defaultDoubleFor(STR_X3, FIELDS);
+    private double e1 = defaultDoubleFor(STR_E1, FIELDS);
+    private double se1 = defaultDoubleFor(STR_SE1, FIELDS);
+    private double e2 = defaultDoubleFor(STR_E2, FIELDS);
+    private double se2 = defaultDoubleFor(STR_SE2, FIELDS);
+    private double ia1 = defaultDoubleFor(STR_IA1, FIELDS);
+    private double ia2 = defaultDoubleFor(STR_IA2, FIELDS);
+    private double xamult = defaultDoubleFor(STR_XAMULT, FIELDS);
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"h", "hconst"})
-    private double h = 1.0;
+    public static String[] getFieldNames3335() {
+        return FIELD_NAMES_33_35;
+    }
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"a", "aconst"})
-    private double a = 1.0;
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"b", "bconst"})
-    private double b = 1.0;
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"d", "dconst"})
-    private double d = 1.0;
+    public static PsseInductionMachine fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseInductionMachine::new);
+    }
 
-    @NullString(nulls = {"null"})
-    @Parsed(field = {"e", "econst"})
-    private double e = 1.0;
+    public static String[] toRecord(PsseInductionMachine psseInductionMachine, String[] headers) {
+        return Util.toRecord(psseInductionMachine, headers, FIELDS);
+    }
 
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double ra = 0.0;
+    private static Map<String, PsseFieldDefinition<PsseInductionMachine, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseInductionMachine, ?>> fields = new HashMap<>();
 
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double xa = 0.0;
+        addField(fields, createNewField(STR_I, Integer.class, PsseInductionMachine::getI, PsseInductionMachine::setI));
+        addField(fields, createNewField(STR_IBUS, Integer.class, PsseInductionMachine::getI, PsseInductionMachine::setI));
+        addField(fields, createNewField(STR_ID, String.class, PsseInductionMachine::getId, PsseInductionMachine::setId, "1"));
+        addField(fields, createNewField(STR_IMID, String.class, PsseInductionMachine::getId, PsseInductionMachine::setId, "1"));
+        addField(fields, createNewField(STR_ST, Integer.class, PsseInductionMachine::getStat, PsseInductionMachine::setStat, 1));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseInductionMachine::getStat, PsseInductionMachine::setStat, 1));
+        addField(fields, createNewField(STR_SC, Integer.class, PsseInductionMachine::getScode, PsseInductionMachine::setScode, 1));
+        addField(fields, createNewField(STR_SCODE, Integer.class, PsseInductionMachine::getScode, PsseInductionMachine::setScode, 1));
+        addField(fields, createNewField(STR_DC, Integer.class, PsseInductionMachine::getDcode, PsseInductionMachine::setDcode, 2));
+        addField(fields, createNewField(STR_DCODE, Integer.class, PsseInductionMachine::getDcode, PsseInductionMachine::setDcode, 2));
+        addField(fields, createNewField(STR_AREA, Integer.class, PsseInductionMachine::getArea, PsseInductionMachine::setArea, -1));
+        addField(fields, createNewField(STR_ZONE, Integer.class, PsseInductionMachine::getZone, PsseInductionMachine::setZone, -1));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseInductionMachine::getOwner, PsseInductionMachine::setOwner, -1));
+        addField(fields, createNewField(STR_TC, Integer.class, PsseInductionMachine::getTcode, PsseInductionMachine::setTcode, 1));
+        addField(fields, createNewField(STR_TCODE, Integer.class, PsseInductionMachine::getTcode, PsseInductionMachine::setTcode, 1));
+        addField(fields, createNewField(STR_BC, Integer.class, PsseInductionMachine::getBcode, PsseInductionMachine::setBcode, 1));
+        addField(fields, createNewField(STR_BCODE, Integer.class, PsseInductionMachine::getBcode, PsseInductionMachine::setBcode, 1));
+        addField(fields, createNewField(STR_MBASE, Double.class, PsseInductionMachine::getMbase, PsseInductionMachine::setMbase, -1.0));
+        addField(fields, createNewField(STR_RATEKV, Double.class, PsseInductionMachine::getRatekv, PsseInductionMachine::setRatekv, 0.0));
+        addField(fields, createNewField(STR_PC, Integer.class, PsseInductionMachine::getPcode, PsseInductionMachine::setPcode, 1));
+        addField(fields, createNewField(STR_PCODE, Integer.class, PsseInductionMachine::getPcode, PsseInductionMachine::setPcode, 1));
+        addField(fields, createNewField(STR_PSET, Double.class, PsseInductionMachine::getPset, PsseInductionMachine::setPset, null));
+        addField(fields, createNewField(STR_H, Double.class, PsseInductionMachine::getH, PsseInductionMachine::setH, 1.0));
+        addField(fields, createNewField(STR_HCONST, Double.class, PsseInductionMachine::getH, PsseInductionMachine::setH, 1.0));
+        addField(fields, createNewField(STR_A, Double.class, PsseInductionMachine::getA, PsseInductionMachine::setA, 1.0));
+        addField(fields, createNewField(STR_ACONST, Double.class, PsseInductionMachine::getA, PsseInductionMachine::setA, 1.0));
+        addField(fields, createNewField(STR_B, Double.class, PsseInductionMachine::getB, PsseInductionMachine::setB, 1.0));
+        addField(fields, createNewField(STR_BCONST, Double.class, PsseInductionMachine::getB, PsseInductionMachine::setB, 1.0));
+        addField(fields, createNewField(STR_D, Double.class, PsseInductionMachine::getD, PsseInductionMachine::setD, 1.0));
+        addField(fields, createNewField(STR_DCONST, Double.class, PsseInductionMachine::getD, PsseInductionMachine::setD, 1.0));
+        addField(fields, createNewField(STR_E, Double.class, PsseInductionMachine::getE, PsseInductionMachine::setE, 1.0));
+        addField(fields, createNewField(STR_ECONST, Double.class, PsseInductionMachine::getE, PsseInductionMachine::setE, 1.0));
+        addField(fields, createNewField(STR_RA, Double.class, PsseInductionMachine::getRa, PsseInductionMachine::setRa, 0.0));
+        addField(fields, createNewField(STR_XA, Double.class, PsseInductionMachine::getXa, PsseInductionMachine::setXa, 0.0));
+        addField(fields, createNewField(STR_XM, Double.class, PsseInductionMachine::getXm, PsseInductionMachine::setXm, 2.5));
+        addField(fields, createNewField(STR_R1, Double.class, PsseInductionMachine::getR1, PsseInductionMachine::setR1, 999.0));
+        addField(fields, createNewField(STR_X1, Double.class, PsseInductionMachine::getX1, PsseInductionMachine::setX1, 999.0));
+        addField(fields, createNewField(STR_R2, Double.class, PsseInductionMachine::getR2, PsseInductionMachine::setR2, 999.0));
+        addField(fields, createNewField(STR_X2, Double.class, PsseInductionMachine::getX2, PsseInductionMachine::setX2, 999.0));
+        addField(fields, createNewField(STR_X3, Double.class, PsseInductionMachine::getX3, PsseInductionMachine::setX3, 0.0));
+        addField(fields, createNewField(STR_E1, Double.class, PsseInductionMachine::getE1, PsseInductionMachine::setE1, 1.0));
+        addField(fields, createNewField(STR_SE1, Double.class, PsseInductionMachine::getSe1, PsseInductionMachine::setSe1, 0.0));
+        addField(fields, createNewField(STR_E2, Double.class, PsseInductionMachine::getE2, PsseInductionMachine::setE2, 1.2));
+        addField(fields, createNewField(STR_SE2, Double.class, PsseInductionMachine::getSe2, PsseInductionMachine::setSe2, 0.0));
+        addField(fields, createNewField(STR_IA1, Double.class, PsseInductionMachine::getIa1, PsseInductionMachine::setIa1, 0.0));
+        addField(fields, createNewField(STR_IA2, Double.class, PsseInductionMachine::getIa2, PsseInductionMachine::setIa2, 0.0));
+        addField(fields, createNewField(STR_XAMULT, Double.class, PsseInductionMachine::getXamult, PsseInductionMachine::setXamult, 1.0));
 
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double xm = 2.5;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double r1 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double x1 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double r2 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double x2 = 999.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double x3 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double e1 = 1.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double se1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double e2 = 1.2;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double se2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double ia1 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double ia2 = 0.0;
-
-    @NullString(nulls = {"null"})
-    @Parsed
-    private double xamult = 1.0;
+        return fields;
+    }
 
     public int getI() {
         return i;
