@@ -22,7 +22,6 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,19 +39,9 @@ public class PhaseAngleClock implements CgmesImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, TripleStore tripleStore) {
-        CgmesModelExtension cgmesExtension = network.getExtension(CgmesModelExtension.class);
-        if (cgmesExtension == null) {
-            LOG.warn("PhaseAngleClock-PostProcessor: Unexpected null cgmesExtension pointer");
-            return;
-        }
-        CgmesModel cgmes = cgmesExtension.getCgmesModel();
-        if (cgmes == null) {
-            LOG.warn("PhaseAngleClock-PostProcessor: Unexpected null cgmesModel pointer");
-            return;
-        }
+    public void process(Network network, CgmesModel cgmesModel) {
         Map<String, PropertyBags> groupedTransformerEnds = new HashMap<>();
-        cgmes.transformerEnds()
+        cgmesModel.transformerEnds()
                 .forEach(p -> groupedTransformerEnds
                         .computeIfAbsent(p.getId("PowerTransformer"), b -> new PropertyBags())
                         .add(p));

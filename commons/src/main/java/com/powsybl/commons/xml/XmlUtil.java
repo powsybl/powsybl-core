@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.io.TreeDataReader;
 import javanet.staxutils.IndentingXMLStreamWriter;
+import org.apache.commons.csv.CSVFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -48,6 +49,7 @@ public final class XmlUtil {
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createXMLInputFactoryInstance);
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createXMLOutputFactoryInstance);
     private static final Supplier<DocumentBuilderFactory> DOCUMENT_BUILDER_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createDocumentBuilderFactoryInstance);
+    private static final Supplier<CSVFormat> CSV_FORMAT_SUPPLIER = Suppliers.memoize(XmlUtil::createCsvFormatInstance);
 
     private XmlUtil() {
     }
@@ -298,5 +300,13 @@ public final class XmlUtil {
 
     public static DocumentBuilderFactory getDocumentBuilderFactory() {
         return DOCUMENT_BUILDER_FACTORY_SUPPLIER.get();
+    }
+
+    public static CSVFormat getCsvFormat() {
+        return CSV_FORMAT_SUPPLIER.get();
+    }
+
+    private static CSVFormat createCsvFormatInstance() {
+        return CSVFormat.DEFAULT.builder().setRecordSeparator("").get();
     }
 }

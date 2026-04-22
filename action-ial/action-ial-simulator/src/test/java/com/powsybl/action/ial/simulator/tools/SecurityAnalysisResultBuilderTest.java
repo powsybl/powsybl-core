@@ -9,6 +9,8 @@ package com.powsybl.action.ial.simulator.tools;
 
 import com.powsybl.action.ial.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
@@ -32,11 +34,27 @@ class SecurityAnalysisResultBuilderTest {
     }
 
     private List<LimitViolation> createPreContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line1", LimitViolationType.CURRENT, "IST", Integer.MAX_VALUE, 0.0, 100f, 101, TwoSides.ONE));
+        return Collections.singletonList(LimitViolation.builder()
+            .subject("line1")
+            .type(LimitViolationType.CURRENT)
+            .limitName("IST")
+            .limit(0.0)
+            .reduction(100f)
+            .value(101)
+            .side(TwoSides.ONE)
+            .build());
     }
 
     private List<LimitViolation> createPostContingencyViolations() {
-        return Collections.singletonList(new LimitViolation("line2", LimitViolationType.CURRENT, "IST", Integer.MAX_VALUE, 0.0, 100f, 110, TwoSides.ONE));
+        return Collections.singletonList(LimitViolation.builder()
+            .subject("line2")
+            .type(LimitViolationType.CURRENT)
+            .limitName("IST")
+            .limit(0.0)
+            .reduction(100f)
+            .value(110)
+            .side(TwoSides.ONE)
+            .build());
     }
 
     private void testLimitViolation(LimitViolationsResult result, boolean convergent, List<String> equipmentsId, List<String> actionsId) {
