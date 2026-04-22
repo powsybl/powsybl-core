@@ -7,100 +7,70 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.univocity.parsers.fixed.FixedWidthParser;
-import com.univocity.parsers.fixed.FixedWidthParserSettings;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfTitle;
+import com.powsybl.ieeecdf.model.reader.IeeeCdfBranchReader;
+import com.powsybl.ieeecdf.model.reader.IeeeCdfBusReader;
+import com.powsybl.ieeecdf.model.reader.IeeeCdfInterchangeDataReader;
+import com.powsybl.ieeecdf.model.reader.IeeeCdfLossZoneReader;
+import com.powsybl.ieeecdf.model.reader.IeeeCdfTieLineReader;
+import com.powsybl.ieeecdf.model.reader.IeeeCdfTitleReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfReader {
 
-    enum IeeeCdfSection {
-        BUS,
-        BRANCH,
-        LOSS_ZONES,
-        INTERCHANGE_DATA,
-        TIE_LINES
-    }
+    private static final Pattern PATTERN_BUS = Pattern.compile("BUS DATA FOLLOWS\\s+(\\d+)\\s+ITEMS");
+    private static final Pattern PATTERN_BRANCH = Pattern.compile("BRANCH DATA FOLLOWS\\s+(\\d+)\\s+ITEMS");
+    private static final Pattern PATTERN_LOSS_ZONE = Pattern.compile("LOSS ZONES FOLLOWS\\s+(\\d+)\\s+ITEMS");
+    private static final Pattern PATTERN_INTERCHANGE = Pattern.compile("INTERCHANGE DATA FOLLOWS\\s+(\\d+)\\s+ITEMS");
+    private static final Pattern PATTERN_TIE_LINE = Pattern.compile("TIE LINES FOLLOWS\\s+(\\d+)\\s+ITEMS");
 
     public IeeeCdfModel read(BufferedReader reader) throws IOException {
-        String line = reader.readLine();
+        String line;
 
         // Ensure malformed input does not trigger unexpected ArrayIndexOutOfBoundException
-        List<IeeeCdfTitle> parsedLines = parseLines(Collections.singletonList(line), IeeeCdfTitle.class);
-        if (parsedLines.isEmpty()) {
+        IeeeCdfTitle title = IeeeCdfTitleReader.parseTitle(reader);
+        if (title == null) {
             throw new IllegalArgumentException("Failed to parse the IeeeCdfModel");
         }
 
-        IeeeCdfTitle title = parsedLines.get(0);
         IeeeCdfModel model = new IeeeCdfModel(title);
 
-        IeeeCdfSection section = null;
-        List<String> lines = new ArrayList<>();
         while ((line = reader.readLine()) != null) {
             if (line.startsWith("BUS DATA FOLLOWS")) {
-                section = IeeeCdfSection.BUS;
+                int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_BUS);
+                model.getBuses().addAll(IeeeCdfBusReader.parseBuses(reader, expectedItemsNumber));
             } else if (line.startsWith("BRANCH DATA FOLLOWS")) {
-                section = IeeeCdfSection.BRANCH;
+                int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_BRANCH);
+                model.getBranches().addAll(IeeeCdfBranchReader.parseBranches(reader, expectedItemsNumber));
             } else if (line.startsWith("LOSS ZONES FOLLOWS")) {
-                section = IeeeCdfSection.LOSS_ZONES;
+                int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_LOSS_ZONE);
+                model.getLossZones().addAll(IeeeCdfLossZoneReader.parseLossZones(reader, expectedItemsNumber));
             } else if (line.startsWith("INTERCHANGE DATA FOLLOWS")) {
-                section = IeeeCdfSection.INTERCHANGE_DATA;
+                int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_INTERCHANGE);
+                model.getInterchangeData().addAll(IeeeCdfInterchangeDataReader.parseInterchangeData(reader, expectedItemsNumber));
             } else if (line.startsWith("TIE LINES FOLLOWS ")) {
-                section = IeeeCdfSection.TIE_LINES;
-            } else if (line.startsWith("-9")) {
-                if (section != null) {
-                    parseLines(lines, model, section);
-                    lines.clear();
-                    section = null;
-                }
-            } else {
-                if (section != null) {
-                    lines.add(line);
-                }
+                int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_TIE_LINE);
+                model.getTieLines().addAll(IeeeCdfTieLineReader.parseTieLine(reader, expectedItemsNumber));
             }
         }
 
         return model;
     }
 
-    private static <T> List<T> parseLines(List<String> lines, Class<T> aClass) {
-        FixedWidthParserSettings settings = new FixedWidthParserSettings();
-        BeanListProcessor<T> processor = new BeanListProcessor<>(aClass);
-        settings.setProcessor(processor);
-        FixedWidthParser parser = new FixedWidthParser(settings);
-        for (String line : lines) {
-            parser.parseLine(line);
-        }
-        return processor.getBeans();
-    }
-
-    private void parseLines(List<String> lines, IeeeCdfModel model, IeeeCdfSection section) {
-        switch (section) {
-            case BUS:
-                model.getBuses().addAll(parseLines(lines, IeeeCdfBus.class));
-                break;
-            case BRANCH:
-                model.getBranches().addAll(parseLines(lines, IeeeCdfBranch.class));
-                break;
-            case LOSS_ZONES:
-                model.getLossZones().addAll(parseLines(lines, IeeeCdfLossZone.class));
-                break;
-            case INTERCHANGE_DATA:
-                model.getInterchangeData().addAll(parseLines(lines, IeeeCdfInterchangeData.class));
-                break;
-            case TIE_LINES:
-                model.getTieLines().addAll(parseLines(lines, IeeeCdfTieLine.class));
-                break;
-            default:
-                throw new IllegalStateException("Section unknown: " + section);
+    private static int getExpectedItemsNumber(String line, Pattern pattern) {
+        Matcher m = pattern.matcher(line);
+        if (m.matches()) {
+            return Integer.parseInt(m.group(1));
+        } else {
+            throw new PowsyblException("Failed to parse the expected number of IEEE-CDF items in:" + line);
         }
     }
 }
