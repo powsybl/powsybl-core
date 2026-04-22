@@ -8,10 +8,15 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -32,9 +37,9 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     // attributes depending on the variant
 
-    private final TIntArrayList convertersMode;
+    private final ExtendedIntArrayList convertersMode;
 
-    private final TDoubleArrayList activePowerSetpoint;
+    private final ExtendedDoubleArrayList activePowerSetpoint;
 
     //
 
@@ -52,10 +57,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         this.nominalV = nominalV;
         this.maxP = maxP;
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.convertersMode = new TIntArrayList(variantArraySize);
-        this.convertersMode.fill(0, variantArraySize, convertersMode != null ? convertersMode.ordinal() : -1);
-        this.activePowerSetpoint = new TDoubleArrayList(variantArraySize);
-        this.activePowerSetpoint.fill(0, variantArraySize, activePowerSetpoint);
+        this.convertersMode = new ExtendedIntArrayList(variantArraySize, convertersMode != null ? convertersMode.ordinal() : -1);
+        this.activePowerSetpoint = new ExtendedDoubleArrayList(variantArraySize, activePowerSetpoint);
         this.converterStation1 = attach(converterStation1);
         this.converterStation2 = attach(converterStation2);
         this.networkRef = networkRef;
@@ -93,7 +96,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     public ConvertersMode getConvertersMode() {
         int variantIndex = networkRef.get().getVariantIndex();
-        return convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[convertersMode.get(variantIndex)] : null;
+        return convertersMode.getInt(variantIndex) != -1 ? ConvertersMode.values()[convertersMode.getInt(variantIndex)] : null;
     }
 
     @Override
@@ -101,7 +104,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
-        ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
+        ConvertersMode oldValue = this.convertersMode.getInt(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.getInt(variantIndex)] : null;
         this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -153,7 +156,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public double getActivePowerSetpoint() {
-        return activePowerSetpoint.get(getNetwork().getVariantIndex());
+        return activePowerSetpoint.getDouble(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -187,19 +190,15 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-
-        convertersMode.ensureCapacity(convertersMode.size() + number);
-        convertersMode.fill(initVariantArraySize, initVariantArraySize + number, convertersMode.get(sourceIndex));
-
-        activePowerSetpoint.ensureCapacity(activePowerSetpoint.size() + number);
-        activePowerSetpoint.fill(initVariantArraySize, initVariantArraySize + number, activePowerSetpoint.get(sourceIndex));
+        convertersMode.growAndFill(number, convertersMode.getInt(sourceIndex));
+        activePowerSetpoint.growAndFill(number, activePowerSetpoint.getDouble(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-
-        activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
+        convertersMode.removeElements(number);
+        activePowerSetpoint.removeElements(number);
     }
 
     @Override
@@ -213,8 +212,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         super.allocateVariantArrayElement(indexes, sourceIndex);
 
         for (int index : indexes) {
-            convertersMode.set(index, convertersMode.get(sourceIndex));
-            activePowerSetpoint.set(index, activePowerSetpoint.get(sourceIndex));
+            convertersMode.set(index, convertersMode.getInt(sourceIndex));
+            activePowerSetpoint.set(index, activePowerSetpoint.getDouble(sourceIndex));
         }
     }
 
