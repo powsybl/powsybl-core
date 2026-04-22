@@ -259,10 +259,9 @@ public final class NetworkSerDe {
      */
     private static List<Source> getExtensionSources(ExtensionsSupplier extensionsSupplier, IidmVersion version) throws IOException {
         List<Source> sources = new ArrayList<>();
-        for (ExtensionSerDe<?, ?> extension : getSupportedExtensionSerDeByIIdmVersion(extensionsSupplier, version)) {
-            InputStream in = extension.getXsdAsStream();
-            byte[] extensionXsd = in.readAllBytes();
-            //required iidm xsd in extension's xsd: source
+        for (InputStream is : getSupportedExtensionByIIdmVersion(extensionsSupplier, version)) {
+            byte[] extensionXsd = is.readAllBytes();
+            // required iidm xsd in extension's xsd: source
             extractSchemaLocations(extensionXsd)
                     .forEach(schemaLocation -> sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + schemaLocation))));
             // extension xsd: source
@@ -271,19 +270,41 @@ public final class NetworkSerDe {
         return sources;
     }
 
-    private static List<ExtensionSerDe<?, ?>> getSupportedExtensionSerDeByIIdmVersion(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
-        List<ExtensionSerDe<?, ?>> extensions = new ArrayList<>();
+    /**
+     * Filter extension XSD by compatibility with the given IIDM version
+     * <p>
+     * For non versionable extensions, a single XSD stream is returned.
+     * For versionable extensions, only XSD list for compatible extension versions are returned.
+     */
+    private static List<InputStream> getSupportedExtensionByIIdmVersion(ExtensionsSupplier extensionsSupplier, IidmVersion iidmVersion) {
+        List<InputStream> extensions = new ArrayList<>();
         for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
-            if (extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> versionable) {
-                if (versionable.versionExists(version)) {
-                    extensions.add(extensionSerDe);
-                }
-            } else {
-                // no versionable extensions
-                extensions.add(extensionSerDe);
-            }
+            extensions.addAll(getExtensionStreams(extensionSerDe, iidmVersion));
         }
         return extensions;
+    }
+
+    private static List<InputStream> getExtensionStreams(ExtensionSerDe<?, ?> extensionSerDe, IidmVersion iidmVersion) {
+        // Non versionable extension not excluded
+        if (!(extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> versionable)) {
+            return List.of(extensionSerDe.getXsdAsStream());
+        }
+        // Versionable extension: return empty when no version is compatible with the IIDM version.
+        if (!versionable.versionExists(iidmVersion)) {
+            return List.of();
+        }
+        // Versionable extension: return extension versions compatible with the IIDM version.
+        return versionable.getVersions().stream()
+                .filter(extensionVersion -> {
+                    try {
+                        return versionable.checkWritingCompatibility(extensionVersion, iidmVersion);
+                    } catch (PowsyblException e) {
+                        // Ignore invalid extension versions
+                        return false;
+                    }
+                })
+                .map(extensionSerDe::getXsdAsStream)
+                .toList();
     }
 
     /**
@@ -341,6 +362,7 @@ public final class NetworkSerDe {
                     }
                 }
             }
+
             return locations;
         } catch (XMLStreamException | IOException e) {
             throw new PowsyblException("Failed to parse XSD schema", e);

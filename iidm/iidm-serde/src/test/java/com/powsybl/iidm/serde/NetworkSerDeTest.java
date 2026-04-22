@@ -24,7 +24,6 @@ import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -472,8 +471,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    @Disabled
-    // TODO, only last version succeed
     void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml")) {
             assertNotNull(is);
