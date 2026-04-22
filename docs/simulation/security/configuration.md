@@ -71,3 +71,33 @@ limit-violation-default-filter:
         - HIGH_VOLTAGE
 ```
 
+### debugDir
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
+
+
+## Examples
+
+**YAML configuration:**
+```yaml
+security-analysis-default-parameters:
+  intermediate-results-in-operator-strategy: true
+  increased-flow-violations-proportional-threshold: 0.2
+  increased-low-voltage-violations-proportional-threshold: 0.1
+  increased-high-voltage-violations-proportional-threshold: 0.1
+  increased-low-voltage-violations-absolute-threshold: 0.1
+  increased-high-voltage-violations-absolute-threshold: 0.1
+  debugDir: /tmp/debugDir
+```
+
+**XML configuration:**
+```xml
+<security-analysis-default-parameters>
+  <intermediate-results-in-operator-strategy>true</intermediate-results-in-operator-strategy>
+  <increased-flow-violations-proportional-threshold>0.2</increased-flow-violations-proportional-threshold>
+  <increased-low-voltage-violations-proportional-threshold>0.1</increased-low-voltage-violations-proportional-threshold>
+  <increased-high-voltage-violations-proportional-threshold>0.1</increased-high-voltage-violations-proportional-threshold>
+  <increased-low-voltage-violations-absolute-threshold>0.1</increased-low-voltage-violations-absolute-threshold>
+  <increased-high-voltage-violations-absolute-threshold>0.1</increased-high-voltage-violations-absolute-threshold>
+  <debugDir>/tmp/debugDir</debugDir>
+</security-analysis-default-parameters>
+```

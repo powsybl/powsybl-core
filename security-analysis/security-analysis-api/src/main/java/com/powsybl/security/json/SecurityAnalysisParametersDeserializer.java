@@ -28,6 +28,7 @@ import static com.powsybl.security.json.JsonSecurityAnalysisParameters.getExtens
 public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 
     private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
+    private static final String TAG = "Tag: ";
 
     SecurityAnalysisParametersDeserializer() {
         super(SecurityAnalysisParameters.class);
@@ -63,6 +64,11 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.2");
                     parser.nextToken();
                     parameters.setIntermediateResultsInOperatorStrategy(parser.getValueAsBoolean());
+                    break;
+                case "debugDir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.3");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
                     break;
                 case "extensions":
                     parser.nextToken();
