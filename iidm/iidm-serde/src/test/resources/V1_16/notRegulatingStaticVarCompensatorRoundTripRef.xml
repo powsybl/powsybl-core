@@ -5,9 +5,8 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="G1" energySource="OTHER" minP="50.0" maxP="150.0" targetP="100.0" bus="B1" connectableBus="B1">
+            <iidm:generator id="G1" energySource="OTHER" minP="50.0" maxP="150.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation targetValue="400.0" mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -17,9 +16,8 @@
                 <iidm:bus id="B2"/>
             </iidm:busBreakerTopology>
             <iidm:load id="L2" loadType="UNDEFINED" p0="100.0" q0="50.0" bus="B2" connectableBus="B2"/>
-            <iidm:staticVarCompensator id="SVC2" bMin="2.0E-4" bMax="8.0E-4" bus="B2" connectableBus="B2">
+            <iidm:staticVarCompensator id="SVC2" bMin="2.0E-4" bMax="8.0E-4" regulationMode="VOLTAGE" regulating="false" bus="B2" connectableBus="B2">
                 <iidm:property name="test" value="test"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="false"/>
             </iidm:staticVarCompensator>
         </iidm:voltageLevel>
     </iidm:substation>

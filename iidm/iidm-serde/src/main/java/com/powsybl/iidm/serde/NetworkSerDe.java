@@ -322,7 +322,7 @@ public final class NetworkSerDe {
         Map<String, Set<Extension<? extends Identifiable<?>>>> mapMsa = new HashMap<>();
         var extensionsWithProvider = extensionsSupplier.get().getProviders();
         var version = options.getVersion();
-        if (version.compareTo(IidmVersion.V_1_16) < 0) {
+        if (version.compareTo(IidmVersion.V_1_17) < 0) {
             if (extensionsWithProvider.stream()
                 .anyMatch(VoltageRegulationSerDe.class::isInstance)) {
                 buildRemovedVoltageRegulationExtension(n, mapMsa);

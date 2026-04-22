@@ -79,7 +79,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             OptionalInt solvedSectionCount = context.getReader().readOptionalIntAttribute("solvedSectionCount");
             solvedSectionCount.ifPresent(adder::setSolvedSectionCount);
         });
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_15, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
             double targetV = context.getReader().readDoubleAttribute("targetV");
             double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
@@ -154,7 +154,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     }
 
     private static void writeRegulationAttributes(String rootElementName, ShuntCompensator sc, NetworkSerializerContext context) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
             IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(rootElementName, "voltageRegulatorOn", sc.isRegulatingWithMode(RegulationMode.VOLTAGE), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
             IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetV", sc.getRegulatingTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
@@ -187,9 +187,9 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> writeModel(sc, context));
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmSerDeUtil.assertMinimumVersion(rootElementName, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-            IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_15, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
         }
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(sc.getVoltageRegulation(), context, sc));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(sc.getVoltageRegulation(), context, sc));
     }
 
     @Override
@@ -203,18 +203,18 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, getBPerSection(sc, context.getVersion()));
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, sc.getMaximumSectionCount());
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(sc.getModel(), context));
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> PropertiesSerDe.write(sc.getModel(), context));
             context.getWriter().writeEndNode();
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
                 context.getWriter().writeStartNodes();
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(sc.getModel(), context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> PropertiesSerDe.write(sc.getModel(), context));
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SECTION_ROOT_ELEMENT_NAME);
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(s, context));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> PropertiesSerDe.write(s, context));
                     context.getWriter().writeEndNode();
                 }
                 context.getWriter().writeEndNodes();

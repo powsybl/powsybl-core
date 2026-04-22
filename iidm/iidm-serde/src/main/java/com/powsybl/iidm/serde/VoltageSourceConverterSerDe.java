@@ -36,12 +36,12 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     @Override
     protected void writeRootElementAttributes(final VoltageSourceConverter vsc, final VoltageLevel parent, final NetworkSerializerContext context) {
         super.writeRootElementAttributes(vsc, parent, context);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context,
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context,
             () -> context.getWriter().writeBooleanAttribute("voltageRegulatorOn", vsc.isWithMode(RegulationMode.VOLTAGE)));
         writeVoltageSetpoint(vsc, context);
         writeReactivePowerSetpoint(vsc, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, vsc.getTargetV()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(TARGET_Q, vsc.getTargetQ()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, vsc.getTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_Q, vsc.getTargetQ()));
         super.writeRootElementPqiAttributes(vsc, context);
     }
 
@@ -49,7 +49,7 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     protected void writeSubElements(VoltageSourceConverter vsc, VoltageLevel parent, NetworkSerializerContext context) {
         super.writeSubElements(vsc, parent, context);
         ReactiveLimitsSerDe.INSTANCE.write(vsc, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context,
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
             () -> VoltageRegulationSerDe.writeVoltageRegulation(vsc.getVoltageRegulation(), context, vsc));
     }
 
@@ -62,15 +62,15 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     protected VoltageSourceConverter readRootElementAttributes(final VoltageSourceConverterAdder adder, final VoltageLevel parent, final NetworkDeserializerContext context) {
         super.readRootElementCommonAttributes(adder, parent, context);
         AtomicReference<Boolean> voltageRegulatorOnRef = new AtomicReference<>(null);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
 
         AtomicReference<Double> voltageSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> voltageSetpoint.set(context.getReader().readDoubleAttribute("voltageSetpoint")));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> voltageSetpoint.set(context.getReader().readDoubleAttribute("voltageSetpoint")));
 
         AtomicReference<Double> reactivePowerSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint")));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint")));
 
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
             adder.setTargetV(context.getReader().readDoubleAttribute(TARGET_V, Double.NaN));
             adder.setTargetQ(context.getReader().readDoubleAttribute(TARGET_Q, Double.NaN));
         });
@@ -83,7 +83,7 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     }
 
     private static void readVoltageRegulationPrevious116(VoltageSourceConverterAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
             VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
             adder.setTargetV(voltageRegulationData.targetV());
             adder.setTargetQ(voltageRegulationData.targetQ());

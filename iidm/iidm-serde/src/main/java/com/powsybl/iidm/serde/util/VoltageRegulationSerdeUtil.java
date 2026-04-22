@@ -27,7 +27,7 @@ public final class VoltageRegulationSerdeUtil {
         } else {
             voltageSetpoint = voltageRegulationHolder.getVoltageRegulation() != null ? voltageRegulationHolder.getVoltageRegulation().getTargetValue() : Double.NaN;
         }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
     }
 
     public static void writeReactivePowerSetpoint(VoltageRegulationHolder voltageRegulationHolder, NetworkSerializerContext context) {
@@ -37,6 +37,6 @@ public final class VoltageRegulationSerdeUtil {
         } else {
             reactivePowerSetpoint = voltageRegulationHolder.getVoltageRegulation() != null ? voltageRegulationHolder.getVoltageRegulation().getTargetValue() : Double.NaN;
         }
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_15, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
     }
 }

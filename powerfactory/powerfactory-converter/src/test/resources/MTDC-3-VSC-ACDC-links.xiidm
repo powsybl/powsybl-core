@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="MTDC-3-VSC-ACDC-links" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="MTDC-3-VSC-ACDC-links" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:dcNode id="DC pos VSC 31" name="DC pos VSC 31" nominalV="500.0"/>
     <iidm:dcNode id="DC neutral VSC 31" name="DC neutral VSC 31" nominalV="500.0"/>
     <iidm:dcNode id="DC neutral VSC 32" name="DC neutral VSC 32" nominalV="500.0"/>

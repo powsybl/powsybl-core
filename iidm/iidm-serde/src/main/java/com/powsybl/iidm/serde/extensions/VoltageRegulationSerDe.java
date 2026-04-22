@@ -33,7 +33,7 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
         V_1_0("/xsd/voltageRegulation_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_0",
             new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_1),
         V_1_1("/xsd/voltageRegulation_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_1",
-            new VersionNumbers(1, 1), IidmVersion.V_1_1, IidmVersion.V_1_16),
+            new VersionNumbers(1, 1), IidmVersion.V_1_1, IidmVersion.V_1_17),
         V_1_2("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_2.xsd", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_2",
             new VersionNumbers(1, 2), IidmVersion.V_1_2, IidmVersion.V_1_3),
         V_1_3("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_3.xsd", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_3",
