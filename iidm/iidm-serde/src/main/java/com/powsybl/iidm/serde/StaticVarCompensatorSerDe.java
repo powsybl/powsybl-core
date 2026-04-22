@@ -10,7 +10,9 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.removed.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.serde.extensions.VoltagePerReactivePowerControlSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.List;
@@ -245,6 +247,15 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
             }
             throw new IllegalArgumentException(
                 "None SvcRegulationMode for the RegulationMode : " + regulationMode);
+        }
+    }
+
+    @Override
+    protected void addExtinctExtensions(StaticVarCompensator staticVarCompensator, NetworkSerializerContext context) {
+        if (VoltagePerReactivePowerControlSerDe.isExtensionNeededAndExportable(staticVarCompensator, context)) {
+            VoltagePerReactivePowerControl extension = new VoltagePerReactivePowerControl(staticVarCompensator,
+                    staticVarCompensator.getVoltageRegulation().getSlope());
+            context.addExtinctExtensionsToSerialize(staticVarCompensator.getId(), extension);
         }
     }
 }
