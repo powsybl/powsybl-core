@@ -840,4 +840,32 @@ public final class DcDetailedNetworkFactory {
                 .add();
         return network;
     }
+
+    public static Network createSimple2NodesDcSwitch() {
+        return createSimple2NodesDcSwitch(NetworkFactory.findDefault(), "Simple2NodesDcSwitch");
+    }
+
+    public static Network createSimple2NodesDcSwitch(NetworkFactory networkFactory, String dcNetworkId) {
+        Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
+        dcNetwork.newDcNode()
+                .setId("dcNode1")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcNode()
+                .setId("dcNode2")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcSwitch()
+                .setId("dcSwitch")
+                .setR(0.1)
+                .setDcNode1("dcNode1")
+                .setDcNode2("dcNode2")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setOpen(false)
+                .add();
+
+        return dcNetwork;
+    }
 }

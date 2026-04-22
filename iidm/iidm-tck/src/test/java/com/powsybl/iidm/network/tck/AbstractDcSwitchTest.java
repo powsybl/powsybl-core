@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,19 @@ public abstract class AbstractDcSwitchTest {
         network = Network.create("test", "test");
         dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
         dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
+    }
+
+    @Test
+    public void testCreateSimple2NodesDcSwitch() {
+        // Check that the simple switch network in DcDetailedNetworkFactory is functional
+        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+
+        DcNode dcNode1 = network.getDcNode("dcNode1");
+        assertNotNull(dcNode1);
+        DcNode dcNode2 = network.getDcNode("dcNode2");
+        assertNotNull(dcNode2);
+        DcSwitch dcSwitch = network.getDcSwitch("dcSwitch");
+        assertNotNull(dcSwitch);
     }
 
     @Test

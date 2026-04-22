@@ -14,6 +14,8 @@ public interface DcSwitchAdder extends IdentifiableAdder<DcSwitch, DcSwitchAdder
 
     DcSwitchAdder setKind(DcSwitchKind kind);
 
+    DcSwitchAdder setKind(String kind);
+
     DcSwitchAdder setDcNode1(String dcNode1);
 
     DcSwitchAdder setDcNode2(String dcNode2);
