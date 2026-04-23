@@ -18,7 +18,6 @@ import java.util.function.Predicate;
  * </p>
  * As there is no injection at the boundary node, by applying kron reduction, this node can be
  * removed getting an equivalent branch between both network model nodes.
- * </p>
  * <p>
  *  Characteristics
  * </p>

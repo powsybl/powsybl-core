@@ -100,7 +100,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
     static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
         private final CompletableFuture<?> source;
 
-        public SourceCancelingCompletableFuture(CompletableFuture<?> source) {
+        SourceCancelingCompletableFuture(CompletableFuture<?> source) {
             this.source = Objects.requireNonNull(source);
         }
 
