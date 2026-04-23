@@ -14,12 +14,14 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.generatorLocalRegulationReport;
@@ -85,7 +87,7 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
         if (bus != null) {
             Optional<Generator> referenceGenerator = getReferenceGenerator(bus, localNominalV);
             if (referenceGenerator.isPresent()) {
-                double targetV = referenceGenerator.get().getTargetV();
+                double targetV = referenceGenerator.get().getRegulatingTargetV();
                 checkLocalGeneratorsWithWrongTargetV(bus, targetV);
                 return targetV;
             }
@@ -102,16 +104,21 @@ public class SetGeneratorToLocalRegulation extends AbstractNetworkModification {
     }
 
     private Optional<Generator> getReferenceGenerator(Bus bus, double localNominalV) {
+        return getOthersGeneratorRegulatingLocallyWithModeVoltageStream(bus)
+            .min(Comparator.comparing(g -> Math.abs(g.getRegulatingTargetV() - localNominalV)));
+    }
+
+    private @NonNull Stream<Generator> getOthersGeneratorRegulatingLocallyWithModeVoltageStream(Bus bus) {
         return bus.getGeneratorStream()
-                .filter(g -> !g.getId().equals(generatorId) && isGeneratorRegulatingLocally(g))
-                .min(Comparator.comparing(g -> Math.abs(g.getTargetV() - localNominalV)));
+            .filter(g -> !g.getId().equals(generatorId))
+            .filter(this::isGeneratorRegulatingLocally)
+            .filter(g -> g.isRegulatingWithMode(RegulationMode.VOLTAGE));
     }
 
     private void checkLocalGeneratorsWithWrongTargetV(Bus bus, double targetV) {
-        bus.getGeneratorStream()
-                .filter(g -> !g.getId().equals(generatorId) && isGeneratorRegulatingLocally(g)
-                        && g.getTargetV() != targetV)
-                .forEach(gen -> LOG.warn("Generator {} has wrong target voltage {}", gen.getId(), gen.getTargetV()));
+        getOthersGeneratorRegulatingLocallyWithModeVoltageStream(bus)
+            .filter(g -> g.getRegulatingTargetV() != targetV)
+            .forEach(gen -> LOG.warn("Generator {} has wrong target voltage {}", gen.getId(), gen.getRegulatingTargetV()));
     }
 
     @Override

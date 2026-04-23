@@ -19,7 +19,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,6 +35,9 @@ class SetGeneratorToLocalRegulationTest {
     @BeforeEach
     void setUp() {
         network = createTestNetwork();
+        String workDir = "/home/saurmat/tmp/";
+        Properties propsExport = new Properties();
+        network.write("XIIDM", propsExport, Path.of(workDir + "SetGeneratorToLocalRegulationTest.xml"));
     }
 
     @Test
@@ -42,6 +47,7 @@ class SetGeneratorToLocalRegulationTest {
         Generator gen2 = network.getGenerator("GEN2");
         Generator gen3 = network.getGenerator("GEN3");
         Generator gen4 = network.getGenerator("GEN4");
+        Generator genReactive = network.getGenerator("GEN_REACTIVE");
 
         // Before applying the network modification,
         // gen1 regulates remotely at 1.05 pu (420 kV) and gen2 regulates locally at 1.05 pu (21 kV).
@@ -53,6 +59,14 @@ class SetGeneratorToLocalRegulationTest {
         assertEquals(22.0, gen3.getVoltageRegulation().getTargetValue());
         assertNotEquals(gen4.getId(), gen4.getRegulatingTerminal().getConnectable().getId());
         assertEquals(21.0, gen4.getVoltageRegulation().getTargetValue());
+        assertEquals(genReactive.getId(), genReactive.getRegulatingTerminal().getConnectable().getId());
+        assertEquals(20.1, genReactive.getRegulatingTargetV());
+        assertEquals(111, genReactive.getVoltageRegulation().getTargetValue());
+        assertTrue(gen1.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(gen2.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(gen3.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(gen4.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(genReactive.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
 
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
@@ -60,6 +74,7 @@ class SetGeneratorToLocalRegulationTest {
                 .build();
         new SetGeneratorToLocalRegulation("GEN1").apply(network, reportNode);
         new SetGeneratorToLocalRegulation("GEN2").apply(network, reportNode);
+        new SetGeneratorToLocalRegulation("GEN_REACTIVE").apply(network, reportNode);
         SetGeneratorToLocalRegulation modification = new SetGeneratorToLocalRegulation("WRONG_ID");
         assertDoesNotThrow(() -> modification.apply(network, false, ReportNode.NO_OP));
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reportNode));
@@ -67,12 +82,17 @@ class SetGeneratorToLocalRegulationTest {
 
         // After applying the network modification, GEN1 generator regulates locally at same targetV of GEN3 (closest to nominal V).
         assertEquals(gen1.getId(), gen1.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(25.0, gen1.getVoltageRegulation().getTargetValue());
+        assertEquals(22.0, gen1.getVoltageRegulation().getTargetValue());
         assertTrue(gen1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(gen2.getId(), gen2.getRegulatingTerminal().getConnectable().getId());
         assertEquals(25.0, gen2.getVoltageRegulation().getTargetValue());
         assertEquals(gen3.getId(), gen3.getRegulatingTerminal().getConnectable().getId());
         assertEquals(22.0, gen3.getVoltageRegulation().getTargetValue());
+        // GenReactive untouched
+        assertEquals(genReactive.getId(), genReactive.getRegulatingTerminal().getConnectable().getId());
+        assertEquals(20.1, genReactive.getRegulatingTargetV());
+        assertEquals(111, genReactive.getVoltageRegulation().getTargetValue());
+        assertTrue(genReactive.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
 
         // Report node has been updated with the change for gen1.
         StringWriter sw = new StringWriter();
@@ -80,7 +100,7 @@ class SetGeneratorToLocalRegulationTest {
         assertEquals("""
                    + Set generators to local regulation
                       Changed regulation for generator GEN1 to local instead of remote
-                     """, TestUtil.normalizeLineSeparator(sw.toString()));
+                   """, TestUtil.normalizeLineSeparator(sw.toString()));
 
         new SetGeneratorToLocalRegulation("GEN4").apply(network, reportNode);
         // After applying the network modification, GEN4 generator regulates locally at voltage level nominal V
@@ -193,6 +213,21 @@ class SetGeneratorToLocalRegulationTest {
                     .add()
                 .add();
 
+        vl20.newGenerator()
+                .setId("GEN_REACTIVE")
+                .setNode(7)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .setMinP(100)
+                .setMaxP(200)
+                .setTargetP(200)
+                .setTargetV(20.1) // Very close to 20.0 but as we are with the REACTIVE mode we don't use
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(111)
+                    .add()
+                // No regulatingTerminal set == use its own terminal for regulation
+                .add();
+
         st.newTwoWindingsTransformer()
                 .setId("T2W")
                 .setName("T2W")
@@ -215,6 +250,7 @@ class SetGeneratorToLocalRegulationTest {
         createSwitch(vl20, "BBS20_BREAKER_3_4", SwitchKind.BREAKER, false, 3, 4);
         createSwitch(vl20, "BBS20_BREAKER_1_4", SwitchKind.BREAKER, false, 1, 4);
         createSwitch(vl20, "BBS20_BREAKER_2_6", SwitchKind.BREAKER, false, 2, 6);
+        createSwitch(vl20, "BBS20_BREAKER_2_7", SwitchKind.BREAKER, false, 2, 7);
 
         Load load1 = vl20.newLoad()
                 .setId("LD1")
