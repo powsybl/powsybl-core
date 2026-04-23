@@ -19,9 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,9 +33,6 @@ class SetGeneratorToLocalRegulationTest {
     @BeforeEach
     void setUp() {
         network = createTestNetwork();
-        String workDir = "/home/saurmat/tmp/";
-        Properties propsExport = new Properties();
-        network.write("XIIDM", propsExport, Path.of(workDir + "SetGeneratorToLocalRegulationTest.xml"));
     }
 
     @Test
