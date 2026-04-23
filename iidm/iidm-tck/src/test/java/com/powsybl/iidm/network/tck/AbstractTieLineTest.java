@@ -472,12 +472,39 @@ public abstract class AbstractTieLineTest {
         assertFalse(tieLine.connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
     }
 
+    @Test
+    void testConnectDisconnectWithFictitiousBreaker() {
+        Network networkWithTieLine = createNetworkWithTieLine(true);
+        TieLine tieLine = networkWithTieLine.getTieLine("TL");
+        assertTieLineConnection(tieLine, true, true);
+
+        //Fails since breakers are fictitious
+        assertFalse(tieLine.disconnectBoundaryLines());
+        assertTieLineConnection(tieLine, true, true);
+
+        //Force open
+        assertTrue(tieLine.disconnectBoundaryLines(SwitchPredicates.IS_CLOSED_BREAKER));
+        assertTieLineConnection(tieLine, false, false);
+
+        //Fails since breakers are fictitious
+        assertFalse(tieLine.connectBoundaryLines());
+        assertTieLineConnection(tieLine, false, false);
+
+        //Force close
+        assertTrue(tieLine.connectBoundaryLines(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR));
+        assertTieLineConnection(tieLine, true, true);
+    }
+
     private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
         assertEquals(expectedConnectionOnSide1, tieLine.getBoundaryLine1().getTerminal().isConnected());
         assertEquals(expectedConnectionOnSide2, tieLine.getBoundaryLine2().getTerminal().isConnected());
     }
 
     private Network createNetworkWithTieLine() {
+        return createNetworkWithTieLine(false);
+    }
+
+    private Network createNetworkWithTieLine(boolean fictitious) {
         // Initialize the network
         Network networkWithTieLine = FourSubstationsNodeBreakerFactory.create();
 
@@ -501,8 +528,8 @@ public abstract class AbstractTieLineTest {
          * First Tie line on node-breaker
          */
         // Add a boundary line in the first Voltage level
-        createSwitch(s1vl1, "S1VL1_DL_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 20);
-        createSwitch(s1vl1, "S1VL1_DL_BREAKER", SwitchKind.BREAKER, false, 20, 21);
+        createSwitch(s1vl1, "S1VL1_DL_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 20, fictitious);
+        createSwitch(s1vl1, "S1VL1_DL_BREAKER", SwitchKind.BREAKER, false, 20, 21, fictitious);
         BoundaryLine boundaryLine1 = s1vl1.newBoundaryLine()
             .setId("NHV1_XNODE1")
             .setP0(0.0)
@@ -536,14 +563,14 @@ public abstract class AbstractTieLineTest {
         return networkWithTieLine;
     }
 
-    private static void createSwitch(VoltageLevel vl, String id, SwitchKind kind, boolean open, int node1, int node2) {
+    private static void createSwitch(VoltageLevel vl, String id, SwitchKind kind, boolean open, int node1, int node2, boolean fictitious) {
         vl.getNodeBreakerView().newSwitch()
             .setId(id)
             .setName(id)
             .setKind(kind)
             .setRetained(kind.equals(SwitchKind.BREAKER))
             .setOpen(open)
-            .setFictitious(false)
+            .setFictitious(fictitious)
             .setNode1(node1)
             .setNode2(node2)
             .add();

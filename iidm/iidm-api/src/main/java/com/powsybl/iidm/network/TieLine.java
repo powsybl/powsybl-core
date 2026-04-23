@@ -131,12 +131,24 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
      */
     void remove(boolean updateBoundaryLines);
 
+    /**
+     * Try to connect the two boundary lines of the tie line.<br/>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
+     * use {@link #connectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}
+     * @return true if the boundary lines have been connected, false otherwise
+     */
     boolean connectBoundaryLines();
 
     boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate);
 
     boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
+    /**
+     * Try to disconnect the two boundary lines of the tie line.<br/>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
+     * use {@link #disconnectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if the boundary lines have been disconnected, false otherwise
+     */
     boolean disconnectBoundaryLines();
 
     boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable);

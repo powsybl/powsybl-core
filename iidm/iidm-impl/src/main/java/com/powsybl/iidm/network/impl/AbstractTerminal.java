@@ -194,7 +194,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
     /**
