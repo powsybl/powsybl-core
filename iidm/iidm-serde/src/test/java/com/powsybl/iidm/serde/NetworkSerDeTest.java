@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
@@ -510,7 +511,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             assertNotNull(is);
             assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
                     .isInstanceOf(PowsyblException.class)
-                    .hasMessageContaining("Missing root namespace");
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.16, found namespace  ");
         }
     }
 
@@ -520,7 +521,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         byte[] bytes = xml.getBytes(StandardCharsets.UTF_8);
         InputStream is = new ByteArrayInputStream(bytes);
         assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
-                .isInstanceOf(PowsyblException.class)
-                .hasMessageContaining("Failed to read namespace from XML");
+                .isInstanceOf(UncheckedSaxException.class)
+                .hasMessageContaining("XML document structures must start and end within the same entity");
     }
 }

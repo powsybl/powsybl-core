@@ -15,6 +15,7 @@ import com.powsybl.commons.binary.BinReader;
 import com.powsybl.commons.binary.BinWriter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.exceptions.UncheckedParserConfigurationException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
@@ -37,13 +38,16 @@ import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -65,8 +69,7 @@ import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
-import static com.powsybl.commons.xml.XmlUtil.createSchemaFactoryInstance;
+import static com.powsybl.commons.xml.XmlUtil.*;
 import static com.powsybl.iidm.serde.AbstractTreeDataImporter.SUFFIX_MAPPING;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.IIDM_PREFIX;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.INDENT;
@@ -179,8 +182,6 @@ public final class NetworkSerDe {
      * <p>This method validates the IIDM network in two steps: it first verifies that the root {@code <network>} namespace is consistent
      * with the requested {@code version}, then performs XSD validation with schemas provided by {@code extensionsSupplier}.</p>
      *
-     * <p><strong>Warning:</strong> The full network file is read into memory as a preparation step for validation</p>
-     *
      * <p>Example:</p>
      * <pre>{@code
      * try (InputStream is = getClass().getResourceAsStream(path)) {
@@ -197,24 +198,21 @@ public final class NetworkSerDe {
         Objects.requireNonNull(version);
         Objects.requireNonNull(extensionsSupplier);
 
-        // check version namespace
-        byte[] xmlBytes;
-        try {
-            xmlBytes = is.readAllBytes();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        checkNamespace(xmlBytes, version);
-        // XSD validation
         Schema schema = extensionsSupplier == DefaultExtensionsSupplier.getInstance() ?
                 DEFAULT_SCHEMAS_SUPPLIER.get().computeIfAbsent(version, v -> createSchema(DefaultExtensionsSupplier.getInstance(), v)) :
                 createSchema(extensionsSupplier, version);
         try {
-            schema.newValidator().validate(new StreamSource(new ByteArrayInputStream(xmlBytes)));
+            // check version namespace
+            XMLFilter xmlFilter = getXMLFilter(version);
+            SAXSource saxSource = new SAXSource(xmlFilter, new InputSource(is));
+            // XSD validation
+            schema.newValidator().validate(saxSource);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
+        } catch (ParserConfigurationException e) {
+            throw new UncheckedParserConfigurationException(e);
         }
     }
 
@@ -307,15 +305,23 @@ public final class NetworkSerDe {
                 .toList();
     }
 
-    /**
-     * Verifies that the XML root namespace matches the requested IIDM version
-     *
-     * @param xmlBytes XML document content as bytes
-     * @param validationVersion expected IIDM version
-     * @throws PowsyblException if the root namespace does not match the expected version
-     */
-    private static void checkNamespace(byte[] xmlBytes, IidmVersion validationVersion) {
-        String actualNamespace = readRootNamespace(xmlBytes);
+    private static XMLFilter getXMLFilter(IidmVersion iidmVersion) throws ParserConfigurationException, SAXException {
+        XMLFilter xmlFilter = new XMLFilterImpl() {
+            private boolean rootSeen = false;
+            @Override
+            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                if (!rootSeen) {
+                    checkNamespace(uri, iidmVersion);
+                    rootSeen = true;
+                }
+                super.startElement(uri, localName, qName, attributes);
+            }
+        };
+        xmlFilter.setParent(createXMLReader());
+        return xmlFilter;
+    }
+
+    private static void checkNamespace(String actualNamespace, IidmVersion validationVersion) {
         boolean matches = actualNamespace.equals(validationVersion.getNamespaceURI())
                 || validationVersion.supportEquipmentValidationLevel() && actualNamespace.equals(validationVersion.getNamespaceURI(false));
         if (!matches) {
@@ -366,57 +372,6 @@ public final class NetworkSerDe {
             return locations;
         } catch (XMLStreamException | IOException e) {
             throw new PowsyblException("Failed to parse XSD schema", e);
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
-    }
-
-    /**
-     * Read the namespace declared on {@code <network>} element
-     *
-     * <p>Example:</p>
-     * <pre>{@code
-     * <?xml version="1.0" encoding="UTF-8"?>
-     *      <network xmlns="http://www.powsybl.org/schema/iidm/1_10" id="n1">
-     *      ...
-     *      </network>
-     * }</pre>
-     *
-     * <p>For the XML above, this method return
-     * {@code "http://www.powsybl.org/schema/iidm/1_10"}.</p>
-     *
-     * @param xmlBytes XML document content as bytes
-     * @return the namespace URI specified on the root element
-     */
-    private static String readRootNamespace(byte[] xmlBytes) {
-        try {
-            return proceedReadRootNamespace(xmlBytes);
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
-    }
-
-    private static String proceedReadRootNamespace(byte[] xmlBytes) throws XMLStreamException {
-        XMLStreamReader reader = null;
-        try (ByteArrayInputStream in = new ByteArrayInputStream(xmlBytes)) {
-            reader = getXMLInputFactory().createXMLStreamReader(in);
-            while (reader.hasNext()) {
-                if (reader.next() == XMLStreamConstants.START_ELEMENT) {
-                    if (!NETWORK_ROOT_ELEMENT_NAME.equals(reader.getLocalName())) {
-                        throw new PowsyblException("Unexpected root element: " + reader.getLocalName());
-                    }
-                    String ns = reader.getNamespaceURI();
-                    if (ns == null || ns.isBlank()) {
-                        throw new PowsyblException("Missing root namespace");
-                    }
-                    return ns;
-                }
-            }
-            throw new PowsyblException("Missing root namespace");
-        } catch (XMLStreamException | IOException e) {
-            throw new PowsyblException("Failed to read namespace from XML", e);
         } finally {
             if (reader != null) {
                 reader.close();

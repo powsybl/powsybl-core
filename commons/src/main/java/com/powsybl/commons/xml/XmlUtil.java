@@ -16,10 +16,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -201,6 +203,10 @@ public final class XmlUtil {
 
     private static void logUnsupportedProperty(String property) {
         LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
+    }
+
+    public static XMLReader createXMLReader() throws ParserConfigurationException, SAXException {
+        return SAXParserFactory.newNSInstance().newSAXParser().getXMLReader();
     }
 
     private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter) throws XMLStreamException {
