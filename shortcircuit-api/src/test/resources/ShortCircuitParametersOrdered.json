@@ -1,0 +1,25 @@
+{
+  "debugDir": "/tmp/debugDir",
+  "detailedReport": false,
+  "initialVoltageProfileMode": "CONFIGURED",
+  "minVoltageDropProportionalThreshold": 0,
+  "studyType": "SUB_TRANSIENT",
+  "subTransientCoefficient": 0.7,
+  "version": "1.4",
+  "voltageRanges": [
+    {
+      "maximumNominalVoltage": 410,
+      "minimumNominalVoltage": 380,
+      "voltage": 380,
+      "voltageRangeCoefficient": 1.05
+    }
+  ],
+  "withFeederResult": true,
+  "withFortescueResult": true,
+  "withLimitViolations": false,
+  "withLoads": true,
+  "withNeutralPosition": false,
+  "withShuntCompensators": true,
+  "withVoltageResult": false,
+  "withVSCConverterStations": true
+}

@@ -73,6 +73,12 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readOrderedParameters() {
+        DynamicSecurityAnalysisParameters parameters = JsonDynamicSecurityAnalysisParameters.read(getClass().getResourceAsStream("/DynamicSecurityAnalysisParametersOrdered.json"));
+        assertNotNull(parameters);
+    }
+
+    @Test
     void updateExtensions() {
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
         DynamicSecurityDummyExtension extension = new DynamicSecurityDummyExtension();

@@ -43,6 +43,7 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
     public DynamicSecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, DynamicSecurityAnalysisParameters parameters) throws IOException {
         List<Extension<DynamicSecurityAnalysisParameters>> extensions = Collections.emptyList();
         String version = null;
+        String debugDir = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
@@ -60,9 +61,8 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                             DynamicSecurityAnalysisParameters.ContingenciesParameters.class));
                     break;
                 case "debugDir":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setDebugDir(parser.readValueAs(String.class));
+                    debugDir = parser.readValueAs(String.class);
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -71,6 +71,10 @@ public class DynamicSecurityAnalysisParametersDeserializer extends StdDeserializ
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
+        }
+        if (debugDir != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + "debugDir", version, "1.1");
+            parameters.setDebugDir(debugDir);
         }
 
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

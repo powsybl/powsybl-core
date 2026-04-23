@@ -42,6 +42,7 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
     public DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext,
                                                    DynamicSimulationParameters parameters) throws IOException {
         String version = null;
+        String debugDir = null;
         List<Extension<DynamicSimulationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -62,9 +63,8 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                     break;
 
                 case "debugDir":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setDebugDir(parser.readValueAs(String.class));
+                    debugDir = parser.readValueAs(String.class);
                     break;
 
                 case "extensions":
@@ -75,6 +75,10 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
+        }
+        if (debugDir != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + "debugDir", version, "1.1");
+            parameters.setDebugDir(debugDir);
         }
 
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

@@ -169,6 +169,14 @@ class ExporterTest extends AbstractSerDeTest {
         assertEquals(3.3, result.getPreContingencyResult().getNetworkResult().getBranchResult("branch1").getI2(), 0.01);
     }
 
+    @Test
+    void testOrderedJson() {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultOrdered.json"));
+        assertEquals(2, result.getOperatorStrategyResults().size());
+        assertEquals(3.3, result.getPreContingencyResult().getNetworkResult().getBranchResult("branch1").getI2(), 0.01);
+
+    }
+
     private static Stream<Arguments> provideArguments() {
         return Stream.of(
             Arguments.of("/SecurityAnalysisResultV1.2.json"),

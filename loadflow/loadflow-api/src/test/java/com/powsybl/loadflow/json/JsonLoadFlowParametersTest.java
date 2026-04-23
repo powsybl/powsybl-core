@@ -174,6 +174,13 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         }
     }
 
+    @Test
+    void readOrderedJson() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/OrderedLoadFlowParameters.json"));
+        assertFalse(parameters.isUseReactiveLimits());
+    }
+
     public static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
 
         public static final double PARAMETER_DOUBLE_DEFAULT_VALUE = 6.4;

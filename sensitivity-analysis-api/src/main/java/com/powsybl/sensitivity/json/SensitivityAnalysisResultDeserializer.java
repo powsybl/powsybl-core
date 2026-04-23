@@ -10,6 +10,7 @@ package com.powsybl.sensitivity.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
@@ -34,11 +35,12 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
     @Override
     public SensitivityAnalysisResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String version = null;
-        List<SensitivityValue> sensitivityValues = Collections.emptyList();
-        List<SensitivityAnalysisResult.SensitivityStateStatus> stateStatus = Collections.emptyList();
-        List<String> contingencyIds = Collections.emptyList();
-        List<String> operatorStrategyIds = Collections.emptyList();
-        List<SensitivityFactor> factors = Collections.emptyList();
+        JsonNode sensitivityValuesNode = null;
+        JsonNode contingencyStatusNode = null;
+        JsonNode stateStatusNode = null;
+        List<String> contingencyIds = null;
+        List<String> operatorStrategyIds = null;
+        JsonNode factorsNode = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
@@ -49,34 +51,30 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
 
                 case "sensitivityFactors":
                     parser.nextToken();
-                    factors = JsonUtil.readList(deserializationContext, parser, SensitivityFactor.class);
+                    factorsNode = parser.readValueAsTree();
                     break;
 
                 case "sensitivityValues":
                     parser.nextToken();
-                    sensitivityValues = JsonUtil.readList(deserializationContext, parser, SensitivityValue.class);
+                    sensitivityValuesNode = parser.readValueAsTree();
                     break;
 
                 case "contingencyStatus":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
                     parser.nextToken();
-                    stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
+                    contingencyStatusNode = parser.readValueAsTree();
                     break;
 
                 case "stateStatus":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: stateStatus", version, "1.1");
                     parser.nextToken();
-                    stateStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityStateStatus.class);
+                    stateStatusNode = parser.readValueAsTree();
                     break;
 
                 case "contingencyIds":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyIds", version, "1.1");
                     parser.nextToken();
                     contingencyIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
 
                 case "operatorStrategyIds":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: operatorStrategyIds", version, "1.1");
                     parser.nextToken();
                     operatorStrategyIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
@@ -84,6 +82,24 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
+        }
+
+        List<SensitivityFactor> factors = JsonUtil.readFromNode(factorsNode, deserializationContext, SensitivityFactor.class, parser.getCodec());
+        List<SensitivityAnalysisResult.SensitivityStateStatus> stateStatus = Collections.emptyList();
+        if (contingencyStatusNode != null) {
+            JsonUtil.assertLessThanOrEqualToReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
+            stateStatus = JsonUtil.readFromNode(contingencyStatusNode, deserializationContext, SensitivityAnalysisResult.SensitivityStateStatus.class, parser.getCodec());
+        }
+        if (stateStatusNode != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: stateStatus", version, "1.1");
+            stateStatus = JsonUtil.readFromNode(stateStatusNode, deserializationContext, SensitivityAnalysisResult.SensitivityStateStatus.class, parser.getCodec());
+        }
+        List<SensitivityValue> sensitivityValues = JsonUtil.readFromNode(sensitivityValuesNode, deserializationContext, SensitivityValue.class, parser.getCodec());
+        if (contingencyIds != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyIds", version, "1.1");
+        }
+        if (operatorStrategyIds != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: operatorStrategyIds", version, "1.1");
         }
 
         if (version == null || !version.equals("1.0") && !version.equals("1.1")) {
@@ -98,4 +114,5 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         }
         return new SensitivityAnalysisResult(factors, stateStatus, contingencyIds, operatorStrategyIds, sensitivityValues);
     }
+
 }

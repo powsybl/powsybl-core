@@ -1,0 +1,27 @@
+{
+  "angle-flow-sensitivity-value-threshold": 0,
+  "flow-flow-sensitivity-value-threshold": 0,
+  "flow-voltage-sensitivity-value-threshold": 0,
+  "load-flow-parameters": {
+    "balanceType": "PROPORTIONAL_TO_GENERATION_P_MAX",
+    "componentMode": "MAIN_CONNECTED",
+    "countriesToBalance": [],
+    "dc": false,
+    "dcPowerFactor": 1,
+    "dcUseTransformerRatio": true,
+    "distributedSlack": true,
+    "hvdcAcEmulation": true,
+    "phaseShifterRegulationOn": false,
+    "readSlackBus": true,
+    "shuntCompensatorVoltageControlOn": false,
+    "transformerVoltageControlOn": false,
+    "twtSplitShuntAdmittance": false,
+    "useReactiveLimits": true,
+    "version": "1.10",
+    "voltageInitMode": "UNIFORM_VALUES",
+    "writeSlackBus": true
+  },
+  "operator-strategies-calculation-mode": "NONE",
+  "version": "1.2",
+  "voltage-voltage-sensitivity-value-threshold": 0
+}

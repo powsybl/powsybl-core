@@ -1,0 +1,75 @@
+{
+  "componentResults": [
+    {
+      "connectedComponentNum": 0,
+      "distributedActivePower": 356.78,
+      "iterationCount": 7,
+      "metrics": {
+        "metric1": "aa",
+        "metric2": "bb"
+      },
+      "referenceBusId": "bus0",
+      "slackBusResults": [
+        {
+          "activePowerMismatch": 123.4,
+          "id": "bus1"
+        },
+        {
+          "activePowerMismatch": 234.5,
+          "id": "bus2"
+        }
+      ],
+      "status": "CONVERGED",
+      "statusText": "",
+      "synchronousComponentNum": 0
+    },
+    {
+      "connectedComponentNum": 0,
+      "distributedActivePower": 356.78,
+      "iterationCount": 7,
+      "metrics": {
+        "metric1": "aa",
+        "metric2": "bb"
+      },
+      "referenceBusId": "busA",
+      "slackBusResults": [
+        {
+          "activePowerMismatch": 123.4,
+          "id": "busB"
+        }
+      ],
+      "status": "CONVERGED",
+      "statusText": "",
+      "synchronousComponentNum": 1
+    },
+    {
+      "connectedComponentNum": 1,
+      "distributedActivePower": 356.78,
+      "iterationCount": 7,
+      "metrics": {
+        "metric1": "aa",
+        "metric2": "bb"
+      },
+      "referenceBusId": "busC",
+      "slackBusResults": [
+        {
+          "activePowerMismatch": 123.4,
+          "id": "busC"
+        }
+      ],
+      "status": "NO_CALCULATION",
+      "statusText": "",
+      "synchronousComponentNum": 2
+    }
+  ],
+  "isOK": true,
+  "metrics": {
+    "cause": "0",
+    "contraintes": "0",
+    "csprMarcheForcee": "0",
+    "dureeCalcul": "0.02",
+    "nbiter": "4",
+    "statut": "OK"
+  },
+  "version": "1.4"
+}

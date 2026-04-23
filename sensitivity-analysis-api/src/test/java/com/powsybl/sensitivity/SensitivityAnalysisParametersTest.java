@@ -268,4 +268,11 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
                         .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")),
                 "SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
     }
+
+    @Test
+    void readOrderedParameters() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersOrdered.json"));
+        assertEquals(0, parameters.getFlowFlowSensitivityValueThreshold());
+    }
 }

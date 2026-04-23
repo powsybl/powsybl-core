@@ -71,6 +71,12 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testOrderedParameters() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParametersOrdered.json"));
+        assertNotNull(parameters);
+    }
+
+    @Test
     void error() throws IOException {
         try (var is = getClass().getResourceAsStream("/json/ScalingParametersError.json")) {
             IllegalStateException e = assertThrows(IllegalStateException.class, () -> read(is));

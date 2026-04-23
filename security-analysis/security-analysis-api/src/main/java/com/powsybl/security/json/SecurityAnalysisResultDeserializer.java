@@ -10,6 +10,7 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
@@ -54,10 +55,13 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
     public SecurityAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         String version = null;
         NetworkMetadata networkMetadata = null;
+        JsonNode preContingencyResultNode = null;
         LimitViolationsResult limitViolationsResult = null;
+        JsonNode postContingencyResultsNode = null;
         List<PostContingencyResult> postContingencyResults = Collections.emptyList();
         List<Extension<SecurityAnalysisResult>> extensions = Collections.emptyList();
         PreContingencyResult preContingencyResult = null;
+        JsonNode operatorStrategyResultsNode = null;
         List<OperatorStrategyResult> operatorStrategyResults = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -75,22 +79,17 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "preContingencyResult":
                     parser.nextToken();
-                    if (version != null && version.equals("1.0")) {
-                        limitViolationsResult = JsonUtil.readValue(ctx, parser, LimitViolationsResult.class);
-                    } else {
-                        preContingencyResult = JsonUtil.readValue(ctx, parser, PreContingencyResult.class);
-                    }
+                    preContingencyResultNode = parser.readValueAsTree();
                     break;
 
                 case "postContingencyResults":
                     parser.nextToken();
-                    postContingencyResults = JsonUtil.readList(ctx, parser, PostContingencyResult.class);
+                    postContingencyResultsNode = parser.readValueAsTree();
                     break;
 
                 case "operatorStrategyResults":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyResults", version, "1.2");
                     parser.nextToken();
-                    operatorStrategyResults = JsonUtil.readList(ctx, parser, OperatorStrategyResult.class);
+                    operatorStrategyResultsNode = parser.readValueAsTree();
                     break;
 
                 case "extensions":
@@ -103,9 +102,31 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
             }
         }
         SecurityAnalysisResult result = null;
+
+        if (preContingencyResultNode != null) {
+            JsonParser preContingencyParser = preContingencyResultNode.traverse(parser.getCodec());
+            preContingencyParser.nextToken();
+            if (version != null && version.equals("1.0")) {
+                limitViolationsResult = JsonUtil.readValue(ctx, preContingencyParser, LimitViolationsResult.class);
+            } else {
+                preContingencyResult = JsonUtil.readValue(ctx, preContingencyParser, PreContingencyResult.class);
+            }
+        }
+        if (postContingencyResultsNode != null) {
+            JsonParser postContingencyParser = postContingencyResultsNode.traverse(parser.getCodec());
+            postContingencyParser.nextToken();
+            postContingencyResults = JsonUtil.readList(ctx, postContingencyParser, PostContingencyResult.class);
+        }
+        if (operatorStrategyResultsNode != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyResults", version, "1.2");
+            JsonParser operatorStrategyParser = operatorStrategyResultsNode.traverse(parser.getCodec());
+            operatorStrategyParser.nextToken();
+            operatorStrategyResults = JsonUtil.readList(ctx, operatorStrategyParser, OperatorStrategyResult.class);
+        }
+
         if (preContingencyResult == null) {
             LoadFlowResult.ComponentResult.Status status = null;
-            if (limitViolationsResult != null && version.equals("1.0")) {
+            if (limitViolationsResult != null) {
                 status = limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
             } else {
                 status = LoadFlowResult.ComponentResult.Status.CONVERGED;
