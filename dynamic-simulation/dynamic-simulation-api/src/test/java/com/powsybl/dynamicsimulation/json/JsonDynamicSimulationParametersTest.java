@@ -63,4 +63,10 @@ class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
             assertEquals("Unexpected field: unknownParameter", e.getMessage());
         }
     }
+
+    @Test
+    void readOrderedParameters() {
+        DynamicSimulationParameters parameters = JsonDynamicSimulationParameters.read(getClass().getResourceAsStream("/DynamicSimulationParametersOrdered.json"));
+        assertNotNull(parameters);
+    }
 }
