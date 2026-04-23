@@ -1,0 +1,11 @@
+{
+  "constantPowerFactor": false,
+  "ignoredInjectionIds": [
+    "id1",
+    "id2"
+  ],
+  "priority": "ONESHOT",
+  "reconnect": true,
+  "scalingConvention": "LOAD",
+  "version": "1.2"
+}

@@ -166,6 +166,13 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readOrderedParameters() throws IOException {
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileOrdered.json")), fileSystem.getPath("/FaultParametersFileOrdered.json"));
+        List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileOrdered.json"));
+        assertEquals(5, parameters.size());
+    }
+
+    @Test
     void readParametersMissingVoltageRanges() throws IOException {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json");

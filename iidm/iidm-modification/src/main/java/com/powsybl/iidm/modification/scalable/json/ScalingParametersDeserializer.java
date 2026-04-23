@@ -17,6 +17,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -27,6 +28,12 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 public class ScalingParametersDeserializer extends StdDeserializer<ScalingParameters> {
 
     private static final String CONTEXT_NAME = "ScalingParameters";
+
+    private static class ParsingContext {
+        ScalingParameters.Priority iterative = null;
+        ScalingParameters.Priority priority = null;
+        Set<String> ignoredInjectionIds = null;
+    }
 
     ScalingParametersDeserializer() {
         super(ScalingParameters.class);
@@ -39,6 +46,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
 
     @Override
     public ScalingParameters deserialize(JsonParser parser, DeserializationContext context, ScalingParameters parameters) throws IOException {
+        ParsingContext parsingContext = new ParsingContext();
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -59,22 +67,31 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     parameters.setReconnect(parser.readValueAs(Boolean.class));
                 }
                 case "iterative" -> {
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: iterative", version, "1.1");
                     parser.nextToken();
-                    parameters.setPriority(Boolean.TRUE.equals(parser.readValueAs(Boolean.class)) ? RESPECT_OF_VOLUME_ASKED : ONESHOT);
+                    parsingContext.iterative = Boolean.TRUE.equals(parser.readValueAs(Boolean.class)) ? RESPECT_OF_VOLUME_ASKED : ONESHOT;
                 }
                 case "priority" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: priority", version, "1.1");
                     parser.nextToken();
-                    parameters.setPriority(JsonUtil.readValue(context, parser, ScalingParameters.Priority.class));
+                    parsingContext.priority = JsonUtil.readValue(context, parser, ScalingParameters.Priority.class);
                 }
-                case "ignoredInjectionIds" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
-                    parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
-                }
+                case "ignoredInjectionIds" -> parsingContext.ignoredInjectionIds = new HashSet<>(JsonUtil.parseStringArray(parser));
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
+
+        if (parsingContext.iterative != null) {
+            JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: iterative", version, "1.1");
+            parameters.setPriority(parsingContext.iterative);
+        }
+        if (parsingContext.priority != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: priority", version, "1.1");
+            parameters.setPriority(parsingContext.priority);
+        }
+        if (parsingContext.ignoredInjectionIds != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
+            parameters.setIgnoredInjectionIds(parsingContext.ignoredInjectionIds);
+        }
+
         return parameters;
     }
 }

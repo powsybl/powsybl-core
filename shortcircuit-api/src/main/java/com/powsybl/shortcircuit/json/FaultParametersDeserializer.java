@@ -10,6 +10,7 @@ package com.powsybl.shortcircuit.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
@@ -28,7 +29,19 @@ import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*
 class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
-    private static final String TAG = "TAG: ";
+
+    private class ParsingContext {
+        Boolean withVoltageResult = null;
+        Boolean withVoltageMap = null;
+        Boolean withFortescueResult = null;
+        Double subTransientCoefficient = null;
+        Boolean withLoads = null;
+        Boolean withShuntCompensators = null;
+        Boolean withVSCConverterStations = null;
+        Boolean withNeutralPosition = null;
+        InitialVoltageProfileMode initialVoltageProfileMode = null;
+        JsonNode voltageRanges = null;
+    }
 
     FaultParametersDeserializer() {
         super(FaultParameters.class);
@@ -36,6 +49,8 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
     @Override
     public FaultParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        ParsingContext context = new ParsingContext();
+
         String version = null;
         String id = null;
         boolean withLimitViolations = false;
@@ -69,14 +84,12 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     withLimitViolations = parser.readValueAs(Boolean.class);
                 }
                 case "withVoltageMap" -> {
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
-                    withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
+                    context.withVoltageMap = parser.readValueAs(Boolean.class);
                 }
                 case "withVoltageResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageAndVoltageDropProfileResult", version, "1.1");
                     parser.nextToken();
-                    withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
+                    context.withVoltageResult = parser.readValueAs(Boolean.class);
                 }
                 case "withFeederResult" -> {
                     parser.nextToken();
@@ -91,48 +104,82 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                 }
                 case "withFortescueResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
                     parser.nextToken();
-                    withFortescueResult = parser.readValueAs(Boolean.class);
+                    context.withFortescueResult = parser.readValueAs(Boolean.class);
                 }
                 case "subTransientCoefficient" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
-                    subTransientCoefficient = parser.readValueAs(Double.class);
+                    context.subTransientCoefficient = parser.readValueAs(Double.class);
                 }
                 case "withLoads" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
-                    withLoads = parser.readValueAs(Boolean.class);
+                    context.withLoads = parser.readValueAs(Boolean.class);
                 }
                 case "withShuntCompensators" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
-                    withShuntCompensators = parser.readValueAs(Boolean.class);
+                    context.withShuntCompensators = parser.readValueAs(Boolean.class);
                 }
                 case "withVSCConverterStations" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
-                    withVSCConverterStations = parser.readValueAs(Boolean.class);
+                    context.withVSCConverterStations = parser.readValueAs(Boolean.class);
                 }
                 case "withNeutralPosition" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
-                    withNeutralPosition = parser.readValueAs(Boolean.class);
+                    context.withNeutralPosition = parser.readValueAs(Boolean.class);
                 }
                 case "initialVoltageProfileMode" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
-                    initialVoltageProfileMode = InitialVoltageProfileMode.valueOf(parser.readValueAs(String.class));
+                    context.initialVoltageProfileMode = InitialVoltageProfileMode.valueOf(parser.readValueAs(String.class));
                 }
                 case "voltageRanges" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
-                    voltageRanges = JsonUtil.readList(deserializationContext, parser, VoltageRange.class);
+                    context.voltageRanges = parser.readValueAsTree();
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
+
+        if (context.withVoltageMap != null) {
+            JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
+            withVoltageAndVoltageDropProfileResult = context.withVoltageMap;
+        }
+        if (context.withVoltageResult != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageAndVoltageDropProfileResult", version, "1.1");
+            withVoltageAndVoltageDropProfileResult = context.withVoltageResult;
+        }
+        if (context.withFortescueResult != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withFortescueResult", version, "1.1");
+            withFortescueResult = context.withFortescueResult;
+        }
+        if (context.subTransientCoefficient != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: subTransientCoefficient", version, "1.2");
+            subTransientCoefficient = context.subTransientCoefficient;
+        }
+        if (context.withLoads != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withLoads", version, "1.2");
+            withLoads = context.withLoads;
+        }
+        if (context.withShuntCompensators != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withShuntCompensators", version, "1.2");
+            withShuntCompensators = context.withShuntCompensators;
+        }
+        if (context.withVSCConverterStations != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVSCConverterStations", version, "1.2");
+            withVSCConverterStations = context.withVSCConverterStations;
+        }
+        if (context.withNeutralPosition != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withNeutralPosition", version, "1.2");
+            withNeutralPosition = context.withNeutralPosition;
+        }
+        if (context.initialVoltageProfileMode != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageProfileMode", version, "1.2");
+            initialVoltageProfileMode = context.initialVoltageProfileMode;
+        }
+        if (context.voltageRanges != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageRanges", version, "1.2");
+            voltageRanges = JsonUtil.readFromNode(context.voltageRanges, deserializationContext, VoltageRange.class, parser.getCodec());
+        }
+
         FaultParameters faultParameters = new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type,
                 minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient, withLoads,
                 withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfileMode, voltageRanges);

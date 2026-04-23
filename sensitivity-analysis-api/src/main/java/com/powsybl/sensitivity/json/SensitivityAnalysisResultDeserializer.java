@@ -9,18 +9,15 @@ package com.powsybl.sensitivity.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -87,17 +84,17 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             }
         }
 
-        List<SensitivityFactor> factors = readFromNode(factorsNode, deserializationContext, SensitivityFactor.class, parser.getCodec());
+        List<SensitivityFactor> factors = JsonUtil.readFromNode(factorsNode, deserializationContext, SensitivityFactor.class, parser.getCodec());
         List<SensitivityAnalysisResult.SensitivityStateStatus> stateStatus = Collections.emptyList();
         if (contingencyStatusNode != null) {
             JsonUtil.assertLessThanOrEqualToReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyStatus", version, "1.0");
-            stateStatus = readFromNode(contingencyStatusNode, deserializationContext, SensitivityAnalysisResult.SensitivityStateStatus.class, parser.getCodec());
+            stateStatus = JsonUtil.readFromNode(contingencyStatusNode, deserializationContext, SensitivityAnalysisResult.SensitivityStateStatus.class, parser.getCodec());
         }
         if (stateStatusNode != null) {
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: stateStatus", version, "1.1");
-            stateStatus = readFromNode(stateStatusNode, deserializationContext, SensitivityAnalysisResult.SensitivityStateStatus.class, parser.getCodec());
+            stateStatus = JsonUtil.readFromNode(stateStatusNode, deserializationContext, SensitivityAnalysisResult.SensitivityStateStatus.class, parser.getCodec());
         }
-        List<SensitivityValue> sensitivityValues = readFromNode(sensitivityValuesNode, deserializationContext, SensitivityValue.class, parser.getCodec());
+        List<SensitivityValue> sensitivityValues = JsonUtil.readFromNode(sensitivityValuesNode, deserializationContext, SensitivityValue.class, parser.getCodec());
         if (contingencyIds != null) {
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: contingencyIds", version, "1.1");
         }
@@ -118,14 +115,4 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         return new SensitivityAnalysisResult(factors, stateStatus, contingencyIds, operatorStrategyIds, sensitivityValues);
     }
 
-    private static <T> List<T> readFromNode(JsonNode node, DeserializationContext deserializationContext,
-                                            Class<T> clazz, ObjectCodec codec) throws IOException {
-        List<T> result = Collections.emptyList();
-        if (node != null) {
-            JsonParser subParser = node.traverse(codec);
-            subParser.nextToken(); // positioned on START_ARRAY
-            result = JsonUtil.readList(deserializationContext, subParser, clazz);
-        }
-        return result;
-    }
 }

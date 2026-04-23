@@ -7,11 +7,7 @@
  */
 package com.powsybl.commons.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonFactoryBuilder;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
@@ -754,6 +750,17 @@ public final class JsonUtil {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static <T> List<T> readFromNode(JsonNode node, DeserializationContext deserializationContext,
+                                           Class<T> clazz, ObjectCodec codec) throws IOException {
+        List<T> result = Collections.emptyList();
+        if (node != null) {
+            JsonParser subParser = node.traverse(codec);
+            subParser.nextToken(); // positioned on START_ARRAY
+            result = readList(deserializationContext, subParser, clazz);
+        }
+        return result;
     }
 
     public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {

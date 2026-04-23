@@ -376,6 +376,12 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readOrderedParameters() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters.read(getClass().getResourceAsStream("/ShortCircuitParametersOrdered.json"));
+        assertNotNull(parameters);
+    }
+
+    @Test
     void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/ShortCircuitParametersInvalid.json")) {
             IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonShortCircuitParameters.read(is));
