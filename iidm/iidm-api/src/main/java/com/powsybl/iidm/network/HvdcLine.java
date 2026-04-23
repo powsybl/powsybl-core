@@ -206,12 +206,24 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      */
     void remove();
 
+    /**
+     * Connect the converter station.<br/>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
+     * use {@link #connectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}
+     * @return true if the station has been connected, false otherwise
+     */
     boolean connectConverterStations();
 
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate);
 
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
+    /**
+     * Disconnect the converter station.<br/>
+     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
+     * use {@link #disconnectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if the station has been disconnected, false otherwise
+     */
     boolean disconnectConverterStations();
 
     boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable);

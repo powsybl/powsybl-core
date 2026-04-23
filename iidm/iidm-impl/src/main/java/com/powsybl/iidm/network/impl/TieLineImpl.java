@@ -186,7 +186,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public boolean disconnectBoundaryLines() {
-        return disconnectBoundaryLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
+        return disconnectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER, null);
     }
 
     @Override
