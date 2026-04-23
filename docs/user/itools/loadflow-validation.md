@@ -87,9 +87,6 @@ Use the `--load-flow` parameter to run a load-flow before the validation. This o
 `--output-format`<br>
 Use the `--output-format` parameter to specify the format of the output files. The available output formats are `CSV` or `CSV_MULTILINE`.
 
-`--with-extensions-validation`<br>
-Use the `--with-extensions-validation` parameter to perform extensions validation.
-
 If this parameter is set to `CSV`, in the output files a line contains all values of validated equipment. If the parameter
 is set to `CSV_MULTILINE`, in the output files the values of a piece of equipment are split in multiple lines, one value for each
 line, see examples below:
@@ -119,6 +116,9 @@ Use the `--run-computation` parameter to run a computation before the validation
 `--types`<br>
 Use the `--types` parameter to define the types of checks to run. If this parameter is not set, run all the checks.
 The supported types are `FLOWS`, `GENERATORS`, `BUSES`, `SVCS`, `SHUNTS`, `TWTS`.
+
+`--with-extensions-validation`<br>
+Use the `--with-extensions-validation` parameter to perform extensions validation.
 
 To learn more about the different checks, read the [loadflow validation](../../grid_features/loadflow_validation.md) documentation page.
 
