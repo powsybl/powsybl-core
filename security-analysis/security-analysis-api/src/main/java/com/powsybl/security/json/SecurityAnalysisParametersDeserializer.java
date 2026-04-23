@@ -33,6 +33,12 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
         super(SecurityAnalysisParameters.class);
     }
 
+    private class ParsingContext {
+        String version;
+        SecurityAnalysisParameters.IncreasedViolationsParameters increasedViolationsParameters = null;
+        Boolean intermediateResultsInOperatorStrategy = null;
+    }
+
     @Override
     public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         return deserialize(parser, deserializationContext, new SecurityAnalysisParameters());
@@ -40,29 +46,27 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
 
     @Override
     public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws IOException {
+        ParsingContext context = new ParsingContext();
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
-        String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
                     parser.nextToken();
-                    version = parser.getValueAsString();
+                    context.version = parser.getValueAsString();
                     break;
                 case "increased-violations-parameters":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
                     parser.nextToken();
-                    parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
+                    context.increasedViolationsParameters = JsonUtil.readValue(deserializationContext,
                             parser,
-                            SecurityAnalysisParameters.IncreasedViolationsParameters.class));
+                            SecurityAnalysisParameters.IncreasedViolationsParameters.class);
                     break;
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
                 case "intermediate-results-in-operator-strategy":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.2");
                     parser.nextToken();
-                    parameters.setIntermediateResultsInOperatorStrategy(parser.getValueAsBoolean());
+                    context.intermediateResultsInOperatorStrategy = parser.getValueAsBoolean();
                     break;
                 case "extensions":
                     parser.nextToken();
@@ -72,7 +76,20 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
+        checkAndFillVersionedParameters(parameters, context);
+
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
+    }
+
+    private static void checkAndFillVersionedParameters(SecurityAnalysisParameters parameters, ParsingContext context) {
+        if (context.increasedViolationsParameters != null) {
+            JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", context.version, "1.0");
+            parameters.setIncreasedViolationsParameters(context.increasedViolationsParameters);
+        }
+        if (context.intermediateResultsInOperatorStrategy != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", context.version, "1.2");
+            parameters.setIntermediateResultsInOperatorStrategy(context.intermediateResultsInOperatorStrategy);
+        }
     }
 }

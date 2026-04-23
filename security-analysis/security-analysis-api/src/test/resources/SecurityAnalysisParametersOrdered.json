@@ -1,0 +1,33 @@
+{
+  "extensions": {
+    "dummy-extension": {}
+  },
+  "increased-violations-parameters": {
+    "flow-proportional-threshold": 0.1,
+    "high-voltage-absolute-threshold": 0,
+    "high-voltage-proportional-threshold": 0,
+    "low-voltage-absolute-threshold": 0,
+    "low-voltage-proportional-threshold": 0
+  },
+  "intermediate-results-in-operator-strategy": false,
+  "load-flow-parameters": {
+    "balanceType": "PROPORTIONAL_TO_GENERATION_P_MAX",
+    "componentMode": "MAIN_CONNECTED",
+    "countriesToBalance": [],
+    "dc": false,
+    "dcPowerFactor": 1,
+    "dcUseTransformerRatio": true,
+    "distributedSlack": true,
+    "hvdcAcEmulation": true,
+    "phaseShifterRegulationOn": false,
+    "readSlackBus": true,
+    "shuntCompensatorVoltageControlOn": false,
+    "transformerVoltageControlOn": false,
+    "twtSplitShuntAdmittance": false,
+    "useReactiveLimits": true,
+    "version": "1.10",
+    "voltageInitMode": "UNIFORM_VALUES",
+    "writeSlackBus": true
+  },
+  "version": "1.2"
+}

@@ -50,7 +50,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readExtension() throws IOException {
+    void readExtension() {
         SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters.read(getClass().getResourceAsStream("/SecurityAnalysisParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -61,6 +61,13 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
     void readError() {
         InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisParametersInvalid.json");
         assertThrows(IllegalStateException.class, () -> JsonSecurityAnalysisParameters.read(inputStream), "Unexpected field: unexpected");
+    }
+
+    @Test
+    void readOrdered() {
+        SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters.read(getClass().getResourceAsStream("/SecurityAnalysisParametersOrdered.json"));
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold());
+        assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test

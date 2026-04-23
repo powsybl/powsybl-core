@@ -37,9 +37,6 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
         }
         String type = typeNode.asText();
 
-        // On recrée un parser sur le nœud bufférisé pour le désérialiseur délégué
-        // Les désérialiseurs délégués attendent un parser positionné juste après START_OBJECT,
-        // sur le nom du premier champ (comme si parser.nextToken() avait déjà été appelé une fois)
         JsonParser subParser = rootNode.traverse(parser.getCodec());
         subParser.nextToken(); // START_OBJECT
 

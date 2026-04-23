@@ -222,6 +222,12 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readOrderedJson() throws IOException {
+        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/OrderedLoadFlowResult.json"));
+        assertEquals(0, result.getComponentResults().get(0).getConnectedComponentNum());
+    }
+
+    @Test
     void version10apiBackwardCompatibility() {
         LoadFlowResult result = createVersion10();
         assertTrue(result.getComponentResults().isEmpty());

@@ -11,6 +11,7 @@ package com.powsybl.loadflow.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -205,6 +206,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         Boolean ok = null;
         Map<String, String> metrics = null;
         String log = null;
+        JsonNode componentResultsNode = null;
         List<LoadFlowResult.ComponentResult> componentResults = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -222,12 +224,17 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     metrics = parser.readValueAs(HashMap.class);
                 }
                 case "componentResults" -> {
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: componentResults", version, "1.0");
                     parser.nextToken();
-                    deserializeComponentResults(parser, componentResults, version);
+                    componentResultsNode = parser.readValueAsTree();
                 }
                 default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.currentName());
             }
+        }
+        if (componentResultsNode != null) {
+            JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: componentResults", version, "1.0");
+            JsonParser componentResultsParser = componentResultsNode.traverse(parser.getCodec());
+            componentResultsParser.nextToken();
+            deserializeComponentResults(componentResultsParser, componentResults, version);
         }
 
         if (ok == null) {
