@@ -68,6 +68,7 @@ public class RunScriptTool implements Tool {
         return COMMAND;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
         Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
