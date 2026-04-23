@@ -89,8 +89,8 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             try {
                 NetworkSerDe.write(network, new ExportOptions(), os);
-            } catch (PowsyblException x) {
-                assertTrue(x.getMessage().contains("Provider not found for extension"));
+            } catch (PowsyblException exception) {
+                assertTrue(exception.getMessage().contains("Provider not found for extension"));
             }
         }
     }
@@ -103,8 +103,8 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             try {
                 NetworkSerDe.write(network, new ExportOptions().setThrowExceptionIfExtensionNotFound(false), os);
-            } catch (PowsyblException x) {
-                assertTrue(x.getMessage().contains("Provider not found for extension"));
+            } catch (PowsyblException exception) {
+                assertTrue(exception.getMessage().contains("Provider not found for extension"));
             }
         }
     }

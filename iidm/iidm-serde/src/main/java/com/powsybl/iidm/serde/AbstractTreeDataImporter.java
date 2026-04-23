@@ -182,8 +182,10 @@ public abstract class AbstractTreeDataImporter implements Importer {
     protected ImportOptions createImportOptions(Properties parameters) {
         ImportOptions importOptions = new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setIncludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
-                .setExcludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setIncludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig) != null ?
+                    new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setExcludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig) != null ?
+                    new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
                 .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig))
                 .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig));

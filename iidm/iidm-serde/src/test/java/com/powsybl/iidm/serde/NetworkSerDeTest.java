@@ -7,12 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionSerDe;
-import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.DeserializerContext;
-import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
@@ -58,11 +53,13 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTestMultipleSelectedOperationalLimitsGroup() throws IOException {
-        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(), "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(),
+            "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility : in versions older than IIDM 1.16 we only export the last selected limits group
         // no need to test before 1.12 as OperationalLimitsGroup did not exist before
-        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml", IidmVersion.V_1_12, IidmVersion.V_1_16);
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml",
+            IidmVersion.V_1_12, IidmVersion.V_1_16);
     }
 
     @Test
@@ -74,9 +71,11 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         line.newOperationalLimitsGroup1(name);
         line.newOperationalLimitsGroup1(name2);
         line.addSelectedOperationalLimitsGroups(TwoSides.ONE, name, name2);
-        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml", CURRENT_IIDM_VERSION);
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml",
+            CURRENT_IIDM_VERSION);
         assertEquals(6, networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getOperationalLimitsGroups1().size());
-        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE),
+            networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
     }
 
     @Test
@@ -204,28 +203,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Path file3 = tmpDir.resolve("n3.xml");
         NetworkSerDe.write(network3, file3);
         assertTxtEquals(file1, file3);
-    }
-
-    @AutoService(ExtensionSerDe.class)
-    public static class BusbarSectionExtSerDe extends AbstractExtensionSerDe<BusbarSection, BusbarSectionExt> {
-
-        public BusbarSectionExtSerDe() {
-            super("busbarSectionExt", "network", BusbarSectionExt.class, "busbarSectionExt.xsd",
-                    "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
-        }
-
-        @Override
-        public void write(BusbarSectionExt busbarSectionExt, SerializerContext context) {
-            // this method is abstract
-        }
-
-        @Override
-        public BusbarSectionExt read(BusbarSection busbarSection, DeserializerContext context) {
-            context.getReader().readEndNode();
-            var bbsExt = new BusbarSectionExt(busbarSection);
-            busbarSection.addExtension(BusbarSectionExt.class, bbsExt);
-            return bbsExt;
-        }
     }
 
     static Network writeAndRead(Network network, ExportOptions options) throws IOException {
