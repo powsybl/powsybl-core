@@ -156,21 +156,24 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     @Test
     void readJsonVersion10Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json")) {
-            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
+            PowsyblException exception = assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
+            assertEquals("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0 \n", exception.getMessage());
         }
     }
 
     @Test
     void readJsonVersion11Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json")) {
-            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");
+            PowsyblException exception = assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
+            assertEquals("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0 \n", exception.getMessage());
         }
     }
 
     @Test
     void readJsonVersion12Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion12Exception.json")) {
-            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1");
+            PowsyblException exception = assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
+            assertEquals("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1 \n", exception.getMessage());
         }
     }
 
