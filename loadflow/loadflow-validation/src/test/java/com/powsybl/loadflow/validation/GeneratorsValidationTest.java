@@ -80,6 +80,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(generator.getTerminal()).thenReturn(genTerminal);
         Mockito.when(voltageRegulation.isRegulating()).thenReturn(true);
         Mockito.when(voltageRegulation.getMode()).thenReturn(RegulationMode.REACTIVE_POWER);
+        Mockito.when(generator.getVoltageRegulation()).thenReturn(voltageRegulation);
         Mockito.when(generator.getTargetP()).thenReturn(targetP);
         Mockito.when(generator.getTargetQ()).thenReturn(targetQ);
         Mockito.when(generator.getTargetV()).thenReturn(targetV);

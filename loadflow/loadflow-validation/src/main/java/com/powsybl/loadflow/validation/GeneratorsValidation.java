@@ -188,14 +188,14 @@ public final class GeneratorsValidation {
             LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
             validated = false;
         }
-        // if voltageRegulatorOn="false" then reactive power should be equal to setpoint
+        // if regulating="true" and mode="REACTIVE_POWER" then reactive power should be equal to setpoint
         if (RegulationMode.REACTIVE_POWER.name().equals(regulationMode)
             && regulating
             && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > config.getThreshold())) {
-            LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
+            LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} targetQ={}", regulationMode, ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;
         }
-        // if voltageRegulatorOn="true" then
+        // if regulating="true" and mode="VOLTAGE" then
         // either q is equal to g.getReactiveLimits().getMinQ(p) and V is higher than g.getTargetV()
         // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is lower than g.getTargetV()
         // or V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
@@ -206,7 +206,7 @@ public final class GeneratorsValidation {
             || v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold()
             || v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold()
             || Math.abs(v - targetV) <= config.getThreshold() && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
-            LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
+            LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} minQ={} maxQ={} - V={} targetV={}", regulationMode, ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
             validated = false;
         }
         return validated;
