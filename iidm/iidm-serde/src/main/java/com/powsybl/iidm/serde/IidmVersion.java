@@ -37,7 +37,8 @@ public enum IidmVersion {
     V_1_13(POWSYBL_DOMAIN, List.of(1, 13)),
     V_1_14(POWSYBL_DOMAIN, List.of(1, 14)),
     V_1_15(POWSYBL_DOMAIN, List.of(1, 15)),
-    V_1_16(POWSYBL_DOMAIN, List.of(1, 16));
+    V_1_16(POWSYBL_DOMAIN, List.of(1, 16)),
+    V_1_17(POWSYBL_DOMAIN, List.of(1, 17));
 
     private final String domain;
     private final List<Integer> versionArray;
