@@ -195,12 +195,7 @@ public abstract class AbstractHvdcLineTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            hvdcLine.getConvertersMode();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, hvdcLine::getConvertersMode);
     }
 
     private void createHvdcLine(String id, String name, double r, HvdcLine.ConvertersMode mode, double v,

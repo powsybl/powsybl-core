@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -473,12 +474,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     private void getTapPositionThrowsException(TapChanger<?, ?, ?, ?> tapChanger) {
-        try {
-            tapChanger.getTapPosition();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, tapChanger::getTapPosition);
     }
 
     private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean loadTapChangingCapabilities, boolean isRegulating,
@@ -783,13 +779,15 @@ public abstract class AbstractTapChangerTest {
         ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal));
         assertTrue(e.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
 
-        ValidationException e2 = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
+        ValidationException e2 = assertThrows(ValidationException.class,
+            () -> createRatioTapChangerWith3Steps(0, 1, true, true, RatioTapChanger.RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
         assertTrue(e2.getMessage().contains("a regulation value has to be set for a regulating ratio tap changer"));
     }
 
     @Test
     public void invalidNullModeRatio() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class,
+            () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
         assertTrue(e.getMessage().contains("regulation mode of regulating ratio tap changer must be given"));
     }
 

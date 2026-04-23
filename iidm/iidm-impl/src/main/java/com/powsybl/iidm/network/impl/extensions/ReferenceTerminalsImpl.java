@@ -24,7 +24,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
 
     private final ArrayList<Set<Terminal>> terminalsPerVariant;
 
-    public ReferenceTerminalsImpl(Network network, Set<Terminal> terminals) {
+    ReferenceTerminalsImpl(Network network, Set<Terminal> terminals) {
         super(network);
         this.terminalsPerVariant = new ArrayList<>(
                 Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashSet<>()));

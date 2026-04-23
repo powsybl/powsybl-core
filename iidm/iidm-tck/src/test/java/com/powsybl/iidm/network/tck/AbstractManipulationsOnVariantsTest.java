@@ -109,12 +109,7 @@ public abstract class AbstractManipulationsOnVariantsTest {
         variantManager.removeVariant("s4");
         assertEquals(Sets.newHashSet(INITIAL_VARIANT_ID, "s2b", "s1", "s3"), variantManager.getVariantIds());
 
-        try {
-            variantManager.getWorkingVariantId();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, variantManager::getWorkingVariantId);
 
         network.removeListener(mockedListener);
     }
