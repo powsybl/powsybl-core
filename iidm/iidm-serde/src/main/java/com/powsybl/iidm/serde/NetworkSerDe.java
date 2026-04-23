@@ -15,6 +15,7 @@ import com.powsybl.commons.binary.BinReader;
 import com.powsybl.commons.binary.BinWriter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.exceptions.UncheckedParserConfigurationException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
@@ -37,11 +38,16 @@ import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -53,13 +59,17 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static com.powsybl.commons.xml.XmlUtil.*;
 import static com.powsybl.iidm.serde.AbstractTreeDataImporter.SUFFIX_MAPPING;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.IIDM_PREFIX;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.INDENT;
@@ -85,13 +95,31 @@ public final class NetworkSerDe {
     static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
     private static final Supplier<Schema> DEFAULT_SCHEMA_SUPPLIER = Suppliers.memoize(() -> NetworkSerDe.createSchema(DefaultExtensionsSupplier.getInstance()));
+    private static final Supplier<ConcurrentMap<IidmVersion, Schema>> DEFAULT_SCHEMAS_SUPPLIER = Suppliers.memoize(ConcurrentHashMap::new);
+
     private static final int MAX_NAMESPACE_PREFIX_NUM = 100;
+    private static final String XSD_RESOURCE_DIR = "/xsd/";
+    private static final Set<String> ALLOWED_IIDM_XSDS = Stream.of(IidmVersion.values())
+            .flatMap(v -> v.supportEquipmentValidationLevel()
+                    ? Stream.of(v.getXsd(), v.getXsd(false))
+                    : Stream.of(v.getXsd()))
+            .collect(Collectors.toUnmodifiableSet());
 
     private NetworkSerDe() {
     }
 
     public static void validate(InputStream is) {
         validate(is, DefaultExtensionsSupplier.getInstance());
+    }
+
+    /**
+     * Validates an IIDM network XML stream against the schemas for the specified IIDM version
+     *
+     * @param is the IIDM network input stream to validate
+     * @param version the IIDM version used for validation
+     */
+    public static void validate(InputStream is, IidmVersion version) {
+        validate(is, version, DefaultExtensionsSupplier.getInstance());
     }
 
     public static void validate(InputStream is, ExtensionsSupplier extensionsSupplier) {
@@ -125,19 +153,17 @@ public final class NetworkSerDe {
         for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
         }
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaFactory factory = createSchemaFactoryInstance();
         try {
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             int length = IidmVersion.values().length + (int) Arrays.stream(IidmVersion.values())
                     .filter(IidmVersion::supportEquipmentValidationLevel).count();
             Source[] sources = new Source[additionalSchemas.size() + length];
             int i = 0;
             int j = 0;
             for (IidmVersion version : IidmVersion.values()) {
-                sources[i] = new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd()));
+                sources[i] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd()));
                 if (version.supportEquipmentValidationLevel()) {
-                    sources[j + IidmVersion.values().length] = new StreamSource(NetworkSerDe.class.getResourceAsStream("/xsd/" + version.getXsd(false)));
+                    sources[j + IidmVersion.values().length] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd(false)));
                     j++;
                 }
                 i++;
@@ -148,6 +174,208 @@ public final class NetworkSerDe {
             return factory.newSchema(sources);
         } catch (SAXException e) {
             throw new UncheckedSaxException(e);
+        }
+    }
+
+    /**
+     * Validates an IIDM network XML stream against the schemas for the specified IIDM version
+     * <p>This method validates the IIDM network in two steps: it first verifies that the root {@code <network>} namespace is consistent
+     * with the requested {@code version}, then performs XSD validation with schemas provided by {@code extensionsSupplier}.</p>
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * try (InputStream is = getClass().getResourceAsStream(path)) {
+     *     NetworkSerDe.validate(is, IidmVersion.V_1_16, DefaultExtensionsSupplier.getInstance());
+     * }
+     * }</pre>
+     *
+     * @param is the IIDM network input stream to validate
+     * @param version the IIDM version used for validation
+     * @param extensionsSupplier the extension supplier used to resolve extension schemas
+     */
+    public static void validate(InputStream is, IidmVersion version, ExtensionsSupplier extensionsSupplier) {
+        Objects.requireNonNull(is);
+        Objects.requireNonNull(version);
+        Objects.requireNonNull(extensionsSupplier);
+
+        Schema schema = extensionsSupplier == DefaultExtensionsSupplier.getInstance() ?
+                DEFAULT_SCHEMAS_SUPPLIER.get().computeIfAbsent(version, v -> createSchema(DefaultExtensionsSupplier.getInstance(), v)) :
+                createSchema(extensionsSupplier, version);
+        try {
+            // check version namespace
+            XMLFilter xmlFilter = getXMLFilter(version);
+            SAXSource saxSource = new SAXSource(xmlFilter, new InputSource(is));
+            // XSD validation
+            schema.newValidator().validate(saxSource);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (SAXException e) {
+            throw new UncheckedSaxException(e);
+        } catch (ParserConfigurationException e) {
+            throw new UncheckedParserConfigurationException(e);
+        }
+    }
+
+    private static Schema createSchema(ExtensionsSupplier extensionsSupplier, IidmVersion version) {
+        Objects.requireNonNull(extensionsSupplier);
+        Objects.requireNonNull(version);
+
+        SchemaFactory factory = createSchemaFactoryInstance();
+        try {
+            List<Source> additionalExtensionSchemas = getExtensionSources(extensionsSupplier, version);
+            int length = version.supportEquipmentValidationLevel() ? 2 : 1;
+            Source[] sources = new Source[additionalExtensionSchemas.size() + length];
+            // iidm: source
+            sources[0] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd()));
+            // equipment: source
+            if (version.supportEquipmentValidationLevel()) {
+                sources[1] = new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + version.getXsd(false)));
+            }
+            // extension: sources
+            for (int k = 0; k < additionalExtensionSchemas.size(); k++) {
+                sources[length + k] = additionalExtensionSchemas.get(k);
+            }
+            return factory.newSchema(sources);
+        } catch (SAXException e) {
+            throw new UncheckedSaxException(e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+     /**
+     * Build the list of XSD required to validate extensions for a given IIDM version.
+     *
+     * <p>Some extension XSDs import an IIDM schema through {@code xs:import/@schemaLocation}</p>
+     * This method parses each supported extension XSD, extracts the schema locations,
+     * and adds the corresponding IIDM XSD resources.
+     * <p>Only extensions supported by the provided IIDM version are considered.</p>
+     *
+     * @param extensionsSupplier extension provider used to discover available extension
+     * @param version IIDM version used to filter compatible extensions
+     * @return list of additional schema sources required by extension
+     */
+    private static List<Source> getExtensionSources(ExtensionsSupplier extensionsSupplier, IidmVersion version) throws IOException {
+        List<Source> sources = new ArrayList<>();
+        for (InputStream is : getSupportedExtensionByIIdmVersion(extensionsSupplier, version)) {
+            byte[] extensionXsd = is.readAllBytes();
+            // required iidm xsd in extension's xsd: source
+            extractSchemaLocations(extensionXsd)
+                    .forEach(schemaLocation -> sources.add(new StreamSource(NetworkSerDe.class.getResourceAsStream(XSD_RESOURCE_DIR + schemaLocation))));
+            // extension xsd: source
+            sources.add(new StreamSource(new ByteArrayInputStream(extensionXsd)));
+        }
+        return sources;
+    }
+
+    /**
+     * Filter extension XSD by compatibility with the given IIDM version
+     * <p>
+     * For non versionable extensions, a single XSD stream is returned.
+     * For versionable extensions, only XSD list for compatible extension versions are returned.
+     */
+    private static List<InputStream> getSupportedExtensionByIIdmVersion(ExtensionsSupplier extensionsSupplier, IidmVersion iidmVersion) {
+        List<InputStream> extensions = new ArrayList<>();
+        for (ExtensionSerDe<?, ?> extensionSerDe : extensionsSupplier.get().getProviders()) {
+            extensions.addAll(getExtensionStreams(extensionSerDe, iidmVersion));
+        }
+        return extensions;
+    }
+
+    private static List<InputStream> getExtensionStreams(ExtensionSerDe<?, ?> extensionSerDe, IidmVersion iidmVersion) {
+        // Non versionable extension not excluded
+        if (!(extensionSerDe instanceof AbstractVersionableNetworkExtensionSerDe<?, ?, ?> versionable)) {
+            return List.of(extensionSerDe.getXsdAsStream());
+        }
+        // Versionable extension: return empty when no version is compatible with the IIDM version.
+        if (!versionable.versionExists(iidmVersion)) {
+            return List.of();
+        }
+        // Versionable extension: return extension versions compatible with the IIDM version.
+        return versionable.getVersions().stream()
+                .filter(extensionVersion -> {
+                    try {
+                        return versionable.checkWritingCompatibility(extensionVersion, iidmVersion);
+                    } catch (PowsyblException e) {
+                        // Ignore invalid extension versions
+                        return false;
+                    }
+                })
+                .map(extensionSerDe::getXsdAsStream)
+                .toList();
+    }
+
+    private static XMLFilter getXMLFilter(IidmVersion iidmVersion) throws ParserConfigurationException, SAXException {
+        XMLFilter xmlFilter = new XMLFilterImpl() {
+            private boolean rootSeen = false;
+            @Override
+            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                if (!rootSeen) {
+                    checkNamespace(uri, iidmVersion);
+                    rootSeen = true;
+                }
+                super.startElement(uri, localName, qName, attributes);
+            }
+        };
+        xmlFilter.setParent(createXMLReader());
+        return xmlFilter;
+    }
+
+    private static void checkNamespace(String actualNamespace, IidmVersion validationVersion) {
+        boolean matches = actualNamespace.equals(validationVersion.getNamespaceURI())
+                || validationVersion.supportEquipmentValidationLevel() && actualNamespace.equals(validationVersion.getNamespaceURI(false));
+        if (!matches) {
+            throw new PowsyblException("Namespace mismatch: expected validation version " + validationVersion.toString(".") + ", found namespace " + actualNamespace);
+        }
+    }
+
+    /**
+     * Extract {@code xs:import/@schemaLocation} from XSD document
+     *
+     * <p>XSD document snippet:</p>
+     * <pre>{@code
+     * ...
+     *     targetNamespace="http://www.powsybl.org/schema/iidm/ext/extension-name/1_0"
+     *     xmlns:iidm="http://www.powsybl.org/schema/iidm/1_10">
+     *     <xs:import namespace="http://www.powsybl.org/schema/iidm/1_10" schemaLocation="iidm_V1_10.xsd"/>
+     * </xs:schema>
+     * }</pre>
+     *
+     * @param xsdBytes XSD content as bytes
+     * @return schema locations found in {@code xs:import}
+     */
+    private static List<String> extractSchemaLocations(byte[] xsdBytes) {
+        try {
+            return proceedExtractSchemaLocations(xsdBytes);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static List<String> proceedExtractSchemaLocations(byte[] xsdBytes) throws XMLStreamException {
+        List<String> locations = new ArrayList<>();
+        XMLStreamReader reader = null;
+        try (ByteArrayInputStream in = new ByteArrayInputStream(xsdBytes)) {
+            reader = getXMLInputFactory().createXMLStreamReader(in);
+            while (reader.hasNext()) {
+                int event = reader.next();
+                if (event == XMLStreamConstants.START_ELEMENT
+                        && XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(reader.getNamespaceURI())
+                        && "import".equals(reader.getLocalName())) {
+                    String schemaLocation = reader.getAttributeValue(null, "schemaLocation");
+                    if (schemaLocation != null && !schemaLocation.isBlank() && ALLOWED_IIDM_XSDS.contains(schemaLocation)) {
+                        locations.add(schemaLocation);
+                    }
+                }
+            }
+
+            return locations;
+        } catch (XMLStreamException | IOException e) {
+            throw new PowsyblException("Failed to parse XSD schema", e);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
     }
 

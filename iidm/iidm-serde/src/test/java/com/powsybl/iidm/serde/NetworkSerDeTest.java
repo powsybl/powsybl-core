@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
@@ -20,6 +21,8 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
+import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,7 @@ import java.time.ZonedDateTime;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -420,5 +424,104 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
         assertEquals(2, merged.getSubnetworks().size());
         assertEquals(2, readNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    void testValidateByVersionWhenMatchingOldNetwork() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_2/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_2));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMatchingRecentNetwork() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMismatchedNetworkVersion() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_15))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.15, found namespace http://www.powsybl.org/schema/iidm/1_16");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInvalidNetwork() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Invalid content was found starting with element '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainSlackTerminalExtension() throws IOException {
+        // test extension loading including slackTerminal which is in version 1.5 and require iidm version 1.8, when validate should succeed
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/europeanLvTestFeederRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInSupportedEnumValue() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/V1_17/generator_not_supported_enum.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_17))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
+                            "'[HYDRO, NUCLEAR, WIND, THERMAL, SOLAR, OTHER]'. It must be a value from the enumeration.");
+        }
+    }
+
+    @Test
+    void testValidateWithCustomExtensionSupplier() throws IOException {
+        ExtensionsSupplier customExtensionsSupplier = () -> DefaultExtensionsSupplier.getInstance().get();
+        assertNotSame(DefaultExtensionsSupplier.getInstance(), customExtensionsSupplier);
+
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16, customExtensionsSupplier));
+        }
+        try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
+            assertNotNull(is);
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, customExtensionsSupplier));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMissingNamespace() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/network-without-namespace.xml")) {
+            assertNotNull(is);
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.16, found namespace  ");
+        }
+    }
+
+    @Test
+    void testValidateWhenParseMalformedXml() {
+        String xml = "<iidm:network";
+        byte[] bytes = xml.getBytes(StandardCharsets.UTF_8);
+        InputStream is = new ByteArrayInputStream(bytes);
+        assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                .isInstanceOf(UncheckedSaxException.class)
+                .hasMessageContaining("XML document structures must start and end within the same entity");
     }
 }
