@@ -34,6 +34,15 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
         super(SensitivityAnalysisParameters.class);
     }
 
+    private class ParsingContext {
+        String version = null;
+        Double flowFlowSensitivityValueThreshold = null;
+        Double voltageVoltageSensitivityValueThreshold = null;
+        Double flowVoltageSensitivityValueThreshold = null;
+        Double angleFlowSensitivityValueThreshold = null;
+        SensitivityOperatorStrategiesCalculationMode operatorStrategiesCalculationMode = null;
+    }
+
     @Override
     public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         return deserialize(parser, deserializationContext, new SensitivityAnalysisParameters());
@@ -41,15 +50,14 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
 
     @Override
     public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SensitivityAnalysisParameters parameters) throws IOException {
-
+        ParsingContext context = new ParsingContext();
         List<Extension<SensitivityAnalysisParameters>> extensions = Collections.emptyList();
-        String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
 
                 case "version":
                     parser.nextToken();
-                    version = parser.getValueAsString();
+                    context.version = parser.getValueAsString();
                     break;
 
                 case "load-flow-parameters":
@@ -58,37 +66,28 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
                     break;
 
                 case "flow-flow-sensitivity-value-threshold":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setFlowFlowSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    context.flowFlowSensitivityValueThreshold = parser.readValueAs(Double.class);
                     break;
 
                 case "voltage-voltage-sensitivity-value-threshold":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
-
                     parser.nextToken();
-                    parameters.setVoltageVoltageSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    context.voltageVoltageSensitivityValueThreshold = parser.readValueAs(Double.class);
                     break;
 
                 case "flow-voltage-sensitivity-value-threshold":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
-
                     parser.nextToken();
-                    parameters.setFlowVoltageSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    context.flowVoltageSensitivityValueThreshold = parser.readValueAs(Double.class);
                     break;
 
                 case "angle-flow-sensitivity-value-threshold":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.1");
-
                     parser.nextToken();
-                    parameters.setAngleFlowSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    context.angleFlowSensitivityValueThreshold = parser.readValueAs(Double.class);
                     break;
 
                 case "operator-strategies-calculation-mode":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.currentName(), version, "1.2");
-
                     parser.nextToken();
-                    parameters.setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode.valueOf(parser.getValueAsString()));
+                    context.operatorStrategiesCalculationMode = SensitivityOperatorStrategiesCalculationMode.valueOf(parser.getValueAsString());
                     break;
 
                 case "extensions":
@@ -100,8 +99,38 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
+        checkAndFillVersionedParameters(parameters, context);
+
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }
 
+    private static void checkAndFillVersionedParameters(SensitivityAnalysisParameters parameters, ParsingContext context) {
+        String version = context.version;
+        if (context.flowFlowSensitivityValueThreshold != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "flow-flow-sensitivity-value-threshold",
+                    version, "1.1");
+            parameters.setFlowVoltageSensitivityValueThreshold(context.flowFlowSensitivityValueThreshold);
+        }
+        if (context.voltageVoltageSensitivityValueThreshold != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "voltage-voltage-sensitivity-value-threshold",
+                    version, "1.1");
+            parameters.setVoltageVoltageSensitivityValueThreshold(context.voltageVoltageSensitivityValueThreshold);
+        }
+        if (context.flowVoltageSensitivityValueThreshold != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "flow-voltage-sensitivity-value-threshold",
+                    version, "1.1");
+            parameters.setFlowVoltageSensitivityValueThreshold(context.flowVoltageSensitivityValueThreshold);
+        }
+        if (context.angleFlowSensitivityValueThreshold != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "angle-flow-sensitivity-value-threshold",
+                    version, "1.1");
+            parameters.setAngleFlowSensitivityValueThreshold(context.angleFlowSensitivityValueThreshold);
+        }
+        if (context.operatorStrategiesCalculationMode != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "operator-strategies-calculation-mode",
+                    version, "1.2");
+            parameters.setOperatorStrategiesCalculationMode(context.operatorStrategiesCalculationMode);
+        }
+    }
 }
