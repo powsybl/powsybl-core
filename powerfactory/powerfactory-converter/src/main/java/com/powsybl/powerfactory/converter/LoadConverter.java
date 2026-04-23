@@ -12,6 +12,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -25,7 +29,12 @@ class LoadConverter extends AbstractConverter {
     }
 
     void create(DataObject elmLod) {
-        NodeRef nodeRef = checkNodes(elmLod, 1).getFirst();
+        List<NodeRef> nodeRefs = findNodes(elmLod);
+        if (nodeRefs.size() != 1) {
+            LOGGER.warn("ElemLod discarded as it does not have end {} '{}'", elmLod.getId(), elmLod);
+            return;
+        }
+        NodeRef nodeRef = nodeRefs.getFirst();
         LoadModel loadModel = LoadModel.create(elmLod);
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
@@ -113,4 +122,5 @@ class LoadConverter extends AbstractConverter {
         }
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadConverter.class);
 }

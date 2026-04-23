@@ -340,7 +340,7 @@ public class PowerFactoryImporter implements Importer {
             case "RelChar", "RelDir", "RelDisdir", "RelDisloadenc", "RelDismho", "RelDispoly", "RelDispspoly",
                  "RelFdetabb", "RelFdetaegalst", "RelFdetect", "RelFdetsie", "RelFmeas", "RelFrq", "RelIoc",
                  "RelLogdip", "RelLogic", "RelLslogic", "RelMeasure", "RelRecl", "RelSeldir", "RelTimer",
-                 "RelToc", "RelUlim", "RelZpol":
+                 "RelToc", "RelUlim", "RelZpol", "RndRef":
 
             case "StaCt", "StaPqmea", "StaVmea", "StaVt":
 
