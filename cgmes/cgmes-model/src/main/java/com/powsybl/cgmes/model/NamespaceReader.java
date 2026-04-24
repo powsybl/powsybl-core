@@ -30,15 +30,15 @@ public final class NamespaceReader {
     public static Set<String> namespaces(InputStream is) {
         try {
             return namespaces1(is);
-        } catch (XMLStreamException x) {
-            throw new CgmesModelException("namespaces", x);
+        } catch (XMLStreamException e) {
+            throw new CgmesModelException("namespaces", e);
         }
     }
 
     public static Set<String> namespacesOrEmpty(InputStream is) {
         try {
             return namespaces1(is);
-        } catch (XMLStreamException x) {
+        } catch (XMLStreamException e) {
             return Set.of();
         }
     }
