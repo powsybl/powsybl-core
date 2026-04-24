@@ -69,7 +69,7 @@ public interface VoltageRegulation {
     double setSlope(double slope);
 
     /**
-     * The Terminal uses to regulate. Can be local or remote but most be in the network
+     * The Terminal used for regulation. Can be local or remote but must be in the network
      */
     Terminal getTerminal();
 
