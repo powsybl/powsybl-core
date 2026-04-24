@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -105,6 +106,25 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc.getVoltageRegulation().setTargetValue(391.0);
         assertEquals(391.0, svc.getRegulatingTargetV(), 0.0);
         assertEquals(391.0, svc.getVoltageRegulation().getTargetValue(), 0.0);
+    }
+
+    @Test
+    public void changeSlopeTest() {
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        VoltageRegulation voltageRegulation = svc.getVoltageRegulation();
+
+        voltageRegulation.setSlope(0.3);
+        assertEquals(0.3, voltageRegulation.getSlope(), 0.0);
+
+        var previousMode = voltageRegulation.getMode();
+        voltageRegulation.setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
+
+        assertThrows(ValidationException.class, () -> voltageRegulation.setSlope(Double.NaN));
+        assertFalse(Double.isNaN(voltageRegulation.getSlope()));
+
+        voltageRegulation.setMode(previousMode);
+        voltageRegulation.setSlope(Double.NaN);
+        assertTrue(Double.isNaN(voltageRegulation.getSlope()));
     }
 
     @Test
