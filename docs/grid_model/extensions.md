@@ -391,6 +391,31 @@ This extension contains the sub-object `ObservabilityQuality`.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(observability-area-extension)=
+## Observability Area
+
+This extension represents the observability status of some sub-elements in a voltage level. An observability status
+could be defined by bus, by a set of buses or by a set of nodes. It is defined after a state estimation computation.
+
+It has several getters to retrieve the observability status of the sub-elements. This status is defined by an object
+called **AreaCharacteristics**. You can access to **AreaCharacteristics** by terminal, by bus ID (in bus-breaker or bus view) or by node number (in node-breaker view).
+
+### Object AreaCharacteristics
+
+| Attribute             | Type                | Unit | Required | Default value | Description                                                  |
+|-----------------------|---------------------|------|----------|---------------|--------------------------------------------------------------|
+| status                | ObservabilityStatus | -    | yes      | -             | Observability status (OBSERVABLE, NON_OBSERVABLE, BORDER)    |
+| areaNumber            | int                 | -    | yes      | -             | Associated number representing this area                     |
+| terminals             | Set<Terminal>       | -    | yes      | -             | Associated terminals in the area                             |
+| nodeBreakerData.nodes | Set<Integer>        | -    | no       | -             | Associated nodes in the area (for node-breaker view)         |
+| busBreakerData.busIds | Set<String>         | -    | no       | -             | Associated buses in the area (for bus-breaker and bus views) |
+
+### Usage warnings
+
+As it associates an observability status with a topological element (a bus or a node), it deeply relies on the topology during the state estimation computation. Therefore, any topological change could lead to either outdated results (wrong status) or hanging areas (defined on nodes that don't exist in the voltage level).
+
+To mitigate issues related to the second point, a helper method is defined to check if all the elements that define observability areas are still present in the network. But nothing prevents the user from using outdated observability statuses due to topological changes. So, it's its responsibility to invalidate observability areas when it is necessary.
+
 (line-position-extension)=
 ## Line Position
 
