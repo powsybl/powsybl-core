@@ -7,10 +7,10 @@
  */
 package com.powsybl.action.ial.dsl;
 
-import com.powsybl.iidm.modification.PhaseShifterShiftTap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.iidm.modification.PhaseShifterShiftTap;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;

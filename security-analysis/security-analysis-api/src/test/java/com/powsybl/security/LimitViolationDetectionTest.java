@@ -260,7 +260,9 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
 
     @ParameterizedTest
     @MethodSource("provideUtilCheckLimitViolationArguments")
-    void checkLimitViolationMultipleActiveGroupsTest(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedLimitViolation> expected) {
+    void checkLimitViolationMultipleActiveGroupsTest(Identifiable<?> identifiable, ThreeSides side,
+                                                     Collection<Double> limitReductions, LimitType type, double value,
+                                                     Collection<ExpectedLimitViolation> expected) {
         for (double limitReduction : limitReductions) {
             Collection<LimitViolation> violations = new ArrayList<>();
             switch (identifiable) {
@@ -268,20 +270,31 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     if (limitReduction == 1) {
                         LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value, type, Set.of(LoadingLimitType.values()), new LimitsComputer.NoModificationsImpl(), violations::add);
                     } else {
-                        //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
-                        //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                        //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
-                        LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value * limitReduction, type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
+                        /*
+                         * multiply by limitReduction because all the limits will be reduced, so we also want to reduce
+                         * the actual value to match that.
+                         * The arguments to this method test both with and without limitReduction.
+                         * All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                         * To get the same situation, we need to reduce both the limits and the value.
+                         * The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                         */
+                        LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value * limitReduction,
+                            type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
                     }
                 }
                 case ThreeWindingsTransformer t -> {
                     if (limitReduction == 1) {
                         LimitViolationDetection.checkLimitViolation(t, side, value, type, Set.of(LoadingLimitType.values()), new LimitsComputer.NoModificationsImpl(), violations::add);
                     } else {
-                        //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
-                        //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                        //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
-                        LimitViolationDetection.checkLimitViolation(t, side, value * limitReduction, type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
+                        /*
+                        multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
+                        the arguments to this method test both with and without limitReduction.
+                        All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                        To get the same situation, we need to reduce both the limits and the value.
+                        The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                        */
+                        LimitViolationDetection.checkLimitViolation(t, side, value * limitReduction, type,
+                            Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
                     }
                 }
                 default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));

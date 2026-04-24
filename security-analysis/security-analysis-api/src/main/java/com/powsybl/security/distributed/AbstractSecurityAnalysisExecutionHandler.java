@@ -98,7 +98,6 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
         this.input = requireNonNull(input);
     }
 
-
     /**
      * Copies case file, contingencies file, and parameters file to working directory,
      * and creates the {@literal itools security-analysis} command(s) to be executed,
@@ -117,6 +116,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
      * Reads result from the working directory, as defined by the specified reader.
      */
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public R after(Path workingDir, ExecutionReport report) throws IOException {
         try {
             super.after(workingDir, report);

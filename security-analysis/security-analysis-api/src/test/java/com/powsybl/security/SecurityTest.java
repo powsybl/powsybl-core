@@ -73,7 +73,10 @@ class SecurityTest {
             .value(950.0)
             .side(TwoSides.ONE)
             .build();
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1,
+            PostContingencyComputationStatus.CONVERGED,
+            new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
         result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
