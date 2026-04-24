@@ -47,8 +47,9 @@ class HybridSecurityAnalysisProviderTest {
         SecurityAnalysisParameters mockSaParams = mock(SecurityAnalysisParameters.class);
         when(runParameters.getSecurityAnalysisParameters()).thenReturn(mockSaParams);
         when(mockSaParams.getExtension(HybridModeParametersExtension.class)).thenReturn(null);
+        // This will try to load from PlatformConfig.defaultConfig() which should fail in test env if not found
         assertThrows(Exception.class, () ->
-            provider.run(network, "main", contingenciesProvider, runParameters).join()
+            provider.run(network, "main", contingenciesProvider, runParameters)
         );
     }
 }

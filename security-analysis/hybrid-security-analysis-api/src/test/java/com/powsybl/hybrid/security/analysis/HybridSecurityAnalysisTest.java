@@ -23,19 +23,24 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /** @author Riad Benradi {@literal <riad.benradi at rte-france.com>}*/
 class HybridSecurityAnalysisTest {
 
     private Network network;
+    private String workingVariantId;
     private ContingenciesProvider contingenciesProvider;
     private HybridSecurityAnalysis hybridSecurityAnalysis;
     private Contingency contingency1;
     private Contingency contingency2;
     private SecurityAnalysisProvider firstProvider;
     private SecurityAnalysisProvider secondProvider;
+    private SecurityAnalysisRunParameters runParameters;
 
     @BeforeEach
     void setUp() {
@@ -46,7 +51,7 @@ class HybridSecurityAnalysisTest {
 
         network = EurostagTutorialExample1Factory.create();
 
-        SecurityAnalysisRunParameters runParameters = SecurityAnalysisRunParameters.getDefault();
+        runParameters = SecurityAnalysisRunParameters.getDefault();
         runParameters.setReportNode(reportNode);
         contingenciesProvider = mock(ContingenciesProvider.class);
         firstProvider = mock(SecurityAnalysisProvider.class);
@@ -63,7 +68,8 @@ class HybridSecurityAnalysisTest {
         contingency2 = mock(Contingency.class);
         when(contingency2.getId()).thenReturn("contingency-2");
 
-        hybridSecurityAnalysis = new HybridSecurityAnalysis(network, network.getVariantManager().getWorkingVariantId(), contingenciesProvider,
+        workingVariantId = network.getVariantManager().getWorkingVariantId();
+        hybridSecurityAnalysis = new HybridSecurityAnalysis(network, workingVariantId, contingenciesProvider,
                 runParameters, extension, firstProvider, secondProvider);
     }
 
@@ -99,7 +105,7 @@ class HybridSecurityAnalysisTest {
         assertEquals(1, postContingencyResults.size());
 
         // Verify the status of the first result (should be the second one)
-        PostContingencyResult result = postContingencyResults.get(0);
+        PostContingencyResult result = postContingencyResults.getFirst();
         assertEquals("contingency-1", result.getContingency().getId());
         assertEquals(2, result.getLimitViolationsResult().getLimitViolations().size());
         assertSame(PostContingencyComputationStatus.CONVERGED, result.getStatus());
@@ -164,15 +170,139 @@ class HybridSecurityAnalysisTest {
     }
 
     @Test
+    void testRunReturnsFirstPassWhenNoContingencyRequiresSecondPass() {
+        when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency1));
+
+        PostContingencyResult convergedResult = createPostContingencyResult(contingency1,
+                PostContingencyComputationStatus.CONVERGED, 0);
+        SecurityAnalysisReport firstReport = new SecurityAnalysisReport(
+                new SecurityAnalysisResult(new PreContingencyResult(),
+                        Collections.singletonList(convergedResult),
+                        Collections.emptyList())
+        );
+        when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
+
+        SecurityAnalysisReport report = hybridSecurityAnalysis.run().join();
+
+        assertSame(firstReport, report);
+        verify(secondProvider, never()).run(any(), any(), any(), any());
+    }
+
+    @Test
+    void testRunSecondPassOnlyForDivergingContingencies() {
+        List<Contingency> allContingencies = Arrays.asList(contingency1, contingency2);
+        when(contingenciesProvider.getContingencies(network)).thenReturn(allContingencies);
+
+        Contingency contingency3 = mock(Contingency.class);
+        when(contingency3.getId()).thenReturn("contingency-3");
+
+        PostContingencyResult noImpactResult = createPostContingencyResult(contingency1,
+                PostContingencyComputationStatus.NO_IMPACT, 0);
+        PostContingencyResult failedResult = createPostContingencyResult(contingency2,
+                PostContingencyComputationStatus.FAILED, 0);
+        PostContingencyResult unknownContingencyResult = createPostContingencyResult(contingency3,
+                PostContingencyComputationStatus.SOLVER_FAILED, 0);
+
+        SecurityAnalysisReport firstReport = new SecurityAnalysisReport(
+                new SecurityAnalysisResult(new PreContingencyResult(),
+                        Arrays.asList(noImpactResult, failedResult, unknownContingencyResult),
+                        Collections.emptyList())
+        );
+        when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
+
+        PostContingencyResult secondPassResult = createPostContingencyResult(contingency2,
+                PostContingencyComputationStatus.CONVERGED, 1);
+        when(secondProvider.run(eq(network), eq(network.getVariantManager().getWorkingVariantId()), any(), any()))
+                .thenAnswer(invocation -> {
+                    ContingenciesProvider filteredProvider = invocation.getArgument(2);
+                    assertEquals(Collections.singletonList(contingency2), filteredProvider.getContingencies(network));
+                    return CompletableFuture.completedFuture(new SecurityAnalysisReport(
+                            new SecurityAnalysisResult(new PreContingencyResult(),
+                                    Collections.singletonList(secondPassResult),
+                                    Collections.emptyList())
+                    ));
+                });
+
+        SecurityAnalysisReport report = hybridSecurityAnalysis.run().join();
+
+        List<PostContingencyResult> results = report.getResult().getPostContingencyResults();
+        assertEquals(3, results.size());
+        assertSame(PostContingencyComputationStatus.NO_IMPACT, results.get(0).getStatus());
+        assertSame(PostContingencyComputationStatus.CONVERGED, results.get(1).getStatus());
+        assertEquals(1, results.get(1).getLimitViolationsResult().getLimitViolations().size());
+        assertSame(PostContingencyComputationStatus.SOLVER_FAILED, results.get(2).getStatus());
+    }
+
+    @Test
     void testConstructorWithServiceLoader() {
         // This test verifies that the constructor that uses ServiceLoader works.
-        HybridModeParametersExtension extension = new HybridModeParametersExtension();
-        extension.setFirstProviderName("NonExistentProvider1");
-        extension.setSecondProviderName("NonExistentProvider2");
+        HybridModeParametersExtension extension = createExtension("NonExistentProvider1", "NonExistentProvider2");
 
         assertThrows(IllegalArgumentException.class, () ->
-            new HybridSecurityAnalysis(network, network.getVariantManager().getWorkingVariantId(),
-                contingenciesProvider, SecurityAnalysisRunParameters.getDefault(), extension));
+            new HybridSecurityAnalysis(network, workingVariantId,
+                contingenciesProvider, runParameters, extension));
+    }
+
+    @Test
+    void testConstructorRequiresProviders() {
+        HybridModeParametersExtension extension = createExtension("FirstProvider", "SecondProvider");
+
+        NullPointerException firstProviderException = assertThrows(NullPointerException.class, () ->
+                new HybridSecurityAnalysis(network, workingVariantId,
+                        contingenciesProvider, runParameters, extension,
+                        null, secondProvider));
+        assertEquals("First provider is required", firstProviderException.getMessage());
+
+        NullPointerException secondProviderException = assertThrows(NullPointerException.class, () ->
+                new HybridSecurityAnalysis(network, workingVariantId,
+                        contingenciesProvider, runParameters, extension,
+                        firstProvider, null));
+        assertEquals("Second provider is required", secondProviderException.getMessage());
+    }
+
+    @Test
+    void testMergeResultsWithNetworkMetadata() {
+        when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency1));
+
+        PostContingencyResult firstResult = createPostContingencyResult(contingency1, true, 0);
+        SecurityAnalysisResult firstSar = new SecurityAnalysisResult(new PreContingencyResult(),
+                Collections.singletonList(firstResult),
+                Collections.emptyList());
+        firstSar.setNetworkMetadata(mock(NetworkMetadata.class));
+        SecurityAnalysisReport firstReport = new SecurityAnalysisReport(firstSar);
+
+        when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
+
+        SecurityAnalysisReport report = hybridSecurityAnalysis.run().join();
+        assertNotNull(report.getResult().getNetworkMetadata());
+    }
+
+    @Test
+    void testRunKeepsFirstPassLogBytesAfterMerge() {
+        when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency1));
+
+        byte[] logBytes = new byte[]{1, 2, 3};
+        PostContingencyResult firstResult = createPostContingencyResult(contingency1,
+                PostContingencyComputationStatus.FAILED, 0);
+        SecurityAnalysisReport firstReport = new SecurityAnalysisReport(
+                new SecurityAnalysisResult(new PreContingencyResult(),
+                        Collections.singletonList(firstResult),
+                        Collections.emptyList())
+        ).setLogBytes(logBytes);
+        when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
+
+        PostContingencyResult secondResult = createPostContingencyResult(contingency1,
+                PostContingencyComputationStatus.CONVERGED, 1);
+        SecurityAnalysisReport secondReport = new SecurityAnalysisReport(
+                new SecurityAnalysisResult(new PreContingencyResult(),
+                        Collections.singletonList(secondResult),
+                        Collections.emptyList())
+        );
+        when(secondProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(secondReport));
+
+        SecurityAnalysisReport report = hybridSecurityAnalysis.run().join();
+
+        assertArrayEquals(logBytes, report.getLogBytes().orElseThrow());
     }
 
     private PostContingencyResult createPostContingencyResult(Contingency contingency,
@@ -181,6 +311,19 @@ class HybridSecurityAnalysisTest {
         PostContingencyComputationStatus status = converged
             ? PostContingencyComputationStatus.CONVERGED
             : PostContingencyComputationStatus.FAILED;
+        return createPostContingencyResult(contingency, status, violationCount);
+    }
+
+    private static HybridModeParametersExtension createExtension(String firstProviderName, String secondProviderName) {
+        HybridModeParametersExtension extension = new HybridModeParametersExtension();
+        extension.setFirstProviderName(firstProviderName);
+        extension.setSecondProviderName(secondProviderName);
+        return extension;
+    }
+
+    private PostContingencyResult createPostContingencyResult(Contingency contingency,
+                                                              PostContingencyComputationStatus status,
+                                                              int violationCount) {
         LimitViolationsResult limitViolations = new LimitViolationsResult(
             new ArrayList<>(Collections.nCopies(violationCount, null))
         );
