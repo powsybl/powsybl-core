@@ -175,6 +175,23 @@ class HybridSecurityAnalysisTest {
                 contingenciesProvider, SecurityAnalysisRunParameters.getDefault(), extension));
     }
 
+    @Test
+    void testMergeResultsWithNetworkMetadata() {
+        when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency1));
+
+        PostContingencyResult firstResult = createPostContingencyResult(contingency1, true, 0);
+        SecurityAnalysisResult firstSar = new SecurityAnalysisResult(new PreContingencyResult(),
+                Collections.singletonList(firstResult),
+                Collections.emptyList());
+        firstSar.setNetworkMetadata(mock(NetworkMetadata.class));
+        SecurityAnalysisReport firstReport = new SecurityAnalysisReport(firstSar);
+
+        when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
+
+        SecurityAnalysisReport report = hybridSecurityAnalysis.run().join();
+        assertNotNull(report.getResult().getNetworkMetadata());
+    }
+
     private PostContingencyResult createPostContingencyResult(Contingency contingency,
                                                               boolean converged,
                                                               int violationCount) {
