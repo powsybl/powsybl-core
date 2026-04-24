@@ -63,5 +63,3 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         return getDefaultValue(null, load.getQ0(), 0.0, Double.NaN, context);
     }
 }
-
-

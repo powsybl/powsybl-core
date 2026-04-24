@@ -40,33 +40,35 @@ public class CgmesBoundary {
                         bns.tabulateLocals());
             }
             nodes = new HashSet<>(bns.size());
-            bns.forEach(node -> {
-                String cn = node.getId("ConnectivityNode");
-                String tn = node.getId("TopologicalNode");
-
-                nodes.add(cn);
-                nodes.add(tn);
-                nodesName.put(cn, node.get("name"));
-                String tnName = node.get("topologicalNodeName");
-                nodesName.put(tn, tnName);
-                topologicalNodes.put(tnName, tn);
-                if (isDcNode(node)) {
-                    hvdcNodes.add(cn);
-                    hvdcNodes.add(tn);
-                }
-                if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE)) {
-                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
-                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
-                } else if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER)) { // EIC code on node has priority but if absent, EIC code on Line is used
-                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
-                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
-                }
-            });
+            bns.forEach(this::addBoundaries);
         } else {
             nodes = Collections.emptySet();
         }
         nodesEquipment = new HashMap<>();
         nodesEquivalentInjections = new HashMap<>();
+    }
+
+    private void addBoundaries(PropertyBag node) {
+        String cn = node.getId("ConnectivityNode");
+        String tn = node.getId("TopologicalNode");
+
+        nodes.add(cn);
+        nodes.add(tn);
+        nodesName.put(cn, node.get("name"));
+        String tnName = node.get("topologicalNodeName");
+        nodesName.put(tn, tnName);
+        topologicalNodes.put(tnName, tn);
+        if (isDcNode(node)) {
+            hvdcNodes.add(cn);
+            hvdcNodes.add(tn);
+        }
+        if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE)) {
+            lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+            lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+        } else if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER)) { // EIC code on node has priority but if absent, EIC code on Line is used
+            lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
+            lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
+        }
     }
 
     public static boolean isDcNode(PropertyBag node) {
