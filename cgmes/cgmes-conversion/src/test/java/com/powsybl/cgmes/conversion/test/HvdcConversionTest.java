@@ -340,8 +340,8 @@ class HvdcConversionTest extends AbstractSerDeTest {
         assertEquals(name, vscConverter.getNameOrId());
         assertEquals(hvdcLineId, vscConverter.getHvdcLine().getId());
         assertEquals(lossFactor, vscConverter.getLossFactor(), TOLERANCE);
-        assertEquals(voltageSetpoint, vscConverter.getVoltageSetpoint(), TOLERANCE);
-        assertEquals(reactivePowerSetpoint, vscConverter.getReactivePowerSetpoint(), TOLERANCE);
+        assertEquals(voltageSetpoint, vscConverter.getRegulatingTargetV(), TOLERANCE);
+        assertEquals(reactivePowerSetpoint, vscConverter.getRegulatingTargetQ(), TOLERANCE);
     }
 
     private void assertContainsHvdcLine(Network network, String id, HvdcLine.ConvertersMode convertersMode, String name,

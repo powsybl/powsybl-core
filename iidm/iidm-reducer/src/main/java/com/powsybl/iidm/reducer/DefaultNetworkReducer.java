@@ -9,6 +9,7 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,7 +226,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
         if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscStation = (VscConverterStation) station;
-            if (vscStation.isVoltageRegulatorOn()) {
+            if (vscStation.isWithMode(RegulationMode.VOLTAGE)) {
                 replaceHvdcLineByGenerator(hvdcLine, vl, terminal, vscStation);
             } else {
                 replaceHvdcLineByLoad(hvdcLine, vl, terminal);
@@ -265,11 +266,15 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(station.getVoltageRegulation().getTargetValue())
+                    .add()
                 .setMaxP(maxP)
                 .setMinP(-maxP)
                 .setTargetP(-checkP(terminal))
-                .setTargetV(station.getVoltageSetpoint());
+                .setTargetV(station.getTargetV())
+                .setTargetQ(station.getTargetQ());
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();

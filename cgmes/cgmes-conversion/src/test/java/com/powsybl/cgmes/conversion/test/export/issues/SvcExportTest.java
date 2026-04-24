@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -38,10 +39,10 @@ class SvcExportTest extends AbstractSerDeTest {
         Network network = Network.read(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
         assertNotNull(svc);
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
-        assertFalse(svc.isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertFalse(svc.getVoltageRegulation().isRegulating());
         assertEquals(rcId, svc.getProperty(PROPERTY_REGULATING_CONTROL));
-        assertEquals(231.123, svc.getVoltageSetpoint(), 0.0);
+        assertEquals(231.123, svc.getRegulatingTargetV(), 0.0);
 
         // Do a full export and check that output files contain the reference to the RC
         String basename = "micro-t4-svc-rc-off-v";

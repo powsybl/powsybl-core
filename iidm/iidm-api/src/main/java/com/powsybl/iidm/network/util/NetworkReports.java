@@ -151,6 +151,56 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void invalidVoltageRegulationTargetValue(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValue")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationDeadband(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationDeadband")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationSlope(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationSlope")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationTerminal(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTerminal")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationMode(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationMode")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationModeAllowed(ReportNode reportNode, String id, String currentMode, String allowedModes) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationModeAllowed")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withUntypedValue("currentMode", currentMode)
+            .withUntypedValue("allowedModes", allowedModes)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void invalidP0(ReportNode reportNode, String id) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.invalidP0")

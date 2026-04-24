@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
  * VSC converter station.
  *
@@ -71,56 +75,68 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public interface VscConverterStation extends HvdcConverterStation<VscConverterStation>, ReactiveLimitsHolder {
+public interface VscConverterStation extends HvdcConverterStation<VscConverterStation>, ReactiveLimitsHolder, VoltageRegulationHolder {
 
     /**
      * Check if voltage regulator is on.
      * @return true if voltage regulator is on, false otherwise
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isVoltageRegulatorOn();
 
     /**
      * Set voltage regulator status.
      * @param voltageRegulatorOn the new voltage regulator status
      * @return the converter itself to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VscConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
      * Get the voltage setpoint (kV).
      * @return the voltage setpoint
+     * @deprecated use {@link #getRegulatingTargetV()} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getVoltageSetpoint();
 
     /**
      * Set the voltage setpoint (kV).
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#VOLTAGE} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VscConverterStation setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * Get the reactive power setpoint (MVar).
      * @return the reactive power setpoint
+     * @deprecated use {@link #getRegulatingTargetQ()} ()} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getReactivePowerSetpoint();
 
     /**
      * Set the reactive power setpoint (MVar).
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return the converter itself to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#REACTIVE_POWER} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
-     * Get the terminal used for regulation.
-     * @return the terminal used for regulation
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead.
      */
-    default Terminal getRegulatingTerminal() {
-        return this.getTerminal();
-    }
-
+    @Deprecated(forRemoval = true, since = "7.2.0")
     default VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
         return this;
     }
+
+    VscConverterStation setTargetQ(double targetQ);
+
+    VscConverterStation setTargetV(double targetV);
 }

@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,10 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     public static void initialize(StaticVarCompensatorAdder adder) {
-        adder.setRegulating(false);
+        adder.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .add();
     }
 
     public void add(String iidmId, PropertyBag sm) {
@@ -86,15 +90,15 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
-        svc.setRegulatingTerminal(svc.getTerminal());
+        svc.getVoltageRegulation().setTerminal(svc.getTerminal());
         if (RegulatingControlMapping.isControlModeReactivePower(rc.defaultRegulationMode)) {
-            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+            svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
         } else {
             if (!RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode)) {
                 context.fixed("SVCDefaultControlMode", () -> String.format("Invalid default control mode for static var compensator %s. Default regulationMode set to VOLTAGE", svc.getId()));
             }
             setDefaultRegulatingControlData(rc, svc);
-            svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+            svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         }
     }
 
@@ -117,7 +121,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
     private boolean setRegulatingControlVoltage(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
         setDefaultRegulatingControlData(rc, svc);
         Terminal regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context).orElse(svc.getTerminal());
-        svc.setRegulatingTerminal(regulatingTerminal).setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        svc.getVoltageRegulation().setTerminal(regulatingTerminal);
+        svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
         return true;
     }
 
@@ -129,7 +134,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
             context.ignored(rc.regulatingControlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
             return false;
         }
-        svc.setRegulatingTerminal(mappedRegulatingTerminal.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        svc.getVoltageRegulation().setTerminal(mappedRegulatingTerminal.getTerminal());
+        svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
 
         svc.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
         return true;

@@ -21,7 +21,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -534,35 +534,26 @@ public final class CgmesExportUtil {
         return Double.isFinite(q);
     }
 
-    public static String getGeneratorRegulatingControlMode(Generator generator, RemoteReactivePowerControl rrpc) {
-        if (rrpc == null) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+    public static String getGeneratorRegulatingControlMode(Generator generator) {
+        if (generator.getVoltageRegulation() != null) {
+            return switch (generator.getVoltageRegulation().getMode()) {
+                case REACTIVE_POWER ->
+                    RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+                case VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER ->
+                    RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+            };
         }
-        boolean enabledVoltageControl = generator.isVoltageRegulatorOn();
-        boolean enabledReactivePowerControl = rrpc.isEnabled();
-
-        if (enabledVoltageControl) {
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (enabledReactivePowerControl) {
-            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        } else {
-            boolean validVoltageSetpoint = isValidVoltageSetpoint(generator.getTargetV());
-            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(rrpc.getTargetQ());
-            if (validReactiveSetpoint && !validVoltageSetpoint) {
-                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            }
-            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        }
+        return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
     }
 
     public static String getSvcMode(StaticVarCompensator svc) {
-        if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE)) {
+        if (svc.isWithMode(RegulationMode.VOLTAGE)) {
             return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        } else if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.REACTIVE_POWER)) {
+        } else if (svc.isWithMode(RegulationMode.REACTIVE_POWER)) {
             return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
         } else {
-            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getVoltageSetpoint());
-            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getRegulatingTargetV());
+            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getRegulatingTargetQ());
             if (validReactiveSetpoint && !validVoltageSetpoint) {
                 return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
             }
@@ -588,14 +579,13 @@ public final class CgmesExportUtil {
         if (connectable.hasProperty(PROPERTY_REGULATING_CONTROL)) {
             return true;
         } else if (connectable instanceof Generator generator) {
-            return generator.getExtension(RemoteReactivePowerControl.class) != null
-                || !Double.isNaN(generator.getTargetV()) && hasReactiveCapability(generator);
+            return generator.getVoltageRegulation() != null && hasReactiveCapability(generator);
         } else if (connectable instanceof ShuntCompensator shuntCompensator) {
-            return CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
+            return CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getRegulatingTargetV())
                 || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable());
         } else if (connectable instanceof StaticVarCompensator staticVarCompensator) {
-            return CgmesExportUtil.isValidReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint())
-                || CgmesExportUtil.isValidVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
+            return CgmesExportUtil.isValidReactivePowerSetpoint(staticVarCompensator.getRegulatingTargetQ())
+                || CgmesExportUtil.isValidVoltageSetpoint(staticVarCompensator.getRegulatingTargetV())
                 || !Objects.equals(staticVarCompensator, staticVarCompensator.getRegulatingTerminal().getConnectable());
         }
         return false;

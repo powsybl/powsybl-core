@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -95,8 +96,8 @@ class StaticVarCompensatorUpdateTest {
     }
 
     private static void assertEq(Network network) {
-        assertEq(network.getStaticVarCompensator("StaticVarCompensator-V"), StaticVarCompensator.RegulationMode.VOLTAGE);
-        assertEq(network.getStaticVarCompensator("StaticVarCompensator-Q"), StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        assertEq(network.getStaticVarCompensator("StaticVarCompensator-V"), RegulationMode.VOLTAGE);
+        assertEq(network.getStaticVarCompensator("StaticVarCompensator-Q"), RegulationMode.REACTIVE_POWER);
     }
 
     private static void assertFirstSsh(Network network) {
@@ -122,15 +123,15 @@ class StaticVarCompensatorUpdateTest {
         assertFlows(network.getStaticVarCompensator("StaticVarCompensator-Q").getTerminal(), staticVarCompensatorQP, staticVarCompensatorQQ);
     }
 
-    private static void assertEq(StaticVarCompensator staticVarCompensator, StaticVarCompensator.RegulationMode regulationMode) {
+    private static void assertEq(StaticVarCompensator staticVarCompensator, RegulationMode regulationMode) {
         assertNotNull(staticVarCompensator);
-        assertTrue(Double.isNaN(staticVarCompensator.getReactivePowerSetpoint()));
-        assertTrue(Double.isNaN(staticVarCompensator.getVoltageSetpoint()));
+        assertTrue(Double.isNaN(staticVarCompensator.getRegulatingTargetQ()));
+        assertTrue(Double.isNaN(staticVarCompensator.getRegulatingTargetV()));
         assertNotNull(staticVarCompensator.getRegulatingTerminal());
-        assertEquals(regulationMode, staticVarCompensator.getRegulationMode());
-        assertFalse(staticVarCompensator.isRegulating());
+        assertEquals(regulationMode, staticVarCompensator.getVoltageRegulation().getMode());
+        assertFalse(staticVarCompensator.getVoltageRegulation().isRegulating());
 
-        if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
+        if (regulationMode == RegulationMode.REACTIVE_POWER) {
             assertNotNull(staticVarCompensator.getProperty(PROPERTY_TERMINAL_SIGN));
         }
         assertNotNull(staticVarCompensator.getProperty(PROPERTY_REGULATING_CONTROL));
@@ -139,9 +140,9 @@ class StaticVarCompensatorUpdateTest {
     private static void assertSsh(StaticVarCompensator staticVarCompensator, double targetQ, double targetV, boolean regulating) {
         assertNotNull(staticVarCompensator);
         double tol = 0.0000001;
-        assertEquals(targetQ, staticVarCompensator.getReactivePowerSetpoint(), tol);
-        assertEquals(targetV, staticVarCompensator.getVoltageSetpoint(), tol);
-        assertEquals(regulating, staticVarCompensator.isRegulating());
+        assertEquals(targetQ, staticVarCompensator.getRegulatingTargetQ(), tol);
+        assertEquals(targetV, staticVarCompensator.getRegulatingTargetV(), tol);
+        assertEquals(regulating, staticVarCompensator.getVoltageRegulation().isRegulating());
     }
 
     private static void assertFlows(Terminal terminal, double p, double q) {

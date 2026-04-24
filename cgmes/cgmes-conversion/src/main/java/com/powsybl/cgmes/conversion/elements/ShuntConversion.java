@@ -11,6 +11,8 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -126,28 +128,33 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     // and regulation must be turned off before assigning potentially invalid values,
     // to ensure consistency with the applied checks
     private static void setRegulation(ShuntCompensator shuntCompensator, double targetV, double targetDeadband, boolean regulatingOn) {
+        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
+        if (voltageRegulation == null) {
+            voltageRegulation = shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
+        }
         if (regulatingOn) {
-            shuntCompensator.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband)
-                    .setVoltageRegulatorOn(true);
+            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+            voltageRegulation.setRegulating(true);
         } else {
-            shuntCompensator
-                    .setVoltageRegulatorOn(false)
-                    .setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
+            voltageRegulation.setRegulating(false);
+            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setTargetDeadband(targetDeadband);
         }
     }
 
     private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.getTargetV(), Double.NaN, Double.NaN, context);
+        double previousTargetV = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetValue() : Double.NaN;
+        return getDefaultValue(null, previousTargetV, Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetDeadband(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.getTargetDeadband(), 0.0, 0.0, context);
+        double targetDeadband = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+        return getDefaultValue(null, targetDeadband, 0.0, 0.0, context);
     }
 
     private static boolean getDefaultRegulatingOn(ShuntCompensator shuntCompensator, Context context) {
-        return getDefaultValue(null, shuntCompensator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(null, shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
 }

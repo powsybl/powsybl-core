@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * Simple {@link NetworkModification} for a static var compensator.
@@ -33,12 +34,20 @@ public class StaticVarCompensatorModification extends AbstractSetpointModificati
 
     @Override
     protected void setVoltageSetpoint(StaticVarCompensator networkElement, Double voltageSetpoint) {
-        networkElement.setVoltageSetpoint(voltageSetpoint);
+        if (networkElement.isWithMode(RegulationMode.VOLTAGE)) {
+            networkElement.getVoltageRegulation().setTargetValue(voltageSetpoint);
+        } else {
+            networkElement.setTargetV(voltageSetpoint);
+        }
     }
 
     @Override
     protected void setReactivePowerSetpoint(StaticVarCompensator networkElement, Double reactivePowerSetpoint) {
-        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint);
+        if (networkElement.isWithMode(RegulationMode.REACTIVE_POWER)) {
+            networkElement.getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
+        } else {
+            networkElement.setTargetQ(reactivePowerSetpoint);
+        }
     }
 
     @Override

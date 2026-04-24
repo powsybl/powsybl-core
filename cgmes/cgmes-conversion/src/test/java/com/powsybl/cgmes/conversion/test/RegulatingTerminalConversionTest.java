@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -54,7 +55,8 @@ class RegulatingTerminalConversionTest {
         terminal = gen.getTerminal();
         assertEquals(terminal, regulatingTerminal);
 
-        regulationValue = gen.getTargetV();
+        assertEquals(RegulationMode.VOLTAGE, gen.getVoltageRegulation().getMode());
+        regulationValue = gen.getVoltageRegulation().getTargetValue();
         assertEquals(21.987, regulationValue, 0.0);
     }
 
@@ -85,7 +87,8 @@ class RegulatingTerminalConversionTest {
         terminal = gen.getTerminal();
         assertEquals(terminal, regulatingTerminal);
 
-        regulationValue = gen.getTargetV();
+        assertEquals(RegulationMode.VOLTAGE, gen.getVoltageRegulation().getMode());
+        regulationValue = gen.getVoltageRegulation().getTargetValue();
         assertEquals(21.987, regulationValue, 0.0);
     }
 

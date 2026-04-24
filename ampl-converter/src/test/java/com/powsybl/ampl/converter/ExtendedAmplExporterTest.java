@@ -9,6 +9,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -197,16 +198,23 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testRegulatingBusIdExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
-        network.getGenerator("GEN").setVoltageRegulatorOn(false);
+        Generator gen = network.getGenerator("GEN");
+        gen.setTargetV(gen.getRegulatingTargetV());
+        gen.newVoltageRegulation()
+            .withTargetValue(gen.getTargetQ())
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .build();
         network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GEN3")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                .setTargetV(152.5)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(152.5)
+                    .withTerminal(network.getLoad("LOAD").getTerminal())
+                    .add()
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
@@ -220,17 +228,19 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     @Test
     void testRegulatingBusIdExportSvc() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
-        network.getStaticVarCompensator("SVC2").setRegulating(false);
+        network.getStaticVarCompensator("SVC2").getVoltageRegulation().setRegulating(false);
         network.getVoltageLevel("VL1").newStaticVarCompensator()
                 .setId("SVC1")
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setRegulating(true)
-                .setVoltageSetpoint(390)
-                .setRegulatingTerminal(network.getLoad("L2").getTerminal())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .withTargetValue(390)
+                    .withTerminal(network.getLoad("L2").getTerminal())
+                    .add()
                 .add();
 
         exporter.export(network, properties, dataSource);

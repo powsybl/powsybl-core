@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.powsybl.commons.io.table.Column;
@@ -19,7 +20,6 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -29,6 +29,8 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWriter {
 
+    private static final String REGULATION_MODE = "regulationMode";
+    private static final String REGULATING = "regulating";
     private final boolean verbose;
 
     public ValidationFormatterCsvWriter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
@@ -162,7 +164,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                  new Column(CONNECTED),
-                                                 new Column("voltageRegulatorOn"),
+                                                 new Column(REGULATION_MODE),
+                                                 new Column(REGULATING),
                                                  new Column("minP"),
                                                  new Column("maxP"),
                                                  new Column("minQ"),
@@ -182,7 +185,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             if (verbose) {
                 generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                      new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
-                                                     new Column("voltageRegulatorOn" + POST_COMPUTATION_SUFFIX),
+                                                     new Column(REGULATION_MODE + POST_COMPUTATION_SUFFIX),
+                                                     new Column(REGULATING + POST_COMPUTATION_SUFFIX),
                                                      new Column("minP" + POST_COMPUTATION_SUFFIX),
                                                      new Column("maxP" + POST_COMPUTATION_SUFFIX),
                                                      new Column("minQ" + POST_COMPUTATION_SUFFIX),
@@ -268,8 +272,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             svcColumns = ArrayUtils.addAll(svcColumns,
                                            new Column(CONNECTED),
-                                           new Column("regulationMode"),
-                                           new Column("regulating"),
+                                           new Column(REGULATION_MODE),
+                                           new Column(REGULATING),
                                            new Column("bMin"),
                                            new Column("bMax"),
                                            new Column(MAIN_COMPONENT),
@@ -287,8 +291,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             if (verbose) {
                 svcColumns = ArrayUtils.addAll(svcColumns,
                                                new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
-                                               new Column("regulationMode" + POST_COMPUTATION_SUFFIX),
-                                               new Column("regulating" + POST_COMPUTATION_SUFFIX),
+                                               new Column(REGULATION_MODE + POST_COMPUTATION_SUFFIX),
+                                               new Column(REGULATING + POST_COMPUTATION_SUFFIX),
                                                new Column("bMin" + POST_COMPUTATION_SUFFIX),
                                                new Column("bMax" + POST_COMPUTATION_SUFFIX),
                                                new Column(MAIN_COMPONENT + POST_COMPUTATION_SUFFIX),
@@ -568,21 +572,21 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
+                         boolean connected, String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
                          boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {
             formatter = found ?
                         write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
-                              generatorData.expectedP, generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
+                              generatorData.expectedP, generatorData.connected, generatorData.regulationMode, generatorData.regulating, generatorData.minP, generatorData.maxP, generatorData.minQ,
                               generatorData.maxQ, generatorData.mainComponent, generatorData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, regulationMode, regulating, minP, maxP, minQ, maxQ, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
-                                 boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
+                                 String regulationMode, boolean regulating, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -595,14 +599,15 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(connected)
-                                 .writeCell(voltageRegulatorOn)
+                                 .writeCell(regulationMode)
+                                 .writeCell(regulating)
                                  .writeCell(minP)
                                  .writeCell(maxP)
                                  .writeCell(minQ)
                                  .writeCell(maxQ)
                                  .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(8);
+                        formatter.writeEmptyCells(9);
         }
         return formatter;
     }

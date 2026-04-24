@@ -19,6 +19,7 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
@@ -265,7 +266,9 @@ public class UcteExporter implements Exporter {
                 // Should we use bus.getV() instead?
                 voltageReference = generator.getTargetV();
             }
-            if (generator.isVoltageRegulatorOn()) {
+            if (generator.getVoltageRegulation() != null
+                && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE
+                && generator.getVoltageRegulation().isRegulating()) {
                 nodeType = UcteNodeTypeCode.PU;
             }
             minP = generator.getMinP();

@@ -9,6 +9,8 @@ package com.powsybl.psse.converter;
 
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.psse.model.PsseVersion;
@@ -50,8 +52,10 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         VscConverterStationAdder adder1 = voltageLevel1.newVscConverterStation()
                 .setId(getVscConverterId(getNetwork(), psseVscDcTransmissionLine, converter1))
                 .setLossFactor((float) getLossFactor1(converter1, activePowerSetpoint, convertersMode))
-                .setReactivePowerSetpoint(getReactiveSetpoint(converter1, activePowerSetpoint))
-                .setVoltageRegulatorOn(false);
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(getReactiveSetpoint(converter1, activePowerSetpoint))
+                    .add();
 
         String equipmentId1 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, converter1.getIbus(), psseVscDcTransmissionLine.getName());
         OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId1, converter1.getIbus(), 0, 0, converter1.getIbus(), "I"));
@@ -69,8 +73,10 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         VscConverterStationAdder adder2 = voltageLevel2.newVscConverterStation()
                 .setId(getVscConverterId(getNetwork(), psseVscDcTransmissionLine, converter2))
                 .setLossFactor((float) getLossFactor2(converter2, activePowerSetpoint, convertersMode))
-                .setReactivePowerSetpoint(getReactiveSetpoint(converter2, activePowerSetpoint))
-                .setVoltageRegulatorOn(false);
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTargetValue(getReactiveSetpoint(converter2, activePowerSetpoint))
+                    .add();
 
         String equipmentId2 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, converter2.getIbus(), psseVscDcTransmissionLine.getName());
         OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId2, converter2.getIbus(), 0, 0, converter2.getIbus(), "I"));
@@ -186,9 +192,20 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
 
     private static void addControlConverter(Network network, PsseVoltageSourceConverter converter, VscConverterStation c, PsseVersion psseVersion, NodeBreakerImport nodeBreakerImport) {
         Terminal regulatingTerminal = findRegulatingTerminal(network, converter, c, nodeBreakerImport, psseVersion);
-        c.setRegulatingTerminal(regulatingTerminal)
-                .setVoltageSetpoint(findTargetVpu(converter) * regulatingTerminal.getVoltageLevel().getNominalV())
-                .setVoltageRegulatorOn(findIsRegulatingOn(converter));
+        VoltageRegulation voltageRegulation = c.getVoltageRegulation();
+        voltageRegulation.setTerminal(regulatingTerminal);
+        double targetQ = c.getRegulatingTargetQ();
+        double targetV = findTargetVpu(converter) * regulatingTerminal.getVoltageLevel().getNominalV();
+        boolean isRegulatingOn = findIsRegulatingOn(converter);
+        if (isRegulatingOn) {
+            c.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+            c.getVoltageRegulation().setTargetValue(targetV);
+            c.setTargetQ(targetQ);
+        } else {
+            c.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+            c.getVoltageRegulation().setTargetValue(targetQ);
+            c.setTargetV(targetV);
+        }
     }
 
     private static Terminal findRegulatingTerminal(Network network, PsseVoltageSourceConverter converter, VscConverterStation c, NodeBreakerImport nodeBreakerImport, PsseVersion psseVersion) {
@@ -269,15 +286,15 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
     }
 
     private static int getMode(VscConverterStation vscConverter) {
-        return vscConverter.isVoltageRegulatorOn() ? 1 : 2;
+        return vscConverter.isRegulatingWithMode(RegulationMode.VOLTAGE) ? 1 : 2;
     }
 
     private static double findAcset(VscConverterStation vscConverter, int mode, double targetP) {
         if (mode == 1) {
-            double targetV = vscConverter.getVoltageSetpoint();
+            double targetV = vscConverter.getRegulatingTargetV();
             return Double.isFinite(targetV) && targetV > 0.0 ? targetV / vscConverter.getRegulatingTerminal().getVoltageLevel().getNominalV() : 1.0;
         } else {
-            double targetQ = vscConverter.getReactivePowerSetpoint();
+            double targetQ = vscConverter.getRegulatingTargetQ();
             return Double.isFinite(targetP) && targetP != 0.0 && Double.isFinite(targetQ) && targetQ != 0.0 ? targetP / Math.sqrt(targetP * targetP + targetQ * targetQ) : 1.0;
         }
     }

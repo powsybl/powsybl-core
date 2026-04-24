@@ -11,9 +11,12 @@ package com.powsybl.cgmes.conversion.elements;
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,11 +28,14 @@ import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CL
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractConductingEquipmentConversion {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractReactiveLimitsOwnerConversion.class);
+    private static final String GENERATOR = "generator";
 
     public AbstractReactiveLimitsOwnerConversion(
         String type,
@@ -162,7 +168,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         } else if (isControlModeReactivePower(mode)) {
             updateRegulatingControlReactivePower(generator, controlEnabled, context);
         } else {
-            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "generator") + " " + generator.getId());
+            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, GENERATOR) + " " + generator.getId());
         }
     }
 
@@ -189,46 +195,50 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
     private static void setVoltageRegulation(Generator generator, double targetV, boolean regulatingOn) {
+        if (logMissingVoltageRegulation(generator, LOGGER, GENERATOR, "regulation won't be updated")) {
+            return;
+        }
         if (regulatingOn) {
-            generator
-                    .setTargetV(targetV)
-                    .setVoltageRegulatorOn(true);
+            VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setRegulating(true);
         } else {
-            generator
-                    .setVoltageRegulatorOn(false)
-                    .setTargetV(targetV);
+            VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setRegulating(false);
         }
     }
 
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
-        RemoteReactivePowerControl remoteReactivePowerControl = generator.getExtension(RemoteReactivePowerControl.class);
-        if (remoteReactivePowerControl == null || remoteReactivePowerControl.getRegulatingTerminal() == null) {
+        if (logMissingVoltageRegulation(generator, LOGGER, GENERATOR, "regulating control won't be updated")) {
+            return;
+        }
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (voltageRegulation == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
             return;
         }
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
         int terminalSign = findTerminalSign(generator);
-        double defaultTargetQ = getDefaultTargetQ(remoteReactivePowerControl, context);
-        boolean defaultRegulatingOn = getDefaultRegulatingOn(remoteReactivePowerControl, context);
+        double defaultTargetQ = getDefaultTargetQ(voltageRegulation.getTargetValue(), context);
+        boolean defaultRegulatingOn = getDefaultRegulatingOn(voltageRegulation.isRegulating(), context);
         boolean updatedControlEnabled = controlEnabled != null ? controlEnabled : defaultRegulatingOn;
 
         double targetQ = cgmesRegulatingControl.map(propertyBag -> findTargetQ(propertyBag, terminalSign, defaultTargetQ, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetQ);
         boolean regulatingOn = cgmesRegulatingControl.map(propertyBag -> findRegulatingOn(propertyBag, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED)).orElse(defaultRegulatingOn);
 
-        setReactivePowerRegulation(remoteReactivePowerControl, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));
+        setReactivePowerRegulation(voltageRegulation, targetQ, regulatingOn && updatedControlEnabled && isValidTargetQ(targetQ));
     }
 
     // TargetQ must be valid before the regulation is turned on,
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
-    private static void setReactivePowerRegulation(RemoteReactivePowerControl remoteReactivePowerControl, double targetQ, boolean regulatingOn) {
+    private static void setReactivePowerRegulation(VoltageRegulation voltageRegulation, double targetQ, boolean regulatingOn) {
         if (regulatingOn) {
-            remoteReactivePowerControl
-                    .setTargetQ(targetQ)
-                    .setEnabled(true);
+            voltageRegulation.setTargetValue(targetQ);
+            voltageRegulation.setRegulating(true);
         } else {
-            remoteReactivePowerControl
-                    .setEnabled(false)
-                    .setTargetQ(targetQ);
+            voltageRegulation.setTargetValue(targetQ);
+            voltageRegulation.setRegulating(false);
         }
     }
 
@@ -236,18 +246,20 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         double defaultTargetV = Optional.ofNullable(generator.getRegulatingTerminal())
                 .orElse(generator.getTerminal())
                 .getVoltageLevel().getNominalV();
-        return getDefaultValue(null, generator.getTargetV(), defaultTargetV, Double.NaN, context);
+        double targetVGenerator = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE ?
+            generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
+        return getDefaultValue(null, targetVGenerator, defaultTargetV, Double.NaN, context);
     }
 
     private static boolean getDefaultRegulatingOn(Generator generator, Context context) {
-        return getDefaultValue(false, generator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(false, generator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
-    private static double getDefaultTargetQ(RemoteReactivePowerControl remoteReactivePowerControl, Context context) {
-        return getDefaultValue(null, remoteReactivePowerControl.getTargetQ(), Double.NaN, Double.NaN, context);
+    private static double getDefaultTargetQ(double previousValue, Context context) {
+        return getDefaultValue(null, previousValue, Double.NaN, Double.NaN, context);
     }
 
-    private static boolean getDefaultRegulatingOn(RemoteReactivePowerControl remoteReactivePowerControl, Context context) {
-        return getDefaultValue(false, remoteReactivePowerControl.isEnabled(), false, false, context);
+    private static boolean getDefaultRegulatingOn(boolean previousValue, Context context) {
+        return getDefaultValue(false, previousValue, false, false, context);
     }
 }

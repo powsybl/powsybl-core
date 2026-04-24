@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -112,8 +113,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setConnectableBus1(bus1.getId())
                 .setControlMode(AcDcConverter.ControlMode.V_DC)
                 .setTargetVdc(502.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(12.3)
+                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(12.3).add()
                 .add();
         vsc1.setProperty("prop name", "prop value");
         vsc1.addAlias("someAlias");
@@ -134,9 +134,8 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(2.0)
                 .setSwitchingLoss(0.2)
                 .setResistiveLoss(2e-6)
-                .setVoltageRegulatorOn(true)
-                .setReactivePowerSetpoint(12.3)
-                .setVoltageSetpoint(387.)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(387.).add()
+                .setTargetQ(12.3)
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-200.).setMaxQ(+210.).add();
         vsc2.getDcTerminal1().setP(-100.).setI(-200.);
@@ -166,8 +165,7 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setIdleLoss(3.0)
                 .setSwitchingLoss(0.3)
                 .setResistiveLoss(3e-6)
-                .setVoltageRegulatorOn(true)
-                .setVoltageSetpoint(397.)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(397.).add()
                 .add();
         vsc3.newReactiveCapabilityCurve()
                 .beginPoint().setP(-200.).setMinQ(-190.).setMaxQ(192.).endPoint()

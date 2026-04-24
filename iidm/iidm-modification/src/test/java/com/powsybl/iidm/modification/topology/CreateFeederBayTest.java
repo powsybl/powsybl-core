@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
@@ -199,7 +200,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         GeneratorAdder generatorAdder = network.getVoltageLevel("vl1").newGenerator()
                 .setId("newGenerator")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(25.5).add()
                 .setMaxP(9999)
                 .setMinP(-9999)
                 .setTargetV(25.5)
@@ -280,10 +281,12 @@ class CreateFeederBayTest extends AbstractModificationTest {
                         .setId("newStaticVarCompensator")
                         .setBmin(0.0002)
                         .setBmax(0.0008)
-                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                        .setRegulating(true)
-                        .setVoltageSetpoint(390.0)
-                        .setReactivePowerSetpoint(1.0)
+                        .newVoltageRegulation()
+                            .withMode(RegulationMode.VOLTAGE)
+                            .withRegulating(true)
+                            .withTargetValue(390.0)
+                            .add()
+                        .setTargetQ(1.0)
                         .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter2.isPresent());
@@ -319,8 +322,10 @@ class CreateFeederBayTest extends AbstractModificationTest {
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
                 .setId("newVscConverterStation")
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withTargetValue(405.0)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter4 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter4.isPresent());
@@ -658,8 +663,10 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setId("GEN")
             .setTargetP(0.0)
             .setTargetQ(0)
-            .setTargetV(100)
-            .setVoltageRegulatorOn(true)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(100.0)
+                .add()
             .setMinP(0)
             .setMaxP(1000);
         new CreateFeederBayBuilder()

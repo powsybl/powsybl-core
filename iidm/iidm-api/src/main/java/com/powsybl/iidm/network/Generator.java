@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
  * A power generator.
  *
@@ -133,7 +136,7 @@ package com.powsybl.iidm.network;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
+public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, VoltageRegulationHolder {
 
     /**
      * Get the energy source.
@@ -167,7 +170,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -175,15 +180,15 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * <p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
-     * Get the terminal used for regulation.
-     * @return the terminal used for regulation
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead.
      */
-    Terminal getRegulatingTerminal();
-
+    @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
 
     /**
@@ -192,6 +197,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Override
     double getTargetV();
 
     /**
@@ -218,7 +224,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * </p>
      * Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link Generator#getTargetV()} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getEquivalentLocalTargetV();
 
     /**
@@ -229,7 +237,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * @param targetV the voltage target in kV (see {@link Generator#getTargetV()}).
      * @param equivalentLocalTargetV the local target in kV (see {@link Generator#getEquivalentLocalTargetV()}).
      * @see VariantManager
+     * @deprecated use {@link Generator#setTargetV(double)} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     Generator setTargetV(double targetV, double equivalentLocalTargetV);
 
     /**
@@ -254,6 +264,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
+    @Override
     double getTargetQ();
 
     /**

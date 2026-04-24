@@ -23,6 +23,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
@@ -246,6 +247,16 @@ public class UcteImporter implements Importer {
         double generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
         double generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
 
+        boolean regulatingVoltage = ucteNode.isRegulatingVoltage();
+        RegulationMode mode;
+        double targetValue;
+        if (regulatingVoltage) {
+            mode = RegulationMode.VOLTAGE;
+            targetValue = ucteNode.getVoltageReference();
+        } else {
+            mode = RegulationMode.REACTIVE_POWER;
+            targetValue = generatorQ;
+        }
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setEnergySource(energySource)
@@ -253,7 +264,10 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(bus.getId())
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
-                .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
+                .newVoltageRegulation()
+                    .withMode(mode)
+                    .withTargetValue(targetValue)
+                    .add()
                 .setTargetP(generatorP)
                 .setTargetQ(generatorQ)
                 .setTargetV(ucteNode.getVoltageReference())

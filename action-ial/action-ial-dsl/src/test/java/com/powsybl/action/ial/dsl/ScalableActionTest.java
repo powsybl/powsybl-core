@@ -10,6 +10,7 @@ package com.powsybl.action.ial.dsl;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,25 +68,29 @@ class ScalableActionTest {
 
     private void addTwoMoreGensInNetwork() {
         VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
-        Generator generator2 = vlgen.newGenerator()
+        vlgen.newGenerator()
                 .setId("GEN2")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(124.5)
+                    .add()
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
-        Generator generator3 = vlgen.newGenerator()
+        vlgen.newGenerator()
                 .setId("GEN3")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(224.5)
+                    .add()
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();

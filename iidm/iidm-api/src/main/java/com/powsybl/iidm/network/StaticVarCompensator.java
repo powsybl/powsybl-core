@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
  * Static VAR compensator model.
  *
@@ -95,12 +99,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
-
-    enum RegulationMode {
-        VOLTAGE,
-        REACTIVE_POWER
-    }
+public interface StaticVarCompensator extends Injection<StaticVarCompensator>, VoltageRegulationHolder {
 
     /**
      * Get the minimum susceptance in S.
@@ -133,7 +132,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working variant.</p>
      * @return the voltage setpoint
+     * @deprecated use {@link #getRegulatingTargetV()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getVoltageSetpoint();
 
     /**
@@ -142,15 +143,23 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#VOLTAGE} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
+
+    StaticVarCompensator setTargetQ(double targetQ);
+
+    StaticVarCompensator setTargetV(double targetV);
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
      * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
+     * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     double getReactivePowerSetpoint();
 
     /**
@@ -159,14 +168,18 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#REACTIVE_POWER} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
      * <p>Get the regulating mode.</p>
      * <p>Depends on the working variant.</p>
      * @return the regulating mode
+     * @deprecated use {@link VoltageRegulation#getMode()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     RegulationMode getRegulationMode();
 
     /**
@@ -174,31 +187,31 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @param regulationMode the regulating mode
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setMode(RegulationMode)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);
 
     /**
      * Get the regulating status.
+     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     boolean isRegulating();
 
     /**
      * Set the regulating status.
+     * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensator setRegulating(boolean regulating);
-
-    /**
-     * <p>Get the terminal used for regulation.</p>
-     * @return the terminal used for regulation
-     */
-    default Terminal getRegulatingTerminal() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
 
     /**
      * <p>Set the terminal used for regulation.</p>
      * @return this to allow method chaining
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.2.0")
     default StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not implemented");
     }

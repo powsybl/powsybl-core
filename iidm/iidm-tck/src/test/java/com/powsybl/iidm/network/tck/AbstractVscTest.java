@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,22 +46,27 @@ public abstract class AbstractVscTest {
         assertEquals(1, network.getVoltageLevel("VL2").getVscConverterStationCount());
         assertEquals(1.1f, cs1.getLossFactor(), 0.0f);
         assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
+
         cs1.setLossFactor(2.2f);
         assertEquals(2.2f, cs1.getLossFactor(), 0.0f);
-        assertTrue(cs1.isVoltageRegulatorOn());
-        assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
-        cs1.setVoltageSetpoint(406.0);
-        assertEquals(406.0, cs1.getVoltageSetpoint(), 0.0);
-        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
+        assertTrue(cs1.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(405.0, cs1.getRegulatingTargetV(), 0.0);
+
+        cs1.getVoltageRegulation().setTargetValue(406.0);
+        assertEquals(406.0, cs1.getRegulatingTargetV(), 0.0);
+        assertTrue(Double.isNaN(cs1.getRegulatingTargetQ()));
         assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
-        assertFalse(cs2.isVoltageRegulatorOn());
-        assertEquals(123.0, cs2.getReactivePowerSetpoint(), 0.0);
-        cs2.setReactivePowerSetpoint(124.0);
-        assertEquals(124.0, cs2.getReactivePowerSetpoint(), 0.0);
-        assertTrue(Double.isNaN(cs2.getVoltageSetpoint()));
-        cs2.setVoltageSetpoint(405);
-        cs2.setVoltageRegulatorOn(true);
-        assertTrue(cs2.isVoltageRegulatorOn());
+        assertFalse(cs2.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertEquals(123.0, cs2.getRegulatingTargetQ(), 0.0);
+
+        cs2.getVoltageRegulation().setTargetValue(124.0);
+        assertEquals(124.0, cs2.getRegulatingTargetQ(), 0.0);
+        assertEquals(406.0, cs1.getRegulatingTargetV(), 0.0);
+        assertTrue(Double.isNaN(cs2.getRegulatingTargetV()));
+
+        cs2.getVoltageRegulation().setTargetValue(405);
+        cs2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+        assertTrue(cs2.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
@@ -127,13 +133,14 @@ public abstract class AbstractVscTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertTrue(cs1.isVoltageRegulatorOn());
-        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
-        assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
+        assertTrue(cs1.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(Double.isNaN(cs1.getRegulatingTargetQ()));
+        assertEquals(405.0, cs1.getRegulatingTargetV(), 0.0);
         // change values in s4
-        cs1.setReactivePowerSetpoint(1.0);
-        cs1.setVoltageRegulatorOn(false);
-        cs1.setVoltageSetpoint(10.0);
+        cs1.setTargetQ(1.0);
+        cs1.setTargetV(12.0);
+        cs1.getVoltageRegulation().setRegulating(false);
+        cs1.getVoltageRegulation().setTargetValue(10.0);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -141,21 +148,24 @@ public abstract class AbstractVscTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertFalse(cs1.isVoltageRegulatorOn());
-        assertEquals(1.0, cs1.getReactivePowerSetpoint(), 0.0);
-        assertEquals(10.0, cs1.getVoltageSetpoint(), 0.0);
+        assertFalse(cs1.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(cs1.isWithMode(RegulationMode.VOLTAGE));
+        assertEquals(1.0, cs1.getTargetQ(), 0.0);
+        assertEquals(1.0, cs1.getRegulatingTargetQ(), 0.0);
+        assertEquals(12.0, cs1.getTargetV(), 0.0);
+        assertEquals(10.0, cs1.getRegulatingTargetV(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(cs1.isVoltageRegulatorOn());
-        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
-        assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
+        assertTrue(cs1.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertTrue(Double.isNaN(cs1.getRegulatingTargetQ()));
+        assertEquals(405.0, cs1.getRegulatingTargetV(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         try {
-            cs1.isVoltageRegulatorOn();
+            cs1.isRegulatingWithMode(RegulationMode.VOLTAGE);
             fail();
         } catch (Exception ignored) {
             // ignore
@@ -166,27 +176,28 @@ public abstract class AbstractVscTest {
     public void testRegulatingTerminal() {
         Terminal cs2Terminal = cs2.getTerminal();
         assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
-        cs1.setRegulatingTerminal(cs2Terminal);
+        cs1.getVoltageRegulation().setTerminal(cs2Terminal);
         assertEquals(cs2Terminal, cs1.getRegulatingTerminal());
-        cs1.setRegulatingTerminal(null);
+        cs1.getVoltageRegulation().removeTerminal();
         assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
     }
 
     @Test
     public void testVscConverterStationAdder() {
         VscConverterStationAdder adder = network.getVoltageLevel("VL1").newVscConverterStation();
-        adder.setId("C3")
-                .setReactivePowerSetpoint(123)
-                .setVoltageSetpoint(405)
-                .setVoltageRegulatorOn(true)
-                .setRegulatingTerminal(cs2.getTerminal())
+        adder.setId("C3").newVoltageRegulation()
+                    .withTargetValue(405)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(cs2.getTerminal())
+                    .add()
+                .setTargetQ(123)
                 .setConnectableBus("B1")
                 .setLossFactor((float) 1.1)
                 .add();
 
-        assertEquals(123, network.getVscConverterStation("C3").getReactivePowerSetpoint(), 0);
-        assertEquals(405, network.getVscConverterStation("C3").getVoltageSetpoint(), 0);
-        assertTrue(network.getVscConverterStation("C3").isVoltageRegulatorOn());
+        assertEquals(123, network.getVscConverterStation("C3").getRegulatingTargetQ(), 0);
+        assertEquals(405, network.getVscConverterStation("C3").getRegulatingTargetV(), 0);
+        assertTrue(network.getVscConverterStation("C3").isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(1.1, network.getVscConverterStation("C3").getLossFactor(), 0.01);
         assertEquals(cs2.getTerminal(), network.getVscConverterStation("C3").getRegulatingTerminal());
 

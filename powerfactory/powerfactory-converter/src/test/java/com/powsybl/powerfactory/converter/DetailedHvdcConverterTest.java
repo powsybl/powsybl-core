@@ -11,6 +11,7 @@ package com.powsybl.powerfactory.converter;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.junit.jupiter.api.Test;
 
@@ -47,8 +48,10 @@ class DetailedHvdcConverterTest {
         assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
         assertEquals(-600.0, vsc1.getTargetP());
         assertEquals(-0.0, vsc2.getTargetP());
-        assertEquals(-0.0, vsc1.getReactivePowerSetpoint());
-        assertEquals(-100.0, vsc2.getReactivePowerSetpoint());
+        assertEquals(300.0, vsc1.getRegulatingTargetV());
+        assertEquals(Double.NaN, vsc2.getRegulatingTargetV());
+        assertEquals(Double.NaN, vsc1.getRegulatingTargetQ());
+        assertEquals(-100.0, vsc2.getRegulatingTargetQ());
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
         final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
         assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
@@ -84,8 +87,10 @@ class DetailedHvdcConverterTest {
         assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
         assertEquals(-600.0, vsc1.getTargetP(), ABSOLUTE_DELTA);
         assertEquals(-0.0, vsc2.getTargetP());
-        assertEquals(-0.0, vsc1.getReactivePowerSetpoint());
-        assertEquals(-100.0, vsc2.getReactivePowerSetpoint(), ABSOLUTE_DELTA);
+        assertEquals(300, vsc1.getRegulatingTargetV());
+        assertEquals(Double.NaN, vsc1.getRegulatingTargetQ());
+        assertEquals(Double.NaN, vsc2.getRegulatingTargetV());
+        assertEquals(-100.0, vsc2.getRegulatingTargetQ());
         assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
         final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
         assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
@@ -159,8 +164,9 @@ class DetailedHvdcConverterTest {
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
 
         assertEquals(AcDcConverter.ControlMode.V_DC, vsc.getControlMode());
-        assertFalse(vsc.isVoltageRegulatorOn());
-        assertTrue(Double.isNaN(vsc.getVoltageSetpoint()));
+        assertEquals(RegulationMode.REACTIVE_POWER, vsc.getVoltageRegulation().getMode());
+        assertTrue(Double.isNaN(vsc.getRegulatingTargetV()));
+        assertEquals(-3.140000104904175, vsc.getRegulatingTargetQ());
         assertEquals(420.0, vsc.getTargetVdc(), RELATIVE_DELTA * 420.0);
     }
 
@@ -171,13 +177,13 @@ class DetailedHvdcConverterTest {
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
 
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
-        assertTrue(vsc.isVoltageRegulatorOn());
+        assertEquals(RegulationMode.VOLTAGE, vsc.getVoltageRegulation().getMode());
         assertEquals(-1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
         double acVoltageSetPoint = 0.8 * 300.;
-        assertEquals(acVoltageSetPoint, vsc.getVoltageSetpoint(), RELATIVE_DELTA * acVoltageSetPoint);
+        assertEquals(acVoltageSetPoint, vsc.getRegulatingTargetV(), RELATIVE_DELTA * acVoltageSetPoint);
 
         // while we are there, check that some values are indeed unspecified
-        assertTrue(Double.isNaN(vsc.getReactivePowerSetpoint()));
+        assertTrue(Double.isNaN(vsc.getRegulatingTargetQ()));
         assertEquals(0.0, vsc.getIdleLoss());
         assertTrue(Double.isNaN(vsc.getTargetVdc()));
         assertEquals(0.0, vsc.getSwitchingLoss());
@@ -191,12 +197,12 @@ class DetailedHvdcConverterTest {
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
 
         assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
-        assertFalse(vsc.isVoltageRegulatorOn());
+        assertEquals(RegulationMode.REACTIVE_POWER, vsc.getVoltageRegulation().getMode());
         assertEquals(-1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
-        assertEquals(-4321., vsc.getReactivePowerSetpoint(), RELATIVE_DELTA * 4321.);
+        assertEquals(-4321., vsc.getRegulatingTargetQ(), RELATIVE_DELTA * 4321.);
 
         // while we are there, check that some values are indeed unspecified
-        assertTrue(Double.isNaN(vsc.getVoltageSetpoint()));
+        assertTrue(Double.isNaN(vsc.getRegulatingTargetV()));
         assertEquals(0.0, vsc.getIdleLoss());
         assertTrue(Double.isNaN(vsc.getTargetVdc()));
         assertEquals(0.0, vsc.getSwitchingLoss());
@@ -210,15 +216,15 @@ class DetailedHvdcConverterTest {
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
 
         assertEquals(AcDcConverter.ControlMode.V_DC, vsc.getControlMode());
-        assertTrue(vsc.isVoltageRegulatorOn());
+        assertEquals(RegulationMode.VOLTAGE, vsc.getVoltageRegulation().getMode());
         double acVoltageSetPoint = 1.2 * 300.;
-        assertEquals(acVoltageSetPoint, vsc.getVoltageSetpoint(), RELATIVE_DELTA * acVoltageSetPoint);
+        assertEquals(acVoltageSetPoint, vsc.getRegulatingTargetV(), RELATIVE_DELTA * acVoltageSetPoint);
         double dcVoltageSetPoint = 0.8 * 525.;
         assertEquals(dcVoltageSetPoint, vsc.getTargetVdc(), RELATIVE_DELTA * dcVoltageSetPoint);
 
         // while we are there, check that some values are indeed unspecified
         assertTrue(Double.isNaN(vsc.getTargetP()));
-        assertTrue(Double.isNaN(vsc.getReactivePowerSetpoint()));
+        assertTrue(Double.isNaN(vsc.getRegulatingTargetQ()));
         assertEquals(0.0, vsc.getIdleLoss());
         assertEquals(0.0, vsc.getSwitchingLoss());
         assertEquals(0.0, vsc.getResistiveLoss());

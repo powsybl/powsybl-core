@@ -10,13 +10,15 @@
                 <iidm:internalConnection node1="0" node2="1"/>
                 <iidm:internalConnection node1="2" node2="3"/>
             </iidm:nodeBreakerTopology>
-            <iidm:voltageSourceConverter id="HVDC Converter 1" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="1" voltageRegulatorOn="true" voltageSetpoint="300.0" reactivePowerSetpoint="-0.0">
+            <iidm:voltageSourceConverter id="HVDC Converter 1" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="1">
                 <iidm:pccTerminal id="HVDC Converter 1" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="300.0"/>
             </iidm:voltageSourceConverter>
-            <iidm:voltageSourceConverter id="HVDC Converter 2" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="323.1999969482422" node1="3" voltageRegulatorOn="false" reactivePowerSetpoint="-100.0">
+            <iidm:voltageSourceConverter id="HVDC Converter 2" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="323.1999969482422" node1="3">
                 <iidm:pccTerminal id="HVDC Converter 2" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="-100.0"/>
             </iidm:voltageSourceConverter>
         </iidm:voltageLevel>
     </iidm:substation>

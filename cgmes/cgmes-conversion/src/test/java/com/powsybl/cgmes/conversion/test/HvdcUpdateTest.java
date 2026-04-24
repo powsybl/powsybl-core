@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -116,14 +117,14 @@ class HvdcUpdateTest {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 360.0, 300.0, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
                 -0.9152494668960571, 0.9340579509735107);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 597.24, 497.7, SIDE_1_INVERTER_SIDE_2_RECTIFIER,
-                 392.54, 392.54, 0.0, true);
+                 392.54, 392.54, 0.0, RegulationMode.VOLTAGE);
     }
 
     private static void assertSecondSsh(Network network) {
         assertSshLcc(network.getHvdcLine("DCLineSegment-Lcc"), 420.0, 350.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 0.9503694176673889, -0.9194843769073486);
         assertSshVsc(network.getHvdcLine("DCLineSegment-Vsc"), 596.4, 497.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                396.54, 0.0, 30.0, false);
+                396.54, 0.0, 30.0, RegulationMode.REACTIVE_POWER);
     }
 
     private static void assertUnassignedFlows(Network network) {
@@ -194,9 +195,12 @@ class HvdcUpdateTest {
         double tol = 0.0000001;
         assertEquals(0.0, vscConverterStation.getLossFactor(), tol);
         assertNotNull(vscConverterStation.getRegulatingTerminal());
-        assertEquals(0.0, vscConverterStation.getReactivePowerSetpoint(), tol);
-        assertTrue(Double.isNaN(vscConverterStation.getVoltageSetpoint()));
-        assertFalse(vscConverterStation.isVoltageRegulatorOn());
+        assertNotNull(vscConverterStation.getVoltageRegulation());
+        assertTrue(vscConverterStation.isWithMode(RegulationMode.REACTIVE_POWER));
+        assertFalse(vscConverterStation.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertEquals(0.0, vscConverterStation.getRegulatingTargetQ());
+        assertTrue(Double.isNaN(vscConverterStation.getRegulatingTargetV()));
+        assertFalse(vscConverterStation.isWithMode(RegulationMode.VOLTAGE));
     }
 
     private static void assertSshLcc(HvdcLine hvdcLine, double maxP, double activePowerSetpoint, HvdcLine.ConvertersMode convertersMode,
@@ -217,22 +221,23 @@ class HvdcUpdateTest {
     }
 
     private static void assertSshVsc(HvdcLine hvdcLine, double maxP, double activePowerSetpoint, HvdcLine.ConvertersMode convertersMode,
-                                     double targetV1, double targetV2, double targetQ2, boolean voltageRegulatorOn2) {
+                                     double targetV1, double targetV2, double targetQ2, RegulationMode regulationMode2) {
         assertNotNull(hvdcLine);
         assertEquals(maxP, hvdcLine.getMaxP());
         assertEquals(activePowerSetpoint, hvdcLine.getActivePowerSetpoint());
         assertEquals(convertersMode, hvdcLine.getConvertersMode());
 
         assertEquals(HvdcConverterStation.HvdcType.VSC, hvdcLine.getConverterStation1().getHvdcType());
-        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), targetV1, 0.0, true);
-        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation2(), targetV2, targetQ2, voltageRegulatorOn2);
+        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation1(), targetV1, 0.0, RegulationMode.VOLTAGE);
+        assertSshVscConverter((VscConverterStation) hvdcLine.getConverterStation2(), targetV2, targetQ2, regulationMode2);
     }
 
-    private static void assertSshVscConverter(VscConverterStation vscConverterStation, double targetV, double targetQ, boolean voltageRegulatorOn) {
+    private static void assertSshVscConverter(VscConverterStation vscConverterStation, double targetV, double targetQ, RegulationMode regulationMode) {
         double tol = 0.0000001;
-        assertEquals(targetV, vscConverterStation.getVoltageSetpoint(), tol);
-        assertEquals(targetQ, vscConverterStation.getReactivePowerSetpoint(), tol);
-        assertEquals(voltageRegulatorOn, vscConverterStation.isVoltageRegulatorOn());
+        assertEquals(targetV, vscConverterStation.getRegulatingTargetV(), tol);
+        assertEquals(targetQ, vscConverterStation.getRegulatingTargetQ(), tol);
+        assertEquals(regulationMode, vscConverterStation.getVoltageRegulation().getMode());
+        assertTrue(vscConverterStation.isRegulatingWithMode(regulationMode));
     }
 
     private static void assertFlows(Terminal terminal1, double p1, double q1, Terminal terminal2, double p2, double q2) {

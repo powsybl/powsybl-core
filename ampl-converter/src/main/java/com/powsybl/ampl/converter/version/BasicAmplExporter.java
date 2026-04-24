@@ -13,6 +13,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
@@ -523,7 +524,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double maxP = lineMap.get(id) != null ? lineMap.get(id).getMaxP() : Double.NaN;
 
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-        double vlSet = vscStation.getVoltageSetpoint();
+        double vlSet = vscStation.getRegulatingTargetV();
         double vb = t.getVoltageLevel().getNominalV();
         double minP = -maxP;
 
@@ -541,9 +542,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
             .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
             .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
-            .writeCell(vscStation.isVoltageRegulatorOn())
+            .writeCell(vscStation.isRegulatingWithMode(RegulationMode.VOLTAGE))
             .writeCell(vlSet / vb)
-            .writeCell(vscStation.getReactivePowerSetpoint())
+            .writeCell(vscStation.getRegulatingTargetQ())
             .writeCell(vscStation.getLossFactor())
             .writeCell(faultNum)
             .writeCell(actionNum)
@@ -1331,10 +1332,10 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(gen.getReactiveLimits().getMaxQ(maxP))
             .addCell(gen.getReactiveLimits().getMaxQ(0))
             .addCell(gen.getReactiveLimits().getMaxQ(minP))
-            .addCell(gen.isVoltageRegulatorOn())
-            .addCell(gen.getTargetV() / vb)
+            .addCell(gen.isRegulatingWithMode(RegulationMode.VOLTAGE))
+            .addCell(gen.getRegulatingTargetV() / vb)
             .addCell(gen.getTargetP())
-            .addCell(gen.getTargetQ())
+            .addCell(gen.getRegulatingTargetQ())
             .addCell(faultNum)
             .addCell(actionNum)
             .addCell(id)
@@ -1370,7 +1371,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(conBusNum != -1 ? conBusNum : busNum)
             .writeCell(vlNum)
             .writeCell(battery.getTargetP())
-            .writeCell(battery.getTargetQ())
+            .writeCell(battery.getRegulatingTargetQ())
             .writeCell(minP)
             .writeCell(maxP)
             .writeCell(battery.getReactiveLimits().getMinQ(maxP))
@@ -1399,7 +1400,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
 
         int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
 
-        double vlSet = svc.getVoltageSetpoint();
+        double vlSet = svc.getRegulatingTargetV();
         double vb = t.getVoltageLevel().getNominalV();
         double zb = vb * vb / AmplConstants.SB; // Base impedance
 
@@ -1413,9 +1414,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .addCell(vlNum)
             .addCell(svc.getBmin() * zb)
             .addCell(svc.getBmax() * zb)
-            .addCell(svc.isRegulating() && svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
+            .addCell(svc.isRegulatingWithMode(RegulationMode.VOLTAGE))
             .addCell(vlSet / vb)
-            .addCell(svc.getReactivePowerSetpoint())
+            .addCell(svc.getRegulatingTargetQ())
             .addCell(faultNum)
             .addCell(actionNum)
             .addCell(id)

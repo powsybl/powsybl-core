@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -129,10 +130,23 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
         boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED);
 
+        double targetQ = getTargetQ(updatedPowerFlow, generator, context);
         generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
-                .setTargetQ(getTargetQ(updatedPowerFlow, generator, context))
-                .setTargetV(targetV)
-                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
+                .setTargetQ(targetQ)
+                .setTargetV(targetV);
+        double targetValue;
+        RegulationMode regulationMode;
+        if (regulatingOn && regulationCapability && isValidTargetV(targetV)) {
+            targetValue = targetV;
+            regulationMode = RegulationMode.VOLTAGE;
+        } else {
+            targetValue = targetQ;
+            regulationMode = RegulationMode.REACTIVE_POWER;
+        }
+        generator.newVoltageRegulation()
+            .withMode(regulationMode)
+            .withTargetValue(targetValue)
+            .build();
     }
 
     private static double getTargetP(PowerFlow updatedPowerFlow, Generator generator, Context context) {
@@ -148,7 +162,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static double getDefaultTargetQ(Generator generator, Context context) {
-        return getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        return getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);
     }
 
     private static double getDefaultTargetV(Generator generator, Context context) {
@@ -156,7 +170,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static boolean getDefaultRegulatingOn(Generator generator, Context context) {
-        return getDefaultValue(false, generator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(false, generator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
     public static void update(BoundaryLine boundaryLine, boolean isConnectedOnBoundarySide, Context context) {

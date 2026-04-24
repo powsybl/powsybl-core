@@ -21,13 +21,15 @@
                 <iidm:internalConnection node1="0" node2="2"/>
                 <iidm:internalConnection node1="3" node2="4"/>
             </iidm:nodeBreakerTopology>
-            <iidm:voltageSourceConverter id="right HVDC Converter 3" dcNode1="8 HVDC Link_T_DC_pos3" dcConnected1="true" dcNode2="10 HVDC Link_T_DC_neg3" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="2" voltageRegulatorOn="true" voltageSetpoint="300.0" reactivePowerSetpoint="-0.0">
+            <iidm:voltageSourceConverter id="right HVDC Converter 3" dcNode1="8 HVDC Link_T_DC_pos3" dcConnected1="true" dcNode2="10 HVDC Link_T_DC_neg3" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="2">
                 <iidm:pccTerminal id="right HVDC Converter 3" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="300.0"/>
             </iidm:voltageSourceConverter>
-            <iidm:voltageSourceConverter id="right HVDC Converter 4" dcNode1="9 HVDC Link_T_DC_pos4" dcConnected1="true" dcNode2="10 HVDC Link_T_DC_neg3" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="530.2499949932098" node1="4" voltageRegulatorOn="false" reactivePowerSetpoint="-100.0">
+            <iidm:voltageSourceConverter id="right HVDC Converter 4" dcNode1="9 HVDC Link_T_DC_pos4" dcConnected1="true" dcNode2="10 HVDC Link_T_DC_neg3" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="530.2499949932098" node1="4">
                 <iidm:pccTerminal id="right HVDC Converter 4" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="-100.0"/>
             </iidm:voltageSourceConverter>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -37,9 +39,10 @@
                 <iidm:busbarSection id="VL42_2 Bus 2" node="0"/>
                 <iidm:internalConnection node1="0" node2="1"/>
             </iidm:nodeBreakerTopology>
-            <iidm:voltageSourceConverter id="left HVDC Converter 1" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="1" voltageRegulatorOn="true" voltageSetpoint="300.0" reactivePowerSetpoint="-0.0">
+            <iidm:voltageSourceConverter id="left HVDC Converter 1" dcNode1="4 HVDC Link_T_DC_pos1" dcConnected1="true" dcNode2="6 HVDC Link_T_DC_neg1" dcConnected2="true" idleLoss="10.0" switchingLoss="0.0" resistiveLoss="0.0" controlMode="P_PCC" targetP="-600.0" node1="1">
                 <iidm:pccTerminal id="left HVDC Converter 1" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="300.0"/>
             </iidm:voltageSourceConverter>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -50,9 +53,10 @@
                 <iidm:internalConnection node1="0" node2="1"/>
                 <iidm:internalConnection node1="0" node2="2"/>
             </iidm:nodeBreakerTopology>
-            <iidm:voltageSourceConverter id="left HVDC Converter 2" dcNode1="5 HVDC Link_T_DC_pos2" dcConnected1="true" dcNode2="7 HVDC Link_T_DC_neg2" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="323.1999969482422" node1="1" voltageRegulatorOn="false" reactivePowerSetpoint="-100.0">
+            <iidm:voltageSourceConverter id="left HVDC Converter 2" dcNode1="5 HVDC Link_T_DC_pos2" dcConnected1="true" dcNode2="7 HVDC Link_T_DC_neg2" dcConnected2="true" idleLoss="10.200999807357789" switchingLoss="0.0" resistiveLoss="0.0" controlMode="V_DC" targetP="-0.0" targetVdc="323.1999969482422" node1="1">
                 <iidm:pccTerminal id="left HVDC Converter 2" number="ONE"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:voltageRegulation mode="REACTIVE_POWER" regulating="true" targetValue="-100.0"/>
             </iidm:voltageSourceConverter>
         </iidm:voltageLevel>
     </iidm:substation>

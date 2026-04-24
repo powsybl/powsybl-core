@@ -20,7 +20,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -425,11 +424,10 @@ public final class EquipmentExport {
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String cgmesOriginalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
-            RemoteReactivePowerControl rrpc = generator.getExtension(RemoteReactivePowerControl.class);
-            String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, rrpc);
+            String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator);
             Terminal regulatingTerminal;
             if (mode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
-                regulatingTerminal = rrpc.getRegulatingTerminal();
+                regulatingTerminal = generator.getRegulatingTerminal();
             } else if (context.isExportGeneratorsInLocalRegulationMode()) {
                 regulatingTerminal = generator.getTerminal();
             } else {
@@ -440,8 +438,9 @@ public final class EquipmentExport {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
                     String baseVoltageId = context.getBaseVoltageIdFromNominalV(generator.getTerminal().getVoltageLevel().getNominalV());
+                    boolean controlEnabled = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating();
                     EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                            generator.isVoltageRegulatorOn(), generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
+                        controlEnabled, generator.getMinP(), generator.getMaxP(), getNullableMinQ(generator), getNullableMaxQ(generator),
                             reactiveCapabilityCurveId, baseVoltageId,
                             cimNamespace, writer, context);
                     break;
@@ -702,7 +701,8 @@ public final class EquipmentExport {
             String regulatingControlId = writeRegulatingControlId(svc, getTerminalId(svc.getRegulatingTerminal(), context), regulatingControlsWritten, mode, cimNamespace, writer, context);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
-            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(), context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()), regulatingControlId, inductiveRating, capacitiveRating, svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, writer, context);
+            // TODO OPE: use a "default" regulation mode?
+            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(), context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()), regulatingControlId, inductiveRating, capacitiveRating, svc.getExtension(VoltagePerReactivePowerControl.class), svc.getVoltageRegulation().getMode(), svc.getRegulatingTargetV(), cimNamespace, writer, context);
         }
     }
 

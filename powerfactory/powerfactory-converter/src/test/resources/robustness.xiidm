@@ -22,8 +22,9 @@
                 <iidm:internalConnection node1="0" node2="8"/>
                 <iidm:internalConnection node1="0" node2="9"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_B_1" energySource="OTHER" minP="0.0" maxP="250.0" voltageRegulatorOn="true" targetP="25.0" targetV="224.399995803833" targetQ="10.0" node="2">
+            <iidm:generator id="sym_B_1" energySource="OTHER" minP="0.0" maxP="250.0" targetP="25.0" targetV="224.399995803833" targetQ="10.0" node="2">
                 <iidm:minMaxReactiveLimits minQ="-110.0" maxQ="120.00000762939453"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="224.399995803833"/>
             </iidm:generator>
             <iidm:load id="lod_30_1" loadType="UNDEFINED" p0="10.0" q0="5.0" node="3"/>
             <iidm:load id="lod_31_1" loadType="UNDEFINED" p0="10.0" q0="11.180339887498949" node="4"/>
