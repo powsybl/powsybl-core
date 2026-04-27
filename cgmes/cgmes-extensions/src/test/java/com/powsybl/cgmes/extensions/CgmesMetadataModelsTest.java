@@ -96,7 +96,7 @@ class CgmesMetadataModelsTest extends AbstractCgmesExtensionTest {
     @Test
     void testAnonymizedCgmesMetadataModels() {
         //Given
-        // Id, ModelingAuthoritySet, dependentOn, Supersedes
+        // Id, ModelingAuthoritySet, DependentOn, Supersedes
         Network network = NetworkTest1Factory.create();
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
