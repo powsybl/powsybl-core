@@ -94,7 +94,7 @@ public class JsonActionTest extends AbstractSerDeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json", "/ActionFileTestV1.2.json"})
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     void actionsReadOldVersion(String path) {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream(path));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {

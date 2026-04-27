@@ -405,7 +405,7 @@ class VariantManagerImplTest {
     }
 
     @Test
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     void testMultipleSetAllowMultiThreadTrue() throws Exception {
         NetworkImpl network = (NetworkImpl) Network.create("testMultipleSetAllowMultiThreadTrue", "no-format");
         VariantManager variantManager = new VariantManagerImpl(network);

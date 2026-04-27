@@ -90,6 +90,7 @@ public interface Importer {
         }
 
         @Override
+        @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
         public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
             Network network = importer.importData(dataSource, networkFactory, parameters, reportNode);
             for (String name : names) {

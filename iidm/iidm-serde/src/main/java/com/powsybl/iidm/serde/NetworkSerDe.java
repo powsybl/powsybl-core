@@ -1046,7 +1046,7 @@ public final class NetworkSerDe {
         return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);

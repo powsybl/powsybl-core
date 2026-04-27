@@ -70,6 +70,7 @@ class GroovyScriptPostProcessorTest extends AbstractTaskInterruptionTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     void testEurostagFactory() throws IOException {
         // Create configuration
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -107,6 +108,7 @@ class GroovyScriptPostProcessorTest extends AbstractTaskInterruptionTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     void testFourSubstationsFactory() throws IOException {
         // Create configuration
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -143,6 +145,7 @@ class GroovyScriptPostProcessorTest extends AbstractTaskInterruptionTest {
         assertTrue(network.getGenerator("GEN2").getTerminal().isConnected());
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private void test(PlatformConfig platformConfig) {
         GroovyScriptPostProcessor processor = new GroovyScriptPostProcessor(platformConfig);
         assertEquals("groovyScript", processor.getName());
@@ -157,6 +160,7 @@ class GroovyScriptPostProcessorTest extends AbstractTaskInterruptionTest {
     @ParameterizedTest
     @Timeout(10)
     @ValueSource(booleans = {false, true})
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // For testing
     void testTaskInterruption(boolean isDelayed) throws Exception {
         // Create configuration
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);

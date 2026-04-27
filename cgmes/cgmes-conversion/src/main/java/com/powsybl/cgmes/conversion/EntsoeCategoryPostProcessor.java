@@ -54,7 +54,7 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
         }
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     private static void processGenerator(Network network, PropertyBag sm, String generatingUnitId) {
         String description = sm.getId("generatingUnitDescription");
         // String contains only digits or spaces

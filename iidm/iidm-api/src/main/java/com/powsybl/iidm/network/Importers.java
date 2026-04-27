@@ -99,6 +99,7 @@ public final class Importers {
         return importData(format, new DirectoryDataSource(Paths.get(directory), baseName), parameters);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters,
                                  Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener,
                                  NetworkFactory networkFactory, ReportNode reportNode) {

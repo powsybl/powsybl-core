@@ -211,7 +211,7 @@ public class LocalComputationManager implements ComputationManager {
         executionParameters.executionSubmitter.execute(() -> singleExecution(executionParameters, idx));
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here
     private void singleExecution(ExecutionParameters executionParameters, int idx) {
         try {
             enter();

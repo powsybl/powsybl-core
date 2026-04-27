@@ -32,7 +32,7 @@ class DenseLUDecomposition implements LUDecomposition {
         transposedDecomposition = null;
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch") // It is expected to catch RuntimeException here to convert them into MatrixException
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solve(double[] b) {
         try {
@@ -46,7 +46,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch") // It is expected to catch RuntimeException here to convert them into MatrixException
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solveTransposed(double[] b) {
         try {
@@ -60,7 +60,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch") // It is expected to catch RuntimeException here to convert them into MatrixException
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solve(DenseMatrix b) {
         try {
@@ -74,7 +74,7 @@ class DenseLUDecomposition implements LUDecomposition {
         }
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch") // It is expected to catch RuntimeException here to convert them into MatrixException
+    @SuppressWarnings("checkstyle:IllegalCatchError") // It is expected to catch RuntimeException here to convert them into MatrixException
     @Override
     public void solveTransposed(DenseMatrix b) {
         try {
