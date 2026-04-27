@@ -393,3 +393,34 @@ twoWindingsTransformer.newRatioTapChanger()
         .endStep()
     .add()
 ```
+
+(voltage-regulation)=
+## Voltage Regulation
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/regulation/VoltageRegulation.html)
+
+A Voltage Regulation models the behavior of equipment that can regulate voltage either directly or through the control of reactive power, in order to regulate voltage.
+Unlike in CGMES, the VoltageRegulation object isn't shared: each IIDM object capable of voltage regulation have its own.
+
+Here the list of objects capable of such regulation by authorized mode:
+
+| Equipment                                                                  | Voltage | Reactive Power | Voltage Per Reactive Power | Reactive Power Per Active Power |
+|----------------------------------------------------------------------------|---------|----------------|----------------------------|---------------------------------|
+| [Battery](./network_subnetwork.md#battery)                                 | X       | X              |                            |                                 |
+| [Generator](./network_subnetwork.md#generator)                             | X       | X              |                            | X                               |
+| [RatioTapChanger](#ratio-tap-changer)                                      | X       | X              |                            |                                 |
+| [ShuntCompensator](./network_subnetwork.md#shunt-compensator)              | X       |                |                            |                                 |
+| [StaticVarCompensator](./network_subnetwork.md#static-var-compensator)     | X       | X              | X                          |                                 |
+| [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X              |                            |                                 |
+| [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter) | X       | X              |                            |                                 |
+
+**Characteristics**
+
+| Attribute        | Unit        | Description                                                                                                                                     | Restrictions                                                                                  |
+|------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal which can be remote or local                                                   |                                                                                               |
+| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls                                                                                         | `RatioTapChanger` and `ShuntCompensator`                                                      |
+| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power                                                                                   | When the regulation mode is `VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` |
+| $Terminal$       |             | The regulating Terminal which can be remote or local (Optional, if not set the local terminal of the connectable will be used)                  |                                                                                               |
+| $Mode$           |             | The kind of regulation from the following values : `VOLTAGE`, `REACTIVE_POWER`, `VOLTAGE_PER_REACTIVE_POWER`, `REACTIVE_POWER_PER_ACTIVE_POWER` |                                                                                               |
+| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                            |                                                                                               |
