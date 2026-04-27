@@ -70,6 +70,7 @@ class OptimizableRemedialAction {
   - Condition condition
   - ContingencyContext contingencyContext
   - Optional<Integer> applicationDelay
+  - Optional<ExtraTemporalContraints> extraTemporalContraints
 }
 OptimizableRemedialAction --* "1" Condition
 OptimizableRemedialAction --* "1" ContingencyContext
@@ -164,12 +165,12 @@ ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
 
 class ExtraTemporalContraints {
   - SimpleContraints simpleContraints
-  - BudgetsContraints budgetsContraints
+  - List<BudgetContraint> budgetContraints
   - VariableConstraints variableConstraints
 }
-ExtraTemporalContraints "0..1" --|> OptimizableRemedialAction
+ExtraTemporalContraints "0..1" *-- OptimizableRemedialAction
 ExtraTemporalContraints --* "1" SimpleContraints
-ExtraTemporalContraints --* "1" BudgetsContraints
+ExtraTemporalContraints --* "*" BudgetContraint
 ExtraTemporalContraints --* "1" VariableConstraints
 
 class SimpleContraints {
@@ -183,22 +184,14 @@ class SimpleContraints {
   - double constantUpGradient
   - double constantDownGradient
 }
-note left of SimpleContraints::levelTime
-  We must define a time unit: seconds by default ?
-end note
 
-class BudgetsContraints {
-  - List<BudgetContraint> budgetsContraints
-}
-BudgetsContraints --* "*" BudgetsContraint
-
-class BudgetsContraint {
+class BudgetContraint {
   - ZonedDateTime startTime
   - ZonedDateTime endTime
   - double value
   - BudgetType type
 }
-BudgetsContraint --* "1" BudgetType
+BudgetContraint --* "1" BudgetType
 
 enum BudgetType {
   MAX_BALANCING_NUMBER // Nombre d'activation max
@@ -208,69 +201,18 @@ enum BudgetType {
   MAX_RUN_TIME
   MAX_STARTUPS
 }
-note left of BudgetType::MAX_ENERGY
-  Requires to define how to interpolate between timesteps
-end note
-
-note left of BudgetType::MAX_RUN_TIME
-  Should it be a simple constraint ?
-end note
 
 class VariableConstraints {
   - List<ZonedDateTime> dates
-  - List<double> minChange
+  - List<range> variationRange // Pmin, Pmax, maxChange and minChange
   - List<int> mobilisationTime // Durée de mobilisation DMO
   - List<int> delayTime // Durée de prévenance DP
-  - List<int> lagTime
+  - List<int> lagTime // Durée de retour au programme
   - List<boolean> canStartUpShutDownBalancing
 }
-
-note right of VariableConstraints::lagTime
-  En quoi c'est différent de DP ?
-end note
 
 note right of VariableConstraints::canStartUpShutDownBalancing
   Example: start/end balancing on round hours
 end note
-
-
-
-
-
-
-interface TemporalRangeAction {
-    + Action toAction(ZonedDateTime caseDate, double setPoint)
-}
-note right: Clone of some range actions but with a case date
-
-note bottom of TemporalRangeAction
-Gradient up/down
-Max utilisations en nombre d'activation
-Max utilisations en temps
-Max temps de fonctionnement par jour
-Emax Max utilisations en énergie
-Emin
-Lead time (temps pour aller de zéro à la consigne)
-Lag time (temps pour aller de la consigne non nulle à zéro)
-Pallier
-Temps marche min
-Temps arrêt min
-Domin (min up time par ajustement)
-Domax (max up time par ajustement)
-Domin demarrage
-DNA (durée de non ajustement)
-Nombre de démarrage max sur une journée
-Can start up, Can shut down (peut être pas intertemporel)
-Seuil minimal d'ajustement (delta minimum)
-Ajustement début/fin sur heure ronde
-
-Limitation nombre max activation sur sous-groupe de parades
-
-
-Délai de mobilisation (DMO)
-Délai de préparation (DP)
-contraintes de réserve ?
-end note
-
 
 @enduml
