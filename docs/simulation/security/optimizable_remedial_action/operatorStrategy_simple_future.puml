@@ -162,13 +162,81 @@ class ExclusiveOptimizableRemedialActionGroup {
 }
 ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
 
-namespace niceToHave-wip {
-class TemporalRangeRemedialAction {
-  - Set<TemporalRangeAction> temporalRangeActions
-  + Set<Action> toActions(ZonedDateTime caseDate, double setPoint)
+class ExtraTemporalContraints {
+  - SimpleContraints simpleContraints
+  - BudgetsContraints budgetsContraints
+  - VariableConstraints variableConstraints
 }
-TemporalRangeRemedialAction --* "*" TemporalRangeAction
-TemporalRangeRemedialAction "?" --|> "?" OptimizableRemedialAction
+ExtraTemporalContraints "0..1" --|> OptimizableRemedialAction
+ExtraTemporalContraints --* "1" SimpleContraints
+ExtraTemporalContraints --* "1" BudgetsContraints
+ExtraTemporalContraints --* "1" VariableConstraints
+
+class SimpleContraints {
+  - int levelTime // Durée de palier
+  - int minStopTime // Durée arrêt min
+  - int minRunTime // Durée marche min
+  - int minBalancingTime // Durée min ajustement DOmin
+  - int minStartBalancingTime // Durée min ajustement démarrage
+  - int maxBalancingTime // Durée max ajustement
+  - int noBalancingTime // Durée de non ajustement DNA
+  - double constantUpGradient
+  - double constantDownGradient
+}
+note left of SimpleContraints::levelTime
+  We must define a time unit: seconds by default ?
+end note
+
+class BudgetsContraints {
+  - List<BudgetContraint> budgetsContraints
+}
+BudgetsContraints --* "*" BudgetsContraint
+
+class BudgetsContraint {
+  - ZonedDateTime startTime
+  - ZonedDateTime endTime
+  - double value
+  - BudgetType type
+}
+BudgetsContraint --* "1" BudgetType
+
+enum BudgetType {
+  MAX_BALANCING_NUMBER // Nombre d'activation max
+  MAX_BALANCING_TIME // Temps d'activation max
+  MAX_ENERGY
+  MIN_ENERGY
+  MAX_RUN_TIME
+  MAX_STARTUPS
+}
+note left of BudgetType::MAX_ENERGY
+  Requires to define how to interpolate between timesteps
+end note
+
+note left of BudgetType::MAX_RUN_TIME
+  Should it be a simple constraint ?
+end note
+
+class VariableConstraints {
+  - List<ZonedDateTime> dates
+  - List<double> minChange
+  - List<int> mobilisationTime // Durée de mobilisation DMO
+  - List<int> delayTime // Durée de prévenance DP
+  - List<int> lagTime
+  - List<boolean> canStartUpShutDownBalancing
+}
+
+note right of VariableConstraints::lagTime
+  En quoi c'est différent de DP ?
+end note
+
+note right of VariableConstraints::canStartUpShutDownBalancing
+  Example: start/end balancing on round hours
+end note
+
+
+
+
+
 
 interface TemporalRangeAction {
     + Action toAction(ZonedDateTime caseDate, double setPoint)
@@ -204,6 +272,5 @@ Délai de préparation (DP)
 contraintes de réserve ?
 end note
 
-}
 
 @enduml
