@@ -501,9 +501,9 @@ class LoadFlowResultsCompletionZ0FlowsTest {
             .setSectionCount(1)
             .setVoltageRegulatorOn(false)
             .newLinearModel()
-            .setBPerSection(25.0 / Math.pow(vbase, 2))
-            .setMaximumSectionCount(1)
-            .add()
+                .setBPerSection(25.0 / Math.pow(vbase, 2))
+                .setMaximumSectionCount(1)
+                .add()
             .add();
         vl.newShuntCompensator()
             .setId("SC3.4")
@@ -512,9 +512,9 @@ class LoadFlowResultsCompletionZ0FlowsTest {
             .setSectionCount(1)
             .setVoltageRegulatorOn(false)
             .newLinearModel()
-            .setBPerSection(5.00 / Math.pow(vbase, 2))
-            .setMaximumSectionCount(1)
-            .add()
+                .setBPerSection(5.00 / Math.pow(vbase, 2))
+                .setMaximumSectionCount(1)
+                .add()
             .add();
     }
 

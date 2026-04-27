@@ -70,7 +70,7 @@ class GroovyScriptPostProcessorTest extends AbstractTaskInterruptionTest {
     }
 
     @Test
-    @SuppressWarnings("checkstyle:IllegalCatchWarning")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // For testing
     void testEurostagFactory() throws IOException {
         // Create configuration
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -108,7 +108,7 @@ class GroovyScriptPostProcessorTest extends AbstractTaskInterruptionTest {
     }
 
     @Test
-    @SuppressWarnings("checkstyle:IllegalCatchWarning")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // For testing
     void testFourSubstationsFactory() throws IOException {
         // Create configuration
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -145,16 +145,11 @@ class GroovyScriptPostProcessorTest extends AbstractTaskInterruptionTest {
         assertTrue(network.getGenerator("GEN2").getTerminal().isConnected());
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatchWarning")
     private void test(PlatformConfig platformConfig) {
         GroovyScriptPostProcessor processor = new GroovyScriptPostProcessor(platformConfig);
         assertEquals("groovyScript", processor.getName());
 
-        try {
-            processor.process(null, null);
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(Exception.class, () -> processor.process(null, null));
     }
 
     @ParameterizedTest

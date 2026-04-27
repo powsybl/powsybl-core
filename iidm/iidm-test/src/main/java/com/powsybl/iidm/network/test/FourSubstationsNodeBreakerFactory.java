@@ -141,16 +141,16 @@ public final class FourSubstationsNodeBreakerFactory {
         lineS3S4.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
             .setPermanentLimit(931.0)
             .beginTemporaryLimit()
-            .setName("IST")
-            .setValue(1640.0)
-            .setFictitious(true)
-            .setAcceptableDuration(Integer.MAX_VALUE)
-            .endTemporaryLimit()
+                .setName("IST")
+                .setValue(1640.0)
+                .setFictitious(true)
+                .setAcceptableDuration(Integer.MAX_VALUE)
+                .endTemporaryLimit()
             .beginTemporaryLimit()
-            .setName("LD71")
-            .setValue(Double.MAX_VALUE)
-            .setAcceptableDuration(60)
-            .endTemporaryLimit()
+                .setName("LD71")
+                .setValue(Double.MAX_VALUE)
+                .setAcceptableDuration(60)
+                .endTemporaryLimit()
             .add();
     }
 
@@ -332,15 +332,15 @@ public final class FourSubstationsNodeBreakerFactory {
             .add();
         vsc1.newReactiveCapabilityCurve()
             .beginPoint()
-            .setP(-100.0)
-            .setMinQ(-550.0)
-            .setMaxQ(570.0)
-            .endPoint()
+                .setP(-100.0)
+                .setMinQ(-550.0)
+                .setMaxQ(570.0)
+                .endPoint()
             .beginPoint()
-            .setP(100.0)
-            .setMinQ(-550.0)
-            .setMaxQ(570.0)
-            .endPoint()
+                .setP(100.0)
+                .setMinQ(-550.0)
+                .setMaxQ(570.0)
+                .endPoint()
             .add();
         vsc1.getTerminal().setP(10.1100).setQ(-512.0814);
     }
@@ -370,15 +370,15 @@ public final class FourSubstationsNodeBreakerFactory {
             .add();
         generatorHydro1.newReactiveCapabilityCurve()
             .beginPoint()
-            .setP(0.0)
-            .setMinQ(-769.3)
-            .setMaxQ(860.0)
-            .endPoint()
+                .setP(0.0)
+                .setMinQ(-769.3)
+                .setMaxQ(860.0)
+                .endPoint()
             .beginPoint()
-            .setP(100.0)
-            .setMinQ(-864.55)
-            .setMaxQ(946.25)
-            .endPoint()
+                .setP(100.0)
+                .setMinQ(-864.55)
+                .setMaxQ(946.25)
+                .endPoint()
             .add();
         generatorHydro1.getTerminal().setP(-85.3570).setQ(-512.0814);
 
@@ -395,15 +395,15 @@ public final class FourSubstationsNodeBreakerFactory {
             .add();
         generatorHydro2.newReactiveCapabilityCurve()
             .beginPoint()
-            .setP(0.0)
-            .setMinQ(-556.8)
-            .setMaxQ(557.4)
-            .endPoint()
+                .setP(0.0)
+                .setMinQ(-556.8)
+                .setMaxQ(557.4)
+                .endPoint()
             .beginPoint()
-            .setP(200.0)
-            .setMinQ(-553.514)
-            .setMaxQ(536.4)
-            .endPoint()
+                .setP(200.0)
+                .setMinQ(-553.514)
+                .setMaxQ(536.4)
+                .endPoint()
             .add();
         generatorHydro2.getTerminal().setP(-90.0).setQ(-512.0814);
 
@@ -420,15 +420,15 @@ public final class FourSubstationsNodeBreakerFactory {
             .add();
         generatorHydro3.newReactiveCapabilityCurve()
             .beginPoint()
-            .setP(0.0)
-            .setMinQ(-680.6)
-            .setMaxQ(688.1)
-            .endPoint()
+                .setP(0.0)
+                .setMinQ(-680.6)
+                .setMaxQ(688.1)
+                .endPoint()
             .beginPoint()
-            .setP(200.0)
-            .setMinQ(-681.725)
-            .setMaxQ(716.3500004)
-            .endPoint()
+                .setP(200.0)
+                .setMinQ(-681.725)
+                .setMaxQ(716.3500004)
+                .endPoint()
             .add();
         generatorHydro3.getTerminal().setP(-155.7140).setQ(-512.0814);
 
@@ -558,15 +558,15 @@ public final class FourSubstationsNodeBreakerFactory {
             .add();
         generatorThermal1.newReactiveCapabilityCurve()
             .beginPoint()
-            .setP(0.0)
-            .setMinQ(-76.8)
-            .setMaxQ(77.4)
-            .endPoint()
+                .setP(0.0)
+                .setMinQ(-76.8)
+                .setMaxQ(77.4)
+                .endPoint()
             .beginPoint()
-            .setP(100.0)
-            .setMinQ(-73.514)
-            .setMaxQ(76.4)
-            .endPoint()
+                .setP(100.0)
+                .setMinQ(-73.514)
+                .setMaxQ(76.4)
+                .endPoint()
             .add();
         generatorThermal1.getTerminal().setP(-100.0).setQ(-70.0);
 
@@ -640,15 +640,15 @@ public final class FourSubstationsNodeBreakerFactory {
             .add();
         generatorThermal2.newReactiveCapabilityCurve()
             .beginPoint()
-            .setP(0.0)
-            .setMinQ(-169.3)
-            .setMaxQ(200.0)
-            .endPoint()
+                .setP(0.0)
+                .setMinQ(-169.3)
+                .setMaxQ(200.0)
+                .endPoint()
             .beginPoint()
-            .setP(400.0)
-            .setMinQ(-174.55)
-            .setMaxQ(176.25)
-            .endPoint()
+                .setP(400.0)
+                .setMinQ(-174.55)
+                .setMaxQ(176.25)
+                .endPoint()
             .add();
         generatorThermal2.getTerminal().setP(-250.9944).setQ(71.8487);
     }

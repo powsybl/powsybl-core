@@ -75,7 +75,7 @@ public final class CgmesModelFactory {
             if (dsBoundary != null) {
                 try {
                     return new CgmesOnDataSource(dsBoundary).cimNamespace();
-                } catch (CgmesModelException exception) {
+                } catch (CgmesModelException ignored) {
                     throw e;
                 }
             } else {

@@ -38,7 +38,7 @@ public final class NamespaceReader {
     public static Set<String> namespacesOrEmpty(InputStream is) {
         try {
             return namespaces1(is);
-        } catch (XMLStreamException e) {
+        } catch (XMLStreamException ignored) {
             return Set.of();
         }
     }

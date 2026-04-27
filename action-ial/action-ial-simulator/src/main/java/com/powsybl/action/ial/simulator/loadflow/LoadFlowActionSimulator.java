@@ -294,7 +294,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatchWarning")
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Every kind of exception is rethrown as a PowsyblException
     private boolean next(ActionDb actionDb, RunningContext context) {
         observers.forEach(o -> o.roundBegin(context));
 
