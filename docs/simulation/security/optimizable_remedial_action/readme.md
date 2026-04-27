@@ -12,6 +12,7 @@ We want to standardize this interface.
 
 - All names are not final, they are just placeholders and can be changed.
 - This is a work in progress, it has not been reviewed, validated or tested.
+- The units are the ones of PowSyBl (power in MW and times in seconds)
 
 # Design choices and examples
 
@@ -27,3 +28,9 @@ This means that we need a new object to represent the operator strategy not yet 
 TODO:
 - write this page
 - add examples
+
+
+Notes en pagaille:
+ - DMO/DP are equivalent to lead time.
+ - Energy constraints require to define how to interpolate between timesteps.
+  This will be done by the implementations.
