@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
 import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -157,7 +158,8 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void readJsonVersion10Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json")) {
             PowsyblException exception = assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
-            assertEquals("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0 \n", exception.getMessage());
+            assertEquals("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0 \n",
+                normalizeLineSeparator(exception.getMessage()));
         }
     }
 
@@ -165,7 +167,8 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void readJsonVersion11Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json")) {
             PowsyblException exception = assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
-            assertEquals("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0 \n", exception.getMessage());
+            assertEquals("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0 \n",
+                normalizeLineSeparator(exception.getMessage()));
         }
     }
 
@@ -173,7 +176,8 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void readJsonVersion12Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion12Exception.json")) {
             PowsyblException exception = assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
-            assertEquals("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1 \n", exception.getMessage());
+            assertEquals("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1 \n",
+                normalizeLineSeparator(exception.getMessage()));
         }
     }
 
