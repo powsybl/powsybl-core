@@ -11,15 +11,12 @@ import com.univocity.parsers.annotations.FixedWidth;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
- * <p>
- * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
- * </p>
- *
  * <pre>
  * Columns  1- 3   Loss zone number  (I)
  * Columns  5-16   Loss zone name (A)
  * </pre>
  *
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfLossZone {

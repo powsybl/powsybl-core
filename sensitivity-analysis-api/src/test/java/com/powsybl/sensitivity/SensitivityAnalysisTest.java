@@ -52,7 +52,8 @@ class SensitivityAnalysisTest {
                 "GEN",
                 false,
                 ContingencyContext.none());
-        factorReader = handler -> handler.onFactor(factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(), factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
+        factorReader = handler -> handler.onFactor(factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(),
+            factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
         contingencies = Collections.emptyList();
         List<OperatorStrategy> operatorStrategies = Collections.emptyList();
         resultWriter = new SensitivityResultModelWriter(contingencies, operatorStrategies);

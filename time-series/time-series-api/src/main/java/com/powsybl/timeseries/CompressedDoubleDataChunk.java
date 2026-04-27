@@ -54,7 +54,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
     }
 
     //To remove if we ever get it from somewhere else
-    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+    @FunctionalInterface private interface DoubleIntConsumer { void accept(double a, int b); }
 
     private void forEachMaterializedValueIndex(DoubleIntConsumer consumer) {
         int k = 0;

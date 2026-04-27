@@ -349,11 +349,29 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
         vl12.newLccConverterStation().setId("LCC-12").setBus("BUS-12").setPowerFactor(0.90f).setLossFactor(0.0f).add();
         vl21.newLccConverterStation().setId("LCC-21").setBus("BUS-21").setPowerFactor(0.90f).setLossFactor(0.0f).add();
-        network.newHvdcLine().setId("HVDCLINE-12-21").setConverterStationId1("LCC-12").setConverterStationId2("LCC-21").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+        network.newHvdcLine()
+            .setId("HVDCLINE-12-21")
+            .setConverterStationId1("LCC-12")
+            .setConverterStationId2("LCC-21")
+            .setNominalV(400.0)
+            .setActivePowerSetpoint(5.0)
+            .setMaxP(5.0)
+            .setR(0.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .add();
 
         vl12.newVscConverterStation().setId("VSC-12").setBus("BUS-12").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageSetpoint(410.0).setVoltageRegulatorOn(true).add();
         vl31.newVscConverterStation().setId("VSC-31").setBus("BUS-31").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageSetpoint(410.0).setVoltageRegulatorOn(true).add();
-        network.newHvdcLine().setId("HVDCLINE-12-31").setConverterStationId1("VSC-12").setConverterStationId2("VSC-31").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+        network.newHvdcLine()
+            .setId("HVDCLINE-12-31")
+            .setConverterStationId1("VSC-12")
+            .setConverterStationId2("VSC-31")
+            .setNominalV(400.0)
+            .setActivePowerSetpoint(5.0)
+            .setMaxP(5.0)
+            .setR(0.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .add();
 
         return network;
     }

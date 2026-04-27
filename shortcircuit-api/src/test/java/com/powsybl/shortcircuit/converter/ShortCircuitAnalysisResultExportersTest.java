@@ -9,11 +9,11 @@ package com.powsybl.shortcircuit.converter;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.contingency.violations.BusBreakerViolationLocation;
+import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.contingency.violations.BusBreakerViolationLocation;
-import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisResultDeserializer;
 import org.junit.jupiter.api.Test;

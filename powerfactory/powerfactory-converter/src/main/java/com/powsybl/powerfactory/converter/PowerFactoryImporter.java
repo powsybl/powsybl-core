@@ -22,7 +22,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
@@ -40,6 +39,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.powsybl.powerfactory.converter.DataAttributeNames.ELMNET;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.ELMTERM;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

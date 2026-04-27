@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
-import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
@@ -23,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.powsybl.powerfactory.converter.DataAttributeNames.ELMNET;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.ELMTERM;
 
 /**
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}

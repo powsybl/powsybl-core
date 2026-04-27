@@ -7,12 +7,6 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.apache.commons.lang3.mutable.MutableInt;
-
 import com.google.common.primitives.Ints;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
@@ -22,6 +16,11 @@ import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.lang3.mutable.MutableInt;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

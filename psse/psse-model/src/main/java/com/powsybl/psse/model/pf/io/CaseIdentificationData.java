@@ -94,7 +94,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     }
 
     private static class CaseIdentificationJson extends RecordGroupIOJson<PsseCaseIdentification> {
-        public CaseIdentificationJson(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
+        CaseIdentificationJson(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
             super(recordGroup);
         }
 

@@ -24,13 +24,13 @@ public class WindingRatesHeaderTransformer extends HeaderTransformer {
 
     @Override
     public String transformName(Field field, String name) {
-        if (name.equals("ratea")) {
+        if ("ratea".equals(name)) {
             return "rata" + windingNumber;
         }
-        if (name.equals("rateb")) {
+        if ("rateb".equals(name)) {
             return "ratb" + windingNumber;
         }
-        if (name.equals("ratec")) {
+        if ("ratec".equals(name)) {
             return "ratc" + windingNumber;
         }
         // Add the prefix "wdg<windingNumber>"

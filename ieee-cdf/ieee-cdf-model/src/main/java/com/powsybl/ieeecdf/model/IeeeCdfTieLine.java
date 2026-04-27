@@ -11,10 +11,6 @@ import com.univocity.parsers.annotations.FixedWidth;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
- * <p>
- * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
- * </p>
- *
  * <pre>
  * Columns  1- 4   Metered bus number (I)
  * Columns  7-8    Metered area number (I)
@@ -22,6 +18,8 @@ import com.univocity.parsers.annotations.Parsed;
  * Columns  17-18  Non-metered area number (I)
  * Column   21     Circuit number
  * </pre>
+ *
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
