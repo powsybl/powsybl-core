@@ -30,7 +30,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
 
-    private class ParsingContext {
+    private static final class ParsingContext {
         Boolean withVoltageResult = null;
         Boolean withVoltageMap = null;
         Boolean withFortescueResult = null;

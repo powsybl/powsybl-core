@@ -34,7 +34,7 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
         super(SensitivityAnalysisParameters.class);
     }
 
-    private class ParsingContext {
+    private static final class ParsingContext {
         String version = null;
         Double flowFlowSensitivityValueThreshold = null;
         Double voltageVoltageSensitivityValueThreshold = null;
@@ -110,7 +110,7 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
         if (context.flowFlowSensitivityValueThreshold != null) {
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "flow-flow-sensitivity-value-threshold",
                     version, "1.1");
-            parameters.setFlowVoltageSensitivityValueThreshold(context.flowFlowSensitivityValueThreshold);
+            parameters.setFlowFlowSensitivityValueThreshold(context.flowFlowSensitivityValueThreshold);
         }
         if (context.voltageVoltageSensitivityValueThreshold != null) {
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "voltage-voltage-sensitivity-value-threshold",

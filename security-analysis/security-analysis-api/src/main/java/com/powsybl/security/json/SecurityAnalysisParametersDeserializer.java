@@ -33,7 +33,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
         super(SecurityAnalysisParameters.class);
     }
 
-    private class ParsingContext {
+    private static final class ParsingContext {
         String version;
         SecurityAnalysisParameters.IncreasedViolationsParameters increasedViolationsParameters = null;
         Boolean intermediateResultsInOperatorStrategy = null;

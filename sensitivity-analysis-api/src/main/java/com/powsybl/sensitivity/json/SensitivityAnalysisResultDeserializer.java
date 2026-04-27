@@ -100,6 +100,8 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         }
         if (operatorStrategyIds != null) {
             JsonUtil.assertGreaterOrEqualThanReferenceVersion(SensitivityAnalysisResult.CONTEXT_NAME, "Tag: operatorStrategyIds", version, "1.1");
+        } else {
+            operatorStrategyIds = Collections.emptyList();
         }
 
         if (version == null || !version.equals("1.0") && !version.equals("1.1")) {

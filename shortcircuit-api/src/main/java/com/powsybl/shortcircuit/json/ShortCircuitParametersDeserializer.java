@@ -31,7 +31,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
     private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
     private static final String TAG = "Tag: ";
 
-    private class ParsingContext {
+    private static final class ParsingContext {
         String version = null;
         Boolean withVoltageResult = null;
         Boolean withVoltageMap = null;
@@ -150,7 +150,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
             parameters.setWithVoltageResult(context.withVoltageResult);
         }
         if (context.withFortescueResult != null) {
-            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + "withFortescueResult", version, "1.2");
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + "withFortescueResult", version, "1.1");
             parameters.setWithFortescueResult(context.withFortescueResult);
         }
         if (context.subTransientCoefficient != null) {

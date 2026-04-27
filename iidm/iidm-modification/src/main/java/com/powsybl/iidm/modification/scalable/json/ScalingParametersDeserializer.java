@@ -29,7 +29,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
 
     private static final String CONTEXT_NAME = "ScalingParameters";
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         ScalingParameters.Priority iterative = null;
         ScalingParameters.Priority priority = null;
         Set<String> ignoredInjectionIds = null;
