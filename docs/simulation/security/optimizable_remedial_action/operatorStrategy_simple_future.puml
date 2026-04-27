@@ -189,14 +189,19 @@ Temps marche min
 Temps arrêt min
 Domin (min up time par ajustement)
 Domax (max up time par ajustement)
-Domin demarrage ()
-DNA
+Domin demarrage
+DNA (durée de non ajustement)
 Nombre de démarrage max sur une journée
 Can start up, Can shut down (peut être pas intertemporel)
 Seuil minimal d'ajustement (delta minimum)
 Ajustement début/fin sur heure ronde
 
 Limitation nombre max activation sur sous-groupe de parades
+
+
+Délai de mobilisation (DMO)
+Délai de préparation (DP)
+contraintes de réserve ?
 end note
 
 }
