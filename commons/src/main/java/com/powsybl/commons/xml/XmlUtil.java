@@ -56,6 +56,10 @@ public final class XmlUtil {
     private static final Supplier<DocumentBuilderFactory> DOCUMENT_BUILDER_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createDocumentBuilderFactoryInstance);
     private static final Supplier<CSVFormat> CSV_FORMAT_SUPPLIER = Suppliers.memoize(XmlUtil::createCsvFormatInstance);
 
+    private static final String XML_DISALLOW_DOCTYPE = "http://apache.org/xml/features/disallow-doctype-decl";
+    private static final String SAX_EXTERNAL_GENERAL_ENTITIES = "http://xml.org/sax/features/external-general-entities";
+    private static final String SAX_EXTERNAL_PARAMETER_ENTITIES = "http://xml.org/sax/features/external-parameter-entities";
+
     private XmlUtil() {
     }
 
@@ -307,23 +311,23 @@ public final class XmlUtil {
 
     private static void setFeatures(DocumentBuilderFactory factory) {
         setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
-        setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
-        setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+        setFeature(factory, XML_DISALLOW_DOCTYPE, true);
+        setFeature(factory, SAX_EXTERNAL_GENERAL_ENTITIES, false);
+        setFeature(factory, SAX_EXTERNAL_PARAMETER_ENTITIES, false);
     }
 
     private static void setFeatures(SAXParserFactory factory) {
         setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
-        setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
-        setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+        setFeature(factory, XML_DISALLOW_DOCTYPE, true);
+        setFeature(factory, SAX_EXTERNAL_GENERAL_ENTITIES, false);
+        setFeature(factory, SAX_EXTERNAL_PARAMETER_ENTITIES, false);
     }
 
     private static void setFeatures(XMLReader factory) {
         setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
-        setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
-        setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+        setFeature(factory, XML_DISALLOW_DOCTYPE, true);
+        setFeature(factory, SAX_EXTERNAL_GENERAL_ENTITIES, false);
+        setFeature(factory, SAX_EXTERNAL_PARAMETER_ENTITIES, false);
     }
 
     private static void setFeature(DocumentBuilderFactory factory, String feature, boolean value) {
