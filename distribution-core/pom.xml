@@ -430,6 +430,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-hybrid-security-analysis-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-sensitivity-analysis-api</artifactId>
             <version>${project.version}</version>
         </dependency>
