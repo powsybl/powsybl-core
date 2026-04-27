@@ -16,11 +16,14 @@ import org.apache.commons.csv.CSVFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -206,7 +209,16 @@ public final class XmlUtil {
     }
 
     public static XMLReader createXMLReader() throws ParserConfigurationException, SAXException {
-        return SAXParserFactory.newNSInstance().newSAXParser().getXMLReader();
+        SAXParserFactory factory = SAXParserFactory.newNSInstance();
+        factory.setNamespaceAware(true);
+        setFeatures(factory);
+        factory.setXIncludeAware(false);
+        SAXParser parser = factory.newSAXParser();
+        parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        XMLReader xmlReader = parser.getXMLReader();
+        setFeatures(xmlReader);
+        return xmlReader;
     }
 
     private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter) throws XMLStreamException {
@@ -287,21 +299,59 @@ public final class XmlUtil {
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         factory.setNamespaceAware(true);
+        setFeatures(factory);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+        return factory;
+    }
+
+    private static void setFeatures(DocumentBuilderFactory factory) {
         setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
         setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
         setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
         setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
-        factory.setXIncludeAware(false);
-        factory.setExpandEntityReferences(false);
-        return factory;
+    }
+
+    private static void setFeatures(SAXParserFactory factory) {
+        setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
+        setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+    }
+
+    private static void setFeatures(XMLReader factory) {
+        setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        setFeature(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeature(factory, "http://xml.org/sax/features/external-general-entities", false);
+        setFeature(factory, "http://xml.org/sax/features/external-parameter-entities", false);
     }
 
     private static void setFeature(DocumentBuilderFactory factory, String feature, boolean value) {
         try {
             factory.setFeature(feature, value);
         } catch (ParserConfigurationException e) {
-            LOGGER.warn("Unable to set feature {} to {}", feature, value);
+            logUnsupportedFeature(feature, value);
         }
+    }
+
+    private static void setFeature(SAXParserFactory factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (ParserConfigurationException | SAXNotSupportedException | SAXNotRecognizedException e) {
+            logUnsupportedFeature(feature, value);
+        }
+    }
+
+    private static void setFeature(XMLReader factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (SAXNotSupportedException | SAXNotRecognizedException e) {
+            logUnsupportedFeature(feature, value);
+        }
+    }
+
+    private static void logUnsupportedFeature(String feature, boolean value) {
+        LOGGER.warn("Unable to set feature {} to {}", feature, value);
     }
 
     public static DocumentBuilderFactory getDocumentBuilderFactory() {
