@@ -1,11 +1,10 @@
-digraph G {
-	node [shape=box];
-	compound=true;
-	n1 [label="LINE\lNHV1_NHV2_1",shape="ellipse",style="filled",fillcolor="#7AF385"];
-	n2 [label="LINE\lNHV1_NHV2_2",shape="ellipse",style="filled",fillcolor="#7AF385"];
-	n3 [label="TWO_WINDINGS_TRANSFORMER\lNGEN_NHV1",shape="ellipse",style="filled",fillcolor="#7AF385"];
-	n0 [label="BUS\lNHV1",shape="ellipse",style="filled",fillcolor="#7AF385"];
-	n0 -> n1 [style="solid"];
-	n0 -> n2 [style="solid"];
-	n0 -> n3 [style="solid"];
+strict digraph G {
+  compound=true;
+  0 [ label="BUS\lNHV1" shape="ellipse" style="filled" fillcolor="#7AF385" ];
+  1 [ label="LINE\lNHV1_NHV2_1" shape="ellipse" style="filled" fillcolor="#7AF385" ];
+  2 [ label="LINE\lNHV1_NHV2_2" shape="ellipse" style="filled" fillcolor="#7AF385" ];
+  3 [ label="TWO_WINDINGS_TRANSFORMER\lNGEN_NHV1" shape="ellipse" style="filled" fillcolor="#7AF385" ];
+  0 -> 1 [ style="solid" ];
+  0 -> 2 [ style="solid" ];
+  0 -> 3 [ style="solid" ];
 }
