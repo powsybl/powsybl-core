@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
+import com.powsybl.powerfactory.converter.AbstractConverter.ConnectedObjRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -131,6 +132,9 @@ public class PowerFactoryImporter implements Importer {
         // elmTerm object id to busbarSection id mapping
         final Map<Long, NodeRef> elmTermIdToNode = new HashMap<>();
 
+        // staCubic to connectedObj
+        final Map<DataObject, ConnectedObjRef> staCubicToConnectedObj = new HashMap<>();
+
         List<DataObject> cubiclesObjectNotFound = new ArrayList<>();
 
         ImportContext(ContainersMapping containerMapping) {
@@ -202,6 +206,9 @@ public class PowerFactoryImporter implements Importer {
 
         // Attach slack buses
         attachSlackBus(network, slackObjects);
+
+        // add Controls
+        addControls(studyCase, importContext, network);
 
         LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
@@ -363,6 +370,16 @@ public class PowerFactoryImporter implements Importer {
         studyCase.getElmNets().stream()
             .flatMap(elmNet -> elmNet.search(".*").stream())
             .forEach(obj -> processEquipment(importContext, hvdcConverter, network, slackObjects, obj));
+    }
+
+    private static void addControls(StudyCase studyCase, ImportContext importContext, Network network) {
+        studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmTr2").stream())
+                .forEach(obj -> new TransformerConverter(importContext, network).addTwoWindingsTransformerControl(obj));
+
+        studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmTr3").stream())
+                .forEach(obj -> new TransformerConverter(importContext, network).addThreeWindingsTransformerControl(obj));
     }
 
     private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {

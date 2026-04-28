@@ -292,6 +292,36 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(importAndCompareXiidm("robustness"));
     }
 
+    @Test
+    void twoWindingsTransformerVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerVoltageControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerReactivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerReactivePowerControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerActivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerActivePowerControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerVoltageControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerReactivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerReactivePowerControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerActivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerActivePowerControl"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;

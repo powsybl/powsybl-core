@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClo
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 
 import org.apache.commons.math3.complex.Complex;
@@ -189,7 +190,7 @@ class TransformerConverter extends AbstractConverter {
     private static boolean tapChangerAtEnd1(DataObject typTr2, boolean highAtEnd1) {
         int tapSide = typTr2.getIntAttributeValue("tap_side");
         // tap_side = 0 then tap_side = High voltage winding, tap_side = 1 then tap_side = Low voltage
-        // tap_side is not an bus index
+        // tap_side is not a bus index
         return tapSide == 0 && highAtEnd1 || tapSide == 1 && !highAtEnd1;
     }
 
@@ -823,6 +824,276 @@ class TransformerConverter extends AbstractConverter {
             case 2 -> WindingType.LOW;
             default -> throw new PowerFactoryException("Unexpected position: " + position);
         };
+    }
+
+    void addTwoWindingsTransformerControl(DataObject elmTr2) {
+        TwoWindingsTransformer t2w = getNetwork().getTwoWindingsTransformer(elmTr2.getLocName());
+        if (t2w == null) {
+            return;
+        }
+        String controlMode = elmTr2.findStringAttributeValue("imldc").orElse("");
+        switch (controlMode) {
+            case "V" -> t2w.getOptionalRatioTapChanger().ifPresent(rtc -> addVoltageControl(t2w, rtc, elmTr2));
+            case "P" -> t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> addActivePowerControl(t2w, ptc, elmTr2));
+            case "Q" -> t2w.getOptionalRatioTapChanger().ifPresent(rtc -> addReactivePowerControl(t2w, rtc, elmTr2));
+        }
+    }
+
+    void addThreeWindingsTransformerControl(DataObject elmTr3) {
+        ThreeWindingsTransformer t3w = getNetwork().getThreeWindingsTransformer(elmTr3.getLocName());
+        if (t3w == null) {
+            return;
+        }
+        Leg leg = getLegControl(t3w, elmTr3);
+        if (leg == null) {
+            return;
+        }
+        String controlMode = elmTr3.findStringAttributeValue("imldc").orElse("");
+        switch (controlMode) {
+            case "V" -> leg.getOptionalRatioTapChanger().ifPresent(rtc -> addVoltageControl(t3w, rtc, elmTr3));
+            case "P" -> leg.getOptionalPhaseTapChanger().ifPresent(ptc -> addActivePowerControl(t3w, ptc, elmTr3));
+            case "Q" -> leg.getOptionalRatioTapChanger().ifPresent(rtc -> addReactivePowerControl(t3w, rtc, elmTr3));
+        }
+    }
+
+    private static Leg getLegControl(ThreeWindingsTransformer t3w, DataObject elmTr3) {
+        int controlSide = elmTr3.findIntAttributeValue("ictrlside").orElse(-1);
+        return switch (controlSide) {
+            case 0 -> t3w.getLeg1();
+            case 1 -> t3w.getLeg2();
+            case 2 -> t3w.getLeg3();
+            default -> {
+                LOGGER.warn("Unexpected ictrlside {} for transformer '{}'", controlSide, elmTr3.getLocName());
+                yield null;
+            }
+        };
+    }
+
+    private void addVoltageControl(TwoWindingsTransformer t2w, RatioTapChanger rtc, DataObject elmTr2) {
+        Terminal regulatingTerminal = getVoltageRegulatingTerminal(t2w, elmTr2);
+        if (regulatingTerminal == null) {
+            return;
+        }
+        double targetV = getTargetV(elmTr2, regulatingTerminal.getVoltageLevel().getNominalV());
+        double targetDeadband = getVoltageTargetDeadBand(elmTr2, regulatingTerminal.getVoltageLevel().getNominalV());
+        boolean regulating = getRegulating(elmTr2);
+
+        addVoltageControl(rtc, regulatingTerminal, targetV, targetDeadband, regulating);
+    }
+
+    private void addVoltageControl(ThreeWindingsTransformer t3w, RatioTapChanger rtc, DataObject elmTr3) {
+        Terminal regulatingTerminal = getVoltageRegulatingTerminal(t3w, elmTr3);
+        if (regulatingTerminal == null) {
+            return;
+        }
+        double targetV = getTargetV(elmTr3, regulatingTerminal.getVoltageLevel().getNominalV());
+        double targetDeadband = getVoltageTargetDeadBand(elmTr3, regulatingTerminal.getVoltageLevel().getNominalV());
+        boolean regulating = getRegulating(elmTr3);
+
+        addVoltageControl(rtc, regulatingTerminal, targetV, targetDeadband, regulating);
+    }
+
+    private static void addVoltageControl(RatioTapChanger rtc, Terminal regulatingTerminal, double targetV, double targetDeadband, boolean regulating) {
+        boolean isRegulationOn = regulating && targetV > 0.0 && targetDeadband >= 0.0;
+        rtc.setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setTargetV(targetV)
+                .setRegulationTerminal(regulatingTerminal)
+                .setTargetDeadband(targetDeadband)
+                .setLoadTapChangingCapabilities(regulating)
+                .setRegulating(isRegulationOn);
+    }
+
+    private void addReactivePowerControl(TwoWindingsTransformer t2w, RatioTapChanger rtc, DataObject elmTr2) {
+        Terminal regulatingTerminal = getFlowRegulatingTerminal(t2w, elmTr2);
+        if (regulatingTerminal == null) {
+            return;
+        }
+        double targetQ = getTargetQ(elmTr2);
+        double targetDeadband = getReactivePowerTargetDeadBand(elmTr2);
+        boolean regulating = getRegulating(elmTr2);
+
+        addReactivePowerControl(rtc, regulatingTerminal, targetQ, targetDeadband, regulating);
+    }
+
+    private void addReactivePowerControl(ThreeWindingsTransformer t3w, RatioTapChanger rtc, DataObject elmTr3) {
+        Terminal regulatingTerminal = getFlowRegulatingTerminal(t3w, elmTr3);
+        if (regulatingTerminal == null) {
+            return;
+        }
+        double targetQ = getTargetQ(elmTr3);
+        double targetDeadband = getReactivePowerTargetDeadBand(elmTr3);
+        boolean regulating = getRegulating(elmTr3);
+
+        addReactivePowerControl(rtc, regulatingTerminal, targetQ, targetDeadband, regulating);
+    }
+
+    private static void addReactivePowerControl(RatioTapChanger rtc, Terminal regulatingTerminal, double targetQ, double targetDeadband, boolean regulating) {
+        boolean isRegulationOn = regulating && Double.isFinite(targetQ) && targetDeadband >= 0.0;
+        rtc.setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
+                .setRegulationValue(targetQ)
+                .setRegulationTerminal(regulatingTerminal)
+                .setTargetDeadband(targetDeadband)
+                .setLoadTapChangingCapabilities(regulating)
+                .setRegulating(isRegulationOn);
+    }
+
+    private void addActivePowerControl(TwoWindingsTransformer t2w, PhaseTapChanger ptc, DataObject elmTr2) {
+        Terminal regulatingTerminal = getFlowRegulatingTerminal(t2w, elmTr2);
+        if (regulatingTerminal == null) {
+            return;
+        }
+        double targetP = getTargetP(elmTr2);
+        double targetDeadband = getActivePowerTargetDeadBand(elmTr2);
+        boolean regulating = getRegulating(elmTr2);
+
+        addActivePowerControl(ptc, regulatingTerminal, targetP, targetDeadband, regulating);
+    }
+
+    private void addActivePowerControl(ThreeWindingsTransformer t3w, PhaseTapChanger ptc, DataObject elmTr3) {
+        Terminal regulatingTerminal = getFlowRegulatingTerminal(t3w, elmTr3);
+        if (regulatingTerminal == null) {
+            return;
+        }
+        double targetP = getTargetP(elmTr3);
+        double targetDeadband = getActivePowerTargetDeadBand(elmTr3);
+        boolean regulating = getRegulating(elmTr3);
+
+        addActivePowerControl(ptc, regulatingTerminal, targetP, targetDeadband, regulating);
+    }
+
+    private static void addActivePowerControl(PhaseTapChanger ptc, Terminal regulatingTerminal, double targetP, double targetDeadband, boolean regulating) {
+        boolean isRegulationOn = regulating && Double.isFinite(targetP) && targetDeadband >= 0.0;
+        ptc.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(targetP)
+                .setRegulationTerminal(regulatingTerminal)
+                .setTargetDeadband(targetDeadband)
+                .setLoadTapChangingCapabilities(regulating)
+                .setRegulating(isRegulationOn);
+    }
+
+    private Terminal getVoltageRegulatingTerminal(TwoWindingsTransformer t2w, DataObject elmTr2) {
+        if (elmTr2.findIntAttributeValue("i_rem").orElse(0) == 1) {
+            return getRemoteVoltageRegulatingTerminal(t2w.getNetwork(), elmTr2);
+        } else {
+            return getLocalRegulatingTerminal(t2w, elmTr2);
+        }
+    }
+
+    private Terminal getVoltageRegulatingTerminal(ThreeWindingsTransformer t3w, DataObject elmTr3) {
+        if (elmTr3.findIntAttributeValue("i_rem").orElse(0) == 1) {
+            return getRemoteVoltageRegulatingTerminal(t3w.getNetwork(), elmTr3);
+        } else {
+            return getLocalRegulatingTerminal(t3w, elmTr3);
+        }
+    }
+
+    private Terminal getRemoteVoltageRegulatingTerminal(Network network, DataObject elmTr2) {
+        return elmTr2.findObjectAttributeValue("p_rem")
+                .map(DataObjectRef::resolve)
+                .flatMap(opt -> opt)
+                .flatMap(this::findNodeFromElmTerm)
+                .map(nodeRef -> findTerminalNode(network, nodeRef.voltageLevelId, nodeRef.node))
+                .orElse(null);
+    }
+
+    private static Terminal getLocalRegulatingTerminal(TwoWindingsTransformer t2w, DataObject elmTr2) {
+        Terminal terminal1 = t2w.getTerminal1();
+        Terminal terminal2 = t2w.getTerminal2();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+
+        // 0 = HT, 1 = BT, 2 = EXT
+        int controlNode = elmTr2.findIntAttributeValue("t2ldc").orElse(-1);
+        return switch (controlNode) {
+            case 0 -> highVoltageAtEnd1(vl1, vl2) ? terminal1 : terminal2;
+            case 1 -> highVoltageAtEnd1(vl1, vl2) ? terminal2 : terminal1;
+            case 2 -> {
+                LOGGER.warn("Unsupported t2ldc value {} (EXT control) for transformer '{}'", controlNode, elmTr2.getLocName());
+                yield null;
+            }
+            default -> {
+                LOGGER.warn("Unexpected controlNode (t2ldc value) {} for transformer '{}'", controlNode, elmTr2.getLocName());
+                yield null;
+            }
+        };
+    }
+
+    private static Terminal getLocalRegulatingTerminal(ThreeWindingsTransformer t3w, DataObject elmTr3) {
+        // 0 = HT, 1 = MT, 2 = BT, 3 = EXT
+        int controlNode = elmTr3.findIntAttributeValue("t3ldc").orElse(-1);
+        return switch (controlNode) {
+            case 0 -> t3w.getLeg1().getTerminal();
+            case 1 -> t3w.getLeg2().getTerminal();
+            case 2 -> t3w.getLeg3().getTerminal();
+            case 3 -> {
+                LOGGER.warn("Unsupported t2ldc value {} (EXT control) for transformer '{}'", controlNode, elmTr3.getLocName());
+                yield null;
+            }
+            default -> {
+                LOGGER.warn("Unexpected controlNode (t2ldc value) {} for transformer '{}'", controlNode, elmTr3.getLocName());
+                yield null;
+            }
+        };
+    }
+
+    private Terminal getFlowRegulatingTerminal(TwoWindingsTransformer t2w, DataObject elmTr2) {
+        if (elmTr2.findIntAttributeValue("i_rem").orElse(0) == 1) {
+            return getRemoteFlowRegulatingTerminal(t2w.getNetwork(), elmTr2);
+        } else {
+            return getLocalRegulatingTerminal(t2w, elmTr2);
+        }
+    }
+
+    private Terminal getFlowRegulatingTerminal(ThreeWindingsTransformer t3w, DataObject elmTr3) {
+        if (elmTr3.findIntAttributeValue("i_rem").orElse(0) == 1) {
+            return getRemoteFlowRegulatingTerminal(t3w.getNetwork(), elmTr3);
+        } else {
+            return getLocalRegulatingTerminal(t3w, elmTr3);
+        }
+    }
+
+    private Terminal getRemoteFlowRegulatingTerminal(Network network, DataObject elmTr) {
+        return elmTr.findObjectAttributeValue("p_cub")
+                .flatMap(DataObjectRef::resolve)
+                .map(pCub -> findConnectableTerminal(network, pCub))
+                .orElse(null);
+    }
+
+    private static double getTargetV(DataObject elmTr2, double vNominal) {
+        return elmTr2.findFloatAttributeValue("usetp").orElse(Float.NaN) * vNominal;
+    }
+
+    private static double getTargetQ(DataObject elmTr2) {
+        return elmTr2.findFloatAttributeValue("qsetp").orElse(Float.NaN);
+    }
+
+    private static double getTargetP(DataObject elmTr2) {
+        return elmTr2.findFloatAttributeValue("psetp").orElse(Float.NaN);
+    }
+
+    private static double getVoltageTargetDeadBand(DataObject elmTr2, double vNom) {
+        double uMin = elmTr2.findFloatAttributeValue("usp_low").orElse(Float.NaN);
+        double uMax = elmTr2.findFloatAttributeValue("usp_up").orElse(Float.NaN);
+
+        return Double.isFinite(uMin) && Double.isFinite(uMax) && uMax - uMin > 0.0 ? (uMax - uMin) * vNom : 0.0;
+    }
+
+    private static double getReactivePowerTargetDeadBand(DataObject elmTr2) {
+        double qMin = elmTr2.findFloatAttributeValue("qsp_low").orElse(Float.NaN);
+        double qMax = elmTr2.findFloatAttributeValue("qsp_up").orElse(Float.NaN);
+
+        return Double.isFinite(qMin) && Double.isFinite(qMax) && qMax - qMin > 0.0 ? (qMax - qMin) : 0.0;
+    }
+
+    private static double getActivePowerTargetDeadBand(DataObject elmTr2) {
+        double pMin = elmTr2.findFloatAttributeValue("psp_low").orElse(Float.NaN);
+        double pMax = elmTr2.findFloatAttributeValue("psp_up").orElse(Float.NaN);
+
+        return Double.isFinite(pMin) && Double.isFinite(pMax) && pMax - pMin > 0.0 ? (pMax - pMin) : 0.0;
+    }
+
+    private static boolean getRegulating(DataObject elmTr2) {
+        return elmTr2.findIntAttributeValue("ntrcn").orElse(0) == 1;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformerConverter.class);
