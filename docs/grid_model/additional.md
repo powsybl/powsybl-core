@@ -416,11 +416,41 @@ Here the list of objects capable of such regulation by authorized mode:
 
 **Characteristics**
 
-| Attribute        | Unit        | Description                                                                                                                                     | Restrictions                                                                                  |
-|------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal which can be remote or local                                                   |                                                                                               |
-| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls                                                                                         | `RatioTapChanger` and `ShuntCompensator`                                                      |
-| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power                                                                                   | When the regulation mode is `VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` |
-| $Terminal$       |             | The regulating Terminal which can be remote or local (Optional, if not set the local terminal of the connectable will be used)                  |                                                                                               |
-| $Mode$           |             | The kind of regulation from the following values : `VOLTAGE`, `REACTIVE_POWER`, `VOLTAGE_PER_REACTIVE_POWER`, `REACTIVE_POWER_PER_ACTIVE_POWER` |                                                                                               |
-| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                            |                                                                                               |
+| Attribute        | Unit        | Description                                                                                                                                     |
+|------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal which can be remote or local                                                   |
+| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                              |
+| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode)          |
+| $Terminal$       |             | The regulating Terminal which can be remote or local                  |
+| $Mode$           |             | The kind of regulation  |
+| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                            |
+
+**Specifications**
+
+The values `TargetValue`, `Regulating` and `Mode` are required.
+
+`Terminal` is optional. If not set, the local terminal of the connectable should be used
+
+Regulation `Mode` has the following values : 
+- `VOLTAGE`
+- `REACTIVE_POWER`
+- `VOLTAGE_PER_REACTIVE_POWER`
+- `REACTIVE_POWER_PER_ACTIVE_POWER`
+
+The optional `Slope` attribute is relevant for:
+- VOLTAGE_PER_REACTIVE_POWER: it corresponds to the $\lambda$ in $U_0 = U + \lambda \times Q$
+- REACTIVE_POWER_PER_ACTIVE_POWER: it corresponds to the $tan(\phi)$ in $Q = tan(\phi) \times P$
+
+The optional `TargetDeadband` is only pertinent for objects with discrete (as opposed to continuous) voltage regulation, which is the case for [RatioTapChanger](#ratio-tap-changer)  and [ShuntCompensator](./network_subnetwork.md#shunt-compensator)
+
+**Example**
+
+This example shows how to add a voltage regulation to a generator:
+```java
+generator.newVoltageRegulation()
+    .withTargetValue(120)
+    .withMode(RegulationMode.REACTIVE_POWER)
+    .withRegulating(true)
+    .withTerminal(regulatingTerminal)
+    .build();
+```

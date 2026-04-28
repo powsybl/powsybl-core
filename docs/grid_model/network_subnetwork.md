@@ -160,30 +160,32 @@ A generator is a piece of equipment that injects or consumes active power, and i
 
 **Characteristics**
 
-| Attribute           | Unit | Description                                         |
-|---------------------|------|-----------------------------------------------------|
-| $MinP$              | MW   | Minimum generator active power output               |
-| $MaxP$              | MW   | Maximum generator active power output               |
-| $ReactiveLimits$    | MVar | Operational limits of the generator (P/Q/V diagram) |
-| $RatedS$            | MVA  | The rated nominal power                             |
-| $TargetP$           | MW   | The active power target                             |
-| $TargetQ$           | MVAr | The reactive power target at local terminal         |
-| $TargetV$           | kV   | The voltage target at local terminal                |
-| $EnergySource$      |      | The energy source harnessed to turn the generator   |
-| $IsCondenser$       |      | True if the generator may behave as a condenser     |
-| $VoltageRegulation$ |      | See [Voltage Regulation](#voltage-regulation)       |
+| Attribute           | Unit | Description                                                  |
+|---------------------|------|--------------------------------------------------------------|
+| $MinP$              | MW   | Minimum generator active power output                        |
+| $MaxP$              | MW   | Maximum generator active power output                        |
+| $ReactiveLimits$    | MVar | Operational limits of the generator (P/Q/V diagram)          |
+| $RatedS$            | MVA  | The rated nominal power                                      |
+| $TargetP$           | MW   | The active power target                                      |
+| $TargetQ$           | MVAr | The reactive power target at local terminal                  |
+| $TargetV$           | kV   | The voltage target at local terminal                         |
+| $EnergySource$      |      | The energy source harnessed to turn the generator            |
+| $IsCondenser$       |      | True if the generator may behave as a condenser              |
+| $VoltageRegulation$ |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
 **Specifications**
 
 The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power output cannot be greater than the maximum active power output. `TargetP` must be inside these active power limits. `RatedS` specifies the nameplate apparent power rating for the unit, it is optional and should be a positive value if it is defined. The [reactive limits](./additional.md#reactive-limits) of the generator are optional, if they are not given the generator is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as a [reactive capability curve](./additional.md#reactive-capability-curve).
 
-The `VoltageRegulatorOn` attribute is required. If voltage regulation is enabled, then `TargetV` and `RegulatingTerminal` must also be defined. If the voltage regulation is disabled, then `TargetQ` is required. `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
+[Voltage Regulation](./additional.md#voltage-regulation) is optional, if it is not given the generator is considered as not able to regulate voltage.
+
+`EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 
 Target values for generators (`TargetP` and `TargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The diagram above shows the sign convention of these quantities with an example.
 
 The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 
-The optional `EquivalentLocalTargetV` value can be used by simulators that deactivate the remote voltage algorithms, or by dynamic simulators that use this voltage as a starting value.
+The optional `TargetV` and `TargetQ` values can be used by simulators that deactivate the remote voltage algorithms, or by dynamic simulators that use these values as a starting value.
 
 **Available extensions**
 
@@ -195,7 +197,7 @@ The optional `EquivalentLocalTargetV` value can be used by simulators that deact
 - [Generator Startup](extensions.md#generator-startup)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
-- [Remote Reactive Power Control](extensions.md#remote-reactive-power-control) (deprecated since V7.3.0, use [Voltage Regulation](#voltage-regulation))
+- [Remote Reactive Power Control](extensions.md#remote-reactive-power-control) (deprecated since V7.3.0, use [Voltage Regulation](./additional.md#voltage-regulation))
 - [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
 (load)=
@@ -262,13 +264,14 @@ battery side and vice versa. The power flow is bidirectional, and it is controll
 
 **Characteristics**
 
-| Attribute        | Unit | Description                                       |
-|------------------|------|---------------------------------------------------|
-| $TargetP$        | MW   | The active power target                           |
-| $TargetQ$        | MVar | The reactive power target                         |
-| $MinP$           | MW   | The Minimal active power (charging limit)         |
-| $MaxP$           | MW   | The Maximum active power (discharging limit)      |
-| $ReactiveLimits$ | MVar | Operational limits of the battery (P/Q/V diagram) |
+| Attribute            | Unit | Description                                                  |
+|----------------------|------|--------------------------------------------------------------|
+| $TargetP$            | MW   | The active power target                                      |
+| $TargetQ$            | MVar | The reactive power target                                    |
+| $MinP$               | MW   | The Minimal active power (charging limit)                    |
+| $MaxP$               | MW   | The Maximum active power (discharging limit)                 |
+| $ReactiveLimits$     | MVar | Operational limits of the battery (P/Q/V diagram)            |
+| $VoltageRegulation$  |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
 The values `TargetP`, `TargetQ`, `MinP`, `MaxP`, are required.
 
@@ -392,9 +395,7 @@ Shunt compensators follow a passive-sign convention:
 | $B$                   | S    | The susceptance of the shunt compensator in its current state                  |
 | $G$                   | S    | The conductance of the shunt compensator in its current state                  |
 | $TargetV$             | kV   | The voltage target                                                             |
-| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls                        |
-| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated                    |
-| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage                                |
+| $VoltageRegulation$   |      | See [Voltage Regulation](./additional.md#voltage-regulation)                   |
 
 - For Linear Shunt Compensators
 
@@ -453,12 +454,13 @@ Static VAR compensators follow a passive-sign convention:
 
 **Characteristics**
 
-| Attribute               | Unit | Description                 |
-|-------------------------|------|-----------------------------|
-| $Bmin$                  | S    | The minimum susceptance     |
-| $Bmax$                  | S    | The maximum susceptance     |
-| $VoltageSetpoint$       | kV   | The voltage setpoint        |
-| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint |
+| Attribute               | Unit | Description                                                  |
+|-------------------------|------|--------------------------------------------------------------|
+| $Bmin$                  | S    | The minimum susceptance                                      |
+| $Bmax$                  | S    | The maximum susceptance                                      |
+| $VoltageSetpoint$       | kV   | The voltage setpoint                                         |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint                                  |
+| $VoltageRegulation$     |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
 **Specifications**
 
@@ -490,7 +492,7 @@ In IIDM the static VAR compensator also comprises some metadata:
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
-- [VoltagePerReactivePowerControl](extensions.md#voltage-per-reactive-power-control)
+- [VoltagePerReactivePowerControl](extensions.md#voltage-per-reactive-power-control) (deprecated since V7.3.0, use Slope attribute from [Voltage Regulation](./additional.md#voltage-regulation))
 
 (line)=
 ## Line
@@ -833,10 +835,11 @@ A VSC converter station is made with switching devices that can be turned both o
 
 **Characteristics**
 
-| Attribute               | Unit | Description                                |
-|-------------------------|------|--------------------------------------------|
-| $VoltageSetpoint$       | kV   | The voltage setpoint for regulation        |
-| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation |
+| Attribute               | Unit | Description                                                  |
+|-------------------------|------|--------------------------------------------------------------|
+| $VoltageSetpoint$       | kV   | The voltage setpoint for regulation                          |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation                   |
+| $VoltageRegulation$     |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
 **Specifications**
 
@@ -1026,11 +1029,11 @@ hence a PowerFactor of 0.89443.
 
 **Characteristics**
 
-| Attribute               | Unit | Description                                |
-|-------------------------|------|--------------------------------------------|
-| $VoltageRegulatorOn$    |      | True if the converter regulates voltage    |
-| $VoltageSetpoint$       | kV   | The voltage setpoint for regulation        |
-| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation |
+| Attribute               | Unit | Description                                                  |
+|-------------------------|------|--------------------------------------------------------------|
+| $VoltageSetpoint$       | kV   | The voltage setpoint for regulation                          |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation                   |
+| $VoltageRegulation$     |      | See [Voltage Regulation](./additional.md#voltage-regulation) |
 
 **Specifications**
 
