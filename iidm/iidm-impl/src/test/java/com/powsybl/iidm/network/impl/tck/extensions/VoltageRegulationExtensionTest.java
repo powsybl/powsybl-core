@@ -35,7 +35,6 @@ class VoltageRegulationExtensionTest {
         assertNotNull(bat);
 
         VoltageRegulation voltageRegulation = bat.newVoltageRegulation()
-//            .withTerminal(bat.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(50.0)
             .build();

@@ -64,21 +64,36 @@ public class GeneratorModification extends AbstractNetworkModification {
             changeConnectionState(g, modifs.getConnected());
             skipOtherConnectionChange = true;
         }
-        if (modifs.getVoltageRegulationMode() != null) {
-            double targetValue = switch (modifs.getVoltageRegulationMode()) {
-                case VOLTAGE -> computeVoltageTarget(modifs, g);
-                case REACTIVE_POWER -> computeReactiveTarget(modifs, g);
-                default -> throw new IllegalStateException(
-                    "Unexpected value: " + modifs.getVoltageRegulationMode() + " not yet implemented"
-                );
-            };
-            g.newVoltageRegulation()
-                .withTargetValue(targetValue)
-                .withMode(modifs.getVoltageRegulationMode())
-                .build();
-        }
+        addVoltageRegulation(g);
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
             applyTargetP(g, skipOtherConnectionChange);
+        }
+    }
+
+    private void addVoltageRegulation(Generator g) {
+        if (g.getVoltageRegulation() == null
+            && modifs.getVoltageRegulationTargetValue() != null
+            && modifs.getVoltageRegulationMode() != null) {
+            g.newVoltageRegulation()
+                .withTargetValue(modifs.getVoltageRegulationTargetValue())
+                .withMode(modifs.getVoltageRegulationMode())
+                .withRegulating(modifs.regulating)
+                .build();
+        } else if (g.getVoltageRegulation() != null) {
+            if (modifs.getVoltageRegulationMode() != null) {
+                double targetValue = switch (modifs.getVoltageRegulationMode()) {
+                    case VOLTAGE -> computeVoltageTarget(modifs, g);
+                    case REACTIVE_POWER -> computeReactiveTarget(modifs, g);
+                    default -> throw new IllegalStateException(
+                        "Unexpected value: " + modifs.getVoltageRegulationMode() + " not yet implemented"
+                    );
+                };
+                g.getVoltageRegulation().setMode(modifs.getVoltageRegulationMode());
+                g.getVoltageRegulation().setTargetValue(targetValue);
+            }
+            if (modifs.getVoltageRegulationTargetValue() != null) {
+                g.getVoltageRegulation().setTargetValue(modifs.getVoltageRegulationTargetValue());
+            }
         }
     }
 
@@ -316,10 +331,25 @@ public class GeneratorModification extends AbstractNetworkModification {
     }
 
     private boolean voltageRegulationHasNoImpactOnNetwork(Generator g) {
-        return modifs.getVoltageRegulationMode() == null
-            || (modifs.getVoltageRegulationMode() != RegulationMode.VOLTAGE
-            || g.getVoltageRegulation() != null && !Double.isNaN(g.getVoltageRegulation().getTargetValue())
-            || areValuesEqual(getPlausibleTargetV(g), g.getTargetV(), false))
-            && modifs.getVoltageRegulationMode() == g.getVoltageRegulation().getMode();
+        boolean hasImpact = false;
+        if (g.getVoltageRegulation() == null) {
+            // a generator without VoltageRegulation need a full VoltageRegulation to impact the network
+            hasImpact |= modifs.getVoltageRegulationMode() != null
+                && modifs.getVoltageRegulationTargetValue() != null
+                && modifs.getRegulating() != null && modifs.getRegulating();
+        } else {
+            if (g.getVoltageRegulation().isRegulating() || modifs.getRegulating() != null) {
+                // New regulating value different from actual value
+                hasImpact |= modifs.getRegulating() != null
+                    && !modifs.getRegulating().equals(g.getVoltageRegulation().isRegulating());
+                // New RegulationMode value different from actual value
+                hasImpact |= modifs.getVoltageRegulationMode() != null
+                    && !g.isRegulatingWithMode(modifs.getVoltageRegulationMode());
+                // New TargetValue value different from actual value
+                hasImpact |= modifs.getVoltageRegulationTargetValue() != null
+                    && g.getVoltageRegulation().getTargetValue() != modifs.getVoltageRegulationTargetValue();
+            }
+        }
+        return !hasImpact;
     }
 }

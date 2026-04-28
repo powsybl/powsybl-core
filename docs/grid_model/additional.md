@@ -438,8 +438,8 @@ Regulation `Mode` has the following values :
 - `REACTIVE_POWER_PER_ACTIVE_POWER`
 
 The optional `Slope` attribute is relevant for:
-- VOLTAGE_PER_REACTIVE_POWER: it corresponds to the $\lambda$ in $U_0 = U + \lambda \times Q$
-- REACTIVE_POWER_PER_ACTIVE_POWER: it corresponds to the $tan(\phi)$ in $Q = tan(\phi) \times P$
+- `VOLTAGE_PER_REACTIVE_POWER`: it corresponds to the $\lambda$ in $U_0 = U + \lambda \times Q$
+- `REACTIVE_POWER_PER_ACTIVE_POWER`: it corresponds to the $tan(\phi)$ in $Q = tan(\phi) \times P$
 
 The optional `TargetDeadband` is only pertinent for objects with discrete (as opposed to continuous) voltage regulation, which is the case for [RatioTapChanger](#ratio-tap-changer)  and [ShuntCompensator](./network_subnetwork.md#shunt-compensator)
 
