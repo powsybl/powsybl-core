@@ -21,7 +21,10 @@ import java.util.function.Supplier;
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
-public class ExtensionsValidation {
+public final class ExtensionsValidation {
+
+    private ExtensionsValidation() {
+    }
 
     private static final Supplier<List<ExtensionValidation>> EXTENSIONS = Suppliers.memoize(() -> Lists.newArrayList(
             ServiceLoader.load(ExtensionValidation.class, ExtensionsValidation.class.getClassLoader())));
