@@ -8,10 +8,12 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.HorizontalAlignment;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
@@ -489,13 +491,102 @@ public final class Networks {
     private static Stream<ReducibleTransformerData> getReducibleTransformerDataStream(Stream<VoltageLevel> voltageLevelStream) {
         return voltageLevelStream
            .filter(v -> StreamSupport.stream(v.getConnectables().spliterator(), false).allMatch(c -> isReducibleElement(c.getType())))
-           .filter(v -> StreamSupport.stream(v.getSwitches().spliterator(), false).noneMatch(Switch::isOpen))
-           .flatMap(v -> v.getTwoWindingsTransformerStream()
-               .map(t -> new ReducibleTransformerData(
-                   t,
-                   getTransformerVoltageLevelSide(t, v))
-               )
-           );
+           .filter(v -> StreamSupport.stream(v.getSwitches().spliterator(), false).noneMatch(s -> s.getKind() == SwitchKind.BREAKER && s.isOpen()))
+           .flatMap(v -> {
+               RefObj<Boolean> isValid = new RefObj<>(true);
+               Stream<ReducibleTransformerData> dataStream = traverseVlTopology(isValid, v);
+               return Boolean.TRUE.equals(isValid.get()) ? dataStream : null;
+           })
+            .filter(Objects::nonNull);
+    }
+
+    private static Stream<ReducibleTransformerData> traverseVlTopology(RefObj<Boolean> isValid, VoltageLevel vl) {
+        return vl.getTwoWindingsTransformerStream()
+            .map(t -> {
+                //check before starting traversal if another part of that voltage level is already not reducible (in which case the entire vl is not reducible)
+                if (Boolean.FALSE.equals(isValid.get())) {
+                    return null;
+                }
+                TwoSides vlSide = getTransformerVoltageLevelSide(t, vl);
+                List<Generator> toBeDeletedGenerators = switch (vl.getTopologyKind()) {
+                    case BUS_BREAKER -> getGeneratorsFromBusBreakerTopology(vl, t.getTerminal(vlSide), t.getId(), isValid);
+                    case NODE_BREAKER -> getGeneratorsFromNodeBreakerTopology(vl, t.getTerminal(vlSide), t.getId(), isValid);
+                    default -> throw new PowsyblException("Unknown topology kind: " + vl.getTopologyKind());
+                };
+                if (Boolean.TRUE.equals(isValid.get()) && !toBeDeletedGenerators.isEmpty()) {
+                    return new ReducibleTransformerData(t, vlSide, toBeDeletedGenerators);
+                } else {
+                    //set false for the case where the topology is valid (a single 2WT for the connected buses) but there are no generators
+                    isValid.set(false);
+                    return null;
+                }
+            });
+    }
+
+    private static List<Generator> getGeneratorsFromBusBreakerTopology(VoltageLevel vl, Terminal startingTerminal, String startingTransformerId, RefObj<Boolean> isValid) {
+        List<Generator> toBeDeletedGenerators = new ArrayList<>();
+        Bus startingBus = startingTerminal.getBusBreakerView().getBus();
+        handleBus(startingBus, toBeDeletedGenerators, startingTransformerId, isValid);
+        vl.getBusBreakerView().traverse(startingBus, (bus1, sw, bus2) -> handleBus(bus2, toBeDeletedGenerators, startingTransformerId, isValid));
+        return toBeDeletedGenerators;
+    }
+
+    private static List<Generator> getGeneratorsFromNodeBreakerTopology(VoltageLevel vl, Terminal startingTerminal, String startingTransformerId, RefObj<Boolean> isValid) {
+        List<Generator> toBeDeletedGenerators = new ArrayList<>();
+        int startingNode = startingTerminal.getNodeBreakerView().getNode();
+        handleNode(vl, null, startingNode, toBeDeletedGenerators, startingTransformerId, isValid);
+        vl.getNodeBreakerView().traverse(startingNode, (node1, sw, node2) -> handleNode(vl, sw, node2, toBeDeletedGenerators, startingTransformerId, isValid));
+        return toBeDeletedGenerators;
+    }
+
+    private static TraverseResult handleBus(Bus bus, List<Generator> toBeDeletedGenerators, String startingTransformerId, RefObj<Boolean> isValid) {
+        if (bus == null) {
+            return TraverseResult.TERMINATE_TRAVERSER;
+        }
+        TraverseResult result = TraverseResult.CONTINUE;
+        for (Terminal terminal : bus.getConnectedTerminals()) {
+            Connectable<?> connectable = terminal.getConnectable();
+            result = switch (connectable.getType()) {
+                case IdentifiableType.GENERATOR -> handleGenerator(connectable, toBeDeletedGenerators);
+                case IdentifiableType.TWO_WINDINGS_TRANSFORMER -> handleTwoWindingTransformer(connectable, startingTransformerId, isValid);
+                default -> TraverseResult.CONTINUE;
+            };
+            if (result == TraverseResult.TERMINATE_TRAVERSER) {
+                return result;
+            }
+        }
+        return result;
+    }
+
+    private static TraverseResult handleNode(VoltageLevel vl, Switch sw, int node, List<Generator> toBeDeletedGenerators, String startingTransformerId, RefObj<Boolean> isValid) {
+        if (node < 0) {
+            return TraverseResult.TERMINATE_TRAVERSER;
+        }
+        if (sw != null && sw.isOpen()) {
+            return TraverseResult.TERMINATE_PATH;
+        }
+        TraverseResult result = TraverseResult.CONTINUE;
+        Connectable<?> connectable = vl.getNodeBreakerView().getTerminal(node).getConnectable();
+        String id = connectable.getId();
+        return switch (connectable.getType()) {
+            case IdentifiableType.GENERATOR -> handleGenerator(connectable, toBeDeletedGenerators);
+            case IdentifiableType.TWO_WINDINGS_TRANSFORMER -> handleTwoWindingTransformer(connectable, startingTransformerId, isValid);
+            default -> TraverseResult.CONTINUE;
+        };
+    }
+
+    private static TraverseResult handleGenerator(Connectable<?> connectable, List<Generator> toBeDeletedGenerators) {
+        toBeDeletedGenerators.add((Generator) connectable);
+        return TraverseResult.CONTINUE;
+    }
+
+    private static TraverseResult handleTwoWindingTransformer(Connectable<?> connectable, String startingTransformerId, RefObj<Boolean> isValid) {
+        if (!connectable.getId().equals(startingTransformerId)) {
+            isValid.set(false);
+            return TraverseResult.TERMINATE_TRAVERSER;
+        } else {
+            return TraverseResult.CONTINUE;
+        }
     }
 
     /**
@@ -504,14 +595,13 @@ public final class Networks {
      * @param transformer
      * @param reducibleSide
      */
-    public record ReducibleTransformerData(TwoWindingsTransformer transformer, TwoSides reducibleSide) { }
+    public record ReducibleTransformerData(TwoWindingsTransformer transformer, TwoSides reducibleSide, List<Generator> toBeReplacedGenerators) { }
 
     private static boolean isReducibleElement(IdentifiableType type) {
         return type == IdentifiableType.TWO_WINDINGS_TRANSFORMER
             || type == IdentifiableType.GENERATOR
             || type == IdentifiableType.LOAD
-            || type == IdentifiableType.BUSBAR_SECTION
-            || type == IdentifiableType.BATTERY;
+            || type == IdentifiableType.BUSBAR_SECTION;
     }
 
     private static TwoSides getTransformerVoltageLevelSide(TwoWindingsTransformer transformer, VoltageLevel voltageLevel) {
