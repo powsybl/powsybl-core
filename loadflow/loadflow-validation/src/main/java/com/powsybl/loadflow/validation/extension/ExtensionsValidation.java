@@ -38,7 +38,7 @@ public class ExtensionsValidation {
         return getExtensions().stream().filter(v -> v.getName().equals(name)).findFirst();
     }
 
-    public void runExtensionValidations(Network network, ValidationConfig config, ToolRunningContext context) {
+    public static void runExtensionValidations(Network network, ValidationConfig config, ToolRunningContext context) {
         getExtensions().forEach(extensionValidation -> {
             boolean success = extensionValidation.check(network, config);
             context.getOutputStream().println("Validate load-flow results of network " + network.getId()

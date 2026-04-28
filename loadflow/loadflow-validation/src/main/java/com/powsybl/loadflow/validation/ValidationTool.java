@@ -192,8 +192,7 @@ public class ValidationTool implements Tool {
                 runValidation(compareNetwork, config, validationTypes, validationWriters, context);
             }
             if (line.hasOption(WITH_EXTENSIONS_OPTION)) {
-                ExtensionsValidation extensionsValidation = new ExtensionsValidation();
-                extensionsValidation.runExtensionValidations(network, config, context);
+                ExtensionsValidation.runExtensionValidations(network, config, context);
             }
         }
     }

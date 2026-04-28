@@ -30,7 +30,6 @@ import static org.mockito.Mockito.*;
  */
 class ExtensionsValidationTest {
 
-    ExtensionsValidation extensionsValidation = new ExtensionsValidation();
     private final Network network = EurostagTutorialExample1Factory.create();
 
     @Test
@@ -64,10 +63,10 @@ class ExtensionsValidationTest {
         when(extension2.getName()).thenReturn("ExtensionName2");
         when(extension2.check(any(), any())).thenReturn(false);
 
-        try (MockedStatic<ExtensionsValidation> mocked = mockStatic(ExtensionsValidation.class)) {
+        try (MockedStatic<ExtensionsValidation> mocked = mockStatic(ExtensionsValidation.class, CALLS_REAL_METHODS)) {
             mocked.when(ExtensionsValidation::getExtensions).thenReturn(List.of(extension1, extension2));
             // When
-            extensionsValidation.runExtensionValidations(network, config, context);
+            ExtensionsValidation.runExtensionValidations(network, config, context);
             // Then
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
             verify(context.getOutputStream(), times(2)).println(captor.capture());
