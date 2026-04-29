@@ -362,6 +362,9 @@ The corresponding targets are:
 ### Line
 
 PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `ACLineSegment`.
+The attribute `ConductingEquipment.BaseVoltage` is written from the `nominalV` of the voltage level on both sides of the line:
+- if the nominal voltage is the same on both sides of the `Line`, then the `BaseVoltage` is set to this nominal voltage,
+- otherwise, it is set to the highest nominal voltage.
 
 <span style="color: red">TODO details</span>
 
@@ -462,6 +465,9 @@ at the regulated terminal with the regulation value.
 ### TwoWindingsTransformer
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
+
+If the IIDM `TwoWindingsTransformer` does not have a `ratedS`, then a default value of `100` is exported for `PowerTransformerEnd.ratedS` as this field is mandatory.
+The `ratedS` will be the same on both ends of the `PowerTransformer`.
 
 If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
 `SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.

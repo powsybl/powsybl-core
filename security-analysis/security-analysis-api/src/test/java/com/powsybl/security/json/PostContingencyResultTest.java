@@ -36,7 +36,13 @@ class PostContingencyResultTest extends AbstractSerDeTest {
     @Test
     void testGetters() {
         Contingency contingency = new Contingency("contingency");
-        LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
+        LimitViolation violation = LimitViolation.builder()
+            .subject("violation")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(420)
+            .reduction(0.1)
+            .value(500)
+            .build();
         LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
         threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
@@ -61,7 +67,13 @@ class PostContingencyResultTest extends AbstractSerDeTest {
     @Test
     void roundTrip() throws IOException {
         Contingency contingency = new Contingency("contingency");
-        LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
+        LimitViolation violation = LimitViolation.builder()
+            .subject("violation")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(420)
+            .reduction(0.1f)
+            .value(500)
+            .build();
         LimitViolation violation2 = new LimitViolation("subject_id", LimitViolationType.HIGH_VOLTAGE, 420,
             (float) 0.1, 500, new BusBreakerViolationLocation(List.of("bus_id")));
         LimitViolation violation3 = new LimitViolation("subject_id", LimitViolationType.LOW_VOLTAGE, 200,

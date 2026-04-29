@@ -935,7 +935,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
 
     @ParameterizedTest
     @MethodSource("provideReductionValueSelectionArguments")
-    void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction, LimitType type, double value, Collection<ExpectedOverload> expected) {
+    public void operationalLimitsGroupLimitReductionValueSelection(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReduction, LimitType type, double value, Collection<ExpectedOverload> expected) {
         Collection<Overload> overloads = switch (identifiable) {
             case Branch<?> b -> LimitViolationUtils.checkAllTemporaryLimits(b, side.toTwoSides(), limitReductionValue, groupsToApplyLimitReduction, value, type);
             case ThreeWindingsTransformer t -> LimitViolationUtils.checkAllTemporaryLimits(t, side, limitReductionValue, groupsToApplyLimitReduction, value, type);
