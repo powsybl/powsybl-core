@@ -22,6 +22,9 @@ The optimizer will choose the optimal set point of the actions.
 
 This means that we need a new object to represent the operator strategy not yet optimized "OptimizableOperatorStrategy".
 
+### Examples
+
+#### Optimizable PST Range Action
 
 
 
@@ -34,3 +37,9 @@ Notes en pagaille:
  - DMO/DP are equivalent to lead time.
  - Energy constraints require to define how to interpolate between timesteps.
   This will be done by the implementations.
+
+
+Turn `RangeRemedialAction` into an interface? 3 useful use-cases:
+1. `SimpleRangeRemedialAction` : only one `RangeAction` involved
+2. `MultipleRangeRemedialAction` : several correlated `RangeAction`s involved, each having a distribution key
+3. `GlskRangeRemedialAction` : `RangeAction`s are associated with a GLSK (linear or not) -> might require a network
