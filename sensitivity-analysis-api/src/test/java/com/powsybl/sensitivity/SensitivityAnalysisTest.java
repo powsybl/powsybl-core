@@ -17,6 +17,7 @@ import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,7 +25,7 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -186,18 +187,60 @@ class SensitivityAnalysisTest {
             .setVariableSets(sensitivityVariableSets)
             .setComputationManager(computationManager)
             .setReportNode(reportRoot)
-            .setContingencies(List.of(new Contingency("contingency1")))
+            .setContingencies(List.of(new Contingency("contingency1"), new Contingency("contingency2"),
+                    new Contingency("contingency3"), new Contingency("contingency4"),
+                    new Contingency("contingency5")))
             .setParameters(sensitivityParameters.setVoltageVoltageSensitivityValueThreshold(0.1d));
 
         SensitivityAnalysisResult result = SensitivityAnalysis.find().run(network, "VariantId", List.of(factor), runParameters);
         assertEquals(5, reportRoot.getChildren().size());
         assertEquals("Test sensitivity factor functionId = " + factor.getFunctionId(), reportRoot.getChildren().get(0).getMessage());
-        assertEquals("Test sensititity analysis variant = VariantId", reportRoot.getChildren().get(1).getMessage());
-        assertEquals("Test contingencies size = 1", reportRoot.getChildren().get(2).getMessage());
+        assertEquals("Test sensitivity analysis variant = VariantId", reportRoot.getChildren().get(1).getMessage());
+        assertEquals("Test contingencies size = 5", reportRoot.getChildren().get(2).getMessage());
         assertEquals("Test sensitivity parameters voltageVoltageSensitivityValueThreshold = 0.1", reportRoot.getChildren().get(3).getMessage());
         assertEquals("Test variable sets size = 1", reportRoot.getChildren().get(4).getMessage());
         assertEquals(1, Mockito.mockingDetails(computationManager).getInvocations().size());
         assertEquals(1, result.getValues().size());
+
+        int contingencyIndex = 0;
+        for (var stateStatus : result.getStateStatuses()) {
+            // Skip the pre-contingency entry (no contingency ID).
+            if (stateStatus.getState().contingencyId() == null) {
+                continue;
+            }
+            var componentLoadFlowStatus = stateStatus.getComponentsLoadFlowStatusList().iterator().next();
+            int resultCase = contingencyIndex % 5;
+            switch (resultCase) {
+                case 0:
+                    assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, componentLoadFlowStatus.status().status());
+                    assertEquals(0, componentLoadFlowStatus.numCC());
+                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    break;
+                case 1:
+                    assertEquals(LoadFlowResult.ComponentResult.Status.NO_CALCULATION, componentLoadFlowStatus.status().status());
+                    assertEquals(0, componentLoadFlowStatus.numCC());
+                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    break;
+                case 2:
+                    assertEquals(LoadFlowResult.ComponentResult.Status.CONVERGED, componentLoadFlowStatus.status().status());
+                    assertEquals(0, componentLoadFlowStatus.numCC());
+                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    break;
+                case 3:
+                    assertEquals(LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, componentLoadFlowStatus.status().status());
+                    assertEquals(0, componentLoadFlowStatus.numCC());
+                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    break;
+                case 4:
+                    assertEquals(LoadFlowResult.ComponentResult.Status.FAILED, componentLoadFlowStatus.status().status());
+                    assertEquals(0, componentLoadFlowStatus.numCC());
+                    assertEquals(0, componentLoadFlowStatus.numSC());
+                    break;
+                default:
+                    fail();
+            }
+            contingencyIndex++;
+        }
     }
 
     @Test
@@ -216,7 +259,7 @@ class SensitivityAnalysisTest {
 
         SensitivityAnalysisResult result = SensitivityAnalysis.find().run(n, List.of(factor), runParameters);
         assertEquals(5, reportRoot.getChildren().size());
-        assertEquals("Test sensititity analysis variant = Another variant", reportRoot.getChildren().get(1).getMessage());
+        assertEquals("Test sensitivity analysis variant = Another variant", reportRoot.getChildren().get(1).getMessage());
         assertEquals(1, Mockito.mockingDetails(computationManager).getInvocations().size());
         assertEquals(1, result.getValues().size());
     }

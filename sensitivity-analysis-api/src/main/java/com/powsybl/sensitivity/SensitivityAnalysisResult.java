@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.LoadFlowResult;
 import org.jgrapht.alg.util.Triple;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ import java.util.*;
  * offers the possibility to calculate the sensitivities on a set of contingencies besides the pre-contingency state.
  * The full set of results consists of:
  *  - the list of factors
- *  - the list of contingencies and their associated computation status
+ *  - the list of states (contingency + optional operator strategy) and their associated computation status
  *  - the list of sensitivity values in pre-contingency and post-contingency states
  *  - the list of function reference values in pre-contingency and post-contingency states.
  *  A sensitivity analysis result offers a set of methods to retrieve sensitivity values or function reference values.
@@ -39,6 +40,7 @@ import java.util.*;
  *  and the ID of a function.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  * @see SensitivityValue
  */
 public class SensitivityAnalysisResult {
@@ -51,9 +53,9 @@ public class SensitivityAnalysisResult {
 
     private final List<SensitivityStateStatus> stateStatuses;
 
-    private final List<String> contingencyIds; // to have mapping index -> ID
+    private final List<String> contingencyIds; // mapping index -> ID
 
-    private final List<String> operatorStrategyIds; // to have mapping index -> ID
+    private final List<String> operatorStrategyIds; // mapping index -> ID
 
     private final List<SensitivityValue> values;
 
@@ -65,6 +67,16 @@ public class SensitivityAnalysisResult {
 
     private final Map<SensitivityState, SensitivityStateStatus> statusByState = new HashMap<>();
 
+    private final boolean computationComplete;
+
+    /**
+     * The load flow status reported for a given component.
+     * @param status the load flow component status
+     * @param statusText the human-readable description of the status
+     */
+    public record LoadFlowStatus(LoadFlowResult.ComponentResult.Status status, String statusText) {
+    }
+
     public enum Status {
         SUCCESS,
         FAILURE,
@@ -73,28 +85,93 @@ public class SensitivityAnalysisResult {
 
     public static class SensitivityStateStatus {
 
+        public record ComponentStatus(LoadFlowStatus status, int numCC, int numSC) { }
+
+        static final String COMPONENTS_LOADFLOW_STATUSES = "componentsLoadFlowStatuses";
+        static final String LOAD_FLOW_STATUS = "loadFlowStatus";
+        static final String LOAD_FLOW_STATUS_DESCRIPTION = "loadFlowStatusDescription";
+        static final String NUM_CC = "numCC";
+        static final String NUM_CS = "numCS";
+
         private final SensitivityState state;
 
-        private final Status status;
+        /**
+         * Per-component load flow status (one entry per (numCC, numCS) for which a load flow has run).
+         */
+        private final List<ComponentStatus> componentsLoadFlowStatusList;
 
         public SensitivityState getState() {
             return state;
         }
 
+        @Deprecated(since = "7.4.0")
         public Status getStatus() {
-            return status;
+            if (!getComponentsLoadFlowStatusList().isEmpty()) {
+                switch (getComponentsLoadFlowStatusList().get(0).status().status) {
+                    case CONVERGED -> {
+                        return Status.SUCCESS;
+                    }
+                    case NO_CALCULATION -> {
+                        return Status.NO_IMPACT;
+                    }
+                    default -> {
+                        return Status.FAILURE;
+                    }
+                }
+            } else {
+                return Status.FAILURE;
+            }
         }
 
-        public SensitivityStateStatus(SensitivityState state, Status status) {
+        public List<ComponentStatus> getComponentsLoadFlowStatusList() {
+            return componentsLoadFlowStatusList;
+        }
+
+        public SensitivityStateStatus(SensitivityState state, List<ComponentStatus> statusList) {
             this.state = Objects.requireNonNull(state);
-            this.status = Objects.requireNonNull(status);
+            this.componentsLoadFlowStatusList = new ArrayList<>(statusList);
+        }
+
+        public SensitivityStateStatus(SensitivityState state) {
+            this(state, Collections.emptyList());
+        }
+
+        @Deprecated(since = "7.4.0")
+        public SensitivityStateStatus(SensitivityState state, Status status) {
+            this(state, List.of(new ComponentStatus(
+                    new LoadFlowStatus(toLoadFlowStatus(status), ""), -1, -1)));
+        }
+
+        private static LoadFlowResult.ComponentResult.Status toLoadFlowStatus(Status status) {
+            switch (status) {
+                case SUCCESS -> {
+                    return LoadFlowResult.ComponentResult.Status.CONVERGED;
+                }
+                case NO_IMPACT -> {
+                    return LoadFlowResult.ComponentResult.Status.NO_CALCULATION;
+                }
+                default -> {
+                    return LoadFlowResult.ComponentResult.Status.FAILED;
+                }
+            }
+        }
+
+        public SensitivityStateStatus addComponentLoadFlowStatus(LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
+            componentsLoadFlowStatusList.add(new ComponentStatus(loadFlowStatus, numCC, numCS));
+            return this;
+        }
+
+        public SensitivityStateStatus addComponentLoadFlowStatus(LoadFlowResult.ComponentResult.Status status, int numCC, int numCS) {
+            componentsLoadFlowStatusList.add(new ComponentStatus(new LoadFlowStatus(status, ""), numCC, numCS));
+            return this;
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityStateStatus stateStatus) {
-            writeJson(jsonGenerator, stateStatus.state, stateStatus.status);
+            writeJson(jsonGenerator, stateStatus.state, stateStatus.componentsLoadFlowStatusList);
         }
 
-        public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state, Status status) {
+        public static void writeJson(JsonGenerator jsonGenerator, SensitivityState state,
+                                     List<ComponentStatus> componentsLoadFlowStatusList) {
             try {
                 jsonGenerator.writeStartObject();
                 if (state.contingencyId() != null) {
@@ -103,7 +180,18 @@ public class SensitivityAnalysisResult {
                 if (state.operatorStrategyId() != null) {
                     jsonGenerator.writeStringField("operatorStrategyId", state.operatorStrategyId());
                 }
-                jsonGenerator.writeStringField("status", status.name());
+                if (componentsLoadFlowStatusList != null && !componentsLoadFlowStatusList.isEmpty()) {
+                    jsonGenerator.writeArrayFieldStart(COMPONENTS_LOADFLOW_STATUSES);
+                    for (ComponentStatus componentStatus : componentsLoadFlowStatusList) {
+                        jsonGenerator.writeStartObject();
+                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS, componentStatus.status().status().toString());
+                        jsonGenerator.writeStringField(LOAD_FLOW_STATUS_DESCRIPTION, componentStatus.status().statusText());
+                        jsonGenerator.writeNumberField(NUM_CC, componentStatus.numCC());
+                        jsonGenerator.writeNumberField(NUM_CS, componentStatus.numSC());
+                        jsonGenerator.writeEndObject();
+                    }
+                    jsonGenerator.writeEndArray();
+                }
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -114,6 +202,7 @@ public class SensitivityAnalysisResult {
             private String contingencyId;
             private String operatorStrategyId;
             private Status status;
+            private List<ComponentStatus> componentsLoadFlowStatusList;
         }
 
         public static SensitivityStateStatus parseJson(JsonParser parser, String version) {
@@ -126,8 +215,14 @@ public class SensitivityAnalysisResult {
                     if (token == JsonToken.FIELD_NAME) {
                         parseJson(parser, context, version == null ? VERSION : version);
                     } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityStateStatus(new SensitivityState(context.contingencyId, context.operatorStrategyId),
-                                                          context.status);
+                        if (version != null && version.compareTo("1.1") <= 0) {
+                            return new SensitivityStateStatus(
+                                    new SensitivityState(context.contingencyId, context.operatorStrategyId), context.status);
+                        } else {
+                            return new SensitivityStateStatus(
+                                    new SensitivityState(context.contingencyId, context.operatorStrategyId),
+                                    context.componentsLoadFlowStatusList != null ? context.componentsLoadFlowStatusList : Collections.emptyList());
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -154,13 +249,50 @@ public class SensitivityAnalysisResult {
                     context.status = Status.valueOf(parser.getValueAsString());
                     break;
                 case "status":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: status", version, "1.1");
                     parser.nextToken();
                     context.status = Status.valueOf(parser.getValueAsString());
+                    break;
+                case COMPONENTS_LOADFLOW_STATUSES:
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + COMPONENTS_LOADFLOW_STATUSES, version, "1.2");
+                    context.componentsLoadFlowStatusList = parseComponentLoadFlowStatuses(parser);
                     break;
                 default:
                     throw new PowsyblException("Unexpected field: " + fieldName);
             }
+        }
+
+        private static List<ComponentStatus> parseComponentLoadFlowStatuses(JsonParser parser) throws IOException {
+            if (parser.nextToken() != JsonToken.START_ARRAY) {
+                throw new PowsyblException("Expected start of array for component loadflow statuses");
+            }
+            List<ComponentStatus> statuses = new ArrayList<>();
+            while (parser.nextToken() != JsonToken.END_ARRAY) {
+                if (parser.currentToken() == JsonToken.START_OBJECT) {
+                    statuses.add(parseSingleComponentStatus(parser));
+                }
+            }
+            return statuses;
+        }
+
+        private static ComponentStatus parseSingleComponentStatus(JsonParser parser) throws IOException {
+            String statusStr = null;
+            String descStr = null;
+            int numCC = 0;
+            int numCS = 0;
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                String fieldName = parser.currentName();
+                parser.nextToken();
+                switch (fieldName) {
+                    case LOAD_FLOW_STATUS -> statusStr = parser.getText();
+                    case LOAD_FLOW_STATUS_DESCRIPTION -> descStr = parser.getText();
+                    case NUM_CC -> numCC = parser.getIntValue();
+                    case NUM_CS -> numCS = parser.getIntValue();
+                    default -> parser.skipChildren();
+                }
+            }
+            LoadFlowStatus lfs = new LoadFlowStatus(LoadFlowResult.ComponentResult.Status.valueOf(statusStr), descStr);
+            return new ComponentStatus(lfs, numCC, numCS);
         }
     }
 
@@ -174,6 +306,20 @@ public class SensitivityAnalysisResult {
      */
     public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityStateStatus> stateStatuses, List<String> contingencyIds,
                                      List<String> operatorStrategyIds, List<SensitivityValue> values) {
+        this(factors, stateStatuses, contingencyIds, operatorStrategyIds, values, true);
+    }
+
+    /**
+     * Sensitivity analysis result
+     * @param factors the list of sensitivity factors that have been computed.
+     * @param stateStatuses the list of states and their associated computation status.
+     * @param contingencyIds the list of contingency IDs that have been considered during the sensitivity analysis.
+     * @param operatorStrategyIds the list of operator strategy IDs that have been considered during the sensitivity analysis.
+     * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
+     * @param computationComplete whether the sensitivity computation fully or partially completed
+     */
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityStateStatus> stateStatuses, List<String> contingencyIds,
+                                     List<String> operatorStrategyIds, List<SensitivityValue> values, boolean computationComplete) {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
         this.stateStatuses = Collections.unmodifiableList(Objects.requireNonNull(stateStatuses));
         this.contingencyIds = Collections.unmodifiableList(Objects.requireNonNull(contingencyIds));
@@ -193,6 +339,7 @@ public class SensitivityAnalysisResult {
         for (SensitivityStateStatus stateStatus : stateStatuses) {
             this.statusByState.put(stateStatus.getState(), stateStatus);
         }
+        this.computationComplete = computationComplete;
     }
 
     /**
@@ -635,13 +782,34 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get the status associated to a state
+     * Get the status associated to a state.
      *
-     * @param state The state
-     * @return The associated status.
+     * @param state the considered state.
+     * @return the associated status.
+     * @deprecated Use {@link SensitivityAnalysisResult#getStateComponentStatus(SensitivityState)} instead.
      */
+    @Deprecated(since = "7.4.0")
     public Status getStateStatus(SensitivityState state) {
         Objects.requireNonNull(state);
         return statusByState.get(state).getStatus();
+    }
+
+    /**
+     * Get the status associated to a state for all components
+     *
+     * @param state the considered state.
+     * @return the components' status.
+     */
+    public List<SensitivityStateStatus.ComponentStatus> getStateComponentStatus(SensitivityState state) {
+        Objects.requireNonNull(state);
+        return statusByState.get(state).getComponentsLoadFlowStatusList();
+    }
+
+    /**
+     * Return true if the computation was fully completed, false if it was partially completed
+     * @return the computation complete boolean
+     */
+    public boolean isComputationComplete() {
+        return computationComplete;
     }
 }
