@@ -28,7 +28,6 @@ import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.OperatorStrategyList;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.Command;
@@ -187,12 +186,17 @@ public class SensitivityAnalysisTool implements Tool {
             if (line.hasOption(SINGLE_OUTPUT)) {
                 throw new PowsyblException("Unsupported " + SINGLE_OUTPUT + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
             }
+        } else {
+            // json format
+            if (line.hasOption(OUTPUT_STATE_STATUS_FILE_OPTION)) {
+                throw new PowsyblException(OUTPUT_STATE_STATUS_FILE_OPTION + " file is not supported in json");
+            }
         }
 
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Properties inputParams = readProperties(line, OptionType.IMPORT, context);
         Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
@@ -279,7 +283,8 @@ public class SensitivityAnalysisTool implements Tool {
                      Writer writerStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
                      TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
                      TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
-                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, parametersRecord.contingencies, parametersRecord.operatorStrategies);
+                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus,
+                            parametersRecord.contingencies, parametersRecord.operatorStrategies);
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, runParameters);
                 } catch (IOException e) {

@@ -10,6 +10,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.strategy.OperatorStrategy;
@@ -38,14 +39,14 @@ class SensitivityResultJsonWriterTest {
         try (Writer writer = new StringWriter()) {
             try (JsonGenerator generator = JsonUtil.createJsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
                 SensitivityResultJsonWriter sensiWriter = new SensitivityResultJsonWriter(generator, contingencies, operatorStrategies)) {
-                sensiWriter.writeStateStatus(-1, -1, SensitivityAnalysisResult.Status.SUCCESS);
+                sensiWriter.writeStateStatus(-1, -1, SensitivityAnalysisResult.Status.SUCCESS, null, -1, -1);
                 sensiWriter.writeSensitivityValue(0, -1, -1, 1d, 2d);
-                sensiWriter.writeStateStatus(0, 0, SensitivityAnalysisResult.Status.SUCCESS);
+                sensiWriter.writeStateStatus(0, 0, SensitivityAnalysisResult.Status.SUCCESS, null, -1, -1);
                 sensiWriter.writeSensitivityValue(1, 0, 0, 3d, 4d);
             }
             writer.flush();
-            assertEquals(new String(ByteStreams.toByteArray(Objects.requireNonNull(getClass().getResourceAsStream("/SensitivityResultJsonWriter.json"))), StandardCharsets.UTF_8),
-                    writer.toString());
+            String expected = new String(ByteStreams.toByteArray(Objects.requireNonNull(getClass().getResourceAsStream("/SensitivityResultJsonWriter.json"))), StandardCharsets.UTF_8);
+            assertEquals(TestUtil.normalizeLineSeparator(expected), TestUtil.normalizeLineSeparator(writer.toString()));
         }
     }
 }
