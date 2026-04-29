@@ -468,9 +468,9 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     }
 
     @Test
-    public void testNameDuplicationIsAllowed() {
+    public void testNameDuplicationIsNotAllowed() {
         Line line = createNetwork().getLine("L");
-        CurrentLimits currentLimits = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+        LoadingLimitsAdder.TemporaryLimitAdder temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                     .setName("TL")
@@ -480,12 +480,44 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                 .beginTemporaryLimit()
                     .setName("TL")
                     .setAcceptableDuration(10 * 60)
-                    .setValue(1400.0)
-                .endTemporaryLimit()
-                .add();
+                    .setValue(1400.0);
+        String message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': temporary limit name 'TL' should be unique within limit set 'DEFAULT'", message);
+    }
 
-        assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
-        assertEquals("TL", currentLimits.getTemporaryLimit(10 * 60).getName());
+    @Test
+    public void testTemporaryLimitErrorCreation() {
+        Line line = createNetwork().getLine("L");
+        LoadingLimitsAdder.TemporaryLimitAdder temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setAcceptableDuration(20 * 60);
+        String message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': temporary limit value is not set for 'TL' within limit set 'DEFAULT'", message);
+        temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setAcceptableDuration(20 * 60)
+                .setValue(-1);
+        message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': temporary limit value must be >= 0 for 'TL' within limit set 'DEFAULT'", message);
+        temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setValue(100);
+        message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': acceptable duration is not set for 'TL' within limit set 'DEFAULT'", message);
+        temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setValue(100)
+                .setAcceptableDuration(-1);
+        message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': acceptable duration must be >= 0 for 'TL' within limit set 'DEFAULT'", message);
     }
 
     @Test
