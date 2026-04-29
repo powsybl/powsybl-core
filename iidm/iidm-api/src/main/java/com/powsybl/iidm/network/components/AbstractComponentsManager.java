@@ -168,6 +168,13 @@ abstract class AbstractComponentsManager<C extends Component> {
                 DcBus dcBus2 = acDcConverter.getDcTerminal2().getDcBus();
                 addToAdjacencyList(dcBus1, dcBus2, busId2num, adjacencyList);
             }
+            for (DcSwitch dcSwitch : getNetwork().getDcSwitches()) {
+                DcBus dcBus1 = dcSwitch.getDcNode1().getDcBus();
+                DcBus dcBus2 = dcSwitch.getDcNode2().getDcBus();
+                if (dcBus1 != dcBus2) {
+                    addToAdjacencyList(dcBus1, dcBus2, busId2num, adjacencyList);
+                }
+            }
         }
     }
 

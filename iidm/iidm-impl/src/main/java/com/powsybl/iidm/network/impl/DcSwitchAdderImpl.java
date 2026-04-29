@@ -38,11 +38,6 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     }
 
     @Override
-    public DcSwitchAdder setKind(String kind) {
-        return setKind(DcSwitchKind.valueOf(kind));
-    }
-
-    @Override
     public DcSwitchAdder setDcNode1(String dcNode1) {
         this.dcNode1Id = dcNode1;
         return this;
