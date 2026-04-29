@@ -245,7 +245,7 @@ public class PowerFactoryImporter implements Importer {
      */
     private static void attachSlackBus(Network network, List<DataObject> slackObjects) {
         assert slackObjects.isEmpty()
-                || Set.of("ElmGenstat", "ElmAsm", "ElmSym").contains(slackObjects.getFirst().getDataClassName());
+                || Set.of("ElmGenstat", "ElmAsm", "ElmSym", "ElmXnet").contains(slackObjects.getFirst().getDataClassName());
         // It might be possible to inline this directly to convertEquipment, without
         // populating the slackObjects. But maybe some things need to be processed first, let's
         // take no risk.
@@ -280,7 +280,14 @@ public class PowerFactoryImporter implements Importer {
                 }
                 break;
 
-            case "ElmLod":
+            case "ElmXnet":
+                new ExternalGridConverter(importContext, network).create(obj);
+                if (ExternalGridConverter.isSlack(obj)) {
+                    slackObjects.add(obj);
+                }
+                break;
+
+            case "ElmLod", "ElmLodmv":
                 new LoadConverter(importContext, network).create(obj);
                 break;
 
@@ -333,7 +340,7 @@ public class PowerFactoryImporter implements Importer {
             case "RelChar", "RelDir", "RelDisdir", "RelDisloadenc", "RelDismho", "RelDispoly", "RelDispspoly",
                  "RelFdetabb", "RelFdetaegalst", "RelFdetect", "RelFdetsie", "RelFmeas", "RelFrq", "RelIoc",
                  "RelLogdip", "RelLogic", "RelLslogic", "RelMeasure", "RelRecl", "RelSeldir", "RelTimer",
-                 "RelToc", "RelUlim", "RelZpol":
+                 "RelToc", "RelUlim", "RelZpol", "RndRef":
 
             case "StaCt", "StaPqmea", "StaVmea", "StaVt":
 

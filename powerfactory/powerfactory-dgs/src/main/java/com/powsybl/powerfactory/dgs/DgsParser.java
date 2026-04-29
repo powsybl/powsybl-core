@@ -12,16 +12,14 @@ import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.powerfactory.model.DataAttributeType;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -243,7 +241,7 @@ public class DgsParser {
     public void read(Reader reader, DgsHandler handler) {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(handler);
-        try (BufferedReader bufferedReader = new BufferedReader(reader)) {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(BOMInputStream.builder().setReader(reader).get()))) {
             String line;
             ParsingContext context = new ParsingContext();
             while ((line = bufferedReader.readLine()) != null) {
