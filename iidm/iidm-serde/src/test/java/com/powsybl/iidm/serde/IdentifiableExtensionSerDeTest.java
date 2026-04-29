@@ -210,7 +210,6 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
         // When re-import network with anonymizer
         Network importedNetworkDeanonymized = NetworkSerDe.read(exportedFile, new ImportOptions(), anonymizer, NetworkFactory.findDefault(), ReportNode.NO_OP);
         NetworkSourceExtension importedExtensionDeanonymized = importedNetworkDeanonymized.getExtension(NetworkSourceExtension.class);
-        assertEquals(originalNetworkId, importedNetworkDeanonymized.getId());
         assertThat(importedNetworkDeanonymized.getId())
                 .isEqualTo(importedExtensionDeanonymized.getExtendable().getId())
                 .isEqualTo(originalNetworkId);
