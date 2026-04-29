@@ -11,12 +11,23 @@
     "functionReference" : 4.0
   } ],
   "stateStatus" : [ {
-    "status" : "SUCCESS"
+    "componentsLoadFlowStatuses" : [ {
+      "loadFlowStatus" : "CONVERGED",
+      "loadFlowStatusDescription" : "",
+      "numCC" : 0,
+      "numCS" : 0
+    } ]
   }, {
     "contingencyId" : "NHV1_NHV2_2",
     "operatorStrategyId" : "Open NHV1_NHV2_2",
-    "status" : "SUCCESS"
+    "componentsLoadFlowStatuses" : [ {
+      "loadFlowStatus" : "CONVERGED",
+      "loadFlowStatusDescription" : "",
+      "numCC" : 0,
+      "numCS" : 0
+    } ]
   } ],
   "contingencyIds" : [ "NHV1_NHV2_2" ],
-  "operatorStrategyIds" : [ "Open NHV1_NHV2_2" ]
+  "operatorStrategyIds" : [ "Open NHV1_NHV2_2" ],
+  "computationComplete" : false
 }
