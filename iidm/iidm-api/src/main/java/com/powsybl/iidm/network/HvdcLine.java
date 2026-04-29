@@ -211,7 +211,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     /**
      * Connect the converter stations.<br/>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #connectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}
+     * use {@link #connectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
      * @return true if the stations have been connected, false otherwise
      */
     default boolean connectConverterStations() {

@@ -136,7 +136,7 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     /**
      * Try to connect the two boundary lines of the tie line.<br/>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #connectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}
+     * use {@link #connectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
      * @return true if the boundary lines have been connected, false otherwise
      */
     default boolean connectBoundaryLines() {
