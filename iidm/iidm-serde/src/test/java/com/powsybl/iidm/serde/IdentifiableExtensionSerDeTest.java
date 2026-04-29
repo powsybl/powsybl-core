@@ -10,9 +10,10 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.LoadZipModel;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
@@ -21,17 +22,11 @@ import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.io.TreeDataFormat.XML;
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -198,46 +193,26 @@ class IdentifiableExtensionSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testAnonymizedNetworkIdWithExtension() throws ParserConfigurationException, SAXException, IOException {
+    void testAnonymizedNetworkIdWithExtension() {
         // Given Network with extension
         Network network = EurostagTutorialExample1Factory.create();
         network.addExtension(NetworkSourceExtension.class, new NetworkSourceExtensionImpl("source"));
         String originalNetworkId = network.getId();
         // When export with anonymized data
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), os);
-        // Then
-        String anonymizedXmlContent = os.toString(StandardCharsets.UTF_8);
-        Document doc = XmlUtil.getDocumentBuilderFactory().newDocumentBuilder()
-                .parse(new InputSource(new StringReader(anonymizedXmlContent)));
-        Element networkElement = (Element) doc.getElementsByTagName("iidm:network").item(0);
-        Element extensionElement = (Element) doc.getElementsByTagName("iidm:extension").item(0);
-        String networkIdInXml = networkElement.getAttribute("id");
-        String extensionIdInXml = extensionElement.getAttribute("id");
-        assertThat(networkElement).isNotNull();
-        assertThat(extensionElement).isNotNull();
-        assertThat(networkIdInXml)
-                .isEqualTo(extensionIdInXml)
-                .isNotEqualTo(originalNetworkId)
-                .isEqualTo("A");
+        Path exportedFile = tmpDir.resolve("anonymized-network-with-extension.xiidm");
+        Anonymizer anonymizer = NetworkSerDe.write(network, new ExportOptions().setAnonymized(true), exportedFile);
         // When import network without anonymizer
-        Network importedNetwork = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()));
-        // Then
+        Network importedNetwork = NetworkSerDe.read(exportedFile);
         NetworkSourceExtension importedExtension = importedNetwork.getExtension(NetworkSourceExtension.class);
-        String extensionExtendableId = importedExtension.getExtendable().getId();
-        assertThat(importedNetwork.getId()).isEqualTo(extensionExtendableId).isEqualTo("A");
         assertThat(importedNetwork.getId())
-                .isEqualTo(extensionExtendableId)
-                .isEqualTo("A")
-                .isNotEqualTo(originalNetworkId);
-        // When import network with anonymizer
-        Network importedNetworkWithAnonymizer = NetworkSerDe.read(new ByteArrayInputStream(os.toByteArray()),
-                new ImportOptions().setFormat(XML), anonymizer);
-        NetworkSourceExtension importedExtensionWithAnonymizer = importedNetworkWithAnonymizer.getExtension(NetworkSourceExtension.class);
-        String extensionExtendableIdWithAnonymizer = importedExtensionWithAnonymizer.getExtendable().getId();
-        // Then
-        assertThat(importedNetworkWithAnonymizer.getId())
-                .isEqualTo(extensionExtendableIdWithAnonymizer)
+                .isEqualTo(importedExtension.getExtendable().getId())
+                .isEqualTo(anonymizer.anonymizeString(originalNetworkId));
+        // When re-import network with anonymizer
+        Network importedNetworkDeanonymized = NetworkSerDe.read(exportedFile, new ImportOptions(), anonymizer, NetworkFactory.findDefault(), ReportNode.NO_OP);
+        NetworkSourceExtension importedExtensionDeanonymized = importedNetworkDeanonymized.getExtension(NetworkSourceExtension.class);
+        assertEquals(originalNetworkId, importedNetworkDeanonymized.getId());
+        assertThat(importedNetworkDeanonymized.getId())
+                .isEqualTo(importedExtensionDeanonymized.getExtendable().getId())
                 .isEqualTo(originalNetworkId);
     }
 
