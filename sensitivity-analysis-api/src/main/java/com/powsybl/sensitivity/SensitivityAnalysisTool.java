@@ -37,6 +37,8 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -57,6 +59,8 @@ import static com.powsybl.iidm.network.tools.ConversionToolUtils.readProperties;
  */
 @AutoService(Tool.class)
 public class SensitivityAnalysisTool implements Tool {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisTool.class);
 
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
@@ -189,6 +193,11 @@ public class SensitivityAnalysisTool implements Tool {
             if (line.hasOption(SINGLE_OUTPUT)) {
                 throw new PowsyblException("Unsupported " + SINGLE_OUTPUT + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
             }
+        } else {
+            // json format
+            if (line.hasOption(OUTPUT_STATE_STATUS_FILE_OPTION)) {
+                LOGGER.warn(OUTPUT_STATE_STATUS_FILE_OPTION + " file is not supported in json");
+            }
         }
 
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
@@ -281,7 +290,8 @@ public class SensitivityAnalysisTool implements Tool {
                      Writer writerStatuses = Files.newBufferedWriter(parametersRecord.outputFileStatus, StandardCharsets.UTF_8);
                      TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
                      TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
-                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, parametersRecord.contingencies, parametersRecord.operatorStrategies);
+                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus,
+                            parametersRecord.contingencies, parametersRecord.operatorStrategies);
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, runParameters);
                 } catch (IOException e) {
