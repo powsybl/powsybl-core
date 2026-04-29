@@ -14,6 +14,7 @@ import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
@@ -23,7 +24,7 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityValue> values = new ArrayList<>();
 
-    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new HashMap<>();
+    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new LinkedHashMap<>();
 
     public SensitivityResultModelWriter(List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.contingencies = Objects.requireNonNull(contingencies);
@@ -44,9 +45,13 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
-        SensitivityState state = new SensitivityState(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
-                                                      operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
-        stateStatuses.put(state, new SensitivityAnalysisResult.SensitivityStateStatus(state, status));
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
+                                 SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
+        Objects.requireNonNull(loadFlowStatus);
+        SensitivityState state = new SensitivityState(
+                contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
+                operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
+        stateStatuses.computeIfAbsent(state, SensitivityAnalysisResult.SensitivityStateStatus::new)
+                .addComponentLoadFlowStatus(loadFlowStatus, numCC, numCS);
     }
 }

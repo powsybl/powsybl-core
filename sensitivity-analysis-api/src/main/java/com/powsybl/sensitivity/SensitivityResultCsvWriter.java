@@ -19,6 +19,7 @@ import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
@@ -57,7 +58,10 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
         return factory.create(writer, "Sensitivity analysis status result", tfc,
                 new Column("Contingency ID"),
                 new Column("Operator strategy ID"),
-                new Column("Status"));
+                new Column("Loadflow Status"),
+                new Column("Loadflow Status Description"),
+                new Column("Connected component"),
+                new Column("Synchronous component"));
     }
 
     @Override
@@ -76,11 +80,15 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
+        Objects.requireNonNull(loadFlowStatus);
         try {
             formatterStatus.writeCell(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : "");
             formatterStatus.writeCell(operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : "");
-            formatterStatus.writeCell(status.name());
+            formatterStatus.writeCell(loadFlowStatus.status().toString());
+            formatterStatus.writeCell(loadFlowStatus.statusText());
+            formatterStatus.writeCell(numCC);
+            formatterStatus.writeCell(numCS);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

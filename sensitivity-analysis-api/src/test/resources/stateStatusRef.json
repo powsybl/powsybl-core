@@ -1,4 +1,9 @@
 {
   "contingencyId" : "C1",
-  "status" : "SUCCESS"
+  "componentsLoadFlowStatuses" : [ {
+    "loadFlowStatus" : "CONVERGED",
+    "loadFlowStatusDescription" : "",
+    "numCC" : 0,
+    "numCS" : 0
+  } ]
 }
