@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.util.SwitchPredicates;
+
 import java.util.function.Predicate;
 
 /**
@@ -207,27 +209,43 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     void remove();
 
     /**
-     * Connect the converter station.<br/>
+     * Connect the converter stations.<br/>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that,
      * use {@link #connectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}
-     * @return true if the station has been connected, false otherwise
+     * @return true if the stations have been connected, false otherwise
      */
-    boolean connectConverterStations();
+    default boolean connectConverterStations() {
+        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate);
 
+    /**
+     * Connect the station on <code>side</code> by operating the switches matching the predicate.
+     * @param isTypeSwitchToOperate which switches to operate on
+     * @param side the side to operate on
+     * @return true if the station on the <code>side</code> has been connected, false otherwise
+     */
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
     /**
-     * Disconnect the converter station.<br/>
+     * Disconnect the converter stations.<br/>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that,
      * use {@link #disconnectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
-     * @return true if the station has been disconnected, false otherwise
+     * @return true if the stations have been disconnected, false otherwise
      */
-    boolean disconnectConverterStations();
+    default boolean disconnectConverterStations() {
+        return disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
     boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable);
 
+    /**
+     * Disconnect the station on <code>side</code> by operating the switches matching the predicate.
+     * @param isSwitchOpenable which switches to operate on
+     * @param side the side to operate on
+     * @return true if the station on the <code>side</code> has been disconnected, false otherwise
+     */
     boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     @Override

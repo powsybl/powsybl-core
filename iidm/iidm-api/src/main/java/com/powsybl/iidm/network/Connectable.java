@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.util.SwitchPredicates;
+
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -29,7 +31,9 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
      * {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}.
      */
-    boolean connect();
+    default boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
@@ -40,7 +44,9 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
      * {@link #disconnect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}.
      */
-    boolean disconnect();
+    default boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
 

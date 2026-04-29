@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Collection;
@@ -166,11 +165,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean connectBoundaryLines() {
-        return connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
-    }
-
-    @Override
     public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate) {
         return connectBoundaryLines(isTypeSwitchToOperate, null);
     }
@@ -182,11 +176,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             getTerminalsOfBoundaryLines(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnectBoundaryLines() {
-        return disconnectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER, null);
     }
 
     @Override

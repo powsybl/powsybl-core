@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.util.SwitchPredicates;
+
 import java.util.function.Predicate;
 
 /**
@@ -137,10 +139,17 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
      * use {@link #connectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER_OR_DISCONNECTOR}
      * @return true if the boundary lines have been connected, false otherwise
      */
-    boolean connectBoundaryLines();
+    default boolean connectBoundaryLines() {
+        return connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
     boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate);
 
+    /**
+     * @param isTypeSwitchToOperate the type of switch to operate
+     * @param side the side of the tie line to connect
+     * @return true if the connection on <code>side</code> succeeded, false otherwise
+     */
     boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
     /**
@@ -149,10 +158,18 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
      * use {@link #disconnectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
      * @return true if the boundary lines have been disconnected, false otherwise
      */
-    boolean disconnectBoundaryLines();
+    default boolean disconnectBoundaryLines() {
+        return disconnectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
     boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable);
 
+    /**
+     * Try to disconnect the boundary line on <code>side</code> by operating the switches matching the predicate.
+     * @param isSwitchOpenable the type of switch to operate
+     * @param side the side of the tie line to disconnect
+     * @return true if the disconnection on <code>side</code> succeeded, false otherwise
+     */
     boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     Network getNetwork();

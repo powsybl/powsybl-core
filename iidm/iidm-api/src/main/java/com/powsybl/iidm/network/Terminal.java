@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
@@ -156,7 +157,9 @@ public interface Terminal {
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
-    boolean connect();
+    default boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
     /**
      * Try to connect the terminal.<br/>
@@ -173,7 +176,9 @@ public interface Terminal {
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
-    boolean disconnect();
+    default boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
     /**
      * Disconnect the terminal.<br/>
