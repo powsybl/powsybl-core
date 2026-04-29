@@ -35,7 +35,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         createLoadingLimits(operationalLimitsGroup::newActivePowerLimits);
         createLoadingLimits(operationalLimitsGroup::newApparentPowerLimits);
         createLoadingLimits(operationalLimitsGroup::newCurrentLimits);
-        allFormatsRoundTripTxtTest(network, "dl-loading-limits.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "bl-loading-limits.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility from version 1.5
         allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("bl-loading-limits.xml", IidmVersion.V_1_5);

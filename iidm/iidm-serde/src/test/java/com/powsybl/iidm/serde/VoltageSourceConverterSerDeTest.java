@@ -29,6 +29,9 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
 
         // backward compatibility - checks from version 1.15
         allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("/voltageSourceConverterRoundTripRef.xml", IidmVersion.V_1_15);
+
+        // Note: we do not test here failing for all versions < 1.15: VoltageSourceConverter cannot exist without DcNode,
+        // hence the DcNode SerDe test is sufficient.
     }
 
     private static Network createBaseNetwork() {
