@@ -36,16 +36,14 @@ List of third-party dependencies grouped by their license type.
         * docker-java-transport-zerodep (com.github.docker-java:docker-java-transport-zerodep:3.4.2 - https://github.com/docker-java/docker-java)
         * EJML (org.ejml:ejml-core:0.44.0 - http://ejml.org/)
         * error-prone annotations (com.google.errorprone:error_prone_annotations:2.36.0 - https://errorprone.info/error_prone_annotations)
-        * FindBugs-jsr305 (com.google.code.findbugs:jsr305:3.0.2 - http://findbugs.sourceforge.net/)
-        * graphviz-builder (org.anarres.graphviz:graphviz-builder:1.0.12 - https://github.com/shevek/graphviz4j)
         * Guava: Google Core Libraries for Java (com.google.guava:guava:33.4.8-jre - https://github.com/google/guava)
         * Guava InternalFutureFailureAccess and InternalFutures (com.google.guava:failureaccess:1.0.3 - https://github.com/google/guava/failureaccess)
         * Guava ListenableFuture only (com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava - https://github.com/google/guava/listenablefuture)
         * HASMAC JSON-LD 1.1 (no.hasmac:hasmac-json-ld:0.9.0 - https://github.com/HASMAC-AS/hasmac-json-ld)
         * J2ObjC Annotations (com.google.j2objc:j2objc-annotations:3.0.0 - https://github.com/google/j2objc/)
-        * Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.19.0 - https://github.com/FasterXML/jackson)
-        * Jackson-core (com.fasterxml.jackson.core:jackson-core:2.19.0 - https://github.com/FasterXML/jackson-core)
-        * jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.19.0 - https://github.com/FasterXML/jackson)
+        * Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.21 - https://github.com/FasterXML/jackson)
+        * Jackson-core (com.fasterxml.jackson.core:jackson-core:2.21.1 - https://github.com/FasterXML/jackson-core)
+        * jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.21.1 - https://github.com/FasterXML/jackson)
         * Java UUID Generator (com.fasterxml.uuid:java-uuid-generator:4.3.0 - https://github.com/cowtowncoder/java-uuid-generator)
         * JCL 1.2 implemented over SLF4J (org.slf4j:jcl-over-slf4j:1.7.36 - http://www.slf4j.org)
         * JetBrains Java Annotations (org.jetbrains:annotations:17.0.0 - https://github.com/JetBrains/java-annotations)
@@ -82,15 +80,12 @@ List of third-party dependencies grouped by their license type.
     BSD 3-clause License
 
         * ANTLR 3 Runtime (org.antlr:antlr-runtime:3.5.3 - http://www.antlr.org)
+        * ANTLR 4 Runtime (org.antlr:antlr4-runtime:4.13.2 - https://www.antlr.org/antlr4-runtime/)
         * curvesapi (com.github.virtuald:curvesapi:1.08 - https://github.com/virtuald/curvesapi)
         * Hamcrest Core (org.hamcrest:hamcrest-core:1.3 - https://github.com/hamcrest/JavaHamcrest/hamcrest-core)
         * JSONLD Java :: Core (com.github.jsonld-java:jsonld-java:0.13.4 - http://github.com/jsonld-java/jsonld-java/jsonld-java/)
         * StringTemplate 4 (org.antlr:ST4:4.3.4 - http://nexus.sonatype.org/oss-repository-hosting.html/ST4)
         * ThreeTen-Extra (org.threeten:threeten-extra:1.8.0 - https://www.threeten.org/threeten-extra)
-
-    Creative Commons Attribution 2.5 Generic License
-
-        * "Java Concurrency in Practice" book annotations (net.jcip:jcip-annotations:1.0 - http://jcip.net/)
 
     Eclipse Distribution License - v 1.0
 
@@ -138,8 +133,8 @@ List of third-party dependencies grouped by their license type.
 
     Eclipse Public License - v 1.0, GNU Lesser General Public License v2.1
 
-        * Logback Classic Module (ch.qos.logback:logback-classic:1.5.18 - http://logback.qos.ch/logback-classic)
-        * Logback Core Module (ch.qos.logback:logback-core:1.5.18 - http://logback.qos.ch/logback-core)
+        * Logback Classic Module (ch.qos.logback:logback-classic:1.5.26 - http://logback.qos.ch/logback-classic)
+        * Logback Core Module (ch.qos.logback:logback-core:1.5.26 - http://logback.qos.ch/logback-core)
 
     Eclipse Public License - v 2.0
 
@@ -152,11 +147,11 @@ List of third-party dependencies grouped by their license type.
 
     Eclipse Public License - v 2.0, GNU Lesser General Public License v2.1
 
-        * JGraphT - Core (org.jgrapht:jgrapht-core:1.5.2 - http://www.jgrapht.org/jgrapht-core)
+        * JGraphT - Core (org.jgrapht:jgrapht-core:1.5.3 - http://www.jgrapht.org/jgrapht-core)
+        * JGraphT - I/O (org.jgrapht:jgrapht-io:1.5.3 - http://www.jgrapht.org/jgrapht-io)
 
     GNU Lesser General Public License v2.1
 
-        * FindBugs-Annotations (com.google.code.findbugs:annotations:3.0.1 - http://findbugs.sourceforge.net/)
         * GNU Trove (net.sf.trove4j:trove4j:3.0.3 - http://trove4j.sf.net)
 
     Go License
@@ -165,12 +160,12 @@ List of third-party dependencies grouped by their license type.
 
     MIT License
 
-        * apfloat (org.apfloat:apfloat:1.10.1 - http://www.apfloat.org)
+        * apfloat (org.apfloat:apfloat:1.14.0 - http://www.apfloat.org)
         * Duct Tape (org.rnorth.duct-tape:duct-tape:1.0.8 - https://github.com/rnorth/duct-tape)
         * mockito-core (org.mockito:mockito-core:5.18.0 - https://github.com/mockito/mockito)
         * SLF4J API Module (org.slf4j:slf4j-api:2.0.17 - http://www.slf4j.org)
         * SLF4J Simple Provider (org.slf4j:slf4j-simple:2.0.17 - http://www.slf4j.org)
-        * Testcontainers Core (org.testcontainers:testcontainers:1.21.0 - https://java.testcontainers.org)
+        * Testcontainers Core (org.testcontainers:testcontainers:1.21.4 - https://java.testcontainers.org)
 
     Public Domain
 
