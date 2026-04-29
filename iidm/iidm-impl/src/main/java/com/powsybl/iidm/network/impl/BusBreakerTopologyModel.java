@@ -1121,68 +1121,6 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         exportTopology(writer, new SecureRandom());
     }
 
-//    @Override
-//    public void exportTopology(Writer writer, Random random) {
-//        Objects.requireNonNull(writer);
-//        Objects.requireNonNull(random);
-//
-//        GraphVizScope scope = new GraphVizScope.Impl();
-//        GraphVizGraph gvGraph = new GraphVizGraph();
-//
-//        String[] colors = Colors.generateColorScale(graph.getVertexCount(), random);
-//        int i = 0;
-//        for (ConfiguredBus bus : graph.getVerticesObj()) {
-//            gvGraph.node(scope, bus.getId())
-//                    .label("BUS" + System.lineSeparator() + bus.getId())
-//                    .shape("ellipse")
-//                    .style("filled")
-//                    .attr(GraphVizAttribute.fillcolor, colors[i]);
-//            for (TerminalExt terminal : bus.getTerminals()) {
-//                AbstractConnectable connectable = terminal.getConnectable();
-//                String label = connectable.getType().toString()
-//                    + System.lineSeparator() + connectable.getId()
-//                    + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
-//                gvGraph.node(scope, connectable.getId())
-//                        .label(label)
-//                        .shape("ellipse")
-//                        .style("filled")
-//                        .attr(GraphVizAttribute.fillcolor, colors[i]);
-//            }
-//            i++;
-//        }
-//
-//        for (ConfiguredBus bus : graph.getVerticesObj()) {
-//            for (TerminalExt terminal : bus.getTerminals()) {
-//                AbstractConnectable connectable = terminal.getConnectable();
-//                gvGraph.edge(scope, bus.getId(), connectable.getId())
-//                        .style(terminal.isConnected() ? "solid" : "dotted");
-//            }
-//        }
-//        for (int e = 0; e < graph.getEdgeCount(); e++) {
-//            int v1 = graph.getEdgeVertex1(e);
-//            int v2 = graph.getEdgeVertex2(e);
-//            SwitchImpl sw = graph.getEdgeObject(e);
-//            ConfiguredBus bus1 = graph.getVertexObject(v1);
-//            ConfiguredBus bus2 = graph.getVertexObject(v2);
-//            // Assign an id to the edge to allow parallel edges (multigraph)
-//            GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId(), sw.getId())
-//                    .style(sw.isOpen() ? "dotted" : "solid");
-//            if (DRAW_SWITCH_ID) {
-//                String label = sw.getKind().toString()
-//                    + System.lineSeparator() + sw.getId()
-//                    + sw.getOptionalName().map(n -> System.lineSeparator() + n).orElse("");
-//                edge.label(label)
-//                        .attr(GraphVizAttribute.fontsize, "10");
-//            }
-//        }
-//
-//        try {
-//            gvGraph.writeTo(writer);
-//        } catch (IOException e) {
-//            throw new UncheckedIOException(e);
-//        }
-//    }
-
     @Override
     protected void exportVertices(Map<String, Map<String, Attribute>> vertexAttributes,
                                   Map<DefaultEdge, Map<String, Attribute>> edgeAttributes,
