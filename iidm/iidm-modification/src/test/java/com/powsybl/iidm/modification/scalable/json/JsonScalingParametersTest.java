@@ -30,7 +30,10 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
         ScalingParameters parameters = new ScalingParameters()
                 .setScalingConvention(Scalable.ScalingConvention.LOAD)
                 .setReconnect(true)
-                .setIgnoredInjectionIds(Set.of("id1", "id2"));
+                .setIgnoredInjectionIds(Set.of("id1", "id2"))
+                .setLoadMinPowerFactor(0.07)
+                .setLoadMinQRate(-1.007)
+                .setLoadMaxQRate(1.007);
         roundTripTest(parameters, JsonScalingParameters::write, JsonScalingParameters::read, "/json/ScalingParameters.json");
     }
 
@@ -68,6 +71,20 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
         assertTrue(parameters.isReconnect());
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
         assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
+    }
+
+    @Test
+    void testDeserializerV1dot3() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.3.json"));
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertFalse(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
+        assertEquals(0.07, parameters.getLoadMinPowerFactor());
+        assertEquals(-1.007, parameters.getLoadMinQRate());
+        assertEquals(1.007, parameters.getLoadMaxQRate());
     }
 
     @Test

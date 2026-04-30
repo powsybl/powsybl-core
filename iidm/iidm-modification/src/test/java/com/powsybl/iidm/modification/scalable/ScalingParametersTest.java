@@ -112,6 +112,7 @@ class ScalingParametersTest {
         moduleConfig.setStringProperty("reconnect", "true");
         moduleConfig.setStringProperty("allowsGeneratorOutOfActivePowerLimits", "true");
         moduleConfig.setStringProperty("ignoredInjectionIds", "id1,id2");
+        moduleConfig.setStringProperty("loadMinPowerFactor", "0.07");
 
         ScalingParameters parameters = ScalingParameters.load(platformConfig);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
@@ -120,6 +121,7 @@ class ScalingParametersTest {
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
         assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
+        assertEquals(0.07, parameters.getLoadMinPowerFactor());
     }
 
     /**

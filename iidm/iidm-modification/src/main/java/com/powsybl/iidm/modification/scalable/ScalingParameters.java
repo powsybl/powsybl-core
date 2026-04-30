@@ -20,7 +20,7 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingTy
  */
 public class ScalingParameters {
 
-    public static final String VERSION = "1.2";
+    public static final String VERSION = "1.3";
 
     public enum ScalingType {
         DELTA_P,
@@ -40,6 +40,9 @@ public class ScalingParameters {
     public static final Priority DEFAULT_PRIORITY = ONESHOT;
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
     public static final Set<String> DEFAULT_IGNORED_INJECTION_IDS = Collections.emptySet();
+    public static final double DEFAULT_LOAD_MIN_POWER_FACTOR = 0.0;
+    public static final double DEFAULT_LOAD_MIN_Q_RATE = -Double.MAX_VALUE;
+    public static final double DEFAULT_LOAD_MAX_Q_RATE = Double.MAX_VALUE;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
     private boolean reconnect = DEFAULT_RECONNECT;
@@ -48,6 +51,9 @@ public class ScalingParameters {
     private ScalingType scalingType = DEFAULT_SCALING_TYPE;
     private Priority priority = DEFAULT_PRIORITY;
     private Set<String> ignoredInjectionIds = DEFAULT_IGNORED_INJECTION_IDS;
+    private double loadMinPowerFactor = DEFAULT_LOAD_MIN_POWER_FACTOR;
+    private double loadMinQRate = DEFAULT_LOAD_MIN_Q_RATE;
+    private double loadMaxQRate = DEFAULT_LOAD_MAX_Q_RATE;
 
     public ScalingParameters() {
     }
@@ -190,6 +196,33 @@ public class ScalingParameters {
         return this;
     }
 
+    public double getLoadMinPowerFactor() {
+        return loadMinPowerFactor;
+    }
+
+    public ScalingParameters setLoadMinPowerFactor(double loadMinPowerFactor) {
+        this.loadMinPowerFactor = loadMinPowerFactor;
+        return this;
+    }
+
+    public double getLoadMinQRate() {
+        return loadMinQRate;
+    }
+
+    public ScalingParameters setLoadMinQRate(double loadMinQRate) {
+        this.loadMinQRate = loadMinQRate;
+        return this;
+    }
+
+    public double getLoadMaxQRate() {
+        return loadMaxQRate;
+    }
+
+    public ScalingParameters setLoadMaxQRate(double loadMaxQRate) {
+        this.loadMaxQRate = loadMaxQRate;
+        return this;
+    }
+
     public static ScalingParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -207,6 +240,9 @@ public class ScalingParameters {
                 config.getOptionalStringListProperty("ignoredInjectionIds")
                     .map(list -> (Set<String>) new HashSet<>(list))
                     .orElse(DEFAULT_IGNORED_INJECTION_IDS));
+            scalingParameters.setLoadMinPowerFactor(config.getDoubleProperty("loadMinPowerFactor", DEFAULT_LOAD_MIN_POWER_FACTOR));
+            scalingParameters.setLoadMinQRate(config.getDoubleProperty("loadMinQRate", DEFAULT_LOAD_MIN_Q_RATE));
+            scalingParameters.setLoadMaxQRate(config.getDoubleProperty("loadMaxQRate", DEFAULT_LOAD_MAX_Q_RATE));
         });
         return scalingParameters;
     }

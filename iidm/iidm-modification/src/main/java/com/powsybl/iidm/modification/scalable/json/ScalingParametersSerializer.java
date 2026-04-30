@@ -39,6 +39,10 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
         }
         jsonGenerator.writeEndArray();
 
+        jsonGenerator.writeNumberField("loadMinPowerFactor", scalingParameters.getLoadMinPowerFactor());
+        jsonGenerator.writeNumberField("loadMinQRate", scalingParameters.getLoadMinQRate());
+        jsonGenerator.writeNumberField("loadMaxQRate", scalingParameters.getLoadMaxQRate());
+
         jsonGenerator.writeEndObject();
     }
 }
