@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.powsybl.powerfactory.converter.DataAttributeNames.I_REM;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -836,6 +838,7 @@ class TransformerConverter extends AbstractConverter {
             case "V" -> t2w.getOptionalRatioTapChanger().ifPresent(rtc -> addVoltageControl(t2w, rtc, elmTr2));
             case "P" -> t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> addActivePowerControl(t2w, ptc, elmTr2));
             case "Q" -> t2w.getOptionalRatioTapChanger().ifPresent(rtc -> addReactivePowerControl(t2w, rtc, elmTr2));
+            default -> LOGGER.warn("Unexpected controlMode (imldc value) {} for transformer '{}'", controlMode, elmTr2.getLocName());
         }
     }
 
@@ -853,6 +856,7 @@ class TransformerConverter extends AbstractConverter {
             case "V" -> leg.getOptionalRatioTapChanger().ifPresent(rtc -> addVoltageControl(t3w, rtc, elmTr3));
             case "P" -> leg.getOptionalPhaseTapChanger().ifPresent(ptc -> addActivePowerControl(t3w, ptc, elmTr3));
             case "Q" -> leg.getOptionalRatioTapChanger().ifPresent(rtc -> addReactivePowerControl(t3w, rtc, elmTr3));
+            default -> LOGGER.warn("Unexpected controlMode (imldc value) {} for transformer '{}'", controlMode, elmTr3.getLocName());
         }
     }
 
@@ -972,7 +976,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private Terminal getVoltageRegulatingTerminal(TwoWindingsTransformer t2w, DataObject elmTr2) {
-        if (elmTr2.findIntAttributeValue("i_rem").orElse(0) == 1) {
+        if (elmTr2.findIntAttributeValue(I_REM).orElse(0) == 1) {
             return getRemoteVoltageRegulatingTerminal(t2w.getNetwork(), elmTr2);
         } else {
             return getLocalRegulatingTerminal(t2w, elmTr2);
@@ -980,7 +984,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private Terminal getVoltageRegulatingTerminal(ThreeWindingsTransformer t3w, DataObject elmTr3) {
-        if (elmTr3.findIntAttributeValue("i_rem").orElse(0) == 1) {
+        if (elmTr3.findIntAttributeValue(I_REM).orElse(0) == 1) {
             return getRemoteVoltageRegulatingTerminal(t3w.getNetwork(), elmTr3);
         } else {
             return getLocalRegulatingTerminal(t3w, elmTr3);
@@ -1037,7 +1041,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private Terminal getFlowRegulatingTerminal(TwoWindingsTransformer t2w, DataObject elmTr2) {
-        if (elmTr2.findIntAttributeValue("i_rem").orElse(0) == 1) {
+        if (elmTr2.findIntAttributeValue(I_REM).orElse(0) == 1) {
             return getRemoteFlowRegulatingTerminal(t2w.getNetwork(), elmTr2);
         } else {
             return getLocalRegulatingTerminal(t2w, elmTr2);
@@ -1045,7 +1049,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private Terminal getFlowRegulatingTerminal(ThreeWindingsTransformer t3w, DataObject elmTr3) {
-        if (elmTr3.findIntAttributeValue("i_rem").orElse(0) == 1) {
+        if (elmTr3.findIntAttributeValue(I_REM).orElse(0) == 1) {
             return getRemoteFlowRegulatingTerminal(t3w.getNetwork(), elmTr3);
         } else {
             return getLocalRegulatingTerminal(t3w, elmTr3);
