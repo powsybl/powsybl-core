@@ -30,6 +30,9 @@ $$ElmTr2;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);typ_id(p);ntnum(i);ou
   40;T2w_2_2L_1;8;;500;1;0;0;1;0;V;0;;1,010;1,015;1,005
   41;T2w_3_3L_1;8;;500;1;0;0;1;1;V;0;;1,020;1,025;1,015
   42;T2w_5_5L_1;8;;500;1;0;0;1;0;V;1;52;1,030;1,035;1,025
+  43;T2w_2_2L_2;8;;500;1;0;0;1;0;V;0;;;1,015;1,005
+  44;T2w_3_3L_2;8;;500;1;0;0;1;1;V;0;;1,020;;1,015
+  45;T2w_5_5L_2;8;;500;1;0;0;1;0;V;1;;1,030;1,035;1,025
 
 $$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);outserv(i)
   50;Bus 1-Slack;;8;;0;0;400;0
@@ -60,26 +63,12 @@ $$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_id(p);obj_bus(i
   95;SC-T2w_3_3L_1-2;;56;41;1
   96;SC-T2w_5_5L_1-1;;54;42;0
   97;SC-T2w_5_5L_1-2;;57;42;1
-
-$$StaSwitch;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);on_off(i);typ_id(p);aUsage(a)
-  150;Switch-150;;80;1;;cbk
-  151;Switch-151;;81;1;;cbk
-  152;Switch-152;;82;1;;cbk
-  153;Switch-153;;83;1;;cbk
-  154;Switch-154;;84;1;;cbk
-  155;Switch-155;;85;1;;cbk
-  156;Switch-156;;86;1;;cbk
-  157;Switch-157;;87;1;;cbk
-  158;Switch-158;;88;1;;cbk
-  159;Switch-159;;89;1;;cbk
-  160;Switch-160;;90;1;;cbk
-  161;Switch-161;;91;1;;cbk
-  162;Switch-162;;92;1;;cbk
-  163;Switch-163;;93;1;;cbk
-  164;Switch-164;;94;1;;cbk
-  165;Switch-165;;95;1;;cbk
-  166;Switch-166;;96;1;;cbk
-  167;Switch-167;;97;1;;cbk
+  98;SC-T2w_2_2L_2-1;;51;43;0
+  99;SC-T2w_2_2L_2-2;;55;43;1
+ 100;SC-T2w_3_3L_2-1;;52;44;0
+ 101;SC-T2w_3_3L_2-2;;56;44;1
+ 102;SC-T2w_5_5L_2-1;;54;45;0
+ 103;SC-T2w_5_5L_2-2;;57;45;1
 
 $$TypLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);uline(r);sline(r);InomAir(r);cohl_(i);rline(r);xline(r);rline0(r);xline0(r);Ithr(r);tmax(r);rtemp(r);systp(i);nlnph(i);nneutral(i);frnom(r);mlei(a:2);bline(r);bline0(r)
   200;Line-type;;8;400;7,216878;1;0;0,596307;1,820615;999999;999999;0;80;80;0;3;0;60;Cu;4,159616;0
