@@ -99,8 +99,8 @@ public class DgsReader {
         }
 
         @Override
-        public void onObjectValue(String attributeName, String objectReference) {
-            object.setObjectAttributeValue(attributeName, objectReference);
+        public void onObjectValue(String attributeName, DataObjectRefKey otherObjectRefKey) {
+            object.setObjectAttributeValue(attributeName, otherObjectRefKey);
         }
 
         @Override
@@ -124,8 +124,8 @@ public class DgsReader {
         }
 
         @Override
-        public void onObjectVectorValue(String attributeName, List<String> objectReferences) {
-            object.setObjectVectorAttributeValueByForeignKey(attributeName, objectReferences);
+        public void onObjectVectorValue(String attributeName, List<DataObjectRefKey> otherObjectRefKeys) {
+            object.setObjectVectorAttributeValue(attributeName, otherObjectRefKeys);
         }
     }
 
