@@ -212,7 +212,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Connect the converter stations.<br/>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that,
      * use {@link #connectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
-     * @return true if the stations have been connected, false otherwise
+     * @return true if the stations have been connected by this operation, false otherwise (this fails if any of the two stations was already connected)
      */
     default boolean connectConverterStations() {
         return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
@@ -221,7 +221,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     /**
      * Connect the converter stations on both sides of the HVDC line by operating the switches that match the <code>isTypeSwitchToOperate</code> predicate.
      * @param isTypeSwitchToOperate which switches to operate to connect the HVDC line
-     * @return true if the HVDC line is connected, false otherwise.
+     * @return true if the HVDC line was connected by this operation, false otherwise (this fails if any of the two stations was already connected)
      */
     default boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
         return connectConverterStations(isTypeSwitchToOperate, null);
@@ -232,7 +232,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * if the connection is not possible.
      * @param isTypeSwitchToOperate which switches to operate on
      * @param side the side to operate on. If the side is null, both sides should be operated on.
-     * @return true if the station on the <code>side</code> has been connected, false otherwise
+     * @return true if the station on the <code>side</code> has been connected by this operation, false otherwise (this fails if the station on the given side was already connected)
      */
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
@@ -240,7 +240,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Disconnect the converter stations.<br/>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that,
      * use {@link #disconnectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
-     * @return true if the stations have been disconnected, false otherwise
+     * @return true if the stations disconnection by this operation succeeded, false otherwise (this fails if any of the two stations was already disconnected)
      */
     default boolean disconnectConverterStations() {
         return disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
@@ -249,7 +249,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     /**
      * Disconnect the converter stations on both sides of the HVDC line by operating the switches that match the <code>isTypeSwitchToOperate</code> predicate.
      * @param isSwitchOpenable which switches to operate to disconnect the HVDC line
-     * @return true if the HVDC line is disconnected, false otherwise.
+     * @return true if the HVDC line disconnection by this operation succeeded, false otherwise (this fails if any of the two stations was already disconnected)
      */
     default boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
         return disconnectConverterStations(isSwitchOpenable, null);
@@ -260,7 +260,7 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * if the disconnection is not possible.
      * @param isSwitchOpenable which switches to operate on
      * @param side the side to operate on. If the side is null, both sides should be operated on.
-     * @return true if the station on the <code>side</code> has been disconnected, false otherwise
+     * @return true if the station on the <code>side</code> has been disconnected by this operation, false otherwise (this fails if the station on the given side was already disconnected)
      */
     boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side);
 

@@ -30,11 +30,17 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * Connects the connectable by operating real breakers.<br>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
      * {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}.
+     * @return true if the connectable has been connected by this operation, false otherwise (this fails if it was already connected on any side)
      */
     default boolean connect() {
         return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
+    /**
+     * Connects the connectable on all sides by operating the breakers that match the <code>isTypeSwitchToOperate</code> predicate.
+     * @param isTypeSwitchToOperate which switch to operate to perform the connection
+     * @return true if the connectable has been connected by this operation, false otherwise (this fails if it was already connected on any side)
+     */
     default boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
         return connect(isTypeSwitchToOperate, null);
     }
@@ -44,7 +50,7 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * predicate. No operation shall be performed if the connection is not possible.
      * @param isTypeSwitchToOperate a predicate to define which switches to operate to make the connection
      * @param side the of the connectable to connect. If this is null, all sides should be connected.
-     * @return true if the connection succeeded, false otherwise.
+     * @return true if the connection by this operation succeeded, false otherwise (this fails if it was already disconnected on the given <code>side</code>)
      */
     boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
 
@@ -52,11 +58,17 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * Disconnects the connectable by operating real breakers.<br>
      * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
      * {@link #disconnect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}.
+     * @return  true if the connectable has been disconnected by this operation, false otherwise (this fails if it was already disconnected on any side)
      */
     default boolean disconnect() {
         return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
+    /**
+     * Disconnects the connectable on all sides by operating the breakers that match the <code>isTypeSwitchToOperate</code> predicate.
+     * @param isSwitchOpenable which switch to operate to perform the disconnection
+     * @return true if the connectable has been disconnected by this operation, false otherwise (this fails if it was already disconnected on any side)
+     */
     default boolean disconnect(Predicate<Switch> isSwitchOpenable) {
         return disconnect(isSwitchOpenable, null);
     }
@@ -66,7 +78,7 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * predicate. No operation shall be performed if the disconnection is not possible.
      * @param isSwitchOpenable a predicate to define which switches to operate to make the disconnection
      * @param side the of the connectable to disconnect. If this is null, all sides should be disconnected.
-     * @return true if the disconnection succeeded, false otherwise.
+     * @return true if the disconnection succeeded, false otherwise (this fails if it was already disconnected on the given <code>side</code>)
      */
     boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
 }
