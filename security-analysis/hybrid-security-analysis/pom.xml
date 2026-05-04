@@ -9,15 +9,9 @@
         <version>7.3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-hybrid-security-analysis-api</artifactId>
-    <name>Hybrid Security Analysis API</name>
-    <description>An API for running hybrid (static and dynamic) security analyses.</description>
-
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <artifactId>powsybl-hybrid-security-analysis</artifactId>
+    <name>Hybrid Security Analysis</name>
+    <description>A module for running hybrid (static and dynamic) security analyses.</description>
 
     <dependencies>
         <dependency>
