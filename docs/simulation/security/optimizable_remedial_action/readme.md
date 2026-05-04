@@ -120,3 +120,7 @@ Turn `RangeRemedialAction` into an interface? 3 useful use-cases:
 1. `SimpleRangeRemedialAction` : only one `RangeAction` involved
 2. `MultipleRangeRemedialAction` : several correlated `RangeAction`s involved, each having a distribution key
 3. `GlskRangeRemedialAction` : `RangeAction`s are associated with a GLSK (linear or not) -> might require a network
+
+```plantuml
+A -> B: abc
+```
