@@ -49,7 +49,7 @@ public record DataObjectRefKey(Long id, String foreignKey) {
         return Long.parseLong(foreignKey);
     }
 
-    public boolean isObjectReference() {
+    private boolean isObjectReference() {
         return foreignKey != null && foreignKey.startsWith(OBJECT_REFERENCE_PREFIX);
     }
 
