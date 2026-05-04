@@ -20,7 +20,7 @@ We want to standardize this interface.
 
 The optimizer will choose the optimal set point of the actions.
 
-This means that we need a new object to represent the operator strategy not yet optimized "OptimizableOperatorStrategy".
+This means that we need a new object to represent the operator strategy not yet optimized "OptimizableRemedialAction".
 
 ### Examples
 
@@ -70,9 +70,44 @@ UnionRange(
 )
 ```
 
+
+```mermaid
+---
+title: Aligned PSTs
+---
+classDiagram
+    RangeRemedialAction : +String id "my-psts-remedial-action"
+    RangeRemedialAction : +Condition condition Condition.TRUE_CONDITION
+    RangeRemedialAction : +Optional<Integer> applicationDelay Optional.empty
+    RangeRemedialAction : +Optional<ExtraTemporalContraints> extraTemporalContraints Optional.empty
+
+    ContingencyContext : +ContingencyContextType contingencyContextType ContingencyContextType.ALL
+    
+    Step : +boolean isRelative false
+    Step : +double value 1.0
+    Step : +double offset 0.0
+
+    ContinuousRange : +boolean isRelative false
+    ContinuousRange : +Optional<Double> minimum Optional<0.0>
+    ContinuousRange : +Optional<Double> maximum Optional<33.0>
+
+    PhaseTapChangerTapPositionRangeAction1 : +String id "pst1"
+    PhaseTapChangerTapPositionRangeAction1 : +boolean isIntegerValue true
+    PhaseTapChangerTapPositionRangeAction1 : +String pstId "pst1"
+
+    PhaseTapChangerTapPositionRangeAction2 : +String id "pst2"
+    PhaseTapChangerTapPositionRangeAction2 : +boolean isIntegerValue true
+    PhaseTapChangerTapPositionRangeAction2 : +String pstId "pst2"
+    
+    RangeRemedialAction --* Step
+    RangeRemedialAction --* ContinuousRange
+    RangeRemedialAction --* ContingencyContext
+    RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction1
+    RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction2
+```
+
 #### Hvdc example
 
-Hdvc can be modeled as generators and loads.
 If so, we can use a `rangeActionsAndKeys` with 1/-1 to emulate a new set point.
 If the hdvc has a better model, those keys are not needed.
 We can also use a continuous range to explore all available setpoints without step.
@@ -102,6 +137,7 @@ passed to the individual range action (modulo a -1 factor for load range actions
 #### Countertrading
 
 Equivalent to RD but taking in account the GLSKs from both countries.
+We can use a range with step to only rely on specific volumes of CT.
 
 # Draft
 
@@ -121,6 +157,3 @@ Turn `RangeRemedialAction` into an interface? 3 useful use-cases:
 2. `MultipleRangeRemedialAction` : several correlated `RangeAction`s involved, each having a distribution key
 3. `GlskRangeRemedialAction` : `RangeAction`s are associated with a GLSK (linear or not) -> might require a network
 
-```puml
-A -> B: abc
-```
