@@ -67,7 +67,7 @@ public class BinReader extends AbstractTreeDataReader {
     @Override
     protected Map<String, String> readExtensionVersions() {
         try {
-            int nbVersions = dis.readShort();
+            int nbVersions = dis.readUnsignedShort();
             Map<String, String> versions = new HashMap<>();
             for (int i = 0; i < nbVersions; i++) {
                 versions.put(readString(), readString());
@@ -129,28 +129,28 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     private void skipString() throws IOException {
-        int len = dis.readShort();
-        if (len > 0) {
+        int len = dis.readUnsignedShort();
+        if (len != NULL_STRING_SENTINEL) {
             dis.skipNBytes(len);
         }
     }
 
     private void skipIntArray() throws IOException {
-        int count = dis.readShort();
+        int count = dis.readUnsignedShort();
         if (count > 0) {
             dis.skipNBytes(4L * count);
         }
     }
 
     private void skipStringArray() throws IOException {
-        int count = dis.readShort();
+        int count = dis.readUnsignedShort();
         for (int i = 0; i < count; i++) {
             skipString();
         }
     }
 
     private List<Integer> readIntArrayRaw() throws IOException {
-        int count = dis.readShort();
+        int count = dis.readUnsignedShort();
         List<Integer> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             list.add(dis.readInt());
@@ -159,7 +159,7 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     private List<String> readStringArrayRaw() throws IOException {
-        int count = dis.readShort();
+        int count = dis.readUnsignedShort();
         List<String> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             list.add(readString());
@@ -169,8 +169,8 @@ public class BinReader extends AbstractTreeDataReader {
 
     private String readString() {
         try {
-            int stringNbBytes = dis.readShort();
-            if (stringNbBytes == -1) {
+            int stringNbBytes = dis.readUnsignedShort();
+            if (stringNbBytes == NULL_STRING_SENTINEL) {
                 return null;
             }
             byte[] stringBytes = dis.readNBytes(stringNbBytes);
@@ -329,10 +329,10 @@ public class BinReader extends AbstractTreeDataReader {
             if (isAttrAbsent(name)) {
                 return defaultValue;
             }
-            int ordinal = dis.readShort();
+            int ordinal = dis.readUnsignedShort();
             peekNextEntry();
             T[] constants = clazz.getEnumConstants();
-            return ordinal >= 0 && ordinal < constants.length ? constants[ordinal] : defaultValue;
+            return ordinal < constants.length ? constants[ordinal] : defaultValue;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

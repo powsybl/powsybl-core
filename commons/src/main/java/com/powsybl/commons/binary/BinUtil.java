@@ -17,6 +17,7 @@ public final class BinUtil {
 
     static final int END_NODE = 0;
     static final int MAX_NAME_IDX = 0xFFFF;
+    static final int NULL_STRING_SENTINEL = 0xFFFF;
 
     static final byte TYPE_DOUBLE = 0;
     static final byte TYPE_FLOAT = 1;

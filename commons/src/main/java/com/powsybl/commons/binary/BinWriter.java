@@ -49,9 +49,12 @@ public class BinWriter extends AbstractTreeDataWriter {
     private static void writeString(String value, DataOutputStream dataOutputStream) {
         try {
             if (value == null) {
-                writeIndex(-1, dataOutputStream);
+                writeIndex(NULL_STRING_SENTINEL, dataOutputStream);
             } else {
                 byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+                if (bytes.length >= NULL_STRING_SENTINEL) {
+                    throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
+                }
                 writeIndex(bytes.length, dataOutputStream);
                 dataOutputStream.write(bytes);
             }
@@ -85,9 +88,14 @@ public class BinWriter extends AbstractTreeDataWriter {
     }
 
     private void writeEntry(String name, byte type) {
-        int index = namesIndex.computeIfAbsent(name, n -> 1 + namesIndex.size());
-        if (index > MAX_NAME_IDX) {
-            throw new PowsyblException("Binary format: too many distinct names (max " + MAX_NAME_IDX + ")");
+        Integer index = namesIndex.get(name);
+        if (index == null) {
+            int newIndex = namesIndex.size() + 1;
+            if (newIndex > MAX_NAME_IDX) {
+                throw new PowsyblException("Binary format: too many distinct names (max " + MAX_NAME_IDX + ")");
+            }
+            namesIndex.put(name, newIndex);
+            index = newIndex;
         }
         writeIndex(index, tmpDos);
         try {
