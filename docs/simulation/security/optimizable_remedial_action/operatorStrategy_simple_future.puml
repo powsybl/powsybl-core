@@ -110,7 +110,7 @@ Range <|-- ContinuousRange
 Range <|-- IntersectionRange
 Range <|-- UnionRange
 
-interface ContinuousRange {
+class ContinuousRange {
  - boolean isRelative
  - Optional<Double> mimimum
  - Optional<Double> maximum
