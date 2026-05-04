@@ -457,7 +457,7 @@ public class BinReader extends AbstractTreeDataReader {
         try {
             return dis.read() == -1;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
