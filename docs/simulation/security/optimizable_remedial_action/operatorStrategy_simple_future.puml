@@ -89,17 +89,11 @@ class RangeRemedialAction {
   - Map<RangeAction, double> rangeActionsAndKeys
   + Set<Action> toActions(double setPoint)
 }
-note bottom
- Questions ouvertes:
-  - comment gérer le minimum type puissance min de fonctionnement ?
-  => Résolu: avec des unions
-end note
 RangeRemedialAction --* "*" RangeAction
 RangeRemedialAction --* "1" Range
 RangeRemedialAction --* "1" Step
 note right of RangeRemedialAction::step
  Lié à l'optimisation
- Exemple: Counter-trading par pas de 100 MW
 end note
 
 interface Range{
@@ -147,7 +141,6 @@ interface RangeAction {
 note bottom: Clone of "set point based actions" but without "set point"
 note left of RangeAction::isIntegerValue
  Lié à la physique
- Exemple: PST
 end note
 
 PhaseTapChangerTapPositionRangeAction --|> RangeAction
