@@ -26,6 +26,7 @@ public class BinReader extends AbstractTreeDataReader {
     private final byte[] binaryMagicNumber;
 
     private String[] names;
+    private byte[] types;
 
     private int nextNameIdx = END_NODE;
     private byte nextType;
@@ -81,8 +82,10 @@ public class BinReader extends AbstractTreeDataReader {
     private void readNamesDictionary() throws IOException {
         int nbEntries = dis.readUnsignedShort();
         names = new String[nbEntries + 1];
+        types = new byte[nbEntries + 1];
         for (int i = 0; i < nbEntries; i++) {
             names[i + 1] = readString();
+            types[i + 1] = dis.readByte();
         }
     }
 
@@ -90,7 +93,7 @@ public class BinReader extends AbstractTreeDataReader {
         try {
             nextNameIdx = dis.readUnsignedShort();
             if (nextNameIdx != END_NODE) {
-                nextType = dis.readByte();
+                nextType = types[nextNameIdx];
             }
         } catch (EOFException e) {
             nextNameIdx = END_NODE;

@@ -28,7 +28,9 @@ public class BinWriter extends AbstractTreeDataWriter {
     private final byte[] binaryMagicNumber;
     private Map<String, String> extensionVersions = Collections.emptyMap();
 
-    private final Map<String, Integer> namesIndex = new LinkedHashMap<>();
+    private final Map<TypedName, Integer> namesIndex = new LinkedHashMap<>();
+
+    private record TypedName(String name, byte type) { }
 
     public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
@@ -76,7 +78,7 @@ public class BinWriter extends AbstractTreeDataWriter {
     @Override
     public void writeStartNode(String namespace, String name) {
         if (namesIndex.isEmpty()) {
-            namesIndex.put(name, 1); // root element is not a child of another node, hence index is not expected
+            namesIndex.put(new TypedName(name, TYPE_OBJECT), 1); // root element is not a child of another node, hence index is not expected
         } else {
             writeEntry(name, TYPE_OBJECT);
         }
@@ -88,21 +90,17 @@ public class BinWriter extends AbstractTreeDataWriter {
     }
 
     private void writeEntry(String name, byte type) {
-        Integer index = namesIndex.get(name);
+        TypedName key = new TypedName(name, type);
+        Integer index = namesIndex.get(key);
         if (index == null) {
             int newIndex = namesIndex.size() + 1;
             if (newIndex > MAX_NAME_IDX) {
                 throw new PowsyblException("Binary format: too many distinct names (max " + MAX_NAME_IDX + ")");
             }
-            namesIndex.put(name, newIndex);
+            namesIndex.put(key, newIndex);
             index = newIndex;
         }
         writeIndex(index, tmpDos);
-        try {
-            tmpDos.writeByte(type);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @Override
@@ -256,7 +254,14 @@ public class BinWriter extends AbstractTreeDataWriter {
         });
 
         writeIndex(namesIndex.size(), dos);
-        namesIndex.keySet().forEach(name -> writeString(name, dos));
+        namesIndex.keySet().forEach(nameTypeKey -> {
+            writeString(nameTypeKey.name(), dos);
+            try {
+                dos.writeByte(nameTypeKey.type());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 
     @Override
