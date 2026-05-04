@@ -165,22 +165,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectBoundaryLines(isTypeSwitchToOperate, null);
-    }
-
-    @Override
     public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfBoundaryLines(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable) {
-        return disconnectBoundaryLines(isSwitchOpenable, null);
     }
 
     @Override

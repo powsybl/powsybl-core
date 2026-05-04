@@ -218,12 +218,20 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
         return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
-    boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate);
+    /**
+     * Connect the converter stations on both sides of the HVDC line by operating the switches that match the <code>isTypeSwitchToOperate</code> predicate.
+     * @param isTypeSwitchToOperate which switches to operate to connect the HVDC line
+     * @return true if the HVDC line is connected, false otherwise.
+     */
+    default boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectConverterStations(isTypeSwitchToOperate, null);
+    }
 
     /**
-     * Connect the station on <code>side</code> by operating the switches matching the predicate.
+     * Connect the station on <code>side</code> by operating the switches matching the predicate. No operation shall be performed
+     * if the connection is not possible.
      * @param isTypeSwitchToOperate which switches to operate on
-     * @param side the side to operate on
+     * @param side the side to operate on. If the side is null, both sides should be operated on.
      * @return true if the station on the <code>side</code> has been connected, false otherwise
      */
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
@@ -238,12 +246,20 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
         return disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
-    boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable);
+    /**
+     * Disconnect the converter stations on both sides of the HVDC line by operating the switches that match the <code>isTypeSwitchToOperate</code> predicate.
+     * @param isSwitchOpenable which switches to operate to disconnect the HVDC line
+     * @return true if the HVDC line is disconnected, false otherwise.
+     */
+    default boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
+        return disconnectConverterStations(isSwitchOpenable, null);
+    }
 
     /**
-     * Disconnect the station on <code>side</code> by operating the switches matching the predicate.
+     * Disconnect the station on <code>side</code> by operating the switches matching the predicate. No operation shall be performed
+     * if the disconnection is not possible.
      * @param isSwitchOpenable which switches to operate on
-     * @param side the side to operate on
+     * @param side the side to operate on. If the side is null, both sides should be operated on.
      * @return true if the station on the <code>side</code> has been disconnected, false otherwise
      */
     boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side);

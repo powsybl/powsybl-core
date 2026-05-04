@@ -235,22 +235,12 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectConverterStations(isTypeSwitchToOperate, null);
-    }
-
-    @Override
     public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
-        return disconnectConverterStations(isSwitchOpenable, null);
     }
 
     @Override

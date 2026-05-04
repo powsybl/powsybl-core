@@ -35,8 +35,17 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
         return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
     }
 
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+    default boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return connect(isTypeSwitchToOperate, null);
+    }
 
+    /**
+     * Try to connect the connectable on the given <code>side</code> by operating switches that match the <code>isTypeSwitchToOperate</code>
+     * predicate. No operation shall be performed if the connection is not possible.
+     * @param isTypeSwitchToOperate a predicate to define which switches to operate to make the connection
+     * @param side the of the connectable to connect. If this is null, all sides should be connected.
+     * @return true if the connection succeeded, false otherwise.
+     */
     boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
 
     /**
@@ -48,7 +57,16 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
         return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
     }
 
-    boolean disconnect(Predicate<Switch> isSwitchOpenable);
+    default boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return disconnect(isSwitchOpenable, null);
+    }
 
+    /**
+     * Try to disconnect the connectable on the given <code>side</code> by operating switches that match the <code>isTypeSwitchToOperate</code>
+     * predicate. No operation shall be performed if the disconnection is not possible.
+     * @param isSwitchOpenable a predicate to define which switches to operate to make the disconnection
+     * @param side the of the connectable to disconnect. If this is null, all sides should be disconnected.
+     * @return true if the disconnection succeeded, false otherwise.
+     */
     boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
 }
