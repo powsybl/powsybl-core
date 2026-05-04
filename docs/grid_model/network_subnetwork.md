@@ -506,20 +506,17 @@ AC transmission lines are modeled using a standard $\pi$ model with distributed 
 With series impedance $z$ and the shunt admittance on each side $y_1$ and $y_2$:
 
 $$
-\begin{align*}
 \begin{array}{lcl}
 z & = & r+j.x\\
 y_1 & = & g_1 +j. b_1\\
 y_2 & = & g_2 +j. b_2
 \end{array}
-\end{align*}
 $$
 
 The equations of the line, in complex notations, are as follows:
 
 $$
-\begin{align*}
-& \left(\begin{array}{c}
+\left(\begin{array}{c}
 I_{1}\\
 I_{2}
 \end{array}\right)=\left(\begin{array}{cc}
@@ -529,7 +526,6 @@ y_{1}+\dfrac{1}{z} & -\dfrac{1}{z}\\
 V_{1}\\
 V_{2}
 \end{array}\right)
-\end{align*}
 $$
 
 **Characteristics**
