@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.hybrid.security.analysis;
+package com.powsybl.contingencyScreening.security.analysis;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.hybrid.security.analysis.parameters.HybridSecurityAnalysisParameters;
+import com.powsybl.contingencyScreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.*;
@@ -31,18 +31,15 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /** @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}*/
-class HybridSecurityAnalysisHandlerTest {
+class ContingencyScreeningSecurityAnalysisHandlerTest {
 
     private Network network;
     private String workingVariantId;
     private ContingenciesProvider contingenciesProvider;
-    private HybridSecurityAnalysisHandler hybridSecurityAnalysisHandler;
+    private ContingencyScreeningSecurityAnalysisHandler contingencyScreeningSecurityAnalysisHandler;
     private Contingency contingency1;
     private Contingency contingency2;
     private SecurityAnalysisProvider firstProvider;
@@ -66,14 +63,14 @@ class HybridSecurityAnalysisHandlerTest {
         secondProvider = mock(SecurityAnalysisProvider.class);
         when(secondProvider.getName()).thenReturn("SecondProvider");
 
-        HybridSecurityAnalysisParameters extension = new HybridSecurityAnalysisParameters();
+        ContingencyScreeningSecurityAnalysisParameters extension = new ContingencyScreeningSecurityAnalysisParameters();
         extension.setFirstProviderName("FirstProvider");
         extension.setSecondProviderName("SecondProvider");
         contingency1 = new Contingency("contingency-1");
         contingency2 = new Contingency("contingency-2");
 
         workingVariantId = network.getVariantManager().getWorkingVariantId();
-        hybridSecurityAnalysisHandler = new HybridSecurityAnalysisHandler(network, workingVariantId, contingenciesProvider,
+        contingencyScreeningSecurityAnalysisHandler = new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId, contingenciesProvider,
                 runParameters, extension, firstProvider, secondProvider);
     }
 
@@ -97,8 +94,8 @@ class HybridSecurityAnalysisHandlerTest {
         );
         when(secondProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(secondReport));
 
-        // 1. Launch the hybrid analysis
-        SecurityAnalysisReport report = hybridSecurityAnalysisHandler.run().join();
+        // 1. Launch the contingency screening analysis
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
 
         // 2. Test the result
         assertNotNull(report);
@@ -139,7 +136,7 @@ class HybridSecurityAnalysisHandlerTest {
         );
         when(secondProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(secondReport));
 
-        SecurityAnalysisReport report = hybridSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
 
         List<PostContingencyResult> results = report.getResult().getPostContingencyResults();
         assertEquals(2, results.size());
@@ -167,7 +164,7 @@ class HybridSecurityAnalysisHandlerTest {
                 CompletableFuture.failedFuture(new RuntimeException("first failure"))
         );
 
-        SecurityAnalysisReport report = hybridSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
 
         assertNotNull(report);
         assertEquals(0, report.getResult().getPostContingencyResults().size());
@@ -186,7 +183,7 @@ class HybridSecurityAnalysisHandlerTest {
         );
         when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
 
-        SecurityAnalysisReport report = hybridSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
 
         assertSame(firstReport, report);
         verify(secondProvider, never()).run(any(), any(), any(), any());
@@ -226,7 +223,7 @@ class HybridSecurityAnalysisHandlerTest {
                     ));
                 });
 
-        SecurityAnalysisReport report = hybridSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
 
         List<PostContingencyResult> results = report.getResult().getPostContingencyResults();
         assertEquals(3, results.size());
@@ -238,10 +235,10 @@ class HybridSecurityAnalysisHandlerTest {
 
     @Test
     void testConstructorWithServiceLoader() {
-        HybridSecurityAnalysisParameters extension = createExtension("NonExistentProvider1", "NonExistentProvider2");
+        ContingencyScreeningSecurityAnalysisParameters extension = createExtension("NonExistentProvider1", "NonExistentProvider2");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new HybridSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
                         contingenciesProvider, runParameters, extension));
 
         assertEquals("Security analysis provider 'NonExistentProvider1' not found by ServiceLoader.", exception.getMessage());
@@ -249,16 +246,16 @@ class HybridSecurityAnalysisHandlerTest {
 
     @Test
     void testConstructorRequiresProviders() {
-        HybridSecurityAnalysisParameters extension = createExtension("FirstProvider", "SecondProvider");
+        ContingencyScreeningSecurityAnalysisParameters extension = createExtension("FirstProvider", "SecondProvider");
 
         NullPointerException firstProviderException = assertThrows(NullPointerException.class, () ->
-                new HybridSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
                         contingenciesProvider, runParameters, extension,
                         null, secondProvider));
         assertEquals("First provider is required", firstProviderException.getMessage());
 
         NullPointerException secondProviderException = assertThrows(NullPointerException.class, () ->
-                new HybridSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
                         contingenciesProvider, runParameters, extension,
                         firstProvider, null));
         assertEquals("Second provider is required", secondProviderException.getMessage());
@@ -277,7 +274,7 @@ class HybridSecurityAnalysisHandlerTest {
 
         when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
 
-        SecurityAnalysisReport report = hybridSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
         assertNotNull(report.getResult().getNetworkMetadata());
     }
 
@@ -304,7 +301,7 @@ class HybridSecurityAnalysisHandlerTest {
         );
         when(secondProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(secondReport));
 
-        SecurityAnalysisReport report = hybridSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
 
         assertArrayEquals(logBytes, report.getLogBytes().orElseThrow());
     }
@@ -318,8 +315,8 @@ class HybridSecurityAnalysisHandlerTest {
         return createPostContingencyResult(contingency, status, violationCount);
     }
 
-    private static HybridSecurityAnalysisParameters createExtension(String firstProviderName, String secondProviderName) {
-        HybridSecurityAnalysisParameters extension = new HybridSecurityAnalysisParameters();
+    private static ContingencyScreeningSecurityAnalysisParameters createExtension(String firstProviderName, String secondProviderName) {
+        ContingencyScreeningSecurityAnalysisParameters extension = new ContingencyScreeningSecurityAnalysisParameters();
         extension.setFirstProviderName(firstProviderName);
         extension.setSecondProviderName(secondProviderName);
         return extension;

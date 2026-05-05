@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.hybrid.security.analysis;
+package com.powsybl.contingencyScreening.security.analysis;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -14,42 +14,42 @@ import com.powsybl.commons.report.TypedValue;
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
  * */
 
-public final class HybridSecurityAnalysisReports {
+public final class ContingencyScreeningSecurityAnalysisReports {
 
-    private HybridSecurityAnalysisReports() {
+    private ContingencyScreeningSecurityAnalysisReports() {
     }
 
-    public static ReportNode createHybridSecurityAnalysisReportNode(ReportNode reportNode, String networkId) {
+    public static ReportNode createContingencyScreeningSecurityAnalysisReportNode(ReportNode reportNode, String networkId) {
         return reportNode.newReportNode()
-                .withMessageTemplate("hybridSecurityAnalysis")
+                .withMessageTemplate("contingencyScreeningSecurityAnalysis")
                 .withTypedValue("networkId", networkId, TypedValue.ID)
                 .add();
     }
 
     public static ReportNode reportTotalContingencies(ReportNode reportNode, int count) {
         return reportNode.newReportNode()
-                .withMessageTemplate("hybridSecurityAnalysisTotalContingencies")
+                .withMessageTemplate("contingencyScreeningSecurityAnalysisTotalContingencies")
                 .withUntypedValue("count", count)
                 .add();
     }
 
     public static ReportNode reportFirstPassStarted(ReportNode reportNode, String providerName) {
         return reportNode.newReportNode()
-                .withMessageTemplate("hybridSecurityAnalysisFirstPassStarted")
+                .withMessageTemplate("contingencyScreeningSecurityAnalysisFirstPassStarted")
                 .withUntypedValue("providerName", providerName)
                 .add();
     }
 
-    public static void reportSecondPassRequired(ReportNode reportNode, int count) {
-        reportNode.newReportNode()
-                .withMessageTemplate("hybridSecurityAnalysisSecondPassRequired")
+    public static ReportNode reportSecondPassRequired(ReportNode reportNode, int count) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("contingencyScreeningSecurityAnalysisSecondPassRequired")
                 .withUntypedValue("count", count)
                 .add();
     }
 
-    public static void reportSecondPassStarted(ReportNode reportNode, String providerName) {
-        reportNode.newReportNode()
-                .withMessageTemplate("hybridSecurityAnalysisSecondPassStarted")
+    public static ReportNode reportSecondPassStarted(ReportNode reportNode, String providerName) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("contingencyScreeningSecurityAnalysisSecondPassStarted")
                 .withUntypedValue("providerName", providerName)
                 .add();
     }

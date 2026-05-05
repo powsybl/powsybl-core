@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.hybrid.security.analysis;
+package com.powsybl.contingencyScreening.security.analysis;
 
 import com.powsybl.commons.config.ModuleConfigRepository;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.hybrid.security.analysis.parameters.HybridSecurityAnalysisParameters;
+import com.powsybl.contingencyScreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
 import com.powsybl.tools.PowsyblCoreVersion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,17 +22,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}*/
 
-class HybridSecurityAnalysisHandlerProviderTest {
-    private HybridSecurityAnalysisProvider provider;
+class ContingencyScreeningSecurityAnalysisHandlerProviderTest {
+    private ContingencyScreeningSecurityAnalysisProvider provider;
 
     @BeforeEach
     void setUp() {
-        provider = new HybridSecurityAnalysisProvider();
+        provider = new ContingencyScreeningSecurityAnalysisProvider();
     }
 
     @Test
     void testProviderName() {
-        assertEquals("HybridSecurityAnalysisHandler", provider.getName());
+        assertEquals("contingency-screening-security-analysis", provider.getName());
     }
 
     @Test
@@ -49,7 +49,7 @@ class HybridSecurityAnalysisHandlerProviderTest {
         var extension = provider.loadSpecificParameters(config);
 
         assertTrue(extension.isPresent(), "Extension should be present");
-        HybridSecurityAnalysisParameters params = (HybridSecurityAnalysisParameters) extension.get();
+        ContingencyScreeningSecurityAnalysisParameters params = (ContingencyScreeningSecurityAnalysisParameters) extension.get();
 
         assertEquals("LoadFlow", params.getFirstProviderName());
         assertEquals("DynaFlow", params.getSecondProviderName());

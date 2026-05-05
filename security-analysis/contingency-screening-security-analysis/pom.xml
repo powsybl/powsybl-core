@@ -9,9 +9,9 @@
         <version>7.3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-hybrid-security-analysis</artifactId>
-    <name>Hybrid Security Analysis</name>
-    <description>A module for running hybrid (static and dynamic) security analyses.</description>
+    <artifactId>powsybl-contingency-screening-security-analysis</artifactId>
+    <name>Contingency Screening Security Analysis</name>
+    <description>A module for running contingency screening (static and dynamic) security analyses.</description>
 
     <dependencies>
         <dependency>
