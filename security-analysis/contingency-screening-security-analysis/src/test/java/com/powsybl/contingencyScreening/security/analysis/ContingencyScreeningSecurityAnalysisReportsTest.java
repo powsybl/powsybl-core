@@ -1,4 +1,4 @@
-package com.powsybl.hybrid.security.analysis;
+package com.powsybl.contingencyScreening.security.analysis;
 
 import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
@@ -7,17 +7,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>} */
-public class HybridSecurityAnalysisReportsTest {
+public class ContingencyScreeningSecurityAnalysisReportsTest {
     @Test
     void testReportTotalContingencies() {
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withMessageTemplate("test")
                 .build();
 
-        ReportNode resultNode = HybridSecurityAnalysisReports.reportTotalContingencies(reportNode, 42);
+        ReportNode resultNode = ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, 42);
 
         assertNotNull(resultNode);
-        assertEquals("hybridSecurityAnalysisTotalContingencies", resultNode.getMessageKey());
+        assertEquals("contingencyScreeningSecurityAnalysisTotalContingencies", resultNode.getMessageKey());
         assertTrue(resultNode.getValue("count").isPresent());
         assertEquals("42", resultNode.getValue("count").get().toString());
     }
@@ -28,10 +28,10 @@ public class HybridSecurityAnalysisReportsTest {
                 .withMessageTemplate("test")
                 .build();
 
-        ReportNode resultNode = HybridSecurityAnalysisReports.reportFirstPassStarted(reportNode, "load-flow");
+        ReportNode resultNode = ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, "load-flow");
 
         assertNotNull(resultNode);
-        assertEquals("hybridSecurityAnalysisFirstPassStarted", resultNode.getMessageKey());
+        assertEquals("contingencyScreeningSecurityAnalysisFirstPassStarted", resultNode.getMessageKey());
         assertTrue(resultNode.getValue("providerName").isPresent());
         assertEquals("load-flow", resultNode.getValue("providerName").get().toString());
     }

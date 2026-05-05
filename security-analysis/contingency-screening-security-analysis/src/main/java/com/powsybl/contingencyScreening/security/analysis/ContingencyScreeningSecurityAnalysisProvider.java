@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.hybrid.security.analysis;
+package com.powsybl.contingencyScreening.security.analysis;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.hybrid.security.analysis.parameters.HybridSecurityAnalysisParameters;
+import com.powsybl.contingencyScreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisProvider;
@@ -32,13 +32,13 @@ import java.util.concurrent.CompletableFuture;
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>} */
 
 @AutoService(SecurityAnalysisProvider.class)
-public class HybridSecurityAnalysisProvider implements SecurityAnalysisProvider {
+public class ContingencyScreeningSecurityAnalysisProvider implements SecurityAnalysisProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HybridSecurityAnalysisProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContingencyScreeningSecurityAnalysisProvider.class);
 
-    private static final String PROVIDER_NAME = "HybridSecurityAnalysisHandler";
+    private static final String PROVIDER_NAME = "contingency-screening-security-analysis";
 
-    /** @return {@code "HybridSecurityAnalysisHandler"} */
+    /** @return {@code "ContingencyScreening"} */
     @Override
     public String getName() {
         return PROVIDER_NAME;
@@ -51,10 +51,10 @@ public class HybridSecurityAnalysisProvider implements SecurityAnalysisProvider 
     }
 
     /**
-     * Reads {@link HybridSecurityAnalysisParameters} from {@code runParameters} and delegates
-     * to {@link HybridSecurityAnalysisHandler}.
+     * Reads {@link ContingencyScreeningSecurityAnalysisParameters} from {@code runParameters} and delegates
+     * to {@link ContingencyScreeningSecurityAnalysisHandler}.
      *
-     * @throws IllegalArgumentException if {@link HybridSecurityAnalysisParameters} is absent
+     * @throws IllegalArgumentException if {@link ContingencyScreeningSecurityAnalysisParameters} is absent
      */
     @Override
     public CompletableFuture<SecurityAnalysisReport> run(Network network,
@@ -66,24 +66,24 @@ public class HybridSecurityAnalysisProvider implements SecurityAnalysisProvider 
         Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(contingenciesProvider);
         Objects.requireNonNull(runParameters);
-        LOGGER.info("Starting hybrid-mode security analysis for network: {}", network.getId());
+        LOGGER.info("Starting contingency screening security analysis for network: {}", network.getId());
 
-        HybridSecurityAnalysisParameters hybridSecurityAnalysisParameters = runParameters.getSecurityAnalysisParameters().getExtension(HybridSecurityAnalysisParameters.class);
-        if (hybridSecurityAnalysisParameters == null) {
-            LOGGER.warn("HybridSecurityAnalysisParameters configuration is missing from SecurityAnalysisRunParameters, using defaults.");
-            hybridSecurityAnalysisParameters = (HybridSecurityAnalysisParameters) loadSpecificParameters(PlatformConfig.defaultConfig()).orElseThrow(() ->
-                    new IllegalArgumentException("Failed to load HybridSecurityAnalysisParameters configuration"));
+        ContingencyScreeningSecurityAnalysisParameters parameters = runParameters.getSecurityAnalysisParameters().getExtension(ContingencyScreeningSecurityAnalysisParameters.class);
+        if (parameters == null) {
+            LOGGER.warn("ContingencyScreeningSecurityAnalysisParameters configuration is missing from SecurityAnalysisRunParameters, using defaults.");
+            parameters = (ContingencyScreeningSecurityAnalysisParameters) loadSpecificParameters(PlatformConfig.defaultConfig()).orElseThrow(() ->
+                    new IllegalArgumentException("Failed to load ContingencyScreeningSecurityAnalysisParameters configuration"));
         }
         LOGGER.debug("Configuration loaded - First provider: {}, Second provider: {}",
-                hybridSecurityAnalysisParameters.getFirstProviderName(),
-                hybridSecurityAnalysisParameters.getSecondProviderName());
+                parameters.getFirstProviderName(),
+                parameters.getSecondProviderName());
 
-        HybridSecurityAnalysisHandler analysis = new HybridSecurityAnalysisHandler(
+        ContingencyScreeningSecurityAnalysisHandler analysis = new ContingencyScreeningSecurityAnalysisHandler(
                 network,
                 workingVariantId,
                 contingenciesProvider,
                 runParameters,
-                hybridSecurityAnalysisParameters
+                parameters
         );
 
         return analysis.run();
@@ -91,6 +91,6 @@ public class HybridSecurityAnalysisProvider implements SecurityAnalysisProvider 
 
     @Override
     public Optional<Extension<SecurityAnalysisParameters>> loadSpecificParameters(PlatformConfig platformConfig) {
-        return Optional.of(HybridSecurityAnalysisParameters.load(platformConfig));
+        return Optional.of(ContingencyScreeningSecurityAnalysisParameters.load(platformConfig));
     }
 }

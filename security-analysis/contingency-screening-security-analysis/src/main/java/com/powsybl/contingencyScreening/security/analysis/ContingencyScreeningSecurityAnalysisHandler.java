@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.hybrid.security.analysis;
+package com.powsybl.contingencyScreening.security.analysis;
 
 import com.powsybl.commons.compress.ZipPackager;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.hybrid.security.analysis.parameters.HybridSecurityAnalysisParameters;
+import com.powsybl.contingencyScreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.results.OperatorStrategyResult;
@@ -26,38 +26,39 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Business logic for hybrid-mode security analysis: first pass on all contingencies,
+ * Business logic for contingency screening security analysis: first pass on all contingencies,
  * then second pass on those that did not converge or triggered an automaton, results merged.
  *
- * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>} */
-public class HybridSecurityAnalysisHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HybridSecurityAnalysisHandler.class);
+ * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
+ */
+public class ContingencyScreeningSecurityAnalysisHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContingencyScreeningSecurityAnalysisHandler.class);
 
     private final Network network;
     private final String workingVariantId;
     private final ContingenciesProvider contingenciesProvider;
     private final SecurityAnalysisRunParameters runParameters;
-    private final HybridSecurityAnalysisParameters hybridSecurityAnalysisParameters;
+    private final ContingencyScreeningSecurityAnalysisParameters parameters;
     private final SecurityAnalysisProvider firstProvider;
     private final SecurityAnalysisProvider secondProvider;
-    private ReportNode hsaReportNode;
+    private ReportNode reportNode;
     private List<Contingency> allContingencies;
 
-    public HybridSecurityAnalysisHandler(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
-                                         SecurityAnalysisRunParameters runParameters, HybridSecurityAnalysisParameters hybridSecurityAnalysisParameters) {
-        this(network, workingVariantId, contingenciesProvider, runParameters, hybridSecurityAnalysisParameters,
-                findProvider(hybridSecurityAnalysisParameters.getFirstProviderName()),
-                findProvider(hybridSecurityAnalysisParameters.getSecondProviderName()));
+    public ContingencyScreeningSecurityAnalysisHandler(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
+                                                       SecurityAnalysisRunParameters runParameters, ContingencyScreeningSecurityAnalysisParameters parameters) {
+        this(network, workingVariantId, contingenciesProvider, runParameters, parameters,
+                findProvider(parameters.getFirstProviderName()),
+                findProvider(parameters.getSecondProviderName()));
     }
 
-    public HybridSecurityAnalysisHandler(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
-                                         SecurityAnalysisRunParameters runParameters, HybridSecurityAnalysisParameters hybridSecurityAnalysisParameters,
-                                         SecurityAnalysisProvider firstProvider, SecurityAnalysisProvider secondProvider) {
+    public ContingencyScreeningSecurityAnalysisHandler(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
+                                                       SecurityAnalysisRunParameters runParameters, ContingencyScreeningSecurityAnalysisParameters parameters,
+                                                       SecurityAnalysisProvider firstProvider, SecurityAnalysisProvider secondProvider) {
         this.network = network;
         this.workingVariantId = workingVariantId;
         this.contingenciesProvider = contingenciesProvider;
         this.runParameters = runParameters;
-        this.hybridSecurityAnalysisParameters = hybridSecurityAnalysisParameters;
+        this.parameters = parameters;
         this.firstProvider = java.util.Objects.requireNonNull(firstProvider, "First provider is required");
         this.secondProvider = java.util.Objects.requireNonNull(secondProvider, "Second provider is required");
     }
@@ -70,26 +71,26 @@ public class HybridSecurityAnalysisHandler {
     }
 
     /**
-     * Executes the full hybrid-mode analysis workflow.
+     * Executes the full contingency screening analysis workflow.
      */
     public CompletableFuture<SecurityAnalysisReport> run() {
-        hsaReportNode = HybridSecurityAnalysisReports.createHybridSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
-        LOGGER.info("Starting hybrid-mode security analysis");
-        LOGGER.debug("First provider: {}, Second provider: {}", hybridSecurityAnalysisParameters.getFirstProviderName(), hybridSecurityAnalysisParameters.getSecondProviderName());
+        reportNode = ContingencyScreeningSecurityAnalysisReports.createContingencyScreeningSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
+        LOGGER.info("Starting contingency screening security analysis");
+        LOGGER.debug("First provider: {}, Second provider: {}", parameters.getFirstProviderName(), parameters.getSecondProviderName());
 
         // Step 1: Get all contingencies
         allContingencies = contingenciesProvider.getContingencies(network);
-        HybridSecurityAnalysisReports.reportTotalContingencies(hsaReportNode, allContingencies.size());
+        ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, allContingencies.size());
 
         // Step 2: Run first pass analysis
         CompletableFuture<SecurityAnalysisReport> firstAnalysisFuture = firstProvider.run(
             network, workingVariantId, contingenciesProvider, runParameters);
-        HybridSecurityAnalysisReports.reportFirstPassStarted(hsaReportNode, hybridSecurityAnalysisParameters.getFirstProviderName());
+        ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, parameters.getFirstProviderName());
 
         // Step 3: Chain second pass analysis based on first pass results
         return firstAnalysisFuture.thenCompose(this::processFirstPassResults)
             .exceptionally(ex -> {
-                LOGGER.error("Error during hybrid-mode security analysis", ex);
+                LOGGER.error("Error during contingency screening security analysis", ex);
                 return new SecurityAnalysisReport(SecurityAnalysisResult.empty());
             });
     }
@@ -99,7 +100,7 @@ public class HybridSecurityAnalysisHandler {
 
         List<Contingency> contingenciesForSecondPass = selectContingenciesForSecondPass(
                 firstReport.getResult(), allContingencies);
-        HybridSecurityAnalysisReports.reportSecondPassRequired(hsaReportNode, contingenciesForSecondPass.size());
+        ContingencyScreeningSecurityAnalysisReports.reportSecondPassRequired(reportNode, contingenciesForSecondPass.size());
 
         // If no contingencies need second pass analysis, return first pass results
         if (contingenciesForSecondPass.isEmpty()) {
@@ -108,7 +109,7 @@ public class HybridSecurityAnalysisHandler {
         }
 
         // Run second pass analysis on filtered contingencies
-        HybridSecurityAnalysisReports.reportSecondPassStarted(hsaReportNode, hybridSecurityAnalysisParameters.getSecondProviderName());
+        ContingencyScreeningSecurityAnalysisReports.reportSecondPassStarted(reportNode, parameters.getSecondProviderName());
         return runSecondPassAnalysis(contingenciesForSecondPass)
                 .thenApply(secondReport -> mergeResults(firstReport, secondReport));
     }

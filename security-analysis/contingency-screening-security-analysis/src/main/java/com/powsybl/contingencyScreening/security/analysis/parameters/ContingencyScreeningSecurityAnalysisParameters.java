@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.hybrid.security.analysis.parameters;
+package com.powsybl.contingencyScreening.security.analysis.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -16,12 +16,12 @@ import java.util.Optional;
 
 /**
  * This class contains configuration parameters specific to
- * hybrid-mode security analysis.
+ * contingency screening security analysis.
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>} */
 
-public class HybridSecurityAnalysisParameters extends AbstractExtension<SecurityAnalysisParameters> {
+public class ContingencyScreeningSecurityAnalysisParameters extends AbstractExtension<SecurityAnalysisParameters> {
 
-    public static final String NAME = "hybrid-security-analysis-parameters";
+    public static final String NAME = "contingency-screening-security-analysis-parameters";
 
     /**
      * The name of the security analysis provider to use for the first pass.
@@ -54,12 +54,12 @@ public class HybridSecurityAnalysisParameters extends AbstractExtension<Security
         return NAME;
     }
 
-    public static HybridSecurityAnalysisParameters load() {
+    public static ContingencyScreeningSecurityAnalysisParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
 
-    public static HybridSecurityAnalysisParameters load(PlatformConfig platformConfig) {
-        HybridSecurityAnalysisParameters parameters = new HybridSecurityAnalysisParameters();
+    public static ContingencyScreeningSecurityAnalysisParameters load(PlatformConfig platformConfig) {
+        ContingencyScreeningSecurityAnalysisParameters parameters = new ContingencyScreeningSecurityAnalysisParameters();
         platformConfig.getOptionalModuleConfig(NAME).ifPresent(config -> {
             parameters.setFirstProviderName(config.getStringProperty("firstProviderName"));
             parameters.setSecondProviderName(config.getStringProperty("secondProviderName"));
@@ -68,11 +68,11 @@ public class HybridSecurityAnalysisParameters extends AbstractExtension<Security
         return parameters;
     }
 
-    public static HybridSecurityAnalysisParameters load(Map<String, String> properties) {
-        return new HybridSecurityAnalysisParameters().update(properties);
+    public static ContingencyScreeningSecurityAnalysisParameters load(Map<String, String> properties) {
+        return new ContingencyScreeningSecurityAnalysisParameters().update(properties);
     }
 
-    public HybridSecurityAnalysisParameters update(Map<String, String> properties) {
+    public ContingencyScreeningSecurityAnalysisParameters update(Map<String, String> properties) {
         Optional.ofNullable(properties.get("firstProviderName")).ifPresent(this::setFirstProviderName);
         Optional.ofNullable(properties.get("secondProviderName")).ifPresent(this::setSecondProviderName);
         return this;
