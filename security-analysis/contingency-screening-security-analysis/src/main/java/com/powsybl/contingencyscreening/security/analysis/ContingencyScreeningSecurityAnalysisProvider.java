@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingencyScreening.security.analysis;
+package com.powsybl.contingencyscreening.security.analysis;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingencyScreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
+import com.powsybl.contingencyscreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisProvider;
@@ -78,7 +78,7 @@ public class ContingencyScreeningSecurityAnalysisProvider implements SecurityAna
                 parameters.getFirstProviderName(),
                 parameters.getSecondProviderName());
 
-        ContingencyScreeningSecurityAnalysisHandler analysis = new ContingencyScreeningSecurityAnalysisHandler(
+        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler analysis = new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler(
                 network,
                 workingVariantId,
                 contingenciesProvider,

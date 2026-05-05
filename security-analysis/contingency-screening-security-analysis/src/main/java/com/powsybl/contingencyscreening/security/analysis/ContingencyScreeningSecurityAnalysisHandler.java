@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingencyScreening.security.analysis;
+package com.powsybl.contingencyscreening.security.analysis;
 
 import com.powsybl.commons.compress.ZipPackager;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingencyScreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
+import com.powsybl.contingencyscreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.results.OperatorStrategyResult;
@@ -74,18 +74,18 @@ public class ContingencyScreeningSecurityAnalysisHandler {
      * Executes the full contingency screening analysis workflow.
      */
     public CompletableFuture<SecurityAnalysisReport> run() {
-        reportNode = ContingencyScreeningSecurityAnalysisReports.createContingencyScreeningSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
+        reportNode = com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.createContingencyScreeningSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
         LOGGER.info("Starting contingency screening security analysis");
         LOGGER.debug("First provider: {}, Second provider: {}", parameters.getFirstProviderName(), parameters.getSecondProviderName());
 
         // Step 1: Get all contingencies
         allContingencies = contingenciesProvider.getContingencies(network);
-        ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, allContingencies.size());
+        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, allContingencies.size());
 
         // Step 2: Run first pass analysis
         CompletableFuture<SecurityAnalysisReport> firstAnalysisFuture = firstProvider.run(
             network, workingVariantId, contingenciesProvider, runParameters);
-        ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, parameters.getFirstProviderName());
+        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, parameters.getFirstProviderName());
 
         // Step 3: Chain second pass analysis based on first pass results
         return firstAnalysisFuture.thenCompose(this::processFirstPassResults)
@@ -100,7 +100,7 @@ public class ContingencyScreeningSecurityAnalysisHandler {
 
         List<Contingency> contingenciesForSecondPass = selectContingenciesForSecondPass(
                 firstReport.getResult(), allContingencies);
-        ContingencyScreeningSecurityAnalysisReports.reportSecondPassRequired(reportNode, contingenciesForSecondPass.size());
+        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportSecondPassRequired(reportNode, contingenciesForSecondPass.size());
 
         // If no contingencies need second pass analysis, return first pass results
         if (contingenciesForSecondPass.isEmpty()) {
@@ -109,7 +109,7 @@ public class ContingencyScreeningSecurityAnalysisHandler {
         }
 
         // Run second pass analysis on filtered contingencies
-        ContingencyScreeningSecurityAnalysisReports.reportSecondPassStarted(reportNode, parameters.getSecondProviderName());
+        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportSecondPassStarted(reportNode, parameters.getSecondProviderName());
         return runSecondPassAnalysis(contingenciesForSecondPass)
                 .thenApply(secondReport -> mergeResults(firstReport, secondReport));
     }
