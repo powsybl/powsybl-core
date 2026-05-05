@@ -40,15 +40,15 @@ public final class ContingencyScreeningSecurityAnalysisReports {
                 .add();
     }
 
-    public static ReportNode reportSecondPassRequired(ReportNode reportNode, int count) {
-        return reportNode.newReportNode()
+    public static void reportSecondPassRequired(ReportNode reportNode, int count) {
+        reportNode.newReportNode()
                 .withMessageTemplate("contingencyScreeningSecurityAnalysisSecondPassRequired")
                 .withUntypedValue("count", count)
                 .add();
     }
 
-    public static ReportNode reportSecondPassStarted(ReportNode reportNode, String providerName) {
-        return reportNode.newReportNode()
+    public static void reportSecondPassStarted(ReportNode reportNode, String providerName) {
+        reportNode.newReportNode()
                 .withMessageTemplate("contingencyScreeningSecurityAnalysisSecondPassStarted")
                 .withUntypedValue("providerName", providerName)
                 .add();
