@@ -23,6 +23,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
     protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
+    private String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
     // Epsilon to filter small temporary limit changes (in A, MW and MVA)
@@ -88,6 +89,19 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         this.permanentLimit = permanentLimit;
         network.invalidateValidationLevel();
         group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
+        return (L) this;
+    }
+
+    @Override
+    public String getPermanentLimitName() {
+        return permanentLimitName;
+    }
+
+    //TODO NDI why return L and not LoadingLimits ?
+    @Override
+    public L setPermanentLimitName(String name) {
+        this.permanentLimitName = Objects.requireNonNull(name);
+        //TODO NDI notify ?
         return (L) this;
     }
 

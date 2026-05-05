@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
  */
 public final class Security {
 
-    private static final String PERMANENT_LIMIT_NAME = "Permanent limit";
-
     private static final String CONTINGENCY = "Contingency";
     private static final String STATUS = "Status";
     private static final String ACTION = "Action";
@@ -332,8 +330,7 @@ public final class Security {
             // TATL
             return String.format("Overload %d'", violation.getAcceptableDuration() / 60);
         } else if (violation.getLimitType() == LimitViolationType.CURRENT) {
-            // PATL
-            return PERMANENT_LIMIT_NAME;
+            return LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
         } else {
             return "";
         }

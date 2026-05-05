@@ -15,6 +15,8 @@ import java.util.Collection;
  */
 public interface LoadingLimits extends OperationalLimits {
 
+    public static final String DEFAULT_PERMANENT_LIMIT_NAME = "permanent";
+
     /**
      * Temporary current limit.
      */
@@ -59,6 +61,19 @@ public interface LoadingLimits extends OperationalLimits {
      * @return itself for method chaining
      */
     LoadingLimits setPermanentLimit(double permanentLimit);
+
+    /**
+     * Get the name of the permanent limit.
+     * @return the permanent limit name
+     */
+    String getPermanentLimitName();
+
+    /**
+     * Set the name of the permanent limit
+     * @param name the new name of the permanent limit
+     * @return itself for method chaining
+     */
+    LoadingLimits setPermanentLimitName(String name);
 
     /**
      * Get a list of temporary limits ordered by descending duration.
