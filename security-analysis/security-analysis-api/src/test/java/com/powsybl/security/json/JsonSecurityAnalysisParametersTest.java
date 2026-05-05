@@ -31,7 +31,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.2);
         parameters.setIntermediateResultsInOperatorStrategy(true);
-        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.2.json");
+        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.3.json");
     }
 
     @Test
