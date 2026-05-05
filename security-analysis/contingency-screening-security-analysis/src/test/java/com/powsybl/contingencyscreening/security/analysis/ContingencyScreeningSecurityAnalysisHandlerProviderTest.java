@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingencyScreening.security.analysis;
+package com.powsybl.contingencyscreening.security.analysis;
 
 import com.powsybl.commons.config.ModuleConfigRepository;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.contingencyScreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
+import com.powsybl.contingencyscreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters;
 import com.powsybl.tools.PowsyblCoreVersion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,11 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}*/
 
 class ContingencyScreeningSecurityAnalysisHandlerProviderTest {
-    private ContingencyScreeningSecurityAnalysisProvider provider;
+    private com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisProvider provider;
 
     @BeforeEach
     void setUp() {
-        provider = new ContingencyScreeningSecurityAnalysisProvider();
+        provider = new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisProvider();
     }
 
     @Test
