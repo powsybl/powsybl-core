@@ -1163,15 +1163,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
 
     @Override
     public void attachInCurrentVariant(TerminalExt terminal, boolean test) {
-        attach(terminal, test, false);
+        throw NodeBreakerTopologyModel.createNotSupportedNodeBreakerTopologyException();
     }
 
     @Override
     public void attach(TerminalExt terminal, boolean test) {
-        attach(terminal, test, true);
-    }
-
-    private void attach(TerminalExt terminal, boolean test, boolean allVariants) {
         checkTerminal(terminal);
         if (test) {
             return;
@@ -1182,47 +1178,31 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         terminal.setVoltageLevel(voltageLevel);
 
         // create the link terminal <-> graph vertex
-        //TODO: The graph is variant-independent... What could we do here?
         graph.setVertexObject(node, (NodeTerminal) terminal);
 
-        if (allVariants) {
-            getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
-        } else {
-            invalidateCache();
-        }
+        getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
     }
 
     @Override
     public void detachInCurrentVariant(TerminalExt terminal) {
-        detach(terminal, false);
+        throw NodeBreakerTopologyModel.createNotSupportedNodeBreakerTopologyException();
     }
 
     @Override
     public void detach(TerminalExt terminal) {
-        detach(terminal, true);
-    }
-
-    private void detach(TerminalExt terminal, boolean allVariants) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalArgumentException("Incorrect terminal type");
         }
 
         int node = ((NodeTerminal) terminal).getNode();
 
-        //TODO: The graph is variant-independent... What could we do here?
         graph.setVertexObject(node, null);
 
-        if (allVariants) {
-            getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
-            // remove the link terminal -> voltage level
-            terminal.setVoltageLevel(null);
-        } else {
-            invalidateCache();
-            //TODO: Is it acceptable to keep the reference to the voltageLevel on the terminal
-            // when the terminal is still used for at least one variant?
-        }
+        getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
 
-        //TODO: The graph is variant-independent... What could we do here?
+        // remove the link terminal -> voltage level
+        terminal.setVoltageLevel(null);
+
         graph.removeIsolatedVertices();
     }
 
