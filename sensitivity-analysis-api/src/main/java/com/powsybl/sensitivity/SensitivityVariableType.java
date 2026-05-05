@@ -43,7 +43,8 @@ public enum SensitivityVariableType {
     /** increase in degrees */
     TRANSFORMER_PHASE_2(2),
     /** increase in degrees */
-    TRANSFORMER_PHASE_3(3);
+    TRANSFORMER_PHASE_3(3),
+    SHUNT_B;
 
     private final Integer side;
 
