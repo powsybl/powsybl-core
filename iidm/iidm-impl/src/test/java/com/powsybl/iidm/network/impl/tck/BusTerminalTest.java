@@ -19,8 +19,8 @@ class BusTerminalTest extends AbstractBusTerminalTest {
     void busVoltageShouldNotDependOnNodeInsertionOrder() {
         Network network = createNetwork();
         VoltageLevel vlN = network.getVoltageLevel("VL");
-        Load loadNode4 = network.getLoad("L1"); // node 2
-        Terminal.BusView busView = loadNode4.getTerminal().getBusView();
+        Load loadNode2 = network.getLoad("L1"); // node 2
+        Terminal.BusView busView = loadNode2.getTerminal().getBusView();
 
         // LF simulation
         busView.getBus().setV(400.0);
@@ -29,14 +29,14 @@ class BusTerminalTest extends AbstractBusTerminalTest {
         // When insert new load in low node
         vlN.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(0).add();
         vlN.newLoad().setId("newLoadLow").setP0(1).setQ0(1)
-                .setNode(0)
+                .setNode(0) // node 0
                 .add();
         assertEquals(400.0, busView.getBus().getV(), 1e-6);
 
         // When insert new load in high node
-        vlN.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(10).add();
+        vlN.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(4).add();
         vlN.newLoad().setId("newLoadHigh").setP0(1).setQ0(1)
-                .setNode(10)
+                .setNode(4) // node 4
                 .add();
         assertEquals(400.0, busView.getBus().getV(), 1e-6);
     }
@@ -45,8 +45,8 @@ class BusTerminalTest extends AbstractBusTerminalTest {
     void busAngleShouldNotDependOnNodeInsertionOrder() {
         Network network = createNetwork();
         VoltageLevel vlN = network.getVoltageLevel("VL");
-        Load loadNode4 = network.getLoad("L1"); // node 2
-        Terminal.BusView busView = loadNode4.getTerminal().getBusView();
+        Load loadNode2 = network.getLoad("L1"); // node 2
+        Terminal.BusView busView = loadNode2.getTerminal().getBusView();
 
         // LF simulation
         busView.getBus().setAngle(10.0);
@@ -55,14 +55,14 @@ class BusTerminalTest extends AbstractBusTerminalTest {
         // When insert new load in low node
         vlN.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(0).add();
         vlN.newLoad().setId("newLoadLow").setP0(1).setQ0(1)
-                .setNode(0)
+                .setNode(0) // node 0
                 .add();
         assertEquals(10.0, busView.getBus().getAngle(), 1e-6);
 
         // When insert new load in high node
-        vlN.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(10).add();
+        vlN.getNodeBreakerView().newInternalConnection().setNode1(2).setNode2(4).add();
         vlN.newLoad().setId("newLoadHigh").setP0(1).setQ0(1)
-                .setNode(10)
+                .setNode(4) // node 4
                 .add();
         assertEquals(10.0, busView.getBus().getAngle(), 1e-6);
     }
