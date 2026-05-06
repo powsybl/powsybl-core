@@ -23,11 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}*/
 
 class ContingencyScreeningSecurityAnalysisHandlerProviderTest {
-    private com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisProvider provider;
+    private ContingencyScreeningSecurityAnalysisProvider provider;
 
     @BeforeEach
     void setUp() {
-        provider = new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisProvider();
+        provider = new ContingencyScreeningSecurityAnalysisProvider();
     }
 
     @Test

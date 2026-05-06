@@ -39,7 +39,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
     private Network network;
     private String workingVariantId;
     private ContingenciesProvider contingenciesProvider;
-    private com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler contingencyScreeningSecurityAnalysisHandler;
+    private ContingencyScreeningSecurityAnalysisHandler contingencyScreeningSecurityAnalysisHandler;
     private Contingency contingency1;
     private Contingency contingency2;
     private SecurityAnalysisProvider firstProvider;
@@ -70,7 +70,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         contingency2 = new Contingency("contingency-2");
 
         workingVariantId = network.getVariantManager().getWorkingVariantId();
-        contingencyScreeningSecurityAnalysisHandler = new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId, contingenciesProvider,
+        contingencyScreeningSecurityAnalysisHandler = new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId, contingenciesProvider,
                 runParameters, extension, firstProvider, secondProvider);
     }
 
@@ -238,7 +238,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         ContingencyScreeningSecurityAnalysisParameters extension = createExtension("NonExistentProvider1", "NonExistentProvider2");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
                         contingenciesProvider, runParameters, extension));
 
         assertEquals("Security analysis provider 'NonExistentProvider1' not found by ServiceLoader.", exception.getMessage());
@@ -249,13 +249,13 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         ContingencyScreeningSecurityAnalysisParameters extension = createExtension("FirstProvider", "SecondProvider");
 
         NullPointerException firstProviderException = assertThrows(NullPointerException.class, () ->
-                new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
                         contingenciesProvider, runParameters, extension,
                         null, secondProvider));
         assertEquals("First provider is required", firstProviderException.getMessage());
 
         NullPointerException secondProviderException = assertThrows(NullPointerException.class, () ->
-                new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
                         contingenciesProvider, runParameters, extension,
                         firstProvider, null));
         assertEquals("Second provider is required", secondProviderException.getMessage());

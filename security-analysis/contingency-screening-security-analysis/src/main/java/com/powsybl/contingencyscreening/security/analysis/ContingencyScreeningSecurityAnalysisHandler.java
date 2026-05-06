@@ -74,18 +74,18 @@ public class ContingencyScreeningSecurityAnalysisHandler {
      * Executes the full contingency screening analysis workflow.
      */
     public CompletableFuture<SecurityAnalysisReport> run() {
-        reportNode = com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.createContingencyScreeningSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
+        reportNode = ContingencyScreeningSecurityAnalysisReports.createContingencyScreeningSecurityAnalysisReportNode(runParameters.getReportNode(), network.getId());
         LOGGER.info("Starting contingency screening security analysis");
         LOGGER.debug("First provider: {}, Second provider: {}", parameters.getFirstProviderName(), parameters.getSecondProviderName());
 
         // Step 1: Get all contingencies
         allContingencies = contingenciesProvider.getContingencies(network);
-        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, allContingencies.size());
+        ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, allContingencies.size());
 
         // Step 2: Run first pass analysis
         CompletableFuture<SecurityAnalysisReport> firstAnalysisFuture = firstProvider.run(
             network, workingVariantId, contingenciesProvider, runParameters);
-        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, parameters.getFirstProviderName());
+        ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, parameters.getFirstProviderName());
 
         // Step 3: Chain second pass analysis based on first pass results
         return firstAnalysisFuture.thenCompose(this::processFirstPassResults)
@@ -100,7 +100,7 @@ public class ContingencyScreeningSecurityAnalysisHandler {
 
         List<Contingency> contingenciesForSecondPass = selectContingenciesForSecondPass(
                 firstReport.getResult(), allContingencies);
-        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportSecondPassRequired(reportNode, contingenciesForSecondPass.size());
+        ContingencyScreeningSecurityAnalysisReports.reportSecondPassRequired(reportNode, contingenciesForSecondPass.size());
 
         // If no contingencies need second pass analysis, return first pass results
         if (contingenciesForSecondPass.isEmpty()) {
@@ -109,7 +109,7 @@ public class ContingencyScreeningSecurityAnalysisHandler {
         }
 
         // Run second pass analysis on filtered contingencies
-        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportSecondPassStarted(reportNode, parameters.getSecondProviderName());
+        ContingencyScreeningSecurityAnalysisReports.reportSecondPassStarted(reportNode, parameters.getSecondProviderName());
         return runSecondPassAnalysis(contingenciesForSecondPass)
                 .thenApply(secondReport -> mergeResults(firstReport, secondReport));
     }

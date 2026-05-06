@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 /** * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}*/
 
 class ContingencyScreeningSecurityAnalysisParametersTest {
-    private com.powsybl.contingencyscreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters contingencyScreeningSecurityAnalysisParameters;
+    private ContingencyScreeningSecurityAnalysisParameters contingencyScreeningSecurityAnalysisParameters;
 
     @BeforeEach
     void setUp() {
-        contingencyScreeningSecurityAnalysisParameters = new com.powsybl.contingencyscreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters();
+        contingencyScreeningSecurityAnalysisParameters = new ContingencyScreeningSecurityAnalysisParameters();
     }
 
     @Test
@@ -65,7 +65,7 @@ class ContingencyScreeningSecurityAnalysisParametersTest {
 
     @Test
     void testUpdate() {
-        com.powsybl.contingencyscreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters parameters = new com.powsybl.contingencyscreening.security.analysis.parameters.ContingencyScreeningSecurityAnalysisParameters();
+        ContingencyScreeningSecurityAnalysisParameters parameters = new ContingencyScreeningSecurityAnalysisParameters();
 
         // Initial state
         assertNull(parameters.getFirstProviderName());

@@ -15,7 +15,7 @@ class ContingencyScreeningSecurityAnalysisReportsTest {
                 .withMessageTemplate("test")
                 .build();
 
-        ReportNode csaNode = com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports
+        ReportNode csaNode = ContingencyScreeningSecurityAnalysisReports
                 .createContingencyScreeningSecurityAnalysisReportNode(rootNode, "test-network");
 
         assertNotNull(csaNode);
@@ -28,7 +28,7 @@ class ContingencyScreeningSecurityAnalysisReportsTest {
                 .withMessageTemplate("test")
                 .build();
 
-        ReportNode resultNode = com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports
+        ReportNode resultNode = ContingencyScreeningSecurityAnalysisReports
                 .reportTotalContingencies(rootNode, 10);
 
         assertNotNull(resultNode);
@@ -41,7 +41,7 @@ class ContingencyScreeningSecurityAnalysisReportsTest {
                 .withMessageTemplate("test")
                 .build();
 
-        ReportNode resultNode = com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports
+        ReportNode resultNode = ContingencyScreeningSecurityAnalysisReports
                 .reportFirstPassStarted(rootNode, "LoadFlow");
 
         assertNotNull(resultNode);
@@ -54,7 +54,7 @@ class ContingencyScreeningSecurityAnalysisReportsTest {
                 .withMessageTemplate("test")
                 .build();
 
-        ReportNode resultNode = com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, 42);
+        ReportNode resultNode = ContingencyScreeningSecurityAnalysisReports.reportTotalContingencies(reportNode, 42);
 
         assertNotNull(resultNode);
         assertEquals("contingencyScreeningSecurityAnalysisTotalContingencies", resultNode.getMessageKey());
@@ -68,7 +68,7 @@ class ContingencyScreeningSecurityAnalysisReportsTest {
                 .withMessageTemplate("test")
                 .build();
 
-        ReportNode resultNode = com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, "load-flow");
+        ReportNode resultNode = ContingencyScreeningSecurityAnalysisReports.reportFirstPassStarted(reportNode, "load-flow");
 
         assertNotNull(resultNode);
         assertEquals("contingencyScreeningSecurityAnalysisFirstPassStarted", resultNode.getMessageKey());
