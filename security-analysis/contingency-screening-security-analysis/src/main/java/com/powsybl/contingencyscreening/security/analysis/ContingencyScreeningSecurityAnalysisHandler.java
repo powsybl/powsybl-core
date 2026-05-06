@@ -208,7 +208,7 @@ public class ContingencyScreeningSecurityAnalysisHandler {
         }
 
         if (firstLogBytes.isEmpty()) {
-            return null;
+            return new byte[0];
         }
 
         Map<String, byte[]> logsByName = new java.util.HashMap<>();
@@ -219,7 +219,7 @@ public class ContingencyScreeningSecurityAnalysisHandler {
             return ZipPackager.archiveBytesByNameToZipBytes(logsByName);
         } catch (Exception e) {
             LOGGER.warn("Failed to create merged log archive, returning first pass logs only", e);
-            return firstLogBytes.orElse(null);
+            return firstLogBytes.orElse(new byte[0]);
         }
     }
 
