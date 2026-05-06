@@ -26,11 +26,22 @@ public final class TopologyLevelUtil {
     public static TopologyLevel determineTopologyLevel(VoltageLevel vl, NetworkSerializerContext context) {
         TopologyLevel exportTopologyLevel = context.getVoltageLevelExportTopologyLevel(vl.getId());
         if (exportTopologyLevel == null) {
-            TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
-            exportTopologyLevel = checkVoltageLevelExportTopology(vl, context, TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel));
+            if (context.getOptions().getBusBranchVoltageLevelIncompatibilityBehavior()
+                    == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.KEEP_ORIGINAL_TOPOLOGY && requiresNodeBreakerExport(vl)) {
+                exportTopologyLevel = TopologyLevel.NODE_BREAKER;
+            } else {
+                TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
+                exportTopologyLevel = checkVoltageLevelExportTopology(vl, context, TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel));
+            }
             context.addVoltageLevelExportTopologyLevel(vl.getId(), exportTopologyLevel);
         }
         return exportTopologyLevel;
+    }
+
+    private static boolean requiresNodeBreakerExport(VoltageLevel vl) {
+        return vl.getTopologyKind() == TopologyKind.NODE_BREAKER
+                && vl.getConnectableStream()
+                .anyMatch(BusbarSection.class::isInstance);
     }
 
     /**
