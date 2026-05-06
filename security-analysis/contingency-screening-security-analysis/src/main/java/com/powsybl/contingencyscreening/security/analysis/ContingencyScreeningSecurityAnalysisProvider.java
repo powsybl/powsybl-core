@@ -78,7 +78,7 @@ public class ContingencyScreeningSecurityAnalysisProvider implements SecurityAna
                 parameters.getFirstProviderName(),
                 parameters.getSecondProviderName());
 
-        com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler analysis = new com.powsybl.contingencyscreening.security.analysis.ContingencyScreeningSecurityAnalysisHandler(
+        ContingencyScreeningSecurityAnalysisHandler analysis = new ContingencyScreeningSecurityAnalysisHandler(
                 network,
                 workingVariantId,
                 contingenciesProvider,
