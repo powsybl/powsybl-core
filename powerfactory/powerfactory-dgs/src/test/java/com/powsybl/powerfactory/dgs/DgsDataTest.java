@@ -94,6 +94,11 @@ class DgsDataTest extends AbstractSerDeTest {
         assertDoesNotThrow(() -> loadCase("/BOMTest.dgs"));
     }
 
+    @Test
+    void objectLinkReferencesTest() throws IOException {
+        assertTrue(test("/object_link_references.dgs", "/object_link_references.json"));
+    }
+
     private boolean test(String dgs, String json) throws IOException {
         StudyCase studyCase = loadCase(dgs);
         String expectedJson = loadReference(json);
