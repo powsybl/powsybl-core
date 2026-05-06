@@ -76,7 +76,7 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
                 .setNode(0)
                 .add();
 
-        // Export options : BUS_BRANCH topology level + keep original topology
+        // Export options : BUS_BRANCH topology level + KEEP_ORIGINAL_TOPOLOGY export option
         ExportOptions options = new ExportOptions();
         options.setTopologyLevel(TopologyLevel.BUS_BRANCH);
         options.setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.KEEP_ORIGINAL_TOPOLOGY);
@@ -92,8 +92,64 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void voltageLevelWithBusAndKeepOriginalTopologyMustExportBusBranch() {
+        Network network = Network.create("n1", "test");
+        Substation substation = network.newSubstation()
+                .setId("S1")
+                .add();
+
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(225.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        vl.getBusBreakerView().newBus()
+                .setId("busId")
+                .add();
+
+        // Export options : BUS_BRANCH topology level + KEEP_ORIGINAL_TOPOLOGY export option
+        ExportOptions options = new ExportOptions();
+        options.setTopologyLevel(TopologyLevel.BUS_BRANCH);
+        options.setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.KEEP_ORIGINAL_TOPOLOGY);
+
+        NetworkSerializerContext context = new NetworkSerializerContext(new SimpleAnonymizer(), mock(TreeDataWriter.class), options, null, CURRENT_IIDM_VERSION, true);
+
+        TopologyLevel exportTopology =
+                TopologyLevelUtil.determineTopologyLevel(vl, context);
+
+        assertEquals(TopologyLevel.BUS_BRANCH, exportTopology);
+    }
+
+    @Test
+    void voltageLevelWithoutBusSectionAndKeepOriginalTopology() {
+        Network network = Network.create("n1", "test");
+        Substation substation = network.newSubstation()
+                .setId("S1")
+                .add();
+
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(225.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        // Export options : BUS_BRANCH topology level + KEEP_ORIGINAL_TOPOLOGY export option
+        ExportOptions options = new ExportOptions();
+        options.setTopologyLevel(TopologyLevel.BUS_BRANCH);
+        options.setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.KEEP_ORIGINAL_TOPOLOGY);
+
+        NetworkSerializerContext context = new NetworkSerializerContext(new SimpleAnonymizer(), mock(TreeDataWriter.class), options, null, CURRENT_IIDM_VERSION, true);
+
+        TopologyLevel exportTopology =
+                TopologyLevelUtil.determineTopologyLevel(vl, context);
+
+        assertEquals(TopologyLevel.BUS_BRANCH, exportTopology);
+    }
+
+    @Test
     void voltageLevelWithBusbarSectionWithoutKeepOriginalTopologyMustThrowException() {
-        Network network = Network.create("n2", "test");
+        Network network = Network.create("n1", "test");
 
         Substation substation = network.newSubstation()
                 .setId("S1")
@@ -111,6 +167,7 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
                 .setNode(0)
                 .add();
 
+        // Export options : BUS_BRANCH topology level + THROW_EXCEPTION export option
         ExportOptions options = new ExportOptions();
         options.setTopologyLevel(TopologyLevel.BUS_BRANCH);
         options.setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION);
