@@ -49,6 +49,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">Kind</td>
  *             <td style="border: 1px solid black">DcSwitchKind</td>
  *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The DC switch kind: DISCONNECTOR or BREAKER</td>
  *         </tr>
@@ -61,10 +62,10 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">Open status of the DC Switch</td>
  *         </tr>
  *         <tr>
- *              <td style="border: 1px solid black">r</td>
+ *              <td style="border: 1px solid black">R</td>
  *              <td style="border: 1px solid black">double</td>
  *              <td style="border: 1px solid black">&Omega;</td>
- *              <td style="border: 1px solid black">No</td>
+ *              <td style="border: 1px solid black">no</td>
  *              <td style="border: 1px solid black">0.0</td>
  *              <td style="border: 1px solid black">Resistance of the DC Switch</td>
  *          </tr>
@@ -111,7 +112,14 @@ public interface DcSwitch extends Identifiable<DcSwitch> {
      */
     void remove();
 
+    /**
+     * @return the resistance of the DC Switch in &#937;.
+     */
     double getR();
 
+    /**
+     * @param r the resistance of the DC Switch in &#937;.
+     * @return self for method chaining
+     */
     DcSwitch setR(double r);
 }

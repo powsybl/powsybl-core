@@ -7,22 +7,13 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcSwitchKind;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import java.util.Objects;
-
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
@@ -38,33 +29,7 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(network, "/dcSwitchRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility - checks from version 1.15
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchRoundTripRef.xml", IidmVersion.V_1_16);
-    }
-
-    @Test
-    void testWithResistance() throws IOException {
-        Network network = createBaseNetwork();
-        network.getDcSwitch("dcSwitchClosed").setR(1.1);
-        network.getDcSwitch("dcSwitchOpened").setR(0.9);
-
-        // Test for the current version
-        allFormatsRoundTripTest(network, "/dcSwitchResistanceRoundTripRef.xml", CURRENT_IIDM_VERSION);
-
-        // backward compatibility - checks from version 1.17
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchResistanceRoundTripRef.xml", IidmVersion.V_1_17);
-
-    }
-
-    @Test
-    void testDefaultResistanceValue() throws IOException, URISyntaxException {
-        String fileName = getVersionedNetworkPath("dcSwitchRoundTripRef.xml", CURRENT_IIDM_VERSION);
-        Path path = Path.of(Objects.requireNonNull(getClass().getResource(fileName)).toURI());
-        try (InputStream is = Files.newInputStream(path)) {
-            Network network = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.XML), null);
-            // Check that default resistance is zero.
-            assertEquals(0.0, network.getDcSwitch("dcSwitchClosed").getR());
-            assertEquals(0.0, network.getDcSwitch("dcSwitchOpened").getR());
-        }
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcSwitchRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test
@@ -99,10 +64,11 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
                 .setDcNode2(dcNode2.getId())
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setOpen(true)
+                .setR(0.9)
                 .add();
         dcSwitch1.setProperty("prop name", "prop value");
         dcSwitch1.addAlias("someAlias");
-        network.newDcSwitch()
+        network.newDcSwitch() // default r = 0.0
                 .setId("dcSwitchClosed")
                 .setName("A closed DC Switch")
                 .setDcNode1(dcNode1.getId())

@@ -38,11 +38,11 @@ public abstract class AbstractDcSwitchTest {
     @Test
     public void testCreateSimple2NodesDcSwitch() {
         // Check that the simple switch network in DcDetailedNetworkFactory is functional
-        Network network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
+        network = DcDetailedNetworkFactory.createSimple2NodesDcSwitch();
 
-        DcNode dcNode1 = network.getDcNode("dcNode1");
+        dcNode1 = network.getDcNode("dcNode1");
         assertNotNull(dcNode1);
-        DcNode dcNode2 = network.getDcNode("dcNode2");
+        dcNode2 = network.getDcNode("dcNode2");
         assertNotNull(dcNode2);
         DcSwitch dcSwitch = network.getDcSwitch("dcSwitch");
         assertNotNull(dcSwitch);
