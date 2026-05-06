@@ -13,6 +13,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -96,6 +97,13 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         if (!terminals.get(network.get().getVariantIndex()).remove(t)) {
             throw new IllegalStateException("Terminal " + t + " not found");
         }
+    }
+
+    @Override
+    public boolean isTerminalReferencedInAnyVariant(BusTerminal t) {
+        return network.get().getVariantManager().getVariantIndexes().stream()
+                .filter(Objects::nonNull)
+                .anyMatch(variantId -> terminals.get(variantId).contains(t));
     }
 
     protected <S, T extends S> void notifyUpdate(String attribute, String variantId, S oldValue, T newValue) {

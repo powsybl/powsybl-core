@@ -955,8 +955,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             terminal.setVoltageLevel(null);
         } else {
             task.run();
-            //TODO: Is it acceptable to keep the reference to the voltageLevel on the terminal
-            // when the terminal is still used for at least one variant?
+            // If the terminal is no more referenced in the connectableBus for any variant,
+            // the link terminal -> voltage level is removed.
+            if (!connectableBus.isTerminalReferencedInAnyVariant((BusTerminal) terminal)) {
+                terminal.setVoltageLevel(null);
+            }
         }
     }
 
