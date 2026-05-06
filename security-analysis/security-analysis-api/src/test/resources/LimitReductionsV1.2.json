@@ -1,5 +1,5 @@
 {
-  "version" : "1.1",
+  "version" : "1.2",
   "limitReductions" : [ {
     "value" : 0.9,
     "limitType" : "CURRENT",
@@ -133,6 +133,32 @@
       "lowClosed" : true,
       "highBound" : 600,
       "highClosed" : false
+    } ]
+  }, {
+    "value" : 0.88,
+    "limitType" : "ACTIVE_POWER",
+    "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    },
+    "equipmentCriteria" : [ {
+      "type" : "identifierCriterion",
+      "version" : "1.1",
+      "identifiers" : [ "NHV1_NHV2_1", "NHV1_NHV2_2" ]
+    } ],
+    "operationalLimitsGroupIdsSelection" : [ "DEFAULT", "activated_1_3", "activated_2_1" ]
+  }, {
+    "value" : 1.13,
+    "limitType" : "CURRENT",
+    "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    },
+    "durationCriteria" : [ {
+      "type" : "TEMPORARY_INTERVAL",
+      "version" : "1.0",
+      "lowBound" : 60,
+      "lowClosed" : true
     } ]
   } ]
 }
