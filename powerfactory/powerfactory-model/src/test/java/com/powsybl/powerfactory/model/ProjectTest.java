@@ -38,7 +38,7 @@ class ProjectTest extends AbstractPowerFactoryTest {
 
         prj = new DataObject(4L, clsIntPrj, index)
                 .setLocName("TestProject")
-                .setObjectAttributeValue("pCase", 6L);
+                .setObjectAttributeValue("pCase", DataObjectRefKey.ofId(6L));
 
         var studyCasesFolder = new DataObject(5L, clsIntPrjfolder, index)
                 .setLocName("Study Cases");

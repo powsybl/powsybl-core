@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
@@ -337,5 +337,36 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
             .withMergedLineId("NHV1_NHV2_1")
             .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void testDoesNotDeleteVoltageLevel() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network);
+        VoltageLevel vl = network.getVoltageLevel("CJ_VL");
+        assertNotNull(vl);
+
+        // add one element
+        vl.newLoad().setId("loadId").setP0(100).setQ0(50).setNode(4).add();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportNodeTestRevertCreateLineOnLineKeepingTheVL")
+                .build();
+        modification = new RevertCreateLineOnLineBuilder()
+                .withLineToBeMerged1Id("CJ_1")
+                .withLineToBeMerged2Id("CJ_2")
+                .withLineToBeDeletedId("testLine")
+                .withMergedLineId("CJ_NEW")
+                .build();
+        modification.apply(network, true, reportNode);
+        vl = network.getVoltageLevel("CJ_VL");
+        assertNotNull(vl);
+        Load load = network.getLoad("loadId");
+        assertNotNull(load);
+        testReportNode(reportNode, "/reportNode/revert-create-line-on-line-keeping-vl.txt");
     }
 }

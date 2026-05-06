@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
@@ -293,5 +292,75 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractModificationTest {
             .withNewLine1Id("NEW LINE1 ID")
             .withNewLine2Id("NEW LINE2 ID").build();
         assertEquals("ReplaceTeePointByVoltageLevelOnLine", networkModification.getName());
+    }
+
+    @Test
+    void testWithLimits() throws IOException {
+        Network network = createNetworkAdditionalLine();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestReplaceTeePointByVoltageLevelWithLimits")
+                .build();
+
+        Line line1 = network.getLine("CJ_1");
+        line1.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line1.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line1.newOperationalLimitsGroup2("group3").newCurrentLimits()
+                .setPermanentLimit(90.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(110.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "group1", "group2");
+        line1.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group3");
+
+        Line line2 = network.getLine("CJ_2");
+        line2.newOperationalLimitsGroup1("group4").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line2.newOperationalLimitsGroup2("group5").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line2.newOperationalLimitsGroup2("group6").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line2.setSelectedOperationalLimitsGroup1("group4");
+        line2.cancelSelectedOperationalLimitsGroup2();
+        line2.addSelectedOperationalLimitsGroups(TwoSides.TWO, "group5", "group6");
+        NetworkModification modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("testLine")
+                .withBbsOrBusId(BBS)
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
+        writeXmlTest(network, "/replace-tee-point-with-vl-on-line-with-limits.xml");
     }
 }

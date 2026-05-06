@@ -62,8 +62,24 @@ class ExporterTest extends AbstractSerDeTest {
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115, new NodeBreakerViolationLocation("VL", Arrays.asList(0, 1)));
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
-        LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.ONE);
-        LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.TWO);
+        LimitViolation violation5 = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.ACTIVE_POWER)
+            .limitName("20'")
+            .duration(1200)
+            .limit(100)
+            .value(110)
+            .side1()
+            .build();
+        LimitViolation violation6 = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.APPARENT_POWER)
+            .limitName("20'")
+            .duration(1200)
+            .limit(100)
+            .value(110)
+            .side2()
+            .build();
 
         Contingency contingency = Contingency.builder("contingency")
                 .addBranch("NHV1_NHV2_2", "VLNHV1")
@@ -123,7 +139,14 @@ class ExporterTest extends AbstractSerDeTest {
 
     @Test
     void testCompatibilityV1Deserialization() {
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
+        LimitViolation violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(100)
+            .reduction(0.95f)
+            .value(110.0)
+            .side1()
+            .build();
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.json"));
         Assertions.assertThat(result.getPreContingencyLimitViolationsResult().getLimitViolations()).hasSize(1);

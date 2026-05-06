@@ -76,7 +76,13 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
         Fault fault = new BusFault("F1", "VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE);
         MagnitudeFeederResult feederResult = new MagnitudeFeederResult("GEN", 5);
-        LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
+        LimitViolation limitViolation = LimitViolation.builder()
+            .subject("VLGEN")
+            .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
+            .limit(0)
+            .reduction(0)
+            .value(0)
+            .build();
         FortescueFaultResult faultResult = new FortescueFaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),
                 new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
