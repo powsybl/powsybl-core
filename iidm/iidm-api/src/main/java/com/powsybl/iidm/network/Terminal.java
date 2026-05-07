@@ -154,7 +154,7 @@ public interface Terminal {
      * Try to connect the terminal.<br/>
      * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
      * use {@link #connect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
-     * @return true if terminal has been connected, false otherwise
+     * @return true if terminal has been connected, false otherwise (the terminal could not be connected, or it was already connected)
      * @see VariantManager
      */
     default boolean connect() {
@@ -164,7 +164,7 @@ public interface Terminal {
     /**
      * Try to connect the terminal.<br/>
      * Depends on the working variant.
-     * @return true if terminal has been connected, false otherwise
+     * @return true if terminal has been connected, false otherwise (the terminal could not be connected, or it was already connected)
      * @see VariantManager
      */
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
@@ -173,7 +173,7 @@ public interface Terminal {
      * Disconnect the terminal.<br/>
      * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
      * use {@link #disconnect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
-     * @return true if terminal has been disconnected, false otherwise
+     * @return true if terminal has been disconnected, false otherwise (the terminal could not be disconnected, or it was already disconnected)
      * @see VariantManager
      */
     default boolean disconnect() {
@@ -184,7 +184,7 @@ public interface Terminal {
      * Disconnect the terminal.<br/>
      * Depends on the working variant.
      * @param isSwitchOpenable predicate telling if a switch is considered openable
-     * @return true if terminal has been disconnected, false otherwise
+     * @return true if terminal has been disconnected, false otherwise (the terminal could not be disconnected, or it was already disconnected)
      * @see VariantManager
      */
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
