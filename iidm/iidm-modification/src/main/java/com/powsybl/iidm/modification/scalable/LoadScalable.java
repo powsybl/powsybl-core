@@ -172,37 +172,8 @@ public class LoadScalable extends AbstractInjectionScalable {
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, getP0(l));
 
-        if (parameters.isConstantPowerFactor() && oldP0 != 0) {
-            double newP = getP0(l);
-
-            // Step 1: proportional scaling (constant power factor)
-            double newQ = newP * oldQ0 / oldP0;
-
-            // Step 2: apply loadMinPowerFactor
-            // This caps |newQ| at |newP| * tan(acos(minPF)), same as, |newP| * sqrt(1/minPF² - 1)
-            // When the initial PF is already >= minPF, the proportional newQ is within the cap and no clamping occurs
-            // When the initial PF < minPF, newQ is clamped so the resulting PF never drops below minPF and the sign of Q is preserved
-            double minPowerFactor = parameters.getLoadMinPowerFactor();
-            if (minPowerFactor > 0.0 && newP != 0.0) {
-                double maxAbsQ = Math.abs(newP) * Math.sqrt(1.0 / (minPowerFactor * minPowerFactor) - 1.0);
-                if (Math.abs(newQ) > maxAbsQ) {
-                    newQ = Math.signum(newQ) * maxAbsQ;
-                }
-            }
-
-            // Step 3: apply rate limits relative to the initial Q (from ScalingParameters)
-            // Q_scaled must stay in [Q_initial * minQRate, Q_initial * maxQRate]
-            if (oldQ0 != 0) {
-                newQ = getNewQClamped(parameters, newQ, oldQ0);
-            }
-
-            // Step 4: apply absolute MVAr limits (per-load, set on LoadScalable directly)
-            if (minQValue != DEFAULT_MIN_Q_VALUE) {
-                newQ = Math.max(newQ, minQValue);
-            }
-            if (maxQValue != DEFAULT_MAX_Q_VALUE) {
-                newQ = Math.min(newQ, maxQValue);
-            }
+        if (parameters.isConstantPowerFactor() && oldP0 != 0.0) {
+            double newQ = computeScaledReactivePower(parameters, oldP0, oldQ0, getP0(l));
 
             setQ0(l, newQ);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
@@ -212,27 +183,78 @@ public class LoadScalable extends AbstractInjectionScalable {
         return done;
     }
 
-    private static double getNewQClamped(ScalingParameters parameters, double newQ, double oldQ0) {
-        double newQClamped = newQ;
+    private static double proportionalReactiveScaling(double oldP, double oldQ, double newP) {
+        return newP * oldQ / oldP;
+    }
 
-        if (parameters.getLoadMinQRate() != ScalingParameters.DEFAULT_LOAD_MIN_Q_RATE) {
-            double minBound = oldQ0 * parameters.getLoadMinQRate();
-            if (oldQ0 > 0) {
-                newQClamped = Math.max(newQClamped, minBound);
-            } else {
-                newQClamped = Math.min(newQClamped, minBound);
-            }
+    private double computeScaledReactivePower(ScalingParameters parameters, double oldP, double oldQ, double newP) {
+
+        double newQ = proportionalReactiveScaling(oldP, oldQ, newP);
+
+        newQ = applyPowerFactorLimit(parameters, newP, newQ);
+        newQ = applyRelativeQRateLimits(parameters, oldQ, newQ);
+        newQ = applyAbsoluteQLimits(newQ);
+
+        return newQ;
+    }
+
+    private static double clampAbs(double value, double maxAbs) {
+        return Math.copySign(
+                Math.min(Math.abs(value), maxAbs),
+                value
+        );
+    }
+
+    private static double applyPowerFactorLimit(ScalingParameters parameters, double newP, double newQ) {
+
+        double minPowerFactor = parameters.getLoadMinPowerFactor();
+
+        if (minPowerFactor <= 0.0 || newP == 0.0) {
+            return newQ;
         }
 
-        if (parameters.getLoadMaxQRate() != ScalingParameters.DEFAULT_LOAD_MAX_Q_RATE) {
-            double maxBound = oldQ0 * parameters.getLoadMaxQRate();
-            if (oldQ0 > 0) {
-                newQClamped = Math.min(newQClamped, maxBound);
-            } else {
-                newQClamped = Math.max(newQClamped, maxBound);
-            }
+        double maxAbsQ = computeMaxReactivePowerFromPowerFactor(newP, minPowerFactor);
+
+        return clampAbs(newQ, maxAbsQ);
+    }
+
+    private static double applyRelativeQRateLimits(ScalingParameters parameters, double oldQ, double newQ) {
+
+        if (oldQ == 0.0) {
+            return newQ;
         }
-        return newQClamped;
+
+        double minRate = parameters.getLoadMinQRate();
+        double maxRate = parameters.getLoadMaxQRate();
+
+        double sign = Math.signum(oldQ);
+
+        double absOldQ = Math.abs(oldQ);
+        double absNewQ = Math.abs(newQ);
+
+        double minAbsQ = absOldQ * minRate;
+        double maxAbsQ = absOldQ * maxRate;
+
+        absNewQ = Math.clamp(absNewQ, minAbsQ, maxAbsQ);
+
+        return sign * absNewQ;
+    }
+
+    private static double computeMaxReactivePowerFromPowerFactor(double newP, double minPowerFactor) {
+        return Math.abs(newP) * Math.tan(Math.acos(minPowerFactor));
+    }
+
+    private double applyAbsoluteQLimits(double newQ) {
+
+        if (minQValue != DEFAULT_MIN_Q_VALUE) {
+            newQ = Math.max(newQ, minQValue);
+        }
+
+        if (maxQValue != DEFAULT_MAX_Q_VALUE) {
+            newQ = Math.min(newQ, maxQValue);
+        }
+
+        return newQ;
     }
 
     @Override
@@ -280,6 +302,10 @@ public class LoadScalable extends AbstractInjectionScalable {
      * @param minQValue the minimum Q value in MVAr
      */
     public LoadScalable setMinQ(double minQValue) {
+        if (minQValue > this.maxQValue) {
+            throw new IllegalArgumentException("minQ cannot be greater than maxQ");
+        }
+
         this.minQValue = minQValue;
         return this;
     }
@@ -302,6 +328,9 @@ public class LoadScalable extends AbstractInjectionScalable {
      * @param maxQValue the maximum Q value in MVAr
      */
     public LoadScalable setMaxQ(double maxQValue) {
+        if (maxQValue < this.minQValue) {
+            throw new IllegalArgumentException("maxQ cannot be lower than minQ");
+        }
         this.maxQValue = maxQValue;
         return this;
     }

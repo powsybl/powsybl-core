@@ -246,6 +246,10 @@ public class ScalingParameters {
      * @param loadMinQRate the minimum Q rate
      */
     public ScalingParameters setLoadMinQRate(double loadMinQRate) {
+        if (loadMinQRate > loadMaxQRate) {
+            throw new IllegalArgumentException("loadMinQRate cannot be greater than loadMaxQRate");
+        }
+
         this.loadMinQRate = loadMinQRate;
         return this;
     }
@@ -270,6 +274,10 @@ public class ScalingParameters {
      * @param loadMaxQRate the maximum Q rate
      */
     public ScalingParameters setLoadMaxQRate(double loadMaxQRate) {
+        if (loadMaxQRate < loadMinQRate) {
+            throw new IllegalArgumentException("loadMaxQRate cannot be lower than loadMinQRate");
+        }
+
         this.loadMaxQRate = loadMaxQRate;
         return this;
     }

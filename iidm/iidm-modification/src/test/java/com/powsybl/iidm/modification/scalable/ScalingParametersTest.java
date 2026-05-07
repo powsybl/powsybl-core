@@ -50,6 +50,9 @@ class ScalingParametersTest {
         assertEquals(ScalingParameters.DEFAULT_PRIORITY, parameters.getPriority());
         assertEquals(ScalingParameters.DEFAULT_RECONNECT, parameters.isReconnect());
         assertEquals(ScalingParameters.DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS, parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MIN_POWER_FACTOR, parameters.getLoadMinPowerFactor());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MIN_Q_RATE, parameters.getLoadMinQRate());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MAX_Q_RATE, parameters.getLoadMaxQRate());
     }
 
     @Test
@@ -84,13 +87,19 @@ class ScalingParametersTest {
                 .setPriority(RESPECT_OF_VOLUME_ASKED)
                 .setReconnect(true)
                 .setAllowsGeneratorOutOfActivePowerLimits(true)
-                .setScalingType(TARGET_P);
+                .setScalingType(TARGET_P)
+                .setLoadMinPowerFactor(0.07)
+                .setLoadMinQRate(-10.07)
+                .setLoadMaxQRate(10.07);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
         assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
         assertEquals(TARGET_P, parameters.getScalingType());
+        assertEquals(0.07, parameters.getLoadMinPowerFactor());
+        assertEquals(-10.07, parameters.getLoadMinQRate());
+        assertEquals(10.07, parameters.getLoadMaxQRate());
     }
 
     @Test
@@ -101,6 +110,9 @@ class ScalingParametersTest {
         assertEquals(ScalingParameters.DEFAULT_PRIORITY, parameters.getPriority());
         assertEquals(ScalingParameters.DEFAULT_RECONNECT, parameters.isReconnect());
         assertEquals(ScalingParameters.DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS, parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MIN_POWER_FACTOR, parameters.getLoadMinPowerFactor());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MIN_Q_RATE, parameters.getLoadMinQRate());
+        assertEquals(ScalingParameters.DEFAULT_LOAD_MAX_Q_RATE, parameters.getLoadMaxQRate());
     }
 
     @Test
@@ -113,6 +125,8 @@ class ScalingParametersTest {
         moduleConfig.setStringProperty("allowsGeneratorOutOfActivePowerLimits", "true");
         moduleConfig.setStringProperty("ignoredInjectionIds", "id1,id2");
         moduleConfig.setStringProperty("loadMinPowerFactor", "0.07");
+        moduleConfig.setStringProperty("loadMinQRate", "-1.007");
+        moduleConfig.setStringProperty("loadMaxQRate", "1.007");
 
         ScalingParameters parameters = ScalingParameters.load(platformConfig);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
@@ -122,6 +136,8 @@ class ScalingParametersTest {
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
         assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
         assertEquals(0.07, parameters.getLoadMinPowerFactor());
+        assertEquals(-1.007, parameters.getLoadMinQRate());
+        assertEquals(1.007, parameters.getLoadMaxQRate());
     }
 
     /**
