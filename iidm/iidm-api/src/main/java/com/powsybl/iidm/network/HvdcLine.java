@@ -210,8 +210,8 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
 
     /**
      * Connect the converter stations.<br/>
-     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #connectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
      * @return true if the stations have been connected by this operation, false otherwise (this fails if any of the two stations was already connected)
      */
     default boolean connectConverterStations() {
@@ -238,8 +238,8 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
 
     /**
      * Disconnect the converter stations.<br/>
-     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #disconnectConverterStations(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
      * @return true if the stations disconnection by this operation succeeded, false otherwise (this fails if any of the two stations was already disconnected)
      */
     default boolean disconnectConverterStations() {

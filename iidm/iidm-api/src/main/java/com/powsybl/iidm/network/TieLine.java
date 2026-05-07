@@ -135,8 +135,8 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
 
     /**
      * Try to connect the two boundary lines of the tie line.<br/>
-     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #connectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connectBoundaryLines(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
      * @return true if the boundary lines have been connected by this operation, false otherwise (this fails if any of the two lines was already connected)
      */
     default boolean connectBoundaryLines() {
@@ -164,8 +164,8 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
 
     /**
      * Try to disconnect the two boundary lines of the tie line.<br/>
-     * By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #disconnectBoundaryLines(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnectBoundaryLines(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
      * @return true if the boundary lines have been disconnected by this operation, false otherwise (this fails if any of the two lines was already disconnected)
      */
     default boolean disconnectBoundaryLines() {

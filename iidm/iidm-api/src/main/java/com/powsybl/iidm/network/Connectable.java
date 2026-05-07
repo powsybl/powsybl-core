@@ -28,8 +28,8 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
 
     /**
      * Connects the connectable by operating real breakers.<br>
-     * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
-     * {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}.
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches, use
+     * {@link #connect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}.
      * @return true if the connectable has been connected by this operation, false otherwise (this fails if it was already connected on any side)
      */
     default boolean connect() {
@@ -56,8 +56,8 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
 
     /**
      * Disconnects the connectable by operating real breakers.<br>
-     * By default, this method does not change the state of fictitious breakers. If you wish to do that, use
-     * {@link #disconnect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}.
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches, use
+     * {@link #disconnect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}.
      * @return  true if the connectable has been disconnected by this operation, false otherwise (this fails if it was already disconnected on any side)
      */
     default boolean disconnect() {

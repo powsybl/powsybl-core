@@ -152,8 +152,8 @@ public interface Terminal {
 
     /**
      * Try to connect the terminal.<br/>
-     * Depends on the working variant. By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #connect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
@@ -171,8 +171,8 @@ public interface Terminal {
 
     /**
      * Disconnect the terminal.<br/>
-     * Depends on the working variant. By default, this method does not change the state of fictitious breakers. If you wish to do that,
-     * use {@link #disconnect(Predicate)} with {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
