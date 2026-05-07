@@ -12,23 +12,12 @@ import com.powsybl.psse.model.io.PsseFieldDefinition;
 import com.powsybl.psse.model.io.Util;
 import de.siegmar.fastcsv.reader.CsvRecord;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static com.powsybl.psse.model.io.Util.addField;
-import static com.powsybl.psse.model.io.Util.addSuffixToHeaders;
-import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
-import static com.powsybl.psse.model.io.Util.concatStringArrays;
-import static com.powsybl.psse.model.io.Util.createNewField;
-import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.*;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_MDC;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
 import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_RDC;
-
-import java.lang.reflect.Field;
 
 /**
  *
