@@ -10,11 +10,8 @@ package com.powsybl.commons.xml;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.SAXParseException;
+import org.xml.sax.*;
 
-import javax.xml.XMLConstants;
 import javax.xml.stream.*;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
@@ -198,23 +195,18 @@ class XmlUtilTest {
     void testSchemaFactory() {
         SchemaFactory factory = XmlUtil.getSchemaFactory();
         assertNotNull(factory);
-        try {
-            Object value1 = factory.getProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
-            assertEquals("", value1);
-
-            Object value2 = factory.getProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
-            assertEquals("", value2);
-
-            Object value3 = factory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING);
-            assertEquals(true, value3);
-        } catch (SAXNotSupportedException | SAXNotRecognizedException ignored) {
-            // ignored
-        }
+        String safeXsd = """
+                <?xml version="1.0"?>
+                <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+                """;
+        assertDoesNotThrow(() -> factory.newSchema(new StreamSource(new StringReader(safeXsd))));
     }
 
     @Test
-    void shouldRejectExternalEntityResolutionWhenCreatingSchema() {
-        String xsd = """
+    void schemaFactoryShouldRejectExternalEntityResolution() {
+        SchemaFactory factory = XmlUtil.getSchemaFactory();
+        assertNotNull(factory);
+        String exploitXsd = """
                 <?xml version="1.0"?>
                 <!DOCTYPE foo [
                   <!ENTITY xxe SYSTEM "file:///etc/passwd">
@@ -225,20 +217,41 @@ class XmlUtilTest {
                     </xs:annotation>
                 </xs:schema>
                 """;
-        SchemaFactory factory = XmlUtil.getSchemaFactory();
-        assertThrows(SAXParseException.class, () -> factory.newSchema(new StreamSource(new StringReader(xsd))));
+        assertThrows(SAXParseException.class, () -> factory.newSchema(new StreamSource(new StringReader(exploitXsd))));
     }
 
     @Test
-    void shouldRejectExternalSchemaImportWhenCreatingSchema() {
-        String xsd = """
+    void schemaFactoryShouldRejectExternalSchemaImport() {
+        SchemaFactory factory = XmlUtil.createSchemaFactoryInstance();
+        assertNotNull(factory);
+        String exploitXsd1 = """
                 <?xml version="1.0"?>
-                <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.powsybl.org/schema/iidm/ext/test">>
-                    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_10" schemaLocation="file:///etc/passwd"/>
+                <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+                    <xs:import schemaLocation="file:///etc/passwd"/>
                 </xs:schema>
                 """;
-        SchemaFactory factory = XmlUtil.getSchemaFactory();
-        assertThrows(SAXParseException.class, () -> factory.newSchema(new StreamSource(new StringReader(xsd))));
+        String exploitXsd2 = """
+                <?xml version="1.0"?>
+                <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+                    <xs:import schemaLocation="http://localhost:12345/test.xsd"/>
+                </xs:schema>
+                """;
+        assertThrows(SAXParseException.class, () -> factory.newSchema(new StreamSource(new StringReader(exploitXsd1))));
+        assertThrows(SAXParseException.class, () -> factory.newSchema(new StreamSource(new StringReader(exploitXsd2))));
+    }
+
+    @Test
+    void xmlReaderShouldRejectExternalEntityResolution() throws Exception {
+        XMLReader xmlReader = XmlUtil.createXMLReader();
+        assertNotNull(xmlReader);
+        String exploitXml = """
+            <?xml version="1.0"?>
+            <!DOCTYPE foo [
+              <!ENTITY xxe SYSTEM "file:///etc/passwd">
+            ]>
+            <root>&xxe;</root>
+            """;
+        assertThrows(Exception.class, () -> xmlReader.parse(new InputSource(new StringReader(exploitXml))));
     }
 
 }

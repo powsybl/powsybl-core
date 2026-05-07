@@ -153,7 +153,7 @@ public final class NetworkSerDe {
         for (ExtensionSerDe<?, ?> e : extensionsSupplier.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
         }
-        SchemaFactory factory = createSchemaFactoryInstance();
+        SchemaFactory factory = getSchemaFactory();
         try {
             int length = IidmVersion.values().length + (int) Arrays.stream(IidmVersion.values())
                     .filter(IidmVersion::supportEquipmentValidationLevel).count();
@@ -220,7 +220,7 @@ public final class NetworkSerDe {
         Objects.requireNonNull(extensionsSupplier);
         Objects.requireNonNull(version);
 
-        SchemaFactory factory = createSchemaFactoryInstance();
+        SchemaFactory factory = getSchemaFactory();
         try {
             List<Source> additionalExtensionSchemas = getExtensionSources(extensionsSupplier, version);
             int length = version.supportEquipmentValidationLevel() ? 2 : 1;

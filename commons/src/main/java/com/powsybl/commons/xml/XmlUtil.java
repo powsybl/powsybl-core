@@ -195,13 +195,24 @@ public final class XmlUtil {
     }
 
     public static XMLReader createXMLReader() throws ParserConfigurationException, SAXException {
-        SAXParserFactory factory = SAXParserFactory.newNSInstance();
-        factory.setNamespaceAware(true);
+        SAXParserFactory factory = SAXParserFactory.newInstance();
         setFeatures(factory);
-        factory.setXIncludeAware(false);
-        SAXParser parser = factory.newSAXParser();
-        parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        factory.setNamespaceAware(true);
+        factory.setXIncludeAware(false); // Prevents including external files
+        // Create SAXParser from factory
+        SAXParser saxParser = createSAXParser(factory);
+        // Create XMLReader from parser
+        return createXMLReader(saxParser);
+    }
+
+    private static SAXParser createSAXParser(SAXParserFactory factory) throws ParserConfigurationException, SAXException {
+        SAXParser saxParser = factory.newSAXParser();
+        setProperty(saxParser, XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        setProperty(saxParser, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        return saxParser;
+    }
+
+    private static XMLReader createXMLReader(SAXParser parser) throws SAXException {
         XMLReader xmlReader = parser.getXMLReader();
         setFeatures(xmlReader);
         return xmlReader;
@@ -265,6 +276,14 @@ public final class XmlUtil {
             factory.setProperty(property, value);
         } catch (IllegalArgumentException e) {
             LOGGER.info("- Property unsupported by StAX implementation: {}", property);
+        }
+    }
+
+    private static void setProperty(SAXParser parser, String property, Object value) {
+        try {
+            parser.setProperty(property, value);
+        } catch (SAXNotSupportedException | SAXNotRecognizedException e) {
+            LOGGER.info("- Property unsupported or not recognized by SAXParser implementation: {}", property);
         }
     }
 
@@ -363,6 +382,7 @@ public final class XmlUtil {
     public static SchemaFactory createSchemaFactoryInstance() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        setFeature(factory, XML_DISALLOW_DOCTYPE, true);
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         } catch (SAXException e) {
