@@ -573,6 +573,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         } else if (headerRecord.getFieldCount() < 2 || !"time".equalsIgnoreCase(headerRecord.getField(0))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
+        if (timeSeriesCsvConfig.getMaxColumns() > 0 && headerRecord.getFieldCount() > timeSeriesCsvConfig.getMaxColumns()) {
+            throw new TimeSeriesException("Number of columns in header (" + headerRecord.getFieldCount()
+                + ") exceeds the maximum allowed (" + timeSeriesCsvConfig.getMaxColumns() + ")");
+        }
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig) {

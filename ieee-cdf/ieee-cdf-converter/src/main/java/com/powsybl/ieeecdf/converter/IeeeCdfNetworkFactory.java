@@ -138,8 +138,8 @@ public final class IeeeCdfNetworkFactory {
         return create9zeroimpedance(NetworkFactory.findDefault());
     }
 
-    private static void parseBuses(IeeeCdfModel model, CsvReader.CsvReaderBuilder builder, String fileName, double baseKv) {
-        try (CsvReader<CsvRecord> csvReader = builder.ofCsvRecord(Objects.requireNonNull(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName)))) {
+    private static void parseBuses(IeeeCdfModel model, String fileName, double baseKv) {
+        try (CsvReader<CsvRecord> csvReader = createCsvReaderBuilder().ofCsvRecord(Objects.requireNonNull(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName)))) {
             csvReader.forEach(csvRecord -> {
                 int busNo = Integer.parseInt(csvRecord.getField(0));
                 int busCode = Integer.parseInt(csvRecord.getField(1));
@@ -164,8 +164,8 @@ public final class IeeeCdfNetworkFactory {
         }
     }
 
-    private static void parseLines(IeeeCdfModel model, CsvReader.CsvReaderBuilder builder, String fileName) {
-        try (CsvReader<CsvRecord> csvReader = builder.ofCsvRecord(Objects.requireNonNull(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName)))) {
+    private static void parseLines(IeeeCdfModel model, String fileName) {
+        try (CsvReader<CsvRecord> csvReader = createCsvReaderBuilder().ofCsvRecord(Objects.requireNonNull(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName)))) {
             csvReader.forEach(csvRecord -> {
                 int sendingBus = Integer.parseInt(csvRecord.getField(0));
                 int receivingBus = Integer.parseInt(csvRecord.getField(1));
@@ -191,12 +191,10 @@ public final class IeeeCdfNetworkFactory {
         title.setMvaBase(100);
         title.setDate(LocalDate.parse("2022-09-23"));
         IeeeCdfModel model = new IeeeCdfModel(title);
-        CsvReader.CsvReaderBuilder builder = CsvReader.builder()
-            .fieldSeparator(" ");
-        parseBuses(model, builder, name + "-bus.csv", baseKv);
-        parseLines(model, builder, name + "-line.csv");
+        parseBuses(model, name + "-bus.csv", baseKv);
+        parseLines(model, name + "-line.csv");
         if (meshed) {
-            parseLines(model, builder, name + "-mesh.csv");
+            parseLines(model, name + "-mesh.csv");
         }
         return new IeeeCdfImporter().convert(model, networkFactory, name, false);
     }
@@ -223,5 +221,10 @@ public final class IeeeCdfNetworkFactory {
 
     public static Network create69() {
         return create69(false);
+    }
+
+    private static CsvReader.CsvReaderBuilder createCsvReaderBuilder() {
+        return CsvReader.builder()
+            .fieldSeparator(" ");
     }
 }
