@@ -46,6 +46,11 @@ public abstract class AbstractDcSwitchTest {
         assertNotNull(dcNode2);
         DcSwitch dcSwitch = network.getDcSwitch("dcSwitch");
         assertNotNull(dcSwitch);
+        assertSame(DcSwitchKind.DISCONNECTOR, dcSwitch.getKind());
+        assertSame(dcNode1, dcSwitch.getDcNode1());
+        assertSame(dcNode2, dcSwitch.getDcNode2());
+        assertFalse(dcSwitch.isOpen());
+        assertEquals(0.125, dcSwitch.getR());
     }
 
     @Test
@@ -73,7 +78,7 @@ public abstract class AbstractDcSwitchTest {
                 .setKind(DcSwitchKind.BREAKER)
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
-                .setR(1.1)
+                .setR(1.5) // exactly representable in IEEE 754 binary
                 .setOpen(true)
                 .add();
         assertEquals(dcSwitch2Id, dcSwitch2.getId());
@@ -81,7 +86,7 @@ public abstract class AbstractDcSwitchTest {
         assertSame(DcSwitchKind.BREAKER, dcSwitch2.getKind());
         assertSame(dcNode1, dcSwitch2.getDcNode1());
         assertSame(dcNode2, dcSwitch2.getDcNode2());
-        assertEquals(1.1, dcSwitch2.getR());
+        assertEquals(1.5, dcSwitch2.getR());
 
         List<DcSwitch> dcSwitchList = List.of(dcSwitch1, dcSwitch2);
 
@@ -101,16 +106,16 @@ public abstract class AbstractDcSwitchTest {
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
                 .setOpen(true)
-                .setR(1.1)
+                .setR(1.5) // exactly representable in IEEE 754 binary
                 .add();
 
         assertTrue(dcSwitch.isOpen());
         dcSwitch.setOpen(false);
         assertFalse(dcSwitch.isOpen());
 
-        assertEquals(1.1, dcSwitch.getR());
-        dcSwitch.setR(1.2);
-        assertEquals(1.2, dcSwitch.getR());
+        assertEquals(1.5, dcSwitch.getR());
+        dcSwitch.setR(0.5); // exactly representable in IEEE 754 binary
+        assertEquals(0.5, dcSwitch.getR());
         dcSwitch.setR(0.0);
         assertEquals(0.0, dcSwitch.getR());
 

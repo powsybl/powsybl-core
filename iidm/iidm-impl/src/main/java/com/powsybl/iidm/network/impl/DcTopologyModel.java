@@ -23,8 +23,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
- * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
- *
  * DcTopologyModel provides the list of DC buses for a given network.
  * It is only meant to be used in NetworkImpl.
  * DC buses are parts of the DC network with the same voltage, i.e. connected by
@@ -33,6 +31,7 @@ import java.util.stream.Stream;
  * Only nodes with terminal create buses. In particular, disconnected nodes do
  * not create buses.
  *
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class DcTopologyModel implements MultiVariantObject {
 

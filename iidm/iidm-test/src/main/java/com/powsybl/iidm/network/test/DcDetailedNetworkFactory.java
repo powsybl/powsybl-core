@@ -863,7 +863,7 @@ public final class DcDetailedNetworkFactory {
 
         dcNetwork.newDcSwitch()
                 .setId("dcSwitch")
-                .setR(0.1)
+                .setR(0.125)
                 .setDcNode1("dcNode1")
                 .setDcNode2("dcNode2")
                 .setKind(DcSwitchKind.DISCONNECTOR)

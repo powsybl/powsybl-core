@@ -11,9 +11,12 @@ import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.DcSwitch;
 import com.powsybl.iidm.network.DcSwitchKind;
 import com.powsybl.iidm.network.Network;
+
 import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.time.ZonedDateTime;
+
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
@@ -42,7 +45,6 @@ class DcSwitchSerDeTest extends AbstractIidmSerDeTest {
         // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
         testWriteVersionedXml(network, options, "dcSwitchNotSupported.xml", IidmVersion.V_1_14);
-
     }
 
     private static Network createBaseNetwork() {

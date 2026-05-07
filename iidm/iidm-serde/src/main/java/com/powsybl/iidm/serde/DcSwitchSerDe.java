@@ -34,8 +34,7 @@ public class DcSwitchSerDe extends AbstractSimpleIdentifiableSerDe<DcSwitch, DcS
         context.getWriter().writeEnumAttribute("kind", dcSwitch.getKind());
         context.getWriter().writeBooleanAttribute("open", dcSwitch.isOpen());
         double r = dcSwitch.getR();
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
-            () -> context.getWriter().writeDoubleAttribute("r", r));
+        IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(getRootElementName(), "r", r, 0.0, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_17, context);
     }
 
     @Override

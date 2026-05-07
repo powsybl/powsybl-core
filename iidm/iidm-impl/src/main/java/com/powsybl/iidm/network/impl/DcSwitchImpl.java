@@ -29,7 +29,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
     private final DcNode dcNode2;
     private final TBooleanArrayList open;
     private boolean removed = false;
-    private double r = 0.0;
+    private double r;
 
     DcSwitchImpl(Ref<NetworkImpl> ref,
                  Ref<SubnetworkImpl> subnetworkRef,
@@ -161,6 +161,7 @@ public class DcSwitchImpl extends AbstractIdentifiable<DcSwitch> implements DcSw
         return r;
     }
 
+    @Override
     public DcSwitch setR(double r) {
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, R_ATTRIBUTE);
         ValidationUtil.checkDoubleParamPositive(this, r, R_ATTRIBUTE);
