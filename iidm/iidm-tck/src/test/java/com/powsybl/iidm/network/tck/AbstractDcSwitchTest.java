@@ -368,7 +368,6 @@ public abstract class AbstractDcSwitchTest {
         assertFalse(dcSwitch.isOpen());
         assertEquals(0.5, dcSwitch.getR()); // This should have been changed in all variants.
 
-
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
@@ -379,6 +378,4 @@ public abstract class AbstractDcSwitchTest {
         assertFalse(dcSwitch.isOpen());
         assertEquals(0.5, dcSwitch.getR());
     }
-
-
 }
