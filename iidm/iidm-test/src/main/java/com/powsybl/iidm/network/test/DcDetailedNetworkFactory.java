@@ -904,7 +904,7 @@ public final class DcDetailedNetworkFactory {
                 .add();
 
         dcNetwork.newDcLine()
-                .setId("dcLine1")
+                .setId(DC_LINE1)
                 .setDcNode1("n1")
                 .setConnected1(true)
                 .setDcNode2("n2")
@@ -920,7 +920,7 @@ public final class DcDetailedNetworkFactory {
                 .setOpen(false)
                 .add();
         dcNetwork.newDcLine()
-                .setId("dcLine2")
+                .setId(DC_LINE2)
                 .setDcNode1("n3")
                 .setConnected1(true)
                 .setDcNode2("n4")

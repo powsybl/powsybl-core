@@ -90,7 +90,7 @@ public abstract class AbstractDcTopologyTest {
         assertEquals(1, network.getDcComponents().size());
 
         network.getDcLine("dcLine1").remove();
-        // n1 has no more connected equipment → no bus; remaining: {n2,n3} and {n4}
+        // n1 has no more connected equipment -> no bus. Remaining: {n2,n3} and {n4}
         assertEquals(2, network.getDcBusCount());
         assertEquals(1, network.getDcComponents().size());
 

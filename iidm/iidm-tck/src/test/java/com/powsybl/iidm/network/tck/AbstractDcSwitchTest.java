@@ -338,7 +338,7 @@ public abstract class AbstractDcSwitchTest {
                 .setKind(DcSwitchKind.DISCONNECTOR)
                 .setDcNode1(dcNode1.getId())
                 .setDcNode2(dcNode2.getId())
-                .setR(1.1)
+                .setR(1.5) // exactly representable in IEEE 754 binary
                 .setOpen(false)
                 .add();
 
@@ -348,9 +348,11 @@ public abstract class AbstractDcSwitchTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertFalse(dcSwitch.isOpen());
+        assertEquals(1.5, dcSwitch.getR());
 
         // change values in s4
         dcSwitch.setOpen(true);
+        dcSwitch.setR(0.5); // This change should be seen in all variants.
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -359,10 +361,13 @@ public abstract class AbstractDcSwitchTest {
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertTrue(dcSwitch.isOpen());
+        assertEquals(0.5, dcSwitch.getR());
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertFalse(dcSwitch.isOpen());
+        assertEquals(0.5, dcSwitch.getR()); // This should have been changed in all variants.
+
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
@@ -372,5 +377,8 @@ public abstract class AbstractDcSwitchTest {
         // check we delete a single variant's values
         variantManager.setWorkingVariant("s3");
         assertFalse(dcSwitch.isOpen());
+        assertEquals(0.5, dcSwitch.getR());
     }
+
+
 }
