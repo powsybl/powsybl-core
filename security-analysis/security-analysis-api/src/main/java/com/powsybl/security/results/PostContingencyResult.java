@@ -94,7 +94,7 @@ public class PostContingencyResult extends AbstractContingencyResult implements 
 
         return removed;
     }
-    
+
     @Override
     public Collection<Extension<PostContingencyResult>> getExtensions() {
         return extensionsByName.values();
