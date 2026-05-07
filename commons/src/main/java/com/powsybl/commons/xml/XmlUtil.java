@@ -203,21 +203,23 @@ public final class XmlUtil {
         factory.setNamespaceAware(true);
         factory.setXIncludeAware(false); // Prevents including external files
         // Create SAXParser from factory
-        SAXParser saxParser = createSAXParser(factory);
-        // Create XMLReader from parser
-        return createXMLReader(saxParser);
-    }
-
-    private static SAXParser createSAXParser(SAXParserFactory factory) throws ParserConfigurationException, SAXException {
         SAXParser saxParser = factory.newSAXParser();
-        setProperty(saxParser, XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        setProperty(saxParser, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        return saxParser;
-    }
-
-    private static XMLReader createXMLReader(SAXParser parser) throws SAXException {
-        XMLReader xmlReader = parser.getXMLReader();
-        setFeatures(xmlReader);
+        try {
+            saxParser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        } catch (SAXException e) {
+            logUnsupportedSaxParserProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
+        }
+        try {
+            saxParser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        } catch (SAXException e) {
+            logUnsupportedSaxParserProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
+        }
+        // Create XMLReader from parser
+        XMLReader xmlReader = saxParser.getXMLReader();
+        xmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        xmlReader.setFeature(XML_DISALLOW_DOCTYPE, true);
+        xmlReader.setFeature(SAX_EXTERNAL_GENERAL_ENTITIES, false);
+        xmlReader.setFeature(SAX_EXTERNAL_PARAMETER_ENTITIES, false);
         return xmlReader;
     }
 
@@ -282,14 +284,6 @@ public final class XmlUtil {
         }
     }
 
-    private static void setProperty(SAXParser parser, String property, Object value) {
-        try {
-            parser.setProperty(property, value);
-        } catch (SAXNotSupportedException | SAXNotRecognizedException e) {
-            LOGGER.info("- Property unsupported or not recognized by SAXParser implementation: {}", property);
-        }
-    }
-
     private static XMLOutputFactory createXMLOutputFactoryInstance() {
         return XMLOutputFactory.newFactory();
     }
@@ -320,33 +314,10 @@ public final class XmlUtil {
         setFeature(factory, SAX_EXTERNAL_PARAMETER_ENTITIES, false);
     }
 
-    private static void setFeatures(XMLReader factory) {
-        setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        setFeature(factory, XML_DISALLOW_DOCTYPE, true);
-        setFeature(factory, SAX_EXTERNAL_GENERAL_ENTITIES, false);
-        setFeature(factory, SAX_EXTERNAL_PARAMETER_ENTITIES, false);
-    }
-
     private static void setFeature(DocumentBuilderFactory factory, String feature, boolean value) {
         try {
             factory.setFeature(feature, value);
         } catch (ParserConfigurationException e) {
-            logUnsupportedFeature(feature, value);
-        }
-    }
-
-    private static void setFeature(SAXParserFactory factory, String feature, boolean value) {
-        try {
-            factory.setFeature(feature, value);
-        } catch (ParserConfigurationException | SAXNotSupportedException | SAXNotRecognizedException e) {
-            logUnsupportedFeature(feature, value);
-        }
-    }
-
-    private static void setFeature(XMLReader factory, String feature, boolean value) {
-        try {
-            factory.setFeature(feature, value);
-        } catch (SAXNotSupportedException | SAXNotRecognizedException e) {
             logUnsupportedFeature(feature, value);
         }
     }
@@ -393,6 +364,10 @@ public final class XmlUtil {
     }
 
     private static void logUnsupportedSchemaFactoryProperty(String property) {
+        LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
+    }
+
+    private static void logUnsupportedSaxParserProperty(String property) {
         LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
     }
 
