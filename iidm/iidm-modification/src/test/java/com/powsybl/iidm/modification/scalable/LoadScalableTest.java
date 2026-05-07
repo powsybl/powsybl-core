@@ -239,4 +239,291 @@ class LoadScalableTest {
         assertEquals(60.0, load.getP0(), 1e-3);
         assertEquals(0.0, scaleResult, 1e-3);
     }
+
+    @Test
+    void testLoadMinPowerFactor() {
+        // loadMinPowerFactor clamps Q so the resulting power factor never drops below the minimum.
+        // Using minPowerFactor = 1/sqrt(2) ~ 0.707 gives a clean maxAbsQ = |newP| * 1
+        // (because sqrt(1/0.5 - 1) = sqrt(1) = 1)
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(1.0 / Math.sqrt(2));
+
+        Load load = network.getLoad("l1");
+        load.setQ0(200.0);
+        assertEquals(100.0, load.getP0(), 1e-3);
+        assertEquals(200.0, load.getQ0(), 1e-3);
+
+        // Scale by 50 (GENERATOR convention): newP = 100 - 50 = 50
+        // Proportional newQ = 50 * 200/100 = 100
+        // maxAbsQ = 50 * sqrt(1/(1/sqrt(2))^2 - 1) = 50 * 1 = 50
+        // |100| > 50 -> Q clamped to 50
+        ls1.scale(network, 50, parameters);
+        assertEquals(50.0, load.getP0(), 1e-3);
+        assertEquals(50.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadMinPowerFactorNegativeQ() {
+        // Same as above but with a capacitive load (negative Q).
+        // The sign of Q must be preserved when clamping.
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(1.0 / Math.sqrt(2));
+
+        Load load = network.getLoad("l1");
+        load.setQ0(-200.0);
+
+        // Scale by 50: newP=50, proportional newQ=-100, clamped to -50 (sign preserved)
+        ls1.scale(network, 50, parameters);
+        assertEquals(50.0, load.getP0(), 1e-3);
+        assertEquals(-50.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadMinPowerFactorNoClampNeeded() {
+        // When the proportional Q already respects the power factor minimum, no clamping occurs.
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(1.0 / Math.sqrt(2));
+
+        Load load = network.getLoad("l1");
+        load.setQ0(10.0);
+
+        // Scale by 20: newP=80, proportional newQ = 80*10/100 = 8
+        // maxAbsQ = 80 * 1 = 80; |8| < 80 -> no clamping, proportional value kept
+        ls1.scale(network, 20, parameters);
+        assertEquals(80.0, load.getP0(), 1e-3);
+        assertEquals(8.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadMinQRate() {
+        // Q_scaled >= Q_initial * loadMinQRate
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinQRate(0.5);
+
+        Load load = network.getLoad("l1");
+        load.setQ0(100.0);
+
+        // Scale by 80 (GENERATOR): newP = 100 - 80 = 20
+        // Proportional newQ = 20 * 100/100 = 20
+        // Floor = 100 * 0.5 = 50; 20 < 50 -> Q clamped to 50
+        ls1.scale(network, 80, parameters);
+        assertEquals(20.0, load.getP0(), 1e-3);
+        assertEquals(50.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadMinQRateNoClampNeeded() {
+        // When the proportional Q is already above the floor, no clamping occurs.
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinQRate(0.5);
+
+        Load load = network.getLoad("l1");
+        load.setQ0(100.0);
+
+        // Scale by 20 (GENERATOR): newP = 80, proportional newQ = 80
+        // Floor = 100 * 0.5 = 50; 80 >= 50 -> no clamping
+        ls1.scale(network, 20, parameters);
+        assertEquals(80.0, load.getP0(), 1e-3);
+        assertEquals(80.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadMaxQRate() {
+        // Q_scaled <= Q_initial * loadMaxQRate
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMaxQRate(1.5);
+
+        Load load = network.getLoad("l1");
+        load.setQ0(20.0);
+
+        // Scale by -100 (GENERATOR): asked < 0 means P increases -> newP = 100 + 100 = 200
+        // Proportional newQ = 200 * 20/100 = 40
+        // Ceiling = 20 * 1.5 = 30; 40 > 30 -> Q clamped to 30
+        ls1.scale(network, -100, parameters);
+        assertEquals(200.0, load.getP0(), 1e-3);
+        assertEquals(30.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadMaxQRateNoClampNeeded() {
+        // When the proportional Q is already below the ceiling, no clamping occurs.
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMaxQRate(1.5);
+
+        Load load = network.getLoad("l1");
+        load.setQ0(20.0);
+
+        // Scale by -20 (GENERATOR): newP = 120, proportional newQ = 24
+        // Ceiling = 20 * 1.5 = 30; 24 <= 30 -> no clamping
+        ls1.scale(network, -20, parameters);
+        assertEquals(120.0, load.getP0(), 1e-3);
+        assertEquals(24.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadScalableMinQ() {
+        // Per-load absolute MVAr floor set directly on LoadScalable
+        ScalingParameters parameters = new ScalingParameters().setConstantPowerFactor(true);
+
+        Load load = network.getLoad("l1");
+        load.setQ0(100.0);
+
+        // Scale by 80: newP=20, proportional newQ=20
+        // minQ=30 -> 20 < 30 -> Q clamped to 30
+        ls1.setMinQ(30.0);
+        ls1.scale(network, 80, parameters);
+        assertEquals(20.0, load.getP0(), 1e-3);
+        assertEquals(30.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadScalableMaxQ() {
+        // Per-load absolute MVAr ceiling set directly on LoadScalable
+        ScalingParameters parameters = new ScalingParameters().setConstantPowerFactor(true);
+
+        Load load = network.getLoad("l1");
+        load.setQ0(20.0);
+
+        // Scale by -100: newP=200, proportional newQ=40
+        // maxQ=35 -> 40 > 35 -> Q clamped to 35
+        ls1.setMaxQ(35.0);
+        ls1.scale(network, -100, parameters);
+        assertEquals(200.0, load.getP0(), 1e-3);
+        assertEquals(35.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testAllQConstraintsInteraction() {
+        // When multiple constraints are active, the most restrictive one wins.
+        // Here loadMinQRate gives a floor of 50, and minQ gives a harder floor of 60.
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinQRate(0.5); // floor = 100 * 0.5 = 50
+
+        Load load = network.getLoad("l1");
+        load.setQ0(100.0);
+        ls1.setMinQ(60.0); // harder floor wins
+
+        // Scale by 80: newP=20, proportional newQ=20 -> rate floor=50, absolute floor=60
+        ls1.scale(network, 80, parameters);
+        assertEquals(20.0, load.getP0(), 1e-3);
+        assertEquals(60.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testNoQScalingWhenConstantPowerFactorFalse() {
+        // When constantPowerFactor=false, Q is never touched regardless of Q parameters.
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(false)
+                .setLoadMinPowerFactor(0.99)
+                .setLoadMinQRate(0.9)
+                .setLoadMaxQRate(1.1);
+
+        Load load = network.getLoad("l1");
+        load.setQ0(100.0);
+
+        ls1.scale(network, 50, parameters);
+        // Q must be completely untouched
+        assertEquals(100.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testNoQScalingWhenOldP0IsZero() {
+        // When oldP0=0, the constantPowerFactor guard (oldP0 != 0) prevents Q scaling.
+        // None of the new Q parameters should apply either.
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinQRate(0.5);
+
+        Load load = network.getLoad("l1");
+        load.setP0(0.0);
+        load.setQ0(50.0);
+
+        // GENERATOR convention, asked < 0 -> P increases from 0
+        ls1.scale(network, -20, parameters);
+        // Q must be untouched because oldP0 was 0
+        assertEquals(50.0, load.getQ0(), 1e-3);
+    }
+
+    @Test
+    void testLoadMinPowerFactorInitialPFAboveMinimum() {
+        // P_initial=1000, Q_initial=3000, P_scaled=2000, minPowerFactor=0.3
+        // cosphi_initial = 1/sqrt(10) ~ 0.316 > 0.3 -> initial PF is already above minimum
+        // -> proportional scaling applies, no clamping
+        // newQ = 2000 * 3000/1000 = 6000 MVAr
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(0.3);
+
+        Load load = network.getLoad("l1");
+        load.setP0(1000.0);
+        load.setQ0(3000.0);
+
+        // GENERATOR convention: asked < 0 increases P, asked=−1000 -> newP=2000
+        ls1.scale(network, -1000, parameters);
+        assertEquals(2000.0, load.getP0(), 1e-3);
+        assertEquals(6000.0, load.getQ0(), 1e-3); // purely proportional, no clamping
+    }
+
+    @Test
+    void testLoadMinPowerFactorInitialPFBelowMinimum() {
+        // Same setup, but minPowerFactor=0.5, which is above cosphi_initial (0.316)
+        // -> Q must be clamped to the minPowerFactor limit
+        // maxAbsQ = 2000 * sqrt(1/0.5² - 1) = 2000 * sqrt(3) ~ 3464.1 MVAr
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(0.5);
+
+        Load load = network.getLoad("l1");
+        load.setP0(1000.0);
+        load.setQ0(3000.0);
+
+        ls1.scale(network, -1000, parameters);
+        assertEquals(2000.0, load.getP0(), 1e-3);
+        assertEquals(2000 * Math.sqrt(3), load.getQ0(), 1e-3); // ~ 3464.1 MVAr
+    }
+
+    @Test
+    void testLoadMaxQRateNoClamp() {
+        // P_initial=1000, Q_initial=3000, P_scaled=2000
+        // minPowerFactor=0.3 -> proportional Q=6000
+        // loadMaxQRate=2.0 -> ceiling = 3000*2 = 6000; 6000 <= 6000 -> no clamping
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(0.3)
+                .setLoadMaxQRate(2.0);
+
+        Load load = network.getLoad("l1");
+        load.setP0(1000.0);
+        load.setQ0(3000.0);
+
+        ls1.scale(network, -1000, parameters);
+        assertEquals(2000.0, load.getP0(), 1e-3);
+        assertEquals(6000.0, load.getQ0(), 1e-3); // exactly at ceiling, not clamped
+    }
+
+    @Test
+    void testLoadMaxQRateExampleWithClamp() {
+        // loadMaxQRate=1.5 -> ceiling = 3000*1.5 = 4500; 6000 > 4500 -> clamped
+        ScalingParameters parameters = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(0.3)
+                .setLoadMaxQRate(1.5);
+
+        Load load = network.getLoad("l1");
+        load.setP0(1000.0);
+        load.setQ0(3000.0);
+
+        ls1.scale(network, -1000, parameters);
+        assertEquals(2000.0, load.getP0(), 1e-3);
+        assertEquals(4500.0, load.getQ0(), 1e-3); // 3000 * 1.5
+    }
+
 }

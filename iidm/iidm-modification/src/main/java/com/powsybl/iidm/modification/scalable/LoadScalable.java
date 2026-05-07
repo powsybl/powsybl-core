@@ -23,6 +23,12 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadScalable.class);
 
+    public static final double DEFAULT_MIN_Q_VALUE = -Double.MAX_VALUE;
+    public static final double DEFAULT_MAX_Q_VALUE = Double.MAX_VALUE;
+
+    private double minQValue = DEFAULT_MIN_Q_VALUE;
+    private double maxQValue = DEFAULT_MAX_Q_VALUE;
+
     protected LoadScalable(String id) {
         super(id, 0., Double.MAX_VALUE);
     }
@@ -33,6 +39,12 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     protected LoadScalable(String id, double minValue, double maxValue) {
         super(id, minValue, maxValue);
+    }
+
+    protected LoadScalable(String id, double minPValue, double maxPValue, double minQValue, double maxQValue) {
+        super(id, minPValue, maxPValue);
+        this.minQValue = minQValue;
+        this.maxQValue = maxQValue;
     }
 
     @Override
@@ -47,7 +59,7 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Default value is Double.MAX_VALUE for LoadScalable
      */
     @Override
@@ -66,7 +78,7 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Default value is 0 for LoadScalable
      */
     @Override
@@ -161,12 +173,66 @@ public class LoadScalable extends AbstractInjectionScalable {
                 l.getId(), oldP0, getP0(l));
 
         if (parameters.isConstantPowerFactor() && oldP0 != 0) {
-            setQ0(l, getP0(l) * oldQ0 / oldP0);
+            double newP = getP0(l);
+
+            // Step 1: proportional scaling (constant power factor)
+            double newQ = newP * oldQ0 / oldP0;
+
+            // Step 2: apply loadMinPowerFactor
+            // This caps |newQ| at |newP| * tan(acos(minPF)), same as, |newP| * sqrt(1/minPF² - 1)
+            // When the initial PF is already >= minPF, the proportional newQ is within the cap and no clamping occurs
+            // When the initial PF < minPF, newQ is clamped so the resulting PF never drops below minPF and the sign of Q is preserved
+            double minPowerFactor = parameters.getLoadMinPowerFactor();
+            if (minPowerFactor > 0.0 && newP != 0.0) {
+                double maxAbsQ = Math.abs(newP) * Math.sqrt(1.0 / (minPowerFactor * minPowerFactor) - 1.0);
+                if (Math.abs(newQ) > maxAbsQ) {
+                    newQ = Math.signum(newQ) * maxAbsQ;
+                }
+            }
+
+            // Step 3: apply rate limits relative to the initial Q (from ScalingParameters)
+            // Q_scaled must stay in [Q_initial * minQRate, Q_initial * maxQRate]
+            if (oldQ0 != 0) {
+                newQ = getNewQClamped(parameters, newQ, oldQ0);
+            }
+
+            // Step 4: apply absolute MVAr limits (per-load, set on LoadScalable directly)
+            if (minQValue != DEFAULT_MIN_Q_VALUE) {
+                newQ = Math.max(newQ, minQValue);
+            }
+            if (maxQValue != DEFAULT_MAX_Q_VALUE) {
+                newQ = Math.min(newQ, maxQValue);
+            }
+
+            setQ0(l, newQ);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
-                    l.getId(), oldQ0, getQ0(l));
+                    l.getId(), oldQ0, newQ);
         }
 
         return done;
+    }
+
+    private static double getNewQClamped(ScalingParameters parameters, double newQ, double oldQ0) {
+        double newQClamped = newQ;
+
+        if (parameters.getLoadMinQRate() != ScalingParameters.DEFAULT_LOAD_MIN_Q_RATE) {
+            double minBound = oldQ0 * parameters.getLoadMinQRate();
+            if (oldQ0 > 0) {
+                newQClamped = Math.max(newQClamped, minBound);
+            } else {
+                newQClamped = Math.min(newQClamped, minBound);
+            }
+        }
+
+        if (parameters.getLoadMaxQRate() != ScalingParameters.DEFAULT_LOAD_MAX_Q_RATE) {
+            double maxBound = oldQ0 * parameters.getLoadMaxQRate();
+            if (oldQ0 > 0) {
+                newQClamped = Math.min(newQClamped, maxBound);
+            } else {
+                newQClamped = Math.max(newQClamped, maxBound);
+            }
+        }
+        return newQClamped;
     }
 
     @Override
@@ -194,5 +260,49 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     protected double getQ0(Load l) {
         return l.getQ0();
+    }
+
+    /**
+     * Returns the absolute minimum reactive power limit (MVAr) applied to this load during scaling
+     * <p>
+     * This is the per-load floor applied in Q scaling, after all rate-based and
+     * power-factor constraints have been evaluated. It is independent of {@link ScalingParameters}
+     *
+     * @return the minimum Q value in MVAr (default: {@link #DEFAULT_MIN_Q_VALUE})
+     */
+    public double getMinQ() {
+        return minQValue;
+    }
+
+    /**
+     * Sets the absolute minimum reactive power limit (MVAr) for this load during scaling
+     *
+     * @param minQValue the minimum Q value in MVAr
+     */
+    public LoadScalable setMinQ(double minQValue) {
+        this.minQValue = minQValue;
+        return this;
+    }
+
+    /**
+     * Returns the absolute maximum reactive power limit (MVAr) applied to this load during scaling
+     * <p>
+     * This is the per-load ceiling applied in Q scaling, after all rate-based and
+     * power-factor constraints have been evaluated. It is independent of {@link ScalingParameters}.
+     *
+     * @return the maximum Q value in MVAr (default: {@link #DEFAULT_MAX_Q_VALUE})
+     */
+    public double getMaxQ() {
+        return maxQValue;
+    }
+
+    /**
+     * Sets the absolute maximum reactive power limit (MVAr) for this load during scaling
+     *
+     * @param maxQValue the maximum Q value in MVAr
+     */
+    public LoadScalable setMaxQ(double maxQValue) {
+        this.maxQValue = maxQValue;
+        return this;
     }
 }

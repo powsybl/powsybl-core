@@ -196,28 +196,79 @@ public class ScalingParameters {
         return this;
     }
 
+    /**
+     * Returns the minimum power factor allowed when scaling load reactive power
+     * <p>
+     * When {@code isConstantPowerFactor()} is {@code true}, the reactive power is scaled
+     * proportionally to the active power. This parameter caps |Q| so that the resulting
+     * power factor (|P| / sqrt(P²+Q²)) never drops below this value.
+     * <p>
+     * Must be in the range [0, 1]. A value of 0 (the default) disables this constraint.
+     *
+     * @return the minimum power factor, in [0, 1]
+     */
     public double getLoadMinPowerFactor() {
         return loadMinPowerFactor;
     }
 
+    /**
+     * Sets the minimum power factor allowed when scaling load reactive power
+     *
+     * @param loadMinPowerFactor the minimum power factor must be in [0, 1]
+     * @throws IllegalArgumentException if the value is outside [0, 1]
+     */
     public ScalingParameters setLoadMinPowerFactor(double loadMinPowerFactor) {
+        if (loadMinPowerFactor < 0.0 || loadMinPowerFactor > 1.0) {
+            throw new IllegalArgumentException("loadMinPowerFactor must be in [0, 1], got: " + loadMinPowerFactor);
+        }
+
         this.loadMinPowerFactor = loadMinPowerFactor;
         return this;
     }
 
+    /**
+     * Returns the minimum allowed ratio between the scaled reactive power and the initial reactive power
+     * <p>
+     * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
+     * Q_scaled &ge; Q_initial &times; loadMinQRate (for positive Q_initial, the direction reverses for negative)
+     * <p>
+     * Default is {@code -Double.MAX_VALUE} (no constraint)
+     *
+     * @return the minimum Q rate
+     */
     public double getLoadMinQRate() {
         return loadMinQRate;
     }
 
+    /**
+     * Sets the minimum allowed ratio between the scaled reactive power and the initial reactive power.
+     *
+     * @param loadMinQRate the minimum Q rate
+     */
     public ScalingParameters setLoadMinQRate(double loadMinQRate) {
         this.loadMinQRate = loadMinQRate;
         return this;
     }
 
+    /**
+     * Returns the maximum allowed ratio between the scaled reactive power and the initial reactive power
+     * <p>
+     * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
+     * Q_scaled &le; Q_initial &times; loadMaxQRate (for positive Q_initial, the direction reverses for negative).
+     * <p>
+     * Default is {@code Double.MAX_VALUE} (no constraint)
+     *
+     * @return the maximum Q rate
+     */
     public double getLoadMaxQRate() {
         return loadMaxQRate;
     }
 
+    /**
+     * Sets the maximum allowed ratio between the scaled reactive power and the initial reactive power
+     *
+     * @param loadMaxQRate the maximum Q rate
+     */
     public ScalingParameters setLoadMaxQRate(double loadMaxQRate) {
         this.loadMaxQRate = loadMaxQRate;
         return this;
