@@ -12,9 +12,11 @@ import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.*;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -194,7 +196,7 @@ class XmlUtilTest {
 
     @Test
     void testSchemaFactory() {
-        SchemaFactory factory = XmlUtil.createSchemaFactoryInstance();
+        SchemaFactory factory = XmlUtil.getSchemaFactory();
         assertNotNull(factory);
         try {
             Object value1 = factory.getProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
@@ -202,8 +204,41 @@ class XmlUtilTest {
 
             Object value2 = factory.getProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
             assertEquals("", value2);
+
+            Object value3 = factory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING);
+            assertEquals(true, value3);
         } catch (SAXNotSupportedException | SAXNotRecognizedException ignored) {
             // ignored
         }
     }
+
+    @Test
+    void shouldRejectExternalEntityResolutionWhenCreatingSchema() {
+        String xsd = """
+                <?xml version="1.0"?>
+                <!DOCTYPE foo [
+                  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+                ]>
+                <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                    <xs:annotation>
+                        <xs:documentation>&xxe;</xs:documentation>
+                    </xs:annotation>
+                </xs:schema>
+                """;
+        SchemaFactory factory = XmlUtil.getSchemaFactory();
+        assertThrows(SAXParseException.class, () -> factory.newSchema(new StreamSource(new StringReader(xsd))));
+    }
+
+    @Test
+    void shouldRejectExternalSchemaImportWhenCreatingSchema() {
+        String xsd = """
+                <?xml version="1.0"?>
+                <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.powsybl.org/schema/iidm/ext/test">>
+                    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_10" schemaLocation="file:///etc/passwd"/>
+                </xs:schema>
+                """;
+        SchemaFactory factory = XmlUtil.getSchemaFactory();
+        assertThrows(SAXParseException.class, () -> factory.newSchema(new StreamSource(new StringReader(xsd))));
+    }
+
 }

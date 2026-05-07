@@ -55,6 +55,7 @@ public final class XmlUtil {
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createXMLOutputFactoryInstance);
     private static final Supplier<DocumentBuilderFactory> DOCUMENT_BUILDER_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createDocumentBuilderFactoryInstance);
     private static final Supplier<CSVFormat> CSV_FORMAT_SUPPLIER = Suppliers.memoize(XmlUtil::createCsvFormatInstance);
+    private static final Supplier<SchemaFactory> SCHEMA_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createSchemaFactoryInstance);
 
     private static final String XML_DISALLOW_DOCTYPE = "http://apache.org/xml/features/disallow-doctype-decl";
     private static final String SAX_EXTERNAL_GENERAL_ENTITIES = "http://xml.org/sax/features/external-general-entities";
@@ -191,25 +192,6 @@ public final class XmlUtil {
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, Writer writer) throws XMLStreamException {
         XMLStreamWriter xmlWriter = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(writer);
         return initializeWriter(indent, indentString, xmlWriter);
-    }
-
-    public static SchemaFactory createSchemaFactoryInstance() {
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        try {
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        } catch (SAXException e) {
-            logUnsupportedProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
-        }
-        try {
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        } catch (SAXException e) {
-            logUnsupportedProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
-        }
-        return factory;
-    }
-
-    private static void logUnsupportedProperty(String property) {
-        LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
     }
 
     public static XMLReader createXMLReader() throws ParserConfigurationException, SAXException {
@@ -354,6 +336,14 @@ public final class XmlUtil {
         }
     }
 
+    private static void setFeature(SchemaFactory factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (SAXNotSupportedException | SAXNotRecognizedException e) {
+            logUnsupportedFeature(feature, value);
+        }
+    }
+
     private static void logUnsupportedFeature(String feature, boolean value) {
         LOGGER.warn("Unable to set feature {} to {}", feature, value);
     }
@@ -368,5 +358,29 @@ public final class XmlUtil {
 
     private static CSVFormat createCsvFormatInstance() {
         return CSVFormat.DEFAULT.builder().setRecordSeparator("").get();
+    }
+
+    public static SchemaFactory createSchemaFactoryInstance() {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        } catch (SAXException e) {
+            logUnsupportedSchemaFactoryProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
+        }
+        try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        } catch (SAXException e) {
+            logUnsupportedSchemaFactoryProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
+        }
+        return factory;
+    }
+
+    private static void logUnsupportedSchemaFactoryProperty(String property) {
+        LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
+    }
+
+    public static SchemaFactory getSchemaFactory() {
+        return SCHEMA_FACTORY_SUPPLIER.get();
     }
 }
