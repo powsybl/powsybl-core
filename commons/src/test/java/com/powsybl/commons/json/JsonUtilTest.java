@@ -12,9 +12,9 @@ import java.io.IOException;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.BeforeEach;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

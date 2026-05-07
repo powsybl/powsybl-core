@@ -30,7 +30,7 @@ class UserProfileTest {
                 .addEqualityGroup(new UserProfile("a", "b"), new UserProfile("a", "b"))
                 .addEqualityGroup(new UserProfile("c", "d"), new UserProfile("c", "d"))
                 .testEquals();
-        String json = JsonUtil.createObjectMapper().writeValueAsString(profile);
+        String json = JsonUtil.createJsonMapper().writeValueAsString(profile);
         assertEquals("{\"firstName\":\"Peter\",\"lastName\":\"Parker\"}", json);
     }
 }

@@ -8,20 +8,20 @@
 package com.powsybl.commons.extensions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -45,14 +45,14 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
     }
 
     @Override
-    public void serialize(FooExt extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(FooExt extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeBooleanField("value", extension.getValue());
+        jsonGenerator.writeBooleanProperty("value", extension.getValue());
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         Boolean value = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             if (parser.currentName().equals("value")) {
@@ -71,7 +71,7 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
     }
 
     @Override
-    public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
+    public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext, ReportNode reportNode) throws JacksonException {
         reportNode.newReportNode().withSeverity(TypedValue.INFO_SEVERITY).withMessageTemplate("deserialize").add();
         return deserialize(parser, deserializationContext);
     }
@@ -85,21 +85,22 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
         Foo getExtendable();
     }
 
-    private static ObjectMapper createMapper() {
-        return JsonUtil.createObjectMapper()
-                .addMixIn(FooExt.class, SerializationSpec.class);
+    private static JsonMapper createMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addMixIn(FooExt.class, SerializationSpec.class)
+            .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .build();
     }
 
     @Override
-    public FooExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FooExt parameters) throws IOException {
-        ObjectMapper objectMapper = createMapper();
-        ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-        FooExt updatedParameters = objectReader.readValue(jsonParser, FooExt.class);
-        return updatedParameters;
+    public FooExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FooExt parameters) throws JacksonException {
+        JsonMapper jsonMapper = createMapper();
+        ObjectReader objectReader = jsonMapper.readerForUpdating(parameters);
+        return objectReader.readValue(jsonParser);
     }
 
     @Override
-    public FooExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FooExt parameters, ReportNode reportNode) throws IOException {
+    public FooExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FooExt parameters, ReportNode reportNode) throws JacksonException {
         reportNode.newReportNode().withSeverity(TypedValue.INFO_SEVERITY).withMessageTemplate("deserialize_and_update").add();
         return deserializeAndUpdate(jsonParser, deserializationContext, parameters);
     }

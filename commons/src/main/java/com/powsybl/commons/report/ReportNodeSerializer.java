@@ -7,10 +7,11 @@
  */
 package com.powsybl.commons.report;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,17 +30,17 @@ public class ReportNodeSerializer extends StdSerializer<ReportNode> {
     }
 
     @Override
-    public void serialize(ReportNode reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReportNode reportNode, JsonGenerator generator, SerializationContext serializationContext) throws JacksonException {
         generator.writeStartObject();
 
-        generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
+        generator.writeStringProperty("version", ReportConstants.CURRENT_VERSION.toString());
 
-        generator.writeFieldName("dictionaries");
+        generator.writeName("dictionaries");
         generator.writeStartObject();
-        generator.writeObjectField("default", reportNode.getTreeContext().getDictionary());
+        generator.writePOJOProperty("default", reportNode.getTreeContext().getDictionary());
         generator.writeEndObject();
 
-        generator.writeFieldName("reportRoot");
+        generator.writeName("reportRoot");
         generator.writeStartObject();
         reportNode.writeJson(generator);
         generator.writeEndObject();
@@ -51,14 +52,16 @@ public class ReportNodeSerializer extends StdSerializer<ReportNode> {
         Objects.requireNonNull(reportNode);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(os, reportNode);
+            createJsonMapper().writerWithDefaultPrettyPrinter().writeValue(os, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return new ObjectMapper().registerModule(new ReportNodeJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonMapper.builder()
+            .addModule(new ReportNodeJsonModule())
+            .build();
     }
 
     protected static final class TypedValueSerializer extends StdSerializer<TypedValue> {
@@ -67,11 +70,11 @@ public class ReportNodeSerializer extends StdSerializer<ReportNode> {
         }
 
         @Override
-        public void serialize(TypedValue typedValue, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(TypedValue typedValue, JsonGenerator generator, SerializationContext serializationContext) throws JacksonException {
             generator.writeStartObject();
-            serializerProvider.defaultSerializeField("value", typedValue.getValue(), generator);
+            serializationContext.defaultSerializeProperty("value", typedValue.getValue(), generator);
             if (!TypedValue.UNTYPED_TYPE.equals(typedValue.getType())) {
-                generator.writeStringField("type", typedValue.getType());
+                generator.writeStringProperty("type", typedValue.getType());
             }
             generator.writeEndObject();
         }
