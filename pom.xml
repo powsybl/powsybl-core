@@ -126,8 +126,7 @@
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.3</jgrapht.version>
         <jimfs.version>1.3.1</jimfs.version>
-        <!-- junit can be updated to v6 -->
-        <junit-jupiter.version>5.14.4</junit-jupiter.version>
+        <junit-jupiter.version>6.0.3</junit-jupiter.version>
         <logback.version>1.5.32</logback.version>
         <maven.compat>3.9.9</maven.compat>
         <maven.core.version>3.9.3</maven.core.version>
