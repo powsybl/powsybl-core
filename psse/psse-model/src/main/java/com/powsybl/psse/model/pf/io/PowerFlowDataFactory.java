@@ -11,6 +11,20 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PsseCaseIdentification;
+import com.powsybl.psse.model.pf.PsseFacts;
+import com.powsybl.psse.model.pf.PsseFixedShunt;
+import com.powsybl.psse.model.pf.PsseGenerator;
+import com.powsybl.psse.model.pf.PsseLoad;
+import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
+import com.powsybl.psse.model.pf.PsseSwitchedShunt;
+import com.powsybl.psse.model.pf.PsseTransformer;
+import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
+import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
+import com.powsybl.psse.model.pf.PsseVoltageSourceConverter;
+import com.powsybl.psse.model.pf.PsseVoltageSourceConverterDcTransmissionLine;
+import com.powsybl.psse.model.pf.internal.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -54,50 +68,62 @@ public final class PowerFlowDataFactory {
         context.setVersion(PsseVersion.fromRevision(35));
         FileFormat fileFormat = rawFormat ? FileFormat.LEGACY_TEXT : FileFormat.JSON;
         context.setFileFormat(fileFormat);
-        context.setFieldNames(PowerFlowRecordGroup.CASE_IDENTIFICATION, CaseIdentificationData.FIELD_NAMES_CASE_IDENTIFICATION);
+        context.setFieldNames(PowerFlowRecordGroup.CASE_IDENTIFICATION, PsseCaseIdentification.getFieldNames());
 
         if (fileFormat == FileFormat.LEGACY_TEXT) {
-            context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, SubstationData.FIELD_NAMES_SUBSTATION);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, SubstationData.FIELD_NAMES_SUBSTATION_NODE);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, SubstationData.FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES);
+            context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, PsseSubstationRecord.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, PsseSubstationNode.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, PsseSubstationSwitchingDevice.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, PsseSubstationEquipmentTerminal.getFieldNamesOneBus());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesTwoBuses());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesThreeBuses());
         } else {
-            context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, SubstationData.FIELD_NAMES_SUBSTATION_RAWX);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, SubstationData.FIELD_NAMES_SUBSTATION_NODE_RAWX);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, SubstationData.FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX);
+            context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, PsseSubstationRecord.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, PsseSubstationNodex.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, PsseSubstationSwitchingDevicex.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL, PsseSubstationEquipmentTerminalx.getFieldNamesX());
         }
-        context.setFieldNames(PowerFlowRecordGroup.BUS, BusData.FIELD_NAMES_BUS_35);
-        context.setFieldNames(PowerFlowRecordGroup.LOAD, LoadData.FIELD_NAMES_LOAD_35);
-        context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, FixedBusShuntData.FIELD_NAMES_35);
-        context.setFieldNames(PowerFlowRecordGroup.GENERATOR, GeneratorData.FIELD_NAMES_35);
-        context.setFieldNames(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH, NonTransformerBranchData.FIELD_NAMES_35);
+
         if (fileFormat == FileFormat.LEGACY_TEXT) {
-            context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER, TransformerData.FIELD_NAMES_35);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_IMPEDANCES, TransformerData.FIELD_NAMES_IMPEDANCES_35);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_WINDING, TransformerData.FIELD_NAMES_WINDING_35);
+            context.setFieldNames(PowerFlowRecordGroup.BUS, PsseBus.getFieldNames3335());
+            context.setFieldNames(PowerFlowRecordGroup.LOAD, PsseLoad.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, PsseFixedShunt.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.GENERATOR, PsseGenerator.getFieldNames35());
         } else {
-            context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER, TransformerData.FIELD_NAMES_35_RAWX);
+            context.setFieldNames(PowerFlowRecordGroup.BUS, PsseBus.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.LOAD, PsseLoad.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, PsseFixedShunt.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.GENERATOR, PsseGenerator.getFieldNamesX());
         }
-        context.setFieldNames(PowerFlowRecordGroup.FACTS_CONTROL_DEVICE, FactsDeviceData.FIELD_NAMES_35);
+
         if (fileFormat == FileFormat.LEGACY_TEXT) {
-            context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, TwoTerminalDcTransmissionLineData.FIELD_NAMES_35);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER, TwoTerminalDcTransmissionLineData.FIELD_NAMES_CONVERTER_35);
+            context.setFieldNames(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH, PsseNonTransformerBranch.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER, PsseTransformer.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_IMPEDANCES, TransformerImpedances.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_WINDING, TransformerWindingRecord.getFieldNames35());
         } else {
-            context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, TwoTerminalDcTransmissionLineData.FIELD_NAMES_35_RAWX);
+            context.setFieldNames(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH, PsseNonTransformerBranch.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER, PsseTransformer.getFieldNamesX());
+        }
+
+        if (fileFormat == FileFormat.LEGACY_TEXT) {
+            context.setFieldNames(PowerFlowRecordGroup.FACTS_CONTROL_DEVICE, PsseFacts.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, PsseTwoTerminalDcTransmissionLine.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER, PsseTwoTerminalDcConverter.getFieldNames35());
+        } else {
+            context.setFieldNames(PowerFlowRecordGroup.FACTS_CONTROL_DEVICE, PsseFacts.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, PsseTwoTerminalDcTransmissionLine.getFieldNamesX());
         }
         if (fileFormat == FileFormat.LEGACY_TEXT) {
-            context.setFieldNames(PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, VoltageSourceConverterDcTransmissionLineData.FIELD_NAMES_35);
-            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER, VoltageSourceConverterDcTransmissionLineData.FIELD_NAMES_CONVERTER_35);
+            context.setFieldNames(PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, PsseVoltageSourceConverterDcTransmissionLine.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER, PsseVoltageSourceConverter.getFieldNames35());
         } else {
-            context.setFieldNames(PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, VoltageSourceConverterDcTransmissionLineData.FIELD_NAMES_35_RAWX);
+            context.setFieldNames(PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, PsseVoltageSourceConverterDcTransmissionLine.getFieldNamesX());
         }
         if (fileFormat == FileFormat.LEGACY_TEXT) {
-            context.setFieldNames(PowerFlowRecordGroup.SWITCHED_SHUNT, SwitchedShuntData.FIELD_NAMES_35);
+            context.setFieldNames(PowerFlowRecordGroup.SWITCHED_SHUNT, PsseSwitchedShunt.getFieldNames35());
         } else {
-            context.setFieldNames(PowerFlowRecordGroup.SWITCHED_SHUNT, SwitchedShuntData.FIELD_NAMES_35_RAWX);
+            context.setFieldNames(PowerFlowRecordGroup.SWITCHED_SHUNT, PsseSwitchedShunt.getFieldNamesX());
         }
 
         return context;

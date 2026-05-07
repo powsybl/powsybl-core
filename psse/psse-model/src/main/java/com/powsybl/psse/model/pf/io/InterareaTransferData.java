@@ -20,8 +20,8 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERAREA_TRANSF
 class InterareaTransferData extends AbstractRecordGroup<PsseInterareaTransfer> {
 
     InterareaTransferData() {
-        super(INTERAREA_TRANSFER, "arfrom", "arto", "trid", "ptran");
-        withQuotedFields("trid");
+        super(INTERAREA_TRANSFER, PsseInterareaTransfer.getFieldNames());
+        withQuotedFields(PsseInterareaTransfer.getFieldNamesString());
     }
 
     @Override

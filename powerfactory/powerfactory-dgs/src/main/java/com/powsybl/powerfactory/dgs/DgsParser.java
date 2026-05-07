@@ -11,6 +11,7 @@ import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.powerfactory.model.DataAttributeType;
+import com.powsybl.powerfactory.model.DataObjectRefKey;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
@@ -20,10 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -416,7 +414,7 @@ public class DgsParser {
                     read(fields, context::parseFloat, handler::onRealValue);
                     break;
                 case OBJECT:
-                    read(fields, Long::parseLong, handler::onObjectValue);
+                    read(fields, DataObjectRefKey::parse, handler::onObjectValue);
                     break;
                 default:
                     throw new PowerFactoryException("Unexpected attribute type:" + attributeType);
@@ -452,8 +450,7 @@ public class DgsParser {
                     readVector(fields, context::parseDouble, handler::onDoubleVectorValue);
                     break;
                 case OBJECT_VECTOR:
-                    // Read object numbers as long integers
-                    readVector(fields, Long::parseLong, handler::onObjectVectorValue);
+                    readVector(fields, DataObjectRefKey::parse, handler::onObjectVectorValue);
                     break;
                 default:
                     throw new PowerFactoryException("Unexpected vector attribute type:" + attributeType);

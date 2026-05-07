@@ -99,7 +99,7 @@ class ValidationConfigTest {
     }
 
     @Test
-    void checkSetters() throws Exception {
+    void checkSetters() {
         ValidationConfig config = ValidationConfig.load(platformConfig);
         config.setThreshold(threshold);
         config.setVerbose(verbose);
