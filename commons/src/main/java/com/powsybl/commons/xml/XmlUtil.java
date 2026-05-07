@@ -196,7 +196,10 @@ public final class XmlUtil {
 
     public static XMLReader createXMLReader() throws ParserConfigurationException, SAXException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
-        setFeatures(factory);
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature(XML_DISALLOW_DOCTYPE, true);
+        factory.setFeature(SAX_EXTERNAL_GENERAL_ENTITIES, false);
+        factory.setFeature(SAX_EXTERNAL_PARAMETER_ENTITIES, false);
         factory.setNamespaceAware(true);
         factory.setXIncludeAware(false); // Prevents including external files
         // Create SAXParser from factory
@@ -311,13 +314,6 @@ public final class XmlUtil {
     }
 
     private static void setFeatures(DocumentBuilderFactory factory) {
-        setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        setFeature(factory, XML_DISALLOW_DOCTYPE, true);
-        setFeature(factory, SAX_EXTERNAL_GENERAL_ENTITIES, false);
-        setFeature(factory, SAX_EXTERNAL_PARAMETER_ENTITIES, false);
-    }
-
-    private static void setFeatures(SAXParserFactory factory) {
         setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
         setFeature(factory, XML_DISALLOW_DOCTYPE, true);
         setFeature(factory, SAX_EXTERNAL_GENERAL_ENTITIES, false);
