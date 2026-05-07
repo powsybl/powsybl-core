@@ -119,7 +119,7 @@
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>4.0.26</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
-        <jackson.version>2.21.1</jackson.version>
+        <jackson.version>3.1.3</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.3</jgrapht.version>
@@ -683,18 +683,13 @@
                 <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
+                <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
+                <groupId>tools.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
