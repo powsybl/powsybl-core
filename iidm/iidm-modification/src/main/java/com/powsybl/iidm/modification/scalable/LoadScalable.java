@@ -59,7 +59,7 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * Default value is Double.MAX_VALUE for LoadScalable
      */
     @Override
@@ -78,7 +78,7 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     * <p>
+     *
      * Default value is 0 for LoadScalable
      */
     @Override
