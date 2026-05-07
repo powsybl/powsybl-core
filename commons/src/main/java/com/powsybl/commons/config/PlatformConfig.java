@@ -15,10 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -95,6 +93,84 @@ public class PlatformConfig {
 
     public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
         return getRepository().getModuleConfig(name);
+    }
+
+    public int getIntProperty(String moduleName, String propertyName, int defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .map(moduleConfig -> moduleConfig.getIntProperty(propertyName, defaultValue))
+                .orElse(defaultValue);
+    }
+
+    public float getFloatProperty(String moduleName, String propertyName, float defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalFloatProperty(propertyName))
+                .orElse(defaultValue);
+    }
+
+    public double getDoubleProperty(String moduleName, String propertyName, double defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .map(moduleConfig -> moduleConfig.getDoubleProperty(propertyName, defaultValue))
+                .orElse(defaultValue);
+    }
+
+    public Long getLongProperty(String moduleName, String propertyName, long defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .map(moduleConfig -> moduleConfig.getLongProperty(propertyName, defaultValue))
+                .orElse(defaultValue);
+    }
+
+    public String getStringProperty(String moduleName, String propertyName, String defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalStringProperty(propertyName))
+                .orElse(defaultValue);
+    }
+
+    public List<String> getStringListProperty(String moduleName, String propertyName, List<String> defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalStringListProperty(propertyName))
+                .orElse(defaultValue);
+    }
+
+    public Boolean getBooleanProperty(String moduleName, String propertyName, boolean defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalBooleanProperty(propertyName))
+                .orElse(defaultValue);
+    }
+
+    public <E extends Enum<E>> E getEnumProperty(String moduleName, String propertyName, E defaultValue, Class<E> clazz) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalEnumProperty(propertyName, clazz))
+                .orElse(defaultValue);
+    }
+
+    public <E extends Enum<E>> Set<E> getEnumProperty(String moduleName, String propertyName, Set<E> defaultValue, Class<E> clazz) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalEnumSetProperty(propertyName, clazz))
+                .orElse(defaultValue);
+    }
+
+    public Path getPathProperty(String moduleName, String propertyName, Path defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalPathProperty(propertyName))
+                .orElse(defaultValue);
+    }
+
+    public List<Path> getPathListProperty(String moduleName, String propertyName, List<Path> defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalPathListProperty(propertyName))
+                .orElse(defaultValue);
+    }
+
+    public <T> Class<? extends T> getClassProperty(String moduleName, String propertyName, Class<? extends T> defaultValue, Class<T> subClass) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalClassProperty(propertyName, subClass))
+                .orElse(defaultValue);
+    }
+
+    public ZonedDateTime getZonedDateTimeProperty(String moduleName, String propertyName, ZonedDateTime defaultValue) {
+        return getOptionalModuleConfig(moduleName)
+                .flatMap(moduleConfig -> moduleConfig.getOptionalDateTimeProperty(propertyName))
+                .orElse(defaultValue);
     }
 
     private static final class EmptyModuleConfigRepository implements ModuleConfigRepository {

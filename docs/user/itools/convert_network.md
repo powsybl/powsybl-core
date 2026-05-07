@@ -3,6 +3,8 @@
 The `convert-network` command is used to convert a grid file from a format to another. The input format is automatically
 detected, whereas the output format must be specified.
 
+`Importer` and `Exporter` are interfaces that you can implement to create your own file format. The tutorials [here](inv:powsybltutorials:*:*#iidm/index) show you how to proceed.
+
 ## Usage
 ```
 $> itools convert-network --help

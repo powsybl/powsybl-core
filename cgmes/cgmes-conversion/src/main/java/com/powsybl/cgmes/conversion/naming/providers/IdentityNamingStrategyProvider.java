@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.naming.providers;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.conversion.naming.IdentityNamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyProvider;
@@ -27,6 +28,6 @@ public class IdentityNamingStrategyProvider implements NamingStrategyProvider {
 
     @Override
     public NamingStrategy create(UUID uuidNamespace) {
-        return new NamingStrategy.Identity();
+        return new IdentityNamingStrategy();
     }
 }

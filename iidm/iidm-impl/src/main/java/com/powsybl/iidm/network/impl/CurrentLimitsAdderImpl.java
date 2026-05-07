@@ -39,6 +39,7 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
         }
         CurrentLimitsImpl limits = new CurrentLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setCurrentLimits(limits);
+        this.copyPropertiesTo(limits);
         return limits;
     }
 

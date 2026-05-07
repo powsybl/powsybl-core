@@ -9,10 +9,12 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
@@ -60,6 +62,23 @@ class CalculatedTimeSeriesTest {
         timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(99), Duration.ofMillis(1)));
         List<List<DoubleTimeSeries>> list = TimeSeries.split(Collections.singletonList(timeSeries), 2);
         assertEquals(50, list.size());
+    }
+
+    @Test
+    void rangeSplitBigChunkTest() {
+        // GIVEN
+        List<Range<@NonNull Integer>> ranges = new ArrayList<>();
+        int startStep = 0;
+        int endStep = 99;
+        int rangeStep = 2;
+        for (int i = startStep; i < endStep; i = i + rangeStep) {
+            ranges.add(Range.closed(i, i + rangeStep - 1));
+        }
+        timeSeries.synchronize(new RegularTimeSeriesIndex(Instant.ofEpochMilli(startStep), Instant.ofEpochMilli(endStep), Duration.ofMillis(1)));
+        // WHEN
+        List<List<DoubleTimeSeries>> list = TimeSeries.splitByRanges(Collections.singletonList(timeSeries), ranges);
+        // THEN
+        assertEquals(ranges.size(), list.size());
     }
 
     @Test

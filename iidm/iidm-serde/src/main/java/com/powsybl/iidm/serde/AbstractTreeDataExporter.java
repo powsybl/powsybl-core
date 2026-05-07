@@ -116,6 +116,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String EXTENSIONS_INCLUDED_LIST = "iidm.export.xml.included.extensions";
     public static final String EXTENSIONS_EXCLUDED_LIST = "iidm.export.xml.excluded.extensions";
     public static final String SORTED = "iidm.export.xml.sorted";
+    public static final String FLATTEN = "iidm.export.xml.flatten";
     public static final String VERSION = "iidm.export.xml.version";
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.export.xml.with-automation-systems";
     public static final String VOLTAGE_LEVELS_NODE_BREAKER = "iidm.export.xml.topology-level.voltage-levels.node-breaker";
@@ -142,6 +143,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             "The list of extensions that will be excluded during export", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
     private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
+    private static final Parameter FLATTEN_PARAMETER = new Parameter(FLATTEN, ParameterType.BOOLEAN, "Flatten network containing subnetworks", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM version in which files will be generated", IidmSerDeConstants.CURRENT_IIDM_VERSION.toString("."),
             Arrays.stream(IidmVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
@@ -156,7 +158,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_INCLUDED_LIST_PARAMETER,
             EXTENSIONS_EXCLUDED_LIST_PARAMETER, SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER,
-            VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER);
+            VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, FLATTEN_PARAMETER);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     protected AbstractTreeDataExporter(PlatformConfig platformConfig) {
@@ -249,6 +251,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setTopologyLevel(TopologyLevel.valueOf(Parameter.readString(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setSorted(Parameter.readBoolean(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
+                .setFlatten(Parameter.readBoolean(getFormat(), parameters, FLATTEN_PARAMETER, defaultValueConfig))
                 .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
                 .setFormat(getTreeDataFormat())
                 .setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.valueOf(

@@ -9,6 +9,7 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
+import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;

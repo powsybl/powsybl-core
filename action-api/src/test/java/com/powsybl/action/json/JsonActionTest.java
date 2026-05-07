@@ -39,7 +39,7 @@ public class JsonActionTest extends AbstractSerDeTest {
         actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
         actions.add(new PercentChangeLoadActionBuilder().withId("id26").withLoadId("loadId1").withP0PercentChange(5.0).withQModificationStrategy(CONSTANT_Q).build());
-        actions.add(new DanglingLineActionBuilder().withId("id17").withDanglingLineId("dlId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
+        actions.add(new BoundaryLineActionBuilder().withId("id17").withBoundaryLineId("dlId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
         actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeSides.THREE));
         actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
         actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeSides.THREE));
@@ -93,7 +93,7 @@ public class JsonActionTest extends AbstractSerDeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json"})
+    @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json", "/ActionFileTestV1.2.json"})
     void actionsReadOldVersion(String path) {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream(path));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {

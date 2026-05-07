@@ -221,11 +221,11 @@ PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section)
 
 <span style="color: red">TODO details</span>
 
-(cgmes-dangling-line-export)=
-### DanglingLine
+(cgmes-boundary-line-export)=
+### BoundaryLine
 
-PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) is exported as several CGMES network objects.
-Each dangling line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
+PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line) is exported as several CGMES network objects.
+Each boundary line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
 
 <span style="color: red">TODO details</span>
 
@@ -316,7 +316,7 @@ The `SynchronousMachine.operatingMode` is exported in the SSH profile depending 
 power of the generator or battery and on fact that it is regulating or not:
 - if the target active power is positive, then the generator or battery will be exported as `generator`,
 - if the target active power is negative, then the generator or battery will be exported as `motor`,
-- if the target active power is zero and the generator or battery is regulating, then the operating mode will be `condenser`.
+- if the target active power is zero and the generator or battery is regulating, then the operating mode will be `condenser` if it is allowed by its `SynchronousMachine.type`.
 - otherwise, the generator or battery will be exported as `generator` if is allowed by its `SynchronousMachine.type`,
 otherwise `motor` and otherwise `condenser`.
 To know if the generator or battery is behaving as a condenser, its `targetV`, `targetQ` and `voltageRegulatorOn` attributes are used.
@@ -362,6 +362,9 @@ The corresponding targets are:
 ### Line
 
 PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `ACLineSegment`.
+The attribute `ConductingEquipment.BaseVoltage` is written from the `nominalV` of the voltage level on both sides of the line:
+- if the nominal voltage is the same on both sides of the `Line`, then the `BaseVoltage` is set to this nominal voltage,
+- otherwise, it is set to the highest nominal voltage.
 
 <span style="color: red">TODO details</span>
 
@@ -371,6 +374,20 @@ PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `AC
 PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad` or `EnergyConsumer` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
 
 <span style="color: red">TODO details</span>
+
+(cgmes-fictitious-injections-export)=
+### Fictitious injections (fictitiousP0/fictitiousQ0)
+
+The fictitious injections on buses (bus-branch topology) or on nodes (node-breaker topology) are created using:
+- Bus topology: `Bus.setFictitiousP0(double)` and `Bus.setFictitiousQ0(double)`
+- Node-breaker: `VoltageLevel.getNodeBreakerView().setFictitiousP0(int node, double)` and `setFictitiousQ0(int node, double)`
+
+These fictitious injections are exported in CGMES as either a `NonConformLoad` or an `EnergySource`, depending on the sign of `fictitiousP0`, 
+with values written to SSH and connectivity/topology bindings set according to the network topology and CIM version. 
+A corresponding 'SvPowerFlow' is written for the terminal in the SV.
+In case of a node-breaker or CIM100 export, the terminal will refer to a `ConnectivityNode`.
+
+If the EQ profile is not exported and the network contains fictitious injections, note that the references to equipment in the SSH and SV will be invalid.
 
 (cgmes-shunt-compensator-export)=
 ### Shunt compensator
@@ -449,6 +466,9 @@ at the regulated terminal with the regulation value.
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
+If the IIDM `TwoWindingsTransformer` does not have a `ratedS`, then a default value of `100` is exported for `PowerTransformerEnd.ratedS` as this field is mandatory.
+The `ratedS` will be the same on both ends of the `PowerTransformer`.
+
 If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
 `SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.
 
@@ -477,7 +497,7 @@ PowSyBl [`VoltageLevel`](../../grid_model/network_subnetwork.md#voltage-level) i
 (cgmes-control-areas-export)=
 ### Control areas
 
-PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as several `ControlArea`.
+PowSyBl [`ControlAreas`](import.md#control-areas) are exported as several `ControlArea`.
 
 <span style="color: red">TODO details</span>
 
@@ -527,9 +547,13 @@ Optional property that defines if power flows of switches are exported in the SV
 **iidm.export.cgmes.naming-strategy**<br>
 Optional property that defines which naming strategy is used to transform IIDM identifiers to CGMES identifiers.
 Available naming strategies are:
-- `identity`: CGMES IDs are the same as IIDM IDs.
-- `cgmes`: new CGMES IDs (new master resource identifiers, cim:mRID) are created for IIDM `Identifiables` if the IIDM IDs are not compliant with CGMES requirements.
-- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).
+- `identity`: For IIDM objects that have an ID (e.g. TwoWindingTransformer), the CGMES ID is identical to the IIDM ID.
+For IIDM objects that don't have an ID (e.g. TapChanger), either the CGMES ID is contained in a property or an alias
+(this is typically the case when the network is the result of a CGMES import) and is exported as such, 
+or there is no such property or alias and a combination of IIDM properties and constants is used to generate the CGMES ID.
+- `cgmes`: The ID that would be generated by the identity naming strategy serves as basis.
+When that ID is CGMES compliant (against IEC 61970-552), it is exported as such.
+Otherwise, that ID is used to generate a compliant CGMES one in a deterministic way.
 
 Its default value is `identity`.
 You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare

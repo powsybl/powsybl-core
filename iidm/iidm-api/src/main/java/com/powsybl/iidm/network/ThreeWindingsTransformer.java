@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -293,6 +294,23 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         Optional<? extends LoadingLimits> getLimits(LimitType type);
 
         /**
+         * Get all the limits of the given <code>type</code> on this leg,
+         * for all the {@link OperationalLimitsGroup} that are selected
+         * @param type the type of the limit, refers to {@link LimitType}
+         * @return a collection of all the <code>type</code> limits on this leg,
+         * one for each {@link OperationalLimitsGroup} that is selected. Might be empty if none is selected.
+         */
+        default Collection<? extends LoadingLimits> getAllSelectedLimits(LimitType type) {
+            return switch (type) {
+                case CURRENT -> getAllSelectedCurrentLimits();
+                case ACTIVE_POWER -> getAllSelectedActivePowerLimits();
+                case APPARENT_POWER -> getAllSelectedApparentPowerLimits();
+                default ->
+                    throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+            };
+        }
+
+        /**
          * Get the associated three-winding transformer.
          */
         ThreeWindingsTransformer getTransformer();
@@ -377,7 +395,15 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      */
     boolean isOverloaded(double limitReductionValue);
 
-    int getOverloadDuration();
+    default int getOverloadDuration() {
+        return Stream.of(
+                checkAllTemporaryLimits(ThreeSides.ONE, LimitType.CURRENT),
+                checkAllTemporaryLimits(ThreeSides.TWO, LimitType.CURRENT),
+                checkAllTemporaryLimits(ThreeSides.THREE, LimitType.CURRENT)
+            ).flatMap(Collection::stream).map(o -> o != null ? o.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE)
+            .min(Integer::compareTo)
+            .orElse(Integer.MAX_VALUE);
+    }
 
     boolean checkPermanentLimit(ThreeSides side, double limitReductionValue, LimitType type);
 
@@ -410,6 +436,26 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Overload checkTemporaryLimits3(double limitReductionValue, LimitType type);
 
     Overload checkTemporaryLimits3(LimitType type);
+
+    /**
+     * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
+     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>, taking into account a reduction of the limits
+     * by a factor of <code>limitReductionValue</code>.
+     * @param side the side of the transformer to look at
+     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * @param type the type of the limit
+     */
+    Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type);
+
+    /**
+     * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
+     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>. This does not reduce the limits.
+     * @param side the side of the transformer to look at
+     * @param type the type of the limit
+     */
+    default Collection<Overload> checkAllTemporaryLimits(ThreeSides side, LimitType type) {
+        return checkAllTemporaryLimits(side, 1, type);
+    }
 
     default void applySolvedValues() {
         setRatioTapPositionToSolvedTapPosition();

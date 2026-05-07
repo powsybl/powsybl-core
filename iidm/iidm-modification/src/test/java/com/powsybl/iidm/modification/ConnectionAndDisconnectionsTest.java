@@ -469,7 +469,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Add tie line
-        DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel("VL2").newBoundaryLine()
             .setId("NHV1_XNODE1")
             .setP0(0.0)
             .setQ0(0.0)
@@ -480,7 +480,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setBus("bus2A")
             .setPairingKey("XNODE1")
             .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel("VL3").newBoundaryLine()
             .setId("XNODE1_NHV2")
             .setP0(0.0)
             .setQ0(0.0)
@@ -493,8 +493,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
         TieLine tieLine = network.newTieLine()
             .setId("NHV1_NHV2_1")
-            .setDanglingLine1(nhv1xnode1.getId())
-            .setDanglingLine2(xnode1nhv2.getId())
+            .setBoundaryLine1(nhv1xnode1.getId())
+            .setBoundaryLine2(xnode1nhv2.getId())
             .add();
 
         // Disconnection
@@ -579,8 +579,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
     }
 
     private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
-        assertEquals(expectedConnectionOnSide1, tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertEquals(expectedConnectionOnSide2, tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide1, tieLine.getBoundaryLine1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, tieLine.getBoundaryLine2().getTerminal().isConnected());
     }
 
     private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
@@ -993,7 +993,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
     private void addTieLine(Network network) {
         // Add tie line
-        DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
+        BoundaryLine nhv1xnode1 = network.getVoltageLevel("VL2").newBoundaryLine()
             .setId("NHV1_XNODE1")
             .setP0(0.0)
             .setQ0(0.0)
@@ -1004,7 +1004,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setBus("bus2A")
             .setPairingKey("XNODE1")
             .add();
-        DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
+        BoundaryLine xnode1nhv2 = network.getVoltageLevel("VL3").newBoundaryLine()
             .setId("XNODE1_NHV2")
             .setP0(0.0)
             .setQ0(0.0)
@@ -1017,8 +1017,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
         network.newTieLine()
             .setId("NHV1_NHV2_1")
-            .setDanglingLine1(nhv1xnode1.getId())
-            .setDanglingLine2(xnode1nhv2.getId())
+            .setBoundaryLine1(nhv1xnode1.getId())
+            .setBoundaryLine2(xnode1nhv2.getId())
             .add();
     }
 }

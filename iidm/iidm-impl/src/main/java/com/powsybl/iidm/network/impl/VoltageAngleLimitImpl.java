@@ -18,7 +18,7 @@ import com.powsybl.commons.ref.Ref;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-class VoltageAngleLimitImpl implements VoltageAngleLimit {
+class VoltageAngleLimitImpl extends AbstractPropertiesHolder implements VoltageAngleLimit {
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -67,4 +67,5 @@ class VoltageAngleLimitImpl implements VoltageAngleLimit {
     public void remove() {
         this.networkRef.get().getVoltageAngleLimitsIndex().remove(id);
     }
+
 }

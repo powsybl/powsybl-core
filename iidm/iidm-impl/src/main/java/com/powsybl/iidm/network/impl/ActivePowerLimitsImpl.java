@@ -24,4 +24,5 @@ class ActivePowerLimitsImpl extends AbstractLoadingLimits<ActivePowerLimitsImpl>
     public void remove() {
         group.removeActivePowerLimits();
     }
+
 }

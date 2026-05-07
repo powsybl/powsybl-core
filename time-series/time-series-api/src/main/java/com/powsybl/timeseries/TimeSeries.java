@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.report.ReportNode;
@@ -126,6 +127,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     List<T> split(int newChunkSize);
 
+    /**
+     * Splits a list of chunks into sublists based on the specified ranges.
+     */
+    List<T> splitByRanges(List<Range<@NonNull Integer>> newChunks);
+
     void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
 
     static StoredDoubleTimeSeries createDouble(String name, TimeSeriesIndex index) {
@@ -169,33 +175,19 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
-        Objects.requireNonNull(timeSeriesList);
-        if (timeSeriesList.isEmpty()) {
-            throw new IllegalArgumentException("Time series list is empty");
-        }
+        verifyTimeSeriesList(timeSeriesList);
         if (newChunkSize < 1) {
             throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
-        Set<TimeSeriesIndex> indexes = timeSeriesList.stream()
-                .map(ts -> ts.getMetadata().getIndex())
-                .filter(index -> !(index instanceof InfiniteTimeSeriesIndex))
-                .collect(Collectors.toSet());
-        if (indexes.isEmpty()) {
-            throw new IllegalArgumentException("Cannot split a list of time series with only infinite index");
-        }
-        if (indexes.size() != 1) {
-            throw new IllegalArgumentException("Cannot split a list of time series with different time indexes: " + indexes);
-        }
+        Set<TimeSeriesIndex> indexes = getTimeSeriesIndexes(timeSeriesList);
+        verifyIndexes(indexes);
         TimeSeriesIndex index = indexes.iterator().next();
         if (newChunkSize > index.getPointCount()) {
             throw new IllegalArgumentException("New chunk size " + newChunkSize + " is greater than point count "
-                    + index.getPointCount());
+                + index.getPointCount());
         }
         int chunkCount = computeChunkCount(index, newChunkSize);
-        List<List<T>> splitList = new ArrayList<>(chunkCount);
-        for (int i = 0; i < chunkCount; i++) {
-            splitList.add(new ArrayList<>(timeSeriesList.size()));
-        }
+        List<List<T>> splitList = getSplitList(timeSeriesList, chunkCount);
         for (T timeSeries : timeSeriesList) {
             List<T> split = timeSeries.split(newChunkSize);
             for (int i = 0; i < chunkCount; i++) {
@@ -203,6 +195,63 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
         return splitList;
+    }
+
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> @NonNull List<List<T>> getSplitList(List<T> timeSeriesList, int chunkCount) {
+        List<List<T>> splitList = new ArrayList<>(chunkCount);
+        for (int i = 0; i < chunkCount; i++) {
+            splitList.add(new ArrayList<>(timeSeriesList.size()));
+        }
+        return splitList;
+    }
+
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> Set<TimeSeriesIndex> getTimeSeriesIndexes(List<T> timeSeriesList) {
+        return timeSeriesList.stream()
+            .map(ts -> ts.getMetadata().getIndex())
+            .filter(index -> !(index instanceof InfiniteTimeSeriesIndex))
+            .collect(Collectors.toSet());
+    }
+
+    private static void verifyIndexes(Set<TimeSeriesIndex> indexes) {
+        if (indexes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot split a list of time series with only infinite index");
+        }
+        if (indexes.size() != 1) {
+            throw new IllegalArgumentException("Cannot split a list of time series with different time indexes: " + indexes);
+        }
+    }
+
+    /**
+     * <p>Splits a list of time series into multiple lists based on the specified ranges.</p>
+     *
+     * This method takes a list of time series and a list of ranges, and splits each time series
+     * according to the ranges. The resulting split time series are then grouped into separate lists,
+     * where each list corresponds to a specific range.
+     *
+     * @param timeSeriesList The list of time series to be split.
+     * @param ranges The list of ranges used to split the time series.
+     * @return A list of lists, where each inner list contains the split time series corresponding to a specific range.
+     *
+     */
+    static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> splitByRanges(List<T> timeSeriesList, List<Range<@NonNull Integer>> ranges) {
+        verifyTimeSeriesList(timeSeriesList);
+        verifyIndexes(getTimeSeriesIndexes(timeSeriesList));
+        int chunkCount = ranges.size();
+        List<List<T>> splitList = getSplitList(timeSeriesList, chunkCount);
+        for (T timeSeries : timeSeriesList) {
+            List<T> split = timeSeries.splitByRanges(ranges);
+            for (int i = 0; i < chunkCount; i++) {
+                splitList.get(i).add(split.get(i));
+            }
+        }
+        return splitList;
+    }
+
+    private static <P extends AbstractPoint, T extends TimeSeries<P, T>> void verifyTimeSeriesList(List<T> timeSeriesList) {
+        Objects.requireNonNull(timeSeriesList);
+        if (timeSeriesList.isEmpty()) {
+            throw new IllegalArgumentException("Time series list is empty");
+        }
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file) {

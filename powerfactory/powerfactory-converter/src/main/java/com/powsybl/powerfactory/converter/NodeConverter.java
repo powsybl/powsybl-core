@@ -41,7 +41,7 @@ class NodeConverter extends AbstractConverter {
      *
      * An iidm node is created by each elmTerm and by each staSwitch connected to an element.
      */
-    void createAndMapConnectedObjs(DataObject elmTerm) {
+    void createAndMapConnectedObjs(DataObject elmTerm, boolean forceAllElmTermsAsBusbars) {
         VoltageLevel vl = findVoltageLevel(elmTerm);
 
         // Create the node defined by elmTerm
@@ -49,7 +49,7 @@ class NodeConverter extends AbstractConverter {
 
         getImportContext().elmTermIdToNode.putIfAbsent(elmTerm.getId(), new NodeRef(vl.getId(), node, 0));
 
-        NodeModel nodeModel = NodeModel.create(vl, elmTerm);
+        NodeModel nodeModel = NodeModel.create(vl, elmTerm, forceAllElmTermsAsBusbars);
         createBusbarSectionIfNodeHasBeenDefinedAsSuch(vl, node, nodeModel);
 
         // Create additional nodes associated to switches (staSwitch) included in cubicles
@@ -170,11 +170,11 @@ class NodeConverter extends AbstractConverter {
         }
 
         // Usage:0=Busbar:1=Junction Node:2=Internal Node
-        private static NodeModel create(VoltageLevel vl, DataObject elmTerm) {
+        private static NodeModel create(VoltageLevel vl, DataObject elmTerm, boolean forceAllElmTermsAsBusbars) {
             int iUsage = elmTerm.getIntAttributeValue("iUsage");
             String busbarId = vl.getId() + "_" + elmTerm.getLocName();
 
-            return new NodeModel(iUsage == 0, busbarId);
+            return new NodeModel(iUsage == 0 || forceAllElmTermsAsBusbars, busbarId);
         }
     }
 }

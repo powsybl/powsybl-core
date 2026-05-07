@@ -128,7 +128,7 @@ final class ExportXmlCompare {
         String elementName = attr.getOwnerElement().getLocalName();
         boolean ignored = false;
         if (elementName != null) {
-            if (elementName.equals("danglingLine")) {
+            if (elementName.equals("boundaryLine")) {
                 ignored = true;
             } else if (elementName.startsWith("network")) {
                 ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
@@ -216,9 +216,9 @@ final class ExportXmlCompare {
     private static boolean isConsideredEQNode(Node n) {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
-            return !name.startsWith("danglingLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
+            return !name.startsWith("boundaryLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
                     && !name.startsWith("property") && !name.startsWith("regulatingTerminal") && !name.startsWith("terminalRef")
-                    && !isDanglingLineConversion(n) && !isNodeBreakerProperty(n);
+                    && !isBoundaryLineConversion(n) && !isNodeBreakerProperty(n);
         }
         return false;
     }
@@ -230,7 +230,7 @@ final class ExportXmlCompare {
         return false;
     }
 
-    private static boolean isDanglingLineConversion(Node n) {
+    private static boolean isBoundaryLineConversion(Node n) {
         String name = n.getLocalName();
         return name.startsWith("substation") && SMALLGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent())
                 || name.startsWith("voltageLevel") && SMALLGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent())
@@ -776,7 +776,7 @@ final class ExportXmlCompare {
                     || name.endsWith("pTolerance")
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
-            // DanglingLine p, q, p0, q0 attributes in IIDM Network
+            // BoundaryLine p, q, p0, q0 attributes in IIDM Network
             // TapChanger r, x, g, b, rho, alpha attributes in IIDM Network
             // Line b1, b2, g1, g2 attributes in IIDM Network
             // Shunt bPerSection attribute in IIDM Network

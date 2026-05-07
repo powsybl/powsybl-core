@@ -28,6 +28,8 @@ import java.io.IOException;
  */
 public class ContingencyListDeserializer extends StdDeserializer<ContingencyList> {
 
+    public static final String VERSION = "version";
+
     public ContingencyListDeserializer() {
         super(ContingencyList.class);
     }

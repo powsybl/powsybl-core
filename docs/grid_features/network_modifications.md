@@ -46,11 +46,11 @@ It takes as input:
 - The ID of the bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively) to which the
   injection should be connected.
 - The position order of the injection: when adding an injection to a `NODE_BREAKER` voltage level, this integer will be
-  used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) that is
+  used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) that is
   used for visualization. It is optional for `BUS_BREAKER` voltage levels and will be ignored if specified.
-- Optionally, a name for the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
+- Optionally, a name for the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position).
   By default, the ID of the injection will be used.
-- Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension).
+- Optionally, the direction of the injection. It is also used to fill the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position).
   It indicates if the injection should be displayed at the top or at the bottom of the busbar section. By default, it is
   `BOTTOM`.
 - Optionally, a boolean `logOrThrowIfIncorrectPositionOrder`, that indicates what should happen if the position order is
@@ -71,8 +71,8 @@ If the voltage level topology kind is `BUS_BREAKER`, then the injection is added
 bus without any extension or switches.
 If the voltage level topology kind is `NODE_BREAKER`, then the injection is added to the voltage level and connected to
 the busbar section with a closed disconnector and a breaker. Additionally, open disconnectors will be created on every
-parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension)
-is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) will also be
+parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
+is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the injection with the given data, unless there are no extensions yet in the voltage level.
 
 #### Create Branch Feeder bays
@@ -84,15 +84,15 @@ It takes as input:
 - The ID of the bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively) to which the side
   2 of the branch should be connected.
 - The position order of the branch on side 1. If the voltage level on side 1 of the branch is `NODE_BREAKER`, then
-  this integer is used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension)
+  this integer is used to create the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position)
   for the branch that is used for visualization and for positioning connectables relative to each other.
   It is optional for `BUS_BREAKER` voltage levels and will be ignored if specified.
 - The position order of the branch on side 2. It is the same but on the other side.
-- Optionally, a name for the feeder that will be added in the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension)
+- Optionally, a name for the feeder that will be added in the [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position)
   for side 1. This name is used for visualization. By default, it is the ID of the connectable.
 - Optionally, a name for the feeder for side 2.
 - Optionally, the direction of the feeder on side 1. This information will be used to fill the field in the
-  [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) and indicates the relative
+  [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) and indicates the relative
   position of the branch with its busbar section on side 1. The default value is `TOP`.
 - Optionally, the direction on side 2.
 - Optionally, a boolean `logOrThrowIfIncorrectPositionOrder1`, that indicates what should happen if the position order is
@@ -114,8 +114,8 @@ For each side, if the voltage level topology kind is `BUS_BREAKER`, then the bra
 connected to the bus without any extension or switches. If the voltage level topology kind is `NODE_BREAKER`, then the
 branch is added to the voltage level and connected to the busbar section with a closed disconnector and a breaker.
 Additionally, open disconnectors will be created on every parallel busbar section. To know which busbar sections are
-parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension)
-is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) will also be
+parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
+is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the branch with the given data, unless no extensions are already available in the voltage level.
 
 #### Create Coupling Device
@@ -133,7 +133,7 @@ busbar sections as such:
 A closed disconnector will be created on both busbar sections.
 A closed breaker will be created between the two closed disconnectors.
 An open disconnector will be created on every parallel busbar section. To find the parallel busbar sections, the
-[`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position-extension) is used.
+[`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position) is used.
 The coupling device can be created between busbar sections that are parallel or not. If the two busbar sections are
 parallel and there are exactly two parallel busbar sections, then no open disconnectors are created.
 
@@ -199,7 +199,7 @@ It takes as input:
 
 ### Connect feeders to busbar sections
 This class allows the connection of feeders to busbar sections in `NODE_BREAKER` topology.
-The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position-extension) must be available for each busbar section in the voltage level.
+The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) must be available for each busbar section in the voltage level.
 
 It takes as input:
 - A list of connectables that should be connected. None of them should be a `BusbarSection`.
@@ -311,7 +311,7 @@ This modification ensures that the connectivity of the network is preserved whil
 ### Bus tripping
 <span style="color: red">TODO</span>
 
-### Dangling line tripping
+### Boundary line tripping
 <span style="color: red">TODO</span>
 
 ### Generator tripping
@@ -370,19 +370,19 @@ This modification is used to connect a network element to the closest bus or bus
 It works on:
 - `Connectable` elements by connecting their terminals
 - HVDC lines, by connecting the terminals of their converter stations
-- Tie lines, by connecting the terminals of their underlying dangling lines
+- Tie lines, by connecting the terminals of their underlying boundary lines
 
 It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
 
 Class: `ConnectableConnection`
 
-### Dangling line
-This modification is used to update the active and reactive powers of the load part of a dangling line.
+### Boundary line
+This modification is used to update the active and reactive powers of the load part of a boundary line.
 
 If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.
 If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.
 
-Class: `DanglingLineModification`
+Class: `BoundaryLineModification`
 
 ### Disconnections
 
@@ -393,7 +393,7 @@ This modification is used to disconnect a network element from the bus or bus ba
 It works on:
 - `Connectable` elements.
 - HVDC lines, by disconnecting their converter stations
-- Tie lines, by disconnecting their underlying dangling lines
+- Tie lines, by disconnecting their underlying boundary lines
 
 It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
 
@@ -406,7 +406,7 @@ This modification is used to disconnect a network element from the bus or bus ba
 It works on:
 - `Connectable` elements.
 - HVDC lines, by disconnecting their converter stations
-- Tie lines, by disconnecting their underlying dangling lines
+- Tie lines, by disconnecting their underlying boundary lines
 
 It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
 
@@ -497,17 +497,17 @@ It sets the phase tap changer as not regulating and updates its `tapPosition` by
 Class: `PhaseShifterShiftTap`
 
 ### Replace tie lines by lines
-This modification is used to replace all the tie lines of a network to simple lines built from the original tie line and its 2 dangline lines.
+This modification is used to replace all the tie lines of a network to simple lines built from the original tie line and its 2 boundary lines.
 
-- The two voltage levels are set from the tie line dangling lines terminal voltage levels (the first voltage level from the first dangling line and the second from the second one).
+- The two voltage levels are set from the tie line boundary lines terminal voltage levels (the first voltage level from the first boundary line and the second from the second one).
 - For each voltage level the topology kind is taken into account to create node (for `NODE_BREAKER` kind) or bus and connectable bus (for `BUS_BREAKER` kind)
 - The tie line id, name, r, x, b1, b2, g1, g2 are set in the new line
-- Active power limits, apparent power limits and current limits are set on each side of the line from the limits of the 2 dangling lines
-- Terminal active and reactive powers are set for both terminals from each dangling line active and reactive powers
-- Line properties are set from the merge of the tie line and its 2 dangling lines properties
-- Line aliases are set from the merge of the tie line and its 2 dangling lines aliases
+- Active power limits, apparent power limits and current limits are set on each side of the line from the limits of the 2 boundary lines
+- Terminal active and reactive powers are set for both terminals from each boundary line active and reactive powers
+- Line properties are set from the merge of the tie line and its 2 boundary lines properties
+- Line aliases are set from the merge of the tie line and its 2 boundary lines aliases
 - If the tie line has a pairing key then it is added to the new line as a pairing key alias
-- The tie line and its dangling lines are removed from the network
+- The tie line and its boundary lines are removed from the network
 
 Class: `ReplaceTieLinesByLines`
 

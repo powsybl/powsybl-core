@@ -7,20 +7,17 @@
  */
 package com.powsybl.iidm.network.impl.tck.extensions;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
-import com.powsybl.iidm.network.impl.extensions.StandbyAutomatonImpl;
 import com.powsybl.iidm.network.tck.extensions.AbstractStandbyAutomatonTest;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,20 +84,23 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
     }
 
     @Test
-    void logsTests() {
-        ListAppender<ILoggingEvent> logWatcher = new ListAppender<>();
-        logWatcher.start();
-        ((Logger) LoggerFactory.getLogger(StandbyAutomatonImpl.class)).addAppender(logWatcher);
+    void reportNodeTests() {
+
+        ReportNode reportRoot = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
 
         // Prepare the test
         Network network = SvcTestCaseFactory.create();
+        network.getReportNodeContext().pushReportNode(reportRoot);
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
 
         // Builder
         StandbyAutomatonAdder standbyAutomatonAdder = svc.newExtension(StandbyAutomatonAdder.class)
             .withB0(0.0001f)
-            .withStandbyStatus(true);
+            .withStandbyStatus(false);
 
         // lowVoltageSetpoint < lowVoltageThreshold
         standbyAutomatonAdder.withLowVoltageSetpoint(380f)
@@ -109,6 +109,13 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageThreshold(405f)
             .add();
 
+        StandbyAutomaton standbyAutomaton = svc.getExtension(StandbyAutomaton.class);
+        assertNotNull(standbyAutomaton);
+        assertEquals(380f, standbyAutomaton.getLowVoltageSetpoint(), 0.0);
+        assertEquals(400f, standbyAutomaton.getHighVoltageSetpoint(), 0.0);
+        assertEquals(385f, standbyAutomaton.getLowVoltageThreshold(), 0.0);
+        assertEquals(405f, standbyAutomaton.getHighVoltageThreshold(), 0.0);
+
         // highVoltageSetpoint > highVoltageThreshold
         standbyAutomatonAdder.withLowVoltageSetpoint(390f)
             .withHighVoltageSetpoint(410f)
@@ -116,12 +123,22 @@ class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
             .withHighVoltageThreshold(405f)
             .add();
 
-        // Checks
-        List<ILoggingEvent> logsList = logWatcher.list;
-        assertEquals(2, logsList.size());
-        assertEquals("Invalid low voltage setpoint 380.0 < threshold 385.0 for StaticVarCompensator SVC2",
-            logsList.get(0).getFormattedMessage());
-        assertEquals("Invalid high voltage setpoint 410.0 > threshold 405.0 for StaticVarCompensator SVC2",
-            logsList.get(1).getFormattedMessage());
+        // lowVoltageThreshold > highVoltageThreshold
+        standbyAutomatonAdder.withLowVoltageSetpoint(410f)
+            .withHighVoltageSetpoint(380f)
+            .withLowVoltageThreshold(400f)
+            .withHighVoltageThreshold(385f)
+            .add();
+
+        ReportNode reportNode = svc.getNetwork().getReportNodeContext().getReportNode();
+        assertEquals(3, reportNode.getChildren().size());
+        assertEquals("Static VAR compensator 'SVC2': invalid low voltage setpoint (380.0) < threshold (385.0)",
+            reportNode.getChildren().get(0).getMessage());
+
+        assertEquals("Static VAR compensator 'SVC2': invalid high voltage setpoint (410.0) > threshold (405.0)",
+            reportNode.getChildren().get(1).getMessage());
+
+        assertEquals("Static VAR compensator 'SVC2': inconsistent low (400.0) and high (385.0) voltage thresholds",
+            reportNode.getChildren().get(2).getMessage());
     }
 }

@@ -15,7 +15,6 @@ import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
@@ -74,20 +73,17 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
         });
 
         if (parsingContext.connectivityResult == null) {
-            parsingContext.connectivityResult = new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet());
+            parsingContext.connectivityResult = ConnectivityResult.empty();
         }
 
         if (version.compareTo("1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
         }
-        if (commonParsingContext.networkResult != null) {
-            return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.networkResult, parsingContext.connectivityResult);
-        } else {
-            return new PostContingencyResult(parsingContext.contingency, parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults,
-                    parsingContext.connectivityResult);
-        }
+        return new PostContingencyResult(
+                parsingContext.contingency, parsingContext.status,
+                commonParsingContext.limitViolationsResult,
+                Objects.requireNonNullElseGet(commonParsingContext.networkResult, () -> new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
+                parsingContext.connectivityResult, commonParsingContext.distributedActivePower);
     }
 }

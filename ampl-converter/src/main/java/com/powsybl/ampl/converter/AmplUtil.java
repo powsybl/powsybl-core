@@ -77,12 +77,12 @@ public final class AmplUtil {
         return twt.getId(); // same id as the transformer
     }
 
-    public static String getDanglingLineMiddleBusId(DanglingLine dl) {
-        return dl.getId(); // same id as the dangling line
+    public static String getBoundaryLineMiddleBusId(BoundaryLine dl) {
+        return dl.getId(); // same id as the boundary line
     }
 
-    public static String getDanglingLineMiddleVoltageLevelId(DanglingLine dl) {
-        return dl.getId(); // same id as the dangling line
+    public static String getBoundaryLineMiddleVoltageLevelId(BoundaryLine dl) {
+        return dl.getId(); // same id as the boundary line
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {
@@ -107,8 +107,8 @@ public final class AmplUtil {
         // Three windings transformers
         fillThreeWindingsTransformers(mapper, network);
 
-        // Dangling lines
-        fillDanglingLines(mapper, network);
+        // Boundary lines
+        fillBoundaryLines(mapper, network);
 
         // loads
         network.getLoadStream().forEach(l -> mapper.newInt(AmplSubset.LOAD, l.getId()));
@@ -150,8 +150,8 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
             mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
 
-            DanglingLine dl1 = tl.getDanglingLine1();
-            DanglingLine dl2 = tl.getDanglingLine2();
+            BoundaryLine dl1 = tl.getBoundaryLine1();
+            BoundaryLine dl2 = tl.getBoundaryLine2();
             mapper.newInt(AmplSubset.BRANCH, dl1.getId());
             mapper.newInt(AmplSubset.BRANCH, dl2.getId());
 
@@ -219,8 +219,8 @@ public final class AmplUtil {
         }
     }
 
-    private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private static void fillBoundaryLines(StringToIntMapper<AmplSubset> mapper, Network network) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
             mapper.newInt(AmplSubset.BUS, dl.getId());
             mapper.newInt(AmplSubset.BRANCH, dl.getId());

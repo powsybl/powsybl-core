@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
@@ -18,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getTerminalSignPropertyName;
 
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -174,7 +175,7 @@ public class RegulatingControlMappingForTransformers {
         ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
                 .setRegulationMode(regulationMode);
 
-        twt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN + end, String.valueOf(mappedRegulatingTerminal.getSign()));
+        twt.setProperty(getTerminalSignPropertyName(end), String.valueOf(mappedRegulatingTerminal.getSign()));
         return true;
     }
 

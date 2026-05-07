@@ -10,6 +10,7 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.OperatorStrategyResult;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class ConditionalActionsResultSerializer extends StdSerializer<OperatorSt
         serializerProvider.defaultSerializeField("status", result.getStatus(), jsonGenerator);
         serializerProvider.defaultSerializeField("limitViolationsResult", result.getLimitViolationsResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("networkResult", result.getNetworkResult(), jsonGenerator);
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "distributedActivePower", result.getDistributedActivePower());
         jsonGenerator.writeEndObject();
     }
 }
