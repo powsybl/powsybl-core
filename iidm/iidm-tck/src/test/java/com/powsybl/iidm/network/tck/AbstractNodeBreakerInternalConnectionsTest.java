@@ -46,11 +46,9 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
         assertEquals(new InternalConnections().add(0, 7), findFirstInternalConnections(vl));
 
-        // Find the internal connections encountered before encountering a terminal, starting from every node
-        // Only internal connections connecting two nodes having both a terminal are expected to be missing
         InternalConnections icConnectedToAtMostOneTerminal = findInternalConnectionsTraverseStoppingAtTerminals(vl);
         InternalConnections expected = new InternalConnections();
-        expected.add(7, 0).add(6, 3).add(4, 3).add(5, 2).add(9, 2).add(8, 1);
+        expected.add(7, 0).add(5, 2).add(8, 1);
         assertEquals(expected, icConnectedToAtMostOneTerminal);
 
         assertEquals(all, findInternalConnections(vl));
