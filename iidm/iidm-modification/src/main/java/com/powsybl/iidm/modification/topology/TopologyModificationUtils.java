@@ -841,7 +841,7 @@ public final class TopologyModificationUtils {
         }
     }
 
-    private static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
+    public static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             Graph<Integer, Object> graph = createGraphFromTerminal(terminal);
             int node = terminal.getNodeBreakerView().getNode();
