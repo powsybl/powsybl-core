@@ -195,10 +195,11 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
                 CompressedDoubleDataChunk chunk1 = new CompressedDoubleDataChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
                 // second chunk
                 boolean splitOnBoundary = splitIndex == index + stepLengths[step];
-                int[] stepLengths2 = new int[stepLengths.length - (splitOnBoundary ? step + 1 : step)];
+                int calculatedStep = splitOnBoundary ? step + 1 : step;
+                int[] stepLengths2 = new int[stepLengths.length - calculatedStep];
                 double[] stepValues2 = new double[stepLengths2.length];
-                System.arraycopy(stepLengths, splitOnBoundary ? step + 1 : step, stepLengths2, 0, stepLengths2.length);
-                System.arraycopy(stepValues, splitOnBoundary ? step + 1 : step, stepValues2, 0, stepValues2.length);
+                System.arraycopy(stepLengths, calculatedStep, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, calculatedStep, stepValues2, 0, stepValues2.length);
                 if (!splitOnBoundary) {
                     stepLengths2[0] = stepLengths[step] - stepLengths1[step];
                 }

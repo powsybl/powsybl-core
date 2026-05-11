@@ -215,10 +215,11 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
 
                 // second chunk
                 boolean splitOnBoundary = splitIndex == index + stepLengths[step];
-                int[] stepLengths2 = new int[stepLengths.length - (splitOnBoundary ? step + 1 : step)];
+                int calculatedStep = splitOnBoundary ? step + 1 : step;
+                int[] stepLengths2 = new int[stepLengths.length - calculatedStep];
                 String[] stepValues2 = new String[stepLengths2.length];
-                System.arraycopy(stepLengths, splitOnBoundary ? step + 1 : step, stepLengths2, 0, stepLengths2.length);
-                System.arraycopy(stepValues, splitOnBoundary ? step + 1 : step, stepValues2, 0, stepValues2.length);
+                System.arraycopy(stepLengths, calculatedStep, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, calculatedStep, stepValues2, 0, stepValues2.length);
                 if (!splitOnBoundary) {
                     stepLengths2[0] = stepLengths[step] - stepLengths1[step];
                 }
