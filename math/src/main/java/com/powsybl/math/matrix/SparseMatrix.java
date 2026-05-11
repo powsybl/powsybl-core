@@ -172,17 +172,17 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         if (columnStart[columnStart.length - 1] != values.size()) {
             throw new MatrixException("Value count of the sparse matrix not corresponding to the number of values stored in the matrix");
         }
-        boolean checkingNewColumn = true;
-        Set<Integer> exploredRows = new TreeSet<>(); // set containing each row index of the current explored column (used to check duplicates)
-        int currentColumnIndex = -1; // current index of the explored column
-        int previousColumnStartIndex = -1; // start index of the previous explored column: new column start should be equal to previousColumnStartIndex + previousColumnValueCount
-        int previousColumnValueCount = 0; // value count of the previous explored column
+        boolean checkingNewColumn = false;
+        List<Integer> exploredRows = new ArrayList<>(); // set containing each row index of the current explored column (used to check duplicates)
+        int currentColumnIndex = 0; // current index of the explored column
+        int previousColumnStartIndex = 0; // start index of the previous explored column: new column start should be equal to previousColumnStartIndex + previousColumnValueCount
+        int previousColumnValueCount = columnValueCount[0]; // value count of the previous explored column
         for (int k = 0; k < values.size(); k++) {
             // Checking new column
             while (checkingNewColumn) {
                 currentColumnIndex += 1;
                 if (columnStart[currentColumnIndex] != -1 && columnStart[currentColumnIndex] != previousColumnStartIndex) {
-                    if (columnStart[currentColumnIndex] != previousColumnStartIndex + previousColumnValueCount && previousColumnStartIndex != -1) {
+                    if (columnStart[currentColumnIndex] != previousColumnStartIndex + previousColumnValueCount) {
                         throw new MatrixException("Value count of column " + currentColumnIndex + " do not correspond with column start index");
                     }
                     previousColumnStartIndex = columnStart[currentColumnIndex];
@@ -192,9 +192,10 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
                 }
             }
             // Checking new row
-            if (!exploredRows.add(rowIndices.get(k))) {
+            if (exploredRows.contains(rowIndices.get(k))) {
                 throw new MatrixException("Same row value (" + rowIndices.get(k) + ") is referenced multiple times in the same column (" + currentColumnIndex + ")");
             }
+            exploredRows.add(rowIndices.get(k));
             if (exploredRows.size() == previousColumnValueCount) {
                 checkingNewColumn = true;
             }
