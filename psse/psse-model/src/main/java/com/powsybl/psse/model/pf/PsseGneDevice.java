@@ -7,7 +7,21 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  *
@@ -16,128 +30,122 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseGneDevice {
 
-    @Parsed
+    private static final Map<String, PsseFieldDefinition<PsseGneDevice, ?>> FIELDS = createFields();
+    private static final String[][] FIELD_NAMES = {
+            {STR_NAME, STR_MODEL, STR_NTERM, STR_BUS1, STR_BUS2, STR_NREAL, STR_NINTG, STR_NCHAR, STR_STATUS, STR_OWNER, STR_NMET},
+            {STR_REAL1, STR_REAL2, STR_REAL3, STR_REAL4, STR_REAL5, STR_REAL6, STR_REAL7, STR_REAL8, STR_REAL9, STR_REAL10},
+            {STR_INTG1, STR_INTG2, STR_INTG3, STR_INTG4, STR_INTG5, STR_INTG6, STR_INTG7, STR_INTG8, STR_INTG9, STR_INTG10},
+            {STR_CHAR1, STR_CHAR2, STR_CHAR3, STR_CHAR4, STR_CHAR5, STR_CHAR6, STR_CHAR7, STR_CHAR8, STR_CHAR9, STR_CHAR10}};
+
     private String name;
-
-    @Parsed
     private String model;
-
-    @Parsed
-    private int nterm = 1;
-
-    @Parsed
+    private int nterm = defaultIntegerFor(STR_NTERM, FIELDS);
     private int bus1;
-
-    @Parsed
     private int bus2;
-
-    @Parsed
-    private int nreal = 0;
-
-    @Parsed
-    private int nintg = 0;
-
-    @Parsed
-    private int nchar = 0;
-
-    @Parsed(field = { "status", "stat" })
-    private int status = 1;
-
-    @Parsed
+    private int nreal = defaultIntegerFor(STR_NREAL, FIELDS);
+    private int nintg = defaultIntegerFor(STR_NINTG, FIELDS);
+    private int nchar = defaultIntegerFor(STR_NCHAR, FIELDS);
+    private int status = defaultIntegerFor(STR_STATUS, FIELDS);
     private int owner;
-
-    @Parsed
     private int nmet;
+    private double real1 = defaultDoubleFor(STR_REAL1, FIELDS);
+    private double real2 = defaultDoubleFor(STR_REAL2, FIELDS);
+    private double real3 = defaultDoubleFor(STR_REAL3, FIELDS);
+    private double real4 = defaultDoubleFor(STR_REAL4, FIELDS);
+    private double real5 = defaultDoubleFor(STR_REAL5, FIELDS);
+    private double real6 = defaultDoubleFor(STR_REAL6, FIELDS);
+    private double real7 = defaultDoubleFor(STR_REAL7, FIELDS);
+    private double real8 = defaultDoubleFor(STR_REAL8, FIELDS);
+    private double real9 = defaultDoubleFor(STR_REAL9, FIELDS);
+    private double real10 = defaultDoubleFor(STR_REAL10, FIELDS);
+    private int intg1 = defaultIntegerFor(STR_INTG1, FIELDS);
+    private int intg2 = defaultIntegerFor(STR_INTG2, FIELDS);
+    private int intg3 = defaultIntegerFor(STR_INTG3, FIELDS);
+    private int intg4 = defaultIntegerFor(STR_INTG4, FIELDS);
+    private int intg5 = defaultIntegerFor(STR_INTG5, FIELDS);
+    private int intg6 = defaultIntegerFor(STR_INTG6, FIELDS);
+    private int intg7 = defaultIntegerFor(STR_INTG7, FIELDS);
+    private int intg8 = defaultIntegerFor(STR_INTG8, FIELDS);
+    private int intg9 = defaultIntegerFor(STR_INTG9, FIELDS);
+    private int intg10 = defaultIntegerFor(STR_INTG10, FIELDS);
+    private String char1 = defaultStringFor(STR_CHAR1, FIELDS);
+    private String char2 = defaultStringFor(STR_CHAR2, FIELDS);
+    private String char3 = defaultStringFor(STR_CHAR3, FIELDS);
+    private String char4 = defaultStringFor(STR_CHAR4, FIELDS);
+    private String char5 = defaultStringFor(STR_CHAR5, FIELDS);
+    private String char6 = defaultStringFor(STR_CHAR6, FIELDS);
+    private String char7 = defaultStringFor(STR_CHAR7, FIELDS);
+    private String char8 = defaultStringFor(STR_CHAR8, FIELDS);
+    private String char9 = defaultStringFor(STR_CHAR9, FIELDS);
+    private String char10 = defaultStringFor(STR_CHAR10, FIELDS);
 
-    @Parsed
-    private double real1 = 0.0;
+    public static String[] getFieldNames(int index) {
+        if (index < 0 || index > 3) {
+            throw new PsseException("Unexpected index: " + index);
+        }
+        return FIELD_NAMES[index];
+    }
 
-    @Parsed
-    private double real2 = 0.0;
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
 
-    @Parsed
-    private double real3 = 0.0;
+    public static PsseGneDevice fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseGneDevice::new);
+    }
 
-    @Parsed
-    private double real4 = 0.0;
+    public static String[] toRecord(PsseGneDevice psseGneDevice, String[] headers) {
+        return Util.toRecord(psseGneDevice, headers, FIELDS);
+    }
 
-    @Parsed
-    private double real5 = 0.0;
+    private static Map<String, PsseFieldDefinition<PsseGneDevice, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseGneDevice, ?>> fields = new HashMap<>();
 
-    @Parsed
-    private double real6 = 0.0;
+        addField(fields, createNewField(STR_NAME, String.class, PsseGneDevice::getName, PsseGneDevice::setName));
+        addField(fields, createNewField(STR_MODEL, String.class, PsseGneDevice::getModel, PsseGneDevice::setModel));
+        addField(fields, createNewField(STR_NTERM, Integer.class, PsseGneDevice::getNterm, PsseGneDevice::setNterm, 1));
+        addField(fields, createNewField(STR_BUS1, Integer.class, PsseGneDevice::getBus1, PsseGneDevice::setBus1));
+        addField(fields, createNewField(STR_BUS2, Integer.class, PsseGneDevice::getBus2, PsseGneDevice::setBus2));
+        addField(fields, createNewField(STR_NREAL, Integer.class, PsseGneDevice::getNreal, PsseGneDevice::setNreal, 0));
+        addField(fields, createNewField(STR_NINTG, Integer.class, PsseGneDevice::getNintg, PsseGneDevice::setNintg, 0));
+        addField(fields, createNewField(STR_NCHAR, Integer.class, PsseGneDevice::getNchar, PsseGneDevice::setNchar, 0));
+        addField(fields, createNewField(STR_STATUS, Integer.class, PsseGneDevice::getStatus, PsseGneDevice::setStatus, 1));
+        addField(fields, createNewField(STR_STAT, Integer.class, PsseGneDevice::getStatus, PsseGneDevice::setStatus, 1));
+        addField(fields, createNewField(STR_OWNER, Integer.class, PsseGneDevice::getOwner, PsseGneDevice::setOwner));
+        addField(fields, createNewField(STR_NMET, Integer.class, PsseGneDevice::getNmet, PsseGneDevice::setNmet));
+        addField(fields, createNewField(STR_REAL1, Double.class, PsseGneDevice::getReal1, PsseGneDevice::setReal1, 0.0));
+        addField(fields, createNewField(STR_REAL2, Double.class, PsseGneDevice::getReal2, PsseGneDevice::setReal2, 0.0));
+        addField(fields, createNewField(STR_REAL3, Double.class, PsseGneDevice::getReal3, PsseGneDevice::setReal3, 0.0));
+        addField(fields, createNewField(STR_REAL4, Double.class, PsseGneDevice::getReal4, PsseGneDevice::setReal4, 0.0));
+        addField(fields, createNewField(STR_REAL5, Double.class, PsseGneDevice::getReal5, PsseGneDevice::setReal5, 0.0));
+        addField(fields, createNewField(STR_REAL6, Double.class, PsseGneDevice::getReal6, PsseGneDevice::setReal6, 0.0));
+        addField(fields, createNewField(STR_REAL7, Double.class, PsseGneDevice::getReal7, PsseGneDevice::setReal7, 0.0));
+        addField(fields, createNewField(STR_REAL8, Double.class, PsseGneDevice::getReal8, PsseGneDevice::setReal8, 0.0));
+        addField(fields, createNewField(STR_REAL9, Double.class, PsseGneDevice::getReal9, PsseGneDevice::setReal9, 0.0));
+        addField(fields, createNewField(STR_REAL10, Double.class, PsseGneDevice::getReal10, PsseGneDevice::setReal10, 0.0));
+        addField(fields, createNewField(STR_INTG1, Integer.class, PsseGneDevice::getIntg1, PsseGneDevice::setIntg1, 0));
+        addField(fields, createNewField(STR_INTG2, Integer.class, PsseGneDevice::getIntg2, PsseGneDevice::setIntg2, 0));
+        addField(fields, createNewField(STR_INTG3, Integer.class, PsseGneDevice::getIntg3, PsseGneDevice::setIntg3, 0));
+        addField(fields, createNewField(STR_INTG4, Integer.class, PsseGneDevice::getIntg4, PsseGneDevice::setIntg4, 0));
+        addField(fields, createNewField(STR_INTG5, Integer.class, PsseGneDevice::getIntg5, PsseGneDevice::setIntg5, 0));
+        addField(fields, createNewField(STR_INTG6, Integer.class, PsseGneDevice::getIntg6, PsseGneDevice::setIntg6, 0));
+        addField(fields, createNewField(STR_INTG7, Integer.class, PsseGneDevice::getIntg7, PsseGneDevice::setIntg7, 0));
+        addField(fields, createNewField(STR_INTG8, Integer.class, PsseGneDevice::getIntg8, PsseGneDevice::setIntg8, 0));
+        addField(fields, createNewField(STR_INTG9, Integer.class, PsseGneDevice::getIntg9, PsseGneDevice::setIntg9, 0));
+        addField(fields, createNewField(STR_INTG10, Integer.class, PsseGneDevice::getIntg10, PsseGneDevice::setIntg10, 0));
+        addField(fields, createNewField(STR_CHAR1, String.class, PsseGneDevice::getChar1, PsseGneDevice::setChar1, "1"));
+        addField(fields, createNewField(STR_CHAR2, String.class, PsseGneDevice::getChar2, PsseGneDevice::setChar2, "1"));
+        addField(fields, createNewField(STR_CHAR3, String.class, PsseGneDevice::getChar3, PsseGneDevice::setChar3, "1"));
+        addField(fields, createNewField(STR_CHAR4, String.class, PsseGneDevice::getChar4, PsseGneDevice::setChar4, "1"));
+        addField(fields, createNewField(STR_CHAR5, String.class, PsseGneDevice::getChar5, PsseGneDevice::setChar5, "1"));
+        addField(fields, createNewField(STR_CHAR6, String.class, PsseGneDevice::getChar6, PsseGneDevice::setChar6, "1"));
+        addField(fields, createNewField(STR_CHAR7, String.class, PsseGneDevice::getChar7, PsseGneDevice::setChar7, "1"));
+        addField(fields, createNewField(STR_CHAR8, String.class, PsseGneDevice::getChar8, PsseGneDevice::setChar8, "1"));
+        addField(fields, createNewField(STR_CHAR9, String.class, PsseGneDevice::getChar9, PsseGneDevice::setChar9, "1"));
+        addField(fields, createNewField(STR_CHAR10, String.class, PsseGneDevice::getChar10, PsseGneDevice::setChar10, "1"));
 
-    @Parsed
-    private double real7 = 0.0;
-
-    @Parsed
-    private double real8 = 0.0;
-
-    @Parsed
-    private double real9 = 0.0;
-
-    @Parsed
-    private double real10 = 0.0;
-
-    @Parsed
-    private int intg1;
-
-    @Parsed
-    private int intg2;
-
-    @Parsed
-    private int intg3;
-
-    @Parsed
-    private int intg4;
-
-    @Parsed
-    private int intg5;
-
-    @Parsed
-    private int intg6;
-
-    @Parsed
-    private int intg7;
-
-    @Parsed
-    private int intg8;
-
-    @Parsed
-    private int intg9;
-
-    @Parsed
-    private int intg10;
-
-    @Parsed(defaultNullRead = "1")
-    private String char1;
-
-    @Parsed(defaultNullRead = "1")
-    private String char2;
-
-    @Parsed(defaultNullRead = "1")
-    private String char3;
-
-    @Parsed(defaultNullRead = "1")
-    private String char4;
-
-    @Parsed(defaultNullRead = "1")
-    private String char5;
-
-    @Parsed(defaultNullRead = "1")
-    private String char6;
-
-    @Parsed(defaultNullRead = "1")
-    private String char7;
-
-    @Parsed(defaultNullRead = "1")
-    private String char8;
-
-    @Parsed(defaultNullRead = "1")
-    private String char9;
-
-    @Parsed(defaultNullRead = "1")
-    private String char10;
+        return fields;
+    }
 
     public String getName() {
         return name;
