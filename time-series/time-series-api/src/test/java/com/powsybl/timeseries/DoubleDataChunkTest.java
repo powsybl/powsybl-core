@@ -285,7 +285,7 @@ class DoubleDataChunkTest {
         // Chunks [--------]   [-------]
         //        [3 * 0]      [3 * 1]
         CompressedDoubleDataChunk compressedChunk = new CompressedDoubleDataChunk(0, 6, new double[]{0d, 1d}, new int[]{3, 3});
-        // When split index equal to (uncompressed length + offset) / 2
+        // When split index equal to stepLengths[step] + index (index initialized to offset)
         DataChunk.Split<DoublePoint, DoubleDataChunk> split = compressedChunk.splitAt(3);
         // Then
         CompressedDoubleDataChunk chunk1 = (CompressedDoubleDataChunk) split.getChunk1();
@@ -323,7 +323,7 @@ class DoubleDataChunkTest {
         // Chunks [--------]   [-------]
         //        [3 * a]      [3 * b]
         CompressedStringDataChunk compressedChunk = new CompressedStringDataChunk(0, 6, new String[]{"a", "b"}, new int[]{3, 3});
-        // When split index equal to (uncompressed length + offset) / 2
+        // When split index equal to stepLengths[step] + index (index initialized to offset)
         DataChunk.Split<StringPoint, StringDataChunk> split = compressedChunk.splitAt(3);
         // Then
         CompressedStringDataChunk chunk1 = (CompressedStringDataChunk) split.getChunk1();
@@ -359,7 +359,7 @@ class DoubleDataChunkTest {
         // value  NaN 1   1   2   2   2
         //            [---]   [-------]
         CompressedDoubleDataChunk chunk = new CompressedDoubleDataChunk(1, 5, new double[] {1d, 2d}, new int[] {2, 3});
-        // When split index equal to (uncompressed length + offset) / 2
+        // When split index equal to stepLengths[step] + index (index initialized to offset)
         DataChunk.Split<DoublePoint, DoubleDataChunk> split = chunk.splitAt(3);
         CompressedDoubleDataChunk chunk1 = (CompressedDoubleDataChunk) split.getChunk1();
         CompressedDoubleDataChunk chunk2 = (CompressedDoubleDataChunk) split.getChunk2();
