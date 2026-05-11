@@ -21,6 +21,10 @@ public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> 
         super(group, permanentLimit, temporaryLimits);
     }
 
+    CurrentLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, permanentLimitName, temporaryLimits);
+    }
+
     @Override
     public void remove() {
         group.removeCurrentLimits();

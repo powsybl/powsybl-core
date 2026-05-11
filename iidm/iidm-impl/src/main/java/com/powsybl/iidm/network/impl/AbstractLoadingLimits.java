@@ -69,8 +69,13 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     }
 
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this(owner, permanentLimit, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, temporaryLimits);
+    }
+
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
         this.permanentLimit = permanentLimit;
+        this.permanentLimitName = Objects.requireNonNull(permanentLimitName);
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
     }

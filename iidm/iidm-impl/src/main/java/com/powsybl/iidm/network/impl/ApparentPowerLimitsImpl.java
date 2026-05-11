@@ -20,6 +20,10 @@ class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsI
         super(group, permanentLimit, temporaryLimits);
     }
 
+    ApparentPowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, permanentLimitName, temporaryLimits);
+    }
+
     @Override
     public void remove() {
         group.removeApparentPowerLimits();
