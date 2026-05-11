@@ -101,7 +101,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     @Override
     public L setPermanentLimitName(String name) {
         this.permanentLimitName = Objects.requireNonNull(name);
-        //TODO NDI notify ?
+        //TODO NDI notify name change with something similar to notifyPermanentLimitUpdate ? Update PermanentLimitInfo ?
         return (L) this;
     }
 

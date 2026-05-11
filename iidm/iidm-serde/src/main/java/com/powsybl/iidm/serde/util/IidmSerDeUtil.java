@@ -291,7 +291,7 @@ public final class IidmSerDeUtil {
     /**
      * Run a given runnable if the context's IIDM version equals or is older than a given maximum IIDM version.
      */
-    public static <C extends AbstractNetworkSerDeContext> void runUntilMaximumVersion(IidmVersion maxVersion, IidmVersion contextVersion, Runnable runnable) {
+    public static void runUntilMaximumVersion(IidmVersion maxVersion, IidmVersion contextVersion, Runnable runnable) {
         if (contextVersion.compareTo(maxVersion) <= 0) {
             runnable.run();
         }

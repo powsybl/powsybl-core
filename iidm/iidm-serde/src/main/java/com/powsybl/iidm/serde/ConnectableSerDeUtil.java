@@ -28,6 +28,7 @@ import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
  */
 public final class ConnectableSerDeUtil {
 
+    static final String VALUE_KEY = "value";
     static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME = "temporaryLimits";
     static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NAME = "temporaryLimit";
     static final String PERMANENT_LIMIT_ROOT_ELEMENT_NAME = "permanentLimit";
@@ -260,7 +261,7 @@ public final class ConnectableSerDeUtil {
                 case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
                     String name = reader.readStringAttribute("name");
                     int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
-                    double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
+                    double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
                     boolean fictitious = reader.readBooleanAttribute("fictitious", false);
                     LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
                     readProperties(context, tempLimitAdder);
@@ -273,7 +274,7 @@ public final class ConnectableSerDeUtil {
                 }
                 case PERMANENT_LIMIT_ROOT_ELEMENT_NAME -> {
                     String name = reader.readStringAttribute("name");
-                    double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
+                    double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
                     adder.setPermanentLimitName(name);
                     adder.setPermanentLimit(value);
                     reader.readEndNode();
@@ -348,7 +349,7 @@ public final class ConnectableSerDeUtil {
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
-                writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
+                writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
                 IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
                 writer.writeEndNode();
@@ -363,7 +364,7 @@ public final class ConnectableSerDeUtil {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version, () -> {
             writer.writeStartNode(version.getNamespaceURI(valid), PERMANENT_LIMIT_ROOT_ELEMENT_NAME);
             writer.writeStringAttribute("name", limits.getPermanentLimitName());
-            writer.writeDoubleAttribute("value", limits.getPermanentLimit());
+            writer.writeDoubleAttribute(VALUE_KEY, limits.getPermanentLimit());
             writer.writeEndNode();
         });
     }
