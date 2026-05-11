@@ -338,7 +338,7 @@ public class PowerFactoryImporter implements Importer {
                 // already processed
                 break;
 
-            case "TypLne", "TypSym", "TypLod", "TypTr2", "TypTr3":
+            case "TypLne", "TypSym", "TypLod", "TypTr2", "TypTr3", "ElmTapctrl":
                 // Referenced by other objects
                 break;
 
