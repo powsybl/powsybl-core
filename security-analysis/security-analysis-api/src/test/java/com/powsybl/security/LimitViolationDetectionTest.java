@@ -142,7 +142,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         assertEquals(1, violationsCollector.size());
         LimitViolation violation = violationsCollector.getFirst();
         // the limit at 1200 is raised to 1320
-        assertEquals(LimitViolationUtils.PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
         assertEquals(600, violation.getAcceptableDuration());
         assertEquals(1100, violation.getLimit());
         assertEquals(1, violation.getLimitReduction());
@@ -167,7 +167,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         assertEquals(1, violationsCollector.size());
         LimitViolation violation = violationsCollector.getFirst();
         // the limit at 1200 is raised to 1560 above the limit at 1500
-        assertEquals(LimitViolationUtils.PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
         assertEquals(60, violation.getAcceptableDuration());
         assertEquals(1100, violation.getLimit());
         assertEquals(1, violation.getLimitReduction());
