@@ -173,7 +173,8 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
             throw new MatrixException("Value count of the sparse matrix not corresponding to the number of values stored in the matrix");
         }
         boolean checkingNewColumn = false;
-        List<Integer> exploredRows = new ArrayList<>(); // List containing each row index of the current explored column (used to check duplicates)
+        int[] exploredRows = new int[values.size()]; // List containing each row index of the current explored column (used to check duplicates)
+        int exploredRowsSize = 0; // Storing the size of the list to avoid clearing it for each column
         int currentColumn = 0; // current index of the explored column
         int previousColumnStart = 0; // start index of the previous explored column
         int previousColumnValueCount = columnValueCount[0]; // value count of the previous explored column: new column start should be equal to previousColumnStart + previousColumnValueCount
@@ -187,16 +188,20 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
                     }
                     previousColumnStart = columnStart[currentColumn];
                     previousColumnValueCount = columnValueCount[currentColumn];
-                    exploredRows.clear();
+                    exploredRowsSize = 0;
                     checkingNewColumn = false;
                 }
             }
             // Checking new row
-            if (exploredRows.contains(rowIndices.get(k))) {
-                throw new MatrixException("Same row value (" + rowIndices.get(k) + ") is referenced multiple times in the same column (" + currentColumn + ")");
+            int rowIndex = rowIndices.get(k);
+            for (int i = 0; i < exploredRowsSize; i++) {
+                if (exploredRows[i] == rowIndex) {
+                    throw new MatrixException("Same row value (" + rowIndices.get(k) + ") is referenced multiple times in the same column (" + currentColumn + ")");
+                }
             }
-            exploredRows.add(rowIndices.get(k));
-            if (exploredRows.size() == previousColumnValueCount) {
+            exploredRows[exploredRowsSize] = rowIndex;
+            exploredRowsSize++;
+            if (exploredRowsSize == previousColumnValueCount) {
                 checkingNewColumn = true;
             }
         }
