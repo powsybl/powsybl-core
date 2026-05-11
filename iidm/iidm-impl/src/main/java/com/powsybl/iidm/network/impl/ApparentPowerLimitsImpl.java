@@ -16,6 +16,7 @@ import java.util.TreeMap;
  */
 class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsImpl> implements ApparentPowerLimits {
 
+    //TODO not used anymore, remove / deprecate ?
     ApparentPowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         super(group, permanentLimit, temporaryLimits);
     }

@@ -17,6 +17,7 @@ import java.util.TreeMap;
  */
 public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> implements CurrentLimits {
 
+    //TODO not used anymore, remove / deprecate ?
     CurrentLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         super(group, permanentLimit, temporaryLimits);
     }
