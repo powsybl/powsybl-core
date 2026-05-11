@@ -292,6 +292,34 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(importAndCompareXiidm("robustness"));
     }
 
+    @Test
+    void importWithoutForcingElmTermsAsBusbarSectionsTest() {
+        Properties parameters = new Properties();
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("ElmTermsAsBusbarSections", new ResourceSet("/", "ElmTermsAsBusbarSections.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+        assertFalse(allBusesHaveBusbarSection(network));
+    }
+
+    @Test
+    void importWithForcedElmTermsAsBusbarSectionsTest() {
+        Properties parameters = new Properties();
+        parameters.put(PowerFactoryImporter.FORCE_ALL_ELMTERMS_AS_BUSBARS, "true");
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("ElmTermsAsBusbarSections", new ResourceSet("/", "ElmTermsAsBusbarSections.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+        assertTrue(allBusesHaveBusbarSection(network));
+    }
+
+    private static boolean allBusesHaveBusbarSection(Network network) {
+        return network.getBusView().getBusStream().allMatch(bus ->
+                bus.getConnectedTerminalStream().anyMatch(terminal -> terminal.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
