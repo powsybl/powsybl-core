@@ -168,6 +168,14 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         }
     }
 
+    /**
+     * Checking if there is a building inconsistency in the matrix.
+     * Three kind of failures are detected:
+     * - Row indices that are referenced multiple time for a single column
+     * - ColumnValueCount that do not correspond to the difference between successive columnStart indices
+     * - Last columnStart index that is not equal to the number of values in the sparse matrix
+     * @throws MatrixException if a building inconsistency is detected.
+     */
     public void checkBuildingInconsistency() {
         if (columnStart[columnStart.length - 1] != values.size()) {
             throw new MatrixException("Value count of the sparse matrix not corresponding to the number of values stored in the matrix");
