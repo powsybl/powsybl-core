@@ -179,7 +179,7 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         int previousColumnValueCount = 0; // value count of the previous explored column
         for (int k = 0; k < values.size(); k++) {
             // Checking new column
-            while (checkingNewColumn) { // this condition means we have reached
+            while (checkingNewColumn) {
                 currentColumnIndex += 1;
                 if (columnStart[currentColumnIndex] != -1 && columnStart[currentColumnIndex] != previousColumnStartIndex) {
                     if (columnStart[currentColumnIndex] != previousColumnStartIndex + previousColumnValueCount && previousColumnStartIndex != -1) {
