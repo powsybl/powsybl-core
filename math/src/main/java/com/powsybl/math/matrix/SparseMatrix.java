@@ -193,7 +193,7 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
             }
             // Checking new row
             if (!exploredRows.add(rowIndices.get(k))) {
-                throw new MatrixException("Same row value (" + rowIndices.get(k) +  ") is referenced multiple times in the same column (" + currentColumnIndex + ")");
+                throw new MatrixException("Same row value (" + rowIndices.get(k) + ") is referenced multiple times in the same column (" + currentColumnIndex + ")");
             }
             if (exploredRows.size() == previousColumnValueCount) {
                 checkingNewColumn = true;
