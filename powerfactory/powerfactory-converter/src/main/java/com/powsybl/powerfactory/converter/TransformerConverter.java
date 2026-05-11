@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.powsybl.powerfactory.converter.DataAttributeNames.I_REM;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.NTRCN;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -893,7 +894,7 @@ class TransformerConverter extends AbstractConverter {
                 findVoltageRegulatingTerminal(t2w, elmTr2),
                 getTargetValue(elmTr2, "usetp"),
                 getTargetDeadBand(elmTr2, "usp_low", "usp_up"),
-                getRegulating(elmTr2, "ntrcn"));
+                getRegulating(elmTr2, NTRCN));
     }
 
     private VoltageControlParameters findVoltageControlParametersWithTapControl(Network network, DataObject elmTapCtrl) {
@@ -918,7 +919,7 @@ class TransformerConverter extends AbstractConverter {
                 findVoltageRegulatingTerminal(t3w, elmTr3),
                 getTargetValue(elmTr3, "usetp"),
                 getTargetDeadBand(elmTr3, "usp_low", "usp_up"),
-                getRegulating(elmTr3, "ntrcn"));
+                getRegulating(elmTr3, NTRCN));
     }
 
     private void addReactivePowerControl(TwoWindingsTransformer t2w, RatioTapChanger rtc, DataObject elmTr2) {
@@ -930,7 +931,7 @@ class TransformerConverter extends AbstractConverter {
                 findFlowRegulatingTerminal(t2w, elmTr2),
                 getTargetValue(elmTr2, "qsetp"),
                 getTargetDeadBand(elmTr2, "qsp_low", "qsp_up"),
-                getRegulating(elmTr2, "ntrcn"));
+                getRegulating(elmTr2, NTRCN));
     }
 
     private void addReactivePowerControl(ThreeWindingsTransformer t3w, RatioTapChanger rtc, DataObject elmTr3) {
@@ -942,7 +943,7 @@ class TransformerConverter extends AbstractConverter {
                 findFlowRegulatingTerminal(t3w, elmTr3),
                 getTargetValue(elmTr3, "qsetp"),
                 getTargetDeadBand(elmTr3, "qsp_low", "qsp_up"),
-                getRegulating(elmTr3, "ntrcn"));
+                getRegulating(elmTr3, NTRCN));
     }
 
     private void addActivePowerControl(TwoWindingsTransformer t2w, PhaseTapChanger ptc, DataObject elmTr2) {
@@ -954,7 +955,7 @@ class TransformerConverter extends AbstractConverter {
                 findFlowRegulatingTerminal(t2w, elmTr2),
                 getTargetValue(elmTr2, "psetp"),
                 getTargetDeadBand(elmTr2, "psp_low", "psp_up"),
-                getRegulating(elmTr2, "ntrcn"));
+                getRegulating(elmTr2, NTRCN));
     }
 
     private void addActivePowerControl(ThreeWindingsTransformer t3w, PhaseTapChanger ptc, DataObject elmTr3) {
@@ -966,7 +967,7 @@ class TransformerConverter extends AbstractConverter {
                 findFlowRegulatingTerminal(t3w, elmTr3),
                 getTargetValue(elmTr3, "psetp"),
                 getTargetDeadBand(elmTr3, "psp_low", "psp_up"),
-                getRegulating(elmTr3, "ntrcn"));
+                getRegulating(elmTr3, NTRCN));
     }
 
     private Terminal findVoltageRegulatingTerminal(TwoWindingsTransformer t2w, DataObject elmTr2) {

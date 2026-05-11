@@ -25,4 +25,5 @@ final class DataAttributeNames {
     static final String OBJ_ID = "obj_id";
     static final String ELMNET = "ElmNet";
     static final String I_REM = "i_rem";
+    static final String NTRCN = "ntrcn";
 }
