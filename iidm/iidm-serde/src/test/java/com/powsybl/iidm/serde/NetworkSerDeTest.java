@@ -481,7 +481,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void testValidateByVersionWhenInSupportedEnumValue() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/V1_17/generator_not_supported_enum.xml")) {
+        try (InputStream is = getClass().getResourceAsStream("/gen_enum_not_supported.xml")) {
             assertNotNull(is);
             assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_17))
                     .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)

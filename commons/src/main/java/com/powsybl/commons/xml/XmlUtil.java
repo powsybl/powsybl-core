@@ -368,7 +368,7 @@ public final class XmlUtil {
     }
 
     private static void logUnsupportedSaxParserProperty(String property) {
-        LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
+        LOGGER.info("- Property unsupported by SAXParser implementation: {}", property);
     }
 
     public static SchemaFactory getSchemaFactory() {
