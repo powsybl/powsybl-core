@@ -370,6 +370,7 @@
     <xs:complexType name="LoadingLimit">
         <xs:sequence>
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="permanentLimit" type="iidm:permanentLimit"/>
             <xs:element name="temporaryLimit" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
@@ -382,7 +383,10 @@
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="permanentLimit">
+        <xs:attribute name="name" use="optional" type="xs:string"/>
+        <xs:attribute name="value" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="OperationalLimitsGroup">
         <xs:sequence>

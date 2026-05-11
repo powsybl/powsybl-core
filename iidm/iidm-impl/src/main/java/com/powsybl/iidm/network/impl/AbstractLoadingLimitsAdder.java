@@ -26,6 +26,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     protected final Validable validable;
     private final String ownerId;
 
+    protected String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
     protected double permanentLimit = Double.NaN;
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
@@ -125,6 +126,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     AbstractLoadingLimitsAdder(Validable validable, String ownerId) {
         this.validable = Objects.requireNonNull(validable);
         this.ownerId = ownerId;
+    }
+
+    @Override
+    public A setPermanentLimitName(String limitName) {
+        this.permanentLimitName = Objects.requireNonNull(limitName);
+        return (A) this;
     }
 
     @Override

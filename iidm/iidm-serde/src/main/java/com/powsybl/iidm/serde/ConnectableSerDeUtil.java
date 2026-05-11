@@ -30,6 +30,7 @@ public final class ConnectableSerDeUtil {
 
     static final String TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME = "temporaryLimits";
     static final String TEMPORARY_LIMITS_ROOT_ELEMENT_NAME = "temporaryLimit";
+    static final String PERMANENT_LIMIT_ROOT_ELEMENT_NAME = "permanentLimit";
 
     private ConnectableSerDeUtil() {
     }
@@ -248,32 +249,43 @@ public final class ConnectableSerDeUtil {
         IidmVersion iidmVersion = context.getVersion();
         ImportOptions options = context.getOptions();
         ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(context.getNetworkValidationLevel());
-        double permanentLimit = reader.readDoubleAttribute("permanentLimit");
-        if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
-            throw new PowsyblException("permanentLimit is absent in '" + type + "'");
-        }
-        adder.setPermanentLimit(permanentLimit);
-        // Read and add the temporary limits
+        //Read old permanent limit
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
+            double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_ROOT_ELEMENT_NAME);
+            adder.setPermanentLimit(permanentLimit);
+        });
+        // Read and add the permanent and temporary limits
         reader.readChildNodes(elementName -> {
-            if (TEMPORARY_LIMITS_ROOT_ELEMENT_NAME.equals(elementName)) {
-                String name = reader.readStringAttribute("name");
-                int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
-                double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
-                boolean fictitious = reader.readBooleanAttribute("fictitious", false);
-                LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
-                readProperties(context, tempLimitAdder);
-                tempLimitAdder
+            switch (elementName) {
+                case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
+                    String name = reader.readStringAttribute("name");
+                    int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
+                    double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
+                    boolean fictitious = reader.readBooleanAttribute("fictitious", false);
+                    LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
+                    readProperties(context, tempLimitAdder);
+                    tempLimitAdder
                         .setName(name)
                         .setAcceptableDuration(acceptableDuration)
                         .setValue(value)
                         .setFictitious(fictitious)
                         .endTemporaryLimit();
-            } else if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(elementName)) {
-                PropertiesSerDe.read(adder, context);
-            } else {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
+                }
+                case PERMANENT_LIMIT_ROOT_ELEMENT_NAME -> {
+                    String name = reader.readStringAttribute("name");
+                    double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
+                    adder.setPermanentLimitName(name);
+                    adder.setPermanentLimit(value);
+                    reader.readEndNode();
+                }
+                case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(adder, context);
+                case null, default ->
+                    throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
         });
+        if (Double.isNaN(adder.getPermanentLimit()) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
+            throw new PowsyblException(PERMANENT_LIMIT_ROOT_ELEMENT_NAME + " is absent in '" + type + "'");
+        }
         if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
             adder.fixLimits(options.getMissingPermanentLimitPercentage()).add();
         } else {
@@ -329,7 +341,7 @@ public final class ConnectableSerDeUtil {
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null && (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty())) {
             writer.writeStartNode(nsUri, type + indexToString(index));
-            writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+            writePermanentLimit(limits, writer, version, valid);
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
             for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
@@ -344,6 +356,16 @@ public final class ConnectableSerDeUtil {
             writer.writeEndNodes();
             writer.writeEndNode();
         }
+    }
+
+    private static <L extends LoadingLimits> void writePermanentLimit(L limits, TreeDataWriter writer, IidmVersion version, boolean valid) {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, version, () -> writer.writeDoubleAttribute(PERMANENT_LIMIT_ROOT_ELEMENT_NAME, limits.getPermanentLimit()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version, () -> {
+            writer.writeStartNode(version.getNamespaceURI(valid), PERMANENT_LIMIT_ROOT_ELEMENT_NAME);
+            writer.writeStringAttribute("name", limits.getPermanentLimitName());
+            writer.writeDoubleAttribute("value", limits.getPermanentLimit());
+            writer.writeEndNode();
+        });
     }
 
     static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {

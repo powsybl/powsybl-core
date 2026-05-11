@@ -17,7 +17,8 @@
                 <iidm:operationalLimitsGroup id="DEFAULT">
                     <iidm:property name="source" value="s1"/>
                     <iidm:property name="type" value="A"/>
-                    <iidm:currentLimits permanentLimit="350.0">
+                    <iidm:currentLimits>
+                        <iidm:permanentLimit name="permanent" value="350.0"/>
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:currentLimits>
@@ -25,7 +26,8 @@
                 <iidm:operationalLimitsGroup id="GROUP_2">
                     <iidm:property name="source" value="s2"/>
                     <iidm:property name="type" value="B"/>
-                    <iidm:currentLimits permanentLimit="350.0">
+                    <iidm:currentLimits>
+                        <iidm:permanentLimit name="permanent" value="350.0"/>
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:currentLimits>

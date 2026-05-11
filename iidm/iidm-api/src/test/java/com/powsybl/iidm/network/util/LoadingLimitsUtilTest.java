@@ -15,10 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 import static java.lang.Integer.MAX_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -115,6 +112,7 @@ class LoadingLimitsUtilTest {
     private static class LimitsAdder<L extends LoadingLimits, A extends LimitsAdder<L, A>> extends AbstractBasePropertiesHolder implements LoadingLimitsAdder<L, A> {
         private final String ownerId;
         private final List<TemporaryLimitToCreate> temporaryLimitToCreateList;
+        private String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
         private double permanentLimit;
 
         public LimitsAdder(String ownerId, double permanentLimit, List<TemporaryLimitToCreate> temporaryLimitToCreateList) {
@@ -125,6 +123,12 @@ class LoadingLimitsUtilTest {
 
         public List<TemporaryLimitToCreate> getTemporaryLimitToCreateList() {
             return this.temporaryLimitToCreateList;
+        }
+
+        @Override
+        public A setPermanentLimitName(String limitName) {
+            this.permanentLimitName = Objects.requireNonNull(permanentLimitName);
+            return (A) this;
         }
 
         @Override
