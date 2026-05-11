@@ -55,6 +55,19 @@ Same as before but for high-voltage violations.
 **high-voltage-absolute-threshold**<br>
 Same as before but for high-voltage violations.
 
+(monitoring-modification-thresholds)=
+### Monitoring modification thresholds
+When monitoring elements both before and after contingencies, it is possible to define thresholds that limit the number of element states stored in the post-contingency state.
+
+**power-modification-threshold**<br>
+After a contingency, all the monitored branches and 3 windings transformers whose power has not changed by more than the threshold (in percentage) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
+
+**voltage-modification-proportional-threshold**<br>
+After a contingency, all the monitored buses whose voltage has not changed by more than the threshold (in percentage) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
+
+**voltage-modification-absolute-threshold**<br>
+After a contingency, all the monitored buses whose voltage has not changed by more than the threshold (in kV) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
+
 (violation-filtering)=
 ### Violations filtering
 The violations listed in the results can be filtered to consider only a certain type of violations, to consider only a few voltage levels or to limit the geographical area by filtering equipment by countries. Check out the documentation of the [limit-violation-default-filter](../../user/configuration/limit-violation-default-filter.md) configuration module.
