@@ -437,4 +437,22 @@ class CalculatedTimeSeriesTest {
         e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonValueNull));
         assertEquals("Unexpected JSON token: VALUE_NULL", e0.getMessage());
     }
+
+    @Test
+    void toArrayTest() {
+        TimeSeriesIndex timeSeriesIndex = new RegularTimeSeriesIndex(Instant.ofEpochMilli(0), Instant.ofEpochMilli(5), Duration.ofMillis(1));
+        timeSeries.synchronize(timeSeriesIndex);
+
+        assertArrayEquals(new double[]{1d, 1d, 1d, 1d, 1d, 1d}, timeSeries.toArray(), 0d);
+
+        //split on CalculatedTimeSerie has no effect !
+        List<DoubleTimeSeries> chunks = timeSeries.split(3);
+
+        double[] ts1 = chunks.get(0).toArray();
+        double[] ts2 = chunks.get(1).toArray();
+
+        assertArrayEquals(new double[]{1d, 1d, 1d, 1d, 1d, 1d}, timeSeries.toArray(), 0d);
+        assertArrayEquals(new double[]{1d, 1d, 1d, 1d, 1d, 1d}, ts1, 0d);
+        assertArrayEquals(new double[]{1d, 1d, 1d, 1d, 1d, 1d}, ts2, 0d);
+    }
 }

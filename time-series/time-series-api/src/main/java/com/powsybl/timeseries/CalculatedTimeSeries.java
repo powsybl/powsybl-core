@@ -207,6 +207,12 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     @Override
+    public double[] toCompactArray() {
+        //TODO split on CalculatedTimeSerie has no effect !
+        return toArray();
+    }
+
+    @Override
     public TimeSeriesMetadata getMetadata() {
         return metadata;
     }

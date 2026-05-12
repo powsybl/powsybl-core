@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.Float.NaN;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -383,6 +384,68 @@ class StoredDoubleTimeSeriesTest {
         assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
         assertEquals(3, ts.getChunks().getFirst().getOffset());
         assertEquals(5, ts.getChunks().getFirst().getLength());
+    }
+
+    @Test
+    void toArrayTest() {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        List<DoubleTimeSeries> chunks = ts.split(4);
+
+        double[] tsValues = ts.toArray();
+        double[] ts1 = chunks.get(0).toArray();
+        double[] ts2 = chunks.get(1).toArray();
+
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, tsValues, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, ts1, 0d);
+        assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, ts2, 0d);
+
+        double originalAt3 = valueAtGlobalIndex(ts, 3);
+        assertEquals(4.0, originalAt3, 0d);
+
+        double splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        assertEquals(4.0, splitAt3, 0d);
+        assertEquals(originalAt3, splitAt3, 0d);
+    }
+
+    @Test
+    void toCompactArrayShouldKeepOriginalIndexeWithoutNaN() {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        List<DoubleTimeSeries> chunks = ts.split(4);
+
+        double[] tsValues = ts.toCompactArray();
+        double[] ts1 = chunks.get(0).toCompactArray();
+        double[] ts2 = chunks.get(1).toCompactArray();
+
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, tsValues, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, ts1, 0d);
+        assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, ts2, 0d);
+
+        double originalAt3 = valueAtGlobalIndex(ts, 3);
+        assertEquals(4.0, originalAt3, 0d);
+
+        double splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        assertEquals(4.0, splitAt3, 0d);
+        assertEquals(originalAt3, splitAt3, 0d);
+    }
+
+    private static double valueAtGlobalIndex(DoubleTimeSeries ts, int index) {
+        return ts.compressedStream()
+                .filter(p -> p.getIndex() == index)
+                .mapToDouble(DoublePoint::getValue)
+                .findFirst()
+                .orElse(NaN);
     }
 
 }
