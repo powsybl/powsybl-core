@@ -1,10 +1,12 @@
+# Goal
+
 This folder contains some work about how to better incorporate operator strategies optimizer in PowSyBl.
 
-The base idea is to work around the concept of "operator strategy".
+The base idea is to work around the existing concept of "operator strategy".
 An operator strategy is composed of a set of actions applied in a given context after some conditions.
 Those actions have a fixed set point and have been already optimized.
 
-We want to optimize the set point of the actions and which actions are applied.
+We want to optimize which actions are applied and to which set point.
 This optimization is already done by several algorithms, but they do not share a common interface.
 We want to standardize this interface.
 
@@ -12,9 +14,53 @@ We want to standardize this interface.
 
 - All names are not final, they are just placeholders and can be changed.
 - This is a work in progress, it has not been reviewed, validated or tested.
-- The units are the ones of PowSyBl (power in MW and times in seconds)
+- The physical units are the ones of PowSyBl (power in MW and time deltas in seconds).
+- Objects with optional values are stored with a null value. The corresponding getter will return an optional.
 
-# Design choices and examples
+# Examples
+
+In the next section, we will provide examples that justify our design choices.
+
+## Application delay
+
+The application delay allows simulating chronologically ordered events.
+
+For example, let's consider a PST range action that we want to optimize.  
+To avoid any threshold crossing in case of any contingency, the PST has been optimized to a given position.  
+This corresponds to a `ContingencyContextType.ALL`.
+
+Now, let's consider that a contingency might occur.
+We want to optimize the PST set point to avoid threshold crossing based on the time after the contingency.  
+In fact, thresholds vary depending on the time after the contingency.  
+We might also have a limited range of possible set points due to the physical constraints of the system.  
+Furthermore, some range actions might take some time to be applied.  
+This delay can be a response time or an operator application time, for example.
+
+# Known model limitations
+
+- It is a bit verbose to define arbitrary set points ranges (you need to define a big union).
+
+# List of work in progress
+
+## Model extension
+
+We might not want to put all implementations of all interfaces in powsybl-core.
+
+This means that we might need some ways to extend the model without modifying the core library.  
+This can be tricky because of serialization and deserialization.  
+To answer this need, we have not chosen between a modular design (jackson.databind.ObjectMapper) or an
+extension-based design.
+
+## TODO
+
+- (P1) Choose how to extend our model across multiple repositories?
+- (P1) Redispatching needs saturation and merit order. How to manage non-linearities?
+- (P2) How to add GLSK support?
+- (P3) Check which UML formats readthedocs supports (puml, mermaid ?
+- Finish writing doc
+- expliciter is Relative 
+
+# OLD TEXT
 
 ## Optimizable Remedial Action
 
@@ -27,7 +73,7 @@ This means that we need a new object to represent the operator strategy not yet 
 #### Optimizable PST Range Action
 
 For example, let's consider a PST range action.
-It will have a step value of 1 and a non-relative range of 0-33. 
+It will have a step value of 1 and a non-relative range of 0-33.
 If you want to optimize around the current position, you will need to set a relative range of -10 to 10 for example.
 
 Now, let's consider a set of coupled PSTs.
@@ -70,40 +116,39 @@ UnionRange(
 )
 ```
 
-
 ```mermaid
 ---
 title: Aligned PSTs
 ---
 classDiagram
-    RangeRemedialAction : +String id "my-psts-remedial-action"
-    RangeRemedialAction : +Condition condition Condition.TRUE_CONDITION
-    RangeRemedialAction : +Optional<Integer> applicationDelay Optional.empty
-    RangeRemedialAction : +Optional<ExtraTemporalContraints> extraTemporalContraints Optional.empty
+    RangeRemedialAction: +String id "my-psts-remedial-action"
+RangeRemedialAction: +Condition condition Condition.TRUE_CONDITION
+RangeRemedialAction: +Optional<Integer> applicationDelay Optional.empty
+RangeRemedialAction: +Optional<ExtraTemporalContraints> extraTemporalContraints Optional.empty
 
-    ContingencyContext : +ContingencyContextType contingencyContextType ContingencyContextType.ALL
-    
-    Step : +boolean isRelative false
-    Step : +double value 1.0
-    Step : +double offset 0.0
+ContingencyContext: +ContingencyContextType contingencyContextType ContingencyContextType.ALL
 
-    ContinuousRange : +boolean isRelative false
-    ContinuousRange : +Optional<Double> minimum Optional<0.0>
-    ContinuousRange : +Optional<Double> maximum Optional<33.0>
+Step: +boolean isRelative false
+Step: +double value 1.0
+Step: +double offset 0.0
 
-    PhaseTapChangerTapPositionRangeAction1 : +String id "pst1"
-    PhaseTapChangerTapPositionRangeAction1 : +boolean isIntegerValue true
-    PhaseTapChangerTapPositionRangeAction1 : +String pstId "pst1"
+ContinuousRange: +boolean isRelative false
+ContinuousRange: +Optional<Double> minimum Optional<0.0>
+ContinuousRange: +Optional<Double> maximum Optional<33.0>
 
-    PhaseTapChangerTapPositionRangeAction2 : +String id "pst2"
-    PhaseTapChangerTapPositionRangeAction2 : +boolean isIntegerValue true
-    PhaseTapChangerTapPositionRangeAction2 : +String pstId "pst2"
-    
-    RangeRemedialAction --* Step
-    RangeRemedialAction --* ContinuousRange
-    RangeRemedialAction --* ContingencyContext
-    RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction1
-    RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction2
+PhaseTapChangerTapPositionRangeAction1: +String id "pst1"
+PhaseTapChangerTapPositionRangeAction1: +boolean isIntegerValue true
+PhaseTapChangerTapPositionRangeAction1: +String pstId "pst1"
+
+PhaseTapChangerTapPositionRangeAction2: +String id "pst2"
+PhaseTapChangerTapPositionRangeAction2: +boolean isIntegerValue true
+PhaseTapChangerTapPositionRangeAction2: +String pstId "pst2"
+
+RangeRemedialAction --* Step
+RangeRemedialAction --* ContinuousRange
+RangeRemedialAction --* ContingencyContext
+RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction1
+RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction2
 ```
 
 #### Hvdc example
@@ -124,6 +169,7 @@ Let us assume that all generators have a sufficiently low generation value such 
 In that case, it is possible to compute the repartition key of each generator/load involved in the action.
 This key is used in the `rangeActionsAndKeys` attribute of the action.
 The individual `RangeAction`s are defined based on the type of the rotating machine:
+
 - for `Generator` -> `GeneratorRangeAction` (generatorId, integerValue=false)
 - for `Load` -> `LoadRangeAction` (loadId, integerValue=false)
 
@@ -142,17 +188,18 @@ We can use a range with step to only rely on specific volumes of CT.
 # Draft
 
 TODO:
+
 - write this page
 - add examples
 
-
 Notes en pagaille:
- - DMO/DP are equivalent to lead time.
- - Energy constraints require to define how to interpolate between timesteps.
+
+- DMO/DP are equivalent to lead time.
+- Energy constraints require to define how to interpolate between timesteps.
   This will be done by the implementations.
 
-
 Turn `RangeRemedialAction` into an interface? 3 useful use-cases:
+
 1. `SimpleRangeRemedialAction` : only one `RangeAction` involved
 2. `MultipleRangeRemedialAction` : several correlated `RangeAction`s involved, each having a distribution key
 3. `GlskRangeRemedialAction` : `RangeAction`s are associated with a GLSK (linear or not) -> might require a network
