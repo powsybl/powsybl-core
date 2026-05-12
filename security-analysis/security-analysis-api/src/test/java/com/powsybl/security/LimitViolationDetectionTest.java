@@ -126,6 +126,67 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     }
 
     @Test
+    void testSingleTempLimitIncrease() {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
+            List.of(LimitReduction.builder(LimitType.CURRENT, 1.1)
+                .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
+                .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
+                .build()
+            )
+        );
+        line.setSelectedOperationalLimitsGroup1(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        LimitViolationDetection.checkLimitViolation(
+            line, TwoSides.ONE, 1300., LimitType.CURRENT, Set.of(LoadingLimitType.TATL, LoadingLimitType.PATL), applier, violationsCollector::add
+        );
+        assertEquals(1, violationsCollector.size());
+        LimitViolation violation = violationsCollector.getFirst();
+        // the limit at 1200 is raised to 1320
+        assertEquals(LimitViolationUtils.PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(600, violation.getAcceptableDuration());
+        assertEquals(1100, violation.getLimit());
+        assertEquals(1, violation.getLimitReduction());
+    }
+
+    @Test
+    void testTempLimitIntervertedWithIncrease() {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
+            List.of(LimitReduction.builder(LimitType.CURRENT, 1.3)
+                .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
+                .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
+                .build()
+            )
+        );
+        line.setSelectedOperationalLimitsGroup1(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        //Check detection between the original at 1200 (now raised to 1560) and the IT1 at 1500
+        LimitViolationDetection.checkLimitViolation(
+            line, TwoSides.ONE, 1300., LimitType.CURRENT, Set.of(LoadingLimitType.TATL, LoadingLimitType.PATL), applier, violationsCollector::add
+        );
+        assertEquals(1, violationsCollector.size());
+        LimitViolation violation = violationsCollector.getFirst();
+        // the limit at 1200 is raised to 1560 above the limit at 1500
+        assertEquals(LimitViolationUtils.PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(60, violation.getAcceptableDuration());
+        assertEquals(1100, violation.getLimit());
+        assertEquals(1, violation.getLimitReduction());
+
+        violationsCollector.clear();
+        //Check above both limits
+        LimitViolationDetection.checkLimitViolation(
+            line, TwoSides.ONE, 1600., LimitType.CURRENT, Set.of(LoadingLimitType.TATL, LoadingLimitType.PATL), applier, violationsCollector::add
+        );
+        assertEquals(1, violationsCollector.size());
+        violation = violationsCollector.getFirst();
+        assertEquals("1'", violation.getLimitName());
+        assertEquals(0, violation.getAcceptableDuration());
+        assertEquals(1500, violation.getLimit());
+        assertEquals(1, violation.getLimitReduction());
+    }
+
+    @Test
     void testVoltageViolationDetectionWithDetailLimitViolationId() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         // Add a new bus "NHV20" which will be merged with "NHV2" in the bs view
