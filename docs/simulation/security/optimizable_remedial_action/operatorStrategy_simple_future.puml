@@ -1,7 +1,7 @@
 @startuml
 
 
-namespace existing {
+namespace existingPowSyBlModel {
 
 class OperatorStrategy {
   - String id
@@ -53,7 +53,7 @@ interface Action {
   + NetworkModification toModification()
 }
 
-'end namespace existing
+'end namespace existingPowSyBlModel
 }
 
 Condition <|-- AnyViolationInCountryCondition
@@ -63,7 +63,7 @@ class AnyViolationInCountryCondition {
  + Country country
  + Set<LimitViolationType> conditionFilters
 }
-note right: condition filter or branch threshold ?
+
 
 class OptimizableRemedialAction {
   - String id
@@ -93,12 +93,12 @@ RangeRemedialAction --* "*" RangeAction
 RangeRemedialAction --* "1" Range
 RangeRemedialAction --* "1" Step
 note right of RangeRemedialAction::step
- Lié à l'optimisation
+ Links to optimisation
 end note
 
 interface Range{
 }
-note bottom
+note right
   Pas évident comment le rendre user friendly ?
   Est-ce qu'il est mieux de laisser parcourir l'arbre des ranges par l'optim ?
   On peut simplifier ça en interdisant l'union et avec les exclusivités entre parades
@@ -140,8 +140,10 @@ interface RangeAction {
 }
 note bottom: Clone of "set point based actions" but without "set point"
 note left of RangeAction::isIntegerValue
- Lié à la physique
+ Links to physics
 end note
+
+namespace nonExhaustiveRangeActionExamples {
 
 PhaseTapChangerTapPositionRangeAction --|> RangeAction
 
@@ -150,6 +152,8 @@ class LoadRangeAction {
 }
 LoadRangeAction --|> RangeAction
 
+'end namespace nonExhaustiveRangeActionExamples
+}
 class ExclusiveOptimizableRemedialActionGroup {
   - List<String> exclusiveRemedialActionIds
   - int limitOfSelectedRemedialActions
