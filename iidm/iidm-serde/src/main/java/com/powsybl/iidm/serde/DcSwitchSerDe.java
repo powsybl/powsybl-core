@@ -49,17 +49,17 @@ public class DcSwitchSerDe extends AbstractSimpleIdentifiableSerDe<DcSwitch, DcS
         DcSwitchKind kind = context.getReader().readEnumAttribute("kind", DcSwitchKind.class);
         boolean open = context.getReader().readBooleanAttribute("open");
 
-        adder.setDcNode1(dcNode1Id)
-            .setDcNode2(dcNode2Id)
-            .setKind(kind)
-            .setOpen(open);
-
         // 0.0 Ohm as default value for IIDM version < 1.17
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> adder.setR(0.0));
+        double[] r = {0.0};
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
-            () -> adder.setR(context.getReader().readDoubleAttribute("r")));
+            () -> r[0] = context.getReader().readDoubleAttribute("r"));
 
-        return adder.add();
+        return adder.setDcNode1(dcNode1Id)
+                    .setDcNode2(dcNode2Id)
+                    .setKind(kind)
+                    .setOpen(open)
+                    .setR(r[0])
+                    .add();
     }
 
     @Override
