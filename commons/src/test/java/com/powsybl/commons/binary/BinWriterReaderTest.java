@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.channels.Channels;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -220,6 +221,37 @@ class BinWriterReaderTest {
         BinReader reader = roundTrip(writer -> { /* no content written */ });
         assertNull(reader.readContent());
         reader.close();
+    }
+
+    @Test
+    void streamAndChannelCtorsReadIdentically() {
+        // Same bytes parsed via the (deprecated) InputStream ctor and the ReadableByteChannel ctor → same result
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (BinWriter writer = new BinWriter(baos, MAGIC, ROOT_VERSION)) {
+            writer.setVersions(Collections.emptyMap());
+            writer.writeStartNode(null, "root");
+            writer.writeIntAttribute("a", 42);
+            writer.writeStringAttribute("s", "hello");
+            writer.writeDoubleAttribute("d", 3.14);
+            writer.writeEndNode();
+        } catch (Exception e) {
+            throw new PowsyblException(e);
+        }
+        byte[] payload = baos.toByteArray();
+
+        BinReader streamReader = new BinReader(new ByteArrayInputStream(payload), MAGIC);
+        streamReader.readHeader();
+        BinReader channelReader = new BinReader(Channels.newChannel(new ByteArrayInputStream(payload)), MAGIC);
+        channelReader.readHeader();
+
+        assertEquals(streamReader.readIntAttribute("a"), channelReader.readIntAttribute("a"));
+        assertEquals(streamReader.readStringAttribute("s"), channelReader.readStringAttribute("s"));
+        assertEquals(streamReader.readDoubleAttribute("d"), channelReader.readDoubleAttribute("d"), 0d);
+
+        streamReader.readEndNode();
+        channelReader.readEndNode();
+        streamReader.close();
+        channelReader.close();
     }
 
     @Test

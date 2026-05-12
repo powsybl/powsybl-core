@@ -47,6 +47,8 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.Pipe;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -319,7 +321,7 @@ public final class NetworkSerDe {
     }
 
     private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {
-        return new BinWriter(os, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
+        return new BinWriter(Channels.newChannel(os), BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
     }
 
     private static void writeRootElement(Network n, NetworkSerializerContext context) {
@@ -547,11 +549,20 @@ public final class NetworkSerDe {
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os, ExtensionsSupplier extensionsSupplier) {
         try (TreeDataWriter writer = createTreeDataWriter(n, options, os, extensionsSupplier)) {
-            NetworkSerializerContext context = createContext(n, options, writer);
-            writer.setVersions(getExtensionVersions(n, options, extensionsSupplier));
-            write(n, context, extensionsSupplier);
-            return context.getAnonymizer();
+            return write(n, options, writer, extensionsSupplier);
         }
+    }
+
+    /** Writes a network using a caller-provided {@link TreeDataWriter}. The caller owns its lifecycle. */
+    public static Anonymizer write(Network n, ExportOptions options, TreeDataWriter writer) {
+        return write(n, options, writer, DefaultExtensionsSupplier.getInstance());
+    }
+
+    public static Anonymizer write(Network n, ExportOptions options, TreeDataWriter writer, ExtensionsSupplier extensionsSupplier) {
+        NetworkSerializerContext context = createContext(n, options, writer);
+        writer.setVersions(getExtensionVersions(n, options, extensionsSupplier));
+        write(n, context, extensionsSupplier);
+        return context.getAnonymizer();
     }
 
     /**
@@ -634,7 +645,7 @@ public final class NetworkSerDe {
         return switch (config.getFormat()) {
             case XML -> createXmlReader(is, config, extensionsSupplier);
             case JSON -> createJsonReader(is, config, extensionsSupplier);
-            case BIN -> new BinReader(is, BIIDM_MAGIC_NUMBER);
+            case BIN -> new BinReader(Channels.newChannel(is), BIIDM_MAGIC_NUMBER);
         };
     }
 
@@ -1067,22 +1078,20 @@ public final class NetworkSerDe {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
-        PipedOutputStream pos = new PipedOutputStream();
-        try (InputStream is = new PipedInputStream(pos)) {
+        try {
+            Pipe pipe = Pipe.open();
+            Pipe.SinkChannel sink = pipe.sink();
+            Pipe.SourceChannel source = pipe.source();
             executor.execute(() -> {
-                try {
-                    write(network, new ExportOptions().setFormat(format), pos);
+                try (OutputStream os = Channels.newOutputStream(sink)) {
+                    write(network, new ExportOptions().setFormat(format), os);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
-                } finally {
-                    try {
-                        pos.close();
-                    } catch (IOException e) {
-                        LOGGER.error(e.toString(), e);
-                    }
                 }
             });
-            return read(is, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
+            try (InputStream is = Channels.newInputStream(source)) {
+                return read(is, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
