@@ -356,7 +356,7 @@ as a [TieLine](#tie-line), for both UCTE or CIM-CGMES formats.
 A boundary line has a `Boundary` object that emulates a terminal located at boundary side. A boundary line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
-are automatically computed using information from the terminal of the boundary line.  
+are automatically computed using information from the terminal of the boundary line.
 
 
 **Available extensions**
@@ -905,6 +905,7 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 |------------|----------------|-------------------------------------------------------------------|
 | $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
 | $Open$     |                | True if the switch is opened                                      |
+| $R$        | $\Omega$       | The series resistance, non-negative                               |
 
 (dc-ground)=
 #### DC Ground
@@ -1054,11 +1055,11 @@ DC equipment connectivity may be modified in two ways:
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
 - A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
-- DC Nodes linked by a closed DC switch are considered part of the same DC Bus.
+- DC Nodes linked by a closed DC switch are considered part of the same DC Bus when the resistance of the DcSwitch is zero, otherwise they are in distinct buses.
 - A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
 - DC Nodes without any connected DC Terminal do not form a DC Bus. A DC Bus is guaranteed to contain at least one connected DC Terminal.
 
-DC Buses linked together via DC Lines and/or AC/DC Converters are part of the same *DC Component* (also called *DC Island*).
+DC Buses linked together via DC Lines, AC/DC Converters and/or closed DC switches are part of the same *DC Component* (also called *DC Island*).
 *Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a
 *Connected Component*.
 
