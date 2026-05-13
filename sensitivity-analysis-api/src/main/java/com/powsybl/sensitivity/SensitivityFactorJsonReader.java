@@ -8,8 +8,13 @@
 package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.IdBasedBusRef;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyLevel;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -22,9 +27,11 @@ import java.util.Objects;
 public class SensitivityFactorJsonReader implements SensitivityFactorReader {
 
     private final Path jsonFile;
+    private final Network network;
 
-    public SensitivityFactorJsonReader(Path jsonFile) {
+    public SensitivityFactorJsonReader(Path jsonFile, Network network) {
         this.jsonFile = Objects.requireNonNull(jsonFile);
+        this.network = Objects.requireNonNull(network);
     }
 
     @Override
@@ -39,7 +46,13 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
                     if (token == JsonToken.FIELD_NAME) {
                         SensitivityFactor.parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
-                        handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                        String functionId = context.functionId;
+                        if (context.functionType == SensitivityFunctionType.BUS_VOLTAGE) {
+                            Bus bus = new IdBasedBusRef(context.functionId).resolve(network, TopologyLevel.BUS_BRANCH)
+                                    .orElseThrow(() -> new PowsyblException("The bus ref for '" + context.functionId + "' cannot be resolved."));
+                            functionId = bus.getId();
+                        }
+                        handler.onFactor(context.functionType, functionId, context.variableType, context.variableId, context.variableSet,
                                 ContingencyContext.create(context.contingencyId, context.contingencyContextType));
                         context.reset();
                     } else if (token == JsonToken.END_ARRAY) {
