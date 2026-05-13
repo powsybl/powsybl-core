@@ -387,25 +387,53 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    void toArrayTest() {
+    void toArrayWhenNoTimeSeriesData() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata);
+        // When
+        double[] timeSeriesArray = timeSeries.toArray();
+        // Then
+        assertArrayEquals(new double[]{NaN, NaN, NaN}, timeSeriesArray, 0d);
+    }
+
+    @Test
+    void toCompactArrayWhenNoTimeSeriesDataShouldReturnEmpty() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata);
+        // When
+        double[] timeSeriesCompactArray = timeSeries.toCompactArray();
+        // Then
+        assertArrayEquals(new double[]{}, timeSeriesCompactArray, 0d);
+    }
+
+    @Test
+    void toArrayWhenTimeSeriesData() {
+        // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
         UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
         UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
-        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
 
-        List<DoubleTimeSeries> chunks = ts.split(4);
+        // When
+        List<DoubleTimeSeries> chunks = timeSeries.split(4);
+        double[] timeSeriesArray = timeSeries.toArray();
+        double[] tsArray1 = chunks.get(0).toArray();
+        double[] tsArray2 = chunks.get(1).toArray();
 
-        double[] tsValues = ts.toArray();
-        double[] ts1 = chunks.get(0).toArray();
-        double[] ts2 = chunks.get(1).toArray();
+        // Then
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesArray, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, tsArray1, 0d);
+        assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, tsArray2, 0d);
 
-        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, tsValues, 0d);
-        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, ts1, 0d);
-        assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, ts2, 0d);
-
-        double originalAt3 = valueAtGlobalIndex(ts, 3);
+        double originalAt3 = valueAtGlobalIndex(timeSeries, 3);
         assertEquals(4.0, originalAt3, 0d);
 
         double splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
@@ -415,24 +443,26 @@ class StoredDoubleTimeSeriesTest {
 
     @Test
     void toCompactArrayShouldKeepOriginalIndexeWithoutNaN() {
+        // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
-        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
         UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
         UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
-        StoredDoubleTimeSeries ts = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
 
-        List<DoubleTimeSeries> chunks = ts.split(4);
+        // When
+        List<DoubleTimeSeries> chunks = timeSeries.split(4);
+        double[] timeSeriesCompactArray = timeSeries.toCompactArray();
+        double[] tsCompactArray1 = chunks.get(0).toCompactArray();
+        double[] tsCompactArray2 = chunks.get(1).toCompactArray();
 
-        double[] tsValues = ts.toCompactArray();
-        double[] ts1 = chunks.get(0).toCompactArray();
-        double[] ts2 = chunks.get(1).toCompactArray();
+        // Then
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesCompactArray, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, tsCompactArray1, 0d);
+        assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, tsCompactArray2, 0d);
 
-        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, tsValues, 0d);
-        assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, ts1, 0d);
-        assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, ts2, 0d);
-
-        double originalAt3 = valueAtGlobalIndex(ts, 3);
+        double originalAt3 = valueAtGlobalIndex(timeSeries, 3);
         assertEquals(4.0, originalAt3, 0d);
 
         double splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
