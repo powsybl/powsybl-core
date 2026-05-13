@@ -152,13 +152,6 @@ public interface Scalable {
     }
 
     /**
-     * create LoadScalable with id, min and max active power values, min and max reactive power values for scaling
-     */
-    static LoadScalable onLoad(String id, double minPValue, double maxPValue, double minQValue, double maxQValue) {
-        return new LoadScalable(id, minPValue, maxPValue, minQValue, maxQValue);
-    }
-
-    /**
      * create BoundaryLineScalable with id.
      * The generator scaling convention is used by default.
      */

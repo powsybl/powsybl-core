@@ -41,7 +41,7 @@ public class ScalingParameters {
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
     public static final Set<String> DEFAULT_IGNORED_INJECTION_IDS = Collections.emptySet();
     public static final double DEFAULT_LOAD_MIN_POWER_FACTOR = 0.0;
-    public static final double DEFAULT_LOAD_MIN_Q_RATE = -Double.MAX_VALUE;
+    public static final double DEFAULT_LOAD_MIN_Q_RATE = Double.MIN_VALUE;
     public static final double DEFAULT_LOAD_MAX_Q_RATE = Double.MAX_VALUE;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
@@ -200,8 +200,8 @@ public class ScalingParameters {
      * Returns the minimum power factor allowed when scaling load reactive power
      * <p>
      * When {@code isConstantPowerFactor()} is {@code true}, the reactive power is scaled
-     * proportionally to the active power. This parameter caps |Q| so that the resulting
-     * power factor (|P| / sqrt(P²+Q²)) never drops below this value.
+     * proportionally to the active power. This parameter caps Q so that the resulting
+     * power factor never drops below this value.
      * <p>
      * Must be in the range [0, 1]. A value of 0 (the default) disables this constraint.
      *
@@ -230,9 +230,9 @@ public class ScalingParameters {
      * Returns the minimum allowed ratio between the scaled reactive power and the initial reactive power
      * <p>
      * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
-     * Q_scaled &ge; Q_initial &times; loadMinQRate (for positive Q_initial, the direction reverses for negative)
+     * Q_scaled &ge; Q_initial &times; loadMinQRate
      * <p>
-     * Default is {@code -Double.MAX_VALUE} (no constraint)
+     * Default is {@code Double.MIN_VALUE} (no constraint)
      *
      * @return the minimum Q rate
      */
@@ -258,7 +258,7 @@ public class ScalingParameters {
      * Returns the maximum allowed ratio between the scaled reactive power and the initial reactive power
      * <p>
      * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
-     * Q_scaled &le; Q_initial &times; loadMaxQRate (for positive Q_initial, the direction reverses for negative).
+     * Q_scaled &le; Q_initial &times; loadMaxQRate
      * <p>
      * Default is {@code Double.MAX_VALUE} (no constraint)
      *
