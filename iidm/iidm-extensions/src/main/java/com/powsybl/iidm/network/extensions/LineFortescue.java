@@ -11,6 +11,9 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Line;
 
 /**
+ * A Fortescue line is modeled by its physical characteristics Rz, Xz, Rn and Zn (knowing that Rp and Rp, balanced
+ * characteristics, are present in the line attributes).
+ *
  * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -36,16 +39,4 @@ public interface LineFortescue extends Extension<Line> {
     double getXz();
 
     void setXz(double xz);
-
-    boolean isOpenPhaseA();
-
-    void setOpenPhaseA(boolean openPhaseA);
-
-    boolean isOpenPhaseB();
-
-    void setOpenPhaseB(boolean openPhaseB);
-
-    boolean isOpenPhaseC();
-
-    void setOpenPhaseC(boolean openPhaseC);
 }

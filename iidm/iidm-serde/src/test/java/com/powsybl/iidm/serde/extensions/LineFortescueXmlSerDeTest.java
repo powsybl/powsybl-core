@@ -34,8 +34,6 @@ class LineFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
                 .withRz(0.1d)
                 .withXz(2d)
-                .withOpenPhaseA(true)
-                .withOpenPhaseC(true)
                 .add();
 
         Network network2 = allFormatsRoundTripTest(network, "/fortescue/lineFortescueRef.xml");
@@ -47,8 +45,5 @@ class LineFortescueXmlSerDeTest extends AbstractIidmSerDeTest {
 
         assertEquals(fortescue.getRz(), fortescue2.getRz(), 0);
         assertEquals(fortescue.getXz(), fortescue2.getXz(), 0);
-        assertTrue(fortescue2.isOpenPhaseA());
-        assertFalse(fortescue2.isOpenPhaseB());
-        assertTrue(fortescue2.isOpenPhaseC());
     }
 }
