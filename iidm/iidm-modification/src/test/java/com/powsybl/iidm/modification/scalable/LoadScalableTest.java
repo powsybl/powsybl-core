@@ -279,6 +279,19 @@ class LoadScalableTest {
         );
     }
 
+    @Test
+    void testMinPowerFactorOne_clampedToZero() {
+        ScalingParameters params = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setLoadMinPowerFactor(1.0);
+        Load load = network.getLoad("l1");
+        load.setQ0(100.0);
+        ls1.scale(network, 20, params); // newP = 80
+        assertEquals(80.0, load.getP0(), 1e-3);
+        assertEquals(0.0, load.getQ0(), 1e-3);
+        assertFalse(Double.isNaN(load.getQ0()));
+    }
+
     @ParameterizedTest(name = "{0}")
     @MethodSource("minQRateCases")
     void testMinQRate(String name, double q0, double asked, ScalingConvention convention,
@@ -488,15 +501,24 @@ class LoadScalableTest {
     private static Stream<Arguments> signChangeScalingCases() {
         return Stream.of(
                 // cosphi_initial ~ 0.316 > 0.3 -> proportional scaling, no clamp
-                Arguments.of("positive P to negative P",              1000.0,  3000.0,  2000.0, 0.3, -1000.0, -3000.0),
-                Arguments.of("negative P to positive P",             -1000.0, -3000.0, -2000.0, 0.3,  1000.0,  3000.0),
-                Arguments.of("negative P grows in magnitude",        -1000.0, -3000.0,  1000.0, 0.3, -2000.0, -6000.0),
+                Arguments.of("positive P to negative P", 1000.0, 3000.0, 2000.0, 0.3, -1000.0, -3000.0),
+                Arguments.of("negative P to positive P", -1000.0, -3000.0, -2000.0, 0.3, 1000.0, 3000.0),
+                Arguments.of("negative P grows in magnitude", -1000.0, -3000.0, 1000.0, 0.3, -2000.0, -6000.0),
 
                 // cosphi_initial ~ 0.316 < 0.5 -> clamp; limitedQ = tan(acos(0.5)) * |newP| * signum(newQ)
                 // tan(acos(0.5)) = tan(60°) = sqrt(3) ~ 1.732
-                Arguments.of("positive P to negative P, clamped",    1000.0,  3000.0,  2000.0, 0.5, -1000.0, -Math.tan(Math.acos(0.5)) * 1000),
-                Arguments.of("negative P to positive P, clamped",   -1000.0, -3000.0, -2000.0, 0.5,  1000.0,  Math.tan(Math.acos(0.5)) * 1000),
-                Arguments.of("negative P grows in magnitude, clamped", -1000.0, -3000.0, 1000.0, 0.5, -2000.0, -Math.tan(Math.acos(0.5)) * 2000)
+                Arguments.of("positive P to negative P, clamped", 1000.0, 3000.0, 2000.0, 0.5, -1000.0, -Math.tan(Math.acos(0.5)) * 1000),
+                Arguments.of("negative P to positive P, clamped", -1000.0, -3000.0, -2000.0, 0.5, 1000.0, Math.tan(Math.acos(0.5)) * 1000),
+                Arguments.of("negative P grows in magnitude, clamped", -1000.0, -3000.0, 1000.0, 0.5, -2000.0, -Math.tan(Math.acos(0.5)) * 2000),
+
+                // Opposite-sign P and Q, P crosses zero
+                // P0=+1000, Q0=-3000 -> newP=-1000; newQ(proportional)=+3000 (Q flips sign)
+                Arguments.of("positive P to negative P, Q flips sign, no clamp", 1000.0, -3000.0, 2000.0, 0.3, -1000.0, 3000.0),
+                Arguments.of("positive P to negative P, Q flips sign, clamped", 1000.0, -3000.0, 2000.0, 0.5, -1000.0, Math.tan(Math.acos(0.5)) * 1000),
+
+                // P0=-1000, Q0=+3000 -> newP=+1000; newQ(proportional)=-3000 (Q flips sign)
+                Arguments.of("negative P to positive P, Q flips sign, no clamp", -1000.0, 3000.0, -2000.0, 0.3, 1000.0, -3000.0),
+                Arguments.of("negative P to positive P, Q flips sign, clamped", -1000.0, 3000.0, -2000.0, 0.5, 1000.0, -Math.tan(Math.acos(0.5)) * 1000)
         );
     }
 
