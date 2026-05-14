@@ -187,10 +187,13 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     private static double applyPowerFactorLimit(ScalingParameters parameters, Load l, double oldQ, double oldP, double newP) {
         double minPowerFactor = parameters.getLoadMinPowerFactor();
+        double newQ = newP * oldQ / oldP;
+        if (minPowerFactor == 0) {
+            return newQ;
+        }
         double cosphiInitial = Math.cos(Math.atan(oldQ / oldP));
-        double newQ = Math.tan(Math.acos(cosphiInitial)) * newP;
-        if (minPowerFactor != 0 && minPowerFactor > cosphiInitial) {
-            double limitedQ = Math.tan(Math.acos(minPowerFactor)) * newP;
+        if (minPowerFactor > cosphiInitial) {
+            double limitedQ = Math.tan(Math.acos(minPowerFactor)) * newP * Math.signum(oldQ);
             if (limitedQ != newQ) {
                 logReactivePowerLimitation(l, "minimum power factor", newQ, limitedQ, "minPowerFactor=" + minPowerFactor);
             }
@@ -204,7 +207,11 @@ public class LoadScalable extends AbstractInjectionScalable {
         double minRate = parameters.getLoadMinQRate();
         if (minRate != ScalingParameters.DEFAULT_LOAD_MIN_Q_RATE) {
             double minQ = oldQ * minRate;
-            limitedQ = Math.max(newQ, minQ);
+            if (oldQ >= 0) {
+                limitedQ = Math.max(limitedQ, minQ); // floor: prevent Q from dropping below minQ
+            } else {
+                limitedQ = Math.min(limitedQ, minQ); // floor: prevent Q from becoming less negative than minQ
+            }
             if (limitedQ != newQ) {
                 logReactivePowerLimitation(load, "minimum Q rate", newQ, limitedQ, "minQRate=" + minRate);
             }
@@ -212,7 +219,11 @@ public class LoadScalable extends AbstractInjectionScalable {
         double maxRate = parameters.getLoadMaxQRate();
         if (maxRate != ScalingParameters.DEFAULT_LOAD_MAX_Q_RATE) {
             double maxQ = oldQ * maxRate;
-            limitedQ = Math.min(newQ, maxQ);
+            if (oldQ >= 0) {
+                limitedQ = Math.min(limitedQ, maxQ); // ceiling: prevent Q from exceeding maxQ
+            } else {
+                limitedQ = Math.max(limitedQ, maxQ); // ceiling: prevent Q from becoming more negative than maxQ
+            }
             if (limitedQ != newQ) {
                 logReactivePowerLimitation(load, "maximum Q rate", newQ, limitedQ, "maxQRate=" + maxRate);
             }
