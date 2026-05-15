@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.List;
 
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
@@ -169,6 +170,39 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         assertTrue(compareOperationalLimitsGroups(t2w3.getOperationalLimitsGroups1(), t3w.getLeg3().getOperationalLimitsGroups()));
     }
 
+    @Test
+    void selectedOperationalLimitsGroupTest() {
+        modifyNetworkForFlowsNotWellOrientedTest(); // t2w2 not well oriented, t3w related leg is "3WT-Leg2-notWellOriented"
+        modifyNetworkForLoadingLimitsAtBothEndsTest();
+
+        t2w1.newOperationalLimitsGroup1("other group");
+        t2w1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "OperationalLimitsGroup-summer", "other group");
+        t2w1.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+        TwoWindingsTransformer actualT2w1 = network.getTwoWindingsTransformer("3WT-Leg1");
+        actualT2w1.newOperationalLimitsGroup1("other group");
+        actualT2w1.addSelectedOperationalLimitsGroups(TwoSides.ONE, "OperationalLimitsGroup-summer", "other group");
+        actualT2w1.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-summer-end2");
+
+        t2w2.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        t2w2.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+        network.getTwoWindingsTransformer("3WT-Leg2-notWellOriented").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        network.getTwoWindingsTransformer("3WT-Leg2-notWellOriented").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+
+        t2w3.setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        t2w3.setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+        network.getTwoWindingsTransformer("3WT-Leg3").setSelectedOperationalLimitsGroup1("OperationalLimitsGroup-winter");
+        network.getTwoWindingsTransformer("3WT-Leg3").setSelectedOperationalLimitsGroup2("OperationalLimitsGroup-winter-end2");
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-notWellOriented-3WT-Leg3");
+
+        assertEquals(List.of("OperationalLimitsGroup-summer", "other group"), t3w.getLeg1().getAllSelectedOperationalLimitsGroupIdsOrdered());
+        assertEquals("OperationalLimitsGroup-winter-end2", t3w.getLeg2().getSelectedOperationalLimitsGroupId().orElseThrow());
+        assertEquals("OperationalLimitsGroup-winter", t3w.getLeg3().getSelectedOperationalLimitsGroupId().orElseThrow());
+    }
+
     private void modifyNetworkForLoadingLimitsTest() {
         addLoadingLimitsEnd1(t2w1);
         addLoadingLimitsEnd1(t2w2);
@@ -176,6 +210,22 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w1.getId()));
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w2.getId()));
         addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w3.getId()));
+    }
+
+    private void modifyNetworkForLoadingLimitsAtBothEndsTest() {
+        addLoadingLimitsEnd1(t2w1);
+        addLoadingLimitsEnd1(t2w2);
+        addLoadingLimitsEnd1(t2w3);
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w2.getId()));
+        addLoadingLimitsEnd1(network.getTwoWindingsTransformer(t2w3.getId()));
+
+        addLoadingLimitsEnd2(t2w1);
+        addLoadingLimitsEnd2(t2w2);
+        addLoadingLimitsEnd2(t2w3);
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w1.getId()));
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w2.getId()));
+        addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w3.getId()));
     }
 
     @Test
@@ -276,7 +326,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w1.getId()));
         addLoadingLimitsEnd2(network.getTwoWindingsTransformer(t2w2.getId()));
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
@@ -303,7 +353,7 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     @Test
     void reportNodeExtensionsTest() throws IOException {
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
         lostTwoWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t2w1.getId());

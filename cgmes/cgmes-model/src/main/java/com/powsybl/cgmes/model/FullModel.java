@@ -7,32 +7,23 @@
  */
 package com.powsybl.cgmes.model;
 
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.function.Supplier;
+
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class FullModel {
-
-    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(() -> {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        return factory;
-    });
 
     private final String id;
 
@@ -144,7 +135,7 @@ public class FullModel {
         Objects.requireNonNull(reader);
         ParsingContext context = new ParsingContext();
         try {
-            XMLStreamReader xmlReader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(reader);
+            XMLStreamReader xmlReader = getXMLInputFactory().createXMLStreamReader(reader);
             try {
                 XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, elementName1 -> {
                     context.id = xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.ABOUT);
@@ -152,7 +143,7 @@ public class FullModel {
                 });
             } finally {
                 xmlReader.close();
-                XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+                XmlUtil.gcXmlInputFactory(getXMLInputFactory());
             }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

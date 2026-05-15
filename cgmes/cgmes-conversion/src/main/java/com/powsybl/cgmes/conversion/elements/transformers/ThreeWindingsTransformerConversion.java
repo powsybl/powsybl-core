@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -19,6 +20,9 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * ThreeWindingsTransformer Cgmes Conversion
@@ -85,8 +89,11 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         double starBusTheta = Math.toDegrees(twtData.getStarTheta());
 
         if (!Double.isNaN(starBusV) && !Double.isNaN(starBusTheta)) {
-            twt.setProperty("v", Double.toString(starBusV));
-            twt.setProperty("angle", Double.toString(starBusTheta));
+            twt.setProperty(CgmesNames.VOLTAGE, Double.toString(starBusV));
+            twt.setProperty(CgmesNames.ANGLE, Double.toString(starBusTheta));
+        } else {
+            twt.removeProperty(CgmesNames.VOLTAGE);
+            twt.removeProperty(CgmesNames.ANGLE);
         }
     }
 
@@ -99,22 +106,22 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
 
         LegAdder l1adder = txadder.newLeg1();
         setToIidmWindingAdder(convertedT3xModel.winding1, l1adder);
-        connect(l1adder, 1);
+        connectWithOnlyEq(l1adder, 1);
         l1adder.add();
 
         LegAdder l2adder = txadder.newLeg2();
         setToIidmWindingAdder(convertedT3xModel.winding2, l2adder);
-        connect(l2adder, 2);
+        connectWithOnlyEq(l2adder, 2);
         l2adder.add();
 
         LegAdder l3adder = txadder.newLeg3();
         setToIidmWindingAdder(convertedT3xModel.winding3, l3adder);
-        connect(l3adder, 3);
+        connectWithOnlyEq(l3adder, 3);
         l3adder.add();
 
         ThreeWindingsTransformer tx = txadder.add();
         addAliasesAndProperties(tx);
-        convertedTerminals(
+        convertedTerminalsWithOnlyEq(
             tx.getLeg1().getTerminal(),
             tx.getLeg2().getTerminal(),
             tx.getLeg3().getTerminal());
@@ -156,7 +163,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         }
 
         RatioTapChangerAdder rtca = newRatioTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
-        setToIidmRatioTapChanger(rtc, rtca);
+        if (rtca != null) {
+            setToIidmRatioTapChanger(rtc, rtca);
+        }
     }
 
     private static void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedWinding, ThreeWindingsTransformer tx, Context context) {
@@ -166,7 +175,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         }
 
         PhaseTapChangerAdder ptca = newPhaseTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
-        setToIidmPhaseTapChanger(ptc, ptca, context);
+        if (ptca != null) {
+            setToIidmPhaseTapChanger(ptc, ptca, context);
+        }
     }
 
     private static RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
@@ -202,5 +213,29 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         CgmesRegulatingControlPhase rcPtc3 = setContextRegulatingDataPhase(convertedT3xModel.winding3.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3, rcPtc3);
+    }
+
+    public static void update(ThreeWindingsTransformer t3w, Context context) {
+        updateTerminals(t3w, context, t3w.getLeg1().getTerminal(), t3w.getLeg2().getTerminal(), t3w.getLeg3().getTerminal());
+
+        boolean isAllowedToRegulatePtc1 = true;
+        t3w.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.ONE, context, isAllowedToRegulatePtc1));
+        boolean isAllowedToRegulateRtc1 = checkOnlyOneEnabled(isAllowedToRegulatePtc1, t3w.getLeg1().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.ONE, context, isAllowedToRegulateRtc1));
+
+        boolean isAllowedToRegulatePtc2 = checkOnlyOneEnabled(isAllowedToRegulateRtc1, t3w.getLeg1().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.TWO, context, isAllowedToRegulatePtc2));
+        boolean isAllowedToRegulateRtc2 = checkOnlyOneEnabled(isAllowedToRegulatePtc2, t3w.getLeg2().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.TWO, context, isAllowedToRegulateRtc2));
+
+        boolean isAllowedToRegulatePtc3 = checkOnlyOneEnabled(isAllowedToRegulateRtc2, t3w.getLeg2().getOptionalRatioTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> updatePhaseTapChanger(t3w, ptc, ThreeSides.THREE, context, isAllowedToRegulatePtc3));
+        boolean isAllowedToRegulateRtc3 = checkOnlyOneEnabled(isAllowedToRegulatePtc3, t3w.getLeg3().getOptionalPhaseTapChanger().map(com.powsybl.iidm.network.TapChanger::isRegulating).orElse(false));
+        t3w.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> updateRatioTapChanger(t3w, rtc, ThreeSides.THREE, context, isAllowedToRegulateRtc3));
+
+        Stream.of(t3w.getLeg1(), t3w.getLeg2(), t3w.getLeg3())
+                .map(FlowsLimitsHolder::getOperationalLimitsGroups)
+                .flatMap(Collection::stream)
+                .forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
     }
 }

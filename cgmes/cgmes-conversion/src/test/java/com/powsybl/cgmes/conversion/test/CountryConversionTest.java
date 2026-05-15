@@ -29,9 +29,11 @@ class CountryConversionTest {
                 .put("D4", Country.DE)
                 .put("D7", Country.DE)
                 .put("D8", Country.DE)
+                .put("DE-anything", Country.DE)
+                .put("DE-anythingElse", Country.DE)
                 .build()
                 .forEach((name, country) -> assertEquals(country,
-                        CountryConversion.fromRegionName(name).get()));
+                        CountryConversion.fromRegionName(name).orElseThrow()));
         assertEquals(Optional.empty(), CountryConversion.fromRegionName("XYZ"));
     }
 

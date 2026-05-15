@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
@@ -47,7 +46,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine")
                 .build();
         final NetworkModification modificationWithError1 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -60,7 +59,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine")
                 .build();
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -73,7 +72,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestNoVLInCommon")
                 .build();
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
@@ -88,16 +87,16 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");
         Line line2 = network.getLine("CJ_2");
-        line1.newActivePowerLimits2().setPermanentLimit(100.).beginTemporaryLimit().setName("limit1").setValue(500).setAcceptableDuration(1200).endTemporaryLimit().add();
-        line1.newApparentPowerLimits2().setPermanentLimit(200.).add();
-        line1.newCurrentLimits2().setPermanentLimit(100.).beginTemporaryLimit().setName("limit3").setValue(900).setAcceptableDuration(60).endTemporaryLimit().add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(100.).beginTemporaryLimit().setName("limit1").setValue(500).setAcceptableDuration(1200).endTemporaryLimit().add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(200.).add();
+        line1.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits().setPermanentLimit(100.).beginTemporaryLimit().setName("limit3").setValue(900).setAcceptableDuration(60).endTemporaryLimit().add();
 
-        line2.newActivePowerLimits1().setPermanentLimit(600.).beginTemporaryLimit().setName("limit4").setValue(1000).setAcceptableDuration(300).endTemporaryLimit().add();
-        line2.newApparentPowerLimits1().setPermanentLimit(800.).add();
-        line2.newCurrentLimits1().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newActivePowerLimits().setPermanentLimit(600.).beginTemporaryLimit().setName("limit4").setValue(1000).setAcceptableDuration(300).endTemporaryLimit().add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(800.).add();
+        line2.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLine")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -121,7 +120,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineNbBb")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -145,7 +144,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineBb")
                 .build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -243,5 +242,57 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
             .withLineId("NHV1_NHV2_1")
             .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification4.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void testDoesNotDeleteVoltageLevel() {
+        Network network = createNbNetworkWithBusbarSection();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build();
+
+        modification.apply(network);
+
+        VoltageLevel vl = network.getVoltageLevel(VLTEST);
+        assertNotNull(vl);
+        // check new breakers and disconnectors are created
+        Switch line1Breaker = vl.getNodeBreakerView().getSwitch("CJ_1_BREAKER");
+        assertNotNull(line1Breaker);
+        Switch line1Disconnector = vl.getNodeBreakerView().getSwitch("CJ_1_DISCONNECTOR_2_0");
+        assertNotNull(line1Disconnector);
+        Switch line2Breaker = vl.getNodeBreakerView().getSwitch("CJ_2_BREAKER");
+        assertNotNull(line2Breaker);
+        Switch line2Disconnector = vl.getNodeBreakerView().getSwitch("CJ_2_DISCONNECTOR_3_0");
+        assertNotNull(line2Disconnector);
+
+        // add one element
+        vl.newLoad().setId("loadId").setP0(100).setQ0(50).setNode(10).add();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportNodeTestRevertCreateLineOnLineKeepingTheVL")
+                .build();
+        modification = new RevertConnectVoltageLevelOnLineBuilder()
+                .withLine1Id("CJ_1")
+                .withLine2Id("CJ_2")
+                .withLineId("CJ_NEW")
+                .build();
+        modification.apply(network, true, reportNode);
+        // assert no VL is deleted
+        vl = network.getVoltageLevel(VLTEST);
+        assertNotNull(vl);
+        // assert all switches from removed lines are deleted
+        Switch line1BreakerAfterRevert = vl.getNodeBreakerView().getSwitch("CJ_1_BREAKER");
+        assertNull(line1BreakerAfterRevert);
+        Switch line1DisconnectorAfterRevert = vl.getNodeBreakerView().getSwitch("CJ_1_DISCONNECTOR_2_0");
+        assertNull(line1DisconnectorAfterRevert);
+        Switch line2BreakerAfterRevert = vl.getNodeBreakerView().getSwitch("CJ_2_BREAKER");
+        assertNull(line2BreakerAfterRevert);
+        Switch line2DisconnectorAfterRevert = vl.getNodeBreakerView().getSwitch("CJ_2_DISCONNECTOR_3_0");
+        assertNull(line2DisconnectorAfterRevert);
+        // assert load is still there
+        Load load = network.getLoad("loadId");
+        assertNotNull(load);
     }
 }

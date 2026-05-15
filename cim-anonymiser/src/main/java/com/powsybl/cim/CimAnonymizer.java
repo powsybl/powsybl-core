@@ -28,6 +28,9 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
+import static com.powsybl.commons.xml.XmlUtil.getXMLOutputFactory;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -64,8 +67,8 @@ public class CimAnonymizer {
     private static final QName RDF_ABOUT = new QName(RDF_URI, "about");
 
     private static final class XmlStaxContext {
-        private final XMLInputFactory inputFactory = XMLInputFactory.newFactory();
-        private final XMLOutputFactory outputFactory = XMLOutputFactory.newFactory();
+        private final XMLInputFactory inputFactory = getXMLInputFactory();
+        private final XMLOutputFactory outputFactory = getXMLOutputFactory();
         private final XMLEventFactory eventFactory = XMLEventFactory.newInstance();
     }
 

@@ -30,4 +30,5 @@ public final class ShortCircuitConstants {
     public static final boolean DEFAULT_WITH_NEUTRAL_POSITION = false;
     public static final InitialVoltageProfileMode DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE = InitialVoltageProfileMode.NOMINAL;
     public static final boolean DEFAULT_DETAILED_REPORT = true;
+    public static final String DEFAULT_DEBUG_DIR = null;
 }

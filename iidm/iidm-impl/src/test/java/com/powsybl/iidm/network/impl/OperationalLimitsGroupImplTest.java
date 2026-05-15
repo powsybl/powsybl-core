@@ -42,7 +42,7 @@ class OperationalLimitsGroupImplTest {
         });
         assertFalse(updated[0]);
         Bus bus = network.getVoltageLevel("VLHV1").getBusBreakerView().getBus("NHV1");
-        Validable validable = () -> "Custom validable";
+        Validable validable = () -> new DefaultMessageHeader("Custom validable", "fakeId");
         CustomOperationalLimitsGroup customGroup = new CustomOperationalLimitsGroup("group1", bus, null,
                 validable, "limits", "selected");
         customGroup.newCurrentLimits().setPermanentLimit(100.).add();
@@ -52,13 +52,13 @@ class OperationalLimitsGroupImplTest {
                 validable, "limits", "selected");
         customGroup.newCurrentLimits().setPermanentLimit(1000.).add();
         assertTrue(updated[0]);
-        assertEquals("Custom validable", customGroup.getValidable().getMessageHeader());
+        assertEquals("Custom validable 'fakeId': ", customGroup.getValidable().getMessageHeader().toString());
     }
 
     static class CustomOperationalLimitsGroup extends OperationalLimitsGroupImpl {
         public CustomOperationalLimitsGroup(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
-                                            Validable validable, String attributeName, String selectedGroupId) {
-            super(id, identifiable, listeners, validable, attributeName, selectedGroupId);
+                                            Validable validable, String attributeName, String selectedId) {
+            super(id, identifiable, listeners, validable, attributeName, selectedId::equals);
         }
     }
 }

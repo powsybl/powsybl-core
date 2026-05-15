@@ -35,6 +35,7 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import static com.powsybl.iidm.serde.ExtensionOptionsUtil.getAndCheckExtensionsToInclude;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -47,7 +48,9 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
 
-    public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
+    public static final String EXTENSIONS_INCLUDED_LIST = "iidm.import.xml.included.extensions";
+
+    public static final String EXTENSIONS_EXCLUDED_LIST = "iidm.import.xml.excluded.extensions";
 
     public static final String WITH_AUTOMATION_SYSTEMS = "iidm.import.xml.with-automation-systems";
 
@@ -59,8 +62,12 @@ public abstract class AbstractTreeDataImporter implements Importer {
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
             .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
-    private static final Parameter EXTENSIONS_LIST_PARAMETER
-            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null,
+    private static final Parameter EXTENSIONS_INCLUDED_LIST_PARAMETER
+            = new Parameter(EXTENSIONS_INCLUDED_LIST, ParameterType.STRING_LIST, "The list of extension file to be imported ", null,
+            EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
+
+    private static final Parameter EXTENSIONS_EXCLUDED_LIST_PARAMETER
+            = new Parameter(EXTENSIONS_EXCLUDED_LIST, ParameterType.STRING_LIST, "The list of extension files that will be excluded and not imported ", null,
             EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
 
     private static final Parameter WITH_AUTOMATION_SYSTEMS_PARAMETER = new Parameter(WITH_AUTOMATION_SYSTEMS, ParameterType.BOOLEAN,
@@ -88,7 +95,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
+        List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER,
+                EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER,
                 WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
                 MINIMAL_VALIDATION_LEVEL_PARAMETER);
         return ConfiguredParameter.load(parameters, getFormat(), defaultValueConfig);
@@ -172,12 +180,15 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     protected ImportOptions createImportOptions(Properties parameters) {
-        return new ImportOptions()
+        ImportOptions importOptions = new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setIncludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_INCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setExcludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
                 .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig))
                 .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig));
+        getAndCheckExtensionsToInclude(parameters, importOptions, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, false);
+        return importOptions;
     }
 }
 

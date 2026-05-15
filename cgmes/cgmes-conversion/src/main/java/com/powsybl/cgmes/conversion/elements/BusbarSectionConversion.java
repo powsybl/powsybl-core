@@ -43,7 +43,7 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
             bbsAdder.setNode(iidmNode());
             BusbarSection bbs = bbsAdder.add();
             addAliasesAndProperties(bbs);
-            convertedTerminals(bbs.getTerminal());
+            convertedTerminalsWithOnlyEq(bbs.getTerminal());
         } else {
             // If we are reading CGMES input data as bus/branch,
             // we just keep track of this busbar section terminal
@@ -54,7 +54,7 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
 
     private void addBusbarSectionTerminalToBus() {
         // Some isolated busbar sections may not have a topological node.
-        // This means that we can not determine the voltage level of the busbar section in bus/branch model,
+        // This means that we cannot determine the voltage level of the busbar section in bus/branch model,
         // So we need to check if the voltage level is present before trying to access the bus
         // voltageLevel() assumes voltage level is present, throws an exception if not available
         // voltageLevel(1) returns the optional voltage level of the first terminal

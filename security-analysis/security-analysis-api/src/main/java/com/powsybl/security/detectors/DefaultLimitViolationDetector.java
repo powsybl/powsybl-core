@@ -7,8 +7,13 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.contingency.violations.LoadingLimitType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.security.*;
+import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -24,12 +29,14 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
 
     private final double limitReductionValue;
     private final Set<LoadingLimitType> currentLimitTypes;
+    private final LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer;
 
     public DefaultLimitViolationDetector(double limitReductionValue, Collection<LoadingLimitType> currentLimitTypes) {
         if (limitReductionValue <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
         this.limitReductionValue = limitReductionValue;
+        limitsComputer = new SimpleLimitsComputer(limitReductionValue);
         this.currentLimitTypes = EnumSet.copyOf(Objects.requireNonNull(currentLimitTypes));
     }
 
@@ -79,13 +86,31 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     public void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), limitReductionValue, value, createViolationLocation(bus)));
+            consumer.accept(
+                LimitViolation.builder()
+                    .subject(vl.getId())
+                    .subjectName(vl.getOptionalName().orElse(null))
+                    .type(LimitViolationType.LOW_VOLTAGE)
+                    .limit(vl.getLowVoltageLimit())
+                    .reduction(limitReductionValue)
+                    .value(value)
+                    .violationLocation(createViolationLocation(bus))
+                    .build()
+            );
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), limitReductionValue, value, createViolationLocation(bus)));
+            consumer.accept(
+                LimitViolation.builder()
+                    .subject(vl.getId())
+                    .subjectName(vl.getOptionalName().orElse(null))
+                    .type(LimitViolationType.HIGH_VOLTAGE)
+                    .limit(vl.getHighVoltageLimit())
+                    .reduction(limitReductionValue)
+                    .value(value)
+                    .violationLocation(createViolationLocation(bus))
+                    .build()
+            );
         }
     }
 
@@ -97,36 +122,38 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         voltageAngleLimit.getLowLimit().ifPresent(
             lowLimit -> {
                 if (value <= lowLimit) {
-                    consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
-                            limitReductionValue, value));
+                    consumer.accept(
+                        LimitViolation.builder()
+                            .subject(voltageAngleLimit.getId())
+                            .type(LimitViolationType.LOW_VOLTAGE_ANGLE)
+                            .limit(lowLimit)
+                            .reduction(limitReductionValue)
+                            .value(value)
+                            .build()
+                    );
                 }
             });
         voltageAngleLimit.getHighLimit().ifPresent(
             highLimit -> {
                 if (value >= highLimit) {
-                    consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
-                            limitReductionValue, value));
+                    consumer.accept(
+                        LimitViolation.builder()
+                            .subject(voltageAngleLimit.getId())
+                            .type(LimitViolationType.HIGH_VOLTAGE_ANGLE)
+                            .limit(highLimit)
+                            .reduction(limitReductionValue)
+                            .value(value)
+                            .build()
+                    );
                 }
             });
     }
 
     public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        boolean noOverloadOnTemporary = true;
-        if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            noOverloadOnTemporary = checkTemporary(branch, side, limitReductionValue, value, consumer, type);
-        }
-        if (noOverloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            checkPermanentLimit(branch, side, limitReductionValue, value, consumer, type);
-        }
+        LimitViolationDetection.checkLimitViolation(branch, side, value, type, currentLimitTypes, limitsComputer, consumer);
     }
 
     public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        boolean noOverloadOnTemporary = true;
-        if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            noOverloadOnTemporary = checkTemporary(transformer, side, limitReductionValue, value, consumer, type);
-        }
-        if (noOverloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            checkPermanentLimit(transformer, side, limitReductionValue, value, consumer, type);
-        }
+        LimitViolationDetection.checkLimitViolation(transformer, side, value, type, currentLimitTypes, limitsComputer, consumer);
     }
 }

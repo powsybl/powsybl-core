@@ -17,6 +17,8 @@ short-circuit-parameters:
   with-neutral-position: true
   initial-voltage-profile-mode: CONFIGURED
   voltage-ranges: /path/to/voltage/ranges/file
+  detailedReport: true
+  debugDir: null
 ```
 
 Available parameters in the short-circuit API are stored in `com.powsybl.shortcircuit.ShortCircuitParameters`. They are all optional.
@@ -109,14 +111,14 @@ This property defines the voltage profile that should be used for the calculatio
 This property specifies a path to a JSON file containing the voltage ranges and associated coefficients to be used when `initial-voltage-profile-mode` is set to `CONFIGURED`.
 The JSON file must contain a list of voltage ranges and for each range, coefficients and/or voltages.
 Then, for each nominal voltage in the network that belongs to the range, the coefficient is applied to calculate the voltage to be used
-in the calculation. All the coefficients should be between 0.8 and 1.2. They are optional, and if they are missing for a range, 1 will be used. 
+in the calculation. All the coefficients should be between 0.8 and 1.2. They are optional, and if they are missing for a range, 1 will be used.
 The voltage attribute of the voltage range defines the nominal voltage of all the voltage levels in the network that are in the range.
 It is also optional, and if it is not defined, then the nominal voltage already in the network will be used.
 Here is an example of this JSON file:
 ````json
 [
     {
-      "minimumNominalVoltage": 350.0, 
+      "minimumNominalVoltage": 350.0,
       "maximumNominalVoltage": 400.0,
       "voltageRangeCoefficient": 1.1,
       "voltage": 380.0
@@ -135,6 +137,13 @@ Here is an example of this JSON file:
     }
 ]
 ````
+
+**detailedReport**
+This property indicates whether the computation should produce detailed reporting. If `true`, detailed reports are returned.
+If `false`, summarized reports are returned.
+
+**debugDir**
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 (shortcircuit-fault-parameters)=
 ## FaultParameters

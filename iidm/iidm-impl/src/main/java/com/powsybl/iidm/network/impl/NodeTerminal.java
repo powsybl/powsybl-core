@@ -8,10 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.TopologyPoint;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.math.graph.TraversalType;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -119,8 +116,8 @@ class NodeTerminal extends AbstractTerminal {
 
     };
 
-    NodeTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, int node) {
-        super(network, side);
+    NodeTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, TerminalNumber terminalNumber, int node) {
+        super(network, side, terminalNumber);
         this.node = node;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         v = new TDoubleArrayList(variantArraySize);

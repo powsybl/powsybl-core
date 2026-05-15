@@ -57,6 +57,61 @@ final class TopologyTestUtils {
         return network;
     }
 
+    /**
+     *   L(1)   G(2)
+     *   |       |
+     *   B1      B2
+     *   |       |
+     *   ----3----
+     *       |
+     *       D
+     *       |
+     *       BBS(0)
+     */
+    static Network createNetworkWithForkFeeder() {
+        Network network = Network.create("test", "test");
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS")
+                .setNode(0)
+                .add();
+        vl.newLoad()
+                .setId("LD")
+                .setNode(1)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl.newGenerator()
+                .setId("G")
+                .setNode(2)
+                .setTargetP(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(400)
+                .setMinP(0)
+                .setMaxP(10)
+                .add();
+        vl.getNodeBreakerView().newDisconnector()
+                .setId("D")
+                .setNode1(0)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(1)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B2")
+                .setNode1(2)
+                .setNode2(3)
+                .add();
+        return network;
+    }
+
     private TopologyTestUtils() {
     }
 }

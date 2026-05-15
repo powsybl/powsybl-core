@@ -7,6 +7,7 @@
  */
 package com.powsybl.powerfactory.db;
 
+import com.google.re2j.Pattern;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 
@@ -17,7 +18,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

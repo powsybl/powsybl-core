@@ -10,10 +10,9 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseLoad;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -23,10 +22,10 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
 
     LoadData() {
         super(PowerFlowRecordGroup.LOAD);
-        withFieldNames(V32, "i", STR_ID, "status", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE);
-        withFieldNames(V33, "i", STR_ID, "status", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE, "intrpt");
-        withFieldNames(V35, "ibus", "loadid", "stat", STR_AREA, STR_ZONE, STR_PL, STR_QL, STR_IP, STR_IQ, STR_YP, "yq", STR_OWNER, STR_SCALE, "intrpt", "dgenp", "dgenq", "dgenm", "loadtype");
-        withQuotedFields(STR_ID, "loadid", "loadtype");
+        withFieldNames(V32, PsseLoad.getFieldNames32());
+        withFieldNames(V33, PsseLoad.getFieldNames33());
+        withFieldNames(V35, PsseLoad.getFieldNames35());
+        withQuotedFields(PsseLoad.getFieldNamesString());
     }
 
     @Override

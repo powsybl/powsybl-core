@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
@@ -44,7 +44,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine1")
                 .build();
         final NetworkModification modificationWithError1 = new RevertCreateLineOnLineBuilder()
@@ -74,7 +74,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild1b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLine2")
                 .build();
         final NetworkModification modificationWithError2 = new RevertCreateLineOnLineBuilder()
@@ -104,7 +104,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild2b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedLineToBeDeleted")
                 .build();
         final NetworkModification modificationWithError3 = new RevertCreateLineOnLineBuilder()
@@ -134,7 +134,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.lineNotFound", reportNodeChild3b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode4 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestNoTeePointAndOrTappedVoltageLevel")
                 .build();
         final NetworkModification modificationWithError4 = new RevertCreateLineOnLineBuilder()
@@ -164,7 +164,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", reportNodeChild4b.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLine")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()
@@ -187,7 +187,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLineNBBB")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()
@@ -210,7 +210,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         modification.apply(network);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportNodeTestRevertCreateLineOnLineBB")
                 .build();
         modification = new RevertCreateLineOnLineBuilder()
@@ -337,5 +337,42 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
             .withMergedLineId("NHV1_NHV2_1")
             .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void testDoesNotDeleteVoltageLevel() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network);
+        VoltageLevel vlTest = network.getVoltageLevel(VLTEST);
+        assertNotNull(vlTest.getNodeBreakerView().getSwitch("CJ_BREAKER"));
+        assertNotNull(vlTest.getNodeBreakerView().getSwitch("CJ_DISCONNECTOR_2_0"));
+        VoltageLevel vl = network.getVoltageLevel("CJ_VL");
+        assertNotNull(vl);
+
+        // add one element
+        vl.newLoad().setId("loadId").setP0(100).setQ0(50).setNode(4).add();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportNodeTestRevertCreateLineOnLineKeepingTheVL")
+                .build();
+        modification = new RevertCreateLineOnLineBuilder()
+                .withLineToBeMerged1Id("CJ_1")
+                .withLineToBeMerged2Id("CJ_2")
+                .withLineToBeDeletedId("testLine")
+                .withMergedLineId("CJ_NEW")
+                .build();
+        modification.apply(network, true, reportNode);
+        vl = network.getVoltageLevel("CJ_VL");
+        assertNotNull(vl);
+        Load load = network.getLoad("loadId");
+        assertNotNull(load);
+        // check switches are removed
+        assertNull(vlTest.getNodeBreakerView().getSwitch("CJ_BREAKER"));
+        assertNull(vlTest.getNodeBreakerView().getSwitch("CJ_DISCONNECTOR_2_0"));
+        testReportNode(reportNode, "/reportNode/revert-create-line-on-line-keeping-vl.txt");
     }
 }

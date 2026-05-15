@@ -17,7 +17,6 @@ import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -27,10 +26,10 @@ class BusData extends AbstractRecordGroup<PsseBus> {
 
     BusData() {
         super(PowerFlowRecordGroup.BUS);
-        withFieldNames(V32, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA);
-        withFieldNames(V33, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo");
-        withFieldNames(V35, "ibus", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo");
-        withQuotedFields(STR_NAME);
+        withFieldNames(V32, PsseBus.getFieldNames32());
+        withFieldNames(V33, PsseBus.getFieldNames3335());
+        withFieldNames(V35, PsseBus.getFieldNames3335());
+        withQuotedFields(PsseBus.getFieldNamesString());
         withIO(LEGACY_TEXT, new BusLegacyText(this));
     }
 

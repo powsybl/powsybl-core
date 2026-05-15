@@ -7,10 +7,9 @@
  */
 package com.powsybl.iidm.criteria;
 
+import com.google.re2j.Pattern;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
-
-import java.util.regex.Pattern;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}

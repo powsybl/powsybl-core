@@ -31,7 +31,7 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         this.regulationMode = regulationMode;
         this.regulationValue = regulationValue;
         if (!regulating && this.regulationMode != null) {
-            throw new IllegalArgumentException("PhaseTapChangerRegulationAction can not have a regulation mode " +
+            throw new IllegalArgumentException("PhaseTapChangerRegulationAction cannot have a regulation mode " +
                     "if it is not regulating");
         }
     }

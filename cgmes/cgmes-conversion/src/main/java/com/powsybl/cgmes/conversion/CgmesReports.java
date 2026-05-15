@@ -17,6 +17,10 @@ import com.powsybl.iidm.network.Substation;
  */
 public final class CgmesReports {
 
+    private static final String EQUIPMENT_ID = "equipmentId";
+    private static final String ELEMENT_TYPE = "elementType";
+    private static final String CONVERTER_IDS = "converterIds";
+
     private CgmesReports() {
     }
 
@@ -46,14 +50,30 @@ public final class CgmesReports {
     public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.convertingElementType")
-                .withUntypedValue("elementType", elementType)
+                .withUntypedValue(ELEMENT_TYPE, elementType)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
-    public static ReportNode fixingDanglingLinesIssuesReport(ReportNode reportNode) {
+    public static ReportNode convertingDuringUpdateElementTypeReport(ReportNode reportNode, String elementType) {
         return reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.fixingDanglingLinesIssues")
+                .withMessageTemplate("core.cgmes.conversion.convertingDuringUpdateElementType")
+                .withUntypedValue(ELEMENT_TYPE, elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode updatingElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.updatingElementType")
+                .withUntypedValue(ELEMENT_TYPE, elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode fixingBoundaryLinesIssuesReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.fixingBoundaryLinesIssues")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -80,12 +100,28 @@ public final class CgmesReports {
                 .add();
     }
 
+    public static void noInputsForUpdateReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.cgmes.conversion.noInputsForUpdate")
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.badVoltageTargetValueRegulatingControl")
-                .withUntypedValue("equipmentId", eqId)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void badTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.badTargetValueRegulatingControl")
+                .withUntypedValue(EQUIPMENT_ID, eqId)
+                .withUntypedValue("targetValue", targetValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -93,29 +129,26 @@ public final class CgmesReports {
     public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.badTargetDeadbandRegulatingControl")
-                .withUntypedValue("equipmentId", eqId)
-                .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
+                .withUntypedValue(EQUIPMENT_ID, eqId)
+                .withUntypedValue("targetDeadband", targetDeadband)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 
-    public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
+    public static void badLoadTapChangingCapabilityTapChangerReport(ReportNode reportNode, String tapChangerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.badLoadTapChangingCapabilityTapChanger")
+                .withUntypedValue("tapChangerId", tapChangerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void invalidAngleVoltageReport(ReportNode reportNode, Bus bus, double v, double angle) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageBus")
                 .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
                 .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
                 .withUntypedValue("bus", bus.getId())
-                .withUntypedValue("nodeId", nodeId)
-                .withTypedValue("voltage", v, TypedValue.VOLTAGE)
-                .withTypedValue("angle", angle, TypedValue.ANGLE)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
-    }
-
-    public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
-        reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.invalidAngleVoltageNode")
-                .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -165,18 +198,18 @@ public final class CgmesReports {
                 .add();
     }
 
-    public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(ReportNode reportNode, String danglingLineId) {
+    public static void boundaryLineDisconnectedAtBoundaryHasBeenDisconnectedReport(ReportNode reportNode, String boundaryLineId) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.danglingLineDisconnectedAtBoundaryHasBeenDisconnected")
-                .withUntypedValue("danglingLineId", danglingLineId)
+                .withMessageTemplate("core.cgmes.conversion.boundaryLineDisconnectedAtBoundaryHasBeenDisconnected")
+                .withUntypedValue("boundaryLineId", boundaryLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 
-    public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(ReportNode reportNode, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
+    public static void multipleUnpairedBoundaryLinesAtSameBoundaryReport(ReportNode reportNode, String boundaryLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.cgmes.conversion.multipleUnpairedDanglingLinesAtSameBoundary")
-                .withUntypedValue("danglingLineId", danglingLineId)
+                .withMessageTemplate("core.cgmes.conversion.multipleUnpairedBoundaryLinesAtSameBoundary")
+                .withUntypedValue("boundaryLineId", boundaryLineId)
                 .withUntypedValue("p0", p0)
                 .withUntypedValue("q0", q0)
                 .withUntypedValue("p0Adjusted", p0Adjusted)
@@ -214,6 +247,65 @@ public final class CgmesReports {
                 .withTypedValue("cgmesId", description, TypedValue.URN_UUID)
                 .withTypedValue("cgmesSubset", identifier, TypedValue.CGMES_SUBSET)
                 .withTypedValue("networkId", networkId, TypedValue.ID)
+                .add();
+    }
+
+    public static void notVisitedDcEquipmentReport(ReportNode reportNode, String dcEquipmentId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.notVisitedDcEquipment")
+                .withUntypedValue("dcEquipmentId", dcEquipmentId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void dcLineSegmentNotInTwoDCIslandEndReport(ReportNode reportNode, String dcLineSegmentId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.dcLineSegmentNotInTwoDCIslandEnd")
+                .withUntypedValue("dcLineSegmentId", dcLineSegmentId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void inconsistentNumberOfConvertersReport(ReportNode reportNode, String converterIds) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.inconsistentNumberOfConverters")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void unsupportedDcConfigurationReport(ReportNode reportNode, String converterIds, String dcConfiguration) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.unsupportedDcConfiguration")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withUntypedValue("dcConfiguration", dcConfiguration)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void unexpectedPointToPointDcConfigurationReport(ReportNode reportNode, String converterIds, int numberOfLines, int numberOfConverterPairs) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.unexpectedPointToPointDcConfiguration")
+                .withUntypedValue(CONVERTER_IDS, converterIds)
+                .withUntypedValue("numberOfLines", numberOfLines)
+                .withUntypedValue("numberOfConverterPairs", numberOfConverterPairs)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void invalidPccTerminalReport(ReportNode reportNode, String converterId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.invalidPccTerminal")
+                .withUntypedValue("converterId", converterId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void phaseTapChangerCurrentLimiterModeNotSupportedReport(ReportNode reportNode, String phaseTapChangerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.cgmes.conversion.phaseTapChangerCurrentLimiterModeNotSupported")
+                .withUntypedValue("phaseTapChangerId", phaseTapChangerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 }

@@ -17,7 +17,7 @@ import com.powsybl.iidm.serde.util.IidmSerDeUtil;
  *
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractSimpleIdentifiableSerDe<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableSerDe<T, A, P> {
+abstract class AbstractSimpleIdentifiableSerDe<T extends Identifiable<T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableSerDe<T, A, P> {
 
     protected abstract T readRootElementAttributes(A adder, P parent, NetworkDeserializerContext context);
 

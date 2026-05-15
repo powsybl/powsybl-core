@@ -24,11 +24,15 @@ public interface TapChangerAdder<
     A extends TapChangerStepAdder<A, S>,
     B extends TapChangerStepAdder<B, R>,
     R extends TapChangerStepsReplacer<R, B>,
-    C extends TapChanger<C, D, R, B>> {
+    C extends TapChanger<C, D, R, B>> extends BasePropertiesHolder {
+
+    S setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
     S setLowTapPosition(int lowTapPosition);
 
     S setTapPosition(int tapPosition);
+
+    S setSolvedTapPosition(Integer solvedTapPosition);
 
     S setRegulating(boolean regulating);
 

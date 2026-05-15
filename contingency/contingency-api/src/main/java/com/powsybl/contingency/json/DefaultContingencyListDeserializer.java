@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.contingency.list.DefaultContingencyList;
+import com.powsybl.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -35,7 +35,7 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "version" -> parser.nextToken();
+                case "version" -> ctx.setAttribute("version", parser.nextTextValue());
                 case "name" -> name = parser.nextTextValue();
                 case "type" -> {
                     if (!parser.nextTextValue().equals(DefaultContingencyList.TYPE)) {

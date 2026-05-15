@@ -9,8 +9,11 @@
 package com.powsybl.iidm.network.components;
 
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DcBus;
 
+import java.util.Collections;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -22,7 +25,22 @@ public abstract class AbstractSynchronousComponent extends AbstractComponent {
     }
 
     @Override
+    public Iterable<DcBus> getDcBuses() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return Stream.empty();
+    }
+
+    @Override
     protected Predicate<Bus> getBusPredicate() {
         return bus -> bus.getSynchronousComponent() == AbstractSynchronousComponent.this;
+    }
+
+    @Override
+    protected Predicate<DcBus> getDcBusPredicate() {
+        return dcBus -> false;
     }
 }

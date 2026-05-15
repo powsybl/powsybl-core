@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2016-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -87,6 +87,7 @@ public final class SvcTestCaseFactory {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(390)
                 .add();
         network.newLine()
@@ -121,6 +122,7 @@ public final class SvcTestCaseFactory {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(390)
                 .setReactivePowerSetpoint(350)
                 .add();
@@ -175,7 +177,8 @@ public final class SvcTestCaseFactory {
     private static Network addVoltageControl(Network network) {
         addVoltageTarget(network);
         network.getStaticVarCompensator("SVC2")
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true);
         return network;
     }
 
@@ -194,7 +197,8 @@ public final class SvcTestCaseFactory {
     private static Network addReactiveControl(Network network) {
         addReactiveTarget(network);
         network.getStaticVarCompensator("SVC2")
-                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                .setRegulating(true);
         return network;
     }
 
@@ -211,7 +215,11 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addOffReactiveTarget(Network network) {
-        return addReactiveTarget(addOffNoTarget(network));
+        addReactiveTarget(addNotRegulating(network));
+        network.getStaticVarCompensator("SVC2")
+                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                .setRegulating(true);
+        return network;
     }
 
     public static Network createLocalOffVoltageTarget() {
@@ -227,7 +235,7 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addOffVoltageTarget(Network network) {
-        return addVoltageTarget(addOffNoTarget(network));
+        return addVoltageTarget(addNotRegulating(network));
     }
 
     public static Network createLocalOffBothTarget() {
@@ -243,20 +251,21 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addOffBothTarget(Network network) {
-        return addBothTarget(addOffNoTarget(network));
+        return addBothTarget(addNotRegulating(network));
     }
 
     public static Network createLocalOffNoTarget() {
-        return addOffNoTarget(create());
+        return addNotRegulating(create());
     }
 
     public static Network createRemoteOffNoTarget() {
-        return addOffNoTarget(createWithRemoteRegulatingTerminal());
+        return addNotRegulating(createWithRemoteRegulatingTerminal());
     }
 
-    private static Network addOffNoTarget(Network network) {
+    private static Network addNotRegulating(Network network) {
         network.getStaticVarCompensator("SVC2")
-                .setRegulationMode(StaticVarCompensator.RegulationMode.OFF)
+                .setRegulating(false)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(Double.NaN)
                 .setReactivePowerSetpoint(Double.NaN);
         return network;

@@ -7,10 +7,8 @@
  */
 package com.powsybl.iidm.modification.tripping;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.*;
 
 import java.util.Set;
 
@@ -19,9 +17,17 @@ import java.util.Set;
  */
 public interface Tripping extends NetworkModification {
 
-    void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals);
+    default void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
+    }
 
     default void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         traverse(network, switchesToOpen, terminalsToDisconnect, null);
+    }
+
+    default void traverseDc(Network network, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect, Set<DcTerminal> traversedDcTerminals) {
+    }
+
+    default void traverseDc(Network network, Set<DcSwitch> dcSwitchesToOpen, Set<DcTerminal> dcTerminalsToDisconnect) {
+        traverseDc(network, dcSwitchesToOpen, dcTerminalsToDisconnect, null);
     }
 }

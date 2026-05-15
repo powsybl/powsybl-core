@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
+import com.powsybl.iidm.serde.IidmVersion;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -52,8 +53,31 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
 
         // Use an extension version which serialization name is not the default
         ExportOptions exportOptions = new ExportOptions()
-                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy");
+                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy")
+                .setVersion(IidmVersion.V_1_13.toString("."));
         Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy.xml", exportOptions);
+
+        Battery bat2 = network2.getBattery("BAT");
+        assertNotNull(bat2);
+        BatteryShortCircuit batteryShortCircuits2 = bat2.getExtension(BatteryShortCircuit.class);
+        assertNotNull(batteryShortCircuits2);
+
+        assertEquals(batteryShortCircuit.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
+        assertEquals(batteryShortCircuit.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
+        assertTrue(Double.isNaN(batteryShortCircuits2.getDirectSubtransX())); // This attribute is not exported in V0.1
+    }
+
+    @Test
+    void roundTripTestV10Legacy2() throws IOException {
+        NetworkData networkData = getNetworkData();
+        Network network = networkData.network();
+        BatteryShortCircuit batteryShortCircuit = networkData.batteryShortCircuit();
+
+        // Use an extension version which serialization name is not the default
+        ExportOptions exportOptions = new ExportOptions()
+                .addExtensionVersion(BatteryShortCircuit.NAME, "1.0-legacy-2")
+                .setVersion(IidmVersion.V_1_13.toString("."));
+        Network network2 = allFormatsRoundTripTest(network, "/shortcircuits/batteryShortCircuitRef_V1_0-legacy-2.xml", exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

@@ -7,14 +7,16 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.util.SwitchPredicates;
+
 import java.util.function.Predicate;
 
 /**
- * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link DanglingLine}
+ * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link BoundaryLine}
  * <p>
  * The tie line is always oriented in the same way, <br>
- * The network model node of the danglingLine1 is always at end 1. <br>
- * The network model node of the danglingLine2 is always at end 2. <br>
+ * The network model node of the boundaryLine1 is always at end 1. <br>
+ * The network model node of the boundaryLine2 is always at end 2. <br>
  * </p>
  * As there is no injection at the boundary node, by applying kron reduction, this node can be
  * removed getting an equivalent branch between both network model nodes.
@@ -30,7 +32,7 @@ import java.util.function.Predicate;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -52,16 +54,16 @@ import java.util.function.Predicate;
  *             <td style="border: 1px solid black">Human-readable name of the tie line</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">DanglingLine1</td>
- *             <td style="border: 1px solid black">DanglingLine</td>
+ *             <td style="border: 1px solid black">BoundaryLine1</td>
+ *             <td style="border: 1px solid black">BoundaryLine</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The first half of the line characteristics</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">DanglingLine2</td>
- *             <td style="border: 1px solid black">DanglingLine</td>
+ *             <td style="border: 1px solid black">BoundaryLine2</td>
+ *             <td style="border: 1px solid black">BoundaryLine</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
@@ -71,8 +73,8 @@ import java.util.function.Predicate;
  * </table>
  *
  * <p>
- * A tie line is created by matching two {@link DanglingLine} with the same pairing key. <br>
- * We have two Dangling Lines within the Tie Line. <br>
+ * A tie line is created by matching two {@link BoundaryLine} with the same pairing key. <br>
+ * We have two Boundary Lines within the Tie Line. <br>
  * </p>
  *
  * <p>
@@ -100,24 +102,24 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     String getPairingKey();
 
     /**
-     * Get first dangling line of this tie line
+     * Get first boundary line of this tie line
      */
-    DanglingLine getDanglingLine1();
+    BoundaryLine getBoundaryLine1();
 
     /**
-     * Get second dangling line of this tie line
+     * Get second boundary line of this tie line
      */
-    DanglingLine getDanglingLine2();
+    BoundaryLine getBoundaryLine2();
 
     /**
-     * Get the dangling line of this tie line corresponding to the given side
+     * Get the boundary line of this tie line corresponding to the given side
      */
-    DanglingLine getDanglingLine(TwoSides side);
+    BoundaryLine getBoundaryLine(TwoSides side);
 
     /**
-     * Get the dangling line of this tie line corresponding to the given voltage level
+     * Get the boundary line of this tie line corresponding to the given voltage level
      */
-    DanglingLine getDanglingLine(String voltageLevelId);
+    BoundaryLine getBoundaryLine(String voltageLevelId);
 
     @Override
     default IdentifiableType getType() {
@@ -127,21 +129,67 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     void remove();
 
     /**
-     * Remove the tie line with an update of underlying dangling lines to reflect the tie line flows.
+     * Remove the tie line with an update of underlying boundary lines to reflect the tie line flows.
      */
-    void remove(boolean updateDanglingLines);
+    void remove(boolean updateBoundaryLines);
 
-    boolean connectDanglingLines();
+    /**
+     * Try to connect the two boundary lines of the tie line.<br/>
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connectBoundaryLines(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * @return true if the boundary lines have been connected by this operation, false otherwise (any of the two boundary lines could not be connected, or was already connected)
+     */
+    default boolean connectBoundaryLines() {
+        return connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
-    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate);
+    /**
+     * Try to connect the two boundary lines of the tie-line by operating the switches matching the <code>isSwitchOpenable</code>
+     * predicate.
+     * @param isTypeSwitchToOperate which switches to operate on to connect the boundary lines of the tie-line.
+     * @return true if both boundary lines were connected by this operation, false otherwise (any of the two boundary lines could not be connected, or was already connected)
+     */
+    default boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectBoundaryLines(isTypeSwitchToOperate, null);
+    }
 
-    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+    /**
+     * Try to connect the boundary line on <code>side</code> by operating the switches matching the predicate. No operation
+     * should be performed if the connection is not possible.
+     * @param isTypeSwitchToOperate the type of switch to operate
+     * @param side the side of the tie line to connect. If the side is null, both sides should be connected.
+     * @return true if the connection on <code>side</code> by this operation succeeded, false otherwise (the boundary line on the given side could not be connected, or was already connected)
+     */
+    boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
-    boolean disconnectDanglingLines();
+    /**
+     * Try to disconnect the two boundary lines of the tie line.<br/>
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnectBoundaryLines(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if the boundary lines have been disconnected by this operation, false otherwise (any of the two boundary lines could not be disconnected, or was already disconnected)
+     */
+    default boolean disconnectBoundaryLines() {
+        return disconnectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
-    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable);
+    /**
+     * Try to disconnect the two boundary lines of the tie line by operating the switches matching the <code>isSwitchOpenable</code>
+     * predicate.
+     * @param isSwitchOpenable which switches to operate on to disconnect the boundary lines of the tie-line.
+     * @return true if both boundary lines were disconnected by this operation, false otherwise (any of the two boundary lines could not be disconnected, or was already disconnected)
+     */
+    default boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable) {
+        return disconnectBoundaryLines(isSwitchOpenable, null);
+    }
 
-    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
+    /**
+     * Try to disconnect the boundary line on <code>side</code> by operating the switches matching the predicate. No operation
+     * should be performed if the disconnection is not possible.
+     * @param isSwitchOpenable the type of switch to operate
+     * @param side the side of the tie line to disconnect. If the side is null, both sides should be disconnected.
+     * @return true if the disconnection on <code>side</code> by this operation succeeded, false otherwise (the boundary line on the given side could not be disconnected, or was already disconnected)
+     */
+    boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     Network getNetwork();
 }

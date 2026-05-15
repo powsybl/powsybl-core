@@ -29,7 +29,7 @@ public class EqualityTemporaryDurationCriterionDeserializer extends StdDeseriali
         super(EqualityTemporaryDurationCriterion.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         Integer value;
     }
 

@@ -74,13 +74,13 @@ The following methods are available in the builder API to define the correspondi
 - `withDefaultTimestampPattern(pattern)`, for the pattern to be used in the tree when a timestamp is added,
 - `withLocale(locale)`, for specifying the `Locale` to use in the whole tree:
     - for message templates (see [i18n page](./i18n.md)),
-    - for timestamps. 
+    - for timestamps.
 
 The adder API is accessed from a call to `reportNode.newReportNode()`.
 It is used to add a child to an existing `ReportNode`.
 
 Both API share the following methods to provide the message template and the typed values:
-- `withMessageTemplate(key)`, the key referring to a template in a `ResourceBundle` (see [i18n page](./i18n.md)), 
+- `withMessageTemplate(key)`, the key referring to a template in a `ResourceBundle` (see [i18n page](./i18n.md)),
 - `withUntypedValue(key, value)`,
 - `withTypedValue(key, value, type)`,
 - `withTimestamp()`, adding a typed value with node creation timestamp,

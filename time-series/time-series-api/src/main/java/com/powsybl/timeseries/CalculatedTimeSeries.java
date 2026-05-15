@@ -9,9 +9,11 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -227,7 +229,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     @Override
-    public Stream<DoublePoint> stream() {
+    public Stream<DoublePoint> uncompressedStream() {
         List<DoubleTimeSeries> timeSeriesList = loadData();
         NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
@@ -238,7 +240,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     @Override
-    public Iterator<DoublePoint> iterator() {
+    public Iterator<DoublePoint> uncompressedIterator() {
         List<DoubleTimeSeries> timeSeriesList = loadData();
         NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
@@ -251,6 +253,18 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     @Override
     public List<DoubleTimeSeries> split(int newChunkSize) {
         int chunkCount = TimeSeries.computeChunkCount(index, newChunkSize);
+        return Collections.nCopies(chunkCount, this);
+    }
+
+    /**
+     * <p>Splits the current time series into multiple time series based on the specified ranges.</p>
+     *
+     * This method creates a list of time series where each time series in the list is a copy of the original time series.<br/>
+     * The number of copies is determined by the number of ranges provided.
+     */
+    @Override
+    public List<DoubleTimeSeries> splitByRanges(List<Range<@NonNull Integer>> ranges) {
+        int chunkCount = ranges.size();
         return Collections.nCopies(chunkCount, this);
     }
 

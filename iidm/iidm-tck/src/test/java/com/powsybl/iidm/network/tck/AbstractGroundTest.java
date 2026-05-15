@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 

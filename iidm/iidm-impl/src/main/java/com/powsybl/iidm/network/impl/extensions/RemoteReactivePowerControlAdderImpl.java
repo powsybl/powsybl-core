@@ -31,7 +31,7 @@ public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<
 
     @Override
     protected RemoteReactivePowerControl createExtension(final Generator extendable) {
-        if (Double.isNaN(targetQ)) {
+        if (Double.isNaN(targetQ) && enabled) {
             throw new PowsyblException("Reactive power target must be set");
         }
         if (regulatingTerminal == null) {

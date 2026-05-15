@@ -80,6 +80,10 @@ public class RegulatedTerminalControllers {
                     add(regulatedTerminals, vscConverterStation.getRegulatingTerminal());
                 }
             }
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> {
+                AcDcConverter<?> acDcConverter = (AcDcConverter<?>) identifiable;
+                add(regulatedTerminals, acDcConverter.getPccTerminal());
+            }
             default -> {
                 // do nothing
             }
@@ -140,21 +144,23 @@ public class RegulatedTerminalControllers {
     private static void replaceRegulatedTerminal(Identifiable<?> identifiable, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
         switch (identifiable.getType()) {
             case TWO_WINDINGS_TRANSFORMER ->
-                    replaceRegulatedTerminalTwoWindingsTransformer((TwoWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalTwoWindingsTransformer((TwoWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case THREE_WINDINGS_TRANSFORMER ->
-                    replaceRegulatedTerminalThreeWindingsTransformer((ThreeWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalThreeWindingsTransformer((ThreeWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case GENERATOR ->
-                    replaceRegulatedTerminalGenerator((Generator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalGenerator((Generator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case SHUNT_COMPENSATOR ->
-                    replaceRegulatedTerminalShuntCompensator((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalShuntCompensator((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case STATIC_VAR_COMPENSATOR ->
-                    replaceRegulatedTerminalStaticVarCompensator((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalStaticVarCompensator((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case HVDC_CONVERTER_STATION ->
-                    replaceRegulatedTerminalHvdcConverterStation((HvdcConverterStation<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalHvdcConverterStation((HvdcConverterStation<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case BATTERY ->
-                    replaceRegulatedTerminalBattery((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalBattery((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case VOLTAGE_LEVEL ->
-                    replaceRegulatedTerminalVoltageLevel((VoltageLevel) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageLevel((VoltageLevel) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+            case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
+                replaceRegulatedTerminalAcDcConverter((AcDcConverter<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             default -> throw new PowsyblException("unexpected identifiable type: " + identifiable.getType());
         }
     }
@@ -210,6 +216,12 @@ public class RegulatedTerminalControllers {
             if (vscConverterStation.getRegulatingTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(vscConverterStation.getRegulatingTerminal()))) {
                 vscConverterStation.setRegulatingTerminal(newRegulatedTerminal);
             }
+        }
+    }
+
+    private static void replaceRegulatedTerminalAcDcConverter(AcDcConverter<?> acDcConverter, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        if (acDcConverter.getPccTerminal() != null && currentRegulatedTerminal.equals(newTerminalRef(acDcConverter.getPccTerminal()))) {
+            acDcConverter.setPccTerminal(newRegulatedTerminal);
         }
     }
 

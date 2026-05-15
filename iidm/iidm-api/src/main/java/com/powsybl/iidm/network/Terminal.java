@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
@@ -151,33 +152,39 @@ public interface Terminal {
 
     /**
      * Try to connect the terminal.<br/>
-     * Depends on the working variant.
-     * @return true if terminal has been connected, false otherwise
+     * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * @return true if terminal has been connected, false otherwise (the terminal could not be connected, or it was already connected)
      * @see VariantManager
      */
-    boolean connect();
+    default boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
     /**
      * Try to connect the terminal.<br/>
      * Depends on the working variant.
-     * @return true if terminal has been connected, false otherwise
+     * @return true if terminal has been connected, false otherwise (the terminal could not be connected, or it was already connected)
      * @see VariantManager
      */
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
     /**
      * Disconnect the terminal.<br/>
-     * Depends on the working variant.
-     * @return true if terminal has been disconnected, false otherwise
+     * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if terminal has been disconnected, false otherwise (the terminal could not be disconnected, or it was already disconnected)
      * @see VariantManager
      */
-    boolean disconnect();
+    default boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
     /**
      * Disconnect the terminal.<br/>
      * Depends on the working variant.
      * @param isSwitchOpenable predicate telling if a switch is considered openable
-     * @return true if terminal has been disconnected, false otherwise
+     * @return true if terminal has been disconnected, false otherwise (the terminal could not be disconnected, or it was already disconnected)
      * @see VariantManager
      */
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
@@ -235,6 +242,8 @@ public interface Terminal {
             return Optional.of(branch.getSide(terminal).toThreeSides());
         } else if (c instanceof ThreeWindingsTransformer transformer) {
             return Optional.of(transformer.getSide(terminal));
+        } else if (c instanceof AcDcConverter<?>) {
+            return Optional.empty();
         } else {
             throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
         }
@@ -252,7 +261,27 @@ public interface Terminal {
         }
     }
 
+    static Optional<TerminalNumber> getConnectableTerminalNumber(Terminal terminal) {
+        Connectable<?> c = terminal.getConnectable();
+        if (c instanceof AcDcConverter<?> acDcConverter) {
+            return Optional.of(acDcConverter.getTerminalNumber(terminal));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    static Terminal getTerminal(Identifiable<?> identifiable, TerminalNumber terminalNumber) {
+        if (identifiable instanceof AcDcConverter<?> acDcConverter) {
+            return acDcConverter.getTerminal(terminalNumber)
+                .orElseThrow(() -> new PowsyblException("This AC/DC converter does not have a second AC Terminal: " + identifiable.getId()));
+        } else {
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
+        }
+    }
+
     ThreeSides getSide();
+
+    TerminalNumber getTerminalNumber();
 
     /**
      * Retrieves a list of objects that refer to the terminal.

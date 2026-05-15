@@ -1,5 +1,5 @@
 + Testing reportNode for a load creation in a network without extensions
+   No ConnectablePosition extension found on voltageLevel vl1. The ConnectablePosition extension is not created.
    New connectable newLoad of type LOAD created.
-   No ConnectablePosition extension found on voltageLevel vl1. The ConnectablePosition extension is not created for new feeder newLoad.
    No busbar section position extension found on bbs4, only one disconnector is created.
    New feeder bay associated to newLoad of type LOAD was created and connected to voltage level vl1 on busbar section bbs4 with a closed disconnector and on 0 parallel busbar sections with an open disconnector.

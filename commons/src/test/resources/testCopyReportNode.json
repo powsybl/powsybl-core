@@ -7,7 +7,7 @@
       "existingChild" : "Child message",
       "grandChild" : "Grandchild message",
       "otherRoot" : "Root message containing node to copy",
-      "rootWithValue" : "Root message with value ${value}"
+      "rootWithValue" : "Root english message with value ${value}"
     }
   },
   "reportRoot" : {

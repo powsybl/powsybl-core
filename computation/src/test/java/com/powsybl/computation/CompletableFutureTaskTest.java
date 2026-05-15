@@ -50,7 +50,7 @@ class CompletableFutureTaskTest {
     // It just keeps an exception to be able to assert it.
     // You should use it to launch only one command
     // because it has just one latch and one exception
-    private static class MyTestExecutorWithException implements Executor {
+    private static final class MyTestExecutorWithException implements Executor {
 
         Exception exception = null;
         CountDownLatch waitForDone;
@@ -82,7 +82,7 @@ class CompletableFutureTaskTest {
         assertSame(res, task.get());
     }
 
-    private static class MyException extends RuntimeException {
+    private static final class MyException extends RuntimeException {
     }
 
     @ParameterizedTest

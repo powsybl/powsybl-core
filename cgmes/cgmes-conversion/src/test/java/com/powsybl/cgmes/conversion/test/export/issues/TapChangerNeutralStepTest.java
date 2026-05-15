@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -27,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -54,7 +54,7 @@ class TapChangerNeutralStepTest extends AbstractSerDeTest {
         String tapChangerId = null;
         Integer neutralStep = null;
         try (InputStream is = Files.newInputStream(eq)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            XMLStreamReader reader = getXMLInputFactory().createXMLStreamReader(is);
             while (reader.hasNext()) {
                 int next = reader.next();
                 if (next == XMLStreamConstants.START_ELEMENT) {

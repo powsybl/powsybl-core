@@ -8,80 +8,58 @@
 package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.serde.IidmVersion;
-import com.powsybl.iidm.serde.NetworkDeserializerContext;
-import com.powsybl.iidm.serde.NetworkSerializerContext;
-
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVersionableNetworkExtensionSerDe<T, ActivePowerControl<T>> {
+public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVersionableNetworkExtensionSerDe<T, ActivePowerControl<T>, ActivePowerControlSerDe.Version> {
+
+    public enum Version implements SerDeVersion<Version> {
+        V_1_0("/xsd/activePowerControl_V1_0.xsd", "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0",
+                new VersionNumbers(1, 0), IidmVersion.V_1_0, IidmVersion.V_1_13),
+        V_1_1("/xsd/activePowerControl_V1_1.xsd", "http://www.powsybl.org/schema/iidm/ext/active_power_control/1_1",
+                new VersionNumbers(1, 1), IidmVersion.V_1_0, IidmVersion.V_1_13),
+        V_1_2("/xsd/activePowerControl_V1_2.xsd", "http://www.powsybl.org/schema/iidm/ext/active_power_control/1_2",
+                new VersionNumbers(1, 2), IidmVersion.V_1_13, null);
+
+        private final VersionInfo versionInfo;
+
+        Version(String xsdResourcePath, String namespaceUri, VersionNumbers versionNumbers, IidmVersion minIidmVersionIncluded, IidmVersion maxIidmVersionExcluded) {
+            this.versionInfo = new VersionInfo(xsdResourcePath, namespaceUri, "apc", versionNumbers,
+                    minIidmVersionIncluded, maxIidmVersionExcluded, ActivePowerControl.NAME);
+        }
+
+        @Override
+        public VersionInfo getVersionInfo() {
+            return versionInfo;
+        }
+    }
 
     public ActivePowerControlSerDe() {
-        super("activePowerControl", ActivePowerControl.class, "apc",
-                new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of("1.2"))
-                        .build(),
-                new ImmutableMap.Builder<String, String>()
-                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0")
-                        .put("1.1", "http://www.powsybl.org/schema/iidm/ext/active_power_control/1_1")
-                        .put("1.2", "http://www.powsybl.org/schema/iidm/ext/active_power_control/1_2")
-                        .build());
+        super(ActivePowerControl.NAME, ActivePowerControl.class, Version.values());
     }
 
     @Override
     public void write(ActivePowerControl<T> activePowerControl, SerializerContext context) {
         context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate());
         context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop());
-        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
-        String extVersionStr = networkContext.getExtensionVersion(ConnectablePosition.NAME)
-                .orElseGet(() -> getVersion(networkContext.getVersion()));
-        if ("1.1".compareTo(extVersionStr) <= 0) {
+        Version extVersion = getExtensionVersionToExport(context);
+        if (extVersion.isGreaterThan(Version.V_1_0)) {
             context.getWriter().writeDoubleAttribute("participationFactor", activePowerControl.getParticipationFactor());
         }
-        if ("1.2".compareTo(extVersionStr) <= 0) {
+        if (extVersion.isGreaterThan(Version.V_1_1)) {
             // not using writeOptionalDouble and trusting implementation convention: : writeDoubleAttribute does not write NaN values in human-readable formats JSON/XML
             context.getWriter().writeDoubleAttribute("maxTargetP", activePowerControl.getMaxTargetP().orElse(Double.NaN));
             context.getWriter().writeDoubleAttribute("minTargetP", activePowerControl.getMinTargetP().orElse(Double.NaN));
         }
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/activePowerControl_V1_2.xsd");
-    }
-
-    @Override
-    public List<InputStream> getXsdAsStreamList() {
-        return List.of(getClass().getResourceAsStream("/xsd/activePowerControl_V1_2.xsd"),
-                getClass().getResourceAsStream("/xsd/activePowerControl_V1_1.xsd"),
-                getClass().getResourceAsStream("/xsd/activePowerControl_V1_0.xsd"));
     }
 
     @Override
@@ -91,12 +69,11 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
         double participationFactor = Double.NaN;
         double minTargetP = Double.NaN;
         double maxTargetP = Double.NaN;
-        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
-        String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
-        if ("1.1".compareTo(extVersionStr) <= 0) {
+        Version extVersion = getExtensionVersionImported(context);
+        if (extVersion.isGreaterThan(Version.V_1_0)) {
             participationFactor = context.getReader().readDoubleAttribute("participationFactor");
         }
-        if ("1.2".compareTo(extVersionStr) <= 0) {
+        if (extVersion.isGreaterThan(Version.V_1_1)) {
             // not using readOptionalDouble and trusting implementation convention: readDoubleAttribute returns Nan if attribute is absent in human-readable formats (JSON / XML)
             maxTargetP = context.getReader().readDoubleAttribute("maxTargetP");
             minTargetP = context.getReader().readDoubleAttribute("minTargetP");

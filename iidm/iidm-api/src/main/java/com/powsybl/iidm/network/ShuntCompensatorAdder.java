@@ -15,7 +15,7 @@ package com.powsybl.iidm.network;
  * Example:
  *<pre>
  *    VoltageLevel vl = ...
- *    ShuntCompensator s = vl.newShunt()
+ *    ShuntCompensator s = vl.newShuntCompensator()
  *            .setId("s1")
  *            ...
  *        .add();
@@ -32,6 +32,8 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     ShuntCompensatorNonLinearModelAdder newNonLinearModel();
 
     ShuntCompensatorAdder setSectionCount(int sectionCount);
+
+    ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount);
 
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();

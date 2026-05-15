@@ -100,6 +100,26 @@ public class PropertyBag extends HashMap<String, String> {
         }
     }
 
+    public OptionalDouble asOptionalDouble(String property) {
+        if (!containsKey(property)) {
+            return OptionalDouble.empty();
+        }
+        try {
+            return OptionalDouble.of(Double.parseDouble(get(property)));
+        } catch (NumberFormatException x) {
+            LOG.warn("Invalid value for property {} : {}", property, get(property));
+            return OptionalDouble.of(Double.NaN);
+        }
+    }
+
+    public double asPositiveDouble(String property) {
+        double value = asDouble(property);
+        if (Double.isNaN(value) || value < 0.0) {
+            value = 0.0;
+        }
+        return value;
+    }
+
     public Optional<Boolean> asBoolean(String property) {
         if (!containsKey(property)) {
             return Optional.empty();

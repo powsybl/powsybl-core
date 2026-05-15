@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -25,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.function.Predicate;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElementCount;
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,7 +64,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         assertEquals(1, network.getBusView().getConnectedComponents().size());
 
         // Even if we close all switches in the re-imported network we will have two connected components
-        // In the exported network we can not get all equipment in a single connected component
+        // In the exported network we cannot get all equipment in a single connected component
         network1.getSwitchStream().forEach(sw -> sw.setOpen(false));
         assertEquals(2, network1.getBusView().getConnectedComponents().size());
         // If we force the reconnection of the line we have 3 connected components
@@ -245,7 +245,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setQ0(0.0)
                 .setLoadType(LoadType.AUXILIARY)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.STATION_SUPPLY);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.STATION_SUPPLY);
 
         // Create Substation 2 with a BusbarSection, a Load and a GroundDisconnector
         Substation substation2 = network.newSubstation()
@@ -287,14 +287,14 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setP0(1.0)
                 .setQ0(0.0)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.CONFORM_LOAD);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.CONFORM_LOAD);
         voltageLevel2.newLoad()
                 .setId("LD_NC")
                 .setNode(4)
                 .setP0(0.0)
                 .setQ0(1.0)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.NONCONFORM_LOAD);
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.NONCONFORM_LOAD);
         voltageLevel2.getNodeBreakerView().newSwitch()
                 .setId("GRDIS")
                 .setNode1(3)
@@ -303,7 +303,7 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
                 .setOpen(false)
                 .setRetained(true)
                 .add()
-                .setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "GroundDisconnector");
+                .setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "GroundDisconnector");
 
         // Create a Line between substations 1 and 2
         Line line = network.newLine()
@@ -332,10 +332,10 @@ class CgmesTopologyKindTest extends AbstractSerDeTest {
         voltageLevel2.getNodeBreakerView().newInternalConnection().setNode1(3).setNode2(4).add();
 
         // Add limits
-        line.newCurrentLimits1().setPermanentLimit(100).add();
-        line.newApparentPowerLimits1().setPermanentLimit(100).add();
-        line.newActivePowerLimits2().setPermanentLimit(100).add();
-        line.newApparentPowerLimits2().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newActivePowerLimits().setPermanentLimit(100).add();
+        line.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits().setPermanentLimit(100).add();
 
         return network;
     }

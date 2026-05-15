@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
@@ -27,6 +26,7 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
     private final String regulatedEquipmentId;
     private final Supplier<TerminalExt> localTerminalSupplier;
     private final boolean useVoltageRegulation;
+    private final int offRegulationMode; // mode to be used on regulating terminal removal
     private TerminalExt regulatingTerminal;
 
     // attributes depending on the variant
@@ -43,13 +43,30 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
             this.regulating.add(regulating);
         }
         this.regulationMode = null;
+        this.offRegulationMode = -1;
     }
 
-    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, boolean useVoltageRegulation) {
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, boolean regulating, int offRegulationMode, boolean useVoltageRegulation) {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
         this.useVoltageRegulation = useVoltageRegulation;
         this.regulationMode = new TIntArrayList(variantArraySize);
+        this.offRegulationMode = offRegulationMode;
+        for (int i = 0; i < variantArraySize; i++) {
+            this.regulationMode.add(regulationMode);
+        }
+        this.regulating = new TBooleanArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.regulating.add(regulating);
+        }
+    }
+
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, int offRegulationMode, boolean useVoltageRegulation) {
+        this.regulatedEquipmentId = regulatedEquipmentId;
+        this.localTerminalSupplier = localTerminalSupplier;
+        this.useVoltageRegulation = useVoltageRegulation;
+        this.regulationMode = new TIntArrayList(variantArraySize);
+        this.offRegulationMode = offRegulationMode;
         for (int i = 0; i < variantArraySize; i++) {
             this.regulationMode.add(regulationMode);
         }
@@ -161,7 +178,7 @@ class RegulatingPoint implements MultiVariantObject, Referrer<Terminal> {
             regulating.fill(0, regulating.size(), false);
         }
         if (regulationMode != null) {
-            regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
+            regulationMode.fill(0, regulationMode.size(), this.offRegulationMode);
         }
     }
 

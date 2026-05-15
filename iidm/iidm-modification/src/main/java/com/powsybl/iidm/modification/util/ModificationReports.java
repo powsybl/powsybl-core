@@ -13,6 +13,8 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
+
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
@@ -37,6 +39,9 @@ public final class ModificationReports {
     public static final String LINE_3_ID = "line3Id";
     public static final String ORIGINAL_LINE_ID = "originalLineId";
     public static final String CONNECTABLE_TYPE = "connectableType";
+    public static final String NETWORK_MODIFICATION = "networkModification";
+    public static final String NETWORK_NAME_OR_ID = "networkNameOrId";
+    public static final String BUSBAR_SECTION_ID = "busbarSectionId";
 
     // INFO
     public static void createdConnectable(ReportNode reportNode, Connectable<?> connectable) {
@@ -77,12 +82,12 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void removedTieLineAndAssociatedDanglingLines(ReportNode reportNode, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
+    public static void removedTieLineAndAssociatedBoundaryLines(ReportNode reportNode, String tieLineId, String boundaryLineId1, String boundaryLineId2, String pairingKey) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.removedTieLineAndAssociatedDanglingLines")
+                .withMessageTemplate("core.iidm.modification.removedTieLineAndAssociatedBoundaryLines")
                 .withTypedValue(TIE_LINE_ID, tieLineId, TypedValue.ID)
-                .withUntypedValue("danglingLineId1", danglingLineId1)
-                .withUntypedValue("danglingLineId2", danglingLineId2)
+                .withUntypedValue("boundaryLineId1", boundaryLineId1)
+                .withUntypedValue("boundaryLineId2", boundaryLineId2)
                 .withUntypedValue("pairingKey", pairingKey == null ? "" : pairingKey)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -327,6 +332,15 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void connectedFeedersReport(ReportNode reportNode, List<Connectable<?>> connectables, List<BusbarSection> busbarSections) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.connectedFeeders")
+            .withUntypedValue("connectableList", connectables.toString())
+            .withUntypedValue("busbarSectionList", busbarSections.toString())
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+    }
+
     // WARN
     public static void ignoredVscShunts(ReportNode reportNode, String shuntsIds, String converterStationId1, String converterStationId2) {
         reportNode.newReportNode()
@@ -357,11 +371,11 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void lostDanglingLineExtensions(ReportNode reportNode, String extensions, String danglingLineId) {
+    public static void lostBoundaryLineExtensions(ReportNode reportNode, String extensions, String boundaryLineId) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.modification.lostDanglingLineExtensions")
+                .withMessageTemplate("core.iidm.modification.lostBoundaryLineExtensions")
                 .withUntypedValue(EXTENSIONS, extensions)
-                .withUntypedValue("danglingLineId", danglingLineId)
+                .withUntypedValue("boundaryLineId", boundaryLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -383,45 +397,44 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder) {
+    public static void positionOrderAlreadyTakenReport(ReportNode reportNode, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionOrderAlreadyTaken")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId) {
+    public static void positionNoSlotLeftByAdjacentBbsReport(ReportNode reportNode, String bbsId, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionAdjacentBbsIncoherent")
                 .withUntypedValue(BBS_ID, bbsId)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder) {
+    public static void positionOrderTooLowReport(ReportNode reportNode, int minValue, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionOrderTooLow")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("minValue", minValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder) {
+    public static void positionOrderTooHighReport(ReportNode reportNode, int maxValue, int positionOrder, TypedValue severity) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.positionOrderTooHigh")
                 .withUntypedValue(POSITION_ORDER, positionOrder)
                 .withUntypedValue("maxValue", maxValue)
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .add();
     }
 
-    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel, String connectableId) {
+    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.noConnectablePositionExtensions")
                 .withUntypedValue("voltageLevel", voltageLevel.getId())
-                .withUntypedValue(CONNECTABLE_ID, connectableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -441,6 +454,14 @@ public final class ModificationReports {
                 .withUntypedValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
+    }
+
+    public static void notFoundBusbarSectionReport(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.notFoundBusbarSection")
+            .withUntypedValue(IDENTIFIABLE_ID, identifiableId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void notFoundShuntReport(ReportNode reportNode, String shuntId) {
@@ -496,6 +517,14 @@ public final class ModificationReports {
     public static void removeFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.removeBayBusbarSectionConnectable")
+                .withUntypedValue(CONNECTABLE_ID, busbarSectionConnectableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void moveFeederBayBusbarSectionReport(ReportNode reportNode, String busbarSectionConnectableId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.moveBayBusbarSectionConnectable")
                 .withUntypedValue(CONNECTABLE_ID, busbarSectionConnectableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
@@ -565,7 +594,7 @@ public final class ModificationReports {
     public static void notFoundBusbarSectionInVoltageLevelReport(ReportNode reportNode, String busbarSectionId, String voltageLevelId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.busbarSectionNotFound")
-                .withUntypedValue("busbarSectionId", busbarSectionId)
+                .withUntypedValue(BUSBAR_SECTION_ID, busbarSectionId)
                 .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
@@ -655,6 +684,13 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void wrongBusbarPosition(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.wrongBusbarPosition")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void undefinedFictitiousSubstationId(ReportNode reportNode) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.undefinedFictitiousSubstationId")
@@ -667,6 +703,35 @@ public final class ModificationReports {
                 .withMessageTemplate("core.iidm.modification.undefinedPercent")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .add();
+    }
+
+    public static void noBusbarSectionReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.noBusbarSection")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void wrongNetworkReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.wrongNetwork")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void busbarSectionNotInTheSameVoltageLevelReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.busbarSectionNotInTheSameVoltageLevel")
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void busBreakerVoltageLevelButConnectConnectables(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.busBreakerVoltageLevelButConnectConnectables")
+            .withTypedValue(VOLTAGE_LEVEL_ID, voltageLevelId, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     private ModificationReports() {
@@ -770,26 +835,29 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String name) {
+    public static void reportOnInconclusiveDryRun(ReportNode reportNode, String cause, String modificationName, String networkName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun-failure")
                 .withUntypedValue("dryRunError", cause)
-                .withUntypedValue("networkModification", name)
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
                 .add();
     }
 
-    public static void dryRunReportNode(ReportNode reportNode) {
+    public static void dryRunReportNode(ReportNode reportNode, String modificationName, String networkName) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun-success")
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
-    public static ReportNode reportOnDryRunStart(ReportNode reportNode, Network network, String name) {
+    public static ReportNode reportOnDryRunStart(ReportNode reportNode, String modificationName, String networkName) {
         return reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.modification.networkModificationDryRun")
-                .withUntypedValue("networkModification", name)
-                .withUntypedValue("networkNameOrId", network.getNameOrId())
+                .withUntypedValue(NETWORK_MODIFICATION, modificationName)
+                .withUntypedValue(NETWORK_NAME_OR_ID, networkName)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -824,4 +892,20 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void busbarSectionsWithoutPositionReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.modification.busbarSectionsWithoutPosition")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .add();
+    }
+
+    public static void failToInsertBusbarSectionReport(ReportNode reportNode, String voltageLevelId, String busbarSectionId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.modification.failToInsertBusbarSection")
+            .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+            .withUntypedValue(BUSBAR_SECTION_ID, busbarSectionId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
 }

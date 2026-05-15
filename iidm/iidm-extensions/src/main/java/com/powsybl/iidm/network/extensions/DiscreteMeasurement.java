@@ -113,7 +113,7 @@ public interface DiscreteMeasurement {
 
     /**
      * Set the discrete measured value and set the value type as STRING (see {@link ValueType}).
-     * Can not be null if the measurement is valid.
+     * Cannot be null if the measurement is valid.
      */
     DiscreteMeasurement setValue(String value);
 
@@ -129,13 +129,13 @@ public interface DiscreteMeasurement {
 
     /**
      * Get validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the discrete measured value can not be null.
+     * If it is true (i.e. the measurement is valid), the discrete measured value cannot be null.
      */
     boolean isValid();
 
     /**
      * Set validity status of the measurement.
-     * If it is true (i.e. the measurement is valid), the discrete measured value can not be null.
+     * If it is true (i.e. the measurement is valid), the discrete measured value cannot be null.
      */
     DiscreteMeasurement setValid(boolean valid);
 

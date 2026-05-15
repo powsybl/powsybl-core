@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -174,4 +175,12 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         }
     }
 
+    @Override
+    protected ZipArchiveDataSource createDataSourceForPolynomialRegexTest() throws IOException {
+        ZipArchiveDataSource zipSource = new ZipArchiveDataSource(testDir, "test");
+        try (OutputStream os = zipSource.newOutputStream("a".repeat(100) + "!", false)) {
+            os.write(new byte[1]);
+        }
+        return zipSource;
+    }
 }

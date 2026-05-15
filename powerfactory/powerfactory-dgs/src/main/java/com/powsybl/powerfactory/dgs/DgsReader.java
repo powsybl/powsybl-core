@@ -54,7 +54,7 @@ public class DgsReader {
         }
     }
 
-    private class DgsHandlerImpl implements DgsHandler {
+    private final class DgsHandlerImpl implements DgsHandler {
 
         private DataClass clazz;
 
@@ -82,6 +82,9 @@ public class DgsReader {
 
         @Override
         public void onStringValue(String attributeName, String value) {
+            if (DataAttribute.FOR_NAME.equals(attributeName) && value != null) {
+                index.addForeignKey(object, value);
+            }
             object.setStringAttributeValue(attributeName, value);
         }
 
@@ -96,8 +99,8 @@ public class DgsReader {
         }
 
         @Override
-        public void onObjectValue(String attributeName, long id) {
-            object.setObjectAttributeValue(attributeName, id);
+        public void onObjectValue(String attributeName, DataObjectRefKey otherObjectRefKey) {
+            object.setObjectAttributeValue(attributeName, otherObjectRefKey);
         }
 
         @Override
@@ -121,8 +124,8 @@ public class DgsReader {
         }
 
         @Override
-        public void onObjectVectorValue(String attributeName, List<Long> ids) {
-            object.setObjectVectorAttributeValue(attributeName, ids);
+        public void onObjectVectorValue(String attributeName, List<DataObjectRefKey> otherObjectRefKeys) {
+            object.setObjectVectorAttributeValue(attributeName, otherObjectRefKeys);
         }
     }
 

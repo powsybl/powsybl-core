@@ -19,8 +19,8 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.contingency.list.DefaultContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.DefaultContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +55,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/contingenciesWithSeveralElements.json"), fileSystem.getPath("/contingenciesWithSeveralElements.json"));
         Files.copy(getClass().getResourceAsStream("/contingenciesWith3wt.json"), fileSystem.getPath("/contingenciesWith3wt.json"));
         Files.copy(getClass().getResourceAsStream("/contingenciesWithDlAndTl.json"), fileSystem.getPath("/contingenciesWithDlAndTl.json"));
+        Files.copy(getClass().getResourceAsStream("/contingenciesWithDlAndTlV1_0.json"), fileSystem.getPath("/contingenciesWithDlAndTlV1_0.json"));
     }
 
     private static Contingency create() {
@@ -67,7 +68,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
                                              .addShuntCompensator("SC")
                                              .addStaticVarCompensator("SVC")
                                              .addBusbarSection("BBS1")
-                                             .addDanglingLine("DL1")
+                                             .addBoundaryLine("DL1")
                                              .addLine("LINE1")
                                              .addTwoWindingsTransformer("TRANSFO1")
                                              .addThreeWindingsTransformer("TWT3")
@@ -75,7 +76,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
                                              .addBus("BUS1")
                                              .build();
 
-        contingency.addExtension(DummyExtension.class, new DummyExtension());
+        contingency.addExtension(DummyContingencyExtension.class, new DummyContingencyExtension());
         return contingency;
     }
 
@@ -206,7 +207,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonListWithTieLineAndDanglingLineContingency() throws IOException {
+    void readJsonListWithTieLineAndBoundaryLineContingency() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/contingenciesWithDlAndTl.json"));
         assertEquals("list", contingencyList.getName());
@@ -215,11 +216,24 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         assertEquals(2, contingencies.size());
         assertEquals("contingency", contingencies.get(0).getId());
         assertEquals(1, contingencies.get(0).getElements().size());
-        assertEquals(DANGLING_LINE, contingencies.get(0).getElements().get(0).getType());
+        assertEquals(BOUNDARY_LINE, contingencies.get(0).getElements().get(0).getType());
         assertEquals("contingency2", contingencies.get(1).getId());
         assertEquals(1, contingencies.get(1).getElements().size());
         assertEquals(TIE_LINE, contingencies.get(1).getElements().get(0).getType());
         roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithDlAndTl.json");
+    }
+
+    @Test
+    void readJsonListWithDanglingLineContingencyForCompatibility() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/contingenciesWithDlAndTlV1_0.json"));
+        assertEquals("list", contingencyList.getName());
+
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals("contingency", contingencies.get(0).getId());
+        assertEquals(1, contingencies.get(0).getElements().size());
+        assertEquals(BOUNDARY_LINE, contingencies.get(0).getElements().get(0).getType());
     }
 
     @Test
@@ -249,7 +263,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithOptionalName.json");
     }
 
-    static class DummyExtension extends AbstractExtension<Contingency> {
+    static class DummyContingencyExtension extends AbstractExtension<Contingency> {
 
         private Contingency contingency;
 
@@ -265,27 +279,27 @@ class ContingencyJsonTest extends AbstractSerDeTest {
 
         @Override
         public String getName() {
-            return "dummy-extension";
+            return "dummy-contingency-extension";
         }
     }
 
     @AutoService(ExtensionJsonSerializer.class)
-    public static class DummySerializer implements ExtensionJsonSerializer<Contingency, DummyExtension> {
+    public static class DummyContingencySerializer implements ExtensionJsonSerializer<Contingency, DummyContingencyExtension> {
 
         @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(DummyContingencyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeEndObject();
         }
 
         @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return new DummyExtension();
+        public DummyContingencyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            return new DummyContingencyExtension();
         }
 
         @Override
         public String getExtensionName() {
-            return "dummy-extension";
+            return "dummy-contingency-extension";
         }
 
         @Override
@@ -294,8 +308,8 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         }
 
         @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
+        public Class<? super DummyContingencyExtension> getExtensionClass() {
+            return DummyContingencyExtension.class;
         }
     }
 

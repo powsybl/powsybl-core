@@ -38,16 +38,16 @@ class TripleStoreUpdateTest {
 
     @Test
     void testInsert() {
-        Expected expectedContents = new Expected().expect("nick", "SweetCaroline", "Wonderland");
+        Expected expectedContents = new Expected().expect("nick", "Wonderland", "SweetCaroline");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testUpdate(queries.get("insertNickName"));
-        Expected expectedContentsUpdated = new Expected().expect("nick", "BG", "SweetCaroline", "Wonderland");
+        Expected expectedContentsUpdated = new Expected().expect("nick", "Wonderland", "BG", "SweetCaroline");
         tester.testQuery(queries.get("selectNickName"), expectedContentsUpdated);
     }
 
     @Test
     void testDelete() {
-        Expected expectedContents = new Expected().expect("lastName", "Channing", "Liddell", "Marley");
+        Expected expectedContents = new Expected().expect("lastName", "Liddell", "Marley", "Channing");
         tester.testQuery(queries.get("selectLastName"), expectedContents);
         tester.testUpdate(queries.get("deleteLastName"));
         Expected expectedUpdated = new Expected().expect("lastName", "Liddell", "Marley");
@@ -70,7 +70,7 @@ class TripleStoreUpdateTest {
     @Test
     void testUpdateTwoGraphs() {
         Expected expectedContents = new Expected()
-            .expect("lastName", "Channing", "Liddell", "Marley")
+            .expect("lastName", "Liddell", "Marley", "Channing")
             .expect("person",
                 "http://example/alice",
                 "http://example/bob",
@@ -81,15 +81,15 @@ class TripleStoreUpdateTest {
                 "mailto:carol@example");
         tester.testQuery(queries.get("selectPersonTwoGraphs"), expectedContents);
         tester.testUpdate(queries.get("updatePersonTwoGraphs"));
-        Expected expectedUpdated = new Expected().expect("lastName", "Channing", "Marley", "Walker")
-            .expect("person",
-                "http://example/alice",
-                "http://example/bob",
-                "http://example/carol")
-            .expect("mbox",
-                "mailto:aliceNowWalker@example",
-                "mailto:bob@example",
-                "mailto:carol@example");
+        Expected expectedUpdated = new Expected().expect("lastName", "Marley", "Channing", "Walker")
+                .expect("person",
+                        "http://example/bob",
+                        "http://example/carol",
+                        "http://example/alice")
+                .expect("mbox",
+                        "mailto:bob@example",
+                        "mailto:carol@example",
+                        "mailto:aliceNowWalker@example");
         tester.testQuery(queries.get("selectPersonTwoGraphs"), expectedUpdated);
     }
 
@@ -98,18 +98,19 @@ class TripleStoreUpdateTest {
         tester.createCopies();
         // Check that an update operation applied to a copied triplestore
         // do not change the source triplestore, only the copy
-        Expected expectedContents = new Expected().expect("nick", "SweetCaroline", "Wonderland");
+        Expected expectedContents = new Expected().expect("nick", "Wonderland", "SweetCaroline");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testQueryOnCopies(queries.get("selectNickName"), expectedContents);
         tester.testUpdateOnCopies(queries.get("insertNickName"));
-        Expected expectedContentsUpdated = new Expected().expect("nick", "BG", "SweetCaroline", "Wonderland");
+        Expected expectedContentsUpdated = new Expected().expect("nick", "Wonderland", "BG", "SweetCaroline");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testQueryOnCopies(queries.get("selectNickName"), expectedContentsUpdated);
     }
 
     @Test
     void testMalformedQuery() {
-        assertThrows(TripleStoreException.class, () -> tester.testUpdate(queries.get("malformedQuery")));
+        String query = queries.get("malformedQuery");
+        assertThrows(TripleStoreException.class, () -> tester.testUpdate(query));
     }
 
     private static QueryCatalog queries;

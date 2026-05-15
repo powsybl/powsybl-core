@@ -7,12 +7,16 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.LegacyTextReader;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseRates;
 import com.powsybl.psse.model.pf.PsseTransformer;
-import com.powsybl.psse.model.pf.PsseTransformer.TransformerImpedances;
 import com.powsybl.psse.model.pf.PsseTransformerWinding;
-import com.univocity.parsers.annotations.Nested;
+import com.powsybl.psse.model.pf.internal.TransformerImpedances;
+import com.powsybl.psse.model.pf.internal.TransformerWindingRecord;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,12 +25,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
+import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_TRANSFORMER_IMPEDANCES;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_TRANSFORMER_WINDING;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TRANSFORMER;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -34,16 +39,12 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
-    private static final String[] FIELD_NAMES_T2W_IMPEDANCES_RECORD = {"r12", "x12", "sbase12"};
-    private static final String[] FIELD_NAMES_T2W_WINDING_RECORD = {STR_WINDV, "nomv"};
-    private static final String[] FIELD_NAMES_WINDING_32_33 = {STR_WINDV, "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
-
     TransformerData() {
         super(TRANSFORMER);
-        withFieldNames(V32, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4);
-        withFieldNames(V33, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP);
-        withFieldNames(V35, "ibus", "jbus", "kbus", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmet", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP, "zcod");
-        withQuotedFields(STR_CKT, STR_NAME, STR_VECGRP);
+        withFieldNames(V32, PsseTransformer.getFieldNames32());
+        withFieldNames(V33, PsseTransformer.getFieldNames33());
+        withFieldNames(V35, PsseTransformer.getFieldNames35());
+        withQuotedFields(PsseTransformer.getFieldNamesString());
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
 
@@ -86,12 +87,12 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             for (PsseTransformer transformer : transformerList) {
                 transformer.setImpedances(impedanceList.get(indexImpedance));
                 indexImpedance = indexImpedance + 1;
-                transformer.setWinding1(windingList.get(indexWinding).winding, windingList.get(indexWinding).windingRates);
+                transformer.setWinding1(windingList.get(indexWinding).getWinding(), windingList.get(indexWinding).getWindingRates());
                 indexWinding = indexWinding + 1;
-                transformer.setWinding2(windingList.get(indexWinding).winding, windingList.get(indexWinding).windingRates);
+                transformer.setWinding2(windingList.get(indexWinding).getWinding(), windingList.get(indexWinding).getWindingRates());
                 indexWinding = indexWinding + 1;
                 if (transformer.getK() != 0) {
-                    transformer.setWinding3(windingList.get(indexWinding).winding, windingList.get(indexWinding).windingRates);
+                    transformer.setWinding3(windingList.get(indexWinding).getWinding(), windingList.get(indexWinding).getWindingRates());
                     indexWinding = indexWinding + 1;
                 }
             }
@@ -127,12 +128,12 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             PsseTransformerImpedancesRecordData impedanceRecordData = new PsseTransformerImpedancesRecordData();
             String[] impedanceHeaders = context.getFieldNames(INTERNAL_TRANSFORMER_IMPEDANCES);
             List<String> impedanceRecordList = impedanceRecordData.buildRecords(impedanceList, impedanceHeaders, quotedFields, context);
-            List<String> impedanceRecordT2wList = impedanceRecordData.buildRecords(impedanceT2wList, FIELD_NAMES_T2W_IMPEDANCES_RECORD, quotedFields, context);
+            List<String> impedanceRecordT2wList = impedanceRecordData.buildRecords(impedanceT2wList, TransformerImpedances.getFieldNamesT2W(), quotedFields, context);
 
             PsseTransformerWindingRecordData windingRecordData = new PsseTransformerWindingRecordData();
             String[] windingHeaders = context.getFieldNames(INTERNAL_TRANSFORMER_WINDING);
             List<String> windingRecordList = windingRecordData.buildRecords(windingList, windingHeaders, quotedFields, context);
-            List<String> windingRecordT2wList = windingRecordData.buildRecords(windingT2wList, FIELD_NAMES_T2W_WINDING_RECORD, quotedFields, context);
+            List<String> windingRecordT2wList = windingRecordData.buildRecords(windingT2wList, PsseTransformerWinding.getFieldNamesT2W(), quotedFields, context);
 
             writeBegin(outputStream);
             int indexFirst = 0;
@@ -169,7 +170,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
         private static class PsseTransformerImpedancesRecordData extends AbstractRecordGroup<TransformerImpedances> {
             PsseTransformerImpedancesRecordData() {
-                super(INTERNAL_TRANSFORMER_IMPEDANCES, "r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31", "vmstar", "anstar");
+                super(INTERNAL_TRANSFORMER_IMPEDANCES, TransformerImpedances.getFieldNames());
             }
 
             @Override
@@ -181,9 +182,9 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         private static class PsseTransformerWindingRecordData extends AbstractRecordGroup<TransformerWindingRecord> {
             PsseTransformerWindingRecordData() {
                 super(INTERNAL_TRANSFORMER_WINDING);
-                withFieldNames(V32, FIELD_NAMES_WINDING_32_33);
-                withFieldNames(V33, FIELD_NAMES_WINDING_32_33);
-                withFieldNames(V35, STR_WINDV, "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa");
+                withFieldNames(V32, TransformerWindingRecord.getFieldNames3233());
+                withFieldNames(V33, TransformerWindingRecord.getFieldNames3233());
+                withFieldNames(V35, TransformerWindingRecord.getFieldNames35());
             }
 
             @Override
@@ -194,8 +195,8 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
         private TransformerWindingRecord getWindingRecord(PsseTransformerWinding winding, PsseRates windingRates) {
             TransformerWindingRecord windingRecord = new TransformerWindingRecord();
-            windingRecord.winding = winding;
-            windingRecord.windingRates = windingRates;
+            windingRecord.setWinding(winding);
+            windingRecord.setWindingRates(windingRates);
             return windingRecord;
         }
 
@@ -209,13 +210,5 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 return i != 0 && j != 0 && k != 0;
             }
         }
-    }
-
-    public static class TransformerWindingRecord {
-        @Nested()
-        private PsseTransformerWinding winding;
-
-        @Nested()
-        private PsseRates windingRates;
     }
 }

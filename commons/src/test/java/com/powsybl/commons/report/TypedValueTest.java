@@ -7,7 +7,7 @@
  */
 package com.powsybl.commons.report;
 
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -30,7 +30,7 @@ class TypedValueTest {
 
         // Check that is not possible to add a Severity attribute with a TypedValue that is not a severity
         ReportNode root = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("root")
                 .build();
         ReportNodeAdder r1 = root.newReportNode()

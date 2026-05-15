@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="113.66762mm"
+   height="33.028778mm"
+   viewBox="0 0 113.66762 33.028778"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="g23"
+     style="display:inline"
+     transform="translate(-8.1038293,-59.999999)">
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="rect1"
+       width="20"
+       height="20"
+       x="35"
+       y="65" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 34.999997,84.999996 20,-20.00001"
+       id="path1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 46.999997,79.749996 h 5.000001"
+       id="path2" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 46.999997,80.999996 h 5.000001"
+       id="path3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 38.535608,70.999996 c 0.821463,-2.1775 0.821463,-2.1775 1.232194,-2.1775 0.410732,0 0.821463,0.72584 1.232195,2.1775 0.410732,1.45167 0.821463,2.1775 1.232195,2.1775 0.410731,0 1.232195,-2.1775 1.232195,-2.1775"
+       id="path4" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="rect4"
+       width="20"
+       height="20"
+       x="79.937637"
+       y="65.062363" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 79.937636,85.062356 20.000007,-20"
+       id="path5" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 83.499998,70.749996 h 5"
+       id="path11" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 83.499998,71.999996 h 5"
+       id="path12" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       d="m 92.535613,78.999996 c 0.82146,-2.1775 0.82146,-2.1775 1.23219,-2.1775 0.41073,0 0.82147,0.72584 1.2322,2.1775 0.41073,1.45167 0.82146,2.1775 1.23219,2.1775 0.41073,0 1.2322,-2.1775 1.2322,-2.1775"
+       id="path13" />
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="ellipse13"
+       cx="23.605345"
+       cy="69.808632"
+       rx="2.3333337"
+       ry="2.3333328" />
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="ellipse14"
+       cx="26.605349"
+       cy="69.808632"
+       rx="2.3333337"
+       ry="2.3333328" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.156579;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 28.93868,69.808626 5.998848,-0.0412"
+       id="path14" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="M 54.937634,67.937626 H 79.937635"
+       id="path15" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.147104;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 15.77021,69.849116 5.414165,-0.0403"
+       id="path16" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 8.1043007,74.958076 7.6666663,-0.0409"
+       id="path16-48" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 15.771437,69.828976 -4.7e-4,10.0882"
+       id="path16-9" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16"
+       cx="59.937634"
+       cy="67.93763"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#005500;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-4"
+       cx="57.974056"
+       cy="67.93763"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#ff7f2a;stroke:#000000;stroke-width:0.0385059;stroke-dasharray:none"
+       id="ellipse17"
+       cx="41.937634"
+       cy="92.456543"
+       rx="0.50000072"
+       ry="0.51891029" />
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="ellipse18"
+       cx="109.93761"
+       cy="73.270897"
+       rx="2.3333337"
+       ry="2.3333328" />
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="ellipse19"
+       cx="111.77096"
+       cy="74.958061"
+       rx="2.3333337"
+       ry="2.3333328" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 114.10431,74.958076 7.66667,-0.0409"
+       id="path19" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.201441;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 99.938103,70.066716 9.999077,-0.0409"
+       id="path20" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.201441;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 109.93718,70.025816 4.6e-4,0.91181"
+       id="path20-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.201441;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 109.93764,79.289846 v 0.64778"
+       id="path20-3-0" />
+    <ellipse
+       style="fill:#ff7f2a;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse20"
+       cx="100.93764"
+       cy="69.901207"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="ellipse18-5"
+       cx="109.77096"
+       cy="76.958061"
+       rx="2.3333337"
+       ry="2.3333328" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.199765;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 100.10431,79.958076 9.83333,-0.0409"
+       id="path20-5" />
+    <ellipse
+       style="fill:#ff7f2a;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse20-3"
+       cx="100.93764"
+       cy="79.974052"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#ff7f2a;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse20-6"
+       cx="33.875744"
+       cy="69.741623"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="ellipse13-0"
+       cx="23.604868"
+       cy="79.958572"
+       rx="2.3333337"
+       ry="2.3333328" />
+    <ellipse
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none"
+       id="ellipse14-7"
+       cx="26.604872"
+       cy="79.958572"
+       rx="2.3333337"
+       ry="2.3333328" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.156043;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 28.937634,79.896676 6,-0.0409"
+       id="path14-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.147176;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 15.85998,79.937676 5.323943,-0.041"
+       id="path16-4" />
+    <ellipse
+       style="fill:#ff7f2a;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse20-6-9"
+       cx="33.875271"
+       cy="79.829811"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <text
+       xml:space="preserve"
+       style="font-size:2.59714px;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.144286;stroke-dasharray:none;stroke-dashoffset:0"
+       x="42.572727"
+       y="92.849586"
+       id="text20"
+       transform="scale(1.0571717,0.94592014)"><tspan
+         id="tspan20"
+         style="text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.144286"
+         x="42.572727"
+         y="92.849586">Converter 1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.58355px;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.087975;stroke-dasharray:none;stroke-dashoffset:0"
+       x="67.898979"
+       y="67.153816"
+       id="text20-9"><tspan
+         id="tspan20-4"
+         style="text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.087975"
+         x="67.898979"
+         y="67.153816">DC Line</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.3978px;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.0776556;stroke-dasharray:none;stroke-dashoffset:0"
+       x="67.466805"
+       y="80.295982"
+       id="text20-9-1"><tspan
+         id="tspan20-4-2"
+         style="text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.0776556"
+         x="67.466805"
+         y="80.295982">DC Line</tspan><tspan
+         style="text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.0776556"
+         x="67.466805"
+         y="82.043236"
+         id="tspan24">(metallic return)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.68397px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:0.0935538;stroke-dasharray:none;stroke-dashoffset:0"
+       x="43.437634"
+       y="92.938332"
+       id="text21"><tspan
+         id="tspan21"
+         style="text-align:start;text-anchor:start;fill:#000000;stroke-width:0.0935538"
+         x="43.437634"
+         y="92.938332">Converter AC Terminal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.68397px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:0.0935538;stroke-dasharray:none;stroke-dashoffset:0"
+       x="68.03138"
+       y="92.938332"
+       id="text21-6"><tspan
+         id="tspan21-1"
+         style="text-align:start;text-anchor:start;fill:#000000;stroke-width:0.0935538"
+         x="68.03138"
+         y="92.938332">DC Node</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:1.68397px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;stroke:#000000;stroke-width:0.0935538;stroke-dasharray:none;stroke-dashoffset:0"
+       x="80.277695"
+       y="92.938332"
+       id="text21-6-8"><tspan
+         id="tspan21-1-3"
+         style="text-align:start;text-anchor:start;fill:#000000;stroke-width:0.0935538"
+         x="80.277695"
+         y="92.938332">DC Terminal</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:2.65736px;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#000000;stroke:#000000;stroke-width:0.147631;stroke-dasharray:none;stroke-dashoffset:0"
+       x="87.702049"
+       y="90.195389"
+       id="text23"
+       transform="scale(1.0256273,0.97501304)"><tspan
+         id="tspan23"
+         style="text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.147631"
+         x="87.702049"
+         y="90.195389">Converter 2</tspan></text>
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-1"
+       cx="55.937634"
+       cy="67.974052"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-14"
+       cx="78.937637"
+       cy="67.93763"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#005500;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-4-6"
+       cx="76.97406"
+       cy="67.93763"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-1-0"
+       cx="74.937637"
+       cy="67.974052"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="M 54.974056,82.901196 H 79.974057"
+       id="path15-7" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 57.937635,85.937626 v 1.48966"
+       id="path15-7-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 56.937723,87.477816 2,0.002"
+       id="path15-7-8-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 57.177667,87.859276 1.519935,-0.004"
+       id="path15-7-8-8-7" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.176389;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 57.399,88.208956 c 0.527306,6.7e-4 0.688354,0.001 1.028017,0.002"
+       id="path15-7-8-8-7-6" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-7"
+       cx="59.974056"
+       cy="82.901207"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-7-0"
+       cx="57.974056"
+       cy="84.93763"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.036421;stroke-dasharray:none"
+       id="ellipse16-7-0-8"
+       cx="78.895363"
+       cy="92.528778"
+       rx="0.48178983"
+       ry="0.48178792" />
+    <ellipse
+       style="fill:#005500;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-4-3"
+       cx="58.010479"
+       cy="82.901207"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-1-3"
+       cx="55.974056"
+       cy="82.93763"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-14-5"
+       cx="78.97406"
+       cy="82.901207"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#005500;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-4-6-9"
+       cx="77.010483"
+       cy="82.901207"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#0000ff;stroke:#000000;stroke-width:0.0728421;stroke-dasharray:none"
+       id="ellipse16-1-0-9"
+       cx="74.97406"
+       cy="82.93763"
+       rx="0.96357888"
+       ry="0.9635796" />
+    <ellipse
+       style="fill:#005500;stroke:#000000;stroke-width:0.0374722;stroke-dasharray:none"
+       id="ellipse16-4-3-1"
+       cx="66.570236"
+       cy="92.492371"
+       rx="0.49107474"
+       ry="0.50035971" />
+    <text
+       xml:space="preserve"
+       style="font-size:1.22422px;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#000000;stroke:#000000;stroke-width:0.068012;stroke-dasharray:none;stroke-dashoffset:0"
+       x="66.200508"
+       y="83.439774"
+       id="text20-9-5"
+       transform="scale(0.94869631,1.0540781)"><tspan
+         id="tspan20-4-9"
+         style="text-align:center;text-anchor:middle;fill:#000000;stroke-width:0.068012"
+         x="66.200508"
+         y="83.439774">DC Ground</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:2.48013px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#000000;stroke:#000000;stroke-width:0.137784;stroke-dasharray:none;stroke-dashoffset:0"
+       x="29.339111"
+       y="62.158314"
+       id="text10-6-8"
+       transform="scale(1.0034145,0.99659712)"><tspan
+         id="tspan10-0-8"
+         style="fill:#000000;stroke-width:0.137784"
+         x="29.339111"
+         y="62.158314">DC detailed model - LCC monopole with metallic return example</tspan></text>
+  </g>
+</svg>

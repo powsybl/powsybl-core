@@ -7,7 +7,7 @@
  */
 package com.powsybl.security.tools;
 
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.tools.Command;
@@ -105,6 +105,21 @@ public class SecurityAnalysisCommand implements Command {
                 .build());
         options.addOption(Option.builder().longOpt(MONITORING_FILE)
                 .desc("monitoring file (.json) to get network's infos after computation")
+                .hasArg()
+                .argName("FILE")
+                .build());
+        options.addOption(Option.builder().longOpt(STRATEGIES_FILE)
+                .desc("operator strategies file (.json)")
+                .hasArg()
+                .argName("FILE")
+                .build());
+        options.addOption(Option.builder().longOpt(ACTIONS_FILE)
+                .desc("actions file (.json)")
+                .hasArg()
+                .argName("FILE")
+                .build());
+        options.addOption(Option.builder().longOpt(LIMIT_REDUCTIONS_FILE)
+                .desc("limit reductions file (.json)")
                 .hasArg()
                 .argName("FILE")
                 .build());

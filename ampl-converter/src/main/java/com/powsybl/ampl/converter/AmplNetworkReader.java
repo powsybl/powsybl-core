@@ -8,6 +8,8 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -20,9 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
@@ -90,7 +91,7 @@ public class AmplNetworkReader {
         return tokens;
     }
 
-    private void read(String suffix, int expectedTokenCount, Function<String[], Void> handler) throws IOException {
+    private void read(String suffix, int expectedTokenCount, Consumer<String[]> handler) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 dataSource.newInputStream(suffix, format.getFileExtension()), format.getFileEncoding()))) {
             String line;
@@ -109,7 +110,7 @@ public class AmplNetworkReader {
 
                 //check if it is the right network
                 if (variantIndex == Integer.parseInt(tokens[0])) {
-                    handler.apply(tokens);
+                    handler.accept(tokens);
                 }
             }
         }
@@ -127,7 +128,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readGenerator(String[] tokens) {
+    private void readGenerator(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         boolean vregul = Boolean.parseBoolean(tokens[3]);
@@ -141,10 +142,7 @@ public class AmplNetworkReader {
         if (g == null) {
             throw new AmplException("Invalid generator id '" + id + "'");
         }
-
         networkUpdater.updateNetworkGenerators(g, busNum, vregul, targetV, targetP, targetQ, p, q);
-
-        return null;
     }
 
     public AmplNetworkReader readBatteries() throws IOException {
@@ -153,7 +151,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readBattery(String[] tokens) {
+    private void readBattery(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         double targetP = readDouble(tokens[3]);
@@ -167,8 +165,6 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid battery id '" + id + "'");
         }
         networkUpdater.updateNetworkBattery(b, busNum, targetP, targetQ, p, q);
-
-        return null;
     }
 
     public AmplNetworkReader readLoads() throws IOException {
@@ -177,7 +173,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readLoad(String[] tokens) {
+    private void readLoad(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         double p = readDouble(tokens[3]);
@@ -187,8 +183,6 @@ public class AmplNetworkReader {
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
         networkUpdater.updateNetworkLoad(l, network, id, busNum, p, q, p0, q0);
-
-        return null;
     }
 
     public AmplNetworkReader readRatioTapChangers() throws IOException {
@@ -197,13 +191,11 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readRatioTapChanger(String[] tokens) {
+    private void readRatioTapChanger(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
         networkUpdater.updateNetworkRatioTapChanger(network, id, tap);
-
-        return null;
     }
 
     public AmplNetworkReader readPhaseTapChangers() throws IOException {
@@ -212,13 +204,11 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readPhaseTapChanger(String[] tokens) {
+    private void readPhaseTapChanger(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
         networkUpdater.updateNetworkPhaseTapChanger(network, id, tap);
-
-        return null;
     }
 
     public AmplNetworkReader readShunts() throws IOException {
@@ -227,7 +217,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readShunt(String[] tokens) {
+    private void readShunt(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         double b = readDouble(tokens[3]);
@@ -239,10 +229,7 @@ public class AmplNetworkReader {
         if (sc == null) {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
-
         networkUpdater.updateNetworkShunt(sc, busNum, q, b, sections);
-
-        return null;
     }
 
     public AmplNetworkReader readBuses() throws IOException {
@@ -251,7 +238,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readBus(String[] tokens) {
+    private void readBus(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         double v = readDouble(tokens[2]);
         double theta = readDouble(tokens[3]);
@@ -261,10 +248,7 @@ public class AmplNetworkReader {
         if (bus == null) {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
-
         networkUpdater.updateNetworkBus(bus, v, theta);
-
-        return null;
     }
 
     public AmplNetworkReader readBranches() throws IOException {
@@ -273,7 +257,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readBranch(String[] tokens) {
+    private void readBranch(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         int busNum2 = Integer.parseInt(tokens[3]);
@@ -283,11 +267,8 @@ public class AmplNetworkReader {
         double q2 = readDouble(tokens[7]);
 
         String id = mapper.getId(AmplSubset.BRANCH, num);
-
-        Branch br = network.getBranch(id);
+        Branch<?> br = network.getBranch(id);
         networkUpdater.updateNetworkBranch(br, network, id, busNum, busNum2, p1, p2, q1, q2);
-
-        return null;
     }
 
     public AmplNetworkReader readHvdcLines() throws IOException {
@@ -296,7 +277,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readHvdcLine(String[] tokens) {
+    private void readHvdcLine(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         String converterMode = tokens[2].replace("\"", "");
         double targetP = readDouble(tokens[3]);
@@ -307,8 +288,6 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid HvdcLine id '" + id + "'");
         }
         networkUpdater.updateNetworkHvdcLine(hl, converterMode, targetP);
-
-        return null;
     }
 
     public AmplNetworkReader readStaticVarcompensator() throws IOException {
@@ -317,7 +296,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readSvc(String[] tokens) {
+    private void readSvc(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         boolean vregul = Boolean.parseBoolean(tokens[3]);
@@ -329,10 +308,7 @@ public class AmplNetworkReader {
         if (svc == null) {
             throw new AmplException("Invalid StaticVarCompensator id '" + id + "'");
         }
-
         networkUpdater.updateNetworkSvc(svc, busNum, vregul, targetV, q);
-
-        return null;
     }
 
     public AmplNetworkReader readLccConverterStations() throws IOException {
@@ -341,7 +317,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readLcc(String[] tokens) {
+    private void readLcc(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         double p = readDouble(tokens[3]);
@@ -352,10 +328,7 @@ public class AmplNetworkReader {
         if (lcc == null) {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
-
         networkUpdater.updateNetworkLcc(lcc, busNum, p, q);
-
-        return null;
     }
 
     public AmplNetworkReader readVscConverterStations() throws IOException {
@@ -364,7 +337,7 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private Void readVsc(String[] tokens) {
+    private void readVsc(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
         boolean vregul = Boolean.parseBoolean(tokens[3]);
@@ -376,8 +349,6 @@ public class AmplNetworkReader {
         String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
         VscConverterStation vsc = network.getVscConverterStation(id);
         networkUpdater.updateNetworkVsc(vsc, busNum, vregul, targetV, targetQ, p, q);
-
-        return null;
     }
 
     public AmplNetworkReader readMetrics(Map<String, String> metrics) throws IOException {

@@ -115,7 +115,7 @@ class DoubleDataChunkTest {
         assertEquals(List.of(new DoublePoint(1, Instant.parse("2015-01-01T00:15:00Z"), 1d),
                                       new DoublePoint(2, Instant.parse("2015-01-01T00:30:00Z"), 2d),
                                       new DoublePoint(6, Instant.parse("2015-01-01T01:30:00Z"), 3d)),
-                     compressedChunk.stream(index).toList());
+                     compressedChunk.compressedStream(index).toList());
     }
 
     @Test
@@ -225,7 +225,7 @@ class DoubleDataChunkTest {
     void compressedMergeTest() {
         CompressedDoubleDataChunk chunk1 = new CompressedDoubleDataChunk(1, 5, new double[]{1d, 2d}, new int[]{2, 3});
         CompressedDoubleDataChunk chunk2 = new CompressedDoubleDataChunk(6, 5, new double[]{3d, 4d}, new int[]{2, 3});
-        CompressedDoubleDataChunk chunk3 = new CompressedDoubleDataChunk(11, 3, new double[]{4d, 5d}, new int[]{2, 1});
+        CompressedDoubleDataChunk chunk3 = new CompressedDoubleDataChunk(11, 6, new double[]{4d, 5d}, new int[]{5, 1});
 
         //Merge chunk1 + chunk2
         DoubleDataChunk merge = chunk1.append(chunk2);
@@ -241,9 +241,9 @@ class DoubleDataChunkTest {
         assertNotNull(merge);
         assertInstanceOf(CompressedDoubleDataChunk.class, merge);
         assertEquals(6, merge.getOffset());
-        assertEquals(8, merge.getLength());
+        assertEquals(11, merge.getLength());
         assertArrayEquals(new double[] {3d, 4d, 5d}, ((CompressedDoubleDataChunk) merge).getStepValues(), 0d);
-        assertArrayEquals(new int[] {2, 5, 1}, ((CompressedDoubleDataChunk) merge).getStepLengths());
+        assertArrayEquals(new int[] {2, 8, 1}, ((CompressedDoubleDataChunk) merge).getStepLengths());
 
         //Merge chunk1 + chunk3
         try {

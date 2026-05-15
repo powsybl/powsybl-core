@@ -31,6 +31,10 @@ public class ControlZoneAdderImpl implements ControlZoneAdder {
         this.parent = Objects.requireNonNull(parent);
     }
 
+    public SecondaryVoltageControlAdderImpl getParent() {
+        return parent;
+    }
+
     @Override
     public ControlZoneAdderImpl withName(String name) {
         this.name = Objects.requireNonNull(name);

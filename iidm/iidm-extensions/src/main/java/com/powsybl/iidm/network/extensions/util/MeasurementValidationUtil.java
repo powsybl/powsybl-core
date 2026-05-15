@@ -45,7 +45,7 @@ public final class MeasurementValidationUtil {
 
     public static void checkValue(double value, boolean valid) {
         if (Double.isNaN(value) && valid) {
-            throw new PowsyblException("Valid measurement can not have an undefined value");
+            throw new PowsyblException("Valid measurement cannot have an undefined value");
         }
     }
 

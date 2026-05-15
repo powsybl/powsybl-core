@@ -128,7 +128,7 @@ final class ExportXmlCompare {
         String elementName = attr.getOwnerElement().getLocalName();
         boolean ignored = false;
         if (elementName != null) {
-            if (elementName.equals("danglingLine")) {
+            if (elementName.equals("boundaryLine")) {
                 ignored = true;
             } else if (elementName.startsWith("network")) {
                 ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
@@ -138,12 +138,14 @@ final class ExportXmlCompare {
                 ignored = attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
-                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband") || attr.getLocalName().equals("solvedTapPosition");
             } else if (elementName.startsWith("generator")) {
                 // ratedS is optional for generators,
                 // but we always export it to keep up with the quality of datasets rules.
                 // So we do not enforce this attribute to be equal in the original and exported network
-                ignored = attr.getLocalName().equals("ratedS");
+                ignored = attr.getLocalName().equals("ratedS") || attr.getLocalName().equals("bus");
+            } else if (elementName.startsWith("shunt")) {
+                ignored = attr.getLocalName().equals("solvedSectionCount") || attr.getLocalName().equals("bus");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -214,9 +216,9 @@ final class ExportXmlCompare {
     private static boolean isConsideredEQNode(Node n) {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
-            return !name.startsWith("danglingLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
+            return !name.startsWith("boundaryLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
                     && !name.startsWith("property") && !name.startsWith("regulatingTerminal") && !name.startsWith("terminalRef")
-                    && !isDanglingLineConversion(n) && !isNodeBreakerProperty(n);
+                    && !isBoundaryLineConversion(n) && !isNodeBreakerProperty(n);
         }
         return false;
     }
@@ -228,7 +230,7 @@ final class ExportXmlCompare {
         return false;
     }
 
-    private static boolean isDanglingLineConversion(Node n) {
+    private static boolean isBoundaryLineConversion(Node n) {
         String name = n.getLocalName();
         return name.startsWith("substation") && SMALLGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent())
                 || name.startsWith("voltageLevel") && SMALLGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent())
@@ -362,6 +364,8 @@ final class ExportXmlCompare {
                 if (control != null && control.getLocalName().equals("geographicalTags")) {
                     return ComparisonResult.EQUAL;
                 } else if (control != null && control.getLocalName().equals("targetQ")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().equals("tapPosition")) {
                     return ComparisonResult.EQUAL;
                 } else if (comparison.getControlDetails().getXPath().contains("temporaryLimit")) {
                     // If the control node is a temporary limit, the order depends on the name attribute,
@@ -538,6 +542,16 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringChildLookupNull(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             if (comparison.getControlDetails().getXPath() == null) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSshOperatingMode(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ATTR_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("SynchronousMachine.operatingMode")) {
                 return ComparisonResult.EQUAL;
             }
         }
@@ -762,7 +776,7 @@ final class ExportXmlCompare {
                     || name.endsWith("pTolerance")
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
-            // DanglingLine p, q, p0, q0 attributes in IIDM Network
+            // BoundaryLine p, q, p0, q0 attributes in IIDM Network
             // TapChanger r, x, g, b, rho, alpha attributes in IIDM Network
             // Line b1, b2, g1, g2 attributes in IIDM Network
             // Shunt bPerSection attribute in IIDM Network
@@ -770,7 +784,7 @@ final class ExportXmlCompare {
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
                 || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
                 || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
-                || name.equals("bPerSection") || name.equals("activePowerSetpoint")
+                || name.equals("bPerSection") || name.equals("activePowerSetpoint") || name.equals("maxP")
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -803,7 +817,8 @@ final class ExportXmlCompare {
                 || n.getLocalName().equals("b1") || n.getLocalName().equals("b2")
                 || n.getLocalName().equals("g1") || n.getLocalName().equals("g2")
                 || n.getLocalName().equals("alpha") || n.getLocalName().equals("rho")
-                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")) {
+                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")
+                || n.getLocalName().equals("maxP")) {
             return 1e-5;
         }
         return 1e-10;

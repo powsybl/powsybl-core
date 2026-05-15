@@ -29,6 +29,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     private final Integer injectionPositionOrder;
     private final String injectionFeederName;
     private final ConnectablePosition.Direction injectionDirection;
+    private final boolean logOrThrowIfIncorrectPositionOrder;
 
     /**
      * @param injectionAdder         The injection adder.
@@ -39,13 +40,14 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
     CreateFeederBay(InjectionAdder<?, ?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
-                    String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
+                    String injectionFeederName, ConnectablePosition.Direction injectionDirection, boolean logOrThrowIfIncorrectPositionOrder) {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.busOrBbsId = Objects.requireNonNull(busOrBbsId);
         this.injectionPositionOrder = injectionPositionOrder;
         this.injectionFeederName = injectionFeederName;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
+        this.logOrThrowIfIncorrectPositionOrder = logOrThrowIfIncorrectPositionOrder;
     }
 
     @Override
@@ -100,5 +102,10 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     @Override
     protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
         return connectablePositionAdder.newFeeder();
+    }
+
+    @Override
+    protected boolean getLogOrThrowIfIncorrectPositionOrder(int side) {
+        return logOrThrowIfIncorrectPositionOrder;
     }
 }

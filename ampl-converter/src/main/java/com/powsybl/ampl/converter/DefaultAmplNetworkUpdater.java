@@ -68,12 +68,15 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
         if (vregul) {
             svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+            svc.setRegulating(true);
         } else {
             if (q == 0) {
-                svc.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+                svc.setRegulating(false);
+                svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
             } else {
                 svc.setReactivePowerSetpoint(-q);
                 svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+                svc.setRegulating(true);
             }
         }
 
@@ -100,7 +103,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
             l.getTerminal().setP(p).setQ(q);
             busConnection(l.getTerminal(), busNum, networkMapper);
         } else {
-            DanglingLine dl = network.getDanglingLine(id);
+            BoundaryLine dl = network.getBoundaryLine(id);
             if (dl != null) {
                 dl.setP0(p0).setQ0(q0);
                 dl.getTerminal().setP(p).setQ(q);
@@ -159,7 +162,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
             busConnection(br.getTerminal1(), busNum, networkMapper);
             busConnection(br.getTerminal2(), busNum2, networkMapper);
         } else if (!readThreeWindingsTransformerBranch(network, id, p1, q1, busNum, networkMapper)) {
-            DanglingLine dl = network.getDanglingLine(id);
+            BoundaryLine dl = network.getBoundaryLine(id);
             if (dl != null) {
                 dl.getTerminal().setP(p1).setQ(q1);
                 busConnection(dl.getTerminal(), busNum, networkMapper);

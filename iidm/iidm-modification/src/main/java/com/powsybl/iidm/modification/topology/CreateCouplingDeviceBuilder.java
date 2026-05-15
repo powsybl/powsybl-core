@@ -27,25 +27,9 @@ public class CreateCouplingDeviceBuilder {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId1(String)} instead.
-     */
-    @Deprecated(since = "5.2.0")
-    public CreateCouplingDeviceBuilder withBusbarSectionId1(String bbsId1) {
-        return withBusOrBusbarSectionId1(bbsId1);
-    }
-
     public CreateCouplingDeviceBuilder withBusOrBusbarSectionId2(String busOrBbsId2) {
         this.busOrBbsId2 = busOrBbsId2;
         return this;
-    }
-
-    /**
-     * @deprecated Use {@link #withBusOrBusbarSectionId2(String)} instead.
-     */
-    @Deprecated(since = "5.2.0")
-    public CreateCouplingDeviceBuilder withBusbarSectionId2(String bbsId2) {
-        return withBusOrBusbarSectionId2(bbsId2);
     }
 
     public CreateCouplingDeviceBuilder withSwitchPrefixId(String switchPrefixId) {

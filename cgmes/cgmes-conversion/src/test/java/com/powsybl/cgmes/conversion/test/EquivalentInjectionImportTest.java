@@ -11,7 +11,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -31,9 +31,9 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_EQ.xml",
                         "ei_regulation_with_target_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
-        DanglingLine dl = network.getDanglingLine("ACLS1");
-        assertEquals(401, dl.getGeneration().getTargetV());
-        assertTrue(dl.getGeneration().isVoltageRegulationOn());
+        BoundaryLine bl = network.getBoundaryLine("ACLS1");
+        assertEquals(401, bl.getGeneration().getTargetV());
+        assertTrue(bl.getGeneration().isVoltageRegulationOn());
     }
 
     @Test
@@ -44,9 +44,11 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_EQ.xml",
                         "ei_regulation_missing_target_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
-        DanglingLine dl = network.getDanglingLine("ACLS1");
-        // No generation data has been created for the dangling line
-        assertNull(dl.getGeneration());
+        BoundaryLine bl = network.getBoundaryLine("ACLS1");
+        // Generation data has been created for the boundary line but regulation is off
+        assertNotNull(bl.getGeneration());
+        assertTrue(Double.isNaN(bl.getGeneration().getTargetV()));
+        assertFalse(bl.getGeneration().isVoltageRegulationOn());
     }
 
     @Test
@@ -57,8 +59,10 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
                         "ei_regulation_EQ.xml",
                         "ei_regulation_with_target_zero_SSH.xml",
                         "ei_regulation_EQ_BD.xml")));
-        DanglingLine dl = network.getDanglingLine("ACLS1");
-        // Zero is an invalid value, no generation data has been created for the dangling line
-        assertNull(dl.getGeneration());
+        BoundaryLine bl = network.getBoundaryLine("ACLS1");
+        // Zero is an invalid value, generation data has been created for the boundary line but regulation is off
+        assertNotNull(bl.getGeneration());
+        assertEquals(0.0, bl.getGeneration().getTargetV());
+        assertFalse(bl.getGeneration().isVoltageRegulationOn());
     }
 }

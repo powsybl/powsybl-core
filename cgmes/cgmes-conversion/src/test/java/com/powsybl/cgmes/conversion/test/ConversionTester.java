@@ -17,13 +17,17 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.*;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
@@ -154,6 +158,7 @@ public class ConversionTester {
         CgmesImport i = new CgmesImport();
         ReadOnlyDataSource ds = gm.dataSource();
         LOG.info("Importer.exists() == {}", i.exists(ds));
+        importParams.put(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network n = i.importData(ds, new NetworkFactoryImpl(), importParams);
         CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         new Conversion(m).report(reportConsumer);
@@ -221,7 +226,7 @@ public class ConversionTester {
             ValidationConfig config = loadFlowValidationConfig(validateBusBalancesThreshold);
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
-            computeMissingFlows(network, config.getLoadFlowParameters());
+            computeMissingFlows(network, config.getLoadFlowParameters(), true);
             assertTrue(ValidationType.BUSES.check(network, config, working));
         }
     }
@@ -236,13 +241,16 @@ public class ConversionTester {
         return config;
     }
 
-    public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
+    public static void computeMissingFlows(Network network, LoadFlowParameters lfparams, boolean useSv) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
             LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
             LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         try {
+            if (useSv) { // Replace "input" variables from SSH by SV ones
+                Networks.applySolvedValues(network);
+            }
             lf.run(network, null);
         } catch (Exception e) {
             LOG.error("computeFlows, error {}", e.getMessage());

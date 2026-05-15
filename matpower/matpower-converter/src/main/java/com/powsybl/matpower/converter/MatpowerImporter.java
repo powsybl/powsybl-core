@@ -360,8 +360,8 @@ public class MatpowerImporter implements Importer {
                 // there is probably something to fix on IIDM API to not have sided apparent
                 // power limits. Apparent power does not depend on voltage so it does not make
                 // sens to associate the limit to a branch side.
-                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits1());
-                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits2());
+                createApparentPowerLimits(mBranch, branch.getOrCreateSelectedOperationalLimitsGroup1().newApparentPowerLimits());
+                createApparentPowerLimits(mBranch, branch.getOrCreateSelectedOperationalLimitsGroup2().newApparentPowerLimits());
             }
         }
     }
@@ -606,6 +606,7 @@ public class MatpowerImporter implements Importer {
                     branch -> branch.getR() == 0.0 && branch.getX() == 0.0,
                     branch -> isTransformer(model, branch),
                     busNumber -> getNominalVFromBusNumber(busNumToMBus, busNumber, ignoreBaseVoltage),
+                    busNumber -> 0,
                     busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums"))),
                     substationNums -> getId(SUBSTATION_PREFIX, substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums"))));
 

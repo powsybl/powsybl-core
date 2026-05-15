@@ -43,4 +43,16 @@ class ImportConfigTest {
             assertEquals(List.of("p4"), importConfig.getPostProcessors());
         }
     }
+
+    @Test
+    void testConsecutiveLoadWithPostProcessors() {
+        var importConfig = ImportConfig.load();
+        assertTrue(importConfig.getPostProcessors().isEmpty());
+        importConfig.addPostProcessors(List.of("p1"));
+        assertEquals(List.of("p1"), importConfig.getPostProcessors());
+
+        // default post processor list does not change
+        importConfig = ImportConfig.load();
+        assertTrue(importConfig.getPostProcessors().isEmpty());
+    }
 }

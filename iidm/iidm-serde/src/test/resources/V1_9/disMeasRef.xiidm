@@ -90,7 +90,7 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.15"/>
             </iidm:ratioTapChanger>
-            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="15" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="15" regulationMode="CURRENT_LIMITER" regulating="false">
                 <iidm:terminalRef id="TWT" side="ONE"/>
                 <iidm:step r="39.78473" x="29.784725" g="0.0" b="0.0" rho="1.0" alpha="-42.8"/>
                 <iidm:step r="31.720245" x="21.720242" g="0.0" b="0.0" rho="1.0" alpha="-40.18"/>

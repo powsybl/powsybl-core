@@ -9,7 +9,7 @@
   },
   "intermediate-results-in-operator-strategy" : false,
   "load-flow-parameters" : {
-    "version" : "1.9",
+    "version" : "1.10",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
@@ -23,7 +23,7 @@
     "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
     "dcUseTransformerRatio" : true,
     "countriesToBalance" : [ ],
-    "connectedComponentMode" : "MAIN",
+    "componentMode" : "MAIN_CONNECTED",
     "hvdcAcEmulation" : true,
     "dcPowerFactor" : 1.0
   },

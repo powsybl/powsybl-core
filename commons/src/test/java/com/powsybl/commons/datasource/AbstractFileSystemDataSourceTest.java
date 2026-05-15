@@ -21,12 +21,17 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-abstract class AbstractFileSystemDataSourceTest {
+abstract class AbstractFileSystemDataSourceTest extends AbstractReadOnlyDataSourceTest {
     protected FileSystem fileSystem;
     protected Path testDir;
     protected Set<String> unlistedFiles;

@@ -18,8 +18,8 @@ public class SimpleLimitsReducer extends DefaultLimitsReducer {
 
     private final double limitReduction;
 
-    public SimpleLimitsReducer(LoadingLimits originalLimits, double limitReduction) {
-        super(originalLimits);
+    public SimpleLimitsReducer(LoadingLimits originalLimits, String limitsGroupId, double limitReduction) {
+        super(originalLimits, limitsGroupId);
         this.limitReduction = limitReduction;
     }
 

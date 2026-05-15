@@ -44,7 +44,7 @@ public class ControlUnitAdderImpl implements ControlUnitAdder {
         if (id == null) {
             throw new PowsyblException("Control unit ID is not set");
         }
-        parent.addControlUnit(new ControlUnitImpl(id, participate));
+        parent.addControlUnit(new ControlUnitImpl(id, participate, parent.getParent().getNetwork()));
         return parent;
     }
 }

@@ -54,7 +54,7 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
         // empty default implementation
     }
 
@@ -70,6 +70,11 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
 
     @Override
     public void visitGround(Ground ground) {
+        // empty default implementation
+    }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
         // empty default implementation
     }
 }

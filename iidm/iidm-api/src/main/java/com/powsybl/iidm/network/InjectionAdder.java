@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface InjectionAdder<T extends Injection<? super T>, A extends InjectionAdder> extends IdentifiableAdder<T, A> {
+public interface InjectionAdder<T extends Injection<T>, A extends InjectionAdder> extends IdentifiableAdder<T, A> {
 
     A setNode(int node);
 

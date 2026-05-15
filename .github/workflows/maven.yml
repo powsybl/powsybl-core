@@ -16,37 +16,41 @@ jobs:
   build:
     name: Build OS ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
+      - name: Set up JDK 21
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
+          cache: 'maven'
 
       - name: Build with Maven (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
-        run: ./mvnw --batch-mode -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
+        run: ./mvnw -B -ntp -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
 
       - name: Build with Maven (Windows)
         if: matrix.os == 'windows-latest'
-        run: mvnw.cmd --batch-mode install
+        run: mvnw.cmd -B -ntp verify -Dpowsybl.checks.skip=true
         shell: cmd
 
       - name: Build with Maven (MacOS)
         if: matrix.os == 'macos-latest'
-        run: ./mvnw --batch-mode install
+        run: ./mvnw -B -ntp verify -Dpowsybl.checks.skip=true
 
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
         run: >
-          ./mvnw --batch-mode -DskipTests sonar:sonar
+          ./mvnw -B -ntp -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=powsybl-ci-github
           -Dsonar.projectKey=com.powsybl:powsybl-core

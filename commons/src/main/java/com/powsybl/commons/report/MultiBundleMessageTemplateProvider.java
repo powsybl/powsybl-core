@@ -16,16 +16,17 @@ import java.util.ResourceBundle;
  * Bundle message template provider based on several {@link ResourceBundle}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class MultiBundleMessageTemplateProvider implements MessageTemplateProvider {
+public class MultiBundleMessageTemplateProvider extends AbstractMessageTemplateProvider {
 
     private final String[] bundleBaseNames;
     private final boolean throwIfUnknownKey;
 
     public MultiBundleMessageTemplateProvider(String... bundleBaseNames) {
-        this(false, bundleBaseNames);
+        this(false, true, bundleBaseNames);
     }
 
-    public MultiBundleMessageTemplateProvider(boolean throwIfUnknownKey, String... bundleBaseNames) {
+    public MultiBundleMessageTemplateProvider(boolean throwIfUnknownKey, boolean strictMode, String... bundleBaseNames) {
+        super(strictMode);
         this.bundleBaseNames = bundleBaseNames;
         this.throwIfUnknownKey = throwIfUnknownKey;
     }
@@ -33,7 +34,7 @@ public class MultiBundleMessageTemplateProvider implements MessageTemplateProvid
     @Override
     public String getTemplate(String key, Locale locale) {
         for (String bundleBaseName : bundleBaseNames) {
-            ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale);
+            ResourceBundle bundle = ResourceBundle.getBundle(bundleBaseName, locale, NO_FALLBACK_CONTROL);
             if (bundle.containsKey(key)) {
                 return bundle.getString(key);
             }
@@ -41,7 +42,7 @@ public class MultiBundleMessageTemplateProvider implements MessageTemplateProvid
         if (throwIfUnknownKey) {
             throw new MissingResourceException("Could not find template for key '{}'", PropertyResourceBundle.class.getName(), key);
         } else {
-            return MessageTemplateProvider.getMissingKeyMessage(key, locale);
+            return MessageTemplateProvider.getMissingKeyMessage(key, locale, isStrictMode());
         }
     }
 }

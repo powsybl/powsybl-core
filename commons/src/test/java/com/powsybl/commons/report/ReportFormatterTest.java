@@ -7,7 +7,7 @@
  */
 package com.powsybl.commons.report;
 
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -22,7 +22,7 @@ class ReportFormatterTest {
     @Test
     void test() {
         ReportNode root = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("formatTest")
                 .withUntypedValue("doubleDefaultFormat", 4.35684975)
                 .withTypedValue("doubleSpecificFormat", 4.4664798548, TypedValue.ACTIVE_POWER)

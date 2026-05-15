@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.commons.ref.Ref;
@@ -89,8 +90,8 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
     }
 
     @Override
-    public String getMessageHeader() {
-        return getTypeDescription() + " '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader(getTypeDescription(), id);
     }
 
     /**

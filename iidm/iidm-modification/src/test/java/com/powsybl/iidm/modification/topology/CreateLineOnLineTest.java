@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblCoreTestReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -30,6 +30,31 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class CreateLineOnLineTest extends AbstractModificationTest {
+
+    @Test
+    void testWithLimits() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        line.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.setSelectedOperationalLimitsGroup1("group1");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network);
+        writeXmlTest(network, "/fictitious-line-split-l-with-limits.xml");
+    }
 
     @Test
     void createLineOnLineNbTest() throws IOException {
@@ -139,7 +164,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
         ReportNode reportNode1 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestBbsNotExistingNB")
                 .build();
         NetworkModification modification1 = new CreateLineOnLineBuilder()
@@ -156,7 +181,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
         ReportNode reportNode2 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestBbsNotExistingBB")
                 .build();
         NetworkModification modification2 = new CreateLineOnLineBuilder()
@@ -170,7 +195,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode3 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestWrongTypeBbs")
                 .build();
         NetworkModification modification3 = new CreateLineOnLineBuilder()
@@ -184,7 +209,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.unexpectedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode4 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestNullFictitiousSubstationID")
                 .build();
         NetworkModification modification4 = new CreateLineOnLineBuilder()
@@ -200,7 +225,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("core.iidm.modification.undefinedFictitiousSubstationId", reportNode4.getChildren().get(0).getMessageKey());
 
         ReportNode reportNode5 = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestUndefinedPositionPercent")
                 .build();
         NetworkModification modification5 = new CreateLineOnLineBuilder()
@@ -220,7 +245,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
     void testWithReportNode() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblCoreTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("reportTestCreateLineOnLine")
                 .build();
         Line line = network.getLine("CJ");

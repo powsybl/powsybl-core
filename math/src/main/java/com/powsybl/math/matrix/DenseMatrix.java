@@ -127,14 +127,6 @@ public class DenseMatrix extends AbstractMatrix {
         return buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
     }
 
-    /**
-     * @deprecated Use {@link #get(int, int)} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    public double getValue(int i, int j) {
-        return get(i, j);
-    }
-
     private void setUnsafe(int i, int j, double value) {
         buffer.putDouble(j * Double.BYTES * rowCount + i * Double.BYTES, value);
     }

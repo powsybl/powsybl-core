@@ -9,8 +9,8 @@
 package com.powsybl.contingency.dsl;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.ContingencyListLoader;
+import com.powsybl.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyListLoader;
 
 import java.io.InputStream;
 

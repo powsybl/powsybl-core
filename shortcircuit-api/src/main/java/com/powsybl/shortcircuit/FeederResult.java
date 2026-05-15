@@ -9,8 +9,7 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TwoSides;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface to describe the contribution of a feeder to the short-circuit current after the analysis.

@@ -7,6 +7,7 @@
  */
 package com.powsybl.tools.test;
 
+import com.google.re2j.Pattern;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.CommandLineTools;
@@ -19,14 +20,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class CommandLineToolsTest extends AbstractToolTest {
 
-    private static class Tool1 implements Tool {
+    private static final class Tool1 implements Tool {
 
         @Override
         public Command getCommand() {
@@ -72,7 +72,7 @@ class CommandLineToolsTest extends AbstractToolTest {
         }
     }
 
-    private static class Tool2 implements Tool {
+    private static final class Tool2 implements Tool {
 
         @Override
         public Command getCommand() {
@@ -116,7 +116,7 @@ class CommandLineToolsTest extends AbstractToolTest {
         }
     }
 
-    private static class Tool3 implements Tool {
+    private static final class Tool3 implements Tool {
 
         @Override
         public Command getCommand() {

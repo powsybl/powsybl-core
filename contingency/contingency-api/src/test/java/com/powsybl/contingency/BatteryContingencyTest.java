@@ -42,7 +42,7 @@ class BatteryContingencyTest {
         Network network = BatteryNetworkFactory.create();
         Battery battery = network.getBattery("BAT");
         assertNotNull(battery);
-        ContingencyElement element = ContingencyElement.of(battery);
+        ContingencyElement element = ContingencyElementFactory.create(battery);
         assertNotNull(element);
         assertInstanceOf(BatteryContingency.class, element);
         assertEquals("BAT", element.getId());

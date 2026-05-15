@@ -109,9 +109,12 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public String getMessage(ReportFormatter formatter) {
-        return Optional.ofNullable(getTreeContext().getDictionary().get(messageKey))
-                .map(messageTemplate -> new StringSubstitutor(vk -> getValueAsString(vk, formatter).orElse(null)).replace(messageTemplate))
-                .orElse("(missing message key in dictionary)");
+        String messageTemplate = getMessageTemplate();
+        String pattern = messageTemplate;
+        if (messageTemplate == null) {
+            pattern = messageKey;
+        }
+        return new StringSubstitutor(vk -> getValueAsString(vk, formatter).orElse(null)).replace(pattern);
     }
 
     public Optional<String> getValueAsString(String valueKey, ReportFormatter formatter) {
@@ -337,7 +340,8 @@ public final class ReportNodeImpl implements ReportNode {
                 }
                 case "children" -> {
                     // create the current reportNode to add the children to it
-                    reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps, treeContext, rootReportNode, MessageTemplateProvider.EMPTY);
+                    reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps,
+                            treeContext, rootReportNode, MessageTemplateProvider.EMPTY_LOOSE);
 
                     // Remove start array token to read each child
                     checkToken(p, JsonToken.START_ARRAY);
@@ -351,7 +355,8 @@ public final class ReportNodeImpl implements ReportNode {
         }
 
         if (reportNode == null) {
-            reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps, treeContext, rootReportNode, MessageTemplateProvider.EMPTY);
+            reportNode = new ReportNodeImpl(parsingContext.messageKey, parsingContext.values, inheritedValuesMaps,
+                    treeContext, rootReportNode, MessageTemplateProvider.EMPTY_LOOSE);
         }
 
         return reportNode;

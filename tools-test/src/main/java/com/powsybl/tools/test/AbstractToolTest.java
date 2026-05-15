@@ -9,6 +9,7 @@ package com.powsybl.tools.test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.google.re2j.Pattern;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.computation.ComputationManager;
@@ -33,7 +34,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Objects;
 import java.util.function.BiConsumer;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 

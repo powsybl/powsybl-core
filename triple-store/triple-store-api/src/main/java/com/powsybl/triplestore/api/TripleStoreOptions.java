@@ -14,6 +14,7 @@ public class TripleStoreOptions {
 
     private boolean removeInitialUnderscoreForIdentifiers = true;
     private boolean unescapeIdentifiers = true;
+    private String queryCatalog = "";
 
     public TripleStoreOptions() {
     }
@@ -39,5 +40,14 @@ public class TripleStoreOptions {
     public TripleStoreOptions decodeEscapedIdentifiers(boolean unescapeIdentifiers) {
         this.unescapeIdentifiers = unescapeIdentifiers;
         return this;
+    }
+
+    public TripleStoreOptions setQueryCatalog(String queryCatalog) {
+        this.queryCatalog = queryCatalog;
+        return this;
+    }
+
+    public String queryCatalog() {
+        return queryCatalog;
     }
 }

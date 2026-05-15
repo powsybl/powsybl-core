@@ -450,9 +450,9 @@ public class IeeeCdfImporter implements Importer {
     private static void createTransformerWithActivePowerControl(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         TwoWindingsTransformer transformer = createTransformer(ieeeCdfBranch, containerMapping, perUnitContext, network);
         // As there is no active power or current setpoint in IEEE data model there is no way to have regulating phase
-        // shifter and so on we always set it to fixed tap.
+        // shifter and so on we always set its regulating to false (with the default regulation mode as CURRENT_LIMITER).
         PhaseTapChangerAdder phaseTapChangerAdder = transformer.newPhaseTapChanger()
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulating(false)
                 .setTapPosition(0);
         List<Double> alphas = new ArrayList<>();
@@ -551,6 +551,7 @@ public class IeeeCdfImporter implements Importer {
             branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
             IeeeCdfImporter::isTransformer,
             busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
+            busNumber -> 0,
             busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
             substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
 

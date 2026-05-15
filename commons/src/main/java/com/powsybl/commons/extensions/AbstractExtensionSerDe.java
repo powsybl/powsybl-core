@@ -7,6 +7,8 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.powsybl.commons.io.DeserializerContext;
+
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.Set;
@@ -92,5 +94,10 @@ public abstract class AbstractExtensionSerDe<T extends Extendable, E extends Ext
     @Override
     public String getVersion(String namespaceUri) {
         return this.namespaceUri.equals(namespaceUri) ? getVersion() : null;
+    }
+
+    @Override
+    public void checkReadingCompatibility(DeserializerContext context) {
+        // no need to check, there are no incompatibilities if not versionable
     }
 }

@@ -86,7 +86,6 @@ public interface Scalable {
      */
     void filterInjections(Network network, List<Injection> injections, List<String> notFound);
 
-
     /**
      * Scans all the expected injections of the scalable.
      * If the injection can be found in given network, it is added the the injections list.
@@ -97,7 +96,6 @@ public interface Scalable {
      * @return network injections used in the scalable
      */
     List<Injection> filterInjections(Network network, List<String> notFound);
-
 
     /**
      * Scans all the expected injections of the scalable.
@@ -154,37 +152,41 @@ public interface Scalable {
     }
 
     /**
-     * create DanglingLineScalable with id.
+     * create BoundaryLineScalable with id.
      * The generator scaling convention is used by default.
      */
-    static DanglingLineScalable onDanglingLine(String id) {
-        return new DanglingLineScalable(id);
+    static BoundaryLineScalable onBoundaryLine(String id) {
+        return new BoundaryLineScalable(id);
     }
 
     /**
-     * create DanglingLineScalable with id and the scaling convention that will be used.
+     * create BoundaryLineScalable with id and the scaling convention that will be used.
      */
-    static DanglingLineScalable onDanglingLine(String id, ScalingConvention scalingConvention) {
-        return new DanglingLineScalable(id, scalingConvention);
+    static BoundaryLineScalable onBoundaryLine(String id, ScalingConvention scalingConvention) {
+        return new BoundaryLineScalable(id, scalingConvention);
     }
 
     /**
-     * create DanglingLineScalable with id, min and max power values for scaling.
+     * create BoundaryLineScalable with id, min and max power values for scaling.
      * The generator scaling convention is used by default.
      */
-    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue) {
-        return new DanglingLineScalable(id, minValue, maxValue);
+    static BoundaryLineScalable onBoundaryLine(String id, double minValue, double maxValue) {
+        return new BoundaryLineScalable(id, minValue, maxValue);
     }
 
     /**
-     * create DanglingLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
+     * create BoundaryLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
      */
-    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
-        return new DanglingLineScalable(id, minValue, maxValue, scalingConvention);
+    static BoundaryLineScalable onBoundaryLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
+        return new BoundaryLineScalable(id, minValue, maxValue, scalingConvention);
     }
 
     static Scalable scalable(String id) {
         return new ScalableAdapter(id);
+    }
+
+    static Scalable scalable(String id, double minValue, double maxValue) {
+        return new ScalableAdapter(id, minValue, maxValue);
     }
 
     static List<Scalable> scalables(String... ids) {
