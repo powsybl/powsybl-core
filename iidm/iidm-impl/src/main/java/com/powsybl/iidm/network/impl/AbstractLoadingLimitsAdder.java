@@ -115,8 +115,6 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
                     i++;
                 }
                 name = uniqueName;
-            } else if (nameExists(name)) {
-                throw new ValidationException(validable, "temporary limit name '" + name + "' should be unique within limit set '" + operationalGroupId + "'");
             }
         }
 

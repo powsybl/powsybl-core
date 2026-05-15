@@ -468,9 +468,9 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     }
 
     @Test
-    public void testNameDuplicationIsNotAllowed() {
+    public void testNameDuplicationIsAllowed() {
         Line line = createNetwork().getLine("L");
-        LoadingLimitsAdder.TemporaryLimitAdder temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+        CurrentLimits currentLimits = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                     .setName("TL")
@@ -480,9 +480,11 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                 .beginTemporaryLimit()
                     .setName("TL")
                     .setAcceptableDuration(10 * 60)
-                    .setValue(1400.0);
-        String message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
-        assertEquals("AC line 'L': temporary limit name 'TL' should be unique within limit set 'DEFAULT'", message);
+                    .setValue(1400.0)
+                .endTemporaryLimit()
+                .add();
+        assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
+        assertEquals("TL", currentLimits.getTemporaryLimit(10 * 60).getName());
     }
 
     @Test
