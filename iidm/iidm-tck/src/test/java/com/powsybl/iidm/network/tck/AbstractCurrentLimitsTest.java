@@ -483,6 +483,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
                     .setValue(1400.0)
                 .endTemporaryLimit()
                 .add();
+
         assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
         assertEquals("TL", currentLimits.getTemporaryLimit(10 * 60).getName());
     }
