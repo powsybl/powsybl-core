@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="ThreeMIB_T3W_phase_solved" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="ThreeMIB_T3W_phase_solved" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S28">
         <iidm:voltageLevel id="VL28" nominalV="18.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -39,7 +39,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_7_1" loadType="UNDEFINED" p0="1.0" q0="1.0" node="1"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_4_1_1" r="0.0" x="0.020768399119377133" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="4" voltageLevelId1="VL31" node2="2" voltageLevelId2="VL28">
+        <iidm:twoWindingsTransformer id="trf_4_1_1" r="0.0" x="0.020768399119377133" g="0.0" b="0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="4" voltageLevelId1="VL31" node2="2" voltageLevelId2="VL28">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" loadTapChangingCapabilities="false">
                 <iidm:step r="-76.82265450419209" x="-76.82265450419209" g="331.4557938400971" b="331.4557938400971" rho="0.4814285564422608"/>
                 <iidm:step r="-72.06122593003874" x="-72.06122593003874" g="257.9255115116748" b="257.9255115116748" rho="0.5285714149475098"/>
@@ -100,7 +100,7 @@
             <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="2000.0" q0="100.0" node="3"/>
             <iidm:load id="lod_5_2" loadType="UNDEFINED" p0="0.0" q0="50.0" node="5"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_5_3_1" r="0.0" x="0.036288000154495244" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="6" voltageLevelId1="VL32" node2="2" voltageLevelId2="VL30">
+        <iidm:twoWindingsTransformer id="trf_5_3_1" r="0.0" x="0.036288000154495244" g="0.0" b="0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="6" voltageLevelId1="VL32" node2="2" voltageLevelId2="VL30">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" loadTapChangingCapabilities="false">
                 <iidm:step r="-10.201804147623294" x="-10.201804147623294" g="11.360811930336002" b="11.360811930336002" rho="0.9476190999150276"/>
                 <iidm:step r="-9.297043098613834" x="-9.297043098613834" g="10.249988992885584" b="10.249988992885584" rho="0.9523809999227525"/>

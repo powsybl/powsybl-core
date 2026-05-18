@@ -280,11 +280,8 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     }
 
     private static void copySelectedOperationalLimitsGroup(TwoWindingsTransformer t2w, ThreeWindingsTransformer.Leg leg, boolean isWellOriented) {
-        if (isWellOriented) {
-            t2w.getSelectedOperationalLimitsGroupId1().ifPresent(leg::setSelectedOperationalLimitsGroup);
-        } else {
-            t2w.getSelectedOperationalLimitsGroupId2().ifPresent(leg::setSelectedOperationalLimitsGroup);
-        }
+        TwoSides side = isWellOriented ? TwoSides.ONE : TwoSides.TWO;
+        leg.addSelectedOperationalLimitsGroups(t2w.getAllSelectedOperationalLimitsGroupIdsOrdered(side).toArray(String[]::new));
     }
 
     private Substation findSubstation(TwoR twoR, boolean throwException) {
