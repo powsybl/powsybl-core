@@ -15,7 +15,7 @@ import java.util.Collection;
  */
 public interface LoadingLimits extends OperationalLimits {
 
-    public static final String DEFAULT_PERMANENT_LIMIT_NAME = "permanent";
+    String DEFAULT_PERMANENT_LIMIT_NAME = "permanent";
 
     /**
      * Temporary current limit.

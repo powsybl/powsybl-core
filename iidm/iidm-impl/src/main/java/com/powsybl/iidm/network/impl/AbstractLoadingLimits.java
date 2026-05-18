@@ -102,7 +102,6 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         return permanentLimitName;
     }
 
-    //TODO NDI why return L and not LoadingLimits ?
     @Override
     public L setPermanentLimitName(String name) {
         this.permanentLimitName = Objects.requireNonNull(name);
