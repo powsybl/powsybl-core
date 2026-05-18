@@ -48,7 +48,18 @@ public interface LoadingLimits extends OperationalLimits {
     }
 
     /**
+     * Used to say if the duration of the violation that is acceptable at a given value should be taken from
+     * the limit above the value (HIGH) or below the value (LOW).<br>
+     * If this is {@link DetectionKind#HIGH}, {@link #getPermanentLimit()} should return a valid value.<br>
+     * If this is {@link DetectionKind#LOW}, {@link #getPermanentLimit()} will throw as there is no valid permanent limit.
+     * @return the detection kind associated to this loading limit
+     */
+    DetectionKind getDetectionKind();
+
+    /**
      * Get the permanent limit.
+     * If the return of {@link #getDetectionKind()} is {@link DetectionKind#LOW},
+     * this will throw, as this kind of limit does not have a permanent limit.
      * @return the permanent limit.
      */
     double getPermanentLimit();
