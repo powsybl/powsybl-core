@@ -212,9 +212,12 @@ public final class NetworkSerDe {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e ->
-                            isExtensionIncluded(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getOptions()) &&
-                            canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e, extensionsSupplier), context.getVersion(), context.getOptions()))
+                    .filter(e -> {
+                        ExtensionSerDe extensionSerDe = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
+                        return isExtensionIncluded(extensionSerDe, context.getOptions())
+                            && canTheExtensionBeWritten(extensionSerDe, context.getVersion(), context.getOptions())
+                            && extensionSerDe.isSerializable(e, context);
+                    })
                     .toList();
 
             if (!extensions.isEmpty()) {
@@ -567,7 +570,7 @@ public final class NetworkSerDe {
         // Main case: the element has to be written
         // - if the element is directly in the network (not in one of its subnetworks)
         // - and if it's not a network itself (linked to previous corner case)
-        return element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK;
+        return n.equals(element.getParentNetwork()) && element.getType() != IdentifiableType.NETWORK;
     }
 
     private static boolean supportSubnetworksExport(NetworkSerializerContext context) {
@@ -673,7 +676,8 @@ public final class NetworkSerDe {
                 Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),
-                Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(BoundaryLineSerDe.ARRAY_ELEMENT_NAME, BoundaryLineSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(DanglingLineSerDe.ARRAY_ELEMENT_NAME, DanglingLineSerDe.ROOT_ELEMENT_NAME), // For backward-compatibility with IIDM versions < 1.16
                 Map.entry(DcNodeSerDe.ARRAY_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcGroundSerDe.ARRAY_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(DcLineSerDe.ARRAY_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME),
@@ -689,8 +693,9 @@ public final class NetworkSerDe {
                 Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
-                Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(ShuntSerDe.SECTION_ARRAY_ELEMENT_NAME, ShuntSerDe.SECTION_ROOT_ELEMENT_NAME),
+                Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME), //For backward compatibility with IIDM versions < 1.16
+                Map.entry(AbstractShuntCompensatorSerDe.SECTION_ARRAY_ELEMENT_NAME, AbstractShuntCompensatorSerDe.SECTION_ROOT_ELEMENT_NAME),
+                Map.entry(ShuntCompensatorSerDe.ARRAY_ELEMENT_NAME, ShuntCompensatorSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(StaticVarCompensatorSerDe.ARRAY_ELEMENT_NAME, StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(SubstationSerDe.ARRAY_ELEMENT_NAME, SubstationSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ThreeWindingsTransformerSerDe.ARRAY_ELEMENT_NAME, ThreeWindingsTransformerSerDe.ROOT_ELEMENT_NAME),

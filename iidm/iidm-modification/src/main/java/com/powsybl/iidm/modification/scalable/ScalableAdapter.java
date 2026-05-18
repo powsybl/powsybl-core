@@ -42,8 +42,8 @@ class ScalableAdapter extends AbstractScalable {
             return withValues ? new GeneratorScalable(id, minValue, maxValue) : new GeneratorScalable(id);
         } else if (identifiable instanceof Load) {
             return withValues ? new LoadScalable(id, minValue, maxValue) : new LoadScalable(id);
-        } else if (identifiable instanceof DanglingLine) {
-            return withValues ? new DanglingLineScalable(id, minValue, maxValue) : new DanglingLineScalable(id);
+        } else if (identifiable instanceof BoundaryLine) {
+            return withValues ? new BoundaryLineScalable(id, minValue, maxValue) : new BoundaryLineScalable(id);
         } else {
             throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
         }

@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
@@ -50,7 +50,22 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
             switch (parser.currentName()) {
                 case "operatorStrategy":
                     parser.nextToken();
+                    // operator strategies are independent of security analysis, we need to shift to operator strategy
+                    // version values
+                    // <= 1.4 -> 1.0
+                    // between 1.5 and 1.7 -> 1.1
+                    // >= 1.8 -> 1.2
+                    String operatorStrategyVersion;
+                    if (version.compareTo("1.4") <= 0) {
+                        operatorStrategyVersion = "1.0";
+                    } else if (version.compareTo("1.5") >= 0 && version.compareTo("1.7") <= 0) {
+                        operatorStrategyVersion = "1.1";
+                    } else {
+                        operatorStrategyVersion = "1.2";
+                    }
+                    JsonUtil.setSourceVersion(deserializationContext, operatorStrategyVersion, SOURCE_VERSION_ATTRIBUTE);
                     operatorStrategy = JsonUtil.readValue(deserializationContext, parser, OperatorStrategy.class);
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE); // restore
                     break;
 
                 case "limitViolationsResult":
@@ -86,12 +101,22 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                     throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
             }
         }
+        Objects.requireNonNull(operatorStrategy);
         if (version.compareTo("1.3") < 0) {
             Objects.requireNonNull(limitViolationsResult);
-            return new OperatorStrategyResult(operatorStrategy, limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED,
-                    limitViolationsResult, networkResult);
+            return new OperatorStrategyResult(operatorStrategy, List.of(
+                    new OperatorStrategyResult.ConditionalActionsResult(
+                            operatorStrategy.getId(),
+                            limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED,
+                            limitViolationsResult, networkResult, Double.NaN
+                    )));
         } else if (version.compareTo("1.6") < 0) {
-            return new OperatorStrategyResult(operatorStrategy, status, limitViolationsResult, networkResult);
+            return new OperatorStrategyResult(operatorStrategy, List.of(
+                    new OperatorStrategyResult.ConditionalActionsResult(
+                            operatorStrategy.getId(),
+                            status,
+                            limitViolationsResult, networkResult, Double.NaN
+                    )));
         } else {
             return new OperatorStrategyResult(operatorStrategy, conditionalActionsResultList);
         }

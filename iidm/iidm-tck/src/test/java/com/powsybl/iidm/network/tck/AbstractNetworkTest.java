@@ -15,9 +15,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
-import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.TieLineUtil;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
@@ -54,13 +52,10 @@ public abstract class AbstractNetworkTest {
     private static final String VLHV1 = "VLHV1";
     private static final String VLGEN = "VLGEN";
     private static final String VLBAT = "VLBAT";
+    private static final String ID_1 = "1";
+    private static final String ID_2 = "2";
 
-    @BeforeAll
-    public static void makeMergeNetwork() {
-        Network n1 = AbstractSubnetworksExplorationTest.createNetwork(ID_1, Country.BE);
-        Network n2 = AbstractSubnetworksExplorationTest.createNetwork(ID_2, Country.DE);
-        fullNetwork = Network.merge("full", n1, n2);
-    }
+    private static Network fullNetwork;
 
     @Test
     public void testNetwork1() {
@@ -98,13 +93,15 @@ public abstract class AbstractNetworkTest {
         topology1.setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
         assertEquals(1.0, topology1.getFictitiousP0(0), 0.0);
         assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
-        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(voltageLevel1);
-        nodesByBus.forEach((busId, nodes) -> {
-            if (nodes.contains(0)) {
-                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
-                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousQ0(), 0.0);
-            }
-        });
+        assertEquals(1.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
+        assertEquals(2.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
+        topology1.getTerminal(0).getBusView().getBus().setFictitiousP0(3.0);
+        topology1.getTerminal(0).getBusView().getBus().setFictitiousQ0(4.0);
+        // here we only test that the bus has the correct total fictitious. We
+        // decided not to enforce how it is distributed on the different nodes
+        // of the bus to allow different behaviors.
+        assertEquals(3.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousP0(), 0.0);
+        assertEquals(4.0, topology1.getTerminal(0).getBusView().getBus().getFictitiousQ0(), 0.0);
 
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
@@ -450,9 +447,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformerStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(network.getBoundaryLineCount(), network.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntCompensatorStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV2).getShuntCompensatorStream()));
         assertEquals(network.getShuntCompensatorCount(), network.getShuntCompensatorStream().count());
@@ -717,22 +714,20 @@ public abstract class AbstractNetworkTest {
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
     }
 
-    private static final String ID_1 = "1";
-    private static final String ID_2 = "2";
-    private static Network fullNetwork;
-
     @Test
     public void testIdentifiableStreamNetwork() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 "full",
                 id("network", ID_1),
                 id("network", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.NETWORK);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.NETWORK);
     }
 
     @Test
     public void testIdentifiableStreamSubstation() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("substation1", ID_1),
                 id("substation1", ID_2),
@@ -741,11 +736,12 @@ public abstract class AbstractNetworkTest {
                 id("substation3", ID_1),
                 id("substation3", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.SUBSTATION);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.SUBSTATION);
     }
 
     @Test
     public void testIdentifiableStreamVoltageLevel() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("voltageLevel1", ID_1),
                 id("voltageLevel1", ID_2),
@@ -758,31 +754,34 @@ public abstract class AbstractNetworkTest {
                 id("voltageLevel5", ID_1),
                 id("voltageLevel5", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.VOLTAGE_LEVEL);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.VOLTAGE_LEVEL);
     }
 
     @Test
     public void testIdentifiableStreamArea() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("area1", ID_1),
                 id("area1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.AREA);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.AREA);
     }
 
     @Test
     public void testIdentifiableStreamHvdcLine() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("hvdcLine1", ID_1),
                 id("hvdcLine1", ID_2),
                 id("hvdcLine2", ID_1),
                 id("hvdcLine2", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.HVDC_LINE);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.HVDC_LINE);
     }
 
     @Test
     public void testIdentifiableStreamSwitch() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("voltageLevel1Breaker1", ID_1),
                 id("load1Disconnector1", ID_1),
@@ -795,117 +794,129 @@ public abstract class AbstractNetworkTest {
                 id("generator1Disconnector1", ID_2),
                 id("generator1Breaker1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.SWITCH);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.SWITCH);
     }
 
     @Test
     public void testIdentifiableStreamBusBarSection() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("voltageLevel1BusbarSection1", ID_1),
                 id("voltageLevel1BusbarSection2", ID_1),
                 id("voltageLevel1BusbarSection1", ID_2),
                 id("voltageLevel1BusbarSection2", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.BUSBAR_SECTION);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.BUSBAR_SECTION);
     }
 
     @Test
     public void testIdentifiableStreamLine() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("line1", ID_1),
                 id("line1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.LINE);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.LINE);
     }
 
     @Test
     public void testIdentifiableStreamTieLine() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("tieLine1", ID_1),
                 id("tieLine1", ID_2),
-                TieLineUtil.buildMergedId(id("danglingLine3", ID_1), id("danglingLine3", ID_2))
+                TieLineUtil.buildMergedId(id("boundaryLine3", ID_1), id("boundaryLine3", ID_2))
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.TIE_LINE);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.TIE_LINE);
     }
 
     @Test
     public void testIdentifiableStream2WT() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("twoWindingsTransformer1", ID_1),
                 id("twoWindingsTransformer1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.TWO_WINDINGS_TRANSFORMER);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.TWO_WINDINGS_TRANSFORMER);
     }
 
     @Test
     public void testIdentifiableStream3WT() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("threeWindingsTransformer1", ID_1),
                 id("threeWindingsTransformer1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.THREE_WINDINGS_TRANSFORMER);
     }
 
     @Test
     public void testIdentifiableStreamGenerator() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("generator1", ID_1),
                 id("generator1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.GENERATOR);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.GENERATOR);
     }
 
     @Test
     public void testIdentifiableStreamBattery() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("battery1", ID_1),
                 id("battery1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.BATTERY);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.BATTERY);
     }
 
     @Test
     public void testIdentifiableStreamLoad() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("load1", ID_1),
                 id("load1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.LOAD);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.LOAD);
     }
 
     @Test
     public void testIdentifiableStreamShuntCompensator() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("shuntCompensator1", ID_1),
                 id("shuntCompensator1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.SHUNT_COMPENSATOR);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.SHUNT_COMPENSATOR);
     }
 
     @Test
-    public void testIdentifiableStreamDanglingLine() {
+    public void testIdentifiableStreamBoundaryLine() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
-                id("danglingLine1", ID_1),
-                id("danglingLine2", ID_1),
-                id("danglingLine3", ID_1),
-                id("danglingLine1", ID_2),
-                id("danglingLine2", ID_2),
-                id("danglingLine3", ID_2)
+                id("boundaryLine1", ID_1),
+                id("boundaryLine2", ID_1),
+                id("boundaryLine3", ID_1),
+                id("boundaryLine1", ID_2),
+                id("boundaryLine2", ID_2),
+                id("boundaryLine3", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.DANGLING_LINE);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.BOUNDARY_LINE);
     }
 
     @Test
     public void testIdentifiableStreamStaticVarCompensator() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("svc1", ID_1),
                 id("svc1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.STATIC_VAR_COMPENSATOR);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.STATIC_VAR_COMPENSATOR);
     }
 
     @Test
     public void testIdentifiableStreamHvdcConverterStation() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("lcc1", ID_1),
                 id("lcc2", ID_1),
@@ -916,87 +927,101 @@ public abstract class AbstractNetworkTest {
                 id("vsc1", ID_2),
                 id("vsc2", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.HVDC_CONVERTER_STATION);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.HVDC_CONVERTER_STATION);
     }
 
     @Test
     public void testIdentifiableStreamOverloadManagementSystem() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("overloadManagementSystem", ID_1),
                 id("overloadManagementSystem", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.OVERLOAD_MANAGEMENT_SYSTEM);
     }
 
     @Test
     public void testIdentifiableStreamDcNode() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("dcNode1", ID_1),
                 id("dcNode2", ID_1),
                 id("dcNode1", ID_2),
                 id("dcNode2", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_NODE);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_NODE);
     }
 
     @Test
     public void testIdentifiableStreamDcSwitch() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("dcSwitch1", ID_1),
                 id("dcSwitch1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_SWITCH);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_SWITCH);
     }
 
     @Test
     public void testIdentifiableStreamDcGround() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("dcGround1", ID_1),
                 id("dcGround1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_GROUND);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_GROUND);
     }
 
     @Test
     public void testIdentifiableStreamDcLine() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("dcLine1", ID_1),
                 id("dcLine1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.DC_LINE);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.DC_LINE);
     }
 
     @Test
     public void testIdentifiableStreamLcc() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("lccDetailed1", ID_1),
                 id("lccDetailed1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.LINE_COMMUTATED_CONVERTER);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.LINE_COMMUTATED_CONVERTER);
     }
 
     @Test
     public void testIdentifiableStreamVsc() {
+        fullNetwork = createMergedNetwork();
         Set<String> expected = Set.of(
                 id("vscDetailed1", ID_1),
                 id("vscDetailed1", ID_2)
         );
-        assertIdentifiableStreamEqual(expected, IdentifiableType.VOLTAGE_SOURCE_CONVERTER);
+        assertIdentifiableStreamEqual(expected, fullNetwork, IdentifiableType.VOLTAGE_SOURCE_CONVERTER);
     }
 
     @Test
     public void testIdentifiableStreamUnsupportedType() {
+        fullNetwork = createMergedNetwork();
         // unsupported types also include DC_BUS
         assertThrows(PowsyblException.class, () -> fullNetwork.getIdentifiableStream(IdentifiableType.BUS));
     }
 
     // GROUND not tested because there is no GROUND in the test network we are using
 
-    private void assertIdentifiableStreamEqual(Set<String> expected, IdentifiableType type) {
-        Set<String> actualIds = fullNetwork
+    private static void assertIdentifiableStreamEqual(Set<String> expected, Network network, IdentifiableType type) {
+        Set<String> actualIds = network
                 .getIdentifiableStream(type)
                 .map(Identifiable::getId)
                 .collect(Collectors.toSet());
         assertEquals(expected, actualIds);
+    }
+
+    private static Network createMergedNetwork() {
+        Network n1 = AbstractSubnetworksExplorationTest.createNetwork(ID_1, Country.BE);
+        Network n2 = AbstractSubnetworksExplorationTest.createNetwork(ID_2, Country.DE);
+        return Network.merge("full", n1, n2);
     }
 }

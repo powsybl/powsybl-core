@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.SwitchPredicates;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -213,16 +212,6 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public boolean connect() {
-        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
-    }
-
-    @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return connect(isTypeSwitchToOperate, null);
-    }
-
-    @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
 
         return ConnectDisconnectUtil.connectAllTerminals(
@@ -230,16 +219,6 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             getTerminals(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
-    }
-
-    @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return disconnect(isSwitchOpenable, null);
     }
 
     @Override

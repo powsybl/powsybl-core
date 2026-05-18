@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -36,6 +35,7 @@ import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TOPOLOGICAL_NODE_BOUNDARY;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -110,7 +110,7 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microGridBaseCaseBERoundtrip() throws IOException {
-        // TODO When we convert boundaries values for P0, Q0 at dangling lines
+        // TODO When we convert boundaries values for P0, Q0 at boundary lines
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
@@ -220,7 +220,7 @@ class CgmesConformity1ConversionTest {
 
         List<String> cgmesTNIds = expected.topologicalNodes().pluckIdentifiers(CgmesNames.TOPOLOGICAL_NODE).stream().sorted().toList();
         // Boundary nodes of CGMES model are not mapped to buses in IIDM
-        List<String> cgmesBoundaryTNIds = network.getDanglingLineStream().map(dl -> dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)).toList();
+        List<String> cgmesBoundaryTNIds = network.getBoundaryLineStream().map(bl -> bl.getProperty(PROPERTY_TOPOLOGICAL_NODE_BOUNDARY)).toList();
 
         List<String> expectedBusIds = new ArrayList<>(cgmesTNIds);
         expectedBusIds.removeAll(cgmesBoundaryTNIds);

@@ -29,9 +29,9 @@ These commands create a new `Network` `n` having a subnetwork for each network g
 For each network `network`*`i`*, a new subnetwork is created in `n` with the same ID. All its content (network element, extensions, properties, ...)
 is transferred to the subnetwork. As a result, `network`*`i`* will be empty after the operation.
 
-During this merging operation, unpaired `DanglingLine`s are examined. Two unpaired dangling lines in different networks will be paired (and a `TieLine` will be created) if:
-- they have the same non-null pairing key and are the only dangling lines to have this pairing key in their respective networks;
-- **OR** they have the same non-null pairing key and are the only **connected** dangling lines to have this pairing key in their respective networks.
+During this merging operation, unpaired `BoundaryLine`s are examined. Two unpaired boundary lines in different networks will be paired (and a `TieLine` will be created) if:
+- they have the same non-null pairing key and are the only boundary lines to have this pairing key in their respective networks;
+- **OR** they have the same non-null pairing key and are the only **connected** boundary lines to have this pairing key in their respective networks.
 
 If all the `network`*`i`* have the same source format, the resulting network will also receive this format. Else, it will be set to `hybrid`.
 

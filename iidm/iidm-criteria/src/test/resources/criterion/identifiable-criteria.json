@@ -1,6 +1,6 @@
 [ {
   "type" : "identifiableCriterion",
-  "version" : "1.0",
+  "version" : "1.1",
   "name" : "criterion7",
   "countryCriterion" : {
     "type" : "AT_LEAST_ONE_COUNTRY",
@@ -17,14 +17,14 @@
   }
 }, {
   "type" : "identifiableCriterion",
-  "version" : "1.0",
+  "version" : "1.1",
   "countryCriterion" : {
     "type" : "AT_LEAST_ONE_COUNTRY",
     "countries" : [ "BE" ]
   }
 }, {
   "type" : "identifiableCriterion",
-  "version" : "1.0",
+  "version" : "1.1",
   "nominalVoltageCriterion" : {
     "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
     "voltageInterval" : {

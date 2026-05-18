@@ -1,6 +1,6 @@
 [ {
   "type" : "tieLineCriterion",
-  "version" : "1.0",
+  "version" : "1.1",
   "name" : "criterion5",
   "countryCriterion" : {
     "type" : "TWO_COUNTRY",
@@ -24,5 +24,5 @@
   }
 }, {
   "type" : "tieLineCriterion",
-  "version" : "1.0"
+  "version" : "1.1"
 } ]

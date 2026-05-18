@@ -311,7 +311,7 @@ This modification ensures that the connectivity of the network is preserved whil
 ### Bus tripping
 <span style="color: red">TODO</span>
 
-### Dangling line tripping
+### Boundary line tripping
 <span style="color: red">TODO</span>
 
 ### Generator tripping
@@ -370,19 +370,19 @@ This modification is used to connect a network element to the closest bus or bus
 It works on:
 - `Connectable` elements by connecting their terminals
 - HVDC lines, by connecting the terminals of their converter stations
-- Tie lines, by connecting the terminals of their underlying dangling lines
+- Tie lines, by connecting the terminals of their underlying boundary lines
 
 It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
 
 Class: `ConnectableConnection`
 
-### Dangling line
-This modification is used to update the active and reactive powers of the load part of a dangling line.
+### Boundary line
+This modification is used to update the active and reactive powers of the load part of a boundary line.
 
 If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.
 If `relativeValue` is set to false, then the new constant active power (`P0`) and reactive power (`Q0`) are updated to the new given values.
 
-Class: `DanglingLineModification`
+Class: `BoundaryLineModification`
 
 ### Disconnections
 
@@ -393,7 +393,7 @@ This modification is used to disconnect a network element from the bus or bus ba
 It works on:
 - `Connectable` elements.
 - HVDC lines, by disconnecting their converter stations
-- Tie lines, by disconnecting their underlying dangling lines
+- Tie lines, by disconnecting their underlying boundary lines
 
 It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
 
@@ -406,7 +406,7 @@ This modification is used to disconnect a network element from the bus or bus ba
 It works on:
 - `Connectable` elements.
 - HVDC lines, by disconnecting their converter stations
-- Tie lines, by disconnecting their underlying dangling lines
+- Tie lines, by disconnecting their underlying boundary lines
 
 It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
 
@@ -497,17 +497,17 @@ It sets the phase tap changer as not regulating and updates its `tapPosition` by
 Class: `PhaseShifterShiftTap`
 
 ### Replace tie lines by lines
-This modification is used to replace all the tie lines of a network to simple lines built from the original tie line and its 2 dangline lines.
+This modification is used to replace all the tie lines of a network to simple lines built from the original tie line and its 2 boundary lines.
 
-- The two voltage levels are set from the tie line dangling lines terminal voltage levels (the first voltage level from the first dangling line and the second from the second one).
+- The two voltage levels are set from the tie line boundary lines terminal voltage levels (the first voltage level from the first boundary line and the second from the second one).
 - For each voltage level the topology kind is taken into account to create node (for `NODE_BREAKER` kind) or bus and connectable bus (for `BUS_BREAKER` kind)
 - The tie line id, name, r, x, b1, b2, g1, g2 are set in the new line
-- Active power limits, apparent power limits and current limits are set on each side of the line from the limits of the 2 dangling lines
-- Terminal active and reactive powers are set for both terminals from each dangling line active and reactive powers
-- Line properties are set from the merge of the tie line and its 2 dangling lines properties
-- Line aliases are set from the merge of the tie line and its 2 dangling lines aliases
+- Active power limits, apparent power limits and current limits are set on each side of the line from the limits of the 2 boundary lines
+- Terminal active and reactive powers are set for both terminals from each boundary line active and reactive powers
+- Line properties are set from the merge of the tie line and its 2 boundary lines properties
+- Line aliases are set from the merge of the tie line and its 2 boundary lines aliases
 - If the tie line has a pairing key then it is added to the new line as a pairing key alias
-- The tie line and its dangling lines are removed from the network
+- The tie line and its boundary lines are removed from the network
 
 Class: `ReplaceTieLinesByLines`
 

@@ -17,11 +17,10 @@ import java.util.function.Supplier;
  */
 public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerLimits, ActivePowerLimitsAdder> implements ActivePowerLimitsAdder {
     Supplier<OperationalLimitsGroupImpl> groupSupplier;
-
     private final NetworkImpl network;
 
-    public ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
-        super(validable, ownerId);
+    public ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalLimitGroupId, NetworkImpl network) {
+        super(validable, ownerId, operationalLimitGroupId);
         this.groupSupplier = groupSupplier;
         this.network = network;
     }
@@ -35,6 +34,7 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
         }
         ActivePowerLimits limits = new ActivePowerLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setActivePowerLimits(limits);
+        this.copyPropertiesTo(limits);
         return limits;
     }
 

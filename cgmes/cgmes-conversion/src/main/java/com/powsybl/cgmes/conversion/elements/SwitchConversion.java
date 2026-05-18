@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -20,12 +19,15 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class SwitchConversion extends AbstractConductingEquipmentConversion implements EquipmentAtBoundaryConversion {
 
-    private DanglingLine danglingLine;
+    private BoundaryLine boundaryLine;
 
     public SwitchConversion(PropertyBag sw, Context context) {
         super(CgmesNames.SWITCH, sw, context, 2);
@@ -40,15 +42,17 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             return false;
         }
         if (busId(1).equals(busId(2))) {
-            ignored("end buses are the same bus " + busId(1));
+            if (!context.config().isSilenceFrequentIssuesWarnings()) {
+                ignored("end buses are the same bus " + busId(1));
+            }
             return false;
         }
-        if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {
-            LOG.warn("Switch {} has at least one end in the boundary", id);
-            LOG.warn("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
-            LOG.warn("    side 1 is boundary    : {}", isBoundary(1));
-            LOG.warn("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
-            LOG.warn("    side 2 is boundary    : {}", isBoundary(2));
+        if ((isBoundary(1) || isBoundary(2)) && LOG.isDebugEnabled()) {
+            LOG.debug("Switch {} has at least one end in the boundary", id);
+            LOG.debug("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
+            LOG.debug("    side 1 is boundary    : {}", isBoundary(1));
+            LOG.debug("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
+            LOG.debug("    side 2 is boundary    : {}", isBoundary(2));
         }
         return true;
     }
@@ -70,8 +74,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     @Override
-    public Optional<DanglingLine> getDanglingLine() {
-        return Optional.ofNullable(danglingLine);
+    public Optional<BoundaryLine> getBoundaryLine() {
+        return Optional.ofNullable(boundaryLine);
     }
 
     private Switch convertToSwitch() {
@@ -91,8 +95,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         }
         // Always preserve the original type
         addAliasesAndProperties(s);
-        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
+        s.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
+        s.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         return s;
     }
 
@@ -100,11 +104,11 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         if (context.config().convertBoundary()) {
             convertToSwitch().setRetained(true);
         } else {
-            warnDanglingLineCreated();
+            warnBoundaryLineCreated();
             String eqInstance = p.get("graph");
-            danglingLine = convertToDanglingLine(eqInstance, boundarySide, CgmesNames.SWITCH);
+            boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, CgmesNames.SWITCH);
             boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
-            danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
+            boundaryLine.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         }
     }
 
@@ -118,24 +122,24 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         };
     }
 
-    private void warnDanglingLineCreated() {
-        fixed("Dangling line with low impedance", "Connected to a boundary node");
+    private void warnBoundaryLineCreated() {
+        fixed("Converted as a boundary line with zero impedance", "Connected to a boundary node");
     }
 
-    public static void update(DanglingLine danglingLine, PropertyBag cgmesData, Context context) {
-        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(danglingLine, context));
-        updateDanglingLine(danglingLine, isBoundaryTerminalConnected(danglingLine, context) && isClosed, context);
+    public static void update(BoundaryLine boundaryLine, PropertyBag cgmesData, Context context) {
+        boolean isClosed = !cgmesData.asBoolean("open").orElse(defaultOpen(boundaryLine, context));
+        updateBoundaryLine(boundaryLine, isBoundaryTerminalConnected(boundaryLine, context) && isClosed, context);
     }
 
-    // In the danglingLines, the status of the terminal on the boundary side cannot be explicitly represented.
+    // In the boundaryLines, the status of the terminal on the boundary side cannot be explicitly represented.
     // Instead, it is implicitly indicated by setting both active and reactive power to zero.
     // Then, we assume that the previous value is always false
-    private static boolean defaultOpen(DanglingLine danglingLine, Context context) {
-        return getDefaultValue(getNormalOpen(danglingLine), false, false, false, context);
+    private static boolean defaultOpen(BoundaryLine boundaryLine, Context context) {
+        return getDefaultValue(getNormalOpen(boundaryLine), false, false, false, context);
     }
 
-    private static Boolean getNormalOpen(DanglingLine danglingLine) {
-        String property = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+    private static Boolean getNormalOpen(BoundaryLine boundaryLine) {
+        String property = boundaryLine.getProperty(PROPERTY_NORMAL_OPEN);
         return property != null ? Boolean.parseBoolean(property) : null;
     }
 
