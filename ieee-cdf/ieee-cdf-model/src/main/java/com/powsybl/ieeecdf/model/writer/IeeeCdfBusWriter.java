@@ -26,13 +26,13 @@ public final class IeeeCdfBusWriter extends AbstractIeeeCdfWriter {
     public static void writeBuses(BufferedWriter writer, List<IeeeCdfBus> busList) throws IOException {
         writeHeader(writer, "BUS DATA FOLLOWS                            %d ITEMS", busList);
         for (IeeeCdfBus bean : busList) {
-            writer.write(convertBusToLins(bean));
+            writer.write(convertBusToLine(bean));
             writer.newLine();
         }
         writeFooter(writer, -999);
     }
 
-    private static String convertBusToLins(IeeeCdfBus bus) {
+    private static String convertBusToLine(IeeeCdfBus bus) {
         return toString(bus.getNumber(), 1, 4, false) +
             FILLER +
             toString(bus.getName(), 6, 17, true) +
