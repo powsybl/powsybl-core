@@ -50,14 +50,16 @@ public final class IeeeCdfBranchReader extends AbstractIeeeCdfReader {
         readDouble(line, 91, 97, branch::setMinTapOrPhaseShift);
         readDouble(line, 98, 104, branch::setMaxTapOrPhaseShift);
         readDouble(line, 105, 111, branch::setStepSize);
+        int delta = 0;
         try {
             readDouble(line, 113, 119, branch::setMinVoltageActiveOrReactivePowerLimit);
         } catch (NumberFormatException e) {
             // In some cases, this column is one character shorter than usual
             readDouble(line, 113, 118, branch::setMinVoltageActiveOrReactivePowerLimit);
+            delta = 1;
         }
-        readDouble(line, 120, 126, branch::setMaxVoltageActiveOrReactivePowerLimit);
-        readInteger(line, 127, 133, branch::setUnused);
+        readDouble(line, 120 - delta, 126 - delta, branch::setMaxVoltageActiveOrReactivePowerLimit);
+        readInteger(line, 127 - delta, 133 - delta, branch::setUnused);
         return branch;
     }
 }
