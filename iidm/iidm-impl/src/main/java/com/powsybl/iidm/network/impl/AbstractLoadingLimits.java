@@ -93,7 +93,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
         network.invalidateValidationLevel();
-        group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
+        group.notifyPermanentLimitUpdate(getLimitType(), this.permanentLimitName, this.permanentLimitName, oldValue, this.permanentLimit);
         return (L) this;
     }
 
@@ -104,8 +104,9 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     @Override
     public L setPermanentLimitName(String name) {
+        String oldName = this.permanentLimitName;
         this.permanentLimitName = Objects.requireNonNull(name);
-        //TODO NDI notify name change with something similar to notifyPermanentLimitUpdate ? Update PermanentLimitInfo ?
+        group.notifyPermanentLimitUpdate(getLimitType(), oldName, this.permanentLimitName, this.permanentLimit, this.permanentLimit);
         return (L) this;
     }
 
