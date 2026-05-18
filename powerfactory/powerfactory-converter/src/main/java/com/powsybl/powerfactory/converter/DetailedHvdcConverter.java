@@ -99,9 +99,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         private static @NonNull Set<DataObject> getDcSwitchObjs(Set<DataObject> dcElmTerms) {
             assert dcElmTerms.isEmpty() || ELMTERM.equals(dcElmTerms.iterator().next().getDataClassName());
 
-            // List of ElmCoup which are connected to both AC and DC terminals
-            Set<DataObject> dcElmCoup = new HashSet<>();
-
             // Count the number of DC terminals connected to each ElmCoup and add when 2 is reached
 
             // List of cubicles connected to DC terminals
@@ -112,6 +109,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                     .filter(obj -> "ElmCoup".equals(obj.getDataClassName())) // Keep only ElmCoup
                     .toList();
 
+            Set<DataObject> dcElmCoup = new HashSet<>(); // ElmCoup which are connected to DC terminals at both ends
             Set<DataObject> dcElmCoup1Term = new HashSet<>(); // ElmCoup where 1 DC terminal was already encountered
             for (DataObject elmCoup : connectedElmCoup) {
                 // Try insertion in intermediate set dcElmCoup1Term
@@ -231,7 +229,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         DcSwitchKind kind = switch (aUsage) {
             case "dct" -> DcSwitchKind.DISCONNECTOR;
             case "cbk" -> DcSwitchKind.BREAKER;
-            default -> throw new PowerFactoryException("Unsupported aUsage value '" + aUsage + "' for ElmCoup " + elmCoup.getId() + ". Supported values: 'dct' (disconnector), 'cbk' (breaker).");
+            default -> throw new PowerFactoryException("Unsupported aUsage value '" + aUsage + "' for ElmCoup " + elmCoup.getId()
+                                                        + ". Supported values: 'dct' (disconnector), 'cbk' (breaker).");
         };
 
         // connected unless explicitly disconnected
