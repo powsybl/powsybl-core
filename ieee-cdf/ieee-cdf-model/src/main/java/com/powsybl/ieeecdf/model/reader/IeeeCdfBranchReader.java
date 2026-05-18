@@ -59,7 +59,7 @@ public final class IeeeCdfBranchReader extends AbstractIeeeCdfReader {
             delta = 1;
         }
         readDouble(line, 120 - delta, 126 - delta, branch::setMaxVoltageActiveOrReactivePowerLimit);
-        readInteger(line, 127 - delta, 132 - delta, branch::setSequenceNumber);
+        readInteger(line, 129 - delta, 132 - delta, branch::setSequenceNumber);
         return branch;
     }
 }

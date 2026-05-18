@@ -69,6 +69,7 @@ public final class IeeeCdfBranchWriter extends AbstractIeeeCdfWriter {
             FILLER +
             toString(branch.getMinVoltageActiveOrReactivePowerLimit(), 113, 119, true) +
             toString(branch.getMaxVoltageActiveOrReactivePowerLimit(), 120, 126, true) +
-            toString(branch.getSequenceNumber(), 127, 132, true);
+            FILLER2 +
+            toString(branch.getSequenceNumber(), 129, 132, true);
     }
 }
