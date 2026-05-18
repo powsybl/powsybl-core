@@ -151,8 +151,6 @@ class BinWriterReaderTest {
 
     @Test
     void testSkipRemainingAttributes() {
-        // writes attrs of every type, reads only the first one;
-        // readEndNode must skip the rest, exercising every branch of skipTypedValue
         BinReader reader = roundTrip(writer -> {
             writer.writeIntAttribute("a", 1);
             writer.writeDoubleAttribute("b", 2.0);

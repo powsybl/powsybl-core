@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
  */
 final class GrowingByteBuffer {
 
-    private static final int DEFAULT_INITIAL_CAPACITY = 32 * 1024 * 1024;
+    private static final int DEFAULT_INITIAL_CAPACITY = 1024 * 1024;
 
     private ByteBuffer buffer;
 
