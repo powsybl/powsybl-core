@@ -71,7 +71,7 @@ For _detailed_ network import, the following additional attributes are also requ
 
 Ground elements (`ElmGndswt`) are not exported by default by PowerFactory. Their export to the DGS file must be declared specifically if grounds are to be re-imported by PowSyBl. No additional attribute is mandatory for ground elements (`ElmGndswt`). If `on_off` is present and has value zero, the ground element is considered disconnected and it is not added to the network. `ciEarthed` is disregarded by the importer. The switch itself is not imported to PowSyBl. The ground resistance is assumed to be zero.
 
-`ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes. 
+`ElmTerm`, `ElmLne` and `TypLne` are used by the importer, but require no additional data than the default attributes.
 
 ### Control mode (_detailed_)
 
@@ -90,7 +90,7 @@ Values 0, 1, 2, 7 and 8 are not supported and will raise a PowerFactoryException
 ElmCoup are imported as DcSwitch if they are connected to 2 DC terminals. They are assumed to be initially closed
 unless `on_off` is present and set to 0. Their _kinds_ are `DISCONNECTOR` by default, which may be overridden
 to `BREAKER` if `aUsage` is set to `cbk`. Kind may be explicitly set to `DISCONNECTOR` by specifying
-`aUsage = dct`.
+`aUsage = dct`. Other `aUsage` values are not supported.
 
 When a `TypSwitch` is provided with `typ_id`, the resistance value `R_on` is taken into account. Other
 properties of the switch are disregarded for the DC network.

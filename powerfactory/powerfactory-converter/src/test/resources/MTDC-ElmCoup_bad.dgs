@@ -1,3 +1,7 @@
+* Bad DGS file where an ElmCoup element is connected
+* to a DC terminal on one side and to an AC terminal
+* on the other side.
+
 $$General;ID(a:40);Descr(a:40);Val(a:255)
 1;Version;5.0
 

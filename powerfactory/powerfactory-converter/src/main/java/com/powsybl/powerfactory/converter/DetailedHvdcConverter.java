@@ -231,7 +231,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         DcSwitchKind kind = switch (aUsage) {
             case "dct" -> DcSwitchKind.DISCONNECTOR;
             case "cbk" -> DcSwitchKind.BREAKER;
-            default -> throw new PowerFactoryException("Wrong aUsage value '" + aUsage + "' in ElmCoup " + elmCoup.getId());
+            default -> throw new PowerFactoryException("Unsupported aUsage value '" + aUsage + "' for ElmCoup " + elmCoup.getId() + ". Supported values: 'dct' (disconnector), 'cbk' (breaker).");
         };
 
         // connected unless explicitly disconnected
