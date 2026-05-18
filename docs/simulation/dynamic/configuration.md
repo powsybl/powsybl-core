@@ -49,16 +49,19 @@ The parameters may also be overridden with a JSON file, in which case the config
 
 ### Optional properties
 
-**startTime**<br>
+(param-dy-start-time)=
+#### startTime
 `startTime` defines when the simulation begins, in seconds. The default value of this property is `0`.
 
-**stopTime**<br>
+(param-dy-stop-time)=
+#### stopTime
 `stopTime` defines when the simulation stops, in seconds. The default value of this property is `1`.
 
-**debugDir**<br>
+(param-dy-debug-dir)=
+#### debugDir
 This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
-### Specific parameters
+### Implementation specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
 - [Dynawo](inv:powsybldynawo:*:*#dynamic_simulation/configuration) and its default parameters.
 
