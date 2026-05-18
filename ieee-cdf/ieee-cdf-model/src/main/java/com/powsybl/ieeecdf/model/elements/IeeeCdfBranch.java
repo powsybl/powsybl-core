@@ -179,9 +179,9 @@ public class IeeeCdfBranch extends AbstractIeeeElement {
     private double maxVoltageActiveOrReactivePowerLimit;
 
     /**
-     * This parameter does not exist in the specification but is present in 300 buses case.
+     * Sequence number (I)
      */
-    private int unused;
+    private int sequenceNumber;
 
     public int getTapBusNumber() {
         return tapBusNumber;
@@ -351,11 +351,11 @@ public class IeeeCdfBranch extends AbstractIeeeElement {
         this.maxVoltageActiveOrReactivePowerLimit = maxVoltageActiveOrReactivePowerLimit;
     }
 
-    public int getUnused() {
-        return unused;
+    public int getSequenceNumber() {
+        return sequenceNumber;
     }
 
-    public void setUnused(int unused) {
-        this.unused = unused;
+    public void setSequenceNumber(int sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 }

@@ -59,6 +59,6 @@ public final class IeeeCdfBusWriter extends AbstractIeeeCdfWriter {
             FILLER +
             toString(bus.getRemoteControlledBusNumber(), 124, 127, true) +
             FILLER +
-            (bus.getUnused() != null ? toString(bus.getUnused(), 129, 132, true) : "");
+            (bus.getSequenceNumber() != null ? toString(bus.getSequenceNumber(), 129, 132, true) : "");
     }
 }

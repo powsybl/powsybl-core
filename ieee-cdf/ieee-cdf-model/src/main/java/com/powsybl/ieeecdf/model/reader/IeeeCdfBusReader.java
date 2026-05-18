@@ -48,7 +48,7 @@ public final class IeeeCdfBusReader extends AbstractIeeeCdfReader {
         readDouble(line, 107, 114, bus::setShuntConductance);
         readDouble(line, 115, 122, bus::setShuntSusceptance);
         readInteger(line, 124, 127, bus::setRemoteControlledBusNumber);
-        readInteger(line, 129, 132, bus::setUnused);
+        readInteger(line, 129, 132, bus::setSequenceNumber);
         return bus;
     }
 }

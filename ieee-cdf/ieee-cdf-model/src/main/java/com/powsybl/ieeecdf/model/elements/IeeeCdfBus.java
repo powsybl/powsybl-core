@@ -145,9 +145,9 @@ public class IeeeCdfBus extends AbstractIeeeElement {
     private int remoteControlledBusNumber;
 
     /**
-     * Additional columns
+     * Sequence number (I)
      */
-    private Integer unused = null;
+    private int sequenceNumber;
 
     public int getNumber() {
         return number;
@@ -293,11 +293,11 @@ public class IeeeCdfBus extends AbstractIeeeElement {
         this.remoteControlledBusNumber = remoteControlledBusNumber;
     }
 
-    public Integer getUnused() {
-        return unused;
+    public Integer getSequenceNumber() {
+        return sequenceNumber;
     }
 
-    public void setUnused(int unused) {
-        this.unused = unused;
+    public void setSequenceNumber(int sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 }
