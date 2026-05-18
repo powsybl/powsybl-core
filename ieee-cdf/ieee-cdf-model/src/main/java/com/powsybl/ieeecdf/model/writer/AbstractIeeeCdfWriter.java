@@ -7,6 +7,8 @@
  */
 package com.powsybl.ieeecdf.model.writer;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -40,11 +42,11 @@ public abstract class AbstractIeeeCdfWriter {
     }
 
     protected static String toString(int value, int start, int end, boolean alignedToTheLeft) {
-        return pad(Integer.toString(value), end - start + 1, alignedToTheLeft);
+        return toString(Integer.toString(value), start, end, alignedToTheLeft);
     }
 
     protected static String toString(double value, int start, int end, boolean alignedToTheLeft) {
-        return pad(Double.toString(value), end - start + 1, alignedToTheLeft);
+        return toString(Double.toString(value), start, end, alignedToTheLeft);
     }
 
     protected static String toString(String value, int index) {
@@ -61,19 +63,8 @@ public abstract class AbstractIeeeCdfWriter {
             return s; // exact fit
         }
         if (len > width) {
-            return s.substring(0, width); // truncate
+            return StringUtils.truncate(s, width);
         }
-
-        int pad = width - len;
-        StringBuilder sb = new StringBuilder(width);
-
-        if (leftAlign) {
-            sb.append(s);
-            sb.append(" ".repeat(pad));
-        } else {
-            sb.append(" ".repeat(pad));
-            sb.append(s);
-        }
-        return sb.toString();
+        return leftAlign ? StringUtils.rightPad(s, width) : StringUtils.leftPad(s, width);
     }
 }
