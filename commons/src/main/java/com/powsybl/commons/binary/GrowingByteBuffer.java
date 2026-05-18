@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,9 +9,15 @@ package com.powsybl.commons.binary;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Growable direct {@link ByteBuffer} used to stage binary payloads in memory before draining
+ * them to a channel. Capacity doubles on overflow.
+ *
+ * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
+ */
 final class GrowingByteBuffer {
 
-    private static final int DEFAULT_INITIAL_CAPACITY = 16 * 1024;
+    private static final int DEFAULT_INITIAL_CAPACITY = 32 * 1024 * 1024;
 
     private ByteBuffer buffer;
 
@@ -20,17 +26,13 @@ final class GrowingByteBuffer {
     }
 
     GrowingByteBuffer(int initialCapacity) {
-        this.buffer = ByteBuffer.allocate(initialCapacity);
+        this.buffer = ByteBuffer.allocateDirect(initialCapacity);
     }
 
     private void ensureSpace(int n) {
         if (buffer.remaining() < n) {
-            int needed = buffer.position() + n;
-            int newCapacity = buffer.capacity() * 2;
-            while (newCapacity < needed) {
-                newCapacity *= 2;
-            }
-            ByteBuffer next = ByteBuffer.allocate(newCapacity);
+            int newCapacity = Math.max(buffer.capacity() * 2, buffer.position() + n);
+            ByteBuffer next = ByteBuffer.allocateDirect(newCapacity);
             buffer.flip();
             next.put(buffer);
             buffer = next;
@@ -71,7 +73,7 @@ final class GrowingByteBuffer {
         buffer.put(bytes);
     }
 
-    /** Returns a read-only view positioned at 0 with limit at current size, ready for channel.write(). */
+    /** Returns a view positioned at 0, limit at current size, ready for {@code channel.write()}. */
     ByteBuffer toReadBuffer() {
         ByteBuffer view = buffer.duplicate();
         view.flip();

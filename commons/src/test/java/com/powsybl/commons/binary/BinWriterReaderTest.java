@@ -25,10 +25,10 @@ class BinWriterReaderTest {
     private static final byte[] MAGIC = {0x54, 0x45, 0x53, 0x54}; // "TEST"
     private static final String ROOT_VERSION = "1.0";
 
-    /** Write a single root node, close the writer, return an initialised reader. */
+    /** Writes a single root node, closes the writer, returns an initialised reader. */
     private BinReader roundTrip(WriterAction action) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (BinWriter writer = new BinWriter(baos, MAGIC, ROOT_VERSION)) {
+        try (BinWriter writer = new BinWriter(Channels.newChannel(baos), MAGIC, ROOT_VERSION)) {
             writer.setVersions(Collections.emptyMap());
             writer.writeStartNode(null, "root");
             action.run(writer);
@@ -36,7 +36,7 @@ class BinWriterReaderTest {
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
-        BinReader reader = new BinReader(new ByteArrayInputStream(baos.toByteArray()), MAGIC);
+        BinReader reader = new BinReader(Channels.newChannel(new ByteArrayInputStream(baos.toByteArray())), MAGIC);
         reader.readHeader();
         return reader;
     }
@@ -79,16 +79,14 @@ class BinWriterReaderTest {
 
     @Test
     void testAbsentAttributesReturnDefault() {
-        // Writer writes only "a" and "c", skipping "b" (optional/default value)
+        // writer skips "b": reader should return default and not consume the stream
         BinReader reader = roundTrip(writer -> {
             writer.writeIntAttribute("a", 1);
             writer.writeStringAttribute("c", "hello");
         });
 
         assertEquals(1, reader.readIntAttribute("a"));
-        // "b" was not written: next attr is "c", name mismatch → default returned, stream not consumed
         assertNull(reader.readStringAttribute("b"));
-        // "c" is still available
         assertEquals("hello", reader.readStringAttribute("c"));
 
         reader.readEndNode();
@@ -153,8 +151,8 @@ class BinWriterReaderTest {
 
     @Test
     void testSkipRemainingAttributes() {
-        // Writes attrs of every type, reads only the first one.
-        // readEndNode must skip the remaining ones → exercises skipRemainingAttributes + all skipTypedValue branches.
+        // writes attrs of every type, reads only the first one;
+        // readEndNode must skip the rest, exercising every branch of skipTypedValue
         BinReader reader = roundTrip(writer -> {
             writer.writeIntAttribute("a", 1);
             writer.writeDoubleAttribute("b", 2.0);
@@ -167,7 +165,6 @@ class BinWriterReaderTest {
         });
 
         assertEquals(1, reader.readIntAttribute("a"));
-        // All remaining attrs skipped by readEndNode
         reader.readEndNode();
         reader.close();
     }
@@ -203,7 +200,6 @@ class BinWriterReaderTest {
             writer.writeEndNode();
         });
 
-        // skipNode must recursively skip attrs and children at all depths
         reader.readChildNodes(nodeName -> reader.skipNode());
         assertTrue(reader.readEndOfStream());
         reader.close();
@@ -224,40 +220,9 @@ class BinWriterReaderTest {
     }
 
     @Test
-    void streamAndChannelCtorsReadIdentically() {
-        // Same bytes parsed via the (deprecated) InputStream ctor and the ReadableByteChannel ctor → same result
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (BinWriter writer = new BinWriter(baos, MAGIC, ROOT_VERSION)) {
-            writer.setVersions(Collections.emptyMap());
-            writer.writeStartNode(null, "root");
-            writer.writeIntAttribute("a", 42);
-            writer.writeStringAttribute("s", "hello");
-            writer.writeDoubleAttribute("d", 3.14);
-            writer.writeEndNode();
-        } catch (Exception e) {
-            throw new PowsyblException(e);
-        }
-        byte[] payload = baos.toByteArray();
-
-        BinReader streamReader = new BinReader(new ByteArrayInputStream(payload), MAGIC);
-        streamReader.readHeader();
-        BinReader channelReader = new BinReader(Channels.newChannel(new ByteArrayInputStream(payload)), MAGIC);
-        channelReader.readHeader();
-
-        assertEquals(streamReader.readIntAttribute("a"), channelReader.readIntAttribute("a"));
-        assertEquals(streamReader.readStringAttribute("s"), channelReader.readStringAttribute("s"));
-        assertEquals(streamReader.readDoubleAttribute("d"), channelReader.readDoubleAttribute("d"), 0d);
-
-        streamReader.readEndNode();
-        channelReader.readEndNode();
-        streamReader.close();
-        channelReader.close();
-    }
-
-    @Test
     void testInvalidMagicNumber() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (BinWriter writer = new BinWriter(baos, MAGIC, ROOT_VERSION)) {
+        try (BinWriter writer = new BinWriter(Channels.newChannel(baos), MAGIC, ROOT_VERSION)) {
             writer.setVersions(Collections.emptyMap());
             writer.writeStartNode(null, "root");
             writer.writeEndNode();
@@ -265,7 +230,7 @@ class BinWriterReaderTest {
             throw new RuntimeException(e);
         }
         byte[] wrongMagic = {0x00, 0x00, 0x00, 0x00};
-        BinReader reader = new BinReader(new ByteArrayInputStream(baos.toByteArray()), wrongMagic);
+        BinReader reader = new BinReader(Channels.newChannel(new ByteArrayInputStream(baos.toByteArray())), wrongMagic);
         assertThrows(PowsyblException.class, reader::readHeader);
         reader.close();
     }

@@ -598,6 +598,13 @@ public final class NetworkSerDe {
     }
 
     public static Anonymizer write(Network n, ExportOptions options, Path xmlFile) {
+        if (options.getFormat() == TreeDataFormat.BIN) {
+            try (BinWriter writer = new BinWriter(xmlFile, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."))) {
+                return write(n, options, writer);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(xmlFile))) {
             return write(n, options, os);
         } catch (IOException e) {
@@ -953,6 +960,13 @@ public final class NetworkSerDe {
     }
 
     public static Network read(Path xmlFile, ImportOptions options, Anonymizer anonymizer, NetworkFactory networkFactory, ReportNode reportNode) {
+        if (options.getFormat() == TreeDataFormat.BIN) {
+            try (BinReader reader = new BinReader(xmlFile, BIIDM_MAGIC_NUMBER)) {
+                return read(reader, options, anonymizer, networkFactory, reportNode);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
         try (InputStream is = Files.newInputStream(xmlFile)) {
             return read(is, options, anonymizer, networkFactory, reportNode);
         } catch (IOException e) {
@@ -1082,6 +1096,19 @@ public final class NetworkSerDe {
             Pipe pipe = Pipe.open();
             Pipe.SinkChannel sink = pipe.sink();
             Pipe.SourceChannel source = pipe.source();
+            if (format == TreeDataFormat.BIN) {
+                ExportOptions exportOptions = new ExportOptions().setFormat(format);
+                executor.execute(() -> {
+                    try (BinWriter writer = new BinWriter(sink, BIIDM_MAGIC_NUMBER, exportOptions.getVersion().toString("."))) {
+                        write(network, exportOptions, writer);
+                    } catch (Exception t) {
+                        LOGGER.error(t.toString(), t);
+                    }
+                });
+                try (BinReader reader = new BinReader(source, BIIDM_MAGIC_NUMBER)) {
+                    return read(reader, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
+                }
+            }
             executor.execute(() -> {
                 try (OutputStream os = Channels.newOutputStream(sink)) {
                     write(network, new ExportOptions().setFormat(format), os);

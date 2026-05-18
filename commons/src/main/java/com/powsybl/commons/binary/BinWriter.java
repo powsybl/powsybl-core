@@ -11,9 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.nio.channels.Channels;
+import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -25,71 +24,44 @@ import static com.powsybl.commons.binary.BinUtil.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
+ * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
  */
 public class BinWriter extends AbstractTreeDataWriter {
 
-    private final String rootVersion;
-    private final BufferedChannelWriter out;
-    private final GrowingByteBuffer body;
-    private final byte[] binaryMagicNumber;
-    private Map<String, String> extensionVersions = Collections.emptyMap();
+    private static final int HEADER_INITIAL_CAPACITY = 4 * 1024;
 
+    private final String rootVersion;
+    private final byte[] binaryMagicNumber;
+    private final WritableByteChannel channel;
+    private final GrowingByteBuffer body = new GrowingByteBuffer();
     private final Map<TypedName, Integer> namesIndex = new LinkedHashMap<>();
+    private Map<String, String> extensionVersions = Collections.emptyMap();
 
     private record TypedName(String name, byte type) { }
 
-    /** Preferred constructor: direct channel access avoids the OutputStream re-buffering layer. */
     public BinWriter(WritableByteChannel channel, byte[] binaryMagicNumber, String rootVersion) {
+        this.channel = Objects.requireNonNull(channel);
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
         this.rootVersion = Objects.requireNonNull(rootVersion);
-        this.out = new BufferedChannelWriter(Objects.requireNonNull(channel));
-        this.body = new GrowingByteBuffer();
     }
 
-    /** Opens a file directly as a byte channel — the fastest path for file outputs. */
     public BinWriter(Path path, byte[] binaryMagicNumber, String rootVersion) throws IOException {
         this(Files.newByteChannel(Objects.requireNonNull(path),
                 StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
             binaryMagicNumber, rootVersion);
     }
 
-    /**
-     * Compatibility constructor for callers holding an {@link OutputStream}.
-     * Wrapping an {@code OutputStream} via {@link Channels#newChannel} gives no perf gain over
-     * the previous {@code DataOutputStream} chain — prefer the {@link WritableByteChannel} or
-     * {@link Path} constructors for real I/O speedup.
-     *
-     * @deprecated use {@link #BinWriter(WritableByteChannel, byte[], String)} or {@link #BinWriter(Path, byte[], String)}
-     */
-    @Deprecated(since = "6.10.0")
-    public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
-        this(Channels.newChannel(Objects.requireNonNull(outputStream)), binaryMagicNumber, rootVersion);
-    }
-
-    private static void writeStringToBody(String value, GrowingByteBuffer buf) {
+    private static void writeString(String value, GrowingByteBuffer buf) {
         if (value == null) {
             buf.writeShort(NULL_STRING_SENTINEL);
-        } else {
-            byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-            if (bytes.length >= NULL_STRING_SENTINEL) {
-                throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
-            }
-            buf.writeShort(bytes.length);
-            buf.writeBytes(bytes);
+            return;
         }
-    }
-
-    private static void writeStringToHeader(String value, BufferedChannelWriter w) throws IOException {
-        if (value == null) {
-            w.writeShort(NULL_STRING_SENTINEL);
-        } else {
-            byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-            if (bytes.length >= NULL_STRING_SENTINEL) {
-                throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
-            }
-            w.writeShort(bytes.length);
-            w.writeBytes(bytes);
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length >= NULL_STRING_SENTINEL) {
+            throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
         }
+        buf.writeShort(bytes.length);
+        buf.writeBytes(bytes);
     }
 
     @Override
@@ -103,9 +75,15 @@ public class BinWriter extends AbstractTreeDataWriter {
     }
 
     @Override
+    public void writeNamespace(String prefix, String namespace) {
+        // nothing to do
+    }
+
+    @Override
     public void writeStartNode(String namespace, String name) {
         if (namesIndex.isEmpty()) {
-            namesIndex.put(new TypedName(name, TYPE_OBJECT), 1); // root element is not a child of another node, hence index is not expected
+            // root element is not a child of another node, its index is not consumed in the body
+            namesIndex.put(new TypedName(name, TYPE_OBJECT), 1);
         } else {
             writeEntry(name, TYPE_OBJECT);
         }
@@ -131,20 +109,15 @@ public class BinWriter extends AbstractTreeDataWriter {
     }
 
     @Override
-    public void writeNamespace(String prefix, String namespace) {
-        // nothing to do
-    }
-
-    @Override
     public void writeNodeContent(String value) {
         writeEntry("", TYPE_STRING_CONTENT);
-        writeStringToBody(value, body);
+        writeString(value, body);
     }
 
     @Override
     public void writeStringAttribute(String name, String value) {
         writeEntry(name, TYPE_STRING);
-        writeStringToBody(value, body);
+        writeString(value, body);
     }
 
     @Override
@@ -222,45 +195,47 @@ public class BinWriter extends AbstractTreeDataWriter {
         writeEntry(name, TYPE_STRING_ARRAY);
         body.writeShort(values.size());
         for (String s : values) {
-            writeStringToBody(s, body);
-        }
-    }
-
-    @Override
-    public void close() {
-        try {
-            writeHeader();
-            out.writeFully(body.toReadBuffer());
-            out.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void writeHeader() throws IOException {
-        // magic number
-        out.writeBytes(binaryMagicNumber);
-
-        // iidm version
-        writeStringToHeader(rootVersion, out);
-
-        // extensions versions
-        out.writeShort(extensionVersions.size());
-        for (var entry : extensionVersions.entrySet()) {
-            writeStringToHeader(entry.getKey(), out);
-            writeStringToHeader(entry.getValue(), out);
-        }
-
-        // names dictionary
-        out.writeShort(namesIndex.size());
-        for (TypedName key : namesIndex.keySet()) {
-            writeStringToHeader(key.name(), out);
-            out.writeByte(key.type());
+            writeString(s, body);
         }
     }
 
     @Override
     public void setVersions(Map<String, String> extensionVersions) {
         this.extensionVersions = Objects.requireNonNull(extensionVersions);
+    }
+
+    @Override
+    public void close() {
+        try (channel) {
+            drain(buildHeader());
+            drain(body.toReadBuffer());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private ByteBuffer buildHeader() {
+        GrowingByteBuffer header = new GrowingByteBuffer(HEADER_INITIAL_CAPACITY);
+        header.writeBytes(binaryMagicNumber);
+        writeString(rootVersion, header);
+
+        header.writeShort(extensionVersions.size());
+        for (var entry : extensionVersions.entrySet()) {
+            writeString(entry.getKey(), header);
+            writeString(entry.getValue(), header);
+        }
+
+        header.writeShort(namesIndex.size());
+        for (TypedName key : namesIndex.keySet()) {
+            writeString(key.name(), header);
+            header.writeByte(key.type());
+        }
+        return header.toReadBuffer();
+    }
+
+    private void drain(ByteBuffer buf) throws IOException {
+        while (buf.hasRemaining()) {
+            channel.write(buf);
+        }
     }
 }
