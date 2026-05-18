@@ -26,11 +26,17 @@ import java.io.IOException;
  */
 public class IeeeCdfReader {
 
-    private static final Pattern PATTERN_BUS = Pattern.compile("BUS DATA FOLLOWS\\s+(\\d+)\\s+ITEMS");
-    private static final Pattern PATTERN_BRANCH = Pattern.compile("BRANCH DATA FOLLOWS\\s+(\\d+)\\s+ITEMS");
-    private static final Pattern PATTERN_LOSS_ZONE = Pattern.compile("LOSS ZONES FOLLOWS\\s+(\\d+)\\s+ITEMS");
-    private static final Pattern PATTERN_INTERCHANGE = Pattern.compile("INTERCHANGE DATA FOLLOWS\\s+(\\d+)\\s+ITEMS");
-    private static final Pattern PATTERN_TIE_LINE = Pattern.compile("TIE LINES FOLLOWS\\s+(\\d+)\\s+ITEMS");
+    private static final String BUS_DATA_FOLLOWS = "BUS DATA FOLLOWS";
+    private static final String BRANCH_DATA_FOLLOWS = "BRANCH DATA FOLLOWS";
+    private static final String LOSS_ZONES_FOLLOWS = "LOSS ZONES FOLLOWS";
+    private static final String INTERCHANGE_DATA_FOLLOWS = "INTERCHANGE DATA FOLLOWS";
+    private static final String TIE_LINES_FOLLOWS = "TIE LINES FOLLOWS";
+    private static final String ITEMS_NUMBER_REGEX = "\\s+(\\d+)\\s+ITEMS";
+    private static final Pattern PATTERN_BUS = Pattern.compile(BUS_DATA_FOLLOWS + ITEMS_NUMBER_REGEX);
+    private static final Pattern PATTERN_BRANCH = Pattern.compile(BRANCH_DATA_FOLLOWS + ITEMS_NUMBER_REGEX);
+    private static final Pattern PATTERN_LOSS_ZONE = Pattern.compile(LOSS_ZONES_FOLLOWS + ITEMS_NUMBER_REGEX);
+    private static final Pattern PATTERN_INTERCHANGE = Pattern.compile(INTERCHANGE_DATA_FOLLOWS + ITEMS_NUMBER_REGEX);
+    private static final Pattern PATTERN_TIE_LINE = Pattern.compile(TIE_LINES_FOLLOWS + ITEMS_NUMBER_REGEX);
 
     public IeeeCdfModel read(BufferedReader reader) throws IOException {
         String line;
@@ -44,19 +50,19 @@ public class IeeeCdfReader {
         IeeeCdfModel model = new IeeeCdfModel(title);
 
         while ((line = reader.readLine()) != null) {
-            if (line.startsWith("BUS DATA FOLLOWS")) {
+            if (line.startsWith(BUS_DATA_FOLLOWS)) {
                 int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_BUS);
                 model.getBuses().addAll(IeeeCdfBusReader.parseBuses(reader, expectedItemsNumber));
-            } else if (line.startsWith("BRANCH DATA FOLLOWS")) {
+            } else if (line.startsWith(BRANCH_DATA_FOLLOWS)) {
                 int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_BRANCH);
                 model.getBranches().addAll(IeeeCdfBranchReader.parseBranches(reader, expectedItemsNumber));
-            } else if (line.startsWith("LOSS ZONES FOLLOWS")) {
+            } else if (line.startsWith(LOSS_ZONES_FOLLOWS)) {
                 int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_LOSS_ZONE);
                 model.getLossZones().addAll(IeeeCdfLossZoneReader.parseLossZones(reader, expectedItemsNumber));
-            } else if (line.startsWith("INTERCHANGE DATA FOLLOWS")) {
+            } else if (line.startsWith(INTERCHANGE_DATA_FOLLOWS)) {
                 int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_INTERCHANGE);
                 model.getInterchangeData().addAll(IeeeCdfInterchangeDataReader.parseInterchangeData(reader, expectedItemsNumber));
-            } else if (line.startsWith("TIE LINES FOLLOWS ")) {
+            } else if (line.startsWith(TIE_LINES_FOLLOWS)) {
                 int expectedItemsNumber = getExpectedItemsNumber(line, PATTERN_TIE_LINE);
                 model.getTieLines().addAll(IeeeCdfTieLineReader.parseTieLine(reader, expectedItemsNumber));
             }
