@@ -97,7 +97,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
          * @return set of ElmCoup data objects that are connected to 2 DC terminals.
          */
         private static @NonNull Set<DataObject> getDcSwitchObjs(Set<DataObject> dcElmTerms) {
-            assert dcElmTerms != null;
             assert dcElmTerms.isEmpty() || ELMTERM.equals(dcElmTerms.iterator().next().getDataClassName());
 
             // List of ElmCoup which are connected to both AC and DC terminals
@@ -109,8 +108,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             List<DataObject> connectedCubic = dcElmTerms.stream().flatMap(e -> e.getChildrenByClass("StaCubic").stream()).toList();
             // List of ElmCoup that are connected to at least one DC terminal, with repetitions
             List<DataObject> connectedElmCoup = connectedCubic.stream()
-                    .map(cubic -> cubic.getObjectAttributeValue("obj_id").resolve())
-                    .filter(Optional::isPresent).map(Optional::get) // all equipment connected to at least one DC terminal
+                    .flatMap(cubic -> cubic.findObjectAttributeValue(OBJ_ID).flatMap(DataObjectRef::resolve).stream()) // all equipment connected to at least one DC terminal
                     .filter(obj -> "ElmCoup".equals(obj.getDataClassName())) // Keep only ElmCoup
                     .toList();
 
@@ -163,7 +161,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
     /**
      * Record representation of the StaCubic content.
-     * @param busIndexIn // obj_bud in the DGS file - connector id for the equipment.
+     * @param busIndexIn // obj_bus in the DGS file - connector id for the equipment.
      * @param dcNodeId   // id of the DcNode in the PowSyBl DC network.
      */
     private record DcNodeRef(int busIndexIn, String dcNodeId) {
@@ -233,7 +231,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         DcSwitchKind kind = switch (aUsage) {
             case "dct" -> DcSwitchKind.DISCONNECTOR;
             case "cbk" -> DcSwitchKind.BREAKER;
-            default -> throw new PowerFactoryException("Wrong aUsage value in ElmCoup " + elmCoup.getId());
+            default -> throw new PowerFactoryException("Wrong aUsage value '" + aUsage + "' in ElmCoup " + elmCoup.getId());
         };
 
         // connected unless explicitly disconnected
@@ -261,7 +259,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     private static double getSwitchResistance(DataObject elmCoup) {
         Optional<DataObject> typSwitch = elmCoup.findObjectAttributeValue(TYP_ID)
                 .flatMap(DataObjectRef::resolve);
-        return typSwitch.map(t -> t.findFloatAttributeValue("R_on").orElse(0.0f)).orElse(0.0f);
+        return (double) typSwitch.map(t -> t.findFloatAttributeValue("R_on").orElse(0.0f)).orElse(0.0f);
     }
 
     /**
@@ -278,7 +276,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
         for (DataObject elmTerm : dcGridData.dcElmTerms) {
             for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
-                DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
+                DataObject connectedObj = staCubic.findObjectAttributeValue(OBJ_ID)
                         .flatMap(DataObjectRef::resolve)
                         .orElse(null);
 

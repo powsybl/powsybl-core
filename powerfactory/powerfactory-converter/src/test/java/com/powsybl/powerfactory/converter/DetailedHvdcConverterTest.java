@@ -355,7 +355,7 @@ class DetailedHvdcConverterTest {
 
         assertEquals(0.0, dcSwitch22.getR()); // no TypSwitch
         assertEquals(0.0, dcSwitch23.getR()); // TypSwitch with unspecified resistance
-        assertEquals(0.01, dcSwitch24.getR(), ABSOLUTE_DELTA); // TypSwitch with R_on = 0.01
+        assertEquals(0.01, dcSwitch24.getR(), RELATIVE_DELTA * 0.01); // TypSwitch with R_on = 0.01
     }
 
     @Test
@@ -370,6 +370,7 @@ class DetailedHvdcConverterTest {
         assertNull(dcSwitch22);
         // cannot check for presence because the default name is used.
         assertEquals(1, network.getSwitchCount());
+        assertEquals(1, network.getDcSwitchCount());
     }
 
     @Test
