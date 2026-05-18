@@ -115,6 +115,8 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         TwoSides line1Side2 = line1Side1 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
         TwoSides line2Side2 = line2VlId1.equals(commonVlId) ? TwoSides.TWO : TwoSides.ONE;
         TwoSides line2Side1 = line2Side2 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
+        Terminal terminalVlLine1 = line1.getTerminal(line1Side2);
+        Terminal terminalVlLine2 = line2.getTerminal(line2Side1);
 
         // Set parameters of the new line replacing the two existing lines
         LineAdder lineAdder = createLineAdder(lineId, lineName, line1Side1 == TwoSides.TWO ? line1VlId2 : line1VlId1,
@@ -132,10 +134,13 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         LoadingLimitsBags limitsLine2Side2 = new LoadingLimitsBags(() -> line2.getActivePowerLimits(line2Side2), () -> line2.getApparentPowerLimits(line2Side2), () -> line2.getCurrentLimits(line2Side2));
 
         // Remove the two existing lines
+        // need to clean the node breaker topology first, otherwise if the voltage level is not removed the switches are not removed
+        cleanNodeBreakerTopologyForTerminal(terminalVlLine1, line1Id, reportNode);
         line1.remove();
         removedLineReport(reportNode, line1Id);
         LOG.info("Line {} removed", line1Id);
 
+        cleanNodeBreakerTopologyForTerminal(terminalVlLine2, line2Id, reportNode);
         line2.remove();
         removedLineReport(reportNode, line2Id);
         LOG.info("Line {} removed", line2Id);
