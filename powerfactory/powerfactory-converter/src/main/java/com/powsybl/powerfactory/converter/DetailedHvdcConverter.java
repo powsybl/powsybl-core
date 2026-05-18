@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.AcDcConverter.ControlMode;
 
 import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.model.DataClass;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -87,33 +86,22 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             Set<DataObject> elmGndswt = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmGndswt").stream()).collect(Collectors.toSet());
 
             // Add switches / breakers (ElmCoup) where both ends are in the DC network
-            Set<DataObject> dcElmCoup = getDcSwitchObjs(elmNets, dcElmTerms);
+            Set<DataObject> dcElmCoup = getDcSwitchObjs(dcElmTerms);
 
             return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt, dcElmCoup);
         }
 
         /**
          * Gather data of DC ElmCoup from the PowerFactory data model.
-         * @param elmNets network elements where to find the ElmCoup.
          * @param dcElmTerms DC terminals.
          * @return set of ElmCoup data objects that are connected to 2 DC terminals.
          */
-        private static @NonNull Set<DataObject> getDcSwitchObjs(List<DataObject> elmNets, Set<DataObject> dcElmTerms) {
+        private static @NonNull Set<DataObject> getDcSwitchObjs(Set<DataObject> dcElmTerms) {
             assert dcElmTerms != null;
             assert dcElmTerms.isEmpty() || ELMTERM.equals(dcElmTerms.iterator().next().getDataClassName());
 
-            // List of all ElmCoup elements, AC and DC
-            List<DataObject> elmCoups = elmNets.stream()
-                    .flatMap(elmNet -> elmNet.search(".*.ElmCoup").stream())
-                    .toList();
-
             // List of ElmCoup which are connected to both AC and DC terminals
             Set<DataObject> dcElmCoup = new HashSet<>();
-
-            if (elmCoups.isEmpty()) {
-                return dcElmCoup;
-            }
-            DataClass elmCoupClass = elmCoups.getFirst().getDataClass();
 
             // Count the number of DC terminals connected to each ElmCoup and add when 2 is reached
 
@@ -123,7 +111,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             List<DataObject> connectedElmCoup = connectedCubic.stream()
                     .map(cubic -> cubic.getObjectAttributeValue("obj_id").resolve())
                     .filter(Optional::isPresent).map(Optional::get) // all equipment connected to at least one DC terminal
-                    .filter(obj -> elmCoupClass.equals(obj.getDataClass())) // Keep only ElmCoup
+                    .filter(obj -> "ElmCoup".equals(obj.getDataClassName())) // Keep only ElmCoup
                     .toList();
 
             Set<DataObject> dcElmCoup1Term = new HashSet<>(); // ElmCoup where 1 DC terminal was already encountered
@@ -231,7 +219,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     }
 
     /**
-     * Add a DcSwitch to `network` with the data in `elmCoup`
+     * Add a DcSwitch to network with the data in elmCoup.
      * @param elmCoup data object with DC switch.
      * @param network where to add the DcSwitch.
      * @param objIdDcNodeRef map from objects to DC nodes.
@@ -245,10 +233,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         DcSwitchKind kind = switch (aUsage) {
             case "dct" -> DcSwitchKind.DISCONNECTOR;
             case "cbk" -> DcSwitchKind.BREAKER;
-            case null, default -> throw new PowerFactoryException("Wrong aUsage value in ElmCoup " + elmCoup.getId());
+            default -> throw new PowerFactoryException("Wrong aUsage value in ElmCoup " + elmCoup.getId());
         };
 
-        // connected unless explicitely disconnected
+        // connected unless explicitly disconnected
         int onOff = elmCoup.findIntAttributeValue("on_off").orElse(1);
 
         // get resistance in TypSwitch if present, otherwise default to zero

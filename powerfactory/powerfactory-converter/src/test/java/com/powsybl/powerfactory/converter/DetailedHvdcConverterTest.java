@@ -226,12 +226,8 @@ class DetailedHvdcConverterTest {
     @Test
     void testVsc5() {
         // check i_acdc = 0 end in error
-        try {
-            importDgs("MTDCVscVariants5");
-            fail("Expected exception not thrown");
-        } catch (PowerFactoryException e) {
-            assertEquals("Unsupported value 0 for VSC 6.", e.getMessage());
-        }
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDCVscVariants5"));
+        assertEquals("Unsupported value 0 for VSC 6.", e.getMessage());
     }
 
     @Test
@@ -270,12 +266,8 @@ class DetailedHvdcConverterTest {
     void testVscDanglingTerminal() {
         // Check that we get an error in case of dangling DC terminal (i.e. there is a node referenced by StaCubic but
         // not in the list of terminals.
-        try {
-            importDgs("MTDCVscDanglingTerminal");
-            fail("Expected exception not thrown");
-        } catch (PowerFactoryException e) {
-            assertEquals("Detected unsupported terminal count (2) for object ElmVsc 6.", e.getMessage());
-        }
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDCVscDanglingTerminal"));
+        assertEquals("Detected unsupported terminal count (2) for object ElmVsc 6.", e.getMessage());
     }
 
     @Test
@@ -310,6 +302,7 @@ class DetailedHvdcConverterTest {
     @Test
     void testElmCoupNoTyp() {
         // Check basic import of ElmCoup in DGS files.
+        // This is without TypSwitch therefore without resistance.
         Network network = importDgs("MTDC-ElmCoup_no-type");
 
         DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector with default state");
@@ -377,6 +370,13 @@ class DetailedHvdcConverterTest {
         assertNull(dcSwitch22);
         // cannot check for presence because the default name is used.
         assertEquals(1, network.getSwitchCount());
+    }
+
+    @Test
+    void testElmCoupBad() {
+        // Check that an ElmCoup connected to only one DC terminal raises an exception.
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad"));
+        assertEquals("ElmCoup 21 is connected to a single DC terminal.", e.getMessage());
     }
 
     private Network importDgs(String id) {

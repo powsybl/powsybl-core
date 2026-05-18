@@ -25,6 +25,13 @@ abstract class AbstractHvdcConverter extends AbstractConverter {
         super(importContext, network);
     }
 
+    /**
+     * Check if a DGS DataObject belongs to the DC part of the network.
+     *
+     * @param obj DataObject from the DGS data model.
+     * @return true iff the object is part of the DC network, and can therefore be omitted by the
+     *         AC importer.
+     */
     abstract boolean isDcObject(DataObject obj);
 
     /**
