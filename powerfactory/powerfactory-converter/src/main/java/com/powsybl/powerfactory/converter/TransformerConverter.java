@@ -81,6 +81,25 @@ class TransformerConverter extends AbstractConverter {
             .add();
 
         tc.ifPresent(t -> tapChangerToIidm(t, t2wt));
+        RatioTapChanger rtc = t2wt.getRatioTapChanger();
+        if (rtc != null) {
+            if (powerFactoryTapChanger.ntrcn == 1) {
+                Terminal regulatingTerminal;
+                if (powerFactoryTapChanger.t2ldc == 0) {
+                    regulatingTerminal = t2wt.getTerminal1().getVoltageLevel().getNominalV() > vl2.getNominalV() ? t2wt.getTerminal1() : t2wt.getTerminal2();
+                } else if (powerFactoryTapChanger.t2ldc == 1) {
+                    regulatingTerminal = t2wt.getTerminal1().getVoltageLevel().getNominalV() < vl2.getNominalV() ? t2wt.getTerminal1() : t2wt.getTerminal2();
+                } else {
+                    throw new PowerFactoryException("Unexpected t2ldc value: " + powerFactoryTapChanger.t2ldc);
+                }
+                rtc.setLoadTapChangingCapabilities(true)
+                        .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                        .setRegulationTerminal(regulatingTerminal)
+                        .setTargetDeadband(0.0)
+                        .setTargetV(powerFactoryTapChanger.usetp * regulatingTerminal.getVoltageLevel().getNominalV())
+                        .setRegulating(true);
+            }
+        }
 
         Optional<PhaseAngleClockModel> pacModel = PhaseAngleClockModel.create(typTr2);
         pacModel.ifPresent(phaseAngleClockModel -> t2wt.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
@@ -525,6 +544,9 @@ class TransformerConverter extends AbstractConverter {
         private final double dutap;
         private final double phitr;
         private RealMatrix mTaps = null;
+        private int ntrcn = 0;
+        private int t2ldc = -1;
+        private double usetp = Double.NaN;
 
         private PowerFactoryTapChanger(int nntap, int nntap0, int ntpmn, int ntpmx, double dutap, double phitr) {
             this.nntap = nntap;
@@ -539,6 +561,11 @@ class TransformerConverter extends AbstractConverter {
             PowerFactoryTapChanger powerFactoryTapChanger = create("nntap", "nntap0", "ntpmn", "ntpmx", "dutap", "phitr", elmTr2, typTr2);
 
             powerFactoryTapChanger.mTaps = elmTr2.findDoubleMatrixAttributeValue("mTaps").orElse(null);
+
+            powerFactoryTapChanger.ntrcn = elmTr2.findIntAttributeValue("ntrcn").orElse(0);
+            powerFactoryTapChanger.t2ldc = elmTr2.findIntAttributeValue("t2ldc").orElse(-1);
+            powerFactoryTapChanger.usetp = float2Double(elmTr2.findFloatAttributeValue("usetp").orElse(Float.NaN));
+
             return powerFactoryTapChanger;
         }
 
