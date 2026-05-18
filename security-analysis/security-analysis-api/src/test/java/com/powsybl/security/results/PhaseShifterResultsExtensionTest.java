@@ -7,14 +7,15 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,13 +24,18 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class PhaseShifterResultsExtensionTest {
 
+    private static final MovedPhaseShifterResult PHASE_SHIFTER_RESULT_1 = new MovedPhaseShifterResult("PS1", 1, 3);
+
+    private static final MovedPhaseShifterResult PHASE_SHIFTER_RESULT_2 = new MovedPhaseShifterResult("PS2", 2, 4);
+
     @Test
     void testConstructorAndGetters() {
-        List<String> movedIds = Arrays.asList("PS1", "PS2");
-        PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(movedIds);
+        PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(Arrays.asList(PHASE_SHIFTER_RESULT_1, PHASE_SHIFTER_RESULT_2));
 
         assertNotNull(extension);
-        assertEquals(movedIds, extension.getMovedPhaseShifterIds());
+        assertEquals(2, extension.getPhaseShifterResults().size());
+        assertEquals(PHASE_SHIFTER_RESULT_1, extension.getPhaseShifterResult("PS1"));
+        assertEquals(PHASE_SHIFTER_RESULT_2, extension.getPhaseShifterResult("PS2"));
         assertEquals(PhaseShifterResultsExtension.NAME, extension.getName());
     }
 
@@ -38,13 +44,28 @@ class PhaseShifterResultsExtensionTest {
         PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension();
 
         assertNotNull(extension);
-        assertNotNull(extension.getMovedPhaseShifterIds());
-        assertTrue(extension.getMovedPhaseShifterIds().isEmpty());
+        assertNotNull(extension.getPhaseShifterResults());
+        assertTrue(extension.getPhaseShifterResults().isEmpty());
     }
 
     @Test
-    void testNullMovedPhaseShifterIdsThrowsException() {
+    void testMovedPhaseShifterResultGettersAndToString() {
+        MovedPhaseShifterResult result = new MovedPhaseShifterResult("PS6", 11, 12);
+
+        assertEquals("PS6", result.getTransformerId());
+        assertEquals(11, result.getInitialTap());
+        assertEquals(12, result.getNewTap());
+        assertEquals("MovedPhaseShifterResult{transformerId='PS6', initialTap=11, newTap=12}", result.toString());
+    }
+
+    @Test
+    void testNullPhaseShifterResultsThrowsException() {
         assertThrows(NullPointerException.class, () -> new PhaseShifterResultsExtension(null));
+    }
+
+    @Test
+    void testNullTransformerIdThrowsException() {
+        assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult(null, 1, 2));
     }
 
     @Test
@@ -61,8 +82,9 @@ class PhaseShifterResultsExtensionTest {
         );
 
         // Create the extension
-        List<String> movedIds = Arrays.asList("PS3", "PS4");
-        PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(movedIds);
+        MovedPhaseShifterResult phaseShifterResult1 = new MovedPhaseShifterResult("PS3", 5, 6);
+        MovedPhaseShifterResult phaseShifterResult2 = new MovedPhaseShifterResult("PS4", 7, 8);
+        PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(Arrays.asList(phaseShifterResult1, phaseShifterResult2));
 
         // Add the extension to the PostContingencyResult
         result.addExtension(PhaseShifterResultsExtension.class, extension);
@@ -70,7 +92,8 @@ class PhaseShifterResultsExtensionTest {
         // Retrieve and verify the extension
         PhaseShifterResultsExtension retrievedExtension = result.getExtension(PhaseShifterResultsExtension.class);
         assertNotNull(retrievedExtension);
-        assertEquals(movedIds, retrievedExtension.getMovedPhaseShifterIds());
+        assertEquals(phaseShifterResult1, retrievedExtension.getPhaseShifterResult("PS3"));
+        assertEquals(phaseShifterResult2, retrievedExtension.getPhaseShifterResult("PS4"));
         assertEquals(extension, retrievedExtension);
 
         // Verify that the extendable reference is set
@@ -79,9 +102,34 @@ class PhaseShifterResultsExtensionTest {
 
     @Test
     void testToString() {
-        List<String> movedIds = List.of("PS5");
-        PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(movedIds);
-        String expectedToString = "PhaseShifterResultsExtension{movedPhaseShifterIds=[PS5]}";
+        MovedPhaseShifterResult phaseShifterResult = new MovedPhaseShifterResult("PS5", 9, 10);
+        PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(Collections.singletonList(phaseShifterResult));
+        String expectedToString = "PhaseShifterResultsExtension{phaseShifterResults={PS5=MovedPhaseShifterResult{transformerId='PS5', initialTap=9, newTap=10}}}";
         assertEquals(expectedToString, extension.toString());
+    }
+
+    @Test
+    void testPreContingencyResultSupportsExtensions() {
+        PreContingencyResult result = new PreContingencyResult(
+                LoadFlowResult.ComponentResult.Status.CONVERGED,
+                new LimitViolationsResult(Collections.emptyList()),
+                NetworkResult.empty(),
+                0.0
+        );
+        AbstractExtension<PreContingencyResult> extension = new AbstractExtension<>() {
+            @Override
+            public String getName() {
+                return "test";
+            }
+        };
+
+        result.addExtension(AbstractExtension.class, extension);
+
+        assertSame(extension, result.getExtension(AbstractExtension.class));
+        assertTrue(result.getExtensions().contains(extension));
+        assertSame(result, extension.getExtendable());
+        assertTrue(result.removeExtension(AbstractExtension.class));
+        assertNull(result.getExtension(AbstractExtension.class));
+        assertNull(extension.getExtendable());
     }
 }

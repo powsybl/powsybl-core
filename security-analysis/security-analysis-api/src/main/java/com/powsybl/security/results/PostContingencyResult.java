@@ -7,28 +7,23 @@
  */
 package com.powsybl.security.results;
 
-import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
-import java.util.*;
+
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian@ at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class PostContingencyResult extends AbstractContingencyResult implements Extendable<PostContingencyResult> {
+public class PostContingencyResult extends AbstractContingencyResult<PostContingencyResult> {
 
     private final Contingency contingency;
 
     private final PostContingencyComputationStatus status;
 
-    private final ConnectivityResult connectivityResult; // Assuming this is defined elsewhere
-
-    private final Map<Class<?>, Extension<PostContingencyResult>> extensions = new HashMap<>();
-
-    private final Map<String, Extension<PostContingencyResult>> extensionsByName = new HashMap<>();
+    private final ConnectivityResult connectivityResult;
 
     public PostContingencyResult(Contingency contingency,
                                  PostContingencyComputationStatus status,
@@ -52,51 +47,5 @@ public class PostContingencyResult extends AbstractContingencyResult implements 
 
     public ConnectivityResult getConnectivityResult() {
         return connectivityResult;
-    }
-
-    @Override
-    public <E extends Extension<PostContingencyResult>> void addExtension(Class<? super E> type, E extension) {
-        Objects.requireNonNull(type);
-        Objects.requireNonNull(extension);
-        removeExtension((Class<E>) extension.getClass());
-        extension.setExtendable(this);
-        extensions.put(type, extension);
-        extensionsByName.put(extension.getName(), extension);
-    }
-
-    @Override
-    public <E extends Extension<PostContingencyResult>> E getExtension(Class<? super E> type) {
-        Objects.requireNonNull(type);
-        return (E) extensions.get(type);
-    }
-
-    @Override
-    public <E extends Extension<PostContingencyResult>> E getExtensionByName(String name) {
-        Objects.requireNonNull(name);
-        return (E) extensionsByName.get(name);
-    }
-
-    // Internal helper method to remove an extension by its type and instance
-    private <E extends Extension<PostContingencyResult>> void removeExtensionInternal(Class<E> type, E extension) {
-        extensions.remove(type);
-        extensionsByName.remove(extension.getName());
-        extension.setExtendable(null);
-    }
-
-    @Override
-    public <E extends Extension<PostContingencyResult>> boolean removeExtension(Class<E> type) {
-        boolean removed = false;
-        Extension<PostContingencyResult> extension = extensions.get(type);
-        if (extension != null) {
-            removeExtensionInternal((Class<E>) type, (E) extension);
-            removed = true;
-        }
-
-        return removed;
-    }
-
-    @Override
-    public Collection<Extension<PostContingencyResult>> getExtensions() {
-        return extensionsByName.values();
     }
 }

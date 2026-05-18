@@ -8,32 +8,42 @@
 package com.powsybl.security.results;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.extensions.Extension;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Riad BENRADI {@literal <riad.benradi_externe@ at rte-france.com>}
  */
-public class PhaseShifterResultsExtension extends AbstractExtension<PostContingencyResult> implements Extension<PostContingencyResult> {
+public class PhaseShifterResultsExtension extends AbstractExtension<PostContingencyResult> {
 
-    // Conventionnellement, les noms d'extension sont en minuscules et séparés par des tirets
-    public static final String NAME = "phase-shifter-results";
+    public static final String NAME = "phaseShifterResults";
 
-    private final List<String> movedPhaseShifterIds;
+    private final Map<String, MovedPhaseShifterResult> phaseShifterResults;
 
     public PhaseShifterResultsExtension() {
-        this(new ArrayList<>());
+        this(Collections.emptyList());
     }
 
-    public PhaseShifterResultsExtension(List<String> movedPhaseShifterIds) {
-        this.movedPhaseShifterIds = Objects.requireNonNull(movedPhaseShifterIds, "Moved phase shifter IDs cannot be null");
+    public PhaseShifterResultsExtension(Collection<MovedPhaseShifterResult> phaseShifterResults) {
+        Objects.requireNonNull(phaseShifterResults, "Phase shifter results cannot be null");
+        Map<String, MovedPhaseShifterResult> phaseShifterResultsById = new LinkedHashMap<>();
+        for (MovedPhaseShifterResult phaseShifterResult : phaseShifterResults) {
+            Objects.requireNonNull(phaseShifterResult, "Phase shifter result cannot be null");
+            phaseShifterResultsById.put(phaseShifterResult.getTransformerId(), phaseShifterResult);
+        }
+        this.phaseShifterResults = Collections.unmodifiableMap(phaseShifterResultsById);
     }
 
-    public List<String> getMovedPhaseShifterIds() {
-        return movedPhaseShifterIds;
+    public Map<String, MovedPhaseShifterResult> getPhaseShifterResults() {
+        return phaseShifterResults;
+    }
+
+    public MovedPhaseShifterResult getPhaseShifterResult(String transformerId) {
+        return phaseShifterResults.get(transformerId);
     }
 
     @Override
@@ -44,7 +54,7 @@ public class PhaseShifterResultsExtension extends AbstractExtension<PostContinge
     @Override
     public String toString() {
         return "PhaseShifterResultsExtension{" +
-               "movedPhaseShifterIds=" + movedPhaseShifterIds +
+               "phaseShifterResults=" + phaseShifterResults +
                '}';
     }
 }
