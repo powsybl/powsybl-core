@@ -36,11 +36,11 @@ public final class IeeeCdfBranchWriter extends AbstractIeeeCdfWriter {
     private static String convertBranchToLine(IeeeCdfBranch branch) {
         return toString(branch.getTapBusNumber(), 1, 4, false) +
             FILLER +
-            toString(branch.getzBusNumber(), 6, 9, true) +
+            toString(branch.getzBusNumber(), 6, 9, false) +
             FILLER +
-            toString(branch.getArea(), 11, 12, true) +
+            toString(branch.getArea(), 11, 12, false) +
             FILLER +
-            toString(branch.getLossZone(), 14, 15, true) +
+            toString(branch.getLossZone(), 14, 15, false) +
             FILLER +
             toString(branch.getCircuit(), 17) +
             FILLER +
@@ -50,13 +50,13 @@ public final class IeeeCdfBranchWriter extends AbstractIeeeCdfWriter {
             FILLER +
             toString(branch.getChargingSusceptance(), 41, 49, true) +
             FILLER +
-            toString(branch.getRating1(), 51, 55, true) +
+            toString(branch.getRating1(), 51, 55, false) +
             FILLER +
-            toString(branch.getRating2(), 57, 61, true) +
+            toString(branch.getRating2(), 57, 61, false) +
             FILLER +
-            toString(branch.getRating3(), 63, 67, true) +
+            toString(branch.getRating3(), 63, 67, false) +
             FILLER +
-            toString(branch.getControlBusNumber(), 69, 72, true) +
+            toString(branch.getControlBusNumber(), 69, 72, false) +
             FILLER +
             toString(BranchSideConversion.revert(branch.getSide()), 74) +
             FILLER2 +
@@ -70,6 +70,6 @@ public final class IeeeCdfBranchWriter extends AbstractIeeeCdfWriter {
             toString(branch.getMinVoltageActiveOrReactivePowerLimit(), 113, 119, true) +
             toString(branch.getMaxVoltageActiveOrReactivePowerLimit(), 120, 126, true) +
             FILLER2 +
-            toString(branch.getSequenceNumber(), 129, 132, true);
+            toString(branch.getSequenceNumber(), 129, 132, false);
     }
 }

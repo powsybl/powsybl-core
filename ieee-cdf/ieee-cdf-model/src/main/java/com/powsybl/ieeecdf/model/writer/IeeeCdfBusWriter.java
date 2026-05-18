@@ -37,10 +37,10 @@ public final class IeeeCdfBusWriter extends AbstractIeeeCdfWriter {
             FILLER +
             toString(bus.getName(), 6, 17, true) +
             FILLER +
-            toString(bus.getAreaNumber(), 19, 20, true) +
-            toString(bus.getLossZoneNumber(), 21, 23, true) +
+            toString(bus.getAreaNumber(), 19, 20, false) +
+            toString(bus.getLossZoneNumber(), 21, 23, false) +
             FILLER +
-            toString(BusTypeConversion.revert(bus.getType()), 25, 26, true) +
+            toString(BusTypeConversion.revert(bus.getType()), 25, 26, false) +
             FILLER +
             toString(bus.getFinalVoltage(), 28, 33, true) +
             toString(bus.getFinalAngle(), 34, 40, true) +
@@ -59,6 +59,6 @@ public final class IeeeCdfBusWriter extends AbstractIeeeCdfWriter {
             FILLER +
             toString(bus.getRemoteControlledBusNumber(), 124, 127, true) +
             FILLER +
-            (bus.getSequenceNumber() != null ? toString(bus.getSequenceNumber(), 129, 132, true) : "");
+            (bus.getSequenceNumber() != null ? toString(bus.getSequenceNumber(), 129, 132, false) : "");
     }
 }
