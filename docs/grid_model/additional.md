@@ -93,6 +93,22 @@ Note that, following this modeling, in general, the last temporary limit (the hi
 If temporary limits are modeled, the permanent limit becomes mandatory.
 If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
 
+### Low loading limit
+
+```{note}
+Currently, this model is in BETA and only available in the IIDM representation. There is no import or export of this kind of limit with any
+exchange format.
+The model is subject to change and support for downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.) may vary.
+Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
+
+If you're unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html)
+```
+The LOW kind of loading limit does not have a permanent limit, and the acceptable duration is defined by the limit below the value, rather than the
+one above the value.
+
+![Loading limits model](img/current-limits-low.svg){width="50%" align=center class="only-light"}
+![Loading limits model](img/dark_mode/current-limits-low.svg){width="50%" align=center class="only-dark"}
+
 (limit-group-collection)=
 ### Limit group collection
 In network development studies or in an operational context (CGMES), we can have a set of operational limits according to the season (winter vs summer, for example), the time of the day (day vs night) etc.

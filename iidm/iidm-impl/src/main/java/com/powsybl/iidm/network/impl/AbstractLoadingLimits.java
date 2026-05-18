@@ -92,6 +92,9 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     private AbstractLoadingLimits(OperationalLimitsGroupImpl owner, DetectionKind detectionKind, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
         this.detectionKind = Objects.requireNonNull(detectionKind);
+        if (detectionKind == DetectionKind.LOW) {
+            LOGGER.warn("BETA feature, there is no guarantee that a LoadingLimit with DetectionKind.LOW might still in the model in the next releases");
+        }
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
@@ -113,7 +116,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     @Override
     public L setPermanentLimit(double permanentLimit) {
         NetworkImpl network = group.getNetwork();
-        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits(),
+        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, detectionKind, getTemporaryLimits(),
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;

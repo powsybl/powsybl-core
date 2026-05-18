@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.limitreduction.computation;
 
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.limitmodification.result.*;
@@ -30,9 +31,14 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
     @Override
     protected LimitsContainer<LoadingLimits> reduce() {
         LoadingLimits originalLimits = getOriginalLimits();
-        double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
-        AbstractReducedLoadingLimits reducedLoadingLimits = init(originalLimits.getLimitType(), reducedPermanentLimit,
+        AbstractReducedLoadingLimits reducedLoadingLimits;
+        if (originalLimits.getDetectionKind() == DetectionKind.HIGH) {
+            double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
+            reducedLoadingLimits = init(originalLimits.getLimitType(), reducedPermanentLimit,
                 originalLimits.getPermanentLimit(), getPermanentLimitReduction());
+        } else {
+            reducedLoadingLimits = init(originalLimits.getLimitType());
+        }
 
         // Compute the temporary limits:
         // A temporary limit L1 should be ignored (not created) if there exists another temporary limit L2
@@ -66,6 +72,16 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
             case CURRENT -> new ReducedCurrentLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
             default -> throw new IllegalArgumentException(
                     String.format("Unsupported limits type for reductions (%s)", type));
+        };
+    }
+
+    private AbstractReducedLoadingLimits init(LimitType type) {
+        return switch (type) {
+            case ACTIVE_POWER -> new ReducedActivePowerLimits();
+            case APPARENT_POWER -> new ReducedApparentPowerLimits();
+            case CURRENT -> new ReducedCurrentLimits();
+            default -> throw new IllegalArgumentException(
+                String.format("Unsupported limits type for reductions (%s)", type));
         };
     }
 }

@@ -27,6 +27,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     private final String ownerId;
 
     protected double permanentLimit = Double.NaN;
+    protected DetectionKind detectionKind = DetectionKind.LOW;
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
@@ -130,6 +131,13 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public A setPermanentLimit(double permanentLimit) {
         this.permanentLimit = permanentLimit;
+        this.detectionKind = DetectionKind.HIGH;
+        return (A) this;
+    }
+
+    @Override
+    public A setDetectionKind(DetectionKind detectionKind) {
+        this.detectionKind = detectionKind;
         return (A) this;
     }
 
@@ -141,6 +149,11 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public double getPermanentLimit() {
         return permanentLimit;
+    }
+
+    @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
     }
 
     @Override
@@ -158,7 +171,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected ValidationLevel checkLoadingLimits(ValidationLevel validationLevel, ReportNode reportNode) {
-        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), validationLevel, reportNode);
+        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, detectionKind, temporaryLimits.values(), validationLevel, reportNode);
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
