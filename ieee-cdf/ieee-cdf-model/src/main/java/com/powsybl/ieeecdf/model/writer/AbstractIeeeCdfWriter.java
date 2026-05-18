@@ -22,7 +22,6 @@ public abstract class AbstractIeeeCdfWriter {
     private static final DecimalFormat DF = new DecimalFormat();
 
     protected AbstractIeeeCdfWriter() {
-        // private constructor to prevent instantiation
         DF.setGroupingUsed(false);
     }
 
