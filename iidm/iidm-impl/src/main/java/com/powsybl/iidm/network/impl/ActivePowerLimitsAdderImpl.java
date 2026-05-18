@@ -19,8 +19,8 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
     Supplier<OperationalLimitsGroupImpl> groupSupplier;
     private final NetworkImpl network;
 
-    public ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
-        super(validable, ownerId);
+    public ActivePowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalLimitGroupId, NetworkImpl network) {
+        super(validable, ownerId, operationalLimitGroupId);
         this.groupSupplier = groupSupplier;
         this.network = network;
     }
