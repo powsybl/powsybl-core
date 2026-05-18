@@ -193,7 +193,7 @@ public abstract class AbstractGroundTest {
             .setId("Ground")
             .setEnsureIdUnicity(true);
         ValidationException exception = assertThrows(ValidationException.class, groundAdderNB::add);
-        assertEquals("Ground 'Ground': connectable bus is not set", exception.getMessage());
+        assertEquals("Ground 'Ground': node is not set", exception.getMessage());
         groundAdderNB = vl1.newGround()
             .setNode(6)
             .setEnsureIdUnicity(true);
