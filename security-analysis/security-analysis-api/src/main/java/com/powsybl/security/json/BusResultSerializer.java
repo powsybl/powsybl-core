@@ -29,8 +29,8 @@ public class BusResultSerializer extends StdSerializer<BusResult> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("voltageLevelId", busResult.getVoltageLevelId());
         jsonGenerator.writeStringField("busId", busResult.getBusId());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "v", busResult.getV());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "angle", busResult.getAngle());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "v", busResult.getV());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "angle", busResult.getAngle());
         JsonUtil.writeExtensions(busResult, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }

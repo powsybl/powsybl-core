@@ -28,12 +28,12 @@ public class FortescueValuesSerializer extends StdSerializer<FortescueValue> {
         jsonGenerator.writeStartObject();
 
         // Fortescue components.
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directMagnitude", value.getPositiveMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "zeroMagnitude", value.getZeroMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseMagnitude", value.getNegativeMagnitude());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "directAngle", value.getPositiveAngle());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "zeroAngle", value.getZeroAngle());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "inverseAngle", value.getNegativeAngle());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "directMagnitude", value.getPositiveMagnitude());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "zeroMagnitude", value.getZeroMagnitude());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "inverseMagnitude", value.getNegativeMagnitude());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "directAngle", value.getPositiveAngle());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "zeroAngle", value.getZeroAngle());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "inverseAngle", value.getNegativeAngle());
 
         jsonGenerator.writeEndObject();
     }

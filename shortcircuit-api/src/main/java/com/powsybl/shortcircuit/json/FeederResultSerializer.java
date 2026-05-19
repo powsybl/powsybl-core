@@ -40,7 +40,7 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
                 serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFeederResult) result).getCurrent(), jsonGenerator);
             }
         }
-        JsonUtil.writeOptionalEnumField(jsonGenerator, "side", result.getSide());
+        JsonUtil.writeOptionalEnumProperty(jsonGenerator, "side", result.getSide());
         jsonGenerator.writeEndObject();
     }
 }

@@ -33,7 +33,7 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("status", String.valueOf(faultResult.getStatus()));
         serializerProvider.defaultSerializeField("fault", faultResult.getFault(), jsonGenerator);
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "shortCircuitPower", faultResult.getShortCircuitPower());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "shortCircuitPower", faultResult.getShortCircuitPower());
         if (faultResult.getTimeConstant() != null) {
             jsonGenerator.writeStringField("timeConstant", faultResult.getTimeConstant().toString());
         }

@@ -29,7 +29,7 @@ public class ViolationLocationSerializer extends StdSerializer<ViolationLocation
     @Override
     public void serialize(ViolationLocation violationLocation, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        JsonUtil.writeOptionalEnumField(jsonGenerator, "type", violationLocation.getType());
+        JsonUtil.writeOptionalEnumProperty(jsonGenerator, "type", violationLocation.getType());
         if (ViolationLocation.Type.NODE_BREAKER == violationLocation.getType()) {
             NodeBreakerViolationLocation location = (NodeBreakerViolationLocation) violationLocation;
             jsonGenerator.writeStringField("voltageLevelId", location.getVoltageLevelId());

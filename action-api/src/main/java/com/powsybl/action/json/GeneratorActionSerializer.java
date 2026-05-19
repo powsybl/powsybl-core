@@ -7,13 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.GeneratorAction;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -25,45 +23,25 @@ public class GeneratorActionSerializer extends StdSerializer<GeneratorAction> {
     }
 
     @Override
-    public void serialize(GeneratorAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(GeneratorAction action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("generatorId", action.getGeneratorId());
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty("generatorId", action.getGeneratorId());
         action.isActivePowerRelativeValue().ifPresent(activePowerRelativeValue -> {
-            try {
-                jsonGenerator.writeBooleanField("activePowerRelativeValue", activePowerRelativeValue);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            jsonGenerator.writeBooleanProperty("activePowerRelativeValue", activePowerRelativeValue);
         });
         action.getActivePowerValue().ifPresent(activePowerValue -> {
-            try {
-                jsonGenerator.writeNumberField("activePowerValue", activePowerValue);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            jsonGenerator.writeNumberProperty("activePowerValue", activePowerValue);
         });
         action.isVoltageRegulatorOn().ifPresent(voltageControlOn -> {
-            try {
-                jsonGenerator.writeBooleanField("voltageRegulatorOn", voltageControlOn);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            jsonGenerator.writeBooleanProperty("voltageRegulatorOn", voltageControlOn);
         });
         action.getTargetV().ifPresent(targetV -> {
-            try {
-                jsonGenerator.writeNumberField("targetV", targetV);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            jsonGenerator.writeNumberProperty("targetV", targetV);
         });
         action.getTargetQ().ifPresent(targetQ -> {
-            try {
-                jsonGenerator.writeNumberField("targetQ", targetQ);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            jsonGenerator.writeNumberProperty("targetQ", targetQ);
         });
         jsonGenerator.writeEndObject();
     }

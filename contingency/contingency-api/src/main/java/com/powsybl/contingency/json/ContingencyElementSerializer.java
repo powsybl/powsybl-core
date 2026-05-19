@@ -31,7 +31,7 @@ public class ContingencyElementSerializer extends StdSerializer<ContingencyEleme
         jsonGenerator.writeStringField("id", contingencyElement.getId());
         jsonGenerator.writeStringField("type", contingencyElement.getType().name());
         if (contingencyElement instanceof AbstractSidedContingency sidedContingency) {
-            JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", sidedContingency.getVoltageLevelId());
+            JsonUtil.writeOptionalStringProperty(jsonGenerator, "voltageLevelId", sidedContingency.getVoltageLevelId());
         }
         jsonGenerator.writeEndObject();
     }

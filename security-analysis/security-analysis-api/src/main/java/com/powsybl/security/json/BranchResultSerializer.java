@@ -28,13 +28,13 @@ public class BranchResultSerializer extends StdSerializer<BranchResult> {
     public void serialize(BranchResult branchResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("branchId", branchResult.getBranchId());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p1", branchResult.getP1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q1", branchResult.getQ1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i1", branchResult.getI1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p2", branchResult.getP2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q2", branchResult.getQ2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i2", branchResult.getI2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "flowTransfer", branchResult.getFlowTransfer());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p1", branchResult.getP1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q1", branchResult.getQ1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i1", branchResult.getI1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p2", branchResult.getP2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q2", branchResult.getQ2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i2", branchResult.getI2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "flowTransfer", branchResult.getFlowTransfer());
         JsonUtil.writeExtensions(branchResult, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }

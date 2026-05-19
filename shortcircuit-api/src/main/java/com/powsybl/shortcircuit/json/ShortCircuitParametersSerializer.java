@@ -35,9 +35,9 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         jsonGenerator.writeBooleanField("withFeederResult", parameters.isWithFeederResult());
         jsonGenerator.writeStringField("studyType", parameters.getStudyType().name());
         if (parameters.getStudyType() == StudyType.SUB_TRANSIENT) {
-            JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
+            JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
         }
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
         jsonGenerator.writeBooleanField("withFortescueResult", parameters.isWithFortescueResult());
         jsonGenerator.writeBooleanField("withLoads", parameters.isWithLoads());
         jsonGenerator.writeBooleanField("withShuntCompensators", parameters.isWithShuntCompensators());
@@ -48,7 +48,7 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
             serializerProvider.defaultSerializeField("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
         }
         jsonGenerator.writeBooleanField("detailedReport", parameters.isDetailedReport());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "debugDir", parameters.getDebugDir());
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }

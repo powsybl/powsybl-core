@@ -7,13 +7,13 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.ActionList;
 import com.powsybl.action.IdentifierActionList;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,15 +29,15 @@ public class ActionListSerializer extends StdSerializer<ActionList> {
     }
 
     @Override
-    public void serialize(ActionList actionList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ActionList actionList, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
-        serializerProvider.defaultSerializeField("actions", actionList.getActions(), jsonGenerator);
+        jsonGenerator.writeStringProperty("version", VERSION);
+        serializationContext.defaultSerializeProperty("actions", actionList.getActions(), jsonGenerator);
         if (actionList instanceof IdentifierActionList identifierActionList) {
-            serializerProvider.defaultSerializeField("elementIdentifiers",
+            serializationContext.defaultSerializeProperty("elementIdentifiers",
                 identifierActionList.getElementIdentifierMap().entrySet().stream()
                     .collect(Collectors.toMap(map -> map.getKey().getId(), Map.Entry::getValue)), jsonGenerator);
-            serializerProvider.defaultSerializeField("actionBuilders",
+            serializationContext.defaultSerializeProperty("actionBuilders",
                 identifierActionList.getElementIdentifierMap().entrySet().stream()
                     .collect(Collectors.toMap(map -> map.getKey().getId(), Map.Entry::getKey)), jsonGenerator);
         }

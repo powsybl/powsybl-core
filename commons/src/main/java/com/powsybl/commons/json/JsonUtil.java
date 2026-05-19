@@ -201,7 +201,7 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalStringField(JsonGenerator jsonGenerator, String fieldName, String value) throws JacksonException {
+    public static void writeOptionalStringProperty(JsonGenerator jsonGenerator, String fieldName, String value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
@@ -210,7 +210,7 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalEnumField(JsonGenerator jsonGenerator, String fieldName, Enum<?> value) throws JacksonException {
+    public static void writeOptionalEnumProperty(JsonGenerator jsonGenerator, String fieldName, Enum<?> value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
@@ -219,7 +219,7 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalBooleanField(JsonGenerator jsonGenerator, String fieldName, boolean value, boolean defaultValue) throws JacksonException {
+    public static void writeOptionalBooleanProperty(JsonGenerator jsonGenerator, String fieldName, boolean value, boolean defaultValue) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
@@ -228,7 +228,7 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalFloatField(JsonGenerator jsonGenerator, String fieldName, float value) throws JacksonException {
+    public static void writeOptionalFloatProperty(JsonGenerator jsonGenerator, String fieldName, float value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
@@ -237,7 +237,7 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalDoubleField(JsonGenerator jsonGenerator, String fieldName, double value) throws JacksonException {
+    public static void writeOptionalDoubleProperty(JsonGenerator jsonGenerator, String fieldName, double value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
@@ -246,7 +246,7 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalDoubleField(JsonGenerator jsonGenerator, String fieldName, double value, double defaultValue) throws JacksonException {
+    public static void writeOptionalDoubleProperty(JsonGenerator jsonGenerator, String fieldName, double value, double defaultValue) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
@@ -255,7 +255,7 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalIntegerField(JsonGenerator jsonGenerator, String fieldName, int value) throws JacksonException {
+    public static void writeOptionalIntegerProperty(JsonGenerator jsonGenerator, String fieldName, int value) throws JacksonException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 

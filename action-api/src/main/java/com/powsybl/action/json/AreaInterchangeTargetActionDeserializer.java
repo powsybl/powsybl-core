@@ -7,15 +7,14 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.AreaInterchangeTargetAction;
 import com.powsybl.action.AreaInterchangeTargetActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -27,20 +26,20 @@ public class AreaInterchangeTargetActionDeserializer extends StdDeserializer<Are
     }
 
     @Override
-    public AreaInterchangeTargetActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public AreaInterchangeTargetActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         AreaInterchangeTargetActionBuilder builder = new AreaInterchangeTargetActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!AreaInterchangeTargetAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + AreaInterchangeTargetAction.NAME);
+                    if (!AreaInterchangeTargetAction.NAME.equals(jsonParser.nextStringValue())) {
+                        throw DatabindException.from(jsonParser, "Expected type " + AreaInterchangeTargetAction.NAME);
                     }
                     return true;
                 case "id":
-                    builder.withId(jsonParser.nextTextValue());
+                    builder.withId(jsonParser.nextStringValue());
                     return true;
                 case "areaId":
-                    builder.withAreaId(jsonParser.nextTextValue());
+                    builder.withAreaId(jsonParser.nextStringValue());
                     return true;
                 case "interchangeTarget":
                     jsonParser.nextToken();

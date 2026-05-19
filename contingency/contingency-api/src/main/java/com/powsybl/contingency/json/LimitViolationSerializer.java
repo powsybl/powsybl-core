@@ -37,14 +37,14 @@ public class LimitViolationSerializer extends StdSerializer<LimitViolation> {
         if (limitViolation.getSubjectName() != null) {
             jsonGenerator.writeStringField("subjectName", limitViolation.getSubjectName());
         }
-        JsonUtil.writeOptionalStringField(jsonGenerator, "operationalLimitsGroupId", limitViolation.getOperationalLimitsGroupId());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "operationalLimitsGroupId", limitViolation.getOperationalLimitsGroupId());
         jsonGenerator.writeStringField("limitType", limitViolation.getLimitType().name());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "limitName", limitViolation.getLimitName());
-        JsonUtil.writeOptionalIntegerField(jsonGenerator, "acceptableDuration", limitViolation.getAcceptableDuration());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "limitName", limitViolation.getLimitName());
+        JsonUtil.writeOptionalIntegerProperty(jsonGenerator, "acceptableDuration", limitViolation.getAcceptableDuration());
         jsonGenerator.writeNumberField("limit", limitViolation.getLimit());
         jsonGenerator.writeNumberField("limitReduction", limitViolation.getLimitReduction());
         jsonGenerator.writeNumberField("value", limitViolation.getValue());
-        JsonUtil.writeOptionalEnumField(jsonGenerator, "side", limitViolation.getSide());
+        JsonUtil.writeOptionalEnumProperty(jsonGenerator, "side", limitViolation.getSide());
 
         JsonUtil.writeExtensions(limitViolation, jsonGenerator, serializerProvider);
 

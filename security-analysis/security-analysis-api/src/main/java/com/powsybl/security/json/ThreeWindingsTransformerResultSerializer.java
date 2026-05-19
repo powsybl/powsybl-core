@@ -28,15 +28,15 @@ public class ThreeWindingsTransformerResultSerializer extends StdSerializer<Thre
     public void serialize(ThreeWindingsTransformerResult transfoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("threeWindingsTransformerId", transfoResult.getThreeWindingsTransformerId());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p1", transfoResult.getP1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q1", transfoResult.getQ1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i1", transfoResult.getI1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p2", transfoResult.getP2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q2", transfoResult.getQ2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i2", transfoResult.getI2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p3", transfoResult.getP3());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q3", transfoResult.getQ3());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i3", transfoResult.getI3());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p1", transfoResult.getP1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q1", transfoResult.getQ1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i1", transfoResult.getI1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p2", transfoResult.getP2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q2", transfoResult.getQ2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i2", transfoResult.getI2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p3", transfoResult.getP3());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q3", transfoResult.getQ3());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i3", transfoResult.getI3());
         JsonUtil.writeExtensions(transfoResult, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
