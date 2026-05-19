@@ -190,9 +190,7 @@ public class LoadScalable extends AbstractInjectionScalable {
         double cosphiInitial = Math.cos(Math.atan(oldQ / oldP));
         if (minPowerFactor > cosphiInitial) {
             double limitedQ = Math.copySign(Math.tan(Math.acos(minPowerFactor)) * newP, newQ);
-            if (limitedQ != newQ) {
-                logReactivePowerLimitation(l, "minimum power factor", newQ, limitedQ, "minPowerFactor=" + minPowerFactor);
-            }
+            logReactivePowerLimitation(l, "minimum power factor", newQ, limitedQ, "minPowerFactor=" + minPowerFactor);
             return limitedQ;
         }
         return newQ;
@@ -208,9 +206,7 @@ public class LoadScalable extends AbstractInjectionScalable {
             } else {
                 limitedQ = Math.min(limitedQ, minQ); // floor: prevent Q from becoming less negative than minQ
             }
-            if (limitedQ != newQ) {
-                logReactivePowerLimitation(load, "minimum Q rate", newQ, limitedQ, "minQRate=" + minRate);
-            }
+            logReactivePowerLimitation(load, "minimum Q rate", newQ, limitedQ, "minQRate=" + minRate);
         }
         double maxRate = parameters.getLoadMaxQRate();
         if (maxRate != ScalingParameters.DEFAULT_LOAD_MAX_Q_RATE) {
@@ -220,9 +216,7 @@ public class LoadScalable extends AbstractInjectionScalable {
             } else {
                 limitedQ = Math.max(limitedQ, maxQ); // ceiling: prevent Q from becoming more negative than maxQ
             }
-            if (limitedQ != newQ) {
-                logReactivePowerLimitation(load, "maximum Q rate", newQ, limitedQ, "maxQRate=" + maxRate);
-            }
+            logReactivePowerLimitation(load, "maximum Q rate", newQ, limitedQ, "maxQRate=" + maxRate);
         }
         return limitedQ;
     }
