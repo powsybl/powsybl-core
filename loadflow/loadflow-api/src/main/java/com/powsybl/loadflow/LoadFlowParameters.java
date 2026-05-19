@@ -8,7 +8,7 @@
 package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import tools.jackson.core.util.ByteArrayBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
