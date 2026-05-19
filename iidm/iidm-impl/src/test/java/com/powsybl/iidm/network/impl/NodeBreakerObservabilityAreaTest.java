@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Joris Mancini <joris.mancini_externe at rte-france.com>
+ */
 class NodeBreakerObservabilityAreaTest {
 
     @Test

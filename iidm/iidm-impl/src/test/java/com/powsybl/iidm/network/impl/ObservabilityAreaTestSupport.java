@@ -20,6 +20,9 @@ import com.powsybl.iidm.network.util.Networks;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * @author Joris Mancini <joris.mancini_externe at rte-france.com>
+ */
 final class ObservabilityAreaTestSupport {
 
     private ObservabilityAreaTestSupport() {
