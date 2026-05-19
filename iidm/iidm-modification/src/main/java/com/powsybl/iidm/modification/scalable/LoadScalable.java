@@ -189,7 +189,7 @@ public class LoadScalable extends AbstractInjectionScalable {
         }
         double cosphiInitial = Math.cos(Math.atan(oldQ / oldP));
         if (minPowerFactor > cosphiInitial) {
-            double limitedQ = Math.copySign(Math.tan(Math.acos(minPowerFactor)) * Math.abs(newP), newQ);
+            double limitedQ = Math.copySign(Math.tan(Math.acos(minPowerFactor)) * newP, newQ);
             if (limitedQ != newQ) {
                 logReactivePowerLimitation(l, "minimum power factor", newQ, limitedQ, "minPowerFactor=" + minPowerFactor);
             }
