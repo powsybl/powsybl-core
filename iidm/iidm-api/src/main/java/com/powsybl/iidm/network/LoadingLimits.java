@@ -48,7 +48,7 @@ public interface LoadingLimits extends OperationalLimits {
     }
 
     /**
-     * Used to say if the duration of the violation that is acceptable at a given value should be taken from
+     * Indicates if the duration of the violation that is acceptable at a given value should be taken from
      * the limit above the value (HIGH) or below the value (LOW).<br>
      * If this is {@link DetectionKind#HIGH}, {@link #getPermanentLimit()} should return a valid value.<br>
      * If this is {@link DetectionKind#LOW}, {@link #getPermanentLimit()} will throw as there is no valid permanent limit.
