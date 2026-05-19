@@ -341,7 +341,7 @@ public final class ConnectableSerDeUtil {
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null && (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty())) {
             writer.writeStartNode(nsUri, type + indexToString(index));
-            writePermanentLimit(limits, writer, version, valid);
+            writePermanentLimit(limits, writer, version);
             writer.writeStartNodes();
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
             for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
@@ -358,7 +358,7 @@ public final class ConnectableSerDeUtil {
         }
     }
 
-    private static <L extends LoadingLimits> void writePermanentLimit(L limits, TreeDataWriter writer, IidmVersion version, boolean valid) {
+    private static <L extends LoadingLimits> void writePermanentLimit(L limits, TreeDataWriter writer, IidmVersion version) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version, () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName()));
         writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
     }
