@@ -37,7 +37,7 @@
             <iidm:boundaryLine id="NHV1_NHV2_2.1" p0="0.0" q0="0.0" r="1.5" x="16.5" g="0.0" b="1.93E-4" pairingKey="X2"
                                bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0"
+        <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762"
                                      ratedU1="24.0" ratedU2="400.0" bus1="NGEN" connectableBus1="NGEN"
                                      voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"
                                      p1="605.558349609375" q1="225.2825164794922" p2="-604.8909301757812"
@@ -76,18 +76,18 @@
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD" p="600.0"
                        q="200.0"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0"
+        <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455"
                                      ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2"
                                      voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD"
                                      voltageLevelId2="VLLOAD" p1="600.8677978515625" q1="274.3769836425781" p2="-600.0"
                                      q2="-200.0">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0"
+            <iidm:ratioTapChanger tapPosition="1" targetDeadband="0.0"
                                   loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE"
                                   regulationValue="158.0">
                 <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
-                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
+                <iidm:step rho="0.8505666905244191"/>
+                <iidm:step rho="1.0006666666666666"/>
+                <iidm:step rho="1.150766642808914"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>

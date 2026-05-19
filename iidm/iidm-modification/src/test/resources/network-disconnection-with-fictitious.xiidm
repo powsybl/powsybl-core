@@ -7,24 +7,24 @@
                 <iidm:busbarSection id="BBS21" node="1"/>
                 <iidm:busbarSection id="BBS12" node="2"/>
                 <iidm:busbarSection id="BBS22" node="3"/>
-                <iidm:switch id="D_BBS11_BBS12" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="2"/>
-                <iidm:switch id="D_BBS21_BBS22" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="3"/>
-                <iidm:switch id="B_L1_1" fictitious="true" kind="BREAKER" retained="false" open="true" node1="4" node2="7"/>
-                <iidm:switch id="B_L1_2" kind="BREAKER" retained="false" open="true" node1="4" node2="7"/>
-                <iidm:switch id="B_L2" fictitious="true" kind="BREAKER" retained="false" open="true" node1="5" node2="8"/>
-                <iidm:switch id="B_TWT" fictitious="true" kind="BREAKER" retained="false" open="true" node1="6" node2="9"/>
-                <iidm:switch id="B0" fictitious="true" kind="BREAKER" retained="false" open="false" node1="7" node2="17"/>
-                <iidm:switch id="B1" kind="BREAKER" retained="false" open="true" node1="8" node2="11"/>
-                <iidm:switch id="B2" fictitious="true" kind="BREAKER" retained="false" open="false" node1="9" node2="12"/>
-                <iidm:switch id="B3" kind="BREAKER" retained="false" open="false" node1="7" node2="8"/>
-                <iidm:switch id="B4" kind="BREAKER" retained="false" open="false" node1="8" node2="9"/>
-                <iidm:switch id="B5" fictitious="true" kind="BREAKER" retained="false" open="false" node1="17" node2="10"/>
-                <iidm:switch id="D0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="10"/>
-                <iidm:switch id="D1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="10"/>
-                <iidm:switch id="D2" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="11"/>
-                <iidm:switch id="D3" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="11"/>
-                <iidm:switch id="D4" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="12"/>
-                <iidm:switch id="D5" kind="DISCONNECTOR" retained="false" open="true" node1="3" node2="12"/>
+                <iidm:switch id="D_BBS11_BBS12" kind="DISCONNECTOR" open="true" node1="0" node2="2"/>
+                <iidm:switch id="D_BBS21_BBS22" kind="DISCONNECTOR" open="false" node1="1" node2="3"/>
+                <iidm:switch id="B_L1_1" fictitious="true" kind="BREAKER" open="true" node1="4" node2="7"/>
+                <iidm:switch id="B_L1_2" kind="BREAKER" open="true" node1="4" node2="7"/>
+                <iidm:switch id="B_L2" fictitious="true" kind="BREAKER" open="true" node1="5" node2="8"/>
+                <iidm:switch id="B_TWT" fictitious="true" kind="BREAKER" open="true" node1="6" node2="9"/>
+                <iidm:switch id="B0" fictitious="true" kind="BREAKER" open="false" node1="7" node2="17"/>
+                <iidm:switch id="B1" kind="BREAKER" open="true" node1="8" node2="11"/>
+                <iidm:switch id="B2" fictitious="true" kind="BREAKER" open="false" node1="9" node2="12"/>
+                <iidm:switch id="B3" kind="BREAKER" open="false" node1="7" node2="8"/>
+                <iidm:switch id="B4" kind="BREAKER" open="false" node1="8" node2="9"/>
+                <iidm:switch id="B5" fictitious="true" kind="BREAKER" open="false" node1="17" node2="10"/>
+                <iidm:switch id="D0" kind="DISCONNECTOR" open="true" node1="0" node2="10"/>
+                <iidm:switch id="D1" kind="DISCONNECTOR" open="false" node1="1" node2="10"/>
+                <iidm:switch id="D2" kind="DISCONNECTOR" open="false" node1="0" node2="11"/>
+                <iidm:switch id="D3" kind="DISCONNECTOR" open="true" node1="1" node2="11"/>
+                <iidm:switch id="D4" kind="DISCONNECTOR" open="false" node1="2" node2="12"/>
+                <iidm:switch id="D5" kind="DISCONNECTOR" open="true" node1="3" node2="12"/>
             </iidm:nodeBreakerTopology>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL2" nominalV="1.0" topologyKind="BUS_BREAKER">
