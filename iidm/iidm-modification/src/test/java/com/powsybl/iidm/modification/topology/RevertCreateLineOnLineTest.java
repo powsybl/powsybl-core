@@ -346,6 +346,9 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
+        VoltageLevel vlTest = network.getVoltageLevel(VLTEST);
+        assertNotNull(vlTest.getNodeBreakerView().getSwitch("CJ_BREAKER"));
+        assertNotNull(vlTest.getNodeBreakerView().getSwitch("CJ_DISCONNECTOR_2_0"));
         VoltageLevel vl = network.getVoltageLevel("CJ_VL");
         assertNotNull(vl);
 
@@ -367,6 +370,9 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
         assertNotNull(vl);
         Load load = network.getLoad("loadId");
         assertNotNull(load);
+        // check switches are removed
+        assertNull(vlTest.getNodeBreakerView().getSwitch("CJ_BREAKER"));
+        assertNull(vlTest.getNodeBreakerView().getSwitch("CJ_DISCONNECTOR_2_0"));
         testReportNode(reportNode, "/reportNode/revert-create-line-on-line-keeping-vl.txt");
     }
 }
