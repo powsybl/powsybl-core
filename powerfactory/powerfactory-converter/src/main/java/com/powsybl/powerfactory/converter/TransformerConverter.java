@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.powsybl.powerfactory.converter.DataAttributeNames.I_REM;
-import static com.powsybl.powerfactory.converter.DataAttributeNames.NTRCN;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -997,16 +996,16 @@ class TransformerConverter extends AbstractConverter {
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
         // 0 = HT, 1 = BT, 2 = EXT
-        int controlNode = elmTr2.findIntAttributeValue("t2ldc").orElse(-1);
+        int controlNode = elmTr2.findIntAttributeValue(T2LDC).orElse(-1);
         return switch (controlNode) {
             case 0 -> highVoltageAtEnd1(vl1, vl2) ? terminal1 : terminal2;
             case 1 -> highVoltageAtEnd1(vl1, vl2) ? terminal2 : terminal1;
             case 2 -> {
-                unsupportedControlNodeWarning(controlNode, elmTr2.getLocName());
+                unsupportedControlNodeWarning(controlNode, T2LDC, elmTr2.getLocName());
                 yield null;
             }
             default -> {
-                unexpectedControlNodeWarning(controlNode, elmTr2.getLocName());
+                unexpectedControlNodeWarning(controlNode, T2LDC, elmTr2.getLocName());
                 yield null;
             }
         };
@@ -1014,17 +1013,17 @@ class TransformerConverter extends AbstractConverter {
 
     private static Terminal getLocalRegulatingTerminal(ThreeWindingsTransformer t3w, DataObject elmTr3) {
         // 0 = HT, 1 = MT, 2 = BT, 3 = EXT
-        int controlNode = elmTr3.findIntAttributeValue("t3ldc").orElse(-1);
+        int controlNode = elmTr3.findIntAttributeValue(T3LDC).orElse(-1);
         return switch (controlNode) {
             case 0 -> t3w.getLeg1().getTerminal();
             case 1 -> t3w.getLeg2().getTerminal();
             case 2 -> t3w.getLeg3().getTerminal();
             case 3 -> {
-                unsupportedControlNodeWarning(controlNode, elmTr3.getLocName());
+                unsupportedControlNodeWarning(controlNode, T3LDC, elmTr3.getLocName());
                 yield null;
             }
             default -> {
-                unexpectedControlNodeWarning(controlNode, elmTr3.getLocName());
+                unexpectedControlNodeWarning(controlNode, T3LDC, elmTr3.getLocName());
                 yield null;
             }
         };
@@ -1066,7 +1065,6 @@ class TransformerConverter extends AbstractConverter {
     private static double getTargetDeadBand(DataObject dataObject, String attributeNameLow, String attributeNameUp) {
         double min = dataObject.findFloatAttributeValue(attributeNameLow).orElse(Float.NaN);
         double max = dataObject.findFloatAttributeValue(attributeNameUp).orElse(Float.NaN);
-
         return Double.isFinite(min) && Double.isFinite(max) && max - min > 0.0 ? (max - min) : 0.0;
     }
 
@@ -1136,12 +1134,12 @@ class TransformerConverter extends AbstractConverter {
         LOGGER.warn("Unexpected controlMode (imldc value) {} for transformer '{}'", controlMode, locName);
     }
 
-    private static void unsupportedControlNodeWarning(int controlNode, String locName) {
-        LOGGER.warn("Unsupported t2ldc value {} (EXT control) for transformer '{}'", controlNode, locName);
+    private static void unsupportedControlNodeWarning(int controlNode, String attributeName, String locName) {
+        LOGGER.warn("Unsupported {} value {} (EXT control) for transformer '{}'", controlNode, attributeName, locName);
     }
 
-    private static void unexpectedControlNodeWarning(int controlNode, String locName) {
-        LOGGER.warn("Unexpected controlNode (t2ldc value) {} for transformer '{}'", controlNode, locName);
+    private static void unexpectedControlNodeWarning(int controlNode, String attributeName, String locName) {
+        LOGGER.warn("Unexpected controlNode ({} value) {} for transformer '{}'", controlNode, attributeName, locName);
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformerConverter.class);

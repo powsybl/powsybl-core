@@ -26,4 +26,6 @@ final class DataAttributeNames {
     static final String ELMNET = "ElmNet";
     static final String I_REM = "i_rem";
     static final String NTRCN = "ntrcn";
+    static final String T2LDC = "t2ldc";
+    static final String T3LDC = "t3ldc";
 }
