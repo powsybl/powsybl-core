@@ -7,7 +7,7 @@
  */
 package com.powsybl.timeseries.ast;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.util.Deque;

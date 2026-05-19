@@ -7,7 +7,6 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 import com.powsybl.commons.json.JsonUtil;
@@ -16,6 +15,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -89,10 +89,11 @@ class StoredDoubleTimeSeriesTest {
         assertEquals(json, json2);
 
         // test json with object mapper
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+                .addModule(new TimeSeriesJsonModule())
+            .build();
 
-        assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
+        assertEquals(timeSeries, jsonMapper.readValue(jsonMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
     }
 
     @Test

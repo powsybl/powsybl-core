@@ -7,7 +7,7 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
@@ -48,8 +48,8 @@ public abstract class AbstractUncompressedDataChunk {
         Objects.requireNonNull(generator);
         try {
             generator.writeStartObject();
-            generator.writeNumberField("offset", offset);
-            generator.writeFieldName("values");
+            generator.writeNumberProperty("offset", offset);
+            generator.writeName("values");
             writeValuesJson(generator);
             generator.writeEndObject();
         } catch (IOException e) {

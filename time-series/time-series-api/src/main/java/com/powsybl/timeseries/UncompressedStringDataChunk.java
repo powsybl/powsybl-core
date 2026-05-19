@@ -7,7 +7,7 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.lang3.ArrayUtils;
 

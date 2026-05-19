@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -197,15 +197,11 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
      */
     static void writeJson(JsonGenerator generator, List<? extends DataChunk> chunks) {
         Objects.requireNonNull(generator);
-        try {
-            generator.writeStartArray();
-            for (DataChunk chunk : chunks) {
-                chunk.writeJson(generator);
-            }
-            generator.writeEndArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        generator.writeStartArray();
+        for (DataChunk chunk : chunks) {
+            chunk.writeJson(generator);
         }
+        generator.writeEndArray();
     }
 
     String toJson();
@@ -323,7 +319,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
-                    case FIELD_NAME -> parseFieldName(parser, context);
+                    case PROPERTY_NAME -> parseFieldName(parser, context);
                     case END_OBJECT -> {
                         parseEndObject(context);
                         if (single) {

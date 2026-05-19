@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -98,7 +98,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             Duration timeStep = null;
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
-                    case FIELD_NAME -> {
+                    case PROPERTY_NAME -> {
                         String fieldName = parser.currentName();
                         switch (fieldName) {
                             // Precision in ms
@@ -219,21 +219,17 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
     @Override
     public void writeJson(JsonGenerator generator, ExportFormat timeFormat) {
         Objects.requireNonNull(generator);
-        try {
-            generator.writeStartObject();
-            if (timeFormat == ExportFormat.MILLISECONDS) {
-                generator.writeNumberField("startTime", startInstant.toEpochMilli());
-                generator.writeNumberField("endTime", endInstant.toEpochMilli());
-                generator.writeNumberField("spacing", timeStep.toMillis());
-            } else {
-                generator.writeNumberField("startInstant", new BigInteger(writeInstantToNanoString(startInstant)));
-                generator.writeNumberField("endInstant", new BigInteger(writeInstantToNanoString(endInstant)));
-                generator.writeNumberField("timeStep", timeStep.toNanos());
-            }
-            generator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        generator.writeStartObject();
+        if (timeFormat == ExportFormat.MILLISECONDS) {
+            generator.writeNumberProperty("startTime", startInstant.toEpochMilli());
+            generator.writeNumberProperty("endTime", endInstant.toEpochMilli());
+            generator.writeNumberProperty("spacing", timeStep.toMillis());
+        } else {
+            generator.writeNumberProperty("startInstant", new BigInteger(writeInstantToNanoString(startInstant)));
+            generator.writeNumberProperty("endInstant", new BigInteger(writeInstantToNanoString(endInstant)));
+            generator.writeNumberProperty("timeStep", timeStep.toNanos());
         }
+        generator.writeEndObject();
     }
 
     @Override

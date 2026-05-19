@@ -7,9 +7,9 @@
  */
 package com.powsybl.timeseries.ast;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
     @Override
     public void writeJson(JsonGenerator generator) throws IOException {
-        generator.writeFieldName(NAME);
+        generator.writeName(NAME);
         generator.writeStartObject();
         child.writeJson(generator);
         generator.writeEndObject();
@@ -77,7 +77,7 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
                     }
                     return new TimeNodeCalc(child);
                 }
-                case FIELD_NAME -> child = NodeCalc.parseJson(parser, token);
+                case PROPERTY_NAME -> child = NodeCalc.parseJson(parser, token);
                 default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }

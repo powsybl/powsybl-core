@@ -7,8 +7,6 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
@@ -18,6 +16,8 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -195,10 +195,11 @@ class CalculatedTimeSeriesTest {
         assertArrayEquals(new double[] {1d, 3d}, ((DoubleTimeSeries) timeSeriesList.get(3)).toArray(), 0d);
 
         // automatic jackson serialization
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
-        List<TimeSeries> tsLs2 = objectMapper.readValue(objectMapper.writeValueAsString(tsLs),
-                                                        TypeFactory.defaultInstance().constructCollectionType(List.class, TimeSeries.class));
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new TimeSeriesJsonModule())
+            .build();
+        List<TimeSeries> tsLs2 = jsonMapper.readValue(jsonMapper.writeValueAsString(tsLs),
+                                                        TypeFactory.createDefaultInstance().constructCollectionType(List.class, TimeSeries.class));
         assertEquals(tsLs, tsLs2);
     }
 
