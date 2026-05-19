@@ -49,7 +49,7 @@ SELECT *
         md:Model.created ?created ;
         md:Model.scenarioTime ?scenarioTime ;
         md:Model.profile ?profile .
-    FILTER (!regex(?profile, "EquipmentBoundary", "i")
+    FILTER (!regex(?profile, "Equipment", "i")
         && !regex(?profile, "TopologyBoundary", "i"))
 }}
 
