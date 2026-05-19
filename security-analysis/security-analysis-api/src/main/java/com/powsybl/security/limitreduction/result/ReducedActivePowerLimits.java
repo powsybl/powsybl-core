@@ -27,6 +27,5 @@ public class ReducedActivePowerLimits extends AbstractReducedLoadingLimits imple
      * Create a {@link ReducedActivePowerLimits} with no permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
      */
     public ReducedActivePowerLimits() {
-        super();
     }
 }

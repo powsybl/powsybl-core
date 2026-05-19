@@ -34,10 +34,10 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         AbstractReducedLoadingLimits reducedLoadingLimits;
         if (originalLimits.getDetectionKind() == DetectionKind.HIGH) {
             double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
-            reducedLoadingLimits = init(originalLimits.getLimitType(), reducedPermanentLimit,
+            reducedLoadingLimits = initHigh(originalLimits.getLimitType(), reducedPermanentLimit,
                 originalLimits.getPermanentLimit(), getPermanentLimitReduction());
         } else {
-            reducedLoadingLimits = init(originalLimits.getLimitType());
+            reducedLoadingLimits = initLow(originalLimits.getLimitType());
         }
 
         // Compute the temporary limits:
@@ -63,9 +63,9 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         return getOriginalLimits().getTemporaryLimits().stream().mapToInt(LoadingLimits.TemporaryLimit::getAcceptableDuration);
     }
 
-    private AbstractReducedLoadingLimits init(LimitType type, double permanentLimit,
-                                              double originalPermanentLimit,
-                                              double permanentLimitReduction) {
+    private AbstractReducedLoadingLimits initHigh(LimitType type, double permanentLimit,
+                                                  double originalPermanentLimit,
+                                                  double permanentLimitReduction) {
         return switch (type) {
             case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
             case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
@@ -75,7 +75,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         };
     }
 
-    private AbstractReducedLoadingLimits init(LimitType type) {
+    private AbstractReducedLoadingLimits initLow(LimitType type) {
         return switch (type) {
             case ACTIVE_POWER -> new ReducedActivePowerLimits();
             case APPARENT_POWER -> new ReducedApparentPowerLimits();

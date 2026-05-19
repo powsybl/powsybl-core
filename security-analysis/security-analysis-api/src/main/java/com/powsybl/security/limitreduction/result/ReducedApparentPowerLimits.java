@@ -28,6 +28,5 @@ public class ReducedApparentPowerLimits extends AbstractReducedLoadingLimits imp
      * Create a {@link ReducedApparentPowerLimits} with no permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
      */
     public ReducedApparentPowerLimits() {
-        super();
     }
 }
