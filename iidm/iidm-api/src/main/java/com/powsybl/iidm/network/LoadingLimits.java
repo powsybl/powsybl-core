@@ -57,10 +57,11 @@ public interface LoadingLimits extends OperationalLimits {
     DetectionKind getDetectionKind();
 
     /**
-     * Get the permanent limit.
-     * If the return of {@link #getDetectionKind()} is {@link DetectionKind#LOW},
-     * this will throw, as this kind of limit does not have a permanent limit.
+     * Get the permanent limit.<br>
+     * When the detection kind is {@link DetectionKind#LOW},
+     * this method throws, as this kind of limit does not have a permanent limit.
      * @return the permanent limit.
+     * @see #getDetectionKind()
      */
     double getPermanentLimit();
 

@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network;
 
 /**
- * Used by {@link LoadingLimits} to say if the duration of the violation that is acceptable at a given value should be taken from
+ * Used by {@link LoadingLimits} to indicate if the duration of the violation that is acceptable at a given value should be taken from
  * the limit above the value (HIGH) or below the value (LOW).
  * @author Dissoubray Nathan {@literal <nathan.dissoubray at rte-france.com>}
  */
