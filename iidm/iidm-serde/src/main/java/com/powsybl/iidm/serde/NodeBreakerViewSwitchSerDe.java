@@ -48,7 +48,7 @@ public class NodeBreakerViewSwitchSerDe extends AbstractSwitchSerDe<VoltageLevel
     protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         SwitchKind kind = context.getReader().readEnumAttribute("kind", SwitchKind.class);
         boolean retained = context.getReader().readBooleanAttribute("retained", false);
-        boolean open = context.getReader().readBooleanAttribute("open", false);
+        boolean open = context.getReader().readBooleanAttribute("open");
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_1, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
             adder.setFictitious(fictitious);
