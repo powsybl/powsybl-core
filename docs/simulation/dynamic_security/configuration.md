@@ -51,10 +51,12 @@ The parameters may also be overridden with a JSON file, in which case the config
 
 ### Optional properties
 
-**contingencies-start-time**<br>
+(param-dysecu-contingencies-start-time)=
+#### contingencies-start-time
 `contingencies-start-time` defines when the contingencies start, in seconds. The default value of this property is `5`.
 
-**debugDir**<br>
+(param-dysecu-debug-dir)=
+#### debugDir
 This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 ### Examples
