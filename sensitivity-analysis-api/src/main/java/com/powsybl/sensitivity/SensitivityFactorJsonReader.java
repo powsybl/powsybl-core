@@ -7,12 +7,10 @@
  */
 package com.powsybl.sensitivity;
 
-import tools.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
+import tools.jackson.core.JsonToken;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -32,22 +30,18 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
         Objects.requireNonNull(handler);
 
         JsonUtil.parseJson(jsonFile, parser -> {
-            try {
-                var context = new SensitivityFactor.ParsingContext();
-                JsonToken token;
-                while ((token = parser.nextToken()) != null) {
-                    if (token == JsonToken.PROPERTY_NAME) {
-                        SensitivityFactor.parseJson(parser, context);
-                    } else if (token == JsonToken.END_OBJECT) {
-                        handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
-                                ContingencyContext.create(context.contingencyId, context.contingencyContextType));
-                        context.reset();
-                    } else if (token == JsonToken.END_ARRAY) {
-                        break;
-                    }
+            var context = new SensitivityFactor.ParsingContext();
+            JsonToken token;
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.PROPERTY_NAME) {
+                    SensitivityFactor.parseJson(parser, context);
+                } else if (token == JsonToken.END_OBJECT) {
+                    handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                            ContingencyContext.create(context.contingencyId, context.contingencyContextType));
+                    context.reset();
+                } else if (token == JsonToken.END_ARRAY) {
+                    break;
                 }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
             }
             return null;
         });

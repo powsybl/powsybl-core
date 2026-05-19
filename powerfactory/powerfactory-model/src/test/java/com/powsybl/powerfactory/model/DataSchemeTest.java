@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,13 +35,9 @@ class DataSchemeTest {
 
         try (StringWriter writer = new StringWriter()) {
             JsonUtil.writeJson(writer, generator -> {
-                try {
-                    generator.writeStartObject();
-                    scheme.writeJson(generator);
-                    generator.writeEndObject();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+                generator.writeStartObject();
+                scheme.writeJson(generator);
+                generator.writeEndObject();
             });
             assertEquals(new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/scheme.json")), StandardCharsets.UTF_8),
                          writer.toString());

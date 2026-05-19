@@ -133,13 +133,13 @@ public final class GeoJsonDataParser {
         return false;
     }
 
-    private static String parseId(JsonParser parser) throws IOException {
+    private static String parseId(JsonParser parser) {
         String id = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             String propName = parser.currentName();
             parser.nextToken();
             if ("IDR".equals(propName)) {
-                id = parser.getText();
+                id = parser.getString();
             } else {
                 parser.skipChildren();
             }
@@ -213,7 +213,7 @@ public final class GeoJsonDataParser {
         return new Coordinate(buf[1], buf[0]);
     }
 
-    private static void consumeExtraData(JsonParser parser) throws IOException {
+    private static void consumeExtraData(JsonParser parser) {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             // Just skip remaining coordinates or nested arrays
             parser.skipChildren();

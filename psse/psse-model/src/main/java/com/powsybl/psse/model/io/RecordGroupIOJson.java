@@ -80,7 +80,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         throw new PsseException("Generic record group cannot be written as head record");
     }
 
-    protected JsonNode readJsonNode(JsonParser parser) throws IOException {
+    protected JsonNode readJsonNode(JsonParser parser) {
         Objects.requireNonNull(parser);
         JsonMapper mapper = JsonUtil.createJsonMapper();
         String nodeName = recordGroup.getIdentification().getJsonNodeName();
@@ -88,7 +88,6 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
             parser.nextToken();
             if (nodeName.equals(parser.currentName())) {
                 return mapper.readTree(parser).get("caseid");
-                // TODO: check this
             }
         }
         throw new PsseException("Json node not found: " + nodeName);

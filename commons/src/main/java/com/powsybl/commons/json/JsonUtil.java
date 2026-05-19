@@ -20,7 +20,6 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
@@ -139,20 +138,11 @@ public final class JsonUtil {
             .build();
     }
 
-    public static ObjectWriteContext getObjectWriteContextWithDefaultPrettyPrinter() {
-        return new ObjectWriteContext.Base() {
-            @Override
-            public PrettyPrinter getPrettyPrinter() {
-                return new DefaultPrettyPrinter();
-            }
-        };
-    }
-
     public static void writeJson(Writer writer, Consumer<JsonGenerator> consumer) {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(consumer);
-        JsonFactory factory = createJsonFactory();
-        try (JsonGenerator generator = factory.createGenerator(JsonUtil.getObjectWriteContextWithDefaultPrettyPrinter(), writer)) {
+        JsonMapper jsonMapper = createJsonMapper();
+        try (JsonGenerator generator = jsonMapper.writerWithDefaultPrettyPrinter().createGenerator(writer)) {
             consumer.accept(generator);
         }
     }
@@ -195,8 +185,8 @@ public final class JsonUtil {
     public static <T> T parseJson(Reader reader, Function<JsonParser, T> function) {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(function);
-        JsonFactory factory = createJsonFactory();
-        try (JsonParser parser = factory.createParser(ObjectReadContext.empty(), reader)) {
+        JsonMapper jsonMapper = createJsonMapper();
+        try (JsonParser parser = jsonMapper.createParser(reader)) {
             return function.apply(parser);
         }
     }

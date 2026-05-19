@@ -50,7 +50,7 @@ public class JsonImporter extends AbstractTreeDataImporter {
         if (ext != null) {
             try (InputStream is = dataSource.newInputStream(null, ext)) {
                 // check the first element is START_OBJECT and second element 'version' key
-                try (JsonParser parser = JsonUtil.createJsonFactory().createParser(is)) {
+                try (JsonParser parser = JsonUtil.createJsonMapper().createParser(is)) {
                     if (parser.nextToken() != JsonToken.START_OBJECT) {
                         return false;
                     }

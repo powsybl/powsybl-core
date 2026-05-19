@@ -53,7 +53,7 @@ public class TimeSeriesNameNodeCalc implements NodeCalc {
         generator.writeStringProperty(NAME, timeSeriesName);
     }
 
-    static NodeCalc parseJson(JsonParser parser) throws IOException {
+    static NodeCalc parseJson(JsonParser parser) {
         JsonToken token = parser.nextToken();
         if (token != null) {
             if (token == JsonToken.VALUE_STRING) {

@@ -7,12 +7,11 @@
  */
 package com.powsybl.sensitivity;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
-import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -92,8 +91,8 @@ class SensitivityFactorTest extends AbstractSerDeTest {
             }
             """;
 
-        JsonFactory factory = new JsonFactory();
-        JsonParser parser = factory.createParser(new StringReader(json));
+        JsonMapper jsonMapper = JsonUtil.createJsonMapper();
+        JsonParser parser = jsonMapper.createParser(new StringReader(json));
         parser.nextToken();
         Exception e = assertThrows(NullPointerException.class, () -> SensitivityFactor.parseJson(parser));
         assertEquals("Parameter variableSet is missing", e.getMessage());

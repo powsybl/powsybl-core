@@ -19,6 +19,7 @@ import java.util.*;
 
 import static com.powsybl.action.PercentChangeLoadAction.QModificationStrategy.CONSTANT_Q;
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonActionTest extends AbstractSerDeTest {
@@ -110,8 +111,9 @@ public class JsonActionTest extends AbstractSerDeTest {
     void wrongActions() throws IOException {
         try (final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
             JacksonException exception = assertThrows(JacksonException.class, () -> ActionList.readJsonInputStream(inputStream));
-            assertEquals("for phase tap changer tap position action relative value field can't be null\n" +
-                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #165] (through reference chain: java.util.ArrayList[0])", exception.getMessage());
+            assertThat(exception.getMessage())
+                .contains("for phase tap changer tap position action relative value field can't be null")
+                .contains("through reference chain: java.util.ArrayList[0]");
         }
 
         try (final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {

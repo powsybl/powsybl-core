@@ -81,7 +81,7 @@ public class Project extends AbstractPowerFactoryData {
     }
 
     @Override
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) {
         generator.writeStartObject();
 
         generator.writeStringProperty("name", name);

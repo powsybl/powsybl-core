@@ -59,7 +59,7 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
         generator.writeNumberProperty(NAME, value);
     }
 
-    static NodeCalc parseJson(JsonParser parser) throws IOException {
+    static NodeCalc parseJson(JsonParser parser) {
         JsonToken token = parser.nextToken();
         if (token != null) {
             if (token == JsonToken.VALUE_NUMBER_INT) {

@@ -29,15 +29,12 @@ public class StaticVarCompensatorActionSerializer extends StdSerializer<StaticVa
         jsonGenerator.writeStringProperty("type", action.getType());
         jsonGenerator.writeStringProperty("id", action.getId());
         jsonGenerator.writeStringProperty("staticVarCompensatorId", action.getStaticVarCompensatorId());
-        action.getRegulationMode().ifPresent(regulationMode -> {
-            jsonGenerator.writeStringProperty("regulationMode", String.valueOf(regulationMode));
-        });
-        action.getReactivePowerSetpoint().ifPresent(reactivePowerSetpoint -> {
-            jsonGenerator.writeNumberProperty("reactivePowerSetpoint", reactivePowerSetpoint);
-        });
-        action.getVoltageSetpoint().ifPresent(voltageSetpoint -> {
-            jsonGenerator.writeNumberProperty("voltageSetpoint", voltageSetpoint);
-        });
+        action.getRegulationMode().ifPresent(regulationMode ->
+            jsonGenerator.writeStringProperty("regulationMode", String.valueOf(regulationMode)));
+        action.getReactivePowerSetpoint().ifPresent(reactivePowerSetpoint ->
+            jsonGenerator.writeNumberProperty("reactivePowerSetpoint", reactivePowerSetpoint));
+        action.getVoltageSetpoint().ifPresent(voltageSetpoint ->
+            jsonGenerator.writeNumberProperty("voltageSetpoint", voltageSetpoint));
         jsonGenerator.writeEndObject();
     }
 }

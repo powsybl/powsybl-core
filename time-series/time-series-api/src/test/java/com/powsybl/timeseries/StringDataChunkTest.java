@@ -14,7 +14,6 @@ import org.threeten.extra.Interval;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
@@ -36,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class StringDataChunkTest {
 
     @Test
-    void baseTest() throws IOException {
+    void baseTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"a", "b", "c"});
         assertEquals(1, chunk.getOffset());
         assertEquals(3, chunk.getLength());
@@ -80,7 +79,7 @@ class StringDataChunkTest {
     }
 
     @Test
-    void compressTest() throws IOException {
+    void compressTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "bbb", "bbb", "ccc"});
         StringDataChunk maybeCompressedChunk = chunk.tryToCompress();
         assertInstanceOf(CompressedStringDataChunk.class, maybeCompressedChunk);
@@ -113,13 +112,13 @@ class StringDataChunkTest {
     }
 
     @Test
-    void compressFailureTest() throws IOException {
+    void compressFailureTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "ccc"});
         assertSame(chunk, chunk.tryToCompress());
     }
 
     @Test
-    void splitTest() throws IOException {
+    void splitTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[]{"a", "b", "c"});
         try {
             chunk.splitAt(1);
@@ -143,7 +142,7 @@ class StringDataChunkTest {
     }
 
     @Test
-    void compressedSplitTest() throws IOException {
+    void compressedSplitTest() {
         // index  0   1   2   3   4   5
         // value  NaN a   a   b   b   b
         //            [-------]   [---]

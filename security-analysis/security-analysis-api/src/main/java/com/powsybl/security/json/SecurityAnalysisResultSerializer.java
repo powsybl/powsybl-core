@@ -12,12 +12,11 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.SecurityAnalysisResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 
@@ -47,7 +46,7 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         jsonGenerator.writeEndObject();
     }
 
-    public static void write(SecurityAnalysisResult result, Writer writer) throws IOException {
+    public static void write(SecurityAnalysisResult result, Writer writer) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
 
