@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Identifiable;
 
 import java.io.PrintStream;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  *
@@ -117,6 +118,13 @@ class NetworkIndex {
             return Collections.emptySet();
         }
         return (Set<T>) all;
+    }
+
+    <T extends Identifiable> Stream<T> streamAssignable(Class<T> clazz) {
+        return objectsByClass.entrySet().stream()
+                .filter(e -> clazz.isAssignableFrom(e.getKey()))
+                .flatMap(e -> e.getValue().stream())
+                .map(clazz::cast);
     }
 
     boolean contains(String id) {
