@@ -262,7 +262,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertNull(ptc.getRegulationTerminal());
 
         Generator generator2 = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
-        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getVoltageRegulation().getTargetValue(), 0.0);
+        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getLocalTargetV(), 0.0);
         assertEquals(VOLTAGE, generator2.getVoltageRegulation().getMode());
     }
 
@@ -635,7 +635,7 @@ class CgmesConformity1ModifiedConversionTest {
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbMissingRegControlReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), importParams);
         StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(modifiedSvc);
-        assertEquals(REACTIVE_POWER, modifiedSvc.getVoltageRegulation().getMode());
+        assertFalse(modifiedSvc.isRegulating());
         assertEquals(0.0, modifiedSvc.getRegulatingTargetQ(), 0.0);
     }
 

@@ -57,7 +57,7 @@ public final class PhaseShifterTestCaseFactory {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(100.0)
                 .setTargetV(400.0)
                 .setMinP(50.0)

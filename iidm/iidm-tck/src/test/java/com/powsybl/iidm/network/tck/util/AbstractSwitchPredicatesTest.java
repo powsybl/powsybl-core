@@ -94,7 +94,6 @@ public abstract class AbstractSwitchPredicatesTest {
             .setTargetV(400)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(400)
                 .add()
             .add();
         vl.newGenerator()
@@ -106,7 +105,6 @@ public abstract class AbstractSwitchPredicatesTest {
             .setTargetV(400)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(400)
                 .add()
             .add();
 

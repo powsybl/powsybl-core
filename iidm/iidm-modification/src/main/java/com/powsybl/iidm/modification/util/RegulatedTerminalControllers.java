@@ -126,31 +126,36 @@ public class RegulatedTerminalControllers {
         return controllers.containsKey(newTerminalRef(regulatedTerminal));
     }
 
+    // TODO MSA Breaking change
     public void replaceRegulatedTerminal(Terminal currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+        replaceRegulatedTerminal(currentRegulatedTerminal, newRegulatedTerminal, null);
+    }
+
+    public void replaceRegulatedTerminal(Terminal currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
         Objects.requireNonNull(currentRegulatedTerminal);
         Objects.requireNonNull(newRegulatedTerminal);
         TerminalRef currentRegulatedTerminalRef = newTerminalRef(currentRegulatedTerminal);
         if (controllers.containsKey(currentRegulatedTerminalRef)) {
-            controllers.get(currentRegulatedTerminalRef).forEach(identifiable -> replaceRegulatedTerminal(identifiable, currentRegulatedTerminalRef, newRegulatedTerminal));
+            controllers.get(currentRegulatedTerminalRef).forEach(identifiable -> replaceRegulatedTerminal(identifiable, currentRegulatedTerminalRef, newRegulatedTerminal, newTargetValue));
         }
     }
 
-    private static void replaceRegulatedTerminal(Identifiable<?> identifiable, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+    private static void replaceRegulatedTerminal(Identifiable<?> identifiable, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
         switch (identifiable.getType()) {
             case TWO_WINDINGS_TRANSFORMER ->
                 replaceRegulatedTerminalTwoWindingsTransformer((TwoWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case THREE_WINDINGS_TRANSFORMER ->
                 replaceRegulatedTerminalThreeWindingsTransformer((ThreeWindingsTransformer) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case GENERATOR ->
-                replaceRegulatedTerminalVoltageRegulationHolder((Generator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((Generator) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
             case SHUNT_COMPENSATOR ->
-                replaceRegulatedTerminalVoltageRegulationHolder((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((ShuntCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
             case STATIC_VAR_COMPENSATOR ->
-                replaceRegulatedTerminalVoltageRegulationHolder((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((StaticVarCompensator) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
             case HVDC_CONVERTER_STATION ->
-                replaceRegulatedTerminalHvdcConverterStation((HvdcConverterStation<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalHvdcConverterStation((HvdcConverterStation<?>) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
             case BATTERY ->
-                replaceRegulatedTerminalVoltageRegulationHolder((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
+                replaceRegulatedTerminalVoltageRegulationHolder((Battery) identifiable, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
             case VOLTAGE_LEVEL ->
                 replaceRegulatedTerminalVoltageLevel((VoltageLevel) identifiable, currentRegulatedTerminal, newRegulatedTerminal);
             case LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER ->
@@ -179,9 +184,9 @@ public class RegulatedTerminalControllers {
         }
     }
 
-    private static void replaceRegulatedTerminalHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+    private static void replaceRegulatedTerminalHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
         if (hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
-            replaceRegulatedTerminalVoltageRegulationHolder((VscConverterStation) hvdcConverterStation, currentRegulatedTerminal, newRegulatedTerminal);
+            replaceRegulatedTerminalVoltageRegulationHolder((VscConverterStation) hvdcConverterStation, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
         }
     }
 
@@ -191,12 +196,14 @@ public class RegulatedTerminalControllers {
         }
     }
 
-    private static void replaceRegulatedTerminalVoltageRegulationHolder(VoltageRegulationHolder voltageRegulationHolder, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal) {
+    private static void replaceRegulatedTerminalVoltageRegulationHolder(VoltageRegulationHolder voltageRegulationHolder, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
         VoltageRegulation voltageRegulation = voltageRegulationHolder.getVoltageRegulation();
         if (voltageRegulation != null) {
             Terminal currentTerminal = voltageRegulation.getTerminal() != null ? voltageRegulation.getTerminal() : voltageRegulationHolder.getTerminal();
             if (currentRegulatedTerminal.equals(newTerminalRef(currentTerminal))) {
-                voltageRegulation.setTerminal(newRegulatedTerminal);
+                // TODO MSA We use the same targetValue of the previous terminal (best to add targetValue parameter?)
+                double targetValue = newTargetValue != null ? newTargetValue : voltageRegulation.getTargetValue();
+                voltageRegulation.setTerminal(newRegulatedTerminal, targetValue);
             }
         }
     }

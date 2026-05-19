@@ -46,7 +46,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
             .setConnectableBus("B")
             .setTargetP(100)
             .setTargetV(380)
-            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380).add()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setMaxP(100)
             .setMinP(0)
             .add();
@@ -56,7 +56,7 @@ class GeneratorEntsoeCategoryXmlTest extends AbstractIidmSerDeTest {
                 .setConnectableBus("B")
                 .setTargetP(100)
                 .setTargetV(380)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(380).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMaxP(100)
                 .setMinP(0)
                 .add();

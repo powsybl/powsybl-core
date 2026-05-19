@@ -82,9 +82,9 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode(12)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
+                .setTargetV(400)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(400)
                     .add()
                 .add();
         voltageLevel1.newLccConverterStation()
@@ -97,9 +97,9 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc1", networkId))
                 .setNode(10)
                 .setLossFactor(1.1f)
+                .setTargetV(405.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(405.0)
                     .add()
                 .add();
 
@@ -124,10 +124,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc2", networkId))
                 .setNode(11)
                 .setLossFactor(1.1f)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(123)
-                    .add()
+                .setTargetQ(123)
                 .add();
 
         n.newHvdcLine()
@@ -291,7 +288,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setDcNode2(dcNode2.getId())
                 .setTargetP(0.)
                 .setTargetVdc(500.)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetQ(0.0)
                 .add();
 
         return n;

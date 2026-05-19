@@ -55,7 +55,6 @@ public abstract class AbstractBusBreakerTest {
                 .setTargetV(400.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(400)
                     .add()
                 .add();
         vl1.newLoad()
@@ -91,7 +90,6 @@ public abstract class AbstractBusBreakerTest {
                 .setTargetV(400.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(400)
                     .add()
                 .add();
 
@@ -153,10 +151,7 @@ public abstract class AbstractBusBreakerTest {
                                                     .setName("vsc")
                                                     .setBus("bus1")
                                                     .setLossFactor(0.011f)
-                                                    .newVoltageRegulation()
-                                                        .withMode(RegulationMode.REACTIVE_POWER)
-                                                        .withTargetValue(1.0)
-                                                        .add()
+                                                    .setTargetQ(1.0)
                                                     .setConnectableBus("bus1")
                                                 .add();
         assertEquals(HvdcConverterStation.HvdcType.LCC, lccConverterStation.getHvdcType());

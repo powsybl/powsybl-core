@@ -135,8 +135,4 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
     default VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
         return this;
     }
-
-    VscConverterStation setTargetQ(double targetQ);
-
-    VscConverterStation setTargetV(double targetV);
 }

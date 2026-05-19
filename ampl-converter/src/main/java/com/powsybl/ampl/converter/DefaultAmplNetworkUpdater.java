@@ -41,7 +41,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         if (logMissingVoltageRegulation(g, LOGGER, "generator", REGULATION_WON_T_BE_UPDATED)) {
             return;
         }
-        g.getVoltageRegulation().setMode(vregul ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER);
+        g.getVoltageRegulation().setRegulating(vregul);
 
         g.setTargetP(targetP);
         g.setTargetQ(targetQ);
@@ -60,25 +60,18 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         t.setP(p).setQ(q);
 
         if (!logMissingVoltageRegulation(vsc, LOGGER, "converter station", REGULATION_WON_T_BE_UPDATED)) {
-            double nominalV = vsc.getRegulatingTerminal().getVoltageLevel().getNominalV();
-            double voltageSetpoint = targetV * nominalV;
+            vsc.setLocalTargetQ(targetQ);
+            vsc.getVoltageRegulation().setRegulating(vregul);
 
-            if (vregul) {
-                vsc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
-                vsc.getVoltageRegulation().setTargetValue(voltageSetpoint);
-                vsc.setTargetQ(targetQ);
-            } else {
-                vsc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-                vsc.getVoltageRegulation().setTargetValue(targetQ);
-                vsc.setTargetV(voltageSetpoint);
-            }
+            double nominalV = vsc.getRegulatingTerminal().getVoltageLevel().getNominalV();
+            vsc.setLocalTargetV(targetV * nominalV);
         }
         busConnection(t, busNum, networkMapper);
     }
 
     public void updateNetworkBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
         b.setTargetP(targetP);
-        b.setTargetQ(targetQ);
+        b.setLocalTargetQ(targetQ);
 
         Terminal t = b.getTerminal();
         t.setP(p).setQ(q);
@@ -86,25 +79,20 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     }
 
     public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
-        if (!logMissingVoltageRegulation(svc, LOGGER, "static var compensator", REGULATION_WON_T_BE_UPDATED)) {
-            if (vregul) {
-                svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
-                svc.getVoltageRegulation().setRegulating(true);
+        if (vregul) {
+            svc.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).build();
+        } else {
+            if (q == 0) {
+                svc.removeVoltageRegulation();
             } else {
-                if (q == 0) {
-                    svc.getVoltageRegulation().setRegulating(false);
-                    svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-                } else {
-                    svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-                    svc.getVoltageRegulation().setTargetValue(-q);
-                    svc.getVoltageRegulation().setRegulating(true);
-                }
+                svc.setLocalTargetQ(-q);
+                svc.newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).build();
             }
         }
         Terminal t = svc.getTerminal();
         t.setQ(q);
         double nominalV = svc.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        svc.setTargetV(targetV * nominalV);
+        svc.setLocalTargetV(targetV * nominalV);
         busConnection(t, busNum, networkMapper);
     }
 

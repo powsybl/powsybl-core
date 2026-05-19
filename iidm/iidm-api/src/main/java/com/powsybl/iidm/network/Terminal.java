@@ -22,6 +22,8 @@ import java.util.function.Predicate;
  */
 public interface Terminal {
 
+    record TerminalDataMsa(String id, ThreeSides side, TerminalNumber number) { }
+
     /**
      * A node/breaker view of the terminal.
      */
@@ -270,6 +272,23 @@ public interface Terminal {
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
+    }
+
+    static Terminal getTerminal(TerminalDataMsa terminalDataMsa, Network network) {
+        String id = terminalDataMsa.id();
+        ThreeSides side = terminalDataMsa.side();
+        TerminalNumber number = terminalDataMsa.number();
+        Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
+        }
+        if (side != null && number != null) {
+            throw new PowsyblException("Terminal reference specifies both terminal side and terminal number: '" + id + "'");
+        }
+        if (number != null) {
+            return Terminal.getTerminal(identifiable, number);
+        }
+        return Terminal.getTerminal(identifiable, side != null ? side : ThreeSides.ONE);
     }
 
     ThreeSides getSide();

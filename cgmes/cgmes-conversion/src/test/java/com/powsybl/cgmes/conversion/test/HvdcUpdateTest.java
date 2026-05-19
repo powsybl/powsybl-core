@@ -195,9 +195,9 @@ class HvdcUpdateTest {
         double tol = 0.0000001;
         assertEquals(0.0, vscConverterStation.getLossFactor(), tol);
         assertNotNull(vscConverterStation.getRegulatingTerminal());
-        assertNotNull(vscConverterStation.getVoltageRegulation());
+        assertNull(vscConverterStation.getVoltageRegulation());
         assertTrue(vscConverterStation.isWithMode(RegulationMode.REACTIVE_POWER));
-        assertFalse(vscConverterStation.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
+        assertFalse(vscConverterStation.isRegulating());
         assertEquals(0.0, vscConverterStation.getRegulatingTargetQ());
         assertTrue(Double.isNaN(vscConverterStation.getRegulatingTargetV()));
         assertFalse(vscConverterStation.isWithMode(RegulationMode.VOLTAGE));
@@ -236,7 +236,7 @@ class HvdcUpdateTest {
         double tol = 0.0000001;
         assertEquals(targetV, vscConverterStation.getRegulatingTargetV(), tol);
         assertEquals(targetQ, vscConverterStation.getRegulatingTargetQ(), tol);
-        assertEquals(regulationMode, vscConverterStation.getVoltageRegulation().getMode());
+        assertTrue(vscConverterStation.isWithMode(regulationMode));
         assertTrue(vscConverterStation.isRegulatingWithMode(regulationMode));
     }
 

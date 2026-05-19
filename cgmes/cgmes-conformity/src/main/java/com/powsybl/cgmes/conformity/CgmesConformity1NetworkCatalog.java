@@ -443,7 +443,6 @@ public final class CgmesConformity1NetworkCatalog {
             .setTargetV(21.987)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(21.987)
                 .add()
             .setRatedS(300)
             .add();
@@ -963,10 +962,10 @@ public final class CgmesConformity1NetworkCatalog {
                 .setConnectableBus(BUS_ID_1)
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
+                .setTargetV(229.5)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .withRegulating(true)
-                    .withTargetValue(229.5)
                     .add()
                 .add();
 

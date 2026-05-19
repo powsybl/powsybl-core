@@ -100,8 +100,11 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             double defaultTargetV = getDefaultTargetV(staticVarCompensator, context);
             double targetV = cgmesRegulatingControl.map(propertyBag -> findTargetV(propertyBag, defaultTargetV, DefaultValueUse.NOT_DEFINED)).orElse(defaultTargetV);
             boolean regulating = updatedControlEnabled && regulatingOn && isValidTargetV(targetV);
-
-            voltageRegulation.setTargetValue(targetV);
+            if (staticVarCompensator.isRemoteRegulating()) {
+                voltageRegulation.setTargetValue(targetV);
+            } else {
+                staticVarCompensator.setLocalTargetV(targetV);
+            }
             voltageRegulation.setRegulating(regulating);
         } else if (staticVarCompensator.isWithMode(RegulationMode.REACTIVE_POWER)) {
             double defaultTargetQ = getDefaultTargetQ(staticVarCompensator, defaultQ, context);
@@ -111,6 +114,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
             voltageRegulation.setTargetValue(targetQ);
             voltageRegulation.setRegulating(regulating);
+        } else {
+            staticVarCompensator.setLocalTargetQ(staticVarCompensator.getLocalTargetQ());
         }
     }
 

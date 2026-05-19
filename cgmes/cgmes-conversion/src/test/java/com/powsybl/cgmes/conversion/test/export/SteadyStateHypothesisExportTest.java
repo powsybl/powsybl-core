@@ -48,6 +48,9 @@ import static com.powsybl.cgmes.conversion.test.ConversionUtil.getAttribute;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getElement;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.getResource;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
+import static com.powsybl.iidm.network.test.SvcTestCaseFactory.LOCAL_TARGET_Q;
+import static com.powsybl.iidm.network.test.SvcTestCaseFactory.LOCAL_TARGET_V;
+import static com.powsybl.iidm.network.test.SvcTestCaseFactory.REMOTE_TARGET_VALUE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -533,6 +536,9 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         String baseName = "testSvcRc";
         Network network;
         String ssh;
+        String localTargetV = String.valueOf(LOCAL_TARGET_V);
+        String localTargetQ = String.valueOf(LOCAL_TARGET_Q);
+        String remoteTargetValue = String.valueOf(REMOTE_TARGET_VALUE);
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             Properties exportParams = new Properties();
@@ -542,23 +548,23 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Local
             network = SvcTestCaseFactory.createLocalVoltageControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetV, "k");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteVoltageControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetV, "k");
 
             // SVC REACTIVE_POWER
             // Local
             network = SvcTestCaseFactory.createLocalReactiveControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetQ, "M");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteReactiveControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetQ, "M");
 
             // SVC OFF
             // Local
@@ -567,13 +573,13 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRCWithoutAttribute(ssh, "SVC2_RC");
             network = SvcTestCaseFactory.createLocalOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetQ, "M");
             network = SvcTestCaseFactory.createLocalOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", localTargetV, "k");
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", "0", "k");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", localTargetV, "k");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
@@ -581,13 +587,13 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", "0", "k");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", "350", "M");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "true", "0", localTargetQ, "M");
             network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", "390", "k");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", localTargetV, "k");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", "0", "k");
+            testRcEqRcWithAttribute(ssh, "SVC2_RC", "false", "false", "0", remoteTargetValue, "k");
         }
     }
 
@@ -698,6 +704,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "25.2", "k");
 
             // Generator with local reactive
+            // TODO MSA fix me (in the 1.16 version localReactiveenerator was used with remoteReactivePowerExtension)
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "200", "M");

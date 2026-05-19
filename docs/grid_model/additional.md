@@ -414,6 +414,17 @@ Here the list of objects capable of such regulation by authorized mode:
 | [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X              |                            |                                 |
 | [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter) | X       | X              |                            |                                 |
 
+**API from VoltageRegulationHolder**
+
+| Method           | Parameters  | Description                                                                                                                                     |
+|------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal which can be remote or local                                                   |
+| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                              |
+| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode)          |
+| $Terminal$       |             | The regulating Terminal which can be remote or local                  |
+| $Mode$           |             | The kind of regulation  |
+| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                            |
+
 **Characteristics**
 
 | Attribute        | Unit        | Description                                                                                                                                     |
@@ -429,7 +440,9 @@ Here the list of objects capable of such regulation by authorized mode:
 
 The values `TargetValue`, `Regulating` and `Mode` are required.
 
-`Terminal` is optional. If not set, the local terminal of the connectable should be used
+`Terminal` is optional. If not set, the local terminal of the connectable should be used.
+
+`TargetValue` TODO MSA add local value if VOLTAGE or REACTIVE_POWER.
 
 Regulation `Mode` has the following values : 
 - `VOLTAGE`
@@ -445,7 +458,17 @@ The optional `TargetDeadband` is only pertinent for objects with discrete (as op
 
 **Example**
 
-This example shows how to add a voltage regulation to a generator:
+This example shows how to add a voltage regulation to a generator with remote regulation:
+ - when we create a new generator:
+```java
+generator.newVoltageRegulation()
+    .withTargetValue(120)
+    .withMode(RegulationMode.REACTIVE_POWER)
+    .withRegulating(true)
+    .withTerminal(regulatingTerminal)
+    .add();
+```
+- when the generator already exists:
 ```java
 generator.newVoltageRegulation()
     .withTargetValue(120)
@@ -454,3 +477,5 @@ generator.newVoltageRegulation()
     .withTerminal(regulatingTerminal)
     .build();
 ```
+
+

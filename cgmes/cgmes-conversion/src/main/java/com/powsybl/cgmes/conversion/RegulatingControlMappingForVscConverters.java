@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
@@ -27,6 +29,10 @@ public class RegulatingControlMappingForVscConverters {
     RegulatingControlMappingForVscConverters(Context context) {
         this.context = context;
         mapping = new HashMap<>();
+    }
+
+    public static void initialize(VscConverterStationAdder adder) {
+        adder.setTargetQ(0.0);
     }
 
     public void add(String vscConverterId, PropertyBag sm) {
@@ -49,7 +55,13 @@ public class RegulatingControlMappingForVscConverters {
         RegulatingTerminalMapper.TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(pccTerminal, context)
                 .orElseGet(() -> new RegulatingTerminalMapper.TerminalAndSign(vscConverter.getTerminal(), 1));
-        vscConverter.getVoltageRegulation().setTerminal(mappedRegulatingTerminal.getTerminal());
+        //
+        vscConverter.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(mappedRegulatingTerminal.getTerminal())
+            .withTargetValue(vscConverter.getLocalTargetQ())
+            .build();
+        vscConverter.setLocalTargetQ(Double.NaN);
         vscConverter.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
     }
 

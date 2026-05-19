@@ -50,7 +50,7 @@ class ConnectablePositionXmlTest extends AbstractIidmSerDeTest {
                 .setMaxP(20)
                 .setTargetP(20)
                 .setTargetV(400)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId("SW")

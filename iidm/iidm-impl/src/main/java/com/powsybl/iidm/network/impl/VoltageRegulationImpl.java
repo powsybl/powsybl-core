@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -22,9 +24,11 @@ import gnu.trove.list.array.TDoubleArrayList;
 public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     private Validable validable;
+    private VoltageRegulationHolder parent;
     private final Class<? extends VoltageRegulationHolder> classHolder;
     private TerminalExt terminal;
-    private RegulationMode mode;
+    private Terminal.TerminalDataMsa terminalData;
+    private final RegulationMode mode;
     private final Ref<NetworkImpl> network;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
@@ -33,15 +37,18 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     private final TBooleanArrayList regulating;
 
     public VoltageRegulationImpl(Validable validable,
+                                 VoltageRegulationHolder parent,
                                  Class<? extends VoltageRegulationHolder> classHolder,
                                  Ref<NetworkImpl> network,
                                  double targetValue,
                                  double targetDeadband,
                                  double slope,
                                  Terminal terminal,
+                                 Terminal.TerminalDataMsa terminalData,
                                  RegulationMode mode,
                                  boolean regulating) {
         this.validable = validable;
+        this.parent = parent;
         this.classHolder = classHolder;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -56,7 +63,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             this.slope.add(slope);
             this.regulating.add(regulating);
         }
-        this.setTerminal(terminal);
+        if (terminal != null) {
+            this.setTerminal(terminal, getTargetValue());
+        }
+        this.terminalData = terminalData;
     }
 
     @Override
@@ -70,7 +80,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public double setTargetValue(double targetValue) {
-        ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, mode, isRegulating(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, mode, isRegulating(), isWithTerminal(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.targetValue.set(getCurrentIndex(), targetValue);
     }
 
@@ -109,14 +119,21 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return terminal;
     }
 
-    /**
-     * {@inheritDoc}
-     * If regulating is true then we validate the new value before to setting it
-     */
     @Override
-    public void setTerminal(Terminal terminal) {
+    public void setTerminal(Terminal terminal, double targetValue) {
         ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        updateTerminal(terminal);
+        boolean isWithTerminal = terminal != null;
+        ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, mode, isRegulating(), isWithTerminal, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        this.updateTerminal(terminal);
+        this.setTargetValue(targetValue);
+    }
+
+    @Override
+    public void resolveTerminal() {
+        if (terminalData != null) {
+            this.setTerminal(Terminal.getTerminal(this.terminalData, this.network.get()), this.getTargetValue());
+            this.terminalData = null;
+        }
     }
 
     @Override
@@ -128,11 +145,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      * {@inheritDoc}
      * If regulating is true then we validate the new value before to setting it
      */
-    @Override
-    public void setMode(RegulationMode mode) {
-        ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        this.mode = mode;
-    }
+//    @Override
+//    public void setMode(RegulationMode mode) {
+//        ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+//        this.mode = mode;
+//    }
 
     @Override
     public boolean isRegulating() {
@@ -145,13 +162,34 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public boolean setRegulating(boolean regulating) {
+        if (!isWithTerminal()) {
+            if (classHolder == ShuntCompensator.class) {
+                if (regulating) {
+                    ValidationUtil.checkNotNanValue(validable, this.parent.getLocalTargetV(), "localTargetV", null);
+                    ValidationUtil.checkDoublePositive(validable, this.parent.getLocalTargetV(), "localTargetV");
+                }
+                // StaticVarCompensator ignore localTarget V and Q when regulating false
+            } else if (classHolder != StaticVarCompensator.class || regulating) {
+                ValidationUtil.checkLocalTargetQandV(validable, this.parent.getLocalTargetV(), this.parent.getLocalTargetQ(), false, regulating, mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+            }
+        }
         ValidationUtil.checkVoltageRegulation(validable, this, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.regulating.set(getCurrentIndex(), regulating);
     }
 
     @Override
     public void removeTerminal() {
-        this.setTerminal(null);
+        // No exception on ShuntCompensator case
+        if (classHolder != ShuntCompensator.class) {
+            ValidationUtil.checkLocalTargetQandV(validable, this.parent.getLocalTargetV(), this.parent.getLocalTargetQ(), false, isRegulating(), mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        }
+        this.updateTerminal(null);
+        this.setTargetValue(Double.NaN);
+    }
+
+    @Override
+    public boolean isWithTerminal() {
+        return terminal != null || terminalData != null;
     }
 
     @Override
@@ -194,7 +232,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     @Override
     public void onReferencedRemoval(Terminal removedReferenced) {
         if (this.terminal == removedReferenced) {
-            this.setTerminal(null);
+            this.updateTerminal(null);
         }
     }
 
@@ -205,8 +243,14 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         }
     }
 
+    @Override
     public void updateValidable(Validable validable) {
         this.validable = validable;
+    }
+
+    @Override
+    public void setParent(VoltageRegulationHolder parent) {
+        this.parent = parent;
     }
 
     private int getCurrentIndex() {
@@ -221,6 +265,13 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (terminal != null) {
             this.terminal = (TerminalExt) terminal;
             this.terminal.getReferrerManager().register(this);
+        }
+    }
+
+    @Override
+    public void remove() {
+        if (this.terminal != null) {
+            this.terminal.getReferrerManager().unregister(this);
         }
     }
 }

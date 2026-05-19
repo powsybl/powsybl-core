@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
 
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.EnergySource;
@@ -249,9 +248,9 @@ class SwitchesFlowTest {
             .setEnergySource(EnergySource.HYDRO)
             .setMinP(0.0)
             .setMaxP(100.0)
-            .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(q).add()
             .setTargetP(p)
             .setTargetV(225.0)
+            .setTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

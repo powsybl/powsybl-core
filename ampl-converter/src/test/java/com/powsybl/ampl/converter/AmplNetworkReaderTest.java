@@ -253,11 +253,11 @@ class AmplNetworkReaderTest {
         Generator generator = network.getGenerator("GEN");
         VoltageLevel voltageLevel = generator.getTerminal().getVoltageLevel();
 
-        assertEquals(Double.NaN, generator.getTargetV());
+        assertEquals(24.5, generator.getLocalTargetV());
         assertEquals(24.5, generator.getRegulatingTargetV(), 0.0);
         assertEquals(607.0, generator.getTargetP(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getP()));
-        assertEquals(301.0, generator.getTargetQ(), 0.0);
+        assertEquals(301.0, generator.getLocalTargetQ(), 0.0);
         assertTrue(Double.isNaN(generator.getTerminal().getQ()));
 
         reader.readGenerators();
@@ -266,7 +266,7 @@ class AmplNetworkReaderTest {
         assertEquals(voltageLevel.getNominalV() * 1.01000, generator.getTargetV(), 0.0);
         assertEquals(300.0, generator.getTargetP(), 0.0);
         assertEquals(300.0, generator.getTerminal().getP(), 0.0);
-        assertEquals(150.0, generator.getTargetQ(), 0.0);
+        assertEquals(150.0, generator.getLocalTargetQ(), 0.0);
         assertEquals(150.0, generator.getTerminal().getQ(), 0.0);
     }
 
@@ -274,7 +274,7 @@ class AmplNetworkReaderTest {
         Battery battery = network.getBattery("BAT");
 
         assertEquals(9999.99, battery.getTargetP(), 0.0);
-        assertEquals(9999.99, battery.getTargetQ(), 0.0);
+        assertEquals(9999.99, battery.getLocalTargetQ(), 0.0);
         assertEquals(-9999.99, battery.getMinP(), 0.0);
         assertEquals(9999.99, battery.getMaxP(), 0.0);
         assertEquals(-605.0, battery.getTerminal().getP(), 0.0);
@@ -283,7 +283,7 @@ class AmplNetworkReaderTest {
         reader.readBatteries();
 
         assertEquals(12.0, battery.getTargetP(), 0.0);
-        assertEquals(13.0, battery.getTargetQ(), 0.0);
+        assertEquals(13.0, battery.getLocalTargetQ(), 0.0);
         assertEquals(300.0, battery.getTerminal().getP(), 0.0);
         assertEquals(150.0, battery.getTerminal().getQ(), 0.0);
     }
@@ -494,6 +494,7 @@ class AmplNetworkReaderTest {
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
         assertEquals(RegulationMode.REACTIVE_POWER, sv2.getVoltageRegulation().getMode());
+        assertTrue(sv2.isRegulating());
         assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getRegulatingTargetV(), 0.0);
         assertEquals(-30.0, sv2.getRegulatingTargetQ(), 0.0);
         assertEquals(30.0, sv2.getTerminal().getQ(), 0.0);

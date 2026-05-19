@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.util.Networks;
@@ -29,6 +30,8 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     private final List<DeserializationEndTask> endTasks = new ArrayList<>();
     private final ImportOptions options;
+
+    private final Map<Identifiable<?>, ExtraPropertiesData> extraProperties = new HashMap<>(); // TODO MSA name ? ContextProperties ?
 
     private final Map<String, String> extensionVersions;
     private final EnumSet<DeserializationEndTask.Step> processedEndTasksSteps = EnumSet.noneOf(DeserializationEndTask.Step.class);
@@ -106,5 +109,19 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     public String deanonymizeFromMinimumVersion(String val, IidmVersion version) {
         return getVersion().compareTo(version) >= 0 ? getAnonymizer().deanonymizeString(val) : val;
     }
+
+    public Optional<ExtraPropertiesData> getExtraProperties(Identifiable<?> id) {
+        return Optional.ofNullable(extraProperties.get(id));
+    }
+
+    public void removeExtraProperties(Identifiable<?> identifiable) {
+        this.extraProperties.remove(identifiable);
+    }
+
+    public void addExtraProperties(Identifiable<?> identifiable, ExtraPropertiesData extraPropertiesData) {
+        this.extraProperties.put(identifiable, extraPropertiesData);
+    }
+
+    public record ExtraPropertiesData(Object value, Runnable action) { }
 
 }

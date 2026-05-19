@@ -108,9 +108,9 @@ public final class HvdcTestNetwork {
                 .setBus("B1")
                 .setLossFactor(1.1f)
                 .newVoltageRegulation()
-                    .withTargetValue(405.0)
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
+                .setTargetV(405.0)
                 .add();
         cs1.getTerminal()
                 .setP(100.0)

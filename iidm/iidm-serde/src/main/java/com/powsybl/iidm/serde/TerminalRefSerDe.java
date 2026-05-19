@@ -93,6 +93,11 @@ public final class TerminalRefSerDe {
         return new TerminalData(id, side, number[0]);
     }
 
+    public static Terminal.TerminalDataMsa readTerminalDataMsa(NetworkDeserializerContext context) {
+        TerminalData data = readTerminalData(context);
+        return new Terminal.TerminalDataMsa(data.id(), data.side(), data.number());
+    }
+
     public static Terminal readTerminal(NetworkDeserializerContext context, Network n) {
         TerminalData data = readTerminalData(context);
         return TerminalRefSerDe.resolve(data.id(), data.side(), data.number(), n);
@@ -107,17 +112,7 @@ public final class TerminalRefSerDe {
     }
 
     public static Terminal resolve(String id, ThreeSides side, TerminalNumber number, Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(id);
-        if (identifiable == null) {
-            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
-        }
-        if (side != null && number != null) {
-            throw new PowsyblException("Terminal reference specifies both terminal side and terminal number: '" + id + "'");
-        }
-        if (number != null) {
-            return Terminal.getTerminal(identifiable, number);
-        }
-        return Terminal.getTerminal(identifiable, side != null ? side : ThreeSides.ONE);
+        return Terminal.getTerminal(new Terminal.TerminalDataMsa(id, side, number), network);
     }
 
     private TerminalRefSerDe() {

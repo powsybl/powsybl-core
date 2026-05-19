@@ -12,6 +12,7 @@ import java.util.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseFacts;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -84,32 +85,14 @@ class FactsDeviceConverter extends AbstractConverter {
             return;
         }
 
-        double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
+        double vNom = regulatingTerminal.getVoltageLevel().getNominalV();
         double targetQ = psseFactsDevice.getQdes();
-        double targetV = psseFactsDevice.getVset() * vnom;
-        boolean isRegulating = false;
-        RegulationMode regulationMode = RegulationMode.REACTIVE_POWER;
-        if (Double.isFinite(targetV) && targetV > 0.0) {
-            regulationMode = RegulationMode.VOLTAGE;
-            isRegulating = true;
-        } else if (Double.isFinite(targetQ)) {
-            isRegulating = true;
-        }
-        double targetValue;
-        if (regulationMode == RegulationMode.REACTIVE_POWER) {
-            staticVarCompensator.setTargetV(targetV);
-            targetValue = targetQ;
-        } else {
-            staticVarCompensator.setTargetQ(targetQ);
-            targetValue = targetV;
-        }
+        double targetV = psseFactsDevice.getVset() * vNom;
+        boolean isRegulating = Double.isFinite(targetV) && targetV > 0.0;
+        staticVarCompensator.setLocalTargetQ(targetQ);
+        boolean isLocalTerminal = regulatingTerminal.getConnectable().equals(staticVarCompensator);
 
-        staticVarCompensator.newVoltageRegulation()
-            .withTargetValue(targetValue)
-            .withTerminal(regulatingTerminal)
-            .withMode(regulationMode)
-            .withRegulating(isRegulating)
-            .build();
+        VoltageRegulationUtils.buildVoltageRegulation(staticVarCompensator, isLocalTerminal, targetV, regulatingTerminal, isRegulating);
     }
 
     private static Terminal defineRegulatingTerminal(PsseFacts psseFactsDevice, Network network, StaticVarCompensator staticVarCompensator, PsseVersion version, NodeBreakerImport nodeBreakerImport) {

@@ -105,7 +105,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     @Override
     public VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation() {
         Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, this, getNetworkRef(), voltageRegulationConsumer);
     }
 
     @Override

@@ -200,10 +200,8 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         Generator gen = network.getGenerator("GEN");
         gen.setTargetV(gen.getRegulatingTargetV());
-        gen.newVoltageRegulation()
-            .withTargetValue(gen.getTargetQ())
-            .withMode(RegulationMode.REACTIVE_POWER)
-            .build();
+        gen.setTargetQ(gen.getLocalTargetQ());
+        gen.getVoltageRegulation().setRegulating(false);
         network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GEN3")
                 .setBus("NGEN")

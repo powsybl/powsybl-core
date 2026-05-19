@@ -112,21 +112,6 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
     Battery setTargetP(double targetP);
 
     /**
-     * Get the target reactive power in MVar.
-     * <p>Depends on the working variant.
-     * @see VariantManager
-     */
-    @Override
-    double getTargetQ();
-
-    /**
-     * Set the target reactive power in MVar.
-     * <p>Depends on the working variant.
-     * @see VariantManager
-     */
-    Battery setTargetQ(double targetQ);
-
-    /**
      * Get the minimal active power in MW.
      */
     double getMinP();
@@ -161,6 +146,6 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
     }
 
     default void setTargetQToQ() {
-        this.setTargetQ(-this.getTerminal().getQ());
+        this.setLocalTargetQ(-this.getTerminal().getQ());
     }
 }

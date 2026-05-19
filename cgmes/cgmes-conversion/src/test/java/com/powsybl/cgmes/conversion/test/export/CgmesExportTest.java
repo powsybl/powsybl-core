@@ -80,9 +80,9 @@ class CgmesExportTest {
                 .setId("C1")
                 .setNode(5)
                 .setLossFactor(1.1f)
+                .setTargetV(405.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(405.0)
                     .add()
                 .add();
         vl.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(5).add();
@@ -90,10 +90,7 @@ class CgmesExportTest {
                 .setId("C2")
                 .setNode(6)
                 .setLossFactor(1.1f)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(123)
-                    .add()
+                .setTargetQ(123)
                 .add();
         network.newHvdcLine()
                 .setId("hvdc_line")
@@ -285,7 +282,7 @@ class CgmesExportTest {
             Generator generator = networkFromCgmes.getGenerator("BAT");
             assertNotNull(generator);
             assertEquals(battery.getTargetP(), generator.getTargetP(), 0.0);
-            assertEquals(battery.getTargetQ(), generator.getTargetQ(), 0.0);
+            assertEquals(battery.getLocalTargetQ(), generator.getLocalTargetQ(), 0.0);
             assertEquals(battery.getMinP(), generator.getMinP(), 0.0);
             assertEquals(battery.getMaxP(), generator.getMaxP(), 0.0);
         }
@@ -563,7 +560,7 @@ class CgmesExportTest {
         assertInstanceOf(Generator.class, eqAtEnd2);
         Generator actualEquivalentInjection = (Generator) eqAtEnd2;
         assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), EPSILON);
-        assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
+        assertEquals(expected.getQ0(), -actualEquivalentInjection.getLocalTargetQ(), EPSILON);
     }
 
     @Test

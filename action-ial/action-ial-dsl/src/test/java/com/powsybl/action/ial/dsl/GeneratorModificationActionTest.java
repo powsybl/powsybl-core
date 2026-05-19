@@ -56,14 +56,14 @@ class GeneratorModificationActionTest {
     @Test
     void testTargetVAndQWithVoltageRegulatorOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(Objects.requireNonNull(getClass().getResource("/generator-modification-action.groovy")))).load(network);
-        Action action = actionDb.getAction("targetV and targetQ with voltageRegulationMode REACTIVE_POWER");
+        Action action = actionDb.getAction("targetV and targetQ with regulating false");
         action.run(network);
         assertEquals(20., g.getMinP(), 0.1);
         assertEquals(60., g.getMaxP(), 0.1);
         assertEquals(50., g.getTargetP(), 0.1);
         assertEquals(10, g.getTargetV(), 0.1);
-        assertEquals(25., g.getTargetQ(), 0.1);
-        assertEquals(RegulationMode.REACTIVE_POWER, g.getVoltageRegulation().getMode());
+        assertEquals(25., g.getLocalTargetQ(), 0.1);
+        assertFalse(g.isRegulating());
     }
 
     @Test
@@ -72,7 +72,7 @@ class GeneratorModificationActionTest {
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulationMode VOLTAGE");
         action.run(network);
         assertEquals(10, g.getTargetV(), 0.1);
-        assertEquals(25., g.getTargetQ(), 0.1);
+        assertEquals(25., g.getLocalTargetQ(), 0.1);
         assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
     }
 
@@ -146,12 +146,14 @@ class GeneratorModificationActionTest {
         action.run(network);
         assertFalse(g.getTerminal().isConnected());
         assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
-        assertEquals(24.5, g.getVoltageRegulation().getTargetValue(), 0.01);
-        assertEquals(Double.NaN, g.getTargetV());
+        assertEquals(24.5, g.getRegulatingTargetV(), 0.01);
+        assertEquals(24.5, g.getTargetV());
+        assertEquals(Double.NaN, g.getVoltageRegulation().getTargetValue());
         action = actionDb.getAction("connect with targetV change");
         action.run(network);
         assertTrue(g.getTerminal().isConnected());
-        assertEquals(65.4321, g.getVoltageRegulation().getTargetValue(), 0.01);
-        assertEquals(1234.56, g.getTargetV(), 0.01);
+        assertEquals(Double.NaN, g.getVoltageRegulation().getTargetValue(), 0.01);
+        assertEquals(1234.56, g.getRegulatingTargetV(), 0.01);
+        assertEquals(1234.56, g.getLocalTargetV(), 0.01);
     }
 }

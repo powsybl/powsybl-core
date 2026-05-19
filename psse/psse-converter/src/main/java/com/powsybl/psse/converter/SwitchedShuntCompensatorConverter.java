@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,20 +97,25 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         double vLow = psseSwitchedShunt.getVswlo() * vnom;
         double vHigh = psseSwitchedShunt.getVswhi() * vnom;
         double targetV = 0.5 * (vLow + vHigh);
-        boolean voltageRegulatorOn = false;
+        boolean regulating = false;
         double targetDeadband = 0.0;
         if (targetV != 0.0) {
             targetDeadband = vHigh - vLow;
-            voltageRegulatorOn = psseVoltageRegulatorOn;
+            regulating = psseVoltageRegulatorOn;
         }
-
-        shunt.newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(targetV)
-            .withTargetDeadband(targetDeadband)
-            .withRegulating(voltageRegulatorOn)
-            .withTerminal(regulatingTerminal)
-            .build();
+        if (regulatingTerminal.getConnectable().equals(shunt)) {
+            shunt.setLocalTargetV(targetV);
+        }
+        if (regulating) {
+            VoltageRegulationBuilder voltageRegulationBuilder = shunt.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetDeadband(targetDeadband);
+            if (!regulatingTerminal.getConnectable().equals(shunt)) {
+                voltageRegulationBuilder.withTerminal(regulatingTerminal)
+                    .withTargetValue(targetV);
+            }
+            voltageRegulationBuilder.build();
+        }
     }
 
     private static boolean isControllingVoltage(PsseSwitchedShunt psseSwitchedShunt) {

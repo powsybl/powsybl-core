@@ -132,21 +132,13 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
         double targetQ = getTargetQ(updatedPowerFlow, generator, context);
         generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
-                .setTargetQ(targetQ)
-                .setTargetV(targetV);
-        double targetValue;
-        RegulationMode regulationMode;
-        if (regulatingOn && regulationCapability && isValidTargetV(targetV)) {
-            targetValue = targetV;
-            regulationMode = RegulationMode.VOLTAGE;
-        } else {
-            targetValue = targetQ;
-            regulationMode = RegulationMode.REACTIVE_POWER;
+                .setLocalTargetQ(targetQ)
+                .setLocalTargetV(targetV);
+        if (regulatingOn) {
+            generator.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .build();
         }
-        generator.newVoltageRegulation()
-            .withMode(regulationMode)
-            .withTargetValue(targetValue)
-            .build();
     }
 
     private static double getTargetP(PowerFlow updatedPowerFlow, Generator generator, Context context) {

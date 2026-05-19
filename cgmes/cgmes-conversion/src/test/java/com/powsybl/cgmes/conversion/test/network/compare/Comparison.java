@@ -421,8 +421,8 @@ public class Comparison {
                 expected.getTargetV(),
                 actual.getTargetV());
         compare("targetQ",
-                expected.getTargetQ(),
-                actual.getTargetQ());
+                expected.getLocalTargetQ(),
+                actual.getLocalTargetQ());
         compare("voltageSetpoint",
                 expected.getRegulatingTargetV(),
                 actual.getRegulatingTargetV());
@@ -463,7 +463,7 @@ public class Comparison {
         compare("maxP", expected.getMaxP(), actual.getMaxP());
         compareGeneratorReactiveLimits(expected.getReactiveLimits(), actual.getReactiveLimits());
         compare("targetP", expected.getTargetP(), actual.getTargetP());
-        compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
+        compare("targetQ", expected.getLocalTargetQ(), actual.getLocalTargetQ());
         if (expected.getVoltageRegulation() != null) {
             compare("VoltageRegulation.mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
             compare("VoltageRegulation.regulating", expected.getVoltageRegulation().isRegulating(), actual.getVoltageRegulation().isRegulating());

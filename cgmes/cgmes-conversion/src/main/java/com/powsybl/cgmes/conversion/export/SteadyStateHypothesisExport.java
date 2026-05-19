@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -414,12 +413,11 @@ public final class SteadyStateHypothesisExport {
     private static boolean isOperatingAsACondenser(Injection<?> injection) {
         switch (injection) {
             case Generator generator -> {
-                return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getTargetV())
+                return generator.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(generator.getLocalTargetV())
                     || !Double.isNaN(generator.getRegulatingTargetQ()) && generator.getRegulatingTargetQ() != 0;
             }
             case Battery battery -> {
-                VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
-                return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(voltageRegulation.getTargetValue())
+                return battery.isRegulatingWithMode(RegulationMode.VOLTAGE) && !Double.isNaN(battery.getLocalTargetV())
                     || !Double.isNaN(battery.getRegulatingTargetQ()) && battery.getRegulatingTargetQ() != 0;
             }
             default -> throw new IllegalStateException("Unexpected value: " + injection);
@@ -435,14 +433,14 @@ public final class SteadyStateHypothesisExport {
             double targetDeadband = 0;
             double target;
             String targetValueUnitMultiplier;
-            boolean enabled;
+            boolean enabled = g.isRegulating();
             String generatorMode = CgmesExportUtil.getGeneratorRegulatingControlMode(g);
             if (generatorMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
+                // We use the targetValue from voltageRegulation (not null because hasRegulatingControlCapability) for remote regulation, which is not null
                 target = g.getVoltageRegulation().getTargetValue();
                 targetValueUnitMultiplier = "M";
-                enabled = g.getVoltageRegulation().isRegulating();
             } else {
-                target = g.getVoltageRegulation().getTargetValue();
+                target = g.getRegulatingTargetV();
                 if (context.isExportGeneratorsInLocalRegulationMode()) {
                     double remoteNominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
                     double localNominalV = g.getTerminal().getVoltageLevel().getNominalV();
@@ -452,7 +450,6 @@ public final class SteadyStateHypothesisExport {
                     }
                 }
                 targetValueUnitMultiplier = "k";
-                enabled = g.isRegulatingWithMode(RegulationMode.VOLTAGE);
             }
 
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
@@ -464,7 +461,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            boolean controlEnabled = svc.getVoltageRegulation() != null && svc.getVoltageRegulation().isRegulating();
+            boolean controlEnabled = svc.isRegulating();
 
             CgmesExportUtil.writeStartAbout("StaticVarCompensator", context.getNamingStrategy().getCgmesId(svc), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);

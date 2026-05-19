@@ -102,7 +102,7 @@ class ControlledRegulatingTerminalsTest {
         ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT");
 
         assertNotEquals(generator.getRegulatingTerminal(), t3w.getLeg1().getTerminal());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(generator.getRegulatingTerminal(), t3w.getLeg1().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(generator.getRegulatingTerminal(), t3w.getLeg1().getTerminal(), 400.0);
         assertEquals(generator.getRegulatingTerminal(), t3w.getLeg1().getTerminal());
     }
 
@@ -112,15 +112,15 @@ class ControlledRegulatingTerminalsTest {
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
 
         ShuntCompensator shuntCompensator = network.getShuntCompensator("SHUNT");
+        shuntCompensator.setLocalTargetV(200);
         shuntCompensator.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(200)
             .withTargetDeadband(2)
             .build();
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("TWT");
 
         assertNotEquals(shuntCompensator.getRegulatingTerminal(), t2w.getTerminal1());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(shuntCompensator.getRegulatingTerminal(), t2w.getTerminal1());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(shuntCompensator.getRegulatingTerminal(), t2w.getTerminal1(), 400.0);
         assertEquals(shuntCompensator.getRegulatingTerminal(), t2w.getTerminal1());
     }
 
@@ -133,7 +133,7 @@ class ControlledRegulatingTerminalsTest {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("TWT");
 
         assertNotEquals(staticVarCompensator.getRegulatingTerminal(), t2w.getTerminal1());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(staticVarCompensator.getRegulatingTerminal(), t2w.getTerminal1());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(staticVarCompensator.getRegulatingTerminal(), t2w.getTerminal1(), 400.0);
         assertEquals(staticVarCompensator.getRegulatingTerminal(), t2w.getTerminal1());
     }
 
@@ -147,7 +147,7 @@ class ControlledRegulatingTerminalsTest {
         TwoWindingsTransformer t2w = network.getTwoWindingsTransformer("TWT");
 
         assertNotEquals(vscConverterStation.getRegulatingTerminal(), t2w.getTerminal1());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(vscConverterStation.getRegulatingTerminal(), t2w.getTerminal1());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(vscConverterStation.getRegulatingTerminal(), t2w.getTerminal1(), 400.0);
         assertEquals(vscConverterStation.getRegulatingTerminal(), t2w.getTerminal1());
     }
 
@@ -156,16 +156,16 @@ class ControlledRegulatingTerminalsTest {
         Network network = BatteryNetworkFactory.create();
 
         Battery battery = network.getBattery("BAT2");
+        battery.setLocalTargetV(50.0);
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(50.0)
                 .build();
 
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
         Generator generator = network.getGenerator("GEN");
 
         assertNotEquals(voltageRegulation.getTerminal(), generator.getTerminal());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(battery.getTerminal(), generator.getTerminal());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(battery.getTerminal(), generator.getTerminal(), 400.0);
         assertEquals(voltageRegulation.getTerminal(), generator.getTerminal());
     }
 
@@ -175,8 +175,9 @@ class ControlledRegulatingTerminalsTest {
 
         Generator generator = network.getGenerator("GEN");
         VoltageRegulation voltageRegulation = generator.newVoltageRegulation()
-            .withTargetValue(100.0)
             .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(generator.getTerminal())
+            .withTargetValue(100.0)
             .build();
 
         RegulatedTerminalControllers controlledRegulatingTerminals = new RegulatedTerminalControllers(network);
@@ -201,7 +202,7 @@ class ControlledRegulatingTerminalsTest {
         Line line = network.getLine("NHV1_NHV2_1");
 
         assertNotEquals(slackTerminal.getTerminal(), line.getTerminal1());
-        controlledRegulatingTerminals.replaceRegulatedTerminal(slackTerminal.getTerminal(), line.getTerminal1());
+        controlledRegulatingTerminals.replaceRegulatedTerminal(slackTerminal.getTerminal(), line.getTerminal1(), 400.0);
         assertEquals(slackTerminal.getTerminal(), line.getTerminal1());
     }
 }

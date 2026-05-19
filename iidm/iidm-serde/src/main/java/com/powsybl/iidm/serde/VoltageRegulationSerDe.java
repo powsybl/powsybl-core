@@ -9,12 +9,15 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.regulation.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -35,11 +38,11 @@ public final class VoltageRegulationSerDe {
     private VoltageRegulationSerDe() {
     }
 
-    public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, VoltageRegulationHolder holder) {
+    public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
             if (voltageRegulation != null) {
                 String namespace = context.getVersion().getNamespaceURI(context.isValid());
-                writeVoltageRegulation(voltageRegulation, context, namespace, holder);
+                writeVoltageRegulation(voltageRegulation, context, namespace);
             }
         });
     }
@@ -48,35 +51,78 @@ public final class VoltageRegulationSerDe {
         // Read attributes
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
         // Create new Voltage Regulation
-        VoltageRegulation voltageRegulation = holder.newVoltageRegulation()
-            .withTargetValue(attributes.targetValue())
+        VoltageRegulationBuilder voltageRegulationBuilder = holder.newVoltageRegulation()
             .withTargetDeadband(attributes.targetDeadband())
             .withSlope(attributes.slope())
             .withMode(attributes.mode())
-            .withRegulating(attributes.isRegulating())
-            .build();
+            .withRegulating(attributes.isRegulating());
+        // Local regulation, voltageRegulation is completed
+        if (Double.isNaN(attributes.targetValue())) {
+            voltageRegulationBuilder.build();
+        }
         // Read Sub Elements
-        readSubElements(context, network, voltageRegulation::setTerminal);
+        readSubElements(context, network, terminal -> voltageRegulationBuilder.withTerminal(terminal)
+            .withTargetValue(attributes.targetValue())
+            .build());
     }
 
-    public static void readVoltageRegulation(VoltageRegulationAdder<?> adder, NetworkDeserializerContext context) {
+    public static VoltageRegulationAdder<?> readVoltageRegulation(VoltageRegulationAdder<?> adder, NetworkDeserializerContext context) {
         // Read attributes
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
         // Create new Voltage Regulation
-        adder
+        return adder
             .withTargetValue(attributes.targetValue())
             .withTargetDeadband(attributes.targetDeadband())
             .withSlope(attributes.slope())
             .withMode(attributes.mode())
-            .withRegulating(attributes.isRegulating())
-            .add();
+            .withRegulating(attributes.isRegulating());
     }
 
-    private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace, VoltageRegulationHolder holder) {
+    public static <T extends VoltageRegulationHolder> void readVoltageRegulation(List<Consumer<T>> toApply, VoltageRegulationAdder<?> adder, NetworkDeserializerContext context) {
+        VoltageRegulationAdder<?> voltageRegulationAdder = VoltageRegulationSerDe.readVoltageRegulation(adder, context);
+        // Read Sub Elements
+        context.getReader().readChildNodes(subElementName -> {
+            if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
+                Terminal.TerminalDataMsa terminalData = TerminalRefSerDe.readTerminalDataMsa(context);
+                voltageRegulationAdder.withTerminalData(terminalData);
+                toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                    // The VoltageRegulation is not null here (was created before)
+                    () -> voltageRegulationHolder.getVoltageRegulation().resolveTerminal()));
+            } else {
+                throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
+            }
+        });
+        voltageRegulationAdder.add();
+    }
+
+    public static <T extends VoltageRegulationHolder & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+        TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+        toApply.add(holder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+            () -> {
+                Terminal terminal = TerminalRefSerDe.resolve(terminalData.id(), terminalData.side(), terminalData.number(), holder.getNetwork());
+                VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+                if (voltageRegulation == null) {
+                    holder.newVoltageRegulation()
+                        .withTargetValue(holder.getLocalTargetQ())
+                        .withTerminal(terminal)
+                        .withMode(RegulationMode.REACTIVE_POWER)
+                        .build();
+                    holder.setLocalTargetQ(Double.NaN);
+                } else {
+                    Optional<NetworkDeserializerContext.ExtraPropertiesData> extraProperties = context.getExtraProperties(holder);
+                    double targetValue = (double) extraProperties.map(NetworkDeserializerContext.ExtraPropertiesData::value).orElse(Double.NaN);
+                    voltageRegulation.setTerminal(terminal, targetValue);
+                    extraProperties.ifPresent(prop -> prop.action().run());
+                    context.removeExtraProperties(holder);
+                }
+            }));
+    }
+
+    private static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context, String namespace) {
         TreeDataWriter writer = context.getWriter();
         writer.writeStartNode(namespace, ELEMENT_NAME);
         writeVoltageRegulationAttribute(voltageRegulation, writer);
-        writeSubElements(voltageRegulation, context, holder);
+        writeSubElements(voltageRegulation, context);
         writer.writeEndNode();
     }
 
@@ -88,10 +134,8 @@ public final class VoltageRegulationSerDe {
         writer.writeBooleanAttribute(REGULATING, voltageRegulation.isRegulating());
     }
 
-    private static void writeSubElements(VoltageRegulation voltageRegulation, NetworkSerializerContext context, VoltageRegulationHolder holder) {
-        if (holder.isRemoteRegulating()) {
-            TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
-        }
+    private static void writeSubElements(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
+        TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
     }
 
     private static @NonNull VoltageRegulationAttributes getVoltageRegulationAttributes(NetworkDeserializerContext context) {
@@ -113,7 +157,7 @@ public final class VoltageRegulationSerDe {
         });
     }
 
-    private record VoltageRegulationAttributes(
+    public record VoltageRegulationAttributes(
         double targetValue,
         double targetDeadband,
         double slope,

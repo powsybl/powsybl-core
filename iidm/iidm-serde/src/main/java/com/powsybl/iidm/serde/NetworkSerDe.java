@@ -332,7 +332,7 @@ public final class NetworkSerDe {
                 n.getGeneratorStream()
                     .filter(g -> g.getVoltageRegulation() != null
                         && g.getVoltageRegulation().getTerminal() != null
-                        && g.getVoltageRegulation().getMode() == RegulationMode.REACTIVE_POWER)
+                        && g.isWithMode(RegulationMode.REACTIVE_POWER))
                     .forEach(g -> {
                         mapMsa.putIfAbsent(g.getId(), new HashSet<>());
                         //
@@ -354,10 +354,11 @@ public final class NetworkSerDe {
             .forEach(b -> {
                 mapMsa.putIfAbsent(b.getId(), new HashSet<>());
                 //
+                double targetV = b.getVoltageRegulation().getTerminal() != null ? b.getVoltageRegulation().getTargetValue() : b.getLocalTargetV();
                 VoltageRegulationExtension removedExtension = new VoltageRegulationExtension(b,
                     b.getVoltageRegulation().getTerminal(),
-                    b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
-                    b.getVoltageRegulation().getTargetValue());
+                    b.isRegulating(),
+                    targetV);
                 //
                 mapMsa.get(b.getId()).add(removedExtension);
             });

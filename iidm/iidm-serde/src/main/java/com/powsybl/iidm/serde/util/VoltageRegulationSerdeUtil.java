@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.serde.util;
 
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
@@ -21,22 +20,12 @@ public final class VoltageRegulationSerdeUtil {
     }
 
     public static void writeVoltageSetpoint(VoltageRegulationHolder voltageRegulationHolder, NetworkSerializerContext context) {
-        double voltageSetpoint;
-        if (voltageRegulationHolder.isWithMode(RegulationMode.REACTIVE_POWER)) {
-            voltageSetpoint = voltageRegulationHolder.getTargetV();
-        } else {
-            voltageSetpoint = voltageRegulationHolder.getVoltageRegulation() != null ? voltageRegulationHolder.getVoltageRegulation().getTargetValue() : Double.NaN;
-        }
+        double voltageSetpoint = voltageRegulationHolder.getRegulatingTargetV();
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
     }
 
     public static void writeReactivePowerSetpoint(VoltageRegulationHolder voltageRegulationHolder, NetworkSerializerContext context) {
-        double reactivePowerSetpoint;
-        if (voltageRegulationHolder.isWithMode(RegulationMode.VOLTAGE)) {
-            reactivePowerSetpoint = voltageRegulationHolder.getTargetQ();
-        } else {
-            reactivePowerSetpoint = voltageRegulationHolder.getVoltageRegulation() != null ? voltageRegulationHolder.getVoltageRegulation().getTargetValue() : Double.NaN;
-        }
+        double reactivePowerSetpoint = voltageRegulationHolder.getRegulatingTargetQ();
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
     }
 }

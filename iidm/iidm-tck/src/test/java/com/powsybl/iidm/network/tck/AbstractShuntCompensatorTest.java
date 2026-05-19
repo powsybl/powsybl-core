@@ -166,6 +166,7 @@ public abstract class AbstractShuntCompensatorTest {
         // Reuse adder tests
         // Create second model from same adder
         adder.setSectionCount(2)
+             .setLocalTargetV(120)
              .newNonLinearModel()
                 .beginSection()
                 .setB(5.0)
@@ -197,6 +198,7 @@ public abstract class AbstractShuntCompensatorTest {
 
         shuntCompensator.remove();
         adder.setSectionCount(1)
+             .setLocalTargetV(120)
              .newNonLinearModel()
                 .beginSection()
                     .setB(5.0)
@@ -356,61 +358,61 @@ public abstract class AbstractShuntCompensatorTest {
                 200, 10);
 
         // regulating terminal
+        VoltageRegulation voltageRegulation = shuntCompensator.getVoltageRegulation();
+        Network tmp = EurostagTutorialExample1Factory.create();
+        Terminal tmpTerminal = tmp.getGenerator("GEN").getTerminal();
         try {
-            Network tmp = EurostagTutorialExample1Factory.create();
-            Terminal tmpTerminal = tmp.getGenerator("GEN").getTerminal();
-            shuntCompensator.getVoltageRegulation().setTerminal(tmpTerminal);
+            voltageRegulation.setTerminal(tmpTerminal, Double.NaN);
             fail();
-        } catch (ValidationException ignored) {
+        } catch (ValidationException exception) {
             // ignore
+            assertEquals("Shunt compensator 'shunt': voltageRegulation.terminal is not part of the network", exception.getMessage());
         }
-        shuntCompensator.getVoltageRegulation().setTerminal(null);
+        shuntCompensator.setLocalTargetV(120.0);
+        voltageRegulation.removeTerminal();
         assertSame(shuntCompensator.getTerminal(), shuntCompensator.getRegulatingTerminal());
 
         // voltageRegulatorOn
-        shuntCompensator.getVoltageRegulation().setRegulating(false);
+        voltageRegulation.setRegulating(false);
         assertFalse(shuntCompensator.isRegulatingWithMode(RegulationMode.VOLTAGE));
 
         // targetV
-        try {
-            shuntCompensator.getVoltageRegulation().setRegulating(true);
-            shuntCompensator.getVoltageRegulation().setTargetValue(Double.NaN);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-        try {
-            shuntCompensator.getVoltageRegulation().setRegulating(false);
-            shuntCompensator.getVoltageRegulation().setTargetValue(Double.NaN);
-            shuntCompensator.getVoltageRegulation().setRegulating(true);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-        shuntCompensator.getVoltageRegulation().setTargetValue(400);
+        voltageRegulation.setRegulating(true);
+        ValidationException validationException = assertThrows(ValidationException.class, () -> shuntCompensator.setLocalTargetV(Double.NaN));
+        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", validationException.getMessage());
+
+        voltageRegulation.setRegulating(false);
+        shuntCompensator.setLocalTargetV(Double.NaN);
+        validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setRegulating(true));
+        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV", validationException.getMessage());
+
+        shuntCompensator.setLocalTargetV(400);
         assertEquals(400, shuntCompensator.getRegulatingTargetV());
+        assertEquals(400, shuntCompensator.getLocalTargetV());
         assertEquals(Double.NaN, shuntCompensator.getTargetV());
-        shuntCompensator.getVoltageRegulation().setRegulating(true);
+        voltageRegulation.setRegulating(true);
         assertEquals(400, shuntCompensator.getRegulatingTargetV(), 0.0);
         assertEquals(Double.NaN, shuntCompensator.getTargetV());
 
         // targetDeadband
         try {
-            shuntCompensator.getVoltageRegulation().setTargetDeadband(-1.0);
+            voltageRegulation.setTargetDeadband(-1.0);
             fail();
         } catch (ValidationException ignored) {
             // ignore
+            assertNotNull(ignored);
         }
         try {
-            shuntCompensator.getVoltageRegulation().setRegulating(false);
-            shuntCompensator.getVoltageRegulation().setTargetDeadband(Double.NaN);
-            shuntCompensator.getVoltageRegulation().setRegulating(true);
+            voltageRegulation.setRegulating(false);
+            voltageRegulation.setTargetDeadband(Double.NaN);
+            voltageRegulation.setRegulating(true);
             fail();
         } catch (ValidationException ignored) {
             // ignore
+            assertNotNull(ignored);
         }
-        shuntCompensator.getVoltageRegulation().setTargetDeadband(5.0);
-        assertEquals(5.0, shuntCompensator.getVoltageRegulation().getTargetDeadband(), 0.0);
+        voltageRegulation.setTargetDeadband(5.0);
+        assertEquals(5.0, voltageRegulation.getTargetDeadband(), 0.0);
     }
 
     @Test
@@ -424,13 +426,13 @@ public abstract class AbstractShuntCompensatorTest {
     @Test
     public void invalidTargetV() {
         ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, true, -10, 0));
-        assertEquals("Shunt compensator 'invalid': invalid value (-10.0) for voltageRegulation.targetValue (must be positive)", e.getMessage());
+        assertEquals("Shunt compensator 'invalid': invalid value (-10.0) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", e.getMessage());
     }
 
     @Test
     public void invalidNanTargetV() {
         ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 5.0, 1.0, 6, 10, null, true, Double.NaN, 0));
-        assertEquals("Shunt compensator 'invalid': Undefined value for voltageRegulation.targetValue", e.getMessage());
+        assertEquals("Shunt compensator 'invalid': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", e.getMessage());
     }
 
     @Test
@@ -455,7 +457,7 @@ public abstract class AbstractShuntCompensatorTest {
         // change values in s4
         VoltageRegulation voltageRegulationS4 = shunt.setSectionCount(4).getVoltageRegulation();
         voltageRegulationS4.setRegulating(false);
-        voltageRegulationS4.setTargetValue(220);
+        shunt.setLocalTargetV(220);
         voltageRegulationS4.setTargetDeadband(5.0);
 
         // remove s2
@@ -468,7 +470,8 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(8.0, shunt.getB(), 0.0); // 2*4
         assertEquals(4.0, shunt.getG(), 0.0); // 1*4
         assertFalse(shunt.isRegulatingWithMode(RegulationMode.VOLTAGE));
-        assertEquals(220, shunt.getVoltageRegulation().getTargetValue(), 0.0);
+        assertFalse(shunt.isRegulating());
+        assertEquals(220, shunt.getLocalTargetV(), 0.0);
         assertEquals(5.0, shunt.getVoltageRegulation().getTargetDeadband(), 0.0);
 
         // recheck initial variant value
@@ -605,12 +608,13 @@ public abstract class AbstractShuntCompensatorTest {
                 .setName(name)
                 .setConnectableBus("busA")
                 .setSectionCount(sectionCount)
-            .newVoltageRegulation()
-                .withTerminal(regulatingTerminal)
-                .withRegulating(voltageRegulatorOn)
-                .withTargetValue(targetV)
-                .withMode(RegulationMode.VOLTAGE)
-                .withTargetDeadband(targetDeadband)
-                .add();
+                .setLocalTargetV(targetV)
+                .newVoltageRegulation()
+                    .withTerminal(regulatingTerminal)
+                    .withRegulating(voltageRegulatorOn)
+                    .withTargetValue(regulatingTerminal != null ? targetV : Double.NaN)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetDeadband(targetDeadband)
+                    .add();
     }
 }

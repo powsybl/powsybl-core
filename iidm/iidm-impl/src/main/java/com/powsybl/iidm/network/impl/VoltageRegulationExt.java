@@ -8,12 +8,12 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public interface VoltageRegulationExt extends VoltageRegulation, MultiVariantObject, Referrer<Terminal> {
-    void updateValidable(Validable validable);
+
+    void remove();
 }

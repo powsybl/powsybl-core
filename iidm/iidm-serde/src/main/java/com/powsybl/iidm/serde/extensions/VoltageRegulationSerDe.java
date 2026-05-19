@@ -96,15 +96,20 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
         boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
         double targetV = context.getReader().readDoubleAttribute("targetV");
 
-        RegulationMode mode = voltageRegulatorOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
+        battery.setLocalTargetV(targetV);
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
-            .withMode(mode)
-            .withTargetValue(targetV)
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(voltageRegulatorOn)
             .build();
 
         context.getReader().readChildNodes(elementName -> {
             if (elementName.equals("terminalRef")) {
-                TerminalRefSerDe.readTerminalRef(convertContext(context), battery.getTerminal().getVoltageLevel().getNetwork(), voltageRegulation::setTerminal);
+                TerminalRefSerDe.readTerminalRef(convertContext(context), battery.getTerminal().getVoltageLevel().getNetwork(), terminal -> {
+                    if (terminal != null) {
+                        voltageRegulation.setTerminal(terminal, targetV);
+                        battery.setLocalTargetV(Double.NaN);
+                    }
+                });
             } else {
                 throw new AssertionError("Unexpected element: " + elementName);
             }

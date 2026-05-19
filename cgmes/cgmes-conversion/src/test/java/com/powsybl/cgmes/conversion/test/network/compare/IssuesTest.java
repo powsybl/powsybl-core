@@ -81,7 +81,6 @@ class IssuesTest {
             .setTargetQ(0)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(400)
                 .add()
             .setTargetV(400)
             .add();

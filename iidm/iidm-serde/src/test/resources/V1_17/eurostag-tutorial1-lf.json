@@ -27,6 +27,7 @@
         "minP" : -9999.99,
         "maxP" : 9999.99,
         "targetP" : 607.0,
+        "targetV" : 24.5,
         "targetQ" : 301.0,
         "bus" : "NGEN",
         "connectableBus" : "NGEN",
@@ -37,7 +38,6 @@
           "maxQ" : 9999.99
         },
         "voltageRegulation" : {
-          "targetValue" : 24.5,
           "mode" : "VOLTAGE",
           "regulating" : true
         }

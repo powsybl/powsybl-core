@@ -57,7 +57,7 @@ action('open-SW1-and-SW2') {
 The `generatorModification` task is a task that can modify the setpoints and the regulation mode of a [generator](../../grid_model/network_subnetwork.md#generator). It supports the modification of:
 - the active power limits
 - the active power setpoints as an absolute value or with an increment
-- the voltage setpoint, the reactive power setpoint and the regulation mode
+- the voltage setpoint, the reactive power setpoint and the regulation mode TODO MSA
 - the connection status
 
 ```groovy

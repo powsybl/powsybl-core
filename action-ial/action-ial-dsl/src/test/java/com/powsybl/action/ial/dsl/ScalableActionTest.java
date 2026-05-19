@@ -76,8 +76,8 @@ class ScalableActionTest {
                 .setMaxP(9999.99)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(124.5)
                     .add()
+                .setLocalTargetV(124.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
@@ -89,8 +89,8 @@ class ScalableActionTest {
                 .setMaxP(9999.99)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(224.5)
                     .add()
+                .setLocalTargetV(224.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();

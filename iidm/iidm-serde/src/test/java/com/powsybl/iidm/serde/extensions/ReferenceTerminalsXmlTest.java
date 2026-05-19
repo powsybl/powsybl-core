@@ -54,7 +54,7 @@ class ReferenceTerminalsXmlTest extends AbstractIidmSerDeTest {
                 .setTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         var line = network.newLine()
                 .setId("L12")

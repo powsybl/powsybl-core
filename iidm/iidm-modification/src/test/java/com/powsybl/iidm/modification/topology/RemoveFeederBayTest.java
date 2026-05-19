@@ -272,7 +272,7 @@ class RemoveFeederBayTest {
         VoltageLevel vl1 = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.getNodeBreakerView().newBusbarSection().setId("VL1_BBS").setNode(0).add();
         vl1.newGenerator().setId("G1").setNode(1).setTargetP(0).setTargetV(400).setMinP(0).setMaxP(10)
-            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
         vl1.getNodeBreakerView().newBreaker().setId("VL1_B1").setNode1(1).setNode2(2).add();
         vl1.getNodeBreakerView().newDisconnector().setId("VL1_D1").setNode1(0).setNode2(2).add();

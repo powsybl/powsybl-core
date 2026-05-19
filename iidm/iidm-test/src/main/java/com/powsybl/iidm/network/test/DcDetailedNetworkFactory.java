@@ -110,7 +110,7 @@ public final class DcDetailedNetworkFactory {
                 .setId("GEN-" + country.name())
                 .setMinP(0.0)
                 .setMaxP(4000.0)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(400.0)
                 .setTargetP(2000.0)
                 .setTargetQ(0.0)
@@ -786,7 +786,7 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(frPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(200.)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetQ(0.0)
                 .setTargetV(400.)
                 .add();
         Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer(getTransformerId(Country.GB, X_NODE_DC_1_GB, SUFFIX_NONE)).getTerminal1();
@@ -799,7 +799,7 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(gbPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(-200.)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetQ(0.0)
                 .setTargetV(400.)
                 .add();
         return Network.merge(dcNetwork, fr, gb);

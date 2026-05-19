@@ -246,32 +246,24 @@ public class UcteImporter implements Importer {
 
         double generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
         double generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
-
         boolean regulatingVoltage = ucteNode.isRegulatingVoltage();
-        RegulationMode mode;
-        double targetValue;
-        if (regulatingVoltage) {
-            mode = RegulationMode.VOLTAGE;
-            targetValue = ucteNode.getVoltageReference();
-        } else {
-            mode = RegulationMode.REACTIVE_POWER;
-            targetValue = generatorQ;
-        }
-        Generator generator = voltageLevel.newGenerator()
+
+        GeneratorAdder adder = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setEnergySource(energySource)
                 .setBus(bus.getId())
                 .setConnectableBus(bus.getId())
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
-                .newVoltageRegulation()
-                    .withMode(mode)
-                    .withTargetValue(targetValue)
-                    .add()
                 .setTargetP(generatorP)
                 .setTargetQ(generatorQ)
-                .setTargetV(ucteNode.getVoltageReference())
+                .setTargetV(ucteNode.getVoltageReference());
+        if (regulatingVoltage) {
+            adder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
                 .add();
+        }
+        Generator generator = adder.add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())

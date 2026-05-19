@@ -262,25 +262,14 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
 
     private static void addVoltageRegulation(VscConverterStationAdder adderR, VscModel vscModelR) {
         boolean voltageRegulatorOn = vscModelR.voltageRegulatorOn;
-        double targetValue;
-        RegulationMode regulationMode;
-        double targetV = Double.NaN;
-        double targetQ = Double.NaN;
+        double targetV = vscModelR.voltageSetpoint;
+        double targetQ = vscModelR.reactivePowerSetpoint;
         if (voltageRegulatorOn) {
-            targetValue = vscModelR.voltageSetpoint;
-            regulationMode = RegulationMode.VOLTAGE;
-            targetQ = vscModelR.reactivePowerSetpoint;
-        } else {
-            targetValue = vscModelR.reactivePowerSetpoint;
-            regulationMode = RegulationMode.REACTIVE_POWER;
-            targetV = vscModelR.voltageSetpoint;
+            adderR.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add();
         }
-        adderR
-            .newVoltageRegulation()
-                .withTargetValue(targetValue)
-                .withMode(regulationMode)
-                .add()
-            .setTargetQ(targetQ)
+        adderR.setTargetQ(targetQ)
             .setTargetV(targetV);
     }
 

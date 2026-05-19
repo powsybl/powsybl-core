@@ -128,8 +128,8 @@ class StaticVarCompensatorUpdateTest {
         assertTrue(Double.isNaN(staticVarCompensator.getRegulatingTargetQ()));
         assertTrue(Double.isNaN(staticVarCompensator.getRegulatingTargetV()));
         assertNotNull(staticVarCompensator.getRegulatingTerminal());
-        assertEquals(regulationMode, staticVarCompensator.getVoltageRegulation().getMode());
-        assertFalse(staticVarCompensator.getVoltageRegulation().isRegulating());
+        assertTrue(staticVarCompensator.isWithMode(regulationMode));
+        assertFalse(staticVarCompensator.isRegulating());
 
         if (regulationMode == RegulationMode.REACTIVE_POWER) {
             assertNotNull(staticVarCompensator.getProperty(PROPERTY_TERMINAL_SIGN));

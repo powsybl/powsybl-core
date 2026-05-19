@@ -102,7 +102,7 @@ public final class BoundaryLineNetworkFactory {
                 .setId("G")
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(100).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(100.0)
                 .setTargetP(50.0)
                 .setTargetQ(30.0)

@@ -73,7 +73,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
                        .setMaxP(p)
                        .setTargetP(p)
                        .setTargetV(v)
-                       .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(v).add()
+                       .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                        .add();
         g.getTerminal().setP(-p).setQ(0);
         return g;
@@ -149,10 +149,13 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         assertTrue(voltageRegulation.isRegulating());
 
         // Testing setting different values in the cloned variant and going back to the initial one
-        voltageRegulation.setTargetValue(210.0);
+        g.setLocalTargetQ(210.0);
         voltageRegulation.setRegulating(false);
         assertFalse(voltageRegulation.isRegulating());
-        assertEquals(210.0, voltageRegulation.getTargetValue(), 0f);
+        assertFalse(g.isRegulating());
+        assertEquals(200.0, g.getVoltageRegulation().getTargetValue(), 0f);
+        assertEquals(200.0, g.getRegulatingTargetQ(), 0f);
+        assertEquals(210.0, g.getLocalTargetQ(), 0f);
 
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         assertEquals(200.0f, voltageRegulation.getTargetValue(), 0f);
@@ -192,7 +195,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTerminal(l.getTerminal(TwoSides.ONE));
         e = assertThrows(PowsyblException.class, adder::build);
-        assertEquals("Generator 'g4': Undefined value for voltageRegulation.targetValue", e.getMessage());
+        assertEquals("Generator 'g4': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", e.getMessage());
         var voltageRegulation = g.newVoltageRegulation()
             .withMode(RegulationMode.REACTIVE_POWER)
             .withTargetValue(200.0)
@@ -229,7 +232,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
             .withMode(RegulationMode.REACTIVE_POWER)
             .build();
         assertNotNull(g.getVoltageRegulation());
-        voltageRegulation.setTerminal(l2.getTerminal(TwoSides.ONE));
+        voltageRegulation.setTerminal(l2.getTerminal(TwoSides.ONE), 200);
         l.remove();
         // voltageRegulation should not be removed
         assertNotNull(g.getVoltageRegulation());

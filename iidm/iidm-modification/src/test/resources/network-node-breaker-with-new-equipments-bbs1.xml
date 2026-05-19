@@ -45,11 +45,9 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" targetQ="10.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation targetValue="10.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:generator id="gen2" name="gen2" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" targetQ="10.0" node="10">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation targetValue="10.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:battery id="newBattery" targetP="100.0" targetQ="50.0" minP="-9999.0" maxP="9999.0" node="36">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
@@ -100,19 +98,18 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen4" name="gen4" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" targetQ="10.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation targetValue="10.0" mode="REACTIVE_POWER" regulating="true"/>
             </iidm:generator>
             <iidm:load id="load3" name="load3" loadType="UNDEFINED" p0="10.0" q0="10.0" node="2"/>
             <iidm:shuntCompensator id="newShuntCompensator" sectionCount="0" node="24">
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
             <iidm:boundaryLine id="newBoundaryLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>
-            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" targetQ="1.0" node="26">
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="390.0"/>
+            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" targetV="390.0" targetQ="1.0" node="26">
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:staticVarCompensator>
-            <iidm:vscConverterStation id="newVscConverterStation" lossFactor="1.1" node="30">
+            <iidm:vscConverterStation id="newVscConverterStation" lossFactor="1.1" node="30" targetV="405.0">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="405.0"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="newLccConverterStation" lossFactor="0.011" powerFactor="0.5" node="28"/>
         </iidm:voltageLevel>

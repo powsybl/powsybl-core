@@ -56,7 +56,7 @@ class RegulatingTerminalConversionTest {
         assertEquals(terminal, regulatingTerminal);
 
         assertEquals(RegulationMode.VOLTAGE, gen.getVoltageRegulation().getMode());
-        regulationValue = gen.getVoltageRegulation().getTargetValue();
+        regulationValue = gen.getRegulatingTargetV();
         assertEquals(21.987, regulationValue, 0.0);
     }
 
@@ -88,7 +88,7 @@ class RegulatingTerminalConversionTest {
         assertEquals(terminal, regulatingTerminal);
 
         assertEquals(RegulationMode.VOLTAGE, gen.getVoltageRegulation().getMode());
-        regulationValue = gen.getVoltageRegulation().getTargetValue();
+        regulationValue = gen.getRegulatingTargetV();
         assertEquals(21.987, regulationValue, 0.0);
     }
 

@@ -451,7 +451,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         // WARNING There is a different sign convention between PowerFactory and PowSyBl:
         // In PowerFactory, power flows from the DC network to the AC network,
         // while in PowSyBl power flows towards the converter
-        if (!Double.isFinite(pfParams.qsetp) && !acVoltageRegulation) {
+        double targetQ = pfParams.qsetp;
+        if (!Double.isFinite(targetQ) && !acVoltageRegulation) {
             throw new PowerFactoryException("VSC " + elmVsc.getId() + " has Q control but undefined Q.");
         }
         if (!Double.isFinite(pfParams.psetp) && controlMode == ControlMode.P_PCC) {
@@ -459,24 +460,18 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         }
         converterAdder.setTargetP(-pfParams.psetp);
 
-        addVoltageRegulation(converterAdder, acVoltageRegulation, voltageSetPointAc, pfParams);
+        addVoltageRegulation(converterAdder, acVoltageRegulation, voltageSetPointAc, targetQ);
         converterAdder.add();
     }
 
-    private static void addVoltageRegulation(VoltageSourceConverterAdder converterAdder, boolean acVoltageRegulation, double voltageSetPointAc, PowerFactoryAcDcConverterParameters pfParams) {
-        RegulationMode regulationMode;
-        double targetValue;
+    private static void addVoltageRegulation(VoltageSourceConverterAdder converterAdder, boolean acVoltageRegulation, double voltageSetPointAc, double targetQ) {
+        converterAdder.setTargetV(voltageSetPointAc)
+            .setTargetQ(-targetQ);
         if (acVoltageRegulation) {
-            regulationMode = RegulationMode.VOLTAGE;
-            targetValue = voltageSetPointAc;
-        } else {
-            regulationMode = RegulationMode.REACTIVE_POWER;
-            targetValue = -pfParams.qsetp;
+            converterAdder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add();
         }
-        converterAdder.newVoltageRegulation()
-            .withMode(regulationMode)
-            .withTargetValue(targetValue)
-            .add();
     }
 
     private static double computeIdleLoss(ControlMode controlMode, double pnold, double usetpDcPu) {

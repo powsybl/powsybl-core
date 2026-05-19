@@ -72,8 +72,8 @@ public final class EuropeanLvTestFeederFactory {
                 .setMinP(0)
                 .setMaxP(0)
                 .setTargetP(0)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(voltage * pu).add()
-                .setTargetV(voltage * pu)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(voltage * pu)
                 .add();
         sourceVoltageLevel.newExtension(SlackTerminalAdder.class)
                 .withTerminal(sourceGenerator.getTerminal())

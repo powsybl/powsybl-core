@@ -80,6 +80,15 @@ final class ExportXmlCompare {
     }
 
     static boolean compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+//        Source control;Source test;
+//        try {
+//            String expectedString = new String(expected.readAllBytes(), StandardCharsets.UTF_8);
+//            String actualString = new String(actual.readAllBytes(), StandardCharsets.UTF_8);
+//            control = Input.fromString(expectedString).build();
+//            test = Input.fromString(actualString).build();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -825,6 +834,15 @@ final class ExportXmlCompare {
     }
 
     private static DiffBuilder diff(InputStream expected, InputStream actual, DifferenceEvaluator user) {
+//        Source control;Source test;
+//        try {
+//            String expectedString = new String(expected.readAllBytes(), StandardCharsets.UTF_8);
+//            String actualString = new String(actual.readAllBytes(), StandardCharsets.UTF_8);
+//            control = Input.fromString(expectedString).build();
+//            test = Input.fromString(actualString).build();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         return DiffBuilder.compare(control).withTest(test)

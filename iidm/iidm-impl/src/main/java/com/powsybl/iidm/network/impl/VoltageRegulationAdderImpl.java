@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.function.Consumer;
@@ -15,10 +17,16 @@ import java.util.function.Consumer;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>, T> implements VoltageRegulationAdder<T> {
+public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
+    private final T equipmentAdder;
 
-    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder> holderClass, T parent, Ref<NetworkImpl> network, Consumer<VoltageRegulationExt> voltageRegulationSetter) {
-        super(holderClass, parent, network, voltageRegulationSetter);
+    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder> holderClass,
+                                      Validable validable,
+                                      T equipmentAdder,
+                                      Ref<NetworkImpl> network,
+                                      Consumer<VoltageRegulationExt> voltageRegulationSetter) {
+        super(holderClass, validable, null, network, voltageRegulationSetter);
+        this.equipmentAdder = equipmentAdder;
     }
 
     @Override
@@ -27,9 +35,14 @@ public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdde
     }
 
     @Override
-    public T add() {
-        this.voltageRegulationSetter.accept(createVoltageRegulation());
-        return parent;
+    public VoltageRegulationAdder<T> withTerminalData(Terminal.TerminalDataMsa terminalData) {
+        this.terminalData = terminalData;
+        return this;
     }
 
+    @Override
+    public T add() {
+        this.voltageRegulationSetter.accept(checkAndCreateVoltageRegulation());
+        return equipmentAdder;
+    }
 }

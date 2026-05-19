@@ -7,10 +7,14 @@
  */
 package com.powsybl.iidm.network.regulation;
 
+import com.powsybl.iidm.network.Terminal;
+
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public interface VoltageRegulationAdder<T> extends VoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> {
+
+    VoltageRegulationAdder<T> withTerminalData(Terminal.TerminalDataMsa terminal);
 
     T add();
 

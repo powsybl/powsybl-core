@@ -12,7 +12,12 @@ import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.util.PropertiesBufferHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -84,6 +89,40 @@ public class ReactiveLimitsSerDe {
         curveAdder.add();
     }
 
+    public <T extends ReactiveLimitsHolder> void readReactiveCapabilityCurve(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+        List<PropertiesBufferHolder> curveHolders = new ArrayList<>();
+        List<PointData> pointDataList = new ArrayList<>();
+        context.getReader().readChildNodes(elementName -> {
+            if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
+                PropertiesBufferHolder curvePropertiesBuffer = new PropertiesBufferHolder();
+                PropertiesSerDe.read(curvePropertiesBuffer, context);
+                curveHolders.add(curvePropertiesBuffer);
+            } else if (elementName.equals(POINT_ROOT_ELEMENT_NAME)) {
+                double p = context.getReader().readDoubleAttribute(ATTR_P);
+                double minQ = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
+                double maxQ = context.getReader().readDoubleAttribute(ATTR_MAX_Q);
+                PropertiesBufferHolder pointPropertiesBuffer = new PropertiesBufferHolder();
+                PropertiesSerDe.readProperties(context, pointPropertiesBuffer);
+                pointDataList.add(new PointData(p, minQ, maxQ, pointPropertiesBuffer));
+            } else {
+                throw new PowsyblException("Unknown element name '" + elementName + "' in 'reactiveCapabilityCurve'");
+            }
+        });
+        toApply.add(reactiveLimitsHolder -> {
+            ReactiveCapabilityCurveAdder curveAdder = reactiveLimitsHolder.newReactiveCapabilityCurve();
+            curveHolders.forEach(propertiesBufferHolder -> propertiesBufferHolder.copyPropertiesTo(curveAdder));
+            pointDataList.forEach(pointData -> {
+                ReactiveCapabilityCurveAdder.PointAdder pointAdder = curveAdder.beginPoint();
+                pointData.pointPropertiesBuffer().copyPropertiesTo(pointAdder);
+                pointAdder.setP(pointData.p())
+                    .setMinQ(pointData.minQ())
+                    .setMaxQ(pointData.maxQ())
+                    .endPoint();
+            });
+            curveAdder.add();
+        });
+    }
+
     public void readMinMaxReactiveLimits(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {
         double min = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
         double max = context.getReader().readDoubleAttribute(ATTR_MAX_Q);
@@ -93,4 +132,16 @@ public class ReactiveLimitsSerDe {
                 .setMaxQ(max)
                 .add();
     }
+
+    public <T extends ReactiveLimitsHolder> void readMinMaxReactiveLimits(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+        double min = context.getReader().readDoubleAttribute(ATTR_MIN_Q);
+        double max = context.getReader().readDoubleAttribute(ATTR_MAX_Q);
+        context.getReader().readEndNode();
+        toApply.add(holder -> holder.newMinMaxReactiveLimits()
+            .setMinQ(min)
+            .setMaxQ(max)
+            .add());
+    }
+
+    private record PointData(double p, double minQ, double maxQ, PropertiesBufferHolder pointPropertiesBuffer) { }
 }
