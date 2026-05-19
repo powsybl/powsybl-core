@@ -7,11 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import tools.jackson.databind.JacksonModule;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
 import com.powsybl.security.results.*;
+import tools.jackson.databind.JacksonModule;
 
 import java.util.Collection;
 import java.util.List;

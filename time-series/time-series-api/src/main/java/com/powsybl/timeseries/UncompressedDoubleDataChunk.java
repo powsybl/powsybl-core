@@ -7,10 +7,10 @@
  */
 package com.powsybl.timeseries;
 
-import tools.jackson.core.JsonGenerator;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 import org.apache.commons.lang3.ArrayUtils;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.nio.DoubleBuffer;

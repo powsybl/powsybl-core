@@ -8,9 +8,9 @@
 package com.powsybl.security.monitor;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import tools.jackson.core.type.TypeReference;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
+import tools.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 import java.io.OutputStream;

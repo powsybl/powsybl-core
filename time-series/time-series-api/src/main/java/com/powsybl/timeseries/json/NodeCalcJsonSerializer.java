@@ -7,11 +7,11 @@
  */
 package com.powsybl.timeseries.json;
 
+import com.powsybl.timeseries.ast.NodeCalc;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.timeseries.ast.NodeCalc;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.criteria.json;
 
+import com.powsybl.iidm.criteria.*;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.module.SimpleModule;
-import com.powsybl.iidm.criteria.*;
 
 /**
  * <p>Jackson module for serialization/deserialization of {@link NetworkElementCriterion}.</p>

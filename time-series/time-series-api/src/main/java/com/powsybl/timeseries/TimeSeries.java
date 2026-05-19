@@ -7,9 +7,6 @@
  */
 package com.powsybl.timeseries;
 
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Range;
 import com.google.common.primitives.Doubles;
@@ -24,6 +21,9 @@ import gnu.trove.list.array.TDoubleArrayList;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -7,13 +7,13 @@
  */
 package com.powsybl.timeseries;
 
-import tools.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
 import org.jspecify.annotations.NonNull;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

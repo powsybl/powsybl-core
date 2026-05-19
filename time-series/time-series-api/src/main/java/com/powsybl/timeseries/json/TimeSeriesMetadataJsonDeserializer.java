@@ -7,10 +7,10 @@
  */
 package com.powsybl.timeseries.json;
 
+import com.powsybl.timeseries.TimeSeriesMetadata;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.timeseries.TimeSeriesMetadata;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

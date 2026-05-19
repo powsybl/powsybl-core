@@ -7,10 +7,10 @@
  */
 package com.powsybl.timeseries.ast;
 
+import com.powsybl.timeseries.TimeSeriesException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.util.Deque;

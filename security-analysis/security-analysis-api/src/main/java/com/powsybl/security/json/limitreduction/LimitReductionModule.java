@@ -8,16 +8,16 @@
 package com.powsybl.security.json.limitreduction;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.jsontype.NamedType;
-import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.criteria.json.*;
 import com.powsybl.iidm.criteria.json.duration.*;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.LimitReductionList;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

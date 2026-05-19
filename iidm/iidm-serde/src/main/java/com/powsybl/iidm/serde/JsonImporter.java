@@ -7,14 +7,14 @@
  */
 package com.powsybl.iidm.serde;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Importer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.io.InputStream;

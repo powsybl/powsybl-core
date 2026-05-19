@@ -7,14 +7,14 @@
  */
 package com.powsybl.shortcircuit.json;
 
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
+import com.powsybl.shortcircuit.FortescueValue;
+import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
+import com.powsybl.shortcircuit.ShortCircuitBusResults;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.FortescueValue;
-import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
-import com.powsybl.shortcircuit.ShortCircuitBusResults;
-import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
 
 import java.util.ArrayList;
 import java.util.List;

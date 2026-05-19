@@ -1,14 +1,14 @@
 package com.powsybl.action.json;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.jsontype.NamedType;
-import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer;
 import com.powsybl.iidm.network.identifiers.json.IdentifierSerializer;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.module.SimpleModule;
 
 public class ActionJsonModule extends SimpleModule {
 

@@ -7,11 +7,11 @@
  */
 package com.powsybl.iidm.criteria.json.duration;
 
-import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.duration.AllTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
-import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * <p>Jackson module for serialization/deserialization of {@link com.powsybl.iidm.criteria.duration.LimitDurationCriterion}.</p>

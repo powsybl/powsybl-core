@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.modification.scalable.json;
 
-import tools.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}

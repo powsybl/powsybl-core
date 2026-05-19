@@ -7,8 +7,8 @@
  */
 package com.powsybl.timeseries;
 
-import tools.jackson.core.JsonGenerator;
 import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

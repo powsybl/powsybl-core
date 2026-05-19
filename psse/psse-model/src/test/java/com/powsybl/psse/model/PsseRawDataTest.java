@@ -7,16 +7,12 @@
  */
 package com.powsybl.psse.model;
 
-import com.powsybl.commons.json.JsonUtil;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.databind.ser.FilterProvider;
-import tools.jackson.databind.ser.PropertyWriter;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.psse.model.io.Context;
@@ -27,6 +23,10 @@ import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
 import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.databind.ser.FilterProvider;
+import tools.jackson.databind.ser.PropertyWriter;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
