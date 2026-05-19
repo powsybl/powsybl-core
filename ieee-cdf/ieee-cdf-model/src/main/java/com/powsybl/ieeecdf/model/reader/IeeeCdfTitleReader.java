@@ -21,7 +21,6 @@ public final class IeeeCdfTitleReader extends AbstractIeeeCdfReader {
 
     private IeeeCdfTitleReader() {
         // private constructor to prevent instantiation
-        super();
     }
 
     public static IeeeCdfTitle parseTitle(BufferedReader reader) throws IOException {

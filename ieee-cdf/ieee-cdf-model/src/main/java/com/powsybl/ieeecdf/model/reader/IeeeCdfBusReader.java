@@ -21,7 +21,6 @@ public final class IeeeCdfBusReader extends AbstractIeeeCdfReader {
 
     private IeeeCdfBusReader() {
         // private constructor to prevent instantiation
-        super();
     }
 
     public static List<IeeeCdfBus> parseBuses(BufferedReader reader, int expectedItemsNumber) throws IOException {

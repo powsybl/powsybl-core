@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -21,11 +20,6 @@ public abstract class AbstractIeeeCdfWriter {
 
     protected static final String FILLER = " ";
     protected static final String FILLER2 = FILLER + FILLER;
-    private static final DecimalFormat DF = new DecimalFormat();
-
-    protected AbstractIeeeCdfWriter() {
-        DF.setGroupingUsed(false);
-    }
 
     protected static void writeFooter(BufferedWriter writer, int footerValue) throws IOException {
         writer.write(String.valueOf(footerValue));

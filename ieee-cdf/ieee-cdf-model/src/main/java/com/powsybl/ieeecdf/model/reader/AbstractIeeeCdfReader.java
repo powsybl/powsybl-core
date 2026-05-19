@@ -27,9 +27,6 @@ public abstract class AbstractIeeeCdfReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractIeeeCdfReader.class);
 
-    protected AbstractIeeeCdfReader() {
-    }
-
     protected static <A extends AbstractIeeeElement> List<A> readLines(BufferedReader reader, int footerValue,
                                                                        Function<String, A> constructor,
                                                                        int expectedItemsNumber) throws IOException {

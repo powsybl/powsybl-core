@@ -22,7 +22,6 @@ public final class IeeeCdfBranchReader extends AbstractIeeeCdfReader {
 
     private IeeeCdfBranchReader() {
         // private constructor to prevent instantiation
-        super();
     }
 
     public static List<IeeeCdfBranch> parseBranches(BufferedReader reader, int expectedItemsNumber) throws IOException {

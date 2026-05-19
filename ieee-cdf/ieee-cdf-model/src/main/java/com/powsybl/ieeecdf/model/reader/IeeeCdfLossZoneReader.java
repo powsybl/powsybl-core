@@ -20,7 +20,6 @@ public final class IeeeCdfLossZoneReader extends AbstractIeeeCdfReader {
 
     private IeeeCdfLossZoneReader() {
         // private constructor to prevent instantiation
-        super();
     }
 
     public static List<IeeeCdfLossZone> parseLossZones(BufferedReader reader, int expectedItemsNumber) throws IOException {

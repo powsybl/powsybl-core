@@ -20,7 +20,6 @@ public final class IeeeCdfInterchangeDataReader extends AbstractIeeeCdfReader {
 
     private IeeeCdfInterchangeDataReader() {
         // private constructor to prevent instantiation
-        super();
     }
 
     public static List<IeeeCdfInterchangeData> parseInterchangeData(BufferedReader reader, int expectedItemsNumber) throws IOException {

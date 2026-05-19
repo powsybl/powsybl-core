@@ -20,7 +20,6 @@ public final class IeeeCdfTieLineReader extends AbstractIeeeCdfReader {
 
     private IeeeCdfTieLineReader() {
         // private constructor to prevent instantiation
-        super();
     }
 
     public static List<IeeeCdfTieLine> parseTieLine(BufferedReader reader, int expectedItemsNumber) throws IOException {
