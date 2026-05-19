@@ -53,6 +53,7 @@ public class PowerFactoryImporter implements Importer {
 
     // Import parameters
     public static final String HVDC_IMPORT_MT = "powerfactory.import.dgs.HVDC-import-detailed";
+    public static final String FORCE_ALL_ELMTERMS_AS_BUSBARS = "powerfactory.import.dgs.force-all-elmTerms-as-busbars";
 
     public static final Parameter HVDC_IMPORT_DETAILED_PARAMETER = new Parameter(
             HVDC_IMPORT_MT,
@@ -61,9 +62,19 @@ public class PowerFactoryImporter implements Importer {
         Boolean.FALSE
     );
 
+    public static final Parameter FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER = new Parameter(
+            FORCE_ALL_ELMTERMS_AS_BUSBARS,
+            ParameterType.BOOLEAN,
+            "Import all ElmTerms as busbars",
+            Boolean.FALSE
+    );
+
     @Override
     public List<Parameter> getParameters() {
-        return ConfiguredParameter.load(Collections.singletonList(HVDC_IMPORT_DETAILED_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
+        List<Parameter> parameterList = List.of(
+                HVDC_IMPORT_DETAILED_PARAMETER,
+                FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER);
+        return ConfiguredParameter.load(parameterList, getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override
@@ -176,10 +187,11 @@ public class PowerFactoryImporter implements Importer {
         }
 
         // process terminals
+        boolean forceAllElmTermsAsBusBars = Parameter.readBoolean(FORMAT, parameters, FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER, ParameterDefaultValueConfig.INSTANCE);
         NodeConverter nodeConverter = new NodeConverter(importContext, network);
         for (DataObject elmTerm : elmTerms) {
             if (!hvdcConverter.isDcNode(elmTerm)) {
-                nodeConverter.createAndMapConnectedObjs(elmTerm);
+                nodeConverter.createAndMapConnectedObjs(elmTerm, forceAllElmTermsAsBusBars);
             }
         }
 

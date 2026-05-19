@@ -220,7 +220,7 @@ public class SwitchesFlow {
             return;
         }
 
-        AsSubgraph<SwNode, SwEdge> subGraph = new AsSubgraph<>(graph, connectedSet);
+        AsSubgraph<SwNode, SwEdge> subGraph = new AsSubgraph<>(graph, new LinkedHashSet<>(sortedNodes));
         SpanningTree<SwEdge> tree = new KruskalMinimumSpanningTree<>(subGraph).getSpanningTree();
 
         List<List<SwNode>> levels = new ArrayList<>();

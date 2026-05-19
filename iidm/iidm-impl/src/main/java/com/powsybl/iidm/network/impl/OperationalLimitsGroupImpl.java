@@ -79,17 +79,17 @@ public class OperationalLimitsGroupImpl extends AbstractPropertiesHolder impleme
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId(), getNetwork());
+        return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), getNetwork());
+        return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), getNetwork());
+        return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), id, getNetwork());
     }
 
     @Override
