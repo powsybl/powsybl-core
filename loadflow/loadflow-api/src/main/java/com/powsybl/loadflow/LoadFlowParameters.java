@@ -455,7 +455,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("balanceType", balanceType)
                 .put("dcUseTransformerRatio", dcUseTransformerRatio)
                 .put("countriesToBalance", countriesToBalance)
-                .put("computedComponentMode", componentMode)
+                .put("componentMode", componentMode)
                 .put("hvdcAcEmulation", hvdcAcEmulation)
                 .put("dcPowerFactor", dcPowerFactor)
                 .build();
