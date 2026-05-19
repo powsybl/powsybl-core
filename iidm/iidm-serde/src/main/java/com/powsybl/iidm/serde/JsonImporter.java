@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.TreeDataFormat;
@@ -54,7 +54,7 @@ public class JsonImporter extends AbstractTreeDataImporter {
                     if (parser.nextToken() != JsonToken.START_OBJECT) {
                         return false;
                     }
-                    return JsonReader.VERSION_NAME.equals(parser.nextFieldName());
+                    return JsonReader.VERSION_NAME.equals(parser.nextName());
                 }
             }
         }
