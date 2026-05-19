@@ -833,7 +833,7 @@ class TransformerConverter extends AbstractConverter {
         if (t2w == null) {
             return;
         }
-        String controlMode = elmTr2.findStringAttributeValue("imldc").orElse("");
+        String controlMode = keepOnlyAlphanumericCharacters(elmTr2.findStringAttributeValue("imldc").orElse(""));
         switch (controlMode) {
             case "V" -> t2w.getOptionalRatioTapChanger().ifPresent(rtc -> addVoltageControl(t2w, rtc, elmTr2));
             case "P" -> t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> addActivePowerControl(t2w, ptc, elmTr2));
@@ -851,7 +851,7 @@ class TransformerConverter extends AbstractConverter {
         if (leg == null) {
             return;
         }
-        String controlMode = elmTr3.findStringAttributeValue("imldc").orElse("");
+        String controlMode = keepOnlyAlphanumericCharacters(elmTr3.findStringAttributeValue("imldc").orElse(""));
         switch (controlMode) {
             case "V" -> leg.getOptionalRatioTapChanger().ifPresent(rtc -> addVoltageControl(t3w, rtc, elmTr3));
             case "P" -> leg.getOptionalPhaseTapChanger().ifPresent(ptc -> addActivePowerControl(t3w, ptc, elmTr3));
@@ -1128,6 +1128,10 @@ class TransformerConverter extends AbstractConverter {
         boolean isRegulationOn() {
             return regulating && Double.isFinite(targetP) && targetDeadband >= 0.0;
         }
+    }
+
+    private static String keepOnlyAlphanumericCharacters(String text) {
+        return text == null ? null : text.replaceAll("[^\\p{L}\\p{N}]", "");
     }
 
     private static void unexpectedControlModeWarning(String controlMode, String locName) {
