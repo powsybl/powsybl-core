@@ -161,18 +161,13 @@ public class LoadScalable extends AbstractInjectionScalable {
                 l.getId(), oldP0, getP0(l));
 
         if (parameters.isConstantPowerFactor() && oldP0 != 0.0) {
-
-            double newQ = limitReactivePowerScaling(parameters, l, oldQ0, oldP0, getP0(l));
-
-            setQ0(l, newQ);
-            LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
-                    l.getId(), oldQ0, newQ);
+            scaleReactivePower(parameters, l, oldQ0, oldP0, getP0(l));
         }
 
         return done;
     }
 
-    private double limitReactivePowerScaling(ScalingParameters parameters, Load l, double oldQ, double oldP, double newP) {
+    private void scaleReactivePower(ScalingParameters parameters, Load l, double oldQ, double oldP, double newP) {
         // Limit 1: apply loadMinPowerFactor
         // If the absolute value of the initial power factor is below the configured minimal power factor,
         //  the reactive power setpoint will be recalculated according to the scaled active power and the minimal power factor
@@ -181,8 +176,9 @@ public class LoadScalable extends AbstractInjectionScalable {
         // Limit 2: apply rate limits relative to the initial Q (from ScalingParameters)
         // Q_scaled must stay in [Q_initial * minQRate, Q_initial * maxQRate]
         limitedQ = applyRelativeQRateLimits(parameters, l, oldQ, limitedQ);
-
-        return limitedQ;
+        setQ0(l, limitedQ);
+        LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
+                l.getId(), oldQ, limitedQ);
     }
 
     private static double applyPowerFactorLimit(ScalingParameters parameters, Load l, double oldQ, double oldP, double newP) {
