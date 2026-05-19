@@ -400,6 +400,8 @@ could be defined by bus, by a set of buses or by a set of nodes. It is defined a
 It has several getters to retrieve the observability status of the sub-elements. This status is defined by an object
 called **AreaCharacteristics**. You can access to **AreaCharacteristics** by terminal, by bus ID (in bus-breaker or bus view) or by node number (in node-breaker view).
 
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
 ### Object AreaCharacteristics
 
 | Attribute             | Type                | Unit | Required | Default value | Description                                                  |
@@ -414,7 +416,7 @@ called **AreaCharacteristics**. You can access to **AreaCharacteristics** by ter
 
 As it associates an observability status with a topological element (a bus or a node), it deeply relies on the topology during the state estimation computation. Therefore, any topological change could lead to either outdated results (wrong status) or hanging areas (defined on nodes that don't exist in the voltage level).
 
-To mitigate issues related to the second point, a helper method is defined to check if all the elements that define observability areas are still present in the network. But nothing prevents the user from using outdated observability statuses due to topological changes. So, it's its responsibility to invalidate observability areas when it is necessary.
+To mitigate issues related to the second point, a helper method (ObservabilityArea.isConsistentWithTopology()) is defined to check if all the elements that define observability areas are still present in the network. But nothing prevents the user from using outdated observability statuses due to topological changes. So, it's their responsibility to invalidate observability areas when it is necessary.
 
 (line-position-extension)=
 ## Line Position
