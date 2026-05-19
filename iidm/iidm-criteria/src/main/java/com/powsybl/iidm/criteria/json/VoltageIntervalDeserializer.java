@@ -7,13 +7,12 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.VoltageInterval;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static com.powsybl.iidm.criteria.json.util.DeserializerUtils.checkBoundData;
 
@@ -37,7 +36,7 @@ public class VoltageIntervalDeserializer extends StdDeserializer<VoltageInterval
     }
 
     @Override
-    public VoltageInterval deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public VoltageInterval deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {

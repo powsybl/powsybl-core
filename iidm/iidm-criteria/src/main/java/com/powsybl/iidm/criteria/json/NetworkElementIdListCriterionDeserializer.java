@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,14 +26,14 @@ public class NetworkElementIdListCriterionDeserializer extends AbstractNetworkEl
     }
 
     @Override
-    public NetworkElementIdListCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public NetworkElementIdListCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext parsingContext = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserialize(parser, parsingContext, name));
 
         return new NetworkElementIdListCriterion(parsingContext.name, parsingContext.ids);
     }
 
-    private boolean deserialize(JsonParser parser, ParsingContext parsingContext, String name) throws IOException {
+    private boolean deserialize(JsonParser parser, ParsingContext parsingContext, String name) throws JacksonException {
         if (name.equals("identifiers")) {
             parsingContext.ids = new HashSet<>(JsonUtil.parseStringArray(parser));
             return true;

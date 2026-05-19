@@ -7,12 +7,12 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.ContingencyContext;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,7 @@ import java.util.Objects;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class ContingencyContextJsonTest extends AbstractSerDeTest {
-    private static final ObjectMapper MAPPER = JsonUtil.createObjectMapper();
+    private static final JsonMapper MAPPER = JsonUtil.createJsonMapper();
     private static final ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     @Test

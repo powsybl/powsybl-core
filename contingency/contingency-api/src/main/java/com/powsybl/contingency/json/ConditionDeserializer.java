@@ -7,17 +7,17 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.contingency.strategy.condition.*;
 import com.powsybl.contingency.violations.LimitViolationType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -45,12 +45,12 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     }
 
     @Override
-    public Condition deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public Condition deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
                 case "type":
-                    context.type = parser.nextTextValue();
+                    context.type = parser.nextStringValue();
                     return true;
                 case "violationIds":
                     parser.nextToken();
@@ -65,7 +65,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     context.threshold = parser.getValueAsDouble();
                     return true;
                 case "equipmentId":
-                    context.equipmentId = parser.nextTextValue();
+                    context.equipmentId = parser.nextStringValue();
                     return true;
                 case "side":
                     parser.nextToken();
@@ -109,7 +109,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
             case AcDcConverterThresholdCondition.NAME:
                 return new AcDcConverterThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.isAcSide, context.terminalNumber);
             default:
-                throw new JsonMappingException(parser, "Unexpected condition type: " + context.type);
+                throw DatabindException.from(parser, "Unexpected condition type: " + context.type);
         }
     }
 }

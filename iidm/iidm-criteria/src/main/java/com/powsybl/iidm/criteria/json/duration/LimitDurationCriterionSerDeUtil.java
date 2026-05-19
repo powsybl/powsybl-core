@@ -7,15 +7,15 @@
  */
 package com.powsybl.iidm.criteria.json.duration;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion.LimitDurationType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -57,17 +57,17 @@ public final class LimitDurationCriterionSerDeUtil {
         }
     }
 
-    public static void serializeCommonHeadAttributes(LimitDurationCriterion criterion, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("type", SerializationType.getFor(criterion).name());
-        jsonGenerator.writeStringField("version", LimitDurationCriterion.getVersion());
+    public static void serializeCommonHeadAttributes(LimitDurationCriterion criterion, JsonGenerator jsonGenerator) throws JacksonException {
+        jsonGenerator.writeStringProperty("type", SerializationType.getFor(criterion).name());
+        jsonGenerator.writeStringProperty("version", LimitDurationCriterion.getVersion());
     }
 
     public static void readAndCheckType(LimitDurationType expectedType,
                                         TemporaryDurationCriterionType expectedComparisonType,
-                                        JsonParser parser) throws IOException {
+                                        JsonParser parser) throws JacksonException {
         String expectedValue = SerializationType.getFor(expectedType, expectedComparisonType).name();
-        if (!expectedValue.equals(parser.nextTextValue())) {
-            throw JsonMappingException.from(parser, "Expected type " + expectedValue);
+        if (!expectedValue.equals(parser.nextStringValue())) {
+            throw DatabindException.from(parser, "Expected type " + expectedValue);
         }
     }
 }

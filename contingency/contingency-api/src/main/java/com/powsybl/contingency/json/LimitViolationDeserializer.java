@@ -7,10 +7,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -21,8 +17,12 @@ import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.iidm.network.ThreeSides;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -42,7 +42,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
     }
 
     @Override
-    public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         Boolean voltageLocationSupport = (Boolean) deserializationContext.getAttribute(VIOLATION_LOCATION_SUPPORT);
         String subjectId = null;
         String subjectName = null;
@@ -61,15 +61,15 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "subjectId":
-                    subjectId = parser.nextTextValue();
+                    subjectId = parser.nextStringValue();
                     break;
 
                 case "subjectName":
-                    subjectName = parser.nextTextValue();
+                    subjectName = parser.nextStringValue();
                     break;
 
                 case "operationalLimitsGroupId":
-                    operationalLimitsGroupId = parser.nextTextValue();
+                    operationalLimitsGroupId = parser.nextStringValue();
                     break;
 
                 case "limitType":
@@ -78,7 +78,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "limitName":
-                    limitName = parser.nextTextValue();
+                    limitName = parser.nextStringValue();
                     break;
 
                 case "acceptableDuration":

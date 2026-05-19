@@ -7,15 +7,14 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.violations.BusBreakerViolationLocation;
 import com.powsybl.contingency.violations.NodeBreakerViolationLocation;
 import com.powsybl.contingency.violations.ViolationLocation;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -27,16 +26,16 @@ public class ViolationLocationSerializer extends StdSerializer<ViolationLocation
     }
 
     @Override
-    public void serialize(ViolationLocation violationLocation, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ViolationLocation violationLocation, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
         JsonUtil.writeOptionalEnumProperty(jsonGenerator, "type", violationLocation.getType());
         if (ViolationLocation.Type.NODE_BREAKER == violationLocation.getType()) {
             NodeBreakerViolationLocation location = (NodeBreakerViolationLocation) violationLocation;
-            jsonGenerator.writeStringField("voltageLevelId", location.getVoltageLevelId());
-            serializerProvider.defaultSerializeField("nodes", location.getNodes(), jsonGenerator);
+            jsonGenerator.writeStringProperty("voltageLevelId", location.getVoltageLevelId());
+            serializationContext.defaultSerializeProperty("nodes", location.getNodes(), jsonGenerator);
         } else {
             BusBreakerViolationLocation location = (BusBreakerViolationLocation) violationLocation;
-            serializerProvider.defaultSerializeField("busIds", location.getBusIds(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("busIds", location.getBusIds(), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }
