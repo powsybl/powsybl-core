@@ -7,17 +7,17 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -59,12 +59,12 @@ public class ThreeWindingsTransformerResultDeserializer extends StdDeserializer<
     }
 
     @Override
-    public ThreeWindingsTransformerResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public ThreeWindingsTransformerResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(jsonParser, name -> {
             switch (name) {
                 case "threeWindingsTransformerId":
-                    context.threeWindingsTransformerId = jsonParser.nextTextValue();
+                    context.threeWindingsTransformerId = jsonParser.nextStringValue();
                     return true;
                 case "p1":
                     jsonParser.nextToken();

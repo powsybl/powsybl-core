@@ -7,13 +7,12 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.BranchResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -25,9 +24,9 @@ public class BranchResultSerializer extends StdSerializer<BranchResult> {
     }
 
     @Override
-    public void serialize(BranchResult branchResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(BranchResult branchResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("branchId", branchResult.getBranchId());
+        jsonGenerator.writeStringProperty("branchId", branchResult.getBranchId());
         JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p1", branchResult.getP1());
         JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q1", branchResult.getQ1());
         JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i1", branchResult.getI1());
@@ -35,7 +34,7 @@ public class BranchResultSerializer extends StdSerializer<BranchResult> {
         JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q2", branchResult.getQ2());
         JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i2", branchResult.getI2());
         JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "flowTransfer", branchResult.getFlowTransfer());
-        JsonUtil.writeExtensions(branchResult, jsonGenerator, serializerProvider);
+        JsonUtil.writeExtensions(branchResult, jsonGenerator, serializationContext);
         jsonGenerator.writeEndObject();
     }
 }

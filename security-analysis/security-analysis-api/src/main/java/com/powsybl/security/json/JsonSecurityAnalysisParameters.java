@@ -7,12 +7,6 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProvider;
@@ -20,6 +14,13 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisProvider;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,12 +81,8 @@ public final class JsonSecurityAnalysisParameters {
      * Updates parameters by reading the content of a JSON stream.
      */
     public static SecurityAnalysisParameters update(SecurityAnalysisParameters parameters, InputStream jsonStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        return jsonMapper.readerForUpdating(parameters).readValue(jsonStream);
     }
 
     /**
@@ -105,39 +102,36 @@ public final class JsonSecurityAnalysisParameters {
      * Writes parameters as JSON to an output stream.
      */
     public static void write(SecurityAnalysisParameters parameters, OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, parameters);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, parameters);
     }
 
     /**
      * Low level deserialization method, to be used for instance for reading security analysis parameters nested in another object.
      */
-    public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context, SecurityAnalysisParameters parameters) throws IOException {
+    public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context, SecurityAnalysisParameters parameters) throws JacksonException {
         return new SecurityAnalysisParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
      * Low level deserialization method, to be used for instance for updating lsecurity analysis parameters nested in another object.
      */
-    public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context) throws JacksonException {
         return new SecurityAnalysisParametersDeserializer().deserialize(parser, context);
     }
 
     /**
      * Low level serialization method, to be used for instance for writing security analysis parameters nested in another object.
      */
-    public static void serialize(SecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        new SecurityAnalysisParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+    public static void serialize(SecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
+        new SecurityAnalysisParametersSerializer().serialize(parameters, jsonGenerator, serializationContext);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule())
-                .registerModule(new ActionJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new SecurityAnalysisJsonModule())
+            .addModule(new ActionJsonModule())
+            .build();
     }
 }
