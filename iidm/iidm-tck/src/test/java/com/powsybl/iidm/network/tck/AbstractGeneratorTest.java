@@ -332,7 +332,7 @@ public abstract class AbstractGeneratorTest {
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
-                15.0, 40.0, true, 2.0, 1.0);
+                15.0, 40.0, true, 2.0);
         Generator generator = network.getGenerator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -446,27 +446,4 @@ public abstract class AbstractGeneratorTest {
             .add();
     }
 
-    private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
-                                      double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint, double equivalentLocalTargetV) {
-        RegulationMode mode;
-        if (regulatorOn) {
-            mode = RegulationMode.VOLTAGE;
-        } else {
-            mode = RegulationMode.REACTIVE_POWER;
-        }
-        return voltageLevel.newGenerator()
-            .setId(id)
-            .newVoltageRegulation()
-                .withMode(mode)
-                .add()
-            .setEnergySource(source)
-            .setMaxP(maxP)
-            .setMinP(minP)
-            .setRatedS(ratedS)
-            .setTargetP(activePowerSetpoint)
-            .setTargetQ(reactivePowerSetpoint)
-            .setNode(1)
-            .setLocalTargetV(voltageSetpoint)
-            .add();
-    }
 }

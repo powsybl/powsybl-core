@@ -128,9 +128,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        getOptionalVoltageRegulation().ifPresent(voltageRegulation -> {
-            boolean oldValue = voltageRegulation.isRegulating();
-            voltageRegulation.setRegulating(voltageRegulatorOn);
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            boolean oldValue = vr.isRegulating();
+            vr.setRegulating(voltageRegulatorOn);
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);

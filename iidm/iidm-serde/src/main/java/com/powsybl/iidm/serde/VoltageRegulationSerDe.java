@@ -66,7 +66,7 @@ public final class VoltageRegulationSerDe {
             .build());
     }
 
-    public static VoltageRegulationAdder<?> readVoltageRegulation(VoltageRegulationAdder<?> adder, NetworkDeserializerContext context) {
+    public static <A> VoltageRegulationAdder<A> readVoltageRegulation(VoltageRegulationAdder<A> adder, NetworkDeserializerContext context) {
         // Read attributes
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
         // Create new Voltage Regulation
@@ -78,8 +78,8 @@ public final class VoltageRegulationSerDe {
             .withRegulating(attributes.isRegulating());
     }
 
-    public static <T extends VoltageRegulationHolder> void readVoltageRegulation(List<Consumer<T>> toApply, VoltageRegulationAdder<?> adder, NetworkDeserializerContext context) {
-        VoltageRegulationAdder<?> voltageRegulationAdder = VoltageRegulationSerDe.readVoltageRegulation(adder, context);
+    public static <T extends VoltageRegulationHolder, A> void readVoltageRegulation(List<Consumer<T>> toApply, VoltageRegulationAdder<A> adder, NetworkDeserializerContext context) {
+        VoltageRegulationAdder<A> voltageRegulationAdder = VoltageRegulationSerDe.readVoltageRegulation(adder, context);
         // Read Sub Elements
         context.getReader().readChildNodes(subElementName -> {
             if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {

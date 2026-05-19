@@ -61,7 +61,6 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public VoltageSourceConverter setPccTerminal(Terminal pccTerminal) {
         super.setPccTerminal(pccTerminal);
-//        getOptionalVoltageRegulation().ifPresent(regulation -> regulation.setTerminal(pccTerminal));
         return this;
     }
 

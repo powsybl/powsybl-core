@@ -122,7 +122,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     public VscConverterStation setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), targetQ, getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-//        ValidationUtil.checkNotNanValue(this, targetQ, "targetQ", "voltage regulator is off");
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);

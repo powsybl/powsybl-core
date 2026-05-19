@@ -127,7 +127,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         adder.setTargetP(targetP);
         AtomicReference<Double> equivalentLocalTargetV = new AtomicReference<>(Double.NaN);
         IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> equivalentLocalTargetV.set(context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
-        buildVoltageRegulationFromOlderVersions(toApply, context, adder, voltageRegulatorOn);
+        buildVoltageRegulationFromOlderVersions(context, adder, voltageRegulatorOn);
         addTargetV(context, adder, targetV, equivalentLocalTargetV.get());
         adder.setTargetQ(targetQ);
 
@@ -161,7 +161,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         });
     }
 
-    private void buildVoltageRegulationFromOlderVersions(List<Consumer<Generator>> toApply, NetworkDeserializerContext context, final GeneratorAdder adder,
+    private void buildVoltageRegulationFromOlderVersions(NetworkDeserializerContext context, final GeneratorAdder adder,
                                                          Boolean voltageRegulatorOn) {
         // VOLTAGE REGULATION
         // version < V_1_17
@@ -181,8 +181,6 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             }
             adder.setTargetV(newTargetV);
         });
-//        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () ->
-//            adder.setTargetV(equivalentLocalTargetV));
         // From V_1_17
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> adder.setTargetV(targetV));
     }

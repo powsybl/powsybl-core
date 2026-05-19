@@ -141,16 +141,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return mode;
     }
 
-    /**
-     * {@inheritDoc}
-     * If regulating is true then we validate the new value before to setting it
-     */
-//    @Override
-//    public void setMode(RegulationMode mode) {
-//        ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-//        this.mode = mode;
-//    }
-
     @Override
     public boolean isRegulating() {
         return regulating.get(getCurrentIndex());

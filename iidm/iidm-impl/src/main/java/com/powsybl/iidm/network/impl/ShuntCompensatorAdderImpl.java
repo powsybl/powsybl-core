@@ -248,8 +248,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(),
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         if (voltageRegulation != null && voltageRegulation.isRegulating() && voltageRegulation.getTerminal() == null) {
-//            network.setValidationLevelIfGreaterThan(ValidationUtil.checkNotNanValue(this, localTargetV, "localTargetV", "voltageRegulation is set with VOLTAGE mode and regulating true"));
-//            network.setValidationLevelIfGreaterThan(ValidationUtil.checkDoublePositive(this, localTargetV, "localTargetV"));
             network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, localTargetV, Double.NaN, voltageRegulation, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         }
 

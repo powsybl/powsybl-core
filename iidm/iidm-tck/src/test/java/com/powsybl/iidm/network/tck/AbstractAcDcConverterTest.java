@@ -879,8 +879,8 @@ public abstract class AbstractAcDcConverterTest {
         vscA.setControlMode(AcDcConverter.ControlMode.V_DC);
         vscA.setTargetP(-50.);
         vscA.setTargetVdc(495.);
-        vscA.setTargetQ(20.0);
-        vscA.setTargetV(405.0);
+        vscA.setLocalTargetQ(20.0);
+        vscA.setLocalTargetV(405.0);
         vscA.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .build();

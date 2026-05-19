@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -153,8 +152,8 @@ public abstract class AbstractVoltageRegulationTest {
         VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
             .setLocalTargetV(24)
             .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(240);
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(240);
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationAdder::add);
         // THEN
@@ -162,207 +161,13 @@ public abstract class AbstractVoltageRegulationTest {
     }
 
     // Cases Regulating True, Terminal present, Mode VOLTAGE
+    // TODO MSA add tests
 
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
+    // TODO MSA add tests
 
     // Cases Regulating false, Terminal present, Mode VOLTAGE
-
-    @Disabled("TODO MSA check me")
-    @Test
-    void testGeneratorWithVoltageRegulation() {
-        // GIVEN
-        Generator generator = network.getGenerator("GEN");
-        generator.setLocalTargetQ(Double.NaN);
-        // WHEN
-        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-        ValidationException exception = assertThrows(ValidationException.class, () -> voltageRegulation.setRegulating(false));
-        // THEN
-        assertEquals("Generator 'GEN': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)", exception.getMessage());
-        assertTrue(voltageRegulation.isRegulating());
-    }
-
-    @Disabled("TODO MSA check me")
-    @Test
-    void testGeneratorWithVoltageRegulationRemoteTransformIntoLocal() {
-        // GIVEN
-        Terminal terminalFromRemoteGen = network.getGenerator("GEN").getTerminal();
-        Generator generator = voltageLevel.newGenerator()
-            .setId("GEN_With_remote_terminal")
-            .setBus("NBAT")
-            .setConnectableBus("NBAT")
-            .setLocalTargetV(24)
-            .setMinP(10)
-            .setMaxP(120)
-            .setTargetP(100)
-            .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(400)
-            .withTerminal(terminalFromRemoteGen)
-            .add()
-            .add();
-        assertEquals(400, generator.getRegulatingTargetV());
-        // WHEN
-        generator.getVoltageRegulation().removeTerminal();
-        // THEN
-        assertEquals(Double.NaN, generator.getRegulatingTargetQ());
-        assertEquals(24, generator.getRegulatingTargetV());
-    }
-
-    @Disabled("TODO MSA check me")
-    @Test
-    void testDifferentTerminalButSameConnectableBus() {
-        // GIVEN
-        Terminal terminalFromRemoteGen = network.getGenerator("GEN").getTerminal();
-        VoltageLevel voltageLevelGen = terminalFromRemoteGen.getVoltageLevel();
-        Generator generator = voltageLevelGen.newGenerator()
-            .setId("GEN_With_terminal_same_connectable_bus")
-            .setBus("NGEN")
-            .setConnectableBus("NGEN")
-            .setMinP(10)
-            .setMaxP(120)
-            .setTargetP(100)
-            .setLocalTargetV(123)
-            .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(400)
-            .withTerminal(terminalFromRemoteGen)
-            .add()
-            .add();
-        // WHEN
-        // THEN
-        assertTrue(generator.isRemoteRegulating());
-
-    }
-
-    @Disabled("TODO MSA check me")
-    @Test
-    void testMsa() {
-        // GIVEN
-        Terminal terminalFromGen = network.getGenerator("GEN").getTerminal();
-        Terminal terminalFromBat = network.getBattery("BAT").getTerminal();
-        // WHEN
-//        voltageLevel.newGenerator()
-//            .setId("GEN_12987")
-//            .setBus("NBAT")
-//            .setConnectableBus("NBAT")
-//            .setMinP(-999.0)
-//            .setMaxP(999.0)
-//            .setTargetP(100.0)
-//            .setTargetV(230)
-//            .newVoltageRegulation()
-//                .withMode(RegulationMode.VOLTAGE)
-//                .withTerminal(terminalFromGen)
-//                .withTargetValue(400)
-//                .add()
-//            .add();
-//        network.getGenerator("GEN").getVoltageRegulation().setTerminal(terminalFromGen, 210);
-//        network.getGenerator("GEN").getVoltageRegulation().removeTerminal();
-//        network.getGenerator("GEN").getVoltageRegulation().setTargetValue(200);
-//        network.getGenerator("GEN").setTargetQ(12);
-//        network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
-        network.getGenerator("GEN").getVoltageRegulation().setTargetValue(123);
-        // THEN
-
-        // case newEquipment -> The Terminal can only be remote
-//        voltageLevel.newGenerator()
-//            .setId("GEN_12987_MSA")
-//            .setBus("NBAT")
-//            .setConnectableBus("NBAT")
-//            .setMinP(-999.0)
-//            .setMaxP(999.0)
-//            .setTargetP(100.0)
-//            .setTargetV(230)
-//            .newVoltageRegulation()
-//                .withMode(RegulationMode.VOLTAGE)
-//                .withTerminal(terminalFromGen)
-//                .withTargetValue(400)
-//                .add()
-//            .add();
-
-        // case equipment already created -> The Terminal can be remote or local
-//        network.getGenerator("GEN").getVoltageRegulation().setTerminal(terminalFromGen);
-//        network.getGenerator("GEN").getVoltageRegulation().setTerminal(terminalFromBat);
-
-        // case missing LocalTargetV with VOLTAGE regulating true
-        ValidationException validationException = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
-            .setId("GEN_134_MSA")
-            .setBus("NBAT")
-            .setConnectableBus("NBAT")
-            .setMinP(12.0)
-            .setMaxP(120.0)
-            .setTargetP(100.0)
-            .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .add()
-            .add());
-        assertEquals("Generator 'GEN_134_MSA': invalid value (NaN) for localTargetV (VoltageRegulation with VOLTAGE mode)", validationException.getMessage());
-        // case missing LocalTargetQ with VOLTAGE regulating false
-        validationException = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
-            .setId("GEN_134_MSA")
-            .setBus("NBAT")
-            .setConnectableBus("NBAT")
-            .setMinP(12.0)
-            .setMaxP(120.0)
-            .setTargetP(100.0)
-            .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(false)
-            .add()
-            .add());
-        assertEquals("Generator 'GEN_134_MSA': invalid value (NaN) for targetQ (VoltageRegulation not set or set with regulating=false)", validationException.getMessage());
-        // case missing LocalTargetQ without voltageRegulation
-        validationException = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
-            .setId("GEN_134_MSA")
-            .setBus("NBAT")
-            .setConnectableBus("NBAT")
-            .setMinP(12.0)
-            .setMaxP(120.0)
-            .setTargetP(100.0)
-            .add());
-        assertEquals("Generator 'GEN_134_MSA': invalid value (NaN) for localTargetQ (voltageRegulation is not set)", validationException.getMessage());
-        // case missing LocalTargetQ without voltageRegulation
-        validationException = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
-            .setId("GEN_134_MSA")
-            .setBus("NBAT")
-            .setConnectableBus("NBAT")
-            .setMinP(12.0)
-            .setMaxP(120.0)
-            .setTargetP(100.0)
-            .newVoltageRegulation()
-            .withMode(RegulationMode.REACTIVE_POWER)
-            .add()
-            .add());
-        assertEquals("Generator 'GEN_134_MSA': invalid value (NaN) for localTargetQ (voltageRegulation is set with REACTIVE_POWER mode)", validationException.getMessage());
-        // case negative LocalTargetV
-        validationException = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
-            .setId("GEN_134_MSA")
-            .setBus("NBAT")
-            .setConnectableBus("NBAT")
-            .setMinP(12.0)
-            .setMaxP(120.0)
-            .setTargetP(100.0)
-            .setTargetV(-24.5)
-            .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .add()
-            .add());
-        assertEquals("Generator 'GEN_134_MSA': invalid value (-24.5) for localTargetV (must be positive)", validationException.getMessage());
-        // case missing targetValue for remoteTerminal
-        validationException = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
-            .setId("GEN_134_MSA")
-            .setBus("NBAT")
-            .setConnectableBus("NBAT")
-            .setMinP(12.0)
-            .setMaxP(120.0)
-            .setTargetP(100.0)
-            .setTargetV(-24.5)
-            .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTerminal(terminalFromGen)
-            .add()
-            .add());
-        assertEquals("Generator 'GEN_134_MSA': Undefined value for voltageRegulation.targetValue (remote terminal)", validationException.getMessage());
-    }
+    // TODO MSA add tests
 
     private GeneratorAdder newGeneratorAdder(String id) {
         return voltageLevel.newGenerator()
