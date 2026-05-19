@@ -7,12 +7,11 @@
  */
 package com.powsybl.psse.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.databind.ser.FilterProvider;
+import tools.jackson.databind.ser.PropertyWriter;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -28,6 +27,8 @@ import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
 import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -144,7 +145,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         return new ResourceDataSource("IEEE_14_bus_Q_record_rev35", new ResourceSet("/", "IEEE_14_bus_Q_record_rev35.raw"));
     }
 
-    private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
+    private static String toJson(PssePowerFlowModel rawData) throws JacksonException {
         PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
             @Override
@@ -154,7 +155,10 @@ class PsseRawDataTest extends AbstractSerDeTest {
             }
         };
         FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
-        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
+        String json = JsonUtil.createJsonMapperBuilder()
+            .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+            .build()
+            .writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
         return TestUtil.normalizeLineSeparator(json) + "\n";
     }
 

@@ -7,8 +7,8 @@
  */
 package com.powsybl.psse.model.io;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import de.siegmar.fastcsv.reader.CsvReader;

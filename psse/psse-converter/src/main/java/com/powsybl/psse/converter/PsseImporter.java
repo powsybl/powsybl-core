@@ -27,6 +27,7 @@ import com.powsybl.psse.model.pf.*;
 import com.powsybl.psse.model.pf.io.PowerFlowDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -107,7 +108,7 @@ public class PsseImporter implements Importer {
         if (ext != null) {
             try {
                 return PowerFlowDataFactory.create(ext).isValidFile(dataSource, ext);
-            } catch (PsseException | IOException e) {
+            } catch (PsseException | IOException | JacksonException e) {
                 LOGGER.error(String.format("Invalid content in filename %s.%s: %s",
                         dataSource.getBaseName(),
                         ext,

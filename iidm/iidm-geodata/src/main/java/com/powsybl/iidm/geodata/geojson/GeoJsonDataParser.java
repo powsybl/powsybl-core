@@ -7,13 +7,11 @@
  */
 package com.powsybl.iidm.geodata.geojson;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonFactoryBuilder;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -28,9 +26,10 @@ public final class GeoJsonDataParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonDataParser.class);
     private static final ThreadLocal<double[]> POINT_BUFFER = ThreadLocal.withInitial(() -> new double[2]);
-    private static final JsonFactory JSON_FACTORY = new JsonFactoryBuilder()
-        .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, false)
-        .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false)
+    private static final JsonFactory JSON_FACTORY = JsonFactory.builder()
+        .configure(TokenStreamFactory.Feature.CANONICALIZE_PROPERTY_NAMES, false)
+        .configure(TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES, false)
+        .configure(StreamReadFeature.USE_FAST_DOUBLE_PARSER, true)
         .build();
 
     private GeoJsonDataParser() {
@@ -71,7 +70,7 @@ public final class GeoJsonDataParser {
         int count = 0;
         long start = System.nanoTime();
 
-        try (JsonParser parser = JSON_FACTORY.createParser(reader).configure(JsonParser.Feature.USE_FAST_DOUBLE_PARSER, true)) {
+        try (JsonParser parser = JSON_FACTORY.createParser(ObjectReadContext.empty(), reader)) {
             if (parser.nextToken() != JsonToken.START_OBJECT) {
                 throw new IOException("Expected start of GeoJSON object");
             }
