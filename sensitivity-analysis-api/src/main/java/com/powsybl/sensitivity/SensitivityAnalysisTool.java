@@ -7,10 +7,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Stopwatch;
 import com.powsybl.action.Action;
@@ -37,6 +33,10 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -198,14 +198,15 @@ public class SensitivityAnalysisTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
-        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper()
-            .registerModule(new ContingencyJsonModule());
+        JsonMapper jsonMapper = JsonSensitivityAnalysisParameters.createJsonMapperBuilder()
+            .addModule(new ContingencyJsonModule())
+            .build();
 
         SensitivityAnalysisParameters params = SensitivityAnalysisParameters.load();
 
         if (line.hasOption(PARAMETERS_FILE)) {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
-            JsonUtil.readJsonAndUpdate(parametersFile, params, objectMapper);
+            JsonUtil.readJsonAndUpdate(parametersFile, params, jsonMapper);
         }
 
         List<Contingency> contingencies = line.hasOption(CONTINGENCIES_FILE_OPTION)
@@ -223,7 +224,7 @@ public class SensitivityAnalysisTool implements Tool {
         List<SensitivityVariableSet> variableSets = Collections.emptyList();
         if (line.hasOption(VARIABLE_SETS_FILE_OPTION)) {
             try (Reader reader = Files.newBufferedReader(context.getFileSystem().getPath(line.getOptionValue(VARIABLE_SETS_FILE_OPTION)), StandardCharsets.UTF_8)) {
-                variableSets = objectMapper.readValue(reader, new TypeReference<>() {
+                variableSets = jsonMapper.readValue(reader, new TypeReference<>() {
                 });
             }
         }
@@ -271,8 +272,8 @@ public class SensitivityAnalysisTool implements Tool {
                 factors.add(new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)));
             SensitivityAnalysisResult result = SensitivityAnalysis.run(parametersRecord.network,
                     parametersRecord.network.getVariantManager().getWorkingVariantId(), factors, runParameters);
-            ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
-            JsonUtil.writeJson(parametersRecord.outputFile, result, sensiObjectMapper);
+            JsonMapper sensiJsonMapper = JsonUtil.createJsonMapperBuilder().addModule(new SensitivityJsonModule()).build();
+            JsonUtil.writeJson(parametersRecord.outputFile, result, sensiJsonMapper);
         } else {
             if (parametersRecord.csv) {
                 try (Writer writer = Files.newBufferedWriter(parametersRecord.outputFile, StandardCharsets.UTF_8);
@@ -290,7 +291,6 @@ public class SensitivityAnalysisTool implements Tool {
                 try (BufferedWriter writer = Files.newBufferedWriter(parametersRecord.outputFile, StandardCharsets.UTF_8);
                      JsonGenerator generator = factory.createGenerator(writer);
                      SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, parametersRecord.contingencies, parametersRecord.operatorStrategies)) {
-                    generator.useDefaultPrettyPrinter();
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, runParameters);
                 } catch (IOException e) {

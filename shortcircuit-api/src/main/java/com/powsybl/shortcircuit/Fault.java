@@ -7,9 +7,9 @@
  */
 package com.powsybl.shortcircuit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,8 +87,8 @@ public interface Fault {
      */
     FaultType getFaultType();
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder().addModule(new ShortCircuitAnalysisJsonModule()).build();
     }
 
     /**
@@ -98,7 +98,7 @@ public interface Fault {
      */
     static void write(List<Fault> faults, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
-            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, faults);
+            createJsonMapper().writerWithDefaultPrettyPrinter().writeValue(out, faults);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -111,7 +111,7 @@ public interface Fault {
      */
     static List<Fault> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return createObjectMapper().readerForListOf(Fault.class).readValue(is);
+            return createJsonMapper().readerForListOf(Fault.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

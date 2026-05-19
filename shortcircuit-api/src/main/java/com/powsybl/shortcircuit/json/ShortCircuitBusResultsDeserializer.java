@@ -7,15 +7,15 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueValue;
 import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
 import com.powsybl.shortcircuit.ShortCircuitBusResults;
 import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +26,7 @@ class ShortCircuitBusResultsDeserializer {
 
     private static final String CONTEXT_NAME = "ShortCircuitBusResults";
 
-    public List<ShortCircuitBusResults> deserialize(JsonParser parser, String version) throws IOException {
+    public List<ShortCircuitBusResults> deserialize(JsonParser parser, String version) throws JacksonException {
         List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
         parser.nextToken();
         while (parser.nextToken() != JsonToken.END_ARRAY) {

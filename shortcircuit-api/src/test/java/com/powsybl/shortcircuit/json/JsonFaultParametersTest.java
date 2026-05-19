@@ -14,15 +14,16 @@ import com.powsybl.shortcircuit.StudyType;
 import com.powsybl.shortcircuit.VoltageRange;
 import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DatabindException;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -148,8 +149,10 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileInvalid.json")), fileSystem.getPath("/FaultParametersFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultParametersFileInvalid.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        DatabindException e = assertThrows(DatabindException.class, () -> FaultParameters.read(path));
+        assertThat(e.getMessage())
+            .contains("Unexpected field: unexpected")
+            .contains("(through reference chain: java.util.ArrayList[0])");
     }
 
     @Test
@@ -169,15 +172,19 @@ class JsonFaultParametersTest extends AbstractSerDeTest {
     void readParametersMissingVoltageRanges() throws IOException {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json");
-        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        DatabindException e0 = assertThrows(DatabindException.class, () -> FaultParameters.read(path));
+        assertThat(e0.getMessage())
+            .contains("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.")
+            .contains("(through reference chain: java.util.ArrayList[0])");
     }
 
     @Test
     void readParametersEmptyVoltageRange() throws IOException {
         Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRanges.json")), fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json"));
         Path path = fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json");
-        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        DatabindException e0 = assertThrows(DatabindException.class, () -> FaultParameters.read(path));
+        assertThat(e0.getMessage())
+            .contains("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.")
+            .contains("(through reference chain: java.util.ArrayList[0])");
     }
 }

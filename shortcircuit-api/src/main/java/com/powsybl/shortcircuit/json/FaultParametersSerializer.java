@@ -7,15 +7,14 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import static com.powsybl.shortcircuit.FaultParameters.VERSION;
 
@@ -29,11 +28,11 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
     }
 
     @Override
-    public void serialize(FaultParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(FaultParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeStringField("id", parameters.getId());
+        jsonGenerator.writeStringProperty("version", VERSION);
+        jsonGenerator.writeStringProperty("id", parameters.getId());
         JsonUtil.writeOptionalBooleanProperty(jsonGenerator, "withLimitViolations", parameters.isWithLimitViolations(), false);
         JsonUtil.writeOptionalBooleanProperty(jsonGenerator, "withVoltageResult", parameters.isWithVoltageResult(), false);
         JsonUtil.writeOptionalBooleanProperty(jsonGenerator, "withFeederResult", parameters.isWithFeederResult(), false);
@@ -49,7 +48,7 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         JsonUtil.writeOptionalBooleanProperty(jsonGenerator, "withNeutralPosition", parameters.isWithNeutralPosition(), false);
         JsonUtil.writeOptionalStringProperty(jsonGenerator, "initialVoltageProfileMode", parameters.getInitialVoltageProfileMode() != null ? parameters.getInitialVoltageProfileMode().name() : null);
         if (parameters.getInitialVoltageProfileMode() == InitialVoltageProfileMode.CONFIGURED) {
-            serializerProvider.defaultSerializeField("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }

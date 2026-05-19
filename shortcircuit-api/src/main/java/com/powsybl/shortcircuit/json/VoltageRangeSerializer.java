@@ -7,13 +7,13 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.VoltageRange;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -26,7 +26,7 @@ public class VoltageRangeSerializer extends StdSerializer<VoltageRange> {
     }
 
     @Override
-    public void serialize(VoltageRange voltageRange, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+    public void serialize(VoltageRange voltageRange, JsonGenerator jsonGenerator, SerializationContext provider) throws JacksonException {
         Objects.requireNonNull(voltageRange);
 
         jsonGenerator.writeStartObject();

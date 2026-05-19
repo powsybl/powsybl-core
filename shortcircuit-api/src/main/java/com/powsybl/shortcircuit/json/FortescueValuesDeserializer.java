@@ -7,13 +7,12 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.shortcircuit.FortescueValue;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -25,7 +24,7 @@ class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
     }
 
     @Override
-    public FortescueValue deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public FortescueValue deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         // Fortescue components.
         double directMagnitude = Double.NaN;
         double zeroMagnitude = Double.NaN;

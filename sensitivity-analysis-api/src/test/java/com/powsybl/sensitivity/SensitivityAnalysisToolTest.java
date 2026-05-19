@@ -7,8 +7,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.list.ContingencyList;
@@ -22,6 +20,8 @@ import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -47,7 +47,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
 
     private final SensitivityAnalysisTool tool = new SensitivityAnalysisTool();
 
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @Override
     @BeforeEach
@@ -58,31 +58,32 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkSerDe.write(network, fileSystem.getPath("network.xiidm"));
 
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new SensitivityJsonModule())
-                .registerModule(new ContingencyJsonModule());
+        jsonMapper = JsonMapper.builder()
+            .addModule(new SensitivityJsonModule())
+            .addModule(new ContingencyJsonModule())
+            .build();
 
         // create factors
         List<SensitivityFactor> factors = List.of(new SensitivityFactor(BRANCH_ACTIVE_POWER_1, "NHV1_NHV2_1", INJECTION_ACTIVE_POWER, "GEN", false, ContingencyContext.all()),
                                                   new SensitivityFactor(BRANCH_ACTIVE_POWER_2, "NHV1_NHV2_1", INJECTION_ACTIVE_POWER, "glsk", true, ContingencyContext.specificContingency("NHV1_NHV2_2")));
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("factors.json"), StandardCharsets.UTF_8)) {
-            objectMapper.writeValue(writer, factors);
+            jsonMapper.writeValue(writer, factors);
         }
 
         // create contingencies
         ContingencyList contingencyList = new DefaultContingencyList("one contingency list", List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2"))));
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("contingencies.json"), StandardCharsets.UTF_8)) {
-            objectMapper.writeValue(writer, contingencyList);
+            jsonMapper.writeValue(writer, contingencyList);
         }
 
         List<SensitivityVariableSet> variableSets = Collections.emptyList();
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("variableSets.json"), StandardCharsets.UTF_8)) {
-            objectMapper.writeValue(writer, variableSets);
+            jsonMapper.writeValue(writer, variableSets);
         }
 
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("parameters.json"), StandardCharsets.UTF_8)) {
-            objectMapper.writeValue(writer, parameters);
+            jsonMapper.writeValue(writer, parameters);
         }
     }
 
@@ -122,9 +123,9 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
         List<SensitivityValue> values;
         List<SensitivityAnalysisResult.SensitivityStateStatus> status;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
-            Map<String, List<Object>> map = objectMapper.readValue(reader, new TypeReference<>() { });
-            values = objectMapper.convertValue(map.get("sensitivityValues"), new TypeReference<>() { });
-            status = objectMapper.convertValue(map.get("stateStatus"), new TypeReference<>() { });
+            Map<String, List<Object>> map = jsonMapper.readValue(reader, new TypeReference<>() { });
+            values = jsonMapper.convertValue(map.get("sensitivityValues"), new TypeReference<>() { });
+            status = jsonMapper.convertValue(map.get("stateStatus"), new TypeReference<>() { });
         }
         assertEquals(2, values.size());
         SensitivityValue value0 = values.get(0);
@@ -245,7 +246,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         SensitivityAnalysisResult result;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
-            result = objectMapper.readValue(reader, new TypeReference<>() {
+            result = jsonMapper.readValue(reader, new TypeReference<>() {
             });
         }
         assertEquals(2, result.getValues().size());

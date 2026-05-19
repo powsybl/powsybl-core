@@ -7,7 +7,7 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 
@@ -36,7 +36,7 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
                 var context = new SensitivityFactor.ParsingContext();
                 JsonToken token;
                 while ((token = parser.nextToken()) != null) {
-                    if (token == JsonToken.FIELD_NAME) {
+                    if (token == JsonToken.PROPERTY_NAME) {
                         SensitivityFactor.parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
                         handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,

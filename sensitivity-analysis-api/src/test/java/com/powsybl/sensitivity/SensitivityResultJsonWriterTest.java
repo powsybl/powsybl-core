@@ -7,7 +7,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
@@ -15,6 +14,7 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.contingency.strategy.condition.TrueCondition;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -36,8 +36,8 @@ class SensitivityResultJsonWriterTest {
         List<OperatorStrategy> operatorStrategies = List.of(new OperatorStrategy("Open NHV1_NHV2_2", ContingencyContext.all(),
                 new TrueCondition(), List.of("Open branch NHV1_NHV2_2")));
         try (Writer writer = new StringWriter()) {
-            try (JsonGenerator generator = JsonUtil.createJsonFactory().createGenerator(writer).useDefaultPrettyPrinter();
-                SensitivityResultJsonWriter sensiWriter = new SensitivityResultJsonWriter(generator, contingencies, operatorStrategies)) {
+            try (JsonGenerator generator = JsonUtil.createJsonMapper().writerWithDefaultPrettyPrinter().createGenerator(writer);
+                 SensitivityResultJsonWriter sensiWriter = new SensitivityResultJsonWriter(generator, contingencies, operatorStrategies)) {
                 sensiWriter.writeStateStatus(-1, -1, SensitivityAnalysisResult.Status.SUCCESS);
                 sensiWriter.writeSensitivityValue(0, -1, -1, 1d, 2d);
                 sensiWriter.writeStateStatus(0, 0, SensitivityAnalysisResult.Status.SUCCESS);

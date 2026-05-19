@@ -7,7 +7,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -16,6 +15,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -298,19 +298,19 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         List<String> contingencyIds = contingencies.stream().map(Contingency::getId).toList();
         List<String> operatorStrategyIds = Collections.emptyList();
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
-        roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.1.json");
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder().addModule(new SensitivityJsonModule()).build();
+        roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, jsonMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, jsonMapper), "/SensitivityAnalysisResultRefV1.1.json");
     }
 
     @Test
     void testCanReadResult10() throws IOException {
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder().addModule(new SensitivityJsonModule()).build();
         try (InputStream is10 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.json")) {
             // check that we can still read 1.0
-            SensitivityAnalysisResult result = objectMapper.readValue(is10, SensitivityAnalysisResult.class);
+            SensitivityAnalysisResult result = jsonMapper.readValue(is10, SensitivityAnalysisResult.class);
             // and when we write to the 1.1 version, we get the expected result
-            String json11 = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            String json11 = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
             try (InputStream is11 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.1.json")) {
                 assertEquals(new String(Objects.requireNonNull(is11).readAllBytes(), StandardCharsets.UTF_8), json11);
             }
