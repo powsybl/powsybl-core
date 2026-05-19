@@ -74,22 +74,19 @@
                            b="0.10000000149011612" rho="1.0" alpha="-25.0"/>
             </iidm:phaseTapChanger3>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="1000.0"/>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="1000.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="1200.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="1400.0"/>
                 </iidm:currentLimits>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="100.0"/>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="100.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="140.0"/>
                 </iidm:currentLimits>
             </iidm:operationalLimitsGroup2>
             <iidm:operationalLimitsGroup3 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="10.0"/>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="10.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="12.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="14.0"/>
                 </iidm:currentLimits>

@@ -697,19 +697,15 @@
       "operationalLimitsGroups1" : [ {
         "id" : "DEFAULT",
         "currentLimits" : {
-          "permanentLimit" : {
-            "name" : "permanent",
-            "value" : 931.0
-          }
+          "permanentLimitName" : "permanent",
+          "permanentLimit" : 931.0
         }
       } ],
       "operationalLimitsGroups2" : [ {
         "id" : "DEFAULT",
         "currentLimits" : {
-          "permanentLimit" : {
-            "name" : "permanent",
-            "value" : 931.0
-          }
+          "permanentLimitName" : "permanent",
+          "permanentLimit" : 931.0
         }
       } ]
     } ]
@@ -731,19 +727,15 @@
     "operationalLimitsGroups1" : [ {
       "id" : "DEFAULT",
       "currentLimits" : {
-        "permanentLimit" : {
-          "name" : "permanent",
-          "value" : 931.0
-        }
+        "permanentLimitName" : "permanent",
+        "permanentLimit" : 931.0
       }
     } ],
     "operationalLimitsGroups2" : [ {
       "id" : "DEFAULT",
       "currentLimits" : {
-        "permanentLimit" : {
-          "name" : "permanent",
-          "value" : 931.0
-        },
+        "permanentLimitName" : "permanent",
+        "permanentLimit" : 931.0,
         "temporaryLimits" : [ {
           "name" : "IST",
           "value" : 1640.0,

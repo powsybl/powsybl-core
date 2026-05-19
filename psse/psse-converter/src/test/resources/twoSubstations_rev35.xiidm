@@ -111,14 +111,10 @@
                 <iidm:step r="0.0" x="0.0" g="8.513889000000008" b="8.513889000000008" rho="0.9599692809830085"/>
             </iidm:ratioTapChanger>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="157.4591643244434"/>
-                </iidm:currentLimits>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="157.4591643244434"/>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="2309.401076758503"/>
-                </iidm:currentLimits>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="2309.401076758503"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
         <iidm:threeWindingsTransformer id="T-2-4-5-2 " name="T3D-S2-220-45-10                        " r1="1.2550000000000001E-4" x1="0.0032341" g1="0.0" b1="0.0" ratedU1="220.0" r2="6.86E-5" x2="-1.940000000000003E-4" g2="0.0" b2="0.0" ratedU2="45.0" r3="7.36E-5" x3="0.0019041000000000004" g3="0.0" b3="0.0" ratedU3="10.0" ratedU0="1.0" voltageLevelId1="VL2" node1="4" voltageLevelId2="VL4" node2="19" voltageLevelId3="VL5" node3="25" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT" selectedOperationalLimitsGroupIds3="DEFAULT">
@@ -134,32 +130,22 @@
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9649156663707592"/>
             </iidm:ratioTapChanger3>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="78.7295821622217"/>
-                </iidm:currentLimits>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="78.7295821622217"/>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="384.9001794597505"/>
-                </iidm:currentLimits>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="384.9001794597505"/>
             </iidm:operationalLimitsGroup2>
             <iidm:operationalLimitsGroup3 id="DEFAULT">
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="1732.0508075688774"/>
-                </iidm:currentLimits>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="1732.0508075688774"/>
             </iidm:operationalLimitsGroup3>
         </iidm:threeWindingsTransformer>
     </iidm:substation>
     <iidm:line id="L-1-2-3 " name="LINE-S1-220-S2-220                      " r="25.75364" x="62.30532" g1="0.0" b1="1.3481404958677687E-5" g2="0.0" b2="1.3481404958677687E-5" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" node2="5" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits>
-                <iidm:permanentLimit name="permanent" value="236.1887464866651"/>
-            </iidm:currentLimits>
+            <iidm:currentLimits permanentLimitName="permanent" permanentLimit="236.1887464866651"/>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:currentLimits>
-                <iidm:permanentLimit name="permanent" value="236.1887464866651"/>
-            </iidm:currentLimits>
+            <iidm:currentLimits permanentLimitName="permanent" permanentLimit="236.1887464866651"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
     <iidm:extension id="VL1">

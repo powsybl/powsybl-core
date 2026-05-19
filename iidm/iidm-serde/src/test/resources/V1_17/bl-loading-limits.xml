@@ -15,18 +15,15 @@
             <iidm:boundaryLine id="BL" p0="50.0" q0="30.0" r="10.0" x="1.0" g="1.0E-4" b="1.0E-5" bus="BUS"
                                connectableBus="BUS" selectedOperationalLimitsGroupIds="DEFAULT">
                 <iidm:operationalLimitsGroup id="DEFAULT">
-                    <iidm:activePowerLimits>
-                        <iidm:permanentLimit name="permanent" value="350.0"/>
+                    <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:activePowerLimits>
-                    <iidm:apparentPowerLimits>
-                        <iidm:permanentLimit name="permanent" value="350.0"/>
+                    <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:apparentPowerLimits>
-                    <iidm:currentLimits>
-                        <iidm:permanentLimit name="permanent" value="350.0"/>
+                    <iidm:currentLimits permanentLimitName="permanent" permanentLimit="350.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                     </iidm:currentLimits>

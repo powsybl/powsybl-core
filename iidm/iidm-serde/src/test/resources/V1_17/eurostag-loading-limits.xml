@@ -21,35 +21,29 @@
                                      voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"
                                      selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:activePowerLimits>
-                    <iidm:permanentLimit name="permanent" value="350.0"/>
+                <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:activePowerLimits>
-                <iidm:apparentPowerLimits>
-                    <iidm:permanentLimit name="permanent" value="350.0"/>
+                <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:apparentPowerLimits>
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="350.0"/>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:currentLimits>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:activePowerLimits>
-                    <iidm:permanentLimit name="permanent" value="350.0"/>
+                <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:activePowerLimits>
-                <iidm:apparentPowerLimits>
-                    <iidm:permanentLimit name="permanent" value="350.0"/>
+                <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:apparentPowerLimits>
-                <iidm:currentLimits>
-                    <iidm:permanentLimit name="permanent" value="350.0"/>
+                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:currentLimits>
@@ -89,35 +83,29 @@
                connectableBus1="NHV1" voltageLevelId1="VLHV1" bus2="NHV2" connectableBus2="NHV2"
                voltageLevelId2="VLHV2" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:activePowerLimits>
-                <iidm:permanentLimit name="permanent" value="350.0"/>
+            <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
             </iidm:activePowerLimits>
-            <iidm:apparentPowerLimits>
-                <iidm:permanentLimit name="permanent" value="350.0"/>
+            <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
             </iidm:apparentPowerLimits>
-            <iidm:currentLimits>
-                <iidm:permanentLimit name="permanent" value="350.0"/>
+            <iidm:currentLimits permanentLimitName="permanent" permanentLimit="350.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:activePowerLimits>
-                <iidm:permanentLimit name="permanent" value="350.0"/>
+            <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
             </iidm:activePowerLimits>
-            <iidm:apparentPowerLimits>
-                <iidm:permanentLimit name="permanent" value="350.0"/>
+            <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
             </iidm:apparentPowerLimits>
-            <iidm:currentLimits>
-                <iidm:permanentLimit name="permanent" value="350.0"/>
+            <iidm:currentLimits permanentLimitName="permanent" permanentLimit="350.0">
                 <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                 <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
             </iidm:currentLimits>

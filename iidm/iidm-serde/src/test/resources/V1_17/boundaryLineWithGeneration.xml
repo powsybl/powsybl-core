@@ -21,8 +21,7 @@
                     <iidm:point p="70.0" minQ="-54.55" maxQ="46.25"/>
                 </iidm:reactiveCapabilityCurve>
                 <iidm:operationalLimitsGroup id="DEFAULT">
-                    <iidm:currentLimits>
-                        <iidm:permanentLimit name="permanent" value="100.0"/>
+                    <iidm:currentLimits permanentLimitName="permanent" permanentLimit="100.0">
                         <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
                         <iidm:temporaryLimit name="10'" acceptableDuration="600" value="140.0"/>
                     </iidm:currentLimits>
