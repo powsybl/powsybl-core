@@ -1135,11 +1135,11 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static void unsupportedControlNodeWarning(int controlNode, String attributeName, String locName) {
-        LOGGER.warn("Unsupported {} value {} (EXT control) for transformer '{}'", controlNode, attributeName, locName);
+        LOGGER.warn("Unsupported {} value {} (EXT control) for transformer '{}'", attributeName, controlNode, locName);
     }
 
     private static void unexpectedControlNodeWarning(int controlNode, String attributeName, String locName) {
-        LOGGER.warn("Unexpected controlNode ({} value) {} for transformer '{}'", controlNode, attributeName, locName);
+        LOGGER.warn("Unexpected controlNode ({} value) {} for transformer '{}'", attributeName, controlNode, locName);
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformerConverter.class);
