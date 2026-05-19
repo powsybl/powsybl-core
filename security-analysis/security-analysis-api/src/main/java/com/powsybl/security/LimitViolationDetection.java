@@ -148,7 +148,10 @@ public final class LimitViolationDetection {
         if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             //do the same on the permanent, only for the groups on which we don't have an overload on a temporary
             allLoadingLimits.stream()
-                    .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
+                    .filter(limits ->
+                        !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId())
+                            && limits.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH
+                    )
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
                     .forEach(permanentLimitCheckResult -> consumer.accept(new LimitViolation(branch.getId(),
@@ -238,7 +241,10 @@ public final class LimitViolationDetection {
         if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             //do the same on the permanent, only for the groups on which we don't have an overload on a temporary
             allLoadingLimits.stream()
-                    .filter(limits -> !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId()))
+                    .filter(limits ->
+                        !temporaryOverloadIds.contains(limits.getOperationalLimitsGroupId())
+                            && limits.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH
+                    )
                     .map(limits -> LimitViolationUtils.checkPermanentLimitIfAny(limits, value))
                     .filter(PermanentLimitCheckResult::isOverload)
                     .forEach(permanentLimitCheckResult ->

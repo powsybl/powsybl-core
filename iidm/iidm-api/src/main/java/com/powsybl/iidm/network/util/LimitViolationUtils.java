@@ -282,12 +282,12 @@ public final class LimitViolationUtils {
         return checkPermanentLimitIfAny(limitsContainer, i, 1);
     }
 
+    /**
+     * Return a permanent limit violation if there is one. This should only be called on limits that have a permanent limit, ie
+     * high loading limits (but not low loading limits)
+     */
     private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         String opGroupId = limitsContainer.getOperationalLimitsGroupId();
-        if (limitsContainer.getOriginalLimits().getDetectionKind() == DetectionKind.LOW) {
-            //TODO Should PermanentLimitCheckResult contain the detection kind ?
-            return new PermanentLimitCheckResult(false, Double.NaN, limitReductionValue, opGroupId);
-        }
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         double originalPermanentLimit = limitsContainer.getOriginalLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
@@ -346,6 +346,7 @@ public final class LimitViolationUtils {
 
     private static PermanentLimitCheckResult checkPermanentLimitIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
         return getLimits(identifiable, side, type, computer)
+            .filter(l -> l.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH)
             .map(l -> checkPermanentLimitIfAny(l, i))
             .orElse(new PermanentLimitCheckResult(false, Double.NaN, 1.0, ""));
     }
