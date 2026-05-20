@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -52,12 +53,12 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
          * Selection is done based on the systp attribute of ElmTerm and of TypLne.
          */
         static DcGridData createGridData(List<DataObject> elmNets) {
-            assert elmNets.isEmpty() || ELMNET.equals(elmNets.getFirst().getDataClassName());
+            assert elmNets.stream().allMatch(e -> ELMNET.equals(e.getDataClassName()));
 
             List<DataObject> elmTerms = PowerFactoryImporter.gatherElmTerms(elmNets);
-            assert elmTerms.isEmpty() || ELMTERM.equals(elmTerms.getFirst().getDataClassName());
+            assert elmTerms.stream().allMatch(e -> ELMTERM.equals(e.getDataClassName()));
             List<DataObject> elmVscs = PowerFactoryImporter.gatherElmVscs(elmNets);
-            assert elmVscs.isEmpty() || "ElmVsc".equals(elmVscs.getFirst().getDataClassName());
+            assert elmVscs.stream().allMatch(e -> "ElmVsc".equals(e.getDataClassName()));
 
             // Add DC lines
             Set<DataObject> dcElmLnes = new HashSet<>();
@@ -97,9 +98,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
          * @return set of ElmCoup data objects that are connected to 2 DC terminals.
          */
         private static @NonNull Set<DataObject> getDcSwitchObjs(Set<DataObject> dcElmTerms) {
-            assert dcElmTerms.isEmpty() || ELMTERM.equals(dcElmTerms.iterator().next().getDataClassName());
-
-            // Count the number of DC terminals connected to each ElmCoup and add when 2 is reached
+            assert dcElmTerms.stream().allMatch(e -> ELMTERM.equals(e.getDataClassName()));
 
             // List of cubicles connected to DC terminals
             List<DataObject> connectedCubic = dcElmTerms.stream().flatMap(e -> e.getChildrenByClass("StaCubic").stream()).toList();
@@ -109,25 +108,23 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                     .filter(obj -> "ElmCoup".equals(obj.getDataClassName())) // Keep only ElmCoup
                     .toList();
 
-            Set<DataObject> dcElmCoup = new HashSet<>(); // ElmCoup which are connected to DC terminals at both ends
-            Set<DataObject> dcElmCoup1Term = new HashSet<>(); // ElmCoup where 1 DC terminal was already encountered
-            for (DataObject elmCoup : connectedElmCoup) {
-                // Try insertion in intermediate set dcElmCoup1Term
-                // If already present, the switch is connected to 2 DC terminals. It is therefore added to our set of
-                // DC switches and removed from the set of switches with exactly one DC connection.
-                if (!dcElmCoup1Term.add(elmCoup)) {
-                    dcElmCoup.add(elmCoup);
-                    dcElmCoup1Term.remove(elmCoup);
+            // Each ElmCoup appears once per DC terminal it is connected to, so counting occurrences gives
+            // the number of DC terminals connected to each switch.
+            Map<DataObject, Long> terminalCount = connectedElmCoup.stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            for (Map.Entry<DataObject, Long> entry : terminalCount.entrySet()) {
+                long count = entry.getValue();
+                long id = entry.getKey().getId();
+                if (count == 1) {
+                    throw new PowerFactoryException("ElmCoup " + id + " is connected to a single DC terminal.");
+                }
+                if (count > 2) {
+                    throw new PowerFactoryException("ElmCoup " + id + " is connected to " + count + " DC terminals, expected exactly 2.");
                 }
             }
 
-            // There is an issue with ElmCoup which are connected to only one DC terminal
-            if (!dcElmCoup1Term.isEmpty()) {
-                DataObject badElmCoup = dcElmCoup1Term.iterator().next();
-                throw new PowerFactoryException("ElmCoup " + badElmCoup.getId() + " is connected to a single DC terminal.");
-            }
-
-            return dcElmCoup;
+            return new HashSet<>(terminalCount.keySet());
 
         }
 
@@ -304,7 +301,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      */
     private static void objIdDcNodeRefSanityCheck(Map<Long, List<DcNodeRef>> objIdDcNodeRef, Network network, Set<DataObject> elmTerms) {
         assert elmTerms != null;
-        assert elmTerms.isEmpty() || ELMTERM.equals(elmTerms.iterator().next().getDataClassName());
+        assert elmTerms.stream().allMatch(e -> ELMTERM.equals(e.getDataClassName()));
         for (var entry : objIdDcNodeRef.entrySet()) {
             for (DcNodeRef nodeRef : entry.getValue()) {
                 if (network.getDcNode(nodeRef.dcNodeId()) == null) {
