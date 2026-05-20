@@ -10,9 +10,9 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.TopologyKind;
 
 import java.util.Objects;
 

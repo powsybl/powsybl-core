@@ -7,9 +7,9 @@
  */
 package com.powsybl.ieeecdf.model.reader;
 
-import com.powsybl.ieeecdf.model.elements.IeeeCdfBranch;
 import com.powsybl.ieeecdf.model.conversion.BranchSideConversion;
 import com.powsybl.ieeecdf.model.conversion.BranchTypeConversion;
+import com.powsybl.ieeecdf.model.elements.IeeeCdfBranch;
 
 import java.io.BufferedReader;
 import java.io.IOException;
