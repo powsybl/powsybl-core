@@ -29,7 +29,12 @@ public class BranchFault extends AbstractFault {
 
     public BranchFault(String id, String elementId, double proportionalLocation) {
         // Here the elementId is the id of a branch.
-        this(id, elementId, 0.0, 0.0, ConnectionType.SERIES, FaultType.THREE_PHASE, proportionalLocation);
+        this(id, elementId, FaultType.THREE_PHASE, proportionalLocation);
+    }
+
+    public BranchFault(String id, String elementId, FaultType faultType, double proportionalLocation) {
+        // Here the elementId is the id of a branch.
+        this(id, elementId, 0.0, 0.0, ConnectionType.SERIES, faultType, proportionalLocation);
     }
 
     @Override
