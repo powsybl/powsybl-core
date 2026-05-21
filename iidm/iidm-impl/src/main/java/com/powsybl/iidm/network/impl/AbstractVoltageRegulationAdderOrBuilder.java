@@ -33,7 +33,6 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected double targetDeadband = Double.NaN;
     protected double slope = Double.NaN;
     protected Terminal terminal = null;
-    protected Terminal.TerminalDataMsa terminalData = null;
     protected RegulationMode mode = null;
     protected boolean regulating = true;
 
@@ -102,7 +101,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
             // TARGET VALUE (check after Terminal and mode)
             checkTargetValue(validable);
             //
-            return new VoltageRegulationImpl(validable, holder, classHolder, network, targetValue, targetDeadband, slope, terminal, terminalData, mode, regulating);
+            return new VoltageRegulationImpl(validable, holder, classHolder, network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         }
         throw new PowsyblException("VoltageRegulation cannot be validated because its parent is not a Validable class");
     }
@@ -141,7 +140,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     }
 
     private boolean isWithTerminal() {
-        return terminal != null || terminalData != null;
+        return terminal != null;
     }
 
     protected abstract T self();

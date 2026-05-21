@@ -18,6 +18,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -66,33 +67,40 @@ public final class VoltageRegulationSerDe {
             .build());
     }
 
-    public static <A> VoltageRegulationAdder<A> readVoltageRegulation(VoltageRegulationAdder<A> adder, NetworkDeserializerContext context) {
-        // Read attributes
+    public static <T extends VoltageRegulationHolder & Identifiable<T>, A> void readVoltageRegulation(List<Consumer<T>> toApply, VoltageRegulationAdder<A> adder, NetworkDeserializerContext context) {
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
-        // Create new Voltage Regulation
-        return adder
-            .withTargetValue(attributes.targetValue())
-            .withTargetDeadband(attributes.targetDeadband())
-            .withSlope(attributes.slope())
-            .withMode(attributes.mode())
-            .withRegulating(attributes.isRegulating());
-    }
+        AtomicBoolean isWithTerminal = new AtomicBoolean(false);
 
-    public static <T extends VoltageRegulationHolder, A> void readVoltageRegulation(List<Consumer<T>> toApply, VoltageRegulationAdder<A> adder, NetworkDeserializerContext context) {
-        VoltageRegulationAdder<A> voltageRegulationAdder = VoltageRegulationSerDe.readVoltageRegulation(adder, context);
         // Read Sub Elements
         context.getReader().readChildNodes(subElementName -> {
             if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
-                Terminal.TerminalDataMsa terminalData = TerminalRefSerDe.readTerminalDataMsa(context);
-                voltageRegulationAdder.withTerminalData(terminalData);
+                isWithTerminal.set(true);
+                TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
                 toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
-                    // The VoltageRegulation is not null here (was created before)
-                    () -> voltageRegulationHolder.getVoltageRegulation().resolveTerminal()));
+                    () -> {
+                        Terminal terminal = Terminal.getTerminal(voltageRegulationHolder.getNetwork(),
+                                terminalData.id(), terminalData.side(), terminalData.number());
+                        configureAdderOrBuilder(voltageRegulationHolder.newVoltageRegulation(), attributes)
+                                .withTerminal(terminal)
+                                .build();
+                    }));
             } else {
                 throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
             }
         });
-        voltageRegulationAdder.add();
+        if (!isWithTerminal.get()) {
+            configureAdderOrBuilder(adder, attributes).add();
+        }
+    }
+
+    private static <A extends VoltageRegulationAdderOrBuilder<A>> A configureAdderOrBuilder(A adderOrBuilder,
+                                                                                               VoltageRegulationAttributes attributes) {
+        return adderOrBuilder
+                .withTargetValue(attributes.targetValue())
+                .withTargetDeadband(attributes.targetDeadband())
+                .withSlope(attributes.slope())
+                .withMode(attributes.mode())
+                .withRegulating(attributes.isRegulating());
     }
 
     public static <T extends VoltageRegulationHolder & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {

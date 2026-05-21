@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.regulation.*;
 
@@ -31,12 +30,6 @@ public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdde
 
     @Override
     protected VoltageRegulationAdder<T> self() {
-        return this;
-    }
-
-    @Override
-    public VoltageRegulationAdder<T> withTerminalData(Terminal.TerminalDataMsa terminalData) {
-        this.terminalData = terminalData;
         return this;
     }
 

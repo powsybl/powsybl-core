@@ -80,8 +80,6 @@ public interface VoltageRegulation {
      */
     void setTerminal(Terminal terminal, double targetValue);
 
-    void resolveTerminal();
-
     /**
      * To remove the terminal. Do the same as setTerminal(null)
      */

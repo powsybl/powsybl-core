@@ -27,7 +27,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     private VoltageRegulationHolder parent;
     private final Class<? extends VoltageRegulationHolder> classHolder;
     private TerminalExt terminal;
-    private Terminal.TerminalDataMsa terminalData;
     private final RegulationMode mode;
     private final Ref<NetworkImpl> network;
     // attributes depending on the variant
@@ -44,7 +43,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                                  double targetDeadband,
                                  double slope,
                                  Terminal terminal,
-                                 Terminal.TerminalDataMsa terminalData,
                                  RegulationMode mode,
                                  boolean regulating) {
         this.validable = validable;
@@ -66,7 +64,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (terminal != null) {
             this.setTerminal(terminal, getTargetValue());
         }
-        this.terminalData = terminalData;
     }
 
     @Override
@@ -129,14 +126,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     @Override
-    public void resolveTerminal() {
-        if (terminalData != null) {
-            this.setTerminal(Terminal.getTerminal(this.terminalData, this.network.get()), this.getTargetValue());
-            this.terminalData = null;
-        }
-    }
-
-    @Override
     public RegulationMode getMode() {
         return mode;
     }
@@ -179,7 +168,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public boolean isWithTerminal() {
-        return terminal != null || terminalData != null;
+        return terminal != null;
     }
 
     @Override

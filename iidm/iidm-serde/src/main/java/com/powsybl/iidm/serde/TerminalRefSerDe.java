@@ -93,11 +93,6 @@ public final class TerminalRefSerDe {
         return new TerminalData(id, side, number[0]);
     }
 
-    public static Terminal.TerminalDataMsa readTerminalDataMsa(NetworkDeserializerContext context) {
-        TerminalData data = readTerminalData(context);
-        return new Terminal.TerminalDataMsa(data.id(), data.side(), data.number());
-    }
-
     public static Terminal readTerminal(NetworkDeserializerContext context, Network n) {
         TerminalData data = readTerminalData(context);
         return TerminalRefSerDe.resolve(data.id(), data.side(), data.number(), n);
@@ -111,8 +106,9 @@ public final class TerminalRefSerDe {
         });
     }
 
+    //TODO can be removed
     public static Terminal resolve(String id, ThreeSides side, TerminalNumber number, Network network) {
-        return Terminal.getTerminal(new Terminal.TerminalDataMsa(id, side, number), network);
+        return Terminal.getTerminal(network, id, side, number);
     }
 
     private TerminalRefSerDe() {
