@@ -7,6 +7,7 @@
  */
 package com.powsybl.computation.local;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -49,13 +50,26 @@ public abstract class AbstractLocalCommandExecutor implements LocalCommandExecut
     }
 
     protected int execute(List<String> cmdLs, Path workingDir, Path outFile, Path errFile, long timeout) throws IOException, InterruptedException {
+        return execute(cmdLs, workingDir, outFile, errFile, timeout, Map.of());
+    }
+
+    protected int execute(List<String> cmdLs, Path workingDir, Path outFile, Path errFile, long timeout, Map<String, String> env) throws IOException, InterruptedException {
         ProcessBuilder.Redirect outRedirect = ProcessBuilder.Redirect.appendTo(outFile.toFile());
         ProcessBuilder.Redirect errRedirect = ProcessBuilder.Redirect.appendTo(errFile.toFile());
-        Process process = new ProcessBuilder(cmdLs)
+        ProcessBuilder pb = new ProcessBuilder(cmdLs)
                 .directory(workingDir.toFile())
                 .redirectOutput(outRedirect)
-                .redirectError(errRedirect)
-                .start();
+                .redirectError(errRedirect);
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
+            if (name.endsWith("PATH")) {
+                pb.environment().compute(name, (k, existing) -> existing != null ? value + File.pathSeparator + existing : value);
+            } else {
+                pb.environment().put(name, value);
+            }
+        }
+        Process process = pb.start();
 
         try {
             lock.writeLock().lock();

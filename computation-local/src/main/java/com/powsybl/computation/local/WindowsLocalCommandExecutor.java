@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -40,29 +39,13 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
                 .put("TMP", workingDir.toAbsolutePath().toString())
                 .build();
 
-        StringBuilder internalCmd = new StringBuilder();
-        internalCmd.append("setlocal & ");
-        for (Map.Entry<String, String> entry : env2.entrySet()) {
-            String name = entry.getKey();
-            String value = entry.getValue();
-            internalCmd.append("set ").append("\"").append(name).append("=").append(value);
-            if (name.endsWith("PATH")) {
-                internalCmd.append(File.pathSeparator).append("%").append(name).append("%");
-            }
-            internalCmd.append("\"").append(" & ");
-        }
-        internalCmd.append(program);
-        for (String arg : args) {
-            internalCmd.append(" \"").append(arg).append("\"");
-        }
-        internalCmd.append(" & endlocal");
-
         List<String> cmdLs = ImmutableList.<String>builder()
                 .add("cmd")
                 .add("/c")
-                .add(internalCmd.toString())
+                .add(program)
+                .addAll(args)
                 .build();
-        return execute(cmdLs, workingDir, outFile, errFile, timeoutSecondes);
+        return execute(cmdLs, workingDir, outFile, errFile, timeoutSecondes, env2);
     }
 
     @Override
