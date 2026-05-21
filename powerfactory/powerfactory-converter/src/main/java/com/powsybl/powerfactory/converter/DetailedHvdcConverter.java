@@ -120,6 +120,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                     throw new PowerFactoryException("ElmCoup " + id + " is connected to a single DC terminal.");
                 }
                 if (count > 2) {
+                    // Caught already in ContainersMappingHelper for 3 terminals but not 4+.
                     throw new PowerFactoryException("ElmCoup " + id + " is connected to " + count + " DC terminals, expected exactly 2.");
                 }
             }
