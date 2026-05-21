@@ -142,7 +142,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static double getDefaultTargetV(ShuntCompensator shuntCompensator, Context context) {
-        double previousTargetV = shuntCompensator.getVoltageRegulation() != null ? shuntCompensator.getVoltageRegulation().getTargetValue() : Double.NaN;
+        double previousTargetV = shuntCompensator.getRegulatingTargetV();
         return getDefaultValue(null, previousTargetV, Double.NaN, Double.NaN, context);
     }
 

@@ -113,17 +113,4 @@ public interface VoltageRegulation {
      * @see VariantManager
      */
     boolean setRegulating(boolean regulating);
-
-    /**
-     * To set the validable, used by the validation methods
-     * The validable and the parent (VoltageRegulationHolder) can be different (for example the adder)
-     */
-    void updateValidable(Validable validable);
-
-    /**
-     * To set the holder, used by the validation methods
-     * The Parent is set when the VoltageRegulation is build with {@link VoltageRegulationBuilder}
-     * but must be set in the equipment's constructor when we use an adder {@link VoltageRegulationAdder}
-     */
-    void setParent(VoltageRegulationHolder parent);
 }

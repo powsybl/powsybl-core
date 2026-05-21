@@ -569,7 +569,7 @@ class CgmesExportTest {
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), new Properties());
 
         String uuidNoRcc = "550ebe0d-f2b2-48c1-991f-cebea43a21aa";
-        String uuidNoReccRC = uuidNoRcc + "_RC";
+        String uuidNoRccRC = uuidNoRcc + "_RC";
         Generator generatorNoRcc = network.getGenerator(uuidNoRcc);
 
         String uuidRcc = "3a3b27be-b18b-4385-b557-6735d733baf0";
@@ -591,7 +591,7 @@ class CgmesExportTest {
 
             // Check that RegulatingControl is properly exported
             assertTrue(eq.contains(uuidRccRC));
-            assertTrue(eq.contains(uuidNoReccRC));
+            assertTrue(eq.contains(uuidNoRccRC));
             generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
             generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
@@ -601,7 +601,7 @@ class CgmesExportTest {
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains(uuidRccRC));
-            assertTrue(eq.contains(uuidNoReccRC));
+            assertTrue(eq.contains(uuidNoRccRC));
             generatorRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
             generatorNoRcc.removeProperty(PROPERTY_REGULATING_CONTROL);
 
@@ -613,7 +613,7 @@ class CgmesExportTest {
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains(uuidRccRC));
-            assertFalse(eq.contains(uuidNoReccRC));
+            assertFalse(eq.contains(uuidNoRccRC));
             generatorRcc.newVoltageRegulation(voltageRegulationRcc);
             generatorNoRcc.newVoltageRegulation(voltageRegulationNoRcc);
 
@@ -630,15 +630,15 @@ class CgmesExportTest {
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains(uuidRccRC));
-            assertFalse(eq.contains(uuidNoReccRC));
+            assertFalse(eq.contains(uuidNoRccRC));
 
             // RegulatingControl is however exported when the corresponding CGMES property is present
             generatorRcc.setProperty(PROPERTY_REGULATING_CONTROL, uuidRccRC);
-            generatorNoRcc.setProperty(PROPERTY_REGULATING_CONTROL, uuidNoReccRC);
+            generatorNoRcc.setProperty(PROPERTY_REGULATING_CONTROL, uuidNoRccRC);
             new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertTrue(eq.contains(uuidRccRC));
-            assertTrue(eq.contains(uuidNoReccRC));
+            assertTrue(eq.contains(uuidNoRccRC));
 
         }
     }

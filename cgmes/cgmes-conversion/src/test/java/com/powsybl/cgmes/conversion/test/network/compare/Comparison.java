@@ -351,13 +351,25 @@ public class Comparison {
                 expected.isRegulatingWithMode(RegulationMode.VOLTAGE),
                 actual.isRegulatingWithMode(RegulationMode.VOLTAGE));
         if (expected.getVoltageRegulation() != null) {
-            compare("targetV",
+            compare("voltageRegulation.targetValue",
                 expected.getVoltageRegulation().getTargetValue(),
                 actual.getVoltageRegulation().getTargetValue());
-            compare("targetDeadband",
+            compare("voltageRegulation.targetDeadband",
                 expected.getVoltageRegulation().getTargetDeadband(),
                 actual.getVoltageRegulation().getTargetDeadband());
+            compare("voltageRegulation.terminal",
+                expected.getVoltageRegulation().getTerminal().getConnectable().getId(),
+                actual.getVoltageRegulation().getTerminal().getConnectable().getId());
+            compare("voltageRegulation.isRegulating",
+                expected.getVoltageRegulation().isRegulating(),
+                actual.getVoltageRegulation().isRegulating());
         }
+        compare("localTargetV",
+            expected.getLocalTargetV(),
+            actual.getLocalTargetV());
+        compare("localTargetQ",
+            expected.getLocalTargetQ(),
+            actual.getLocalTargetQ());
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());

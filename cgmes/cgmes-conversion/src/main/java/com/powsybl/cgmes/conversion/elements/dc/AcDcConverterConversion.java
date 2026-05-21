@@ -17,8 +17,6 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -33,7 +31,6 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     int numberOfAcTerminals;
     static final double DEFAULT_POWER_FACTOR = 1.0 / Math.hypot(1.0, 0.5);  // Default power factor calculated with Q = P / 2
-    private static final Logger LOGGER = LoggerFactory.getLogger(AcDcConverterConversion.class);
 
     public AcDcConverterConversion(PropertyBag p, Context context) {
         super(CgmesNames.ACDC_CONVERTER, p, context);

@@ -137,6 +137,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         if (regulatingOn) {
             generator.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(regulationCapability && isValidTargetV(targetV))
                 .build();
         }
     }

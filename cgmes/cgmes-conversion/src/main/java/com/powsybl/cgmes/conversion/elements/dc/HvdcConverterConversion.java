@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -31,8 +29,6 @@ import static com.powsybl.cgmes.model.CgmesNames.*;
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversion {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(HvdcConverterConversion.class);
 
     private final PropertyBag converter;
 
@@ -118,7 +114,7 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
         RegulationMode vscRegulation = getVscRegulation(cgmesDataConverter, vscConverter, context);
         Optional<Terminal> remoteTerminal = Optional.ofNullable(vscConverter.getVoltageRegulation()).map(VoltageRegulation::getTerminal);
-        if (RegulationMode.VOLTAGE.equals(vscRegulation)) {
+        if (vscRegulation == RegulationMode.VOLTAGE) {
             double defaultTargetV = getDefaultTargetV(vscConverter, context);
             double targetV = findTargetV(cgmesDataConverter, TARGET_UPCC, defaultTargetV, DefaultValueUse.NOT_DEFINED);
             if (isValidTargetV(targetV)) {

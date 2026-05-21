@@ -12,6 +12,7 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Optional;
@@ -42,10 +43,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.localTargetV.fill(0, variantArraySize, localTargetV);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.voltageRegulation = voltageRegulation;
-        if (this.voltageRegulation != null) {
-            this.voltageRegulation.updateValidable(this);
-            this.voltageRegulation.setParent(this);
-        }
+        this.attachVoltageRegulation(this);
     }
 
     @Override
@@ -133,6 +131,14 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public void attachVoltageRegulation(Validable validable, VoltageRegulationHolder holder) {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(validable);
+            vr.setParent(holder);
+        });
     }
 
     @Override
@@ -252,6 +258,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation(voltageRegulation, this);
+        this.attachVoltageRegulation(this);
     }
 }

@@ -172,19 +172,10 @@ public interface VoltageRegulationHolder {
         return getVoltageRegulation() != null && getVoltageRegulation().isWithTerminal();
     }
 
-    default void cleanLocalTerminal() {
+    void attachVoltageRegulation(Validable validable, VoltageRegulationHolder holder);
 
-    }
-
-    default void attachVoltageRegulation(VoltageRegulation voltageRegulation, Validable validable, VoltageRegulationHolder holder) {
-        if (voltageRegulation != null) {
-            voltageRegulation.updateValidable(validable);
-            voltageRegulation.setParent(holder);
-        }
-    }
-
-    default <T extends Validable & VoltageRegulationHolder> void attachVoltageRegulation(VoltageRegulation voltageRegulation, T validableVoltageRegulationHolder) {
-        this.attachVoltageRegulation(voltageRegulation, validableVoltageRegulationHolder, validableVoltageRegulationHolder);
+    default <T extends Validable & VoltageRegulationHolder> void attachVoltageRegulation(T validableVoltageRegulationHolder) {
+        this.attachVoltageRegulation(validableVoltageRegulationHolder, validableVoltageRegulationHolder);
     }
 
 }

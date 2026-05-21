@@ -114,8 +114,6 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
             voltageRegulation.setTargetValue(targetQ);
             voltageRegulation.setRegulating(regulating);
-        } else {
-            staticVarCompensator.setLocalTargetQ(staticVarCompensator.getLocalTargetQ());
         }
     }
 

@@ -47,10 +47,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         this.localTargetV.fill(0, variantArraySize, localTargetV);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.voltageRegulation = voltageRegulation;
-        if (voltageRegulation != null) {
-            this.voltageRegulation.updateValidable(this);
-            this.voltageRegulation.setParent(this);
-        }
+        this.attachVoltageRegulation(this);
     }
 
     @Override
@@ -217,7 +214,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation(voltageRegulation, this);
+        this.attachVoltageRegulation(this);
     }
 
     @Override
@@ -257,6 +254,14 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public double getLocalTargetQ() {
         return this.localTargetQ.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public void attachVoltageRegulation(Validable validable, VoltageRegulationHolder holder) {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(validable);
+            vr.setParent(holder);
+        });
     }
 
     @Override

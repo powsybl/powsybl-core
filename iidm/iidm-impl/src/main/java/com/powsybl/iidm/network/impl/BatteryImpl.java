@@ -43,10 +43,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.minP = minP;
         this.maxP = maxP;
         this.voltageRegulation = voltageRegulation;
-        if (this.voltageRegulation != null) {
-            this.voltageRegulation.updateValidable(this);
-            this.voltageRegulation.setParent(this);
-        }
+        this.attachVoltageRegulation(this);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -97,6 +94,14 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public double getLocalTargetQ() {
         return localTargetQ.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public void attachVoltageRegulation(Validable validable, VoltageRegulationHolder holder) {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(validable);
+            vr.setParent(holder);
+        });
     }
 
     /**
@@ -298,6 +303,6 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation(voltageRegulation, this);
+        this.attachVoltageRegulation(this);
     }
 }

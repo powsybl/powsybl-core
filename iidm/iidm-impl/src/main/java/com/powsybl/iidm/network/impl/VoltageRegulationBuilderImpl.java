@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
@@ -36,7 +37,7 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
     public VoltageRegulation build() {
         VoltageRegulationExt voltageRegulation = checkAndCreateVoltageRegulation();
         this.voltageRegulationSetter.accept(voltageRegulation);
-        if (!holder.isRemoteRegulating()) {
+        if (!holder.isRemoteRegulating() && (!ShuntCompensator.class.equals(classHolder) || holder.isRegulating())) {
             ValidationUtil.checkLocalTargetQandV(validable, holder.getLocalTargetV(), holder.getLocalTargetQ(), voltageRegulation, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         }
         return voltageRegulation;

@@ -55,7 +55,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.minP = minP;
         this.maxP = maxP;
         this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation(voltageRegulation, this);
+        this.attachVoltageRegulation(this);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -170,6 +170,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public double getLocalTargetQ() {
         return this.targetQ.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public void attachVoltageRegulation(Validable validable, VoltageRegulationHolder holder) {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(validable);
+            vr.setParent(holder);
+        });
     }
 
     @Override
@@ -361,7 +369,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation(voltageRegulation, this);
+        this.attachVoltageRegulation(this);
     }
 
     private int getCurrentIndex() {
