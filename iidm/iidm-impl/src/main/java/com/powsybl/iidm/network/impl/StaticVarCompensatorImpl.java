@@ -9,13 +9,11 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Optional;
@@ -43,7 +41,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         this.bMin = bMin;
         this.bMax = bMax;
         this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation(this);
+        this.attachVoltageRegulation();
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.localTargetQ = new TDoubleArrayList(variantArraySize);
         this.localTargetV = new TDoubleArrayList(variantArraySize);
@@ -101,11 +99,10 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         return this.localTargetQ.get(getNetwork().getVariantIndex());
     }
 
-    @Override
-    public void attachVoltageRegulation(Validable validable, VoltageRegulationHolder holder) {
+    public void attachVoltageRegulation() {
         getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(validable);
-            vr.setParent(holder);
+            vr.updateValidable(this);
+            vr.setParent(this);
         });
     }
 
@@ -276,7 +273,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation(this);
+        this.attachVoltageRegulation();
     }
 
 }

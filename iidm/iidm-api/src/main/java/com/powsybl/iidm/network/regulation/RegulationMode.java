@@ -20,7 +20,7 @@ public enum RegulationMode {
     VOLTAGE_PER_REACTIVE_POWER,
     REACTIVE_POWER_PER_ACTIVE_POWER;
 
-    public static Set<RegulationMode> getRemoteAllowedRegulationModes(boolean isRemoteRegulating, Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
+    public static Set<RegulationMode> getAllowedRegulationModes(boolean isRemoteRegulating, Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
         return isRemoteRegulating ? getRemoteAllowedRegulationModes(voltageRegulationHolder) : getLocalAllowedRegulationModes(voltageRegulationHolder);
     }
 

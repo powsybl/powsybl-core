@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.regulation;
 
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
 
 /**
  * This interface defines methods for managing voltageRegulation
@@ -170,12 +169,6 @@ public interface VoltageRegulationHolder {
      */
     default boolean isRemoteRegulating() {
         return getVoltageRegulation() != null && getVoltageRegulation().isWithTerminal();
-    }
-
-    void attachVoltageRegulation(Validable validable, VoltageRegulationHolder holder);
-
-    default <T extends Validable & VoltageRegulationHolder> void attachVoltageRegulation(T validableVoltageRegulationHolder) {
-        this.attachVoltageRegulation(validableVoltageRegulationHolder, validableVoltageRegulationHolder);
     }
 
 }

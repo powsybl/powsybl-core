@@ -1138,7 +1138,7 @@ public final class ValidationUtil {
             return ValidationLevel.EQUIPMENT;
         } else {
             // CHECK ALLOWED MODE
-            Set<RegulationMode> allowedModes = RegulationMode.getRemoteAllowedRegulationModes(isRemote, classHolder);
+            Set<RegulationMode> allowedModes = RegulationMode.getAllowedRegulationModes(isRemote, classHolder);
             if (!allowedModes.contains(mode)) {
                 String allowedModesString = allowedModes.stream().map(RegulationMode::name).collect(Collectors.joining(", "));
                 String message = String.format("The current regulationMode is %s but allowed modes are %s when isRemote = %s",
