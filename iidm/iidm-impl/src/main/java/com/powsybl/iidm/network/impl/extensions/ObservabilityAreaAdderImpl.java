@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.extensions.ObservabilityAreaAdder;
 import java.util.*;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ObservabilityAreaAdderImpl extends AbstractExtensionAdder<VoltageLevel, ObservabilityArea>
         implements ObservabilityAreaAdder {

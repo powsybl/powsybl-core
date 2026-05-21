@@ -42,7 +42,7 @@ import java.util.Set;
  * topological elements (buses, nodes,...) associated with the observability areas are missing.
  *
  *
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 public interface ObservabilityArea extends Extension<VoltageLevel> {
 

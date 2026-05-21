@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Joris Mancini <joris.mancini_externe at rte-france.com>
+ * @author Joris Mancini {@literal <joris.mancini_externe at rte-france.com>}
  */
 final class ObservabilityAreaTestSupport {
 

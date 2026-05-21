@@ -19,7 +19,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Joris Mancini <joris.mancini_externe at rte-france.com>
+ * @author Joris Mancini {@literal <joris.mancini_externe at rte-france.com>}
  */
 class ObservabilityAreaAdderImplTest {
 

@@ -23,7 +23,7 @@ import java.time.ZonedDateTime;
 import java.util.Set;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 class ObservabilityAreaSerDeTest extends AbstractIidmSerDeTest {
 

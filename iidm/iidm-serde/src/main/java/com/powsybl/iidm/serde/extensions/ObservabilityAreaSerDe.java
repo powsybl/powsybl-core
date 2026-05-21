@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
 public class ObservabilityAreaSerDe extends AbstractExtensionSerDe<VoltageLevel, ObservabilityArea> {
