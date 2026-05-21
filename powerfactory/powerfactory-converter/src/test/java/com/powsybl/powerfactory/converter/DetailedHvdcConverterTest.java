@@ -375,11 +375,12 @@ class DetailedHvdcConverterTest {
 
     @Test
     void testElmCoupBad() {
-        // Check that an ElmCoup connected to only one DC terminal raises an exception.
+        // Check that an ElmCoup with an incorrect number of DC terminals raises an exception:
+        // either connected to a single DC terminal, or connected to more than 2 DC terminals.
         PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad"));
         assertEquals("ElmCoup 21 is connected to a single DC terminal.", e.getMessage());
 
-        PowerFactoryException e2 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad-3T"));
+        PowerFactoryException e2 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad-4T"));
         assertEquals("ElmCoup 21 is connected to 4 DC terminals, expected exactly 2.", e2.getMessage());
     }
 

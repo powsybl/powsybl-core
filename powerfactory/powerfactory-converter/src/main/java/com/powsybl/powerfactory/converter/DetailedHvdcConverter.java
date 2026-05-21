@@ -138,7 +138,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     DetailedHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
-        LOGGER.info("{} data objects read from the DGS file for detailed DC data .", gridData.getCount());
+        LOGGER.info("{} data objects read from the DGS file for detailed DC data.", gridData.getCount());
     }
 
     @Override

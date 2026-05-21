@@ -1,3 +1,6 @@
+* Bad DGS file where an ElmCoup element is connected
+* to 4 DC terminals.
+
 $$General;ID(a:40);Descr(a:40);Val(a:255)
 1;Version;5.0
 
