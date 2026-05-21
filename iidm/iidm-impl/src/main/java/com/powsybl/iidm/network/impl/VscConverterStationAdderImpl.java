@@ -80,6 +80,11 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     }
 
     @Override
+    public double getTargetQ() {
+        return this.targetQ;
+    }
+
+    @Override
     public VoltageRegulationAdder<VscConverterStationAdder> newVoltageRegulation() {
         Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
         return new VoltageRegulationAdderImpl<>(VscConverterStation.class, this, this, getNetworkRef(), voltageRegulationConsumer);

@@ -219,7 +219,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
                     VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
                 }
-                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder.newVoltageRegulation(), context);
+                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
                 default -> readSubElement(elementName, id, toApply, context);
             }
         });

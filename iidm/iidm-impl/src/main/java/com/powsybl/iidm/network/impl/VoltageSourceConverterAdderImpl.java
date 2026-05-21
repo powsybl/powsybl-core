@@ -48,6 +48,11 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
     }
 
     @Override
+    public double getTargetQ() {
+        return this.targetQ;
+    }
+
+    @Override
     public VoltageSourceConverterAdder setTargetV(double targetV) {
         this.targetV = targetV;
         return this;

@@ -262,4 +262,13 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         return shunt;
     }
 
+    @Override
+    public double getTargetQ() {
+        return Double.NaN;
+    }
+
+    @Override
+    public ShuntCompensatorAdderImpl setTargetQ(double targetQ) {
+        return this;
+    }
 }

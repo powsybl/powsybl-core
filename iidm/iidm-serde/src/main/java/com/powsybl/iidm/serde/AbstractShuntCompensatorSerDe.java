@@ -241,7 +241,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                 case REGULATING_TERMINAL -> VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
                 case SHUNT_LINEAR_MODEL -> readShuntLinearModel(adder, context);
                 case SHUNT_NON_LINEAR_MODEL -> readShuntNonLinearModel(id, adder, context);
-                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder.newVoltageRegulation(), context);
+                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
                 default -> readSubElement(elementName, id, toApply, context);
             }
         });

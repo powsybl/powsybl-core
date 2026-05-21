@@ -9,13 +9,13 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageSourceConverter, VoltageSourceConverterAdder> {
-
-    VoltageRegulationAdder<VoltageSourceConverterAdder> newVoltageRegulation();
+public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageSourceConverter, VoltageSourceConverterAdder>,
+        VoltageRegulationHolderAdder<VoltageSourceConverterAdder> {
 
     VoltageSourceConverterAdder setTargetQ(double targetQ);
 

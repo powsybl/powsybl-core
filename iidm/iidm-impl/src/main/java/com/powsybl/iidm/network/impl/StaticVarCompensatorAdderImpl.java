@@ -67,6 +67,11 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
+    public double getTargetQ() {
+        return this.targetQ;
+    }
+
+    @Override
     public StaticVarCompensatorAdder setTargetV(double targetV) {
         this.targetV = targetV;
         return this;
