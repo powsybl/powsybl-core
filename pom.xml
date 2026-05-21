@@ -103,7 +103,7 @@
         <awaitility.version>4.3.0</awaitility.version>
         <commonscli.version>1.9.0</commonscli.version>
         <commonscompress.version>1.27.1</commonscompress.version>
-        <commons-configuration2.version>2.12.0</commons-configuration2.version>
+        <commons-configuration2.version>2.15.0</commons-configuration2.version>
         <commons-csv.version>1.14.0</commons-csv.version>
         <commonsio.version>2.19.0</commonsio.version>
         <commonslang3.version>3.18.0</commonslang3.version>
