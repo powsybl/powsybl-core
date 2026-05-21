@@ -24,15 +24,15 @@ The attributes to fill of a `BusFault` are:
 
 The attributes to fill of a `BranchFault` are:
 
-| Attribute            | Type           | Unit | Required | Default value           | Description                                                                                             |
-|----------------------|----------------|------|----------|-------------------------|---------------------------------------------------------------------------------------------------------|
-| id                   | String         | -    | yes      | -                       | The id of the fault                                                                                     |
-| elementId            | String         | -    | yes      | -                       | The id of the branch on which the fault will be simulated                                               |
-| r                    | double         | Ω    | no       | 0                       | The fault resistance to ground                                                                          |
-| x                    | double         | Ω    | no       | 0                       | The fault reactance to ground                                                                           |
-| connection           | ConnectionType | -    | no       | `ConnectionType.SERIES` | The way the resistance and reactance of the fault are connected to the ground: in series or in parallel |
-| faultType            | FaultType      | -    | no       | `FaultType.THREE_PHASE` | The type of fault simulated: can be three-phased or single-phased                                       |
-| proportionalLocation | double         | %    | yes      | -                       | The position where the fault should be simulated, in percent of the line                                |
+| Attribute            | Type           | Unit | Required | Default value           | Description                                                                                                           |
+|----------------------|----------------|------|----------|-------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| id                   | String         | -    | yes      | -                       | The id of the fault                                                                                                   |
+| elementId            | String         | -    | yes      | -                       | The id of the branch on which the fault will be simulated                                                             |
+| r                    | double         | Ω    | no       | 0                       | The fault resistance to ground                                                                                        |
+| x                    | double         | Ω    | no       | 0                       | The fault reactance to ground                                                                                         |
+| connection           | ConnectionType | -    | no       | `ConnectionType.SERIES` | The way the resistance and reactance of the fault are connected to the ground: in series or in parallel               |
+| faultType            | FaultType      | -    | no       | `FaultType.THREE_PHASE` | The type of fault simulated: can be three-phased, single-phased or line-to-line (two phases without earth connection) |
+| proportionalLocation | double         | %    | yes      | -                       | The position where the fault should be simulated, in percent of the line                                              |
 
 **A list of FaultParameters**
 
