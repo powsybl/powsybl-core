@@ -151,9 +151,17 @@ public final class NetworkReports {
                 .add();
     }
 
-    public static void invalidVoltageRegulationTargetValue(ReportNode reportNode, String id) {
+    public static void invalidVoltageRegulationTargetValueUndefined(ReportNode reportNode, String id) {
         reportNode.newReportNode()
-            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValue")
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValueUndefined")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationTargetValueInvalid(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValueInvalid")
             .withTypedValue("id", id, TypedValue.ID)
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();

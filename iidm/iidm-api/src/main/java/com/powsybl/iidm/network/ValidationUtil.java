@@ -1053,7 +1053,7 @@ public final class ValidationUtil {
         if (isWithTerminal) {
             if (Double.isNaN(targetValue)) {
                 throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", actionOnError,
-                    id -> NetworkReports.invalidVoltageRegulationTargetValue(reportNode, id));
+                    id -> NetworkReports.invalidVoltageRegulationTargetValueUndefined(reportNode, id));
                 return ValidationLevel.EQUIPMENT;
             }
             if (mode == RegulationMode.VOLTAGE) {
@@ -1062,7 +1062,7 @@ public final class ValidationUtil {
         } else {
             if (!Double.isNaN(targetValue)) {
                 throwExceptionOrLogError(owner, "Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", actionOnError,
-                    id -> NetworkReports.invalidVoltageRegulationTargetValue(reportNode, id));
+                    id -> NetworkReports.invalidVoltageRegulationTargetValueInvalid(reportNode, id));
                 return ValidationLevel.EQUIPMENT;
             }
         }
