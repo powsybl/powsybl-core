@@ -172,13 +172,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         return this.targetQ.get(network.get().getVariantIndex());
     }
 
-    public void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setParent(this);
-        });
-    }
-
     @Override
     public VoltageRegulationHolder setLocalTargetQ(double localTargetQ) {
         return this.setTargetQ(localTargetQ);
@@ -373,5 +366,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private int getCurrentIndex() {
         return network.get().getVariantIndex();
+    }
+
+    private void attachVoltageRegulation() {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(this);
+            vr.setParent(this);
+        });
     }
 }

@@ -186,6 +186,13 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        this.newVoltageRegulation()
+            .withTerminal(voltageRegulation.getTerminal())
+            .withTargetDeadband(voltageRegulation.getTargetDeadband())
+            .withSlope(voltageRegulation.getSlope())
+            .withTargetValue(voltageRegulation.getTargetValue())
+            .withMode(voltageRegulation.getMode())
+            .build();
         this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
         return this.voltageRegulation;
     }
@@ -209,12 +216,6 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public Terminal getTerminal() {
         return getPccTerminal();
-    }
-
-    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
     }
 
     @Override
@@ -256,13 +257,6 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         return this.localTargetQ.get(getNetwork().getVariantIndex());
     }
 
-    public void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setParent(this);
-        });
-    }
-
     @Override
     public VoltageSourceConverter setTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
@@ -278,5 +272,18 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public VoltageSourceConverter setTargetV(double targetV) {
         return (VoltageSourceConverter) this.setLocalTargetV(targetV);
+    }
+
+    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
+        this.voltageRegulation = voltageRegulation;
+        this.attachVoltageRegulation();
+    }
+
+    private void attachVoltageRegulation() {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(this);
+            vr.setParent(this);
+        });
     }
 }
