@@ -308,13 +308,40 @@ public final class NetworkReports {
                 .add();
     }
 
-    public static void reactivePowerSetpointInvalidVoltageRegulatorOff(ReportNode reportNode, String id, double reactivePowerSetpoint) {
+    public static void invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(ReportNode reportNode, String id, double localTargetV) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.network.reactivePowerSetpointInvalidVoltageRegulatorOff")
-                .withTypedValue("id", id, TypedValue.ID)
-                .withTypedValue("reactivePowerSetpoint", reactivePowerSetpoint, TypedValue.REACTIVE_POWER)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("localTargetV", localTargetV, TypedValue.VOLTAGE)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("localTargetQ", localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQVoltageRegulationUnset(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQVoltageRegulationUnset")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("localTargetQ", localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQRegulatingOff(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQRegulatingOff")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("localTargetQ", localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void rtcRegulationCannotBeEnabledWithoutLoadTapChanging(ReportNode reportNode, String id) {
