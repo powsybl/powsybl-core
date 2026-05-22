@@ -24,19 +24,19 @@ public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageS
     /**
      * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverterAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
      * @deprecated use {@link VoltageRegulationAdder#withTargetValue(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverterAdder setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * @deprecated use {@link VoltageRegulationAdder#withTargetValue(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverterAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
 }

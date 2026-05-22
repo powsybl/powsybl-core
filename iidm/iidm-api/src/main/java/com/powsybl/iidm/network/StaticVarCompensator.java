@@ -134,7 +134,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * @return the voltage setpoint
      * @deprecated use {@link #getRegulatingTargetV()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     double getVoltageSetpoint();
 
     /**
@@ -145,7 +145,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * @return this to allow method chaining
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
 
     /**
@@ -155,7 +155,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * @return the reactive power setpoint
      * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     double getReactivePowerSetpoint();
 
     /**
@@ -166,7 +166,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * @return this to allow method chaining
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
@@ -175,7 +175,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * @return the regulating mode
      * @deprecated use {@link VoltageRegulation#getMode()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     RegulationMode getRegulationMode();
 
     /**
@@ -185,14 +185,14 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * @return this to allow method chaining
      * @deprecated use {@link #newVoltageRegulation()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);
 
     /**
      * Set the regulating status.
      * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensator setRegulating(boolean regulating);
 
     /**
@@ -200,7 +200,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * @return this to allow method chaining
      * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     default StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not implemented");
     }
