@@ -614,8 +614,20 @@ class CgmesExportTest {
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains(uuidRccRC));
             assertFalse(eq.contains(uuidNoRccRC));
-            generatorRcc.newVoltageRegulation(voltageRegulationRcc);
-            generatorNoRcc.newVoltageRegulation(voltageRegulationNoRcc);
+            generatorRcc.newVoltageRegulation()
+                .withTerminal(voltageRegulationRcc.getTerminal())
+                .withTargetDeadband(voltageRegulationRcc.getTargetDeadband())
+                .withSlope(voltageRegulationRcc.getSlope())
+                .withTargetValue(voltageRegulationRcc.getTargetValue())
+                .withMode(voltageRegulationRcc.getMode())
+                .build();
+            generatorNoRcc.newVoltageRegulation()
+                .withTerminal(voltageRegulationNoRcc.getTerminal())
+                .withTargetDeadband(voltageRegulationNoRcc.getTargetDeadband())
+                .withSlope(voltageRegulationNoRcc.getSlope())
+                .withTargetValue(voltageRegulationNoRcc.getTargetValue())
+                .withMode(voltageRegulationNoRcc.getMode())
+                .build();
 
             // RegulatingControl isn't exported when Qmin and Qmax are the same
             ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();

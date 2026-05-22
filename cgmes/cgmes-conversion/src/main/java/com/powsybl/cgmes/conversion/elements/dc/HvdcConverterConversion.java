@@ -167,7 +167,7 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static boolean getDefaultVoltageRegulationOn(VscConverterStation vscConverter, Context context) {
-        return getDefaultValue(false, vscConverter.isWithMode(RegulationMode.VOLTAGE), false, false, context);
+        return getDefaultValue(false, vscConverter.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
     private static double getDefaultTargetV(VscConverterStation vscConverter, Context context) {

@@ -41,6 +41,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     private static final String SHUNT_LINEAR_MODEL = "shuntLinearModel";
     private static final String SHUNT_NON_LINEAR_MODEL = "shuntNonLinearModel";
     private static final String SECTION_COUNT = "sectionCount";
+    public static final String TARGET_V = "targetV";
 
     private final String rootElementName;
     private final IidmVersion minVersionInclusive;
@@ -81,7 +82,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         });
         IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
-            double targetV = context.getReader().readDoubleAttribute("targetV");
+            double targetV = context.getReader().readDoubleAttribute(TARGET_V);
             double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
             adder.newVoltageRegulation()
                 .withTargetDeadband(targetDeadband)
@@ -94,7 +95,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                     () -> sc.setLocalTargetV(Double.NaN))));
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            double targetV = context.getReader().readDoubleAttribute("targetV");
+            double targetV = context.getReader().readDoubleAttribute(TARGET_V);
             adder.setLocalTargetV(targetV);
         });
         readNodeOrBus(adder, context, parent.getTopologyKind());
@@ -163,14 +164,14 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     private static void writeRegulationAttributes(String rootElementName, ShuntCompensator sc, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
             IidmSerDeUtil.writeBooleanAttributeFromMinimumVersion(rootElementName, "voltageRegulatorOn", sc.isRegulating(), false, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-            IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetV", sc.getRegulatingTargetV(),
+            IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, TARGET_V, sc.getRegulatingTargetV(),
                 IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
             double targetDeadband = sc.getVoltageRegulation() != null ? sc.getVoltageRegulation().getTargetDeadband() : Double.NaN;
             IidmSerDeUtil.writeDoubleAttributeFromMinimumVersion(rootElementName, "targetDeadband",
                 targetDeadband, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
-            () -> context.getWriter().writeDoubleAttribute("targetV", sc.getLocalTargetV()));
+            () -> context.getWriter().writeDoubleAttribute(TARGET_V, sc.getLocalTargetV()));
     }
 
     private static void writePowerAttributes(ShuntCompensator sc, NetworkSerializerContext context) {

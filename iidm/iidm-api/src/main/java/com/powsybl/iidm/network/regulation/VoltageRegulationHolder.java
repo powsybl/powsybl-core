@@ -22,19 +22,6 @@ public interface VoltageRegulationHolder {
     VoltageRegulationBuilder newVoltageRegulation();
 
     /**
-     * Creates a new VoltageRegulation instance based on the provided VoltageRegulation
-     */
-    default VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        return this.newVoltageRegulation()
-            .withTerminal(voltageRegulation.getTerminal())
-            .withTargetDeadband(voltageRegulation.getTargetDeadband())
-            .withSlope(voltageRegulation.getSlope())
-            .withTargetValue(voltageRegulation.getTargetValue())
-            .withMode(voltageRegulation.getMode())
-            .build();
-    }
-
-    /**
      * Gets the current VoltageRegulation instance
      */
     VoltageRegulation getVoltageRegulation();
@@ -82,14 +69,15 @@ public interface VoltageRegulationHolder {
     /**
      * Gets the target reactive power value
      *
-     * @return the target reactive power value, or throw ?? MSA
+     * @return the target reactive power value, or Double.NaN if not applicable
      */
     default double getLocalTargetQ() {
-        return Double.NaN; // TODO MSA throw exception which one?
+        return Double.NaN;
     }
 
     /**
      * Checks if the object is associated with the specified regulation mode.
+     * Specific case with the mode REACTIVE_POWER, if
      *
      * @param mode the regulation mode to check
      * @return true if associated with the specified mode, false otherwise
