@@ -84,7 +84,6 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     private static void writeTargetQ(Generator g, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
             context.getWriter().writeDoubleAttribute(TARGET_Q, g.getLocalTargetQ()));
-        // TODO MSA change into localTargetQ
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () ->
             context.getWriter().writeDoubleAttribute(TARGET_Q, g.getLocalTargetQ()));
     }

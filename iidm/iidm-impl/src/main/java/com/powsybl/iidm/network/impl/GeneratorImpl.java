@@ -339,19 +339,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.newVoltageRegulation()
-            .withTerminal(voltageRegulation.getTerminal())
-            .withTargetDeadband(voltageRegulation.getTargetDeadband())
-            .withSlope(voltageRegulation.getSlope())
-            .withTargetValue(voltageRegulation.getTargetValue())
-            .withMode(voltageRegulation.getMode())
-            .build();
-        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
-        return this.voltageRegulation;
-    }
-
-    @Override
     public void removeVoltageRegulation() {
         ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);

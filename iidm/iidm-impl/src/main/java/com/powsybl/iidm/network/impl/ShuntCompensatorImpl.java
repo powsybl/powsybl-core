@@ -324,19 +324,6 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.newVoltageRegulation()
-            .withTerminal(voltageRegulation.getTerminal())
-            .withTargetDeadband(voltageRegulation.getTargetDeadband())
-            .withSlope(voltageRegulation.getSlope())
-            .withTargetValue(voltageRegulation.getTargetValue())
-            .withMode(voltageRegulation.getMode())
-            .build();
-        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
-        return this.voltageRegulation;
-    }
-
-    @Override
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
     }

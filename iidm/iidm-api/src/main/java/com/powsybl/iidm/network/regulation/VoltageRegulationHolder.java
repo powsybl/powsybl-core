@@ -24,7 +24,15 @@ public interface VoltageRegulationHolder {
     /**
      * Creates a new VoltageRegulation instance based on the provided VoltageRegulation
      */
-    VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation);
+    default VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
+        return this.newVoltageRegulation()
+            .withTerminal(voltageRegulation.getTerminal())
+            .withTargetDeadband(voltageRegulation.getTargetDeadband())
+            .withSlope(voltageRegulation.getSlope())
+            .withTargetValue(voltageRegulation.getTargetValue())
+            .withMode(voltageRegulation.getMode())
+            .build();
+    }
 
     /**
      * Gets the current VoltageRegulation instance
@@ -70,14 +78,6 @@ public interface VoltageRegulationHolder {
     default VoltageRegulationHolder setLocalTargetQ(double localTargetQ) {
         throw new UnsupportedOperationException();
     }
-
-    /**
-     * TODO MSA JAVADOC
-     * Get the target reactive power in MVar.
-     * <p>Depends on the working variant.
-     *
-     * @see VariantManager
-     */
 
     /**
      * Gets the target reactive power value
