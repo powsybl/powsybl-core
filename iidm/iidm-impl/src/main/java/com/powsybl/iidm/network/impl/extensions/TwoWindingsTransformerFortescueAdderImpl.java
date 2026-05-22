@@ -25,8 +25,12 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
 
     private double rz = Double.NaN;
     private double xz = Double.NaN;
+    private double rz1 = Double.NaN;
+    private double xz1 = Double.NaN;
+    private double rz2 = Double.NaN;
+    private double xz2 = Double.NaN;
     private boolean freeFluxes = DEFAULT_FREE_FLUXES;
-    private double xm = Double.NaN;
+    private double xmz = Double.NaN;
     private WindingConnectionType connectionType1 = DEFAULT_LEG1_CONNECTION_TYPE;
     private WindingConnectionType connectionType2 = DEFAULT_LEG2_CONNECTION_TYPE;
     private double groundingR1 = DEFAULT_GROUNDING_R;
@@ -45,7 +49,7 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
 
     @Override
     protected TwoWindingsTransformerFortescueImpl createExtension(TwoWindingsTransformer twt) {
-        return new TwoWindingsTransformerFortescueImpl(twt, rz, xz, freeFluxes, xm, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
+        return new TwoWindingsTransformerFortescueImpl(twt, rz, xz, rz1, xz1, rz2, xz2, freeFluxes, xmz, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
     }
 
     @Override
@@ -61,14 +65,38 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
     }
 
     @Override
+    public TwoWindingsTransformerFortescueAdderImpl withRz1(double rz1) {
+        this.rz1 = rz1;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerFortescueAdderImpl withXz1(double xz1) {
+        this.xz1 = xz1;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerFortescueAdderImpl withRz2(double rz2) {
+        this.rz2 = rz2;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerFortescueAdderImpl withXz2(double xz2) {
+        this.xz2 = xz2;
+        return this;
+    }
+
+    @Override
     public TwoWindingsTransformerFortescueAdderImpl withFreeFluxes(boolean freeFluxes) {
         this.freeFluxes = freeFluxes;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withXm(double xm) {
-        this.xm = xm;
+    public TwoWindingsTransformerFortescueAdderImpl withXmz(double xmz) {
+        this.xmz = xmz;
         return this;
     }
 

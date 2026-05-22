@@ -24,8 +24,12 @@
         <xs:complexType>
             <xs:attribute name="rz" type="xs:double"/>
             <xs:attribute name="xz" type="xs:double"/>
+            <xs:attribute name="rz1" type="xs:double"/>
+            <xs:attribute name="xz1" type="xs:double"/>
+            <xs:attribute name="rz2" type="xs:double"/>
+            <xs:attribute name="xz2" type="xs:double"/>
             <xs:attribute name="freeFluxes" use="required" type="xs:boolean"/>
-            <xs:attribute name="xm" type="xs:double"/>
+            <xs:attribute name="xmz" type="xs:double"/>
             <xs:attribute name="connectionType1" use="required" type="t2f:WindingConnectionType"/>
             <xs:attribute name="connectionType2" use="required" type="t2f:WindingConnectionType"/>
             <xs:attribute name="groundingR1" type="xs:double"/>

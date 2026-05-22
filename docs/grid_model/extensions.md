@@ -332,8 +332,12 @@ This extension models the homopolar two-winding transformer data to be used for 
 |-----------------|-----------------------|------|----------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | rz              | double                | Ω    | no       | -                                | The zero-sequence resistance of the two-winding transformer                                            |
 | xz              | double                | Ω    | no       | -                                | The zero-sequence reactance of the two-winding transformer                                             |
+| rz1             | double                | Ω    | no       | -                                | The zero-sequence resistance of the winding 1                                                          |
+| rz2             | double                | Ω    | no       | -                                | The zero-sequence resistance of the winding 2                                                          |
+| xz1             | double                | Ω    | no       | -                                | The zero-sequence reactance of the winding 1                                                           |
+| xz2             | double                | Ω    | no       | -                                | The zero-sequence reactance of the winding 2                                                           |
 | freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               |
-| xm              | double                | Ω    | no       | Double.NaN                       | If the fluxes are not free, the magnetizing impedance of the two-winding transformer                   |
+| xmz             | double                | Ω    | no       | Double.NaN                       | If the fluxes are not free, the magnetizing impedance of the two-winding transformer                   |
 | connectionType1 | WindingConnectionType | -    | no       | WindingConnectionType.DELTA      | The connection type of the winding 1                                                                   | 
 | connectionType2 | WindingConnectionType | -    | no       | WindingConnectionType.Y_GROUNDED | The connection type of the winding 2                                                                   | 
 | groundingR1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the resistance part of the impedance to the ground | 
@@ -341,6 +345,8 @@ This extension models the homopolar two-winding transformer data to be used for 
 | groundingR2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the resistance part of the impedance to the ground | 
 | groundingX2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the reactance part of the impedance to the ground  | 
 
+The zero-sequence impedance can either be split on each winding (attributes rz1, rz2, xz1, xz2) or be considered as a single value (attributes rz, xz).
+If both values are set, the split values are used.
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
 

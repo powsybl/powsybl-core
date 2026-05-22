@@ -53,7 +53,11 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractVersionableNet
         context.getWriter().writeBooleanAttribute("freeFluxes", twtFortescue.isFreeFluxes());
         Version extVersion = getExtensionVersionToExport(context);
         if (extVersion.isGreaterThan(Version.V_1_0)) {
-            context.getWriter().writeDoubleAttribute("xm", twtFortescue.getXm(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("xmz", twtFortescue.getXmz(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("rz1", twtFortescue.getRz1(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("xz1", twtFortescue.getXz1(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("rz2", twtFortescue.getRz2(), Double.NaN);
+            context.getWriter().writeDoubleAttribute("xz2", twtFortescue.getXz2(), Double.NaN);
         }
         context.getWriter().writeEnumAttribute("connectionType1", twtFortescue.getConnectionType1());
         context.getWriter().writeEnumAttribute("connectionType2", twtFortescue.getConnectionType2());
@@ -67,11 +71,19 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractVersionableNet
     public TwoWindingsTransformerFortescue read(TwoWindingsTransformer twt, DeserializerContext context) {
         double rz = context.getReader().readDoubleAttribute("rz");
         double xz = context.getReader().readDoubleAttribute("xz");
+        double rz1 = Double.NaN;
+        double xz1 = Double.NaN;
+        double rz2 = Double.NaN;
+        double xz2 = Double.NaN;
         boolean freeFluxes = context.getReader().readBooleanAttribute("freeFluxes");
-        double xm = Double.NaN;
+        double xmz = Double.NaN;
         Version extVersion = getExtensionVersionImported(context);
         if (extVersion.isGreaterThan(Version.V_1_0)) {
-            xm = context.getReader().readDoubleAttribute("xm");
+            xmz = context.getReader().readDoubleAttribute("xmz");
+            rz1 = context.getReader().readDoubleAttribute("rz1");
+            xz1 = context.getReader().readDoubleAttribute("xz1");
+            rz2 = context.getReader().readDoubleAttribute("rz2");
+            xz2 = context.getReader().readDoubleAttribute("xz2");
         }
         WindingConnectionType connectionType1 = context.getReader().readEnumAttribute("connectionType1", WindingConnectionType.class);
         WindingConnectionType connectionType2 = context.getReader().readEnumAttribute("connectionType2", WindingConnectionType.class);
@@ -83,8 +95,12 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractVersionableNet
         return twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)
+                .withRz1(rz1)
+                .withXz1(xz1)
+                .withRz2(rz2)
+                .withXz2(xz2)
                 .withFreeFluxes(freeFluxes)
-                .withXm(xm)
+                .withXmz(xmz)
                 .withConnectionType1(connectionType1)
                 .withConnectionType2(connectionType2)
                 .withGroundingR1(groundingR1)

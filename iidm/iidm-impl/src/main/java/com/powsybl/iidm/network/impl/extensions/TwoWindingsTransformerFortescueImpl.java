@@ -22,8 +22,12 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
 
     private double rz;
     private double xz;
+    private double rz1;
+    private double xz1;
+    private double rz2;
+    private double xz2;
     private boolean freeFluxes;
-    private double xm;
+    private double xmz;
     private WindingConnectionType connectionType1;
     private WindingConnectionType connectionType2;
     private double groundingR1;
@@ -31,14 +35,19 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private double groundingR2;
     private double groundingX2;
 
-    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, double rz, double xz, boolean freeFluxes, double xm,
+    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, double rz, double xz, double rz1, double xz1,
+                                               double rz2, double xz2, boolean freeFluxes, double xmz,
                                                WindingConnectionType connectionType1, WindingConnectionType connectionType2,
                                                double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
         super(twt);
         this.rz = rz;
         this.xz = xz;
+        this.rz1 = rz1;
+        this.xz1 = xz1;
+        this.rz2 = rz2;
+        this.xz2 = xz2;
         this.freeFluxes = freeFluxes;
-        this.xm = xm;
+        this.xmz = xmz;
         this.connectionType1 = Objects.requireNonNull(connectionType1);
         this.connectionType2 = Objects.requireNonNull(connectionType2);
         this.groundingR1 = groundingR1;
@@ -68,18 +77,58 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     }
 
     @Override
+    public double getRz1() {
+        return rz1;
+    }
+
+    @Override
+    public void setRz1(double rz1) {
+        this.rz1 = rz1;
+    }
+
+    @Override
+    public double getXz1() {
+        return xz1;
+    }
+
+    @Override
+    public void setXz1(double xz1) {
+        this.xz1 = xz1;
+    }
+
+    @Override
+    public double getRz2() {
+        return rz2;
+    }
+
+    @Override
+    public void setRz2(double rz2) {
+        this.rz2 = rz2;
+    }
+
+    @Override
+    public double getXz2() {
+        return xz2;
+    }
+
+    @Override
+    public void setXz2(double xz2) {
+        this.xz2 = xz2;
+    }
+
+    @Override
     public boolean isFreeFluxes() {
         return freeFluxes;
     }
 
     @Override
-    public double getXm() {
-        return xm;
+    public double getXmz() {
+        return xmz;
     }
 
     @Override
-    public void setXm(double xm) {
-        this.xm = xm;
+    public void setXmz(double xmz) {
+        this.xmz = xmz;
     }
 
     @Override
