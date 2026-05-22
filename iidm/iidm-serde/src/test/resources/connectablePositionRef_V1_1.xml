@@ -8,7 +8,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:generator id="G" energySource="NUCLEAR" minP="10.0" maxP="20.0" targetP="20.0" targetV="400.0" node="1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
-                <iidm:voltageRegulation targetValue="400.0" mode="VOLTAGE" regulating="true"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

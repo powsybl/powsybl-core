@@ -110,7 +110,7 @@ public final class DcDetailedNetworkFactory {
                 .setId("GEN-" + country.name())
                 .setMinP(0.0)
                 .setMaxP(4000.0)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(400.0)
                 .setTargetP(2000.0)
                 .setTargetQ(0.0)
@@ -786,7 +786,7 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(frPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(200.)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetQ(0.0)
                 .setTargetV(400.)
                 .add();
         Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer(getTransformerId(Country.GB, X_NODE_DC_1_GB, SUFFIX_NONE)).getTerminal1();
@@ -799,7 +799,7 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(gbPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(-200.)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add()
+                .setTargetQ(0.0)
                 .setTargetV(400.)
                 .add();
         return Network.merge(dcNetwork, fr, gb);
@@ -839,4 +839,95 @@ public final class DcDetailedNetworkFactory {
                 .add();
         return network;
     }
+
+    /**
+     * Factory for DC grid with 2 nodes connected by a DC switch.
+     * @return DC network.
+     */
+    public static Network createSimple2NodesDcSwitch() {
+        return createSimple2NodesDcSwitch(NetworkFactory.findDefault(), "Simple2NodesDcSwitch");
+    }
+
+    public static Network createSimple2NodesDcSwitch(NetworkFactory networkFactory, String dcNetworkId) {
+        Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
+        dcNetwork.newDcNode()
+                .setId("dcNode1")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcNode()
+                .setId("dcNode2")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcSwitch()
+                .setId("dcSwitch")
+                .setR(0.125)
+                .setDcNode1("dcNode1")
+                .setDcNode2("dcNode2")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setOpen(false)
+                .add();
+
+        return dcNetwork;
+    }
+
+    /**
+     * Factory for DC grid with 4 nodes: n1-n2 connected by a DcLine, n2-n3 by a DcSwitch, n3-n4 by a DcLine.
+     * <pre>
+     *  (n1) --[dcLine1]-- (n2) --[dcSwitch]-- (n3) --[dcLine2]-- (n4)
+     * </pre>
+     * @return DC network.
+     */
+    public static Network createSimple4NodesDcLinesSwitchLine() {
+        return createSimple4NodesDcLinesSwitchLine(NetworkFactory.findDefault(), "Simple4NodesDcLinesSwitchLine");
+    }
+
+    public static Network createSimple4NodesDcLinesSwitchLine(NetworkFactory networkFactory, String dcNetworkId) {
+        Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
+        dcNetwork.newDcNode()
+                .setId("n1")
+                .setNominalV(500.)
+                .add();
+        dcNetwork.newDcNode()
+                .setId("n2")
+                .setNominalV(500.)
+                .add();
+        dcNetwork.newDcNode()
+                .setId("n3")
+                .setNominalV(500.)
+                .add();
+        dcNetwork.newDcNode()
+                .setId("n4")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcLine()
+                .setId(DC_LINE1)
+                .setDcNode1("n1")
+                .setConnected1(true)
+                .setDcNode2("n2")
+                .setConnected2(true)
+                .setR(5.0)
+                .add();
+        dcNetwork.newDcSwitch()
+                .setId("dcSwitch")
+                .setR(0.1)
+                .setDcNode1("n2")
+                .setDcNode2("n3")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setOpen(false)
+                .add();
+        dcNetwork.newDcLine()
+                .setId(DC_LINE2)
+                .setDcNode1("n3")
+                .setConnected1(true)
+                .setDcNode2("n4")
+                .setConnected2(true)
+                .setR(5.0)
+                .add();
+
+        return dcNetwork;
+    }
+
 }

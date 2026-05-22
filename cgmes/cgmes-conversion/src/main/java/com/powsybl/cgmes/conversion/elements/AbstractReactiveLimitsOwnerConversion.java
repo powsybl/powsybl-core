@@ -198,15 +198,13 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         if (logMissingVoltageRegulation(generator, LOGGER, GENERATOR, "regulation won't be updated")) {
             return;
         }
-        if (regulatingOn) {
-            VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (generator.isRemoteRegulating()) {
             voltageRegulation.setTargetValue(targetV);
-            voltageRegulation.setRegulating(true);
         } else {
-            VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
-            voltageRegulation.setTargetValue(targetV);
-            voltageRegulation.setRegulating(false);
+            generator.setLocalTargetV(targetV);
         }
+        voltageRegulation.setRegulating(regulatingOn);
     }
 
     private static void updateRegulatingControlReactivePower(Generator generator, Boolean controlEnabled, Context context) {
@@ -233,21 +231,17 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
     private static void setReactivePowerRegulation(VoltageRegulation voltageRegulation, double targetQ, boolean regulatingOn) {
-        if (regulatingOn) {
+        if (voltageRegulation.isWithTerminal()) {
             voltageRegulation.setTargetValue(targetQ);
-            voltageRegulation.setRegulating(true);
-        } else {
-            voltageRegulation.setTargetValue(targetQ);
-            voltageRegulation.setRegulating(false);
         }
+        voltageRegulation.setRegulating(regulatingOn);
     }
 
     private static double getDefaultTargetV(Generator generator, Context context) {
         double defaultTargetV = Optional.ofNullable(generator.getRegulatingTerminal())
                 .orElse(generator.getTerminal())
                 .getVoltageLevel().getNominalV();
-        double targetVGenerator = generator.getVoltageRegulation() != null && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE ?
-            generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
+        double targetVGenerator = generator.getRegulatingTargetV();
         return getDefaultValue(null, targetVGenerator, defaultTargetV, Double.NaN, context);
     }
 

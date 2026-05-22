@@ -34,10 +34,10 @@ public class StaticVarCompensatorModification extends AbstractSetpointModificati
 
     @Override
     protected void setVoltageSetpoint(StaticVarCompensator networkElement, Double voltageSetpoint) {
-        if (networkElement.isWithMode(RegulationMode.VOLTAGE)) {
+        if (networkElement.isWithMode(RegulationMode.VOLTAGE) && networkElement.isRemoteRegulating()) {
             networkElement.getVoltageRegulation().setTargetValue(voltageSetpoint);
         } else {
-            networkElement.setTargetV(voltageSetpoint);
+            networkElement.setLocalTargetV(voltageSetpoint);
         }
     }
 
@@ -46,7 +46,7 @@ public class StaticVarCompensatorModification extends AbstractSetpointModificati
         if (networkElement.isWithMode(RegulationMode.REACTIVE_POWER)) {
             networkElement.getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
         } else {
-            networkElement.setTargetQ(reactivePowerSetpoint);
+            networkElement.setLocalTargetQ(reactivePowerSetpoint);
         }
     }
 

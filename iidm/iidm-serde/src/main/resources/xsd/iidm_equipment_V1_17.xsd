@@ -281,6 +281,7 @@
                     <xs:element name="voltageRegulation" minOccurs="0" type="iidm:VoltageRegulation"/>
                 </xs:sequence>
                 <xs:attribute name="targetP" use="optional" type="xs:double"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
                 <xs:attribute name="targetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="minP" use="required" type="xs:double"/>
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
@@ -339,6 +340,7 @@
                 </xs:sequence>
                 <xs:attribute name="sectionCount" use="optional" type="xs:int"/>
                 <xs:attribute name="solvedSectionCount" type="xs:int"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -923,6 +925,7 @@
                 <xs:attribute name="dcNode2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="kind" use="required" type="iidm:DcSwitchKind"/>
                 <xs:attribute name="open" use="required" type="xs:boolean"/>
+                <xs:attribute name="r" use="required" type="xs:double" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

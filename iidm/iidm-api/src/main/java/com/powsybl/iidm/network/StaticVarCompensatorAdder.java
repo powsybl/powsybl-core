@@ -8,12 +8,13 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensator, StaticVarCompensatorAdder> {
+public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensator, StaticVarCompensatorAdder>,
+        VoltageRegulationHolderAdder<StaticVarCompensatorAdder> {
 
     StaticVarCompensatorAdder setBmin(double bMin);
 
@@ -46,8 +47,6 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensatorAdder setRegulating(boolean regulating);
-
-    VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation();
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}

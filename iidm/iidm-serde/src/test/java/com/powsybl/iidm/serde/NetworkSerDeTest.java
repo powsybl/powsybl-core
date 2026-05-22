@@ -355,7 +355,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                     .setConnectableBus(busId)
                     .setMinP(-9999.99)
                     .setMaxP(9999.99)
-                    .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(24.5).add()
+                    .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                     .setTargetV(24.5)
                     .setTargetP(607.0)
                     .setTargetQ(301.0)

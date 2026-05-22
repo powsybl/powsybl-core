@@ -70,9 +70,15 @@ public final class ConnectGenerator extends AbstractNetworkModification {
 
         Terminal t = g.getTerminal();
         t.connect();
-        if (g.getVoltageRegulation() != null && g.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
+        if (g.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
             VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(), g.getId(), IdentifiableType.GENERATOR)
-                .ifPresent(targetV -> g.getVoltageRegulation().setTargetValue(targetV));
+                .ifPresent(targetV -> {
+                    if (g.isRemoteRegulating()) {
+                        g.getVoltageRegulation().setTargetValue(targetV);
+                    } else {
+                        g.setLocalTargetV(targetV);
+                    }
+                });
         }
     }
 }

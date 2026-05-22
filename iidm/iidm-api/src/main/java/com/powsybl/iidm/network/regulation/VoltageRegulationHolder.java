@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.regulation;
 
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.Objects;
-
 /**
  * This interface defines methods for managing voltageRegulation
  *
@@ -55,12 +53,39 @@ public interface VoltageRegulationHolder {
     }
 
     /**
+     * TODO MSA JAVADOC
+     */
+    VoltageRegulationHolder setLocalTargetV(double targetV);
+
+    /**
+     * TODO MSA JAVADOC
+     */
+    default double getLocalTargetV() {
+        return Double.NaN;
+    }
+
+    /**
+     * TODO MSA JAVADOC
+     */
+    default VoltageRegulationHolder setLocalTargetQ(double localTargetQ) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * TODO MSA JAVADOC
+     * Get the target reactive power in MVar.
+     * <p>Depends on the working variant.
+     *
+     * @see VariantManager
+     */
+
+    /**
      * Gets the target reactive power value
      *
-     * @return the target reactive power value, or Double.NaN if not applicable
+     * @return the target reactive power value, or throw ?? MSA
      */
-    default double getTargetQ() {
-        return Double.NaN;
+    default double getLocalTargetQ() {
+        return Double.NaN; // TODO MSA throw exception which one?
     }
 
     /**
@@ -71,9 +96,19 @@ public interface VoltageRegulationHolder {
      */
     default boolean isRegulatingWithMode(RegulationMode mode) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
+        if (RegulationMode.REACTIVE_POWER == mode && voltageRegulation == null) {
+            return true;
+        }
         return voltageRegulation != null
             && voltageRegulation.isRegulating()
-            && (mode == null || mode.equals(voltageRegulation.getMode()));
+            && isWithMode(mode);
+    }
+
+    /**
+     * Get the regulating status.
+     */
+    default boolean isRegulating() {
+        return getVoltageRegulation() != null && getVoltageRegulation().isRegulating();
     }
 
     /**
@@ -84,18 +119,23 @@ public interface VoltageRegulationHolder {
      */
     default boolean isWithMode(RegulationMode mode) {
         VoltageRegulation voltageRegulation = getVoltageRegulation();
-        return voltageRegulation != null
-            && (mode == null || mode.equals(voltageRegulation.getMode()));
+        if (mode == null) {
+            return false;
+        }
+        if (RegulationMode.REACTIVE_POWER.equals(mode) && voltageRegulation == null) {
+            return true;
+        }
+        return voltageRegulation != null && mode.equals(voltageRegulation.getMode());
     }
 
     /**
      * Gets the regulating target voltage value using the targetValue if the RegulatingMode is equals to {@link RegulationMode#VOLTAGE}
      */
     default double getRegulatingTargetV() {
-        if (isWithMode(RegulationMode.VOLTAGE)) {
+        if (isWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
             return getVoltageRegulation().getTargetValue();
         }
-        return getTargetV();
+        return getLocalTargetV();
     }
 
     /**
@@ -103,10 +143,10 @@ public interface VoltageRegulationHolder {
      * TODO MSA Other possible names : getEffectiveTargetQ / getApplicableTargetQ / resolveTargetQ / determineTargetQ
      */
     default double getRegulatingTargetQ() {
-        if (isWithMode(RegulationMode.REACTIVE_POWER)) {
+        if (isWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
             return getVoltageRegulation().getTargetValue();
         }
-        return getTargetQ();
+        return getLocalTargetQ();
     }
 
     /**
@@ -128,7 +168,7 @@ public interface VoltageRegulationHolder {
      * @return true if regulating remotely, false otherwise
      */
     default boolean isRemoteRegulating() {
-        return !Objects.equals(getRegulatingTerminal().getBusBreakerView().getConnectableBus(), getTerminal().getBusBreakerView().getConnectableBus());
+        return getVoltageRegulation() != null && getVoltageRegulation().isWithTerminal();
     }
 
 }

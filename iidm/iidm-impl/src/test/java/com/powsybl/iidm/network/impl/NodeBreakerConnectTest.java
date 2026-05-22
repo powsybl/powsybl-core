@@ -86,7 +86,6 @@ class NodeBreakerConnectTest {
             .setMaxP(9999.99)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(400)
                 .add()
             .setTargetV(400)
             .setTargetP(1)

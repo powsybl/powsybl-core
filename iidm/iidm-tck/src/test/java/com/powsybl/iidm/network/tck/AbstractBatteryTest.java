@@ -48,8 +48,8 @@ public abstract class AbstractBatteryTest {
         battery.setTargetP(targetP);
         assertEquals(targetP, battery.getTargetP(), 0.0);
         double targetQ = 12.0;
-        battery.setTargetQ(targetQ);
-        assertEquals(targetQ, battery.getTargetQ(), 0.0);
+        battery.setLocalTargetQ(targetQ);
+        assertEquals(targetQ, battery.getLocalTargetQ(), 0.0);
         double minP = 10.0;
         battery.setMinP(minP);
         assertEquals(minP, battery.getMinP(), 0.0);
@@ -121,7 +121,7 @@ public abstract class AbstractBatteryTest {
         assertEquals(20.0, battery.getMaxP(), 0.0);
         assertEquals(10.0, battery.getMinP(), 0.0);
         assertEquals(15.0, battery.getTargetP(), 0.0);
-        assertEquals(10.0, battery.getTargetQ(), 0.0);
+        assertEquals(10.0, battery.getLocalTargetQ(), 0.0);
     }
 
     @Test
@@ -232,10 +232,10 @@ public abstract class AbstractBatteryTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(11.0, battery.getTargetP(), 0.0);
-        assertEquals(12.0, battery.getTargetQ(), 0.0);
+        assertEquals(12.0, battery.getLocalTargetQ(), 0.0);
         // change values in s4
         battery.setTargetP(11.1);
-        battery.setTargetQ(12.2);
+        battery.setLocalTargetQ(12.2);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -244,12 +244,12 @@ public abstract class AbstractBatteryTest {
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(11.1, battery.getTargetP(), 0.0);
-        assertEquals(12.2, battery.getTargetQ(), 0.0);
+        assertEquals(12.2, battery.getLocalTargetQ(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(11.0, battery.getTargetP(), 0.0);
-        assertEquals(12.0, battery.getTargetQ(), 0.0);
+        assertEquals(12.0, battery.getLocalTargetQ(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");

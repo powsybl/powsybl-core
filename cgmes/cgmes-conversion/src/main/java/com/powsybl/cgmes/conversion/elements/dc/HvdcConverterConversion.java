@@ -9,27 +9,26 @@
 package com.powsybl.cgmes.conversion.elements.dc;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
 import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
 import static com.powsybl.cgmes.model.CgmesNames.*;
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversion {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(HvdcConverterConversion.class);
 
     private final PropertyBag converter;
 
@@ -54,7 +53,7 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
                     .setLossFactor((float) DEFAULT_LOSS_FACTOR);
             identify(adder);
             connectWithOnlyEq(adder);
-            adder.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).add();
+            RegulatingControlMappingForVscConverters.initialize(adder);
             VscConverterStation c = adder.add();
 
             addAliasesAndProperties(c);
@@ -113,20 +112,22 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     static void update(VscConverterStation vscConverter, PropertyBag cgmesDataConverter, double lossFactor, Context context) {
         vscConverter.setLossFactor((float) lossFactor);
 
-        if (logMissingVoltageRegulation(vscConverter, LOGGER, "converter startion", "regulation won't be updated")) {
-            return;
-        }
         RegulationMode vscRegulation = getVscRegulation(cgmesDataConverter, vscConverter, context);
-        VoltageRegulation voltageRegulation = vscConverter.getVoltageRegulation();
+        Optional<Terminal> remoteTerminal = Optional.ofNullable(vscConverter.getVoltageRegulation()).map(VoltageRegulation::getTerminal);
         if (vscRegulation == RegulationMode.VOLTAGE) {
             double defaultTargetV = getDefaultTargetV(vscConverter, context);
             double targetV = findTargetV(cgmesDataConverter, TARGET_UPCC, defaultTargetV, DefaultValueUse.NOT_DEFINED);
             if (isValidTargetV(targetV)) {
                 // TargetV must be valid before enabling regulation,
-                voltageRegulation.setMode(RegulationMode.VOLTAGE);
-                voltageRegulation.setTargetValue(targetV);
-                voltageRegulation.setRegulating(true);
-                vscConverter.setTargetQ(0.0);
+                VoltageRegulationBuilder voltageRegulationBuilder = vscConverter.newVoltageRegulation().withMode(RegulationMode.VOLTAGE);
+                vscConverter.setLocalTargetQ(0.0);
+                if (remoteTerminal.isPresent()) {
+                    voltageRegulationBuilder.withTerminal(remoteTerminal.get())
+                        .withTargetValue(targetV);
+                } else {
+                    vscConverter.setLocalTargetV(targetV);
+                }
+                voltageRegulationBuilder.build();
                 return;
             }
         }
@@ -134,10 +135,18 @@ public class HvdcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         // Regulation must be turned off before assigning potentially invalid values,
         // to ensure consistency with the applied checks
         double targetQ = getValidTargetQ(cgmesDataConverter, vscConverter, context);
-        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
-        voltageRegulation.setTargetValue(targetQ);
-        voltageRegulation.setRegulating(true);
-        vscConverter.setTargetV(0.0);
+        vscConverter.setLocalTargetV(0.0);
+        // if we have a remote terminal we will create a voltageRegulation with the mode ReactivePowerSetPoint
+        if (remoteTerminal.isPresent()) {
+            vscConverter.newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTerminal(remoteTerminal.get())
+                .withTargetValue(targetQ)
+                .build();
+        } else {
+            vscConverter.setLocalTargetQ(targetQ);
+            vscConverter.removeVoltageRegulation();
+        }
     }
 
     private static RegulationMode getVscRegulation(PropertyBag cgmesDataConverter, VscConverterStation vscConverter, Context context) {

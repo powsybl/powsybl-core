@@ -107,9 +107,9 @@ public final class FictitiousSwitchFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(70.0)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .setTargetP(0.0)
                 .setTargetV(0.0)
+                .setTargetQ(0.0)
                 .setNode(12)
                 .add();
         generatorCB.newReactiveCapabilityCurve()
@@ -130,9 +130,9 @@ public final class FictitiousSwitchFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(80.0)
-                .newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0).add()
                 .setTargetP(0.0)
                 .setTargetV(0.0)
+                .setTargetQ(0.0)
                 .setNode(14)
                 .add();
         generatorCC.newReactiveCapabilityCurve()
@@ -153,8 +153,9 @@ public final class FictitiousSwitchFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(35.0)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(236.44736).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(21.789589)
+                .setTargetV(236.44736)
                 .setTargetQ(-20.701546)
                 .setNode(16)
                 .add();

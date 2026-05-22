@@ -70,7 +70,7 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             .setMinP(0)
             .setTargetP(100)
             .setTargetV(400)
-            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
     }
 

@@ -15,16 +15,14 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.triplestore.api.PropertyBag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.elements.dc.AbstractDCConductingEquipmentConversion.isDcTerminalConnected;
 import static com.powsybl.cgmes.model.CgmesNames.VS_CONVERTER;
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.logMissingVoltageRegulation;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -33,7 +31,6 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     int numberOfAcTerminals;
     static final double DEFAULT_POWER_FACTOR = 1.0 / Math.hypot(1.0, 0.5);  // Default power factor calculated with Q = P / 2
-    private static final Logger LOGGER = LoggerFactory.getLogger(AcDcConverterConversion.class);
 
     public AcDcConverterConversion(PropertyBag p, Context context) {
         super(CgmesNames.ACDC_CONVERTER, p, context);
@@ -143,10 +140,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     private void setReactivePowerControl(VoltageSourceConverterAdder adder) {
         // The default is 0 MVar reactive power at pcc terminal.
-        adder.newVoltageRegulation()
-            .withMode(RegulationMode.REACTIVE_POWER)
-            .withTargetValue(0.0)
-            .add();
+        adder.setTargetQ(0.0);
     }
 
     private void setPowerFactor(LineCommutatedConverterAdder adder) {
@@ -236,30 +230,42 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
     }
 
     private static void updateReactivePowerControl(VoltageSourceConverter vsc, PropertyBag cgmesData, Context context) {
-        if (logMissingVoltageRegulation(vsc, LOGGER, "converter station", "reactive power control won't be updated")) {
-            return;
-        }
         String qPccControl = cgmesData.getLocal("qPccControl");
+        Optional<Terminal> remoteTerminal = Optional.ofNullable(vsc.getVoltageRegulation()).map(VoltageRegulation::getTerminal);
         if (qPccControl != null && qPccControl.endsWith("voltagePcc")) {
             double defaultVoltageSetpoint = getDefaultValue(null, vsc.getRegulatingTargetV(), vsc.getPccTerminal().getVoltageLevel().getNominalV(), Double.NaN, context);
             double voltageSetpoint = cgmesData.asDouble("targetUpcc");
             double validVoltageSetpoint = isValidTargetV(voltageSetpoint) ? voltageSetpoint : defaultVoltageSetpoint;
-
             // VoltageSetpoint must be valid before enabling regulation
-            VoltageRegulation voltageRegulation = vsc.getVoltageRegulation();
-            voltageRegulation.setTargetValue(validVoltageSetpoint);
-            voltageRegulation.setMode(RegulationMode.VOLTAGE);
-            vsc.setTargetQ(Double.NaN);
+            VoltageRegulationBuilder voltageRegulationBuilder = vsc.newVoltageRegulation().withMode(RegulationMode.VOLTAGE);
+            if (remoteTerminal.isPresent()) {
+                voltageRegulationBuilder.withTerminal(remoteTerminal.get())
+                    .withTargetValue(validVoltageSetpoint);
+            } else {
+                vsc.setLocalTargetV(validVoltageSetpoint);
+            }
+            voltageRegulationBuilder.build();
+            vsc.setLocalTargetQ(Double.NaN);
         } else if (qPccControl != null && qPccControl.endsWith("reactivePcc")) {
             double defaultReactivePowerSetpoint = getDefaultValue(null, vsc.getRegulatingTargetQ(), 0.0, Double.NaN, context);
             double reactivePowerSetpoint = cgmesData.asDouble("targetQpcc");
             double validReactivePowerSetpoint = isValidTargetValue(reactivePowerSetpoint) ? reactivePowerSetpoint : defaultReactivePowerSetpoint;
 
-            // ReactivePowerSetpoint must be valid before enabling regulation
-            VoltageRegulation voltageRegulation = vsc.getVoltageRegulation();
-            voltageRegulation.setTargetValue(validReactivePowerSetpoint);
-            voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
-            vsc.setTargetV(Double.NaN);
+            // ReactivePowerSetpoint must be valid before disabling regulation
+            if (remoteTerminal.isPresent()) {
+                vsc.newVoltageRegulation()
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTerminal(remoteTerminal.get())
+                    .withTargetValue(validReactivePowerSetpoint)
+                    .build();
+            } else {
+                VoltageRegulation voltageRegulation = vsc.getVoltageRegulation();
+                if (voltageRegulation != null) {
+                    voltageRegulation.setRegulating(false);
+                }
+                vsc.setLocalTargetQ(validReactivePowerSetpoint);
+            }
+            vsc.setLocalTargetV(Double.NaN);
         }
     }
 

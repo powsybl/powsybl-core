@@ -183,15 +183,15 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setNode(3)
                 .setSectionCount(1)
                 .newLinearModel()
-                .setMaximumSectionCount(2)
-                .setGPerSection(0.001)
-                .setBPerSection(0.1)
-                .add()
+                    .setMaximumSectionCount(2)
+                    .setGPerSection(0.001)
+                    .setBPerSection(0.1)
+                    .add()
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(vl2S4.getNominalV() * 1.01)
                     .withTargetDeadband(0.5)
                     .add()
+                .setLocalTargetV(vl2S4.getNominalV() * 1.01)
                 .add();
         createLoad(vl2S4, "Load-Vl2-Sub4", 4, 12.0, 4.0);
 
@@ -322,9 +322,9 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setNode(4)
                 .setLossFactor(0.001f)
                 .newVoltageRegulation()
-                    .withTargetValue(vl1S2.getNominalV())
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
+                .setTargetV(vl1S2.getNominalV())
                 .setTargetQ(0.0)
                 .add();
         vsc1.newMinMaxReactiveLimits().setMinQ(-250.0).setMaxQ(300.0).add();
@@ -333,10 +333,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setName("Vsc-Vl1-Sub4")
                 .setNode(2)
                 .setLossFactor(0.002f)
-                .newVoltageRegulation()
-                    .withTargetValue(0.1)
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .add()
+                .setTargetQ(0.1)
                 .setTargetV(vl1S4.getNominalV())
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-260.0).setMaxQ(310.0).add();
@@ -419,8 +416,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
 
     private static Generator createGenerator(VoltageLevel voltageLevel, String generatorId, int node, double targetP, double targetQ, double targetV, boolean isRegulating) {
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel.getTopologyKind());
-        RegulationMode mode = isRegulating ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
-        Generator gen = voltageLevel.newGenerator()
+        GeneratorAdder adder = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setName(generatorId)
                 .setNode(node)
@@ -429,9 +425,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setRatedS(125.0)
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
-                .setTargetV(targetV)
-                .newVoltageRegulation().withMode(mode).withTargetValue(targetQ).add()
-                .add();
+                .setTargetV(targetV);
+        if (isRegulating) {
+            adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add();
+        }
+        Generator gen = adder.add();
         gen.newMinMaxReactiveLimits().setMinQ(-225.0).setMaxQ(230.0).add();
 
         return gen;

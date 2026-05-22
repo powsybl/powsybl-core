@@ -7,6 +7,10 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractVoltageRegulationExtensionTest;
+import com.powsybl.iidm.network.tck.AbstractVoltageRegulationTest;
 
-class VoltageRegulationExtensionTest extends AbstractVoltageRegulationExtensionTest { }
+/**
+ * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
+ */
+public class VoltageRegulationTest extends AbstractVoltageRegulationTest {
+}

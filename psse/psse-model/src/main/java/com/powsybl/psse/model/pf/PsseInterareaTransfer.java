@@ -7,7 +7,22 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultDoubleFor;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ARFROM;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ARTO;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_PTRAN;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_TRID;
 
 /**
  *
@@ -16,17 +31,40 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseInterareaTransfer {
 
-    @Parsed
+    private static final Map<String, PsseFieldDefinition<PsseInterareaTransfer, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_ARFROM, STR_ARTO, STR_TRID, STR_PTRAN};
+
     private int arfrom;
-
-    @Parsed
     private int arto;
+    private String trid = defaultStringFor(STR_TRID, FIELDS);
+    private double ptran = defaultDoubleFor(STR_PTRAN, FIELDS);
 
-    @Parsed(defaultNullRead = "1")
-    private String trid;
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
 
-    @Parsed
-    private double ptran = 0.0;
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseInterareaTransfer fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseInterareaTransfer::new);
+    }
+
+    public static String[] toRecord(PsseInterareaTransfer psseInterareaTransfer, String[] headers) {
+        return Util.toRecord(psseInterareaTransfer, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseInterareaTransfer, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseInterareaTransfer, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_ARFROM, Integer.class, PsseInterareaTransfer::getArfrom, PsseInterareaTransfer::setArfrom));
+        addField(fields, createNewField(STR_ARTO, Integer.class, PsseInterareaTransfer::getArto, PsseInterareaTransfer::setArto));
+        addField(fields, createNewField(STR_TRID, String.class, PsseInterareaTransfer::getTrid, PsseInterareaTransfer::setTrid, "1"));
+        addField(fields, createNewField(STR_PTRAN, Double.class, PsseInterareaTransfer::getPtran, PsseInterareaTransfer::setPtran, 0.0));
+
+        return fields;
+    }
 
     public int getArfrom() {
         return arfrom;

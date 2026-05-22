@@ -38,7 +38,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8),
                 b.getTargetP());
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8),
-                b.getTargetQ());
+                b.getLocalTargetQ());
         context.getWriter().writeDoubleAttribute("minP", b.getMinP());
         context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
         writeNodeOrBus(null, b.getTerminal(), context);
@@ -51,7 +51,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
             VoltageRegulationExtension extension = new VoltageRegulationExtension(b,
                     b.getVoltageRegulation().getTerminal(),
                     b.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE,
-                    b.getVoltageRegulation().getTargetValue());
+                    b.getRegulatingTargetV());
             context.addExtinctExtensionsToSerialize(b.getId(), extension);
         }
     }
@@ -59,7 +59,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     @Override
     protected void writeSubElements(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         ReactiveLimitsSerDe.INSTANCE.write(b, context);
-        VoltageRegulationSerDe.writeVoltageRegulation(b.getVoltageRegulation(), context, b);
+        VoltageRegulationSerDe.writeVoltageRegulation(b.getVoltageRegulation(), context);
     }
 
     @Override

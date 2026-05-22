@@ -67,10 +67,11 @@ public class RegulatingControlMappingForShuntCompensators {
         Terminal terminal = RegulatingTerminalMapper
             .mapForVoltageControl(rc.cgmesTerminal, context)
             .orElse(shuntCompensator.getTerminal());
-        if (shuntCompensator.getVoltageRegulation() == null) {
-            shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
-        }
-        shuntCompensator.getVoltageRegulation().setTerminal(terminal);
+        shuntCompensator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .withTerminal(terminal)
+            .build();
         shuntCompensator.setProperty(Conversion.PROPERTY_REGULATING_CONTROL, rcId);
     }
 }

@@ -32,24 +32,22 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     private VoltageRegulationExt voltageRegulation;
 
     // attributes depending on the variant
-    private final TDoubleArrayList targetQ;
-    private final TDoubleArrayList targetV;
+    private final TDoubleArrayList localTargetQ;
+    private final TDoubleArrayList localTargetV;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax,
-                             VoltageRegulationExt voltageRegulation, Ref<NetworkImpl> ref, double targetQ, double targetV) {
+                             VoltageRegulationExt voltageRegulation, Ref<NetworkImpl> ref, double localTargetQ, double localTargetV) {
         super(ref, id, name, fictitious);
         this.bMin = bMin;
         this.bMax = bMax;
         this.voltageRegulation = voltageRegulation;
-        if (this.voltageRegulation != null) {
-            this.voltageRegulation.updateValidable(this);
-        }
+        this.attachVoltageRegulation();
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.targetQ = new TDoubleArrayList(variantArraySize);
-        this.targetV = new TDoubleArrayList(variantArraySize);
+        this.localTargetQ = new TDoubleArrayList(variantArraySize);
+        this.localTargetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.targetQ.add(targetQ);
-            this.targetV.add(targetV);
+            this.localTargetQ.add(localTargetQ);
+            this.localTargetV.add(localTargetV);
         }
     }
 
@@ -92,13 +90,20 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     }
 
     @Override
-    public double getTargetV() {
-        return this.targetV.get(getNetwork().getVariantIndex());
+    public double getLocalTargetV() {
+        return this.localTargetV.get(getNetwork().getVariantIndex());
     }
 
     @Override
-    public double getTargetQ() {
-        return this.targetQ.get(getNetwork().getVariantIndex());
+    public double getLocalTargetQ() {
+        return this.localTargetQ.get(getNetwork().getVariantIndex());
+    }
+
+    public void attachVoltageRegulation() {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(this);
+            vr.setParent(this);
+        });
     }
 
     @Override
@@ -120,26 +125,27 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     }
 
     @Override
-    public StaticVarCompensator setTargetQ(double targetQ) {
+    public StaticVarCompensator setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkDoublePositive(this, targetQ, "targetQ");
+        ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), targetQ, getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.targetQ.set(variantIndex, targetQ);
+        double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("targetQ", variantId, oldValue, targetQ);
+        notifyUpdate("localTargetQ", variantId, oldValue, targetQ);
         return this;
     }
 
     @Override
-    public StaticVarCompensator setTargetV(double targetV) {
+    public StaticVarCompensator setLocalTargetV(double targetV) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkDoublePositive(this, targetV, "targetV");
+
+        ValidationUtil.checkLocalTargetQandV(this, targetV, this.getLocalTargetQ(), getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.targetV.set(variantIndex, targetV);
+        double oldValue = this.localTargetV.set(variantIndex, targetV);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("targetV", variantId, oldValue, targetV);
+        notifyUpdate("localTargetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -168,12 +174,10 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            RegulationMode oldValue = regulation.getMode();
-            regulation.setMode(regulationMode);
-            String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-            notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
-        });
+        RegulationMode oldValue = getOptionalVoltageRegulation().map(VoltageRegulation::getMode).orElse(null);
+        newVoltageRegulation().withMode(regulationMode).build();
+        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
         return this;
     }
 
@@ -181,7 +185,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         getOptionalVoltageRegulation().ifPresent(regulation -> {
             Terminal oldValue = regulation.getTerminal();
-            regulation.setTerminal(regulatingTerminal);
+            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
+            regulation.setTerminal(regulatingTerminal, targetValue);
             String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
             notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
         });
@@ -190,7 +195,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public void remove() {
-        this.removeVoltageRegulation();
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         super.remove();
     }
 
@@ -198,8 +203,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         for (int i = 0; i < number; i++) {
-            targetQ.add(targetQ.get(sourceIndex));
-            targetV.add(targetV.get(sourceIndex));
+            localTargetQ.add(localTargetQ.get(sourceIndex));
+            localTargetV.add(localTargetV.get(sourceIndex));
         }
         this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
@@ -207,8 +212,8 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        targetQ.remove(targetQ.size() - number, number);
-        targetV.remove(targetV.size() - number, number);
+        localTargetQ.remove(localTargetQ.size() - number, number);
+        localTargetV.remove(localTargetV.size() - number, number);
         this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(number));
     }
 
@@ -222,15 +227,10 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            targetQ.set(index, targetQ.get(sourceIndex));
-            targetV.set(index, targetV.get(sourceIndex));
+            localTargetQ.set(index, localTargetQ.get(sourceIndex));
+            localTargetV.set(index, localTargetV.get(sourceIndex));
         }
         this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
-    }
-
-    @Override
-    public boolean isRegulating() {
-        return getOptionalVoltageRegulation().map(VoltageRegulation::isRegulating).orElse(false);
     }
 
     @Override
@@ -246,7 +246,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public VoltageRegulationBuilder newVoltageRegulation() {
-        return new VoltageRegulationBuilderImpl<>(StaticVarCompensator.class, this, getNetwork().getRef(), this::setVoltageRegulation);
+        return new VoltageRegulationBuilderImpl(StaticVarCompensator.class, this, this, getNetwork().getRef(), this::setVoltageRegulation);
     }
 
     @Override
@@ -266,13 +266,14 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::removeTerminal);
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = null;
     }
 
     private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
-        this.removeVoltageRegulation();
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
+        this.attachVoltageRegulation();
     }
 
 }

@@ -28,43 +28,46 @@ class VoltageRegulationExtensionTest {
         String newState1 = "newState1";
 
         Network network = BatteryNetworkFactory.create();
-        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, newState1);
-        network.getVariantManager().setWorkingVariant(newState1);
-
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
 
+        bat.setLocalTargetV(50.0);
+
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, newState1);
+        network.getVariantManager().setWorkingVariant(newState1);
+
         VoltageRegulation voltageRegulation = bat.newVoltageRegulation()
-//            .withTerminal(bat.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(50.0)
             .build();
         assertNotNull(voltageRegulation);
 
-        assertEquals(50.0, voltageRegulation.getTargetValue(), 0);
-        voltageRegulation.setTargetValue(51.0);
-        assertEquals(51.0, voltageRegulation.getTargetValue(), 0);
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue(), 0);
+        assertEquals(50.0, bat.getLocalTargetV(), 0);
+        bat.setLocalTargetV(51);
+        assertEquals(51.0, bat.getLocalTargetV(), 0);
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
-        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
-        assertEquals(RegulationMode.REACTIVE_POWER, voltageRegulation.getMode());
+        bat.getVoltageRegulation().setRegulating(false);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertFalse(bat.isRegulating());
 
         String newState2 = "newState2";
         network.getVariantManager().cloneVariant(newState1, newState2);
         network.getVariantManager().setWorkingVariant(newState2);
-        assertEquals(RegulationMode.REACTIVE_POWER, voltageRegulation.getMode());
-        assertEquals(51.0, voltageRegulation.getTargetValue(), 0);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertEquals(51.0, bat.getLocalTargetV(), 0);
 
-        voltageRegulation.setTargetValue(50.0);
-        voltageRegulation.setMode(RegulationMode.VOLTAGE);
-        assertEquals(50.0, voltageRegulation.getTargetValue(), 0);
+        bat.setLocalTargetV(50.0);
+        bat.getVoltageRegulation().setRegulating(true);
+        assertEquals(50.0, bat.getLocalTargetV(), 0);
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
 
         network.getVariantManager().setWorkingVariant(newState1);
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
-        assertEquals(51.0, voltageRegulation.getTargetValue(), 0);
+        assertEquals(51.0, bat.getLocalTargetV(), 0);
 
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(50.0, voltageRegulation.getTargetValue(), 0);
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue(), 0);
+        assertEquals(50.0, bat.getLocalTargetV(), 0);
         assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
     }
 
@@ -98,10 +101,11 @@ class VoltageRegulationExtensionTest {
         Network network = BatteryNetworkFactory.create();
         var battery = network.getBattery("BAT");
         var battery2 = network.getBattery("BAT2");
+        battery.setLocalTargetV(24.5);
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
-            .withTerminal(battery2.getTerminal())
+            .withTerminal(battery2.getTerminal()) // The same terminal as the battery.
             .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(50.0)
+            .withTargetValue(50.0) // Will be ignored
             .build();
         assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
         battery2.remove();
@@ -147,13 +151,14 @@ class VoltageRegulationExtensionTest {
 
         var battery = network.getBattery("BAT");
         var battery2 = network.getBattery("BAT2");
+        battery.setLocalTargetV(25);
         VoltageRegulation voltageRegulation = battery.newVoltageRegulation()
             .withTerminal(battery2.getTerminal())
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(50.0)
             .build();
         assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
-        voltageRegulation.setTerminal(battery3.getTerminal());
+        voltageRegulation.setTerminal(battery3.getTerminal(), 120);
         assertRegulatingTerminal(battery3.getTerminal(), voltageRegulation, battery2.getTerminal());
         // Removing battery 2 should not change the regulating terminal
         battery2.remove();
@@ -162,7 +167,7 @@ class VoltageRegulationExtensionTest {
         battery3.remove();
         assertRegulatingTerminal(null, voltageRegulation, battery3.getTerminal());
         // Switch to local regulation (this was already the case)
-        voltageRegulation.setTerminal(null);
+        voltageRegulation.removeTerminal();
         assertRegulatingTerminal(null, voltageRegulation);
     }
 

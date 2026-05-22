@@ -110,11 +110,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Avoid negative zeros during the comparison
         expected.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getTargetQ() + 0.0);
+            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
         });
         actual.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getTargetQ() + 0.0);
+            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
         });
 
         assertTrue(compareNetworksEQdata(expected, actual));
@@ -129,11 +129,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Avoid negative zeros during the comparison
         expected.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getTargetQ() + 0.0);
+            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
         });
         actual.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getTargetQ() + 0.0);
+            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
         });
 
         assertTrue(compareNetworksEQdata(expected, actual));
@@ -581,7 +581,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
-            actualGenerator.setTargetQ(expectedGenerator.getTargetQ());
+            actualGenerator.setTargetQ(expectedGenerator.getLocalTargetQ());
         });
 
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
@@ -612,7 +612,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         VoltageLevel vl = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl.getBusBreakerView().newBus().setId("Bus1").add();
         Generator g = vl.newGenerator().setId("Generator1").setBus("Bus1")
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(400)
                 .setTargetP(0).setMinP(0).setMaxP(10)
                 .add();
@@ -660,7 +660,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
-            actualGenerator.setTargetQ(expectedGenerator.getTargetQ());
+            actualGenerator.setTargetQ(expectedGenerator.getLocalTargetQ());
         });
 
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
@@ -1281,7 +1281,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.create();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
-            network.getGenerator("GEN").getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
 
@@ -1289,7 +1289,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
-            network.getGenerator("GEN").getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
 
@@ -1305,7 +1305,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
-            network.getGenerator("GEN").getVoltageRegulation().setTerminal(null);
+            network.getGenerator("GEN").getVoltageRegulation().removeTerminal();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
 
@@ -1321,13 +1321,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithLocalReactiveAndVoltageGenerator();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
-            network.getGenerator("GEN").getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
-            network.getGenerator("GEN").getVoltageRegulation().setTerminal(null);
+            network.getGenerator("GEN").newVoltageRegulation().withMode(RegulationMode.VOLTAGE).build();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
-            network.getGenerator("GEN").getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(true);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
 
@@ -1335,13 +1335,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = EurostagTutorialExample1Factory.createWithRemoteReactiveAndVoltageGenerators();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
-            network.getGenerator("GEN").getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-            eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
             network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
-            network.getGenerator("GEN").getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").getVoltageRegulation().setRegulating(true);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
 
@@ -1421,10 +1421,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .setCondenser(true)
                 .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -1781,10 +1778,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 staticVarCompensator.removeVoltageRegulation();
                 staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof VscConverterStation converter) {
-                converter.newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).withTargetValue(0.0).withRegulating(false).build();
+                converter.removeVoltageRegulation();
                 converter.setLossFactor(0.8f);
-                converter.setTargetV(Double.NaN);
-                converter.setTargetQ(Double.NaN);
+                converter.setLocalTargetV(Double.NaN);
+                converter.setLocalTargetQ(Double.NaN);
                 converter.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof LccConverterStation converter) {
                 converter.setPowerFactor(0.8f);
@@ -1843,10 +1840,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .add();
         voltageLevel1.newGenerator()
                 .setId("nuclear")
@@ -1854,10 +1848,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .add();
         voltageLevel1.newGenerator()
@@ -1866,10 +1857,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .setEnergySource(EnergySource.THERMAL)
                 .add();
         voltageLevel1.newGenerator()
@@ -1878,10 +1866,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .setEnergySource(EnergySource.HYDRO)
                 .add();
         voltageLevel1.newGenerator()
@@ -1890,10 +1875,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .setEnergySource(EnergySource.SOLAR)
                 .add();
         Generator windOnshore = voltageLevel1.newGenerator()
@@ -1902,10 +1884,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .setEnergySource(EnergySource.WIND)
                 .add();
         Generator windOffshore = voltageLevel1.newGenerator()
@@ -1914,10 +1893,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.REACTIVE_POWER)
-                    .withTargetValue(10.0)
-                    .add()
+                .setTargetQ(10.0)
                 .setEnergySource(EnergySource.WIND)
                 .add();
         topology1.newInternalConnection().setNode1(0).setNode2(1).add();

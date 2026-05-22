@@ -25,11 +25,11 @@ class TestBatteryModification {
     private Battery battery;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = BatteryNetworkFactory.create();
         assertTrue(network.getBatteryCount() > 0);
         battery = network.getBatteries().iterator().next();
-        battery.setTargetQ(0);
+        battery.setLocalTargetQ(0);
     }
 
     @Test
@@ -40,9 +40,9 @@ class TestBatteryModification {
         assertEquals(1., battery.getTargetP());
 
         BatteryModification batteryModification2 = new BatteryModification(battery.getId(), null, 2.0);
-        assertEquals(0, battery.getTargetQ());
+        assertEquals(0, battery.getLocalTargetQ());
         batteryModification2.apply(network);
-        assertEquals(2., battery.getTargetQ());
+        assertEquals(2., battery.getLocalTargetQ());
     }
 
     @Test

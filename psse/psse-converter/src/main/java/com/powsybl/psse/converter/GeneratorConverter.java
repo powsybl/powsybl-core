@@ -10,7 +10,7 @@ package com.powsybl.psse.converter;
 import java.util.*;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,30 +84,14 @@ class GeneratorConverter extends AbstractConverter {
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double targetV = psseGenerator.getVs() * vnom;
 
-        boolean voltageRegulatorOn = false;
+        boolean isRegulating = false;
         // we consider < but psse accepts bus type 2 with Qmin == Qmax
         if (targetV > 0.0 && psseGenerator.getQb() < psseGenerator.getQt()) {
-            voltageRegulatorOn = psseVoltageRegulatorOn;
+            isRegulating = psseVoltageRegulatorOn;
         }
+        boolean isLocalTerminal = regulatingTerminal.getConnectable().equals(generator);
 
-        RegulationMode mode;
-        double targetValue;
-        if (voltageRegulatorOn) {
-            mode = RegulationMode.VOLTAGE;
-            targetValue = targetV;
-        } else {
-            mode = RegulationMode.REACTIVE_POWER;
-            targetValue = generator.getTargetQ();
-            generator.setTargetV(targetV);
-            generator.setTargetQ(Double.NaN); // was set previously
-        }
-        generator.newVoltageRegulation()
-            .withMode(mode)
-            .withTargetValue(targetValue)
-            .build();
-        if (generator.getTerminal().getBusBreakerView().getConnectableBus() != regulatingTerminal.getBusBreakerView().getConnectableBus()) {
-            generator.getVoltageRegulation().setTerminal(regulatingTerminal);
-        }
+        VoltageRegulationUtils.buildVoltageRegulation(generator, isLocalTerminal, targetV, regulatingTerminal, isRegulating);
     }
 
     private static boolean defineVoltageRegulatorOn(PsseBus psseBus) {

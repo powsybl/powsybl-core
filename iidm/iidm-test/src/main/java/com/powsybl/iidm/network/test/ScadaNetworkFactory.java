@@ -64,7 +64,7 @@ public final class ScadaNetworkFactory {
                 .setMaxQ(200)
                 .add();
         Generator generator = vl.newGenerator()
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .setId("generator")
                 .setBus(busId)
                 .setMinP(0.0)

@@ -38,13 +38,18 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
     @Override
     public VoltageRegulationAdder<VoltageSourceConverterAdder> newVoltageRegulation() {
         Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(VoltageSourceConverter.class, this, getNetwork().getRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(VoltageSourceConverter.class, this, this, getNetwork().getRef(), voltageRegulationConsumer);
     }
 
     @Override
     public VoltageSourceConverterAdder setTargetQ(double targetQ) {
         this.targetQ = targetQ;
         return this;
+    }
+
+    @Override
+    public double getTargetQ() {
+        return this.targetQ;
     }
 
     @Override

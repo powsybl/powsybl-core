@@ -29,11 +29,13 @@ public final class VoltageRegulationUtils {
         // VOLTAGE case
         if (Boolean.TRUE.equals(voltageRegulatorOn)) {
             adder.withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(targetV)
+                .withTargetValue(terminal != null ? targetV : Double.NaN)
                 .withTerminal(terminal)
                 .add();
-            // REACTIVE Power case
-        } else if (Boolean.FALSE.equals(voltageRegulatorOn) && !Double.isNaN(targetQ)) {
+        // REACTIVE Power case
+        } else if (Boolean.FALSE.equals(voltageRegulatorOn)
+            && !Double.isNaN(targetQ)
+            && terminal != null) {
             adder.withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(targetQ)
                 .withTerminal(terminal)
@@ -82,12 +84,11 @@ public final class VoltageRegulationUtils {
         List<Double> targets = switch (identifiableType) {
             case GENERATOR -> getRegulatingGenerators(network, controlledBus)
                 .filter(g -> !g.getId().equals(regulatingElementId))
-                .map(Generator::getVoltageRegulation)
-                .filter(Objects::nonNull)
-                .map(VoltageRegulation::getTargetValue).distinct().toList();
+                .map(Generator::getRegulatingTargetV)
+                .distinct().toList();
             case SHUNT_COMPENSATOR -> getRegulatingShuntCompensators(network, controlledBus)
                 .filter(g -> !g.getId().equals(regulatingElementId))
-                .map(ShuntCompensator::getTargetV).distinct().toList();
+                .map(ShuntCompensator::getRegulatingTargetV).distinct().toList();
             default -> new ArrayList<>();
         };
         if (targets.size() != 1) {
@@ -107,30 +108,56 @@ public final class VoltageRegulationUtils {
         return false;
     }
 
+    public static boolean haveSameConnectableBus(Terminal regulatingTerminal, Terminal terminal) {
+        return regulatingTerminal == null || regulatingTerminal.getVoltageLevel() == null
+            || terminal == null || terminal.getVoltageLevel() == null
+            || Objects.equals(regulatingTerminal.getBusBreakerView().getConnectableBus(), terminal.getBusBreakerView().getConnectableBus());
+    }
+
+    public static boolean isRegulating(VoltageRegulation voltageRegulation, Terminal terminal) {
+        boolean isRemoteReactivePowerRegulating = voltageRegulation != null
+            && (RegulationMode.REACTIVE_POWER.equals(voltageRegulation.getMode())
+            || !haveSameConnectableBus(voltageRegulation.getTerminal(), terminal));
+
+        return voltageRegulation != null
+            && voltageRegulation.isRegulating()
+            || isRemoteReactivePowerRegulating;
+    }
+
+    public static void buildVoltageRegulation(VoltageRegulationHolder holder, boolean isLocalTerminal, double targetV, Terminal regulatingTerminal, boolean isRegulatingOn) {
+        if (isLocalTerminal) {
+            holder.setLocalTargetV(targetV);
+        }
+        if (!isLocalTerminal) {
+            holder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(targetV)
+                .withTerminal(regulatingTerminal)
+                .withTargetValue(targetV)
+                .withRegulating(isRegulatingOn)
+                .build();
+        } else if (isRegulatingOn) {
+            holder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .build();
+        }
+    }
+
     public static VoltageRegulationData buildVoltageRegulationData(Boolean voltageRegulatorOn, Double voltageSetpoint, Double reactivePowerSetpoint) {
         RegulationMode regulationMode;
         if (voltageRegulatorOn == null) {
             if (!Double.isNaN(voltageSetpoint)) {
                 regulationMode = RegulationMode.VOLTAGE;
             } else if (!Double.isNaN(reactivePowerSetpoint)) {
-                regulationMode = RegulationMode.REACTIVE_POWER;
+                regulationMode = null;
             } else {
                 regulationMode = RegulationMode.VOLTAGE;
             }
         } else {
-            regulationMode = voltageRegulatorOn ? RegulationMode.VOLTAGE : RegulationMode.REACTIVE_POWER;
+            regulationMode = voltageRegulatorOn ? RegulationMode.VOLTAGE : null;
         }
-        double targetValue;
-        double targetV = Double.NaN;
-        double targetQ = Double.NaN;
-        if (regulationMode == RegulationMode.REACTIVE_POWER) {
-            targetValue = reactivePowerSetpoint;
-            targetV = voltageSetpoint;
-        } else {
-            targetValue = voltageSetpoint;
-            targetQ = reactivePowerSetpoint;
-        }
-        return new VoltageRegulationData(regulationMode, targetV, targetQ, targetValue);
+        double targetValue = Double.NaN;
+        return new VoltageRegulationData(regulationMode, voltageSetpoint, reactivePowerSetpoint, targetValue);
     }
 
     public record VoltageRegulationData(RegulationMode regulationMode, double targetV, double targetQ, double targetValue) { }

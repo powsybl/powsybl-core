@@ -8,6 +8,7 @@
 package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -38,30 +39,22 @@ class GeneratorConverter extends AbstractConverter {
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
         boolean voltageRegulatorOn = generatorModel.voltageRegulatorOn;
-        RegulationMode mode;
-        double targetValue;
-        if (voltageRegulatorOn) {
-            mode = RegulationMode.VOLTAGE;
-            targetValue = generatorModel.targetVpu * vl.getNominalV();
-        } else {
-            mode = RegulationMode.REACTIVE_POWER;
-            targetValue = generatorModel.targetQ;
-        }
-        Generator g = vl.newGenerator()
+
+        GeneratorAdder gAdder = vl.newGenerator()
                 .setId(getId(elmSym))
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setTargetP(generatorModel.targetP)
                 .setTargetQ(generatorModel.targetQ)
                 .setTargetV(generatorModel.targetVpu * vl.getNominalV())
-                .newVoltageRegulation()
-                    .withTargetValue(targetValue)
-                    .withMode(mode)
-                    .add()
                 .setMinP(generatorModel.minP)
-                .setMaxP(generatorModel.maxP)
+                .setMaxP(generatorModel.maxP);
+        if (voltageRegulatorOn) {
+            gAdder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
                 .add();
-
+        }
+        Generator g = gAdder.add();
         Optional<List<CapabilityCurvePoint>> capabitlityCurve = CapabilityCurvePoint.create(elmSym);
         if (capabitlityCurve.isPresent()) {
             ReactiveCapabilityCurveAdder adder = g.newReactiveCapabilityCurve();

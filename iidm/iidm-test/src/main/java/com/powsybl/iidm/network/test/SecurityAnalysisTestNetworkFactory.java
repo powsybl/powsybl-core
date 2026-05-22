@@ -106,7 +106,7 @@ public final class SecurityAnalysisTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMinP(0)
                 .setMaxP(150)
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(400)
                 .setTargetP(100.0)
                 .setNode(2)

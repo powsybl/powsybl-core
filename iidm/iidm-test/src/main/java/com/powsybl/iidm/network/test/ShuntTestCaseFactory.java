@@ -154,7 +154,7 @@ public final class ShuntTestCaseFactory {
     }
 
     public static Network createLocalShunt(Network network) {
-        network.getShuntCompensator(SHUNT).getVoltageRegulation().removeTerminal();
+        network.getShuntCompensator(SHUNT).getVoltageRegulation().setTerminal(network.getShuntCompensator(SHUNT).getTerminal(), 200);
         return network;
     }
 

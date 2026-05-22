@@ -258,8 +258,8 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getTargetP())) {
                 activePowerGeneration += generator.getTargetP();
             }
-            if (!Double.isNaN(generator.getTargetQ())) {
-                reactivePowerGeneration += generator.getTargetQ();
+            if (!Double.isNaN(generator.getLocalTargetQ())) {
+                reactivePowerGeneration += generator.getLocalTargetQ();
             }
             if (!Double.isNaN(generator.getTargetV())) {
                 // FIXME(mathbagu): what if not all the generators have the same targetV?

@@ -28,6 +28,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private double targetV = Double.NaN;
 
+    private double localTargetV = Double.NaN;
+
     private double targetDeadband = Double.NaN;
 
     private TerminalExt regulatingTerminal;
@@ -194,7 +196,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     @Override
     public VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation() {
         Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, this, getNetworkRef(), voltageRegulationConsumer);
     }
 
     @Override
@@ -216,6 +218,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public ShuntCompensatorAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
         return this;
@@ -230,6 +238,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
+        // TODO MSA add backward compatibility
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV,
@@ -238,10 +247,13 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(),
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        if (voltageRegulation != null && voltageRegulation.isRegulating() && voltageRegulation.getTerminal() == null) {
+            network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, localTargetV, Double.NaN, voltageRegulation, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        }
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
-                id, getName(), isFictitious(), modelBuilder.build(), sectionCount, solvedSectionCount,
-            voltageRegulation);
+                id, getName(), isFictitious(), modelBuilder.build(),
+            sectionCount, solvedSectionCount, localTargetV, voltageRegulation);
 
         shunt.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
@@ -250,4 +262,13 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         return shunt;
     }
 
+    @Override
+    public double getTargetQ() {
+        return Double.NaN;
+    }
+
+    @Override
+    public ShuntCompensatorAdderImpl setTargetQ(double targetQ) {
+        return this;
+    }
 }

@@ -69,21 +69,23 @@ public interface VoltageRegulation {
     double setSlope(double slope);
 
     /**
-     * The Terminal uses to regulate. Can be local or remote but most be in the network
+     * The Terminal used for regulation. Can be local or remote but must be in the network
      */
     Terminal getTerminal();
 
     /**
-     * To set the Terminal. {@link #getTerminal()}
+     * To set the Terminal with the expected targetValue. {@link #getTerminal()}
      *
      * @see #getTerminal()
      */
-    void setTerminal(Terminal terminal);
+    void setTerminal(Terminal terminal, double targetValue);
 
     /**
      * To remove the terminal. Do the same as setTerminal(null)
      */
     void removeTerminal();
+
+    boolean isWithTerminal();
 
     /**
      * RegulationMode is an enum describing the kinds of regulation. It has the following values:
@@ -95,23 +97,6 @@ public interface VoltageRegulation {
      * </ul>
      */
     RegulationMode getMode();
-
-    /**
-     * <p>To set the RegulationMode. {@link #getMode()}</p>
-     * <p>The regulation mode is authorized for the following classes:</p>
-     * <ul>
-     *     <li>{@link Battery}: {@link RegulationMode#VOLTAGE}, {@link RegulationMode#REACTIVE_POWER}</li>
-     *     <li>{@link Generator}: {@link RegulationMode#VOLTAGE}, {@link RegulationMode#REACTIVE_POWER}, {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER}</li>
-     *     <li>{@link RatioTapChanger}: {@link RegulationMode#VOLTAGE}, {@link RegulationMode#REACTIVE_POWER}</li>
-     *     <li>{@link ShuntCompensator}: {@link RegulationMode#VOLTAGE}</li>
-     *     <li>{@link StaticVarCompensator}: {@link RegulationMode#VOLTAGE}, {@link RegulationMode#REACTIVE_POWER}, {@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}</li>
-     *     <li>{@link VscConverterStation}: {@link RegulationMode#VOLTAGE}, {@link RegulationMode#REACTIVE_POWER}</li>
-     *     <li>{@link VoltageSourceConverter}: {@link RegulationMode#VOLTAGE}, {@link RegulationMode#REACTIVE_POWER}</li>
-     * </ul>
-     * @see #getMode()
-     *
-     */
-    void setMode(RegulationMode mode);
 
     /**
      * To know if the object is regulating or not.

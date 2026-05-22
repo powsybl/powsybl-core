@@ -52,7 +52,7 @@ public abstract class AbstractVscTest {
         assertTrue(cs1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(405.0, cs1.getRegulatingTargetV(), 0.0);
 
-        cs1.getVoltageRegulation().setTargetValue(406.0);
+        cs1.setLocalTargetV(406.0);
         assertEquals(406.0, cs1.getRegulatingTargetV(), 0.0);
         assertTrue(Double.isNaN(cs1.getRegulatingTargetQ()));
         assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
@@ -65,8 +65,8 @@ public abstract class AbstractVscTest {
         assertTrue(Double.isNaN(cs2.getRegulatingTargetV()));
 
         cs2.getVoltageRegulation().setTargetValue(405);
-        cs2.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
-        assertTrue(cs2.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        cs2.getVoltageRegulation().setRegulating(true);
+        assertTrue(cs2.isRegulatingWithMode(RegulationMode.REACTIVE_POWER));
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
@@ -137,8 +137,8 @@ public abstract class AbstractVscTest {
         assertTrue(Double.isNaN(cs1.getRegulatingTargetQ()));
         assertEquals(405.0, cs1.getRegulatingTargetV(), 0.0);
         // change values in s4
-        cs1.setTargetQ(1.0);
-        cs1.setTargetV(12.0);
+        cs1.setLocalTargetQ(1.0);
+        cs1.setLocalTargetV(12.0);
         cs1.getVoltageRegulation().setRegulating(false);
         cs1.getVoltageRegulation().setTargetValue(10.0);
 
@@ -150,10 +150,10 @@ public abstract class AbstractVscTest {
         // check values cloned by allocate
         assertFalse(cs1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertTrue(cs1.isWithMode(RegulationMode.VOLTAGE));
-        assertEquals(1.0, cs1.getTargetQ(), 0.0);
+        assertEquals(1.0, cs1.getLocalTargetQ(), 0.0);
         assertEquals(1.0, cs1.getRegulatingTargetQ(), 0.0);
-        assertEquals(12.0, cs1.getTargetV(), 0.0);
-        assertEquals(10.0, cs1.getRegulatingTargetV(), 0.0);
+        assertEquals(12.0, cs1.getLocalTargetV(), 0.0);
+        assertEquals(12.0, cs1.getRegulatingTargetV(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
@@ -176,7 +176,7 @@ public abstract class AbstractVscTest {
     public void testRegulatingTerminal() {
         Terminal cs2Terminal = cs2.getTerminal();
         assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
-        cs1.getVoltageRegulation().setTerminal(cs2Terminal);
+        cs1.getVoltageRegulation().setTerminal(cs2Terminal, 350);
         assertEquals(cs2Terminal, cs1.getRegulatingTerminal());
         cs1.getVoltageRegulation().removeTerminal();
         assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());

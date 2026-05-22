@@ -31,6 +31,10 @@ public final class HvdcTestNetwork {
     }
 
     private static Network createBase(NetworkFactory networkFactory) {
+        return createBase(networkFactory, false);
+    }
+
+    private static Network createBase(NetworkFactory networkFactory, boolean isBreakerFictitious) {
         Objects.requireNonNull(networkFactory);
 
         Network network = networkFactory.createNetwork("hvdctest", "test");
@@ -76,6 +80,7 @@ public final class HvdcTestNetwork {
                 .setNode2(2)
                 .setOpen(false)
                 .setRetained(true)
+                .setFictitious(isBreakerFictitious)
                 .add();
         return network;
     }
@@ -108,9 +113,9 @@ public final class HvdcTestNetwork {
                 .setBus("B1")
                 .setLossFactor(1.1f)
                 .newVoltageRegulation()
-                    .withTargetValue(405.0)
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
+                .setTargetV(405.0)
                 .add();
         cs1.getTerminal()
                 .setP(100.0)
@@ -152,7 +157,11 @@ public final class HvdcTestNetwork {
     }
 
     public static Network createLcc(NetworkFactory networkFactory) {
-        Network network = createBase(networkFactory);
+        return createLcc(networkFactory, false);
+    }
+
+    public static Network createLcc(NetworkFactory networkFactory, boolean isFictitiousBreaker) {
+        Network network = createBase(networkFactory, isFictitiousBreaker);
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         ShuntCompensator shunt1 = vl1.newShuntCompensator()
                 .setId("C1_Filter1")
@@ -206,6 +215,7 @@ public final class HvdcTestNetwork {
                 .setNode2(4)
                 .setOpen(false)
                 .setRetained(true)
+                .setFictitious(isFictitiousBreaker)
                 .add();
         vl2.getNodeBreakerView().newDisconnector()
                 .setId("DISC_BBS1_BK3")
@@ -222,6 +232,7 @@ public final class HvdcTestNetwork {
                 .setNode2(6)
                 .setOpen(false)
                 .setRetained(true)
+                .setFictitious(isFictitiousBreaker)
                 .add();
         ShuntCompensator shunt3 = vl2.newShuntCompensator()
                 .setId("C2_Filter1")

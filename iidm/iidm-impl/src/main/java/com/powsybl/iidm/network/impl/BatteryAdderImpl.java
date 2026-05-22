@@ -26,6 +26,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double targetQ = Double.NaN;
 
+    private double targetV = Double.NaN;
+
     private double minP = Double.NaN;
 
     private double maxP = Double.NaN;
@@ -62,6 +64,20 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
+    @Override
+    public double getTargetQ() {
+        return this.targetQ;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BatteryAdderImpl setTargetV(double targetV) {
+        this.targetV = targetV;
+        return this;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -94,7 +110,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, voltageRegulation, minP, maxP);
+        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, targetV, voltageRegulation, minP, maxP);
         battery.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);
@@ -106,6 +122,6 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     @Override
     public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
         Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(Battery.class, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(Battery.class, this, this, getNetworkRef(), voltageRegulationConsumer);
     }
 }

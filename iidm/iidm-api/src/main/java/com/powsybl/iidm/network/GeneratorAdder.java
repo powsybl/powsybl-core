@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
  * To create a generator, from a <code>VoltageLevel</code> instance call
@@ -27,7 +27,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
  * @see Generator
  * @see VoltageLevel
  */
-public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder> {
+public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder>, VoltageRegulationHolderAdder<GeneratorAdder> {
 
     GeneratorAdder setEnergySource(EnergySource energySource);
 
@@ -55,14 +55,14 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
 
     GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV);
 
+    GeneratorAdder setLocalTargetV(double localTargetV);
+
     GeneratorAdder setRatedS(double ratedS);
 
     /**
      * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
      */
     GeneratorAdder setCondenser(boolean isCondenser);
-
-    VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation();
 
     /**
      * Build the Generator object.
@@ -81,4 +81,5 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
      */
     @Override
     Generator add();
+
 }

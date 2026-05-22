@@ -143,14 +143,10 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>Depends on the working variant.</p>
      * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#VOLTAGE} instead
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
-
-    StaticVarCompensator setTargetQ(double targetQ);
-
-    StaticVarCompensator setTargetV(double targetV);
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
@@ -168,7 +164,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>Depends on the working variant.</p>
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#REACTIVE_POWER} instead
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
@@ -187,17 +183,10 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>Depends on the working variant.</p>
      * @param regulationMode the regulating mode
      * @return this to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setMode(RegulationMode)} instead
+     * @deprecated use {@link #newVoltageRegulation()} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);
-
-    /**
-     * Get the regulating status.
-     * @deprecated use {@link VoltageRegulation#isRegulating()} instead
-     */
-    @Deprecated(forRemoval = true, since = "7.2.0")
-    boolean isRegulating();
 
     /**
      * Set the regulating status.
@@ -209,7 +198,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
     /**
      * <p>Set the terminal used for regulation.</p>
      * @return this to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead
+     * @deprecated use {@link VoltageRegulation#setTerminal(Terminal, double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {

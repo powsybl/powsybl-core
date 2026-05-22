@@ -16,7 +16,7 @@ action('unknown generator') {
     }
 }
 
-action('targetV and targetQ with voltageRegulationMode REACTIVE_POWER') {
+action('targetV and targetQ with regulating false') {
     modifications {
         generatorModification('GEN') {
             minP 20.0
@@ -24,7 +24,7 @@ action('targetV and targetQ with voltageRegulationMode REACTIVE_POWER') {
             targetP 50.0
             targetV 10.0
             targetQ 25.0
-            voltageRegulationMode RegulationMode.REACTIVE_POWER
+            regulating false
         }
     }
 }
@@ -119,7 +119,6 @@ action('connect with targetV change') {
             connected true
             targetV 1234.56
             voltageRegulationMode RegulationMode.VOLTAGE
-            voltageRegulationTargetValue 65.4321
         }
     }
 }

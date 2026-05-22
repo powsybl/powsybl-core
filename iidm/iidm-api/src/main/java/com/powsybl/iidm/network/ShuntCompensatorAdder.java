@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 
 /**
  * To create a shunt compensator, from a <code>VoltageLevel</code> instance call
@@ -28,7 +29,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
  * @see ShuntCompensator
  * @see VoltageLevel
  */
-public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, ShuntCompensatorAdder> {
+public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, ShuntCompensatorAdder>, VoltageRegulationHolderAdder<ShuntCompensatorAdder> {
 
     ShuntCompensatorLinearModelAdder newLinearModel();
 
@@ -37,8 +38,6 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     ShuntCompensatorAdder setSectionCount(int sectionCount);
 
     ShuntCompensatorAdder setSolvedSectionCount(Integer solvedSectionCount);
-
-    VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation();
 
     /**
      * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
@@ -61,6 +60,10 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
      */
     @Deprecated(forRemoval = true, since = "7.2.0")
     default ShuntCompensatorAdder setTargetV(double targetV) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ShuntCompensatorAdder setLocalTargetV(double localTargetV) {
         throw new UnsupportedOperationException();
     }
 

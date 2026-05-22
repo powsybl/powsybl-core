@@ -63,7 +63,6 @@ class LoadConverter extends AbstractConverter {
                     .setNode(newNode)
                     .setTargetP(-generatorModel.p0)
                     .setTargetQ(-generatorModel.q0)
-                    .setVoltageRegulatorOn(false)
                     .setMaxP(-generatorModel.p0)
                     .setMinP(-generatorModel.p0)
                     .add();

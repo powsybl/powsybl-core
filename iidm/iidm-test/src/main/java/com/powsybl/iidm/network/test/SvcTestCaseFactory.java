@@ -30,6 +30,10 @@ import java.util.Objects;
  */
 public final class SvcTestCaseFactory {
 
+    public static final int REMOTE_TARGET_VALUE = 400;
+    public static final int LOCAL_TARGET_V = 390;
+    public static final int LOCAL_TARGET_Q = 350;
+
     private SvcTestCaseFactory() {
     }
 
@@ -58,7 +62,7 @@ public final class SvcTestCaseFactory {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(100.0)
                 .setTargetV(400.0)
                 .setMinP(50.0)
@@ -91,8 +95,8 @@ public final class SvcTestCaseFactory {
                 .setBmax(0.0008)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(390)
                     .add()
+                .setTargetV(LOCAL_TARGET_V)
                 .add();
         network.newLine()
                 .setId("L1")
@@ -127,9 +131,9 @@ public final class SvcTestCaseFactory {
                 .setBmax(0.0008)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(390)
                     .add()
-                .setTargetQ(350)
+                .setTargetV(LOCAL_TARGET_V)
+                .setTargetQ(LOCAL_TARGET_Q)
                 .add();
 
         return network;
@@ -142,31 +146,30 @@ public final class SvcTestCaseFactory {
     public static Network createWithRemoteRegulatingTerminal(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
 
-        network.getStaticVarCompensator("SVC2").getVoltageRegulation()
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.getVoltageRegulation()
                 // use a real remote terminal
-                .setTerminal(network.getGenerator("G1").getTerminal());
-
+                .setTerminal(network.getGenerator("G1").getTerminal(), REMOTE_TARGET_VALUE);
+        svc2.setLocalTargetV(Double.NaN);
         return network;
     }
 
     private static Network addReactiveTarget(Network network) {
-        VoltageRegulation voltageRegulation = network.getStaticVarCompensator("SVC2").getVoltageRegulation();
-        voltageRegulation.setTargetValue(350);
-        voltageRegulation.setMode(RegulationMode.VOLTAGE);
+        network.getStaticVarCompensator("SVC2")
+            .setLocalTargetQ(LOCAL_TARGET_Q);
         return network;
     }
 
-    private static Network addVoltageTarget(Network network) {
-        VoltageRegulation voltageRegulation = network.getStaticVarCompensator("SVC2").getVoltageRegulation();
-        voltageRegulation.setTargetValue(390);
-        voltageRegulation.setMode(RegulationMode.VOLTAGE);
+    private static Network addLocalVoltageTarget(Network network) {
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.setLocalTargetV(LOCAL_TARGET_V);
         return network;
     }
 
     private static Network addBothTarget(Network network) {
         StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
-        svc2.setTargetV(350);
-        svc2.setTargetQ(390);
+        svc2.setLocalTargetV(LOCAL_TARGET_V);
+        svc2.setLocalTargetQ(LOCAL_TARGET_Q);
         return network;
     }
 
@@ -183,10 +186,10 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addVoltageControl(Network network) {
-        addVoltageTarget(network);
-        VoltageRegulation voltageRegulation = network.getStaticVarCompensator("SVC2").getVoltageRegulation();
-        voltageRegulation.setMode(RegulationMode.VOLTAGE);
-        voltageRegulation.setRegulating(true);
+        addLocalVoltageTarget(network);
+        network.getStaticVarCompensator("SVC2").newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .build();
         return network;
     }
 
@@ -204,9 +207,9 @@ public final class SvcTestCaseFactory {
 
     private static Network addReactiveControl(Network network) {
         addReactiveTarget(network);
-        VoltageRegulation voltageRegulation = network.getStaticVarCompensator("SVC2").getVoltageRegulation();
-        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
-        voltageRegulation.setRegulating(true);
+        network.getStaticVarCompensator("SVC2").newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .build();
         return network;
     }
 
@@ -224,9 +227,13 @@ public final class SvcTestCaseFactory {
 
     private static Network addOffReactiveTarget(Network network) {
         addReactiveTarget(addNotRegulating(network));
-        VoltageRegulation voltageRegulation = network.getStaticVarCompensator("SVC2").getVoltageRegulation();
-        voltageRegulation.setMode(RegulationMode.REACTIVE_POWER);
-        voltageRegulation.setRegulating(true);
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        VoltageRegulation previousVoltageRegulation = svc2.getVoltageRegulation();
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTerminal(previousVoltageRegulation.getTerminal())
+            .withTargetValue(previousVoltageRegulation.getTargetValue())
+            .build();
         return network;
     }
 
@@ -243,7 +250,13 @@ public final class SvcTestCaseFactory {
     }
 
     private static Network addOffVoltageTarget(Network network) {
-        return addVoltageTarget(addNotRegulating(network));
+        return addLocalVoltageTarget(addNotRegulating(network));
+    }
+
+    private static Network addRemoteTargetValue(Network network) {
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.getVoltageRegulation().setTargetValue(REMOTE_TARGET_VALUE);
+        return network;
     }
 
     public static Network createLocalOffBothTarget() {
@@ -251,7 +264,7 @@ public final class SvcTestCaseFactory {
     }
 
     public static Network createRemoteOffBothTarget() {
-        return createOffBothTarget(createWithRemoteRegulatingTerminal());
+        return addRemoteTargetValue(addBothTarget(createRemoteOffNoTarget()));
     }
 
     private static Network createOffBothTarget(Network network) {
@@ -267,17 +280,25 @@ public final class SvcTestCaseFactory {
     }
 
     public static Network createRemoteOffNoTarget() {
-        return addNotRegulating(createWithRemoteRegulatingTerminal());
+        Network network = create();
+
+        StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTerminal(network.getGenerator("G1").getTerminal())
+            .withRegulating(false)
+            .build();
+        return network;
     }
 
     private static Network addNotRegulating(Network network) {
         StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
-        VoltageRegulation voltageRegulation = svc2.getVoltageRegulation();
-        voltageRegulation.setRegulating(false);
-        voltageRegulation.setMode(RegulationMode.VOLTAGE);
-        voltageRegulation.setTargetValue(Double.NaN);
-        svc2.setTargetV(Double.NaN);
-        svc2.setTargetQ(Double.NaN);
+        svc2.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        svc2.setLocalTargetV(Double.NaN);
+        svc2.setLocalTargetQ(Double.NaN);
         return network;
     }
 }

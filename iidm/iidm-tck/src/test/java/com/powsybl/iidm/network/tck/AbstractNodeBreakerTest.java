@@ -102,7 +102,7 @@ public abstract class AbstractNodeBreakerTest {
             .setMinP(50)
             .setTargetP(100)
             .setTargetV(400)
-            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
         vl.newGenerator()
             .setId("G2")
@@ -111,7 +111,7 @@ public abstract class AbstractNodeBreakerTest {
             .setMinP(50)
             .setTargetP(100)
             .setTargetV(400)
-            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(400).add()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 
         // Breakers

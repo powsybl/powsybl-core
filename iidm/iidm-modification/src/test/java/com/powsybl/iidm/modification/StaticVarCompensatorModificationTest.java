@@ -32,9 +32,9 @@ class StaticVarCompensatorModificationTest {
         network = FourSubstationsNodeBreakerFactory.create();
         assertTrue(network.getStaticVarCompensatorCount() > 0);
         svc = network.getStaticVarCompensators().iterator().next();
-        svc.setTargetQ(0);
-        svc.setTargetV(0);
-        svc.getVoltageRegulation().setTargetValue(0);
+        svc.setLocalTargetQ(0);
+        svc.setLocalTargetV(0);
+        svc.getVoltageRegulation();
     }
 
     @Test

@@ -206,14 +206,15 @@ public final class CgmesConformity1NetworkCatalog {
                     .setGPerSection(7.0e-6)
                     .setMaximumSectionCount(1)
                     .add()
-                .newVoltageRegulation()
-                    .withTargetValue(380.0)
-                    .withTargetDeadband(0.5)
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withRegulating(false)
-                    .add()
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
+        shBrussels380.newVoltageRegulation()
+            .withTargetDeadband(0.5)
+            .withTargetValue(380.0)
+            .withTerminal(shBrussels380.getTerminal())
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
         BoundaryLine be3 = vlBrussels380.newBoundaryLine()
                 .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
                 .setName("BE-Line_3")
@@ -307,9 +308,11 @@ public final class CgmesConformity1NetworkCatalog {
         shBrussels110.getTerminal().setQ(-330.75);
         shBrussels110.newVoltageRegulation()
             .withTargetValue(110.0)
+            .withTerminal(shBrussels110.getTerminal())
             .withTargetDeadband(0.5)
             .withMode(RegulationMode.VOLTAGE)
-            .withRegulating(false);
+            .withRegulating(false)
+            .build();
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
                 .setId("f96d552a-618d-4d0c-a39a-2dea3c411dee")
                 .setName("BE-Busbar_5")
@@ -443,7 +446,6 @@ public final class CgmesConformity1NetworkCatalog {
             .setTargetV(21.987)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(21.987)
                 .add()
             .setRatedS(300)
             .add();
@@ -963,10 +965,10 @@ public final class CgmesConformity1NetworkCatalog {
                 .setConnectableBus(BUS_ID_1)
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
+                .setTargetV(229.5)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .withRegulating(true)
-                    .withTargetValue(229.5)
                     .add()
                 .add();
 
@@ -1095,7 +1097,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setQ0(67.377544);
 
         network.getShuntCompensator(SHUNT_ID_1).remove();
-        network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
+        ShuntCompensator shuntCompensatorBeS2 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
                 .newShuntCompensator()
                     .setId(SHUNT_ID_1)
                     .setName("BE_S2")
@@ -1131,6 +1133,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .withRegulating(false)
                     .add()
                 .add();
+        shuntCompensatorBeS2.getVoltageRegulation().setTerminal(shuntCompensatorBeS2.getTerminal(), 380.0);
         return network;
     }
 

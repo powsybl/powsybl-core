@@ -142,7 +142,7 @@ class GeneratorUpdateTest {
     private static void assertEq(Generator generator) {
         assertNotNull(generator);
         assertTrue(Double.isNaN(generator.getTargetP()));
-        assertTrue(Double.isNaN(generator.getTargetQ()));
+        assertTrue(Double.isNaN(generator.getLocalTargetQ()));
         assertTrue(Double.isNaN(generator.getTargetV()));
         assertNotNull(generator.getRegulatingTerminal());
 
@@ -157,17 +157,17 @@ class GeneratorUpdateTest {
         assertNotNull(generator);
         double tol = 0.0000001;
         assertEquals(targetP, generator.getTargetP(), tol);
-        assertEquals(targetQ, generator.getTargetQ(), tol);
-        double targetValue = generator.getVoltageRegulation() != null ? generator.getVoltageRegulation().getTargetValue() : generator.getTargetV();
+        assertEquals(targetQ, generator.getLocalTargetQ(), tol);
+        double targetValue = generator.getRegulatingTargetV();
         if (generator.getVoltageRegulation() != null) {
-            if (generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE) {
+            if (generator.isWithMode(RegulationMode.VOLTAGE)) {
                 assertEquals(targetV, targetValue, tol);
-            } else if (generator.getVoltageRegulation().getMode() == RegulationMode.REACTIVE_POWER) {
+            } else if (generator.isWithMode(RegulationMode.REACTIVE_POWER)) {
                 assertEquals(targetQ, targetValue, tol);
             }
         }
         if (regulationMode != null) {
-            assertEquals(regulationMode, generator.getVoltageRegulation().getMode());
+            assertTrue(generator.isWithMode(regulationMode));
         } else {
             assertNull(generator.getVoltageRegulation());
         }

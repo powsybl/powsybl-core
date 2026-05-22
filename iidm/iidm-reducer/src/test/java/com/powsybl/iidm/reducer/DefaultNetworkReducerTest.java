@@ -333,13 +333,13 @@ class DefaultNetworkReducerTest {
     void testHvdcVoltageRegulatorOffReplacement() {
         Network network = HvdcTestNetwork.createVsc();
 
-        // Set regulationMode to REACTIVE_POWER
+        // Set regulating to false
         HvdcLine hvdcLine = network.getHvdcLine("L");
         HvdcConverterStation<?> hvdcConverterStation = hvdcLine.getConverterStation1();
         assertEquals("VSC", hvdcConverterStation.getHvdcType().name());
         VscConverterStation vscConverterStation = (VscConverterStation) hvdcConverterStation;
-        vscConverterStation.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
-        vscConverterStation.getVoltageRegulation().setTargetValue(45.0);
+        vscConverterStation.setLocalTargetQ(45.0);
+        vscConverterStation.getVoltageRegulation().setRegulating(false);
 
         assertEquals(1, network.getHvdcLineCount());
         assertEquals(0, network.getLoadCount());
