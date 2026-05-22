@@ -48,9 +48,14 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
                     } else if (token == JsonToken.END_OBJECT) {
                         String functionId = context.functionId;
                         if (context.functionType == SensitivityFunctionType.BUS_VOLTAGE) {
-                            Bus bus = new IdBasedBusRef(context.functionId).resolve(network, TopologyLevel.BUS_BRANCH)
-                                    .orElseThrow(() -> new PowsyblException("The bus ref for '" + context.functionId + "' cannot be resolved."));
-                            functionId = bus.getId();
+                            Bus bus = network.getBusView().getBus(context.functionId);
+                            if (bus != null) {
+                                functionId = bus.getId();
+                            } else {
+                                Bus busRef = new IdBasedBusRef(functionId).resolve(network, TopologyLevel.BUS_BRANCH)
+                                        .orElseThrow(() -> new PowsyblException("The bus ref for '" + context.functionId + "' cannot be resolved."));
+                                functionId = busRef.getId();
+                            }
                         }
                         handler.onFactor(context.functionType, functionId, context.variableType, context.variableId, context.variableSet,
                                 ContingencyContext.create(context.contingencyId, context.contingencyContextType));
