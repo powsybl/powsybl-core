@@ -53,7 +53,7 @@
                     <iidm:section b="0.008264462809917356" g="0.0"/>
                 </iidm:shuntNonLinearModel>
                 <iidm:voltageRegulation targetValue="228.85" targetDeadband="2.3000000000000114" mode="VOLTAGE" regulating="true">
-                    <iidm:terminal id="B4-L1"/>
+                    <iidm:terminalRef id="B4-L1"/>
                 </iidm:voltageRegulation>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>
@@ -125,7 +125,7 @@
             <iidm:generator id="B6-G1" energySource="OTHER" minP="0.0" maxP="-0.0" targetP="0.0" targetQ="-89.0" bus="B6" connectableBus="B6">
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="24.0"/>
                 <iidm:voltageRegulation targetValue="232.3" mode="VOLTAGE" regulating="true">
-                    <iidm:terminal id="B5-L1"/>
+                    <iidm:terminalRef id="B5-L1"/>
                 </iidm:voltageRegulation>
             </iidm:generator>
             <iidm:load id="B6-L1" loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>

@@ -682,7 +682,7 @@
     </xs:complexType>
     <xs:complexType name="VoltageRegulation">
         <xs:sequence>
-            <xs:element name="terminal" minOccurs="0" type="iidm:TerminalRef"/>
+            <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
         </xs:sequence>
         <xs:attribute name="targetValue" use="optional" type="xs:double"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>

@@ -16,7 +16,7 @@
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="232.392" targetQ="-16.549" node="7">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
                 <iidm:voltageRegulation targetValue="146.28" mode="VOLTAGE" regulating="false">
-                    <iidm:terminal id="VL1-Busbar-2"/>
+                    <iidm:terminalRef id="VL1-Busbar-2"/>
                 </iidm:voltageRegulation>
             </iidm:generator>
             <iidm:lccConverterStation id="LccConverter-1-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" node="6"/>

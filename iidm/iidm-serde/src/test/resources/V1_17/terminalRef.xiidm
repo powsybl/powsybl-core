@@ -22,7 +22,7 @@
             <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="100.0" targetQ="0.0" bus="VL61" connectableBus="VL61">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
                 <iidm:voltageRegulation targetValue="225.0" mode="VOLTAGE" regulating="true">
-                    <iidm:terminal id="SHUNT_VL4.31"/>
+                    <iidm:terminalRef id="SHUNT_VL4.31"/>
                 </iidm:voltageRegulation>
             </iidm:generator>
         </iidm:voltageLevel>

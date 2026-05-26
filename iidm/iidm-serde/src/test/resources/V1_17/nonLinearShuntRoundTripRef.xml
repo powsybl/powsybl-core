@@ -12,7 +12,7 @@
                     <iidm:section b="0.02" g="0.3"/>
                 </iidm:shuntNonLinearModel>
                 <iidm:voltageRegulation targetValue="200.0" mode="VOLTAGE" regulating="true" targetDeadband="5.0">
-                    <iidm:terminal id="LOAD"/>
+                    <iidm:terminalRef id="LOAD"/>
                 </iidm:voltageRegulation>
             </iidm:shuntCompensator>
         </iidm:voltageLevel>

@@ -35,7 +35,7 @@ public final class VoltageRegulationSerDe {
     public static final String MODE = "mode";
     public static final String REGULATING = "regulating";
     // SubElements
-    public static final String TERMINAL = "terminal";
+    public static final String TERMINAL = "terminalRef";
 
     private VoltageRegulationSerDe() {
     }

@@ -8,7 +8,7 @@
             <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" targetP="607.0" targetQ="301.0" bus="BUS_132" connectableBus="BUS_132">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
                 <iidm:voltageRegulation targetValue="24.5" mode="VOLTAGE" regulating="true">
-                    <iidm:terminal id="3WT" side="THREE"/>
+                    <iidm:terminalRef id="3WT" side="THREE"/>
                 </iidm:voltageRegulation>
             </iidm:generator>
         </iidm:voltageLevel>
