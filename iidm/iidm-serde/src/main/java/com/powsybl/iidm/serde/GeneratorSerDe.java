@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -28,8 +29,6 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     static final String ROOT_ELEMENT_NAME = "generator";
     static final String ARRAY_ELEMENT_NAME = "generators";
     static final String REGULATING_TERMINAL = "regulatingTerminal";
-    private static final String TARGET_V = "targetV";
-    private static final String TARGET_Q = "targetQ";
 
     @Override
     protected String getRootElementName() {
@@ -76,16 +75,13 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             } else {
                 targetV = g.getLocalTargetV();
             }
-            context.getWriter().writeDoubleAttribute(TARGET_V, targetV);
+            context.getWriter().writeDoubleAttribute(getTargetVName(context), targetV);
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, g.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(getTargetVName(context), g.getLocalTargetV()));
     }
 
     private static void writeTargetQ(Generator g, NetworkSerializerContext context) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
-            context.getWriter().writeDoubleAttribute(TARGET_Q, g.getLocalTargetQ()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () ->
-            context.getWriter().writeDoubleAttribute(TARGET_Q, g.getLocalTargetQ()));
+        context.getWriter().writeDoubleAttribute(getTargetQName(context), g.getLocalTargetQ());
     }
 
     @Override
@@ -119,8 +115,8 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             .setRatedS(ratedS);
         Boolean voltageRegulatorOn = readVoltageRegulatorOnByVersion(context);
         double targetP = context.getReader().readDoubleAttribute("targetP");
-        double targetV = context.getReader().readDoubleAttribute(TARGET_V);
-        double targetQ = context.getReader().readDoubleAttribute(TARGET_Q);
+        double targetV = context.getReader().readDoubleAttribute(getTargetVName(context));
+        double targetQ = context.getReader().readDoubleAttribute(getTargetQName(context));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
             adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         adder.setTargetP(targetP);
@@ -189,5 +185,17 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
             voltageRegulatorOn.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
         return voltageRegulatorOn.get();
+    }
+
+    private static <T extends AbstractOptions<T>> @Nonnull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
+        AtomicReference<String> targetQName = new AtomicReference<>("targetQ");
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> targetQName.set("localTargetQ"));
+        return targetQName.get();
+    }
+
+    private static <T extends AbstractOptions<T>> @Nonnull String getTargetVName(AbstractNetworkSerDeContext<T> context) {
+        AtomicReference<String> targetVName = new AtomicReference<>("targetV");
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> targetVName.set("localTargetV"));
+        return targetVName.get();
     }
 }
