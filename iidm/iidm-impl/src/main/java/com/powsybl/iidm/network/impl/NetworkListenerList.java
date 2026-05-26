@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.NetworkListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -25,7 +25,7 @@ public class NetworkListenerList {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkListenerList.class);
 
-    private final List<NetworkListener> listeners = new ArrayList<>();
+    private final List<NetworkListener> listeners = new CopyOnWriteArrayList<>();
 
     void add(NetworkListener listener) {
         listeners.add(listener);
