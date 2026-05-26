@@ -316,7 +316,7 @@ public final class ValidationUtil {
                                                         ReportNode reportNode) {
         if (voltageRegulation == null) {
             return checkLocalTargetQandV(validable, localTargetV, localTargetQ, true, false, null, actionOnError, reportNode);
-        } else if (!voltageRegulation.isWithTerminal()) {
+        } else if (!voltageRegulation.isWithTerminal() || !voltageRegulation.isRegulating()) {
             return checkLocalTargetQandV(validable, localTargetV, localTargetQ, false, voltageRegulation.isRegulating(), voltageRegulation.getMode(), actionOnError, reportNode);
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;

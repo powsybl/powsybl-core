@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -134,11 +135,20 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
                 .setLocalTargetQ(targetQ)
                 .setLocalTargetV(targetV);
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
         if (regulatingOn) {
-            generator.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(regulationCapability && isValidTargetV(targetV))
-                .build();
+            if (voltageRegulation == null) {
+                generator.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(regulationCapability && isValidTargetV(targetV))
+                    .build();
+            } else {
+                voltageRegulation.setRegulating(true);
+            }
+        } else {
+            if (voltageRegulation != null) {
+                voltageRegulation.setRegulating(false);
+            }
         }
     }
 
