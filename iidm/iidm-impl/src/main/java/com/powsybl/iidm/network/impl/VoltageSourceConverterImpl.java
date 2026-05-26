@@ -206,11 +206,6 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
-    public double getTargetV() {
-        return this.localTargetV.get(getNetwork().getVariantIndex());
-    }
-
-    @Override
     public double getLocalTargetV() {
         return this.localTargetV.get(getNetwork().getVariantIndex());
     }

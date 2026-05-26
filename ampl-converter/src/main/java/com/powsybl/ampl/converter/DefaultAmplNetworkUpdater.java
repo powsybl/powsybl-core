@@ -79,6 +79,8 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     }
 
     public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
+        // TODO MSA BEFORE this refactoring : the regulation could be different depending on the variant
+        // TODO MSA WITH THE REFACTORING : same regulationMode regardless of the variant
         if (vregul) {
             svc.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).build();
         } else {

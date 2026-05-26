@@ -49,7 +49,7 @@ class RemoteReactivePowerControlXmlTest extends AbstractIidmSerDeTest {
                 .setBus("B1")
                 .setConnectableBus("B1")
                 .setTargetP(100)
-                .setTargetQ(100)
+                .setLocalTargetQ(100)
                 .setTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)

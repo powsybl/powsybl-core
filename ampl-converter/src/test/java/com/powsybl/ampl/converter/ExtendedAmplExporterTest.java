@@ -214,7 +214,7 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
                     .withTerminal(network.getLoad("LOAD").getTerminal())
                     .add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .add();
 
         exporter.export(network, properties, dataSource);

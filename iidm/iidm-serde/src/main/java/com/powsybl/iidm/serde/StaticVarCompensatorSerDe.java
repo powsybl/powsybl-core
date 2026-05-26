@@ -33,8 +33,8 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String REGULATION_MODE = "regulationMode";
     private static final String REGULATING = "regulating";
-    private static final String TARGET_V = "targetV";
-    private static final String TARGET_Q = "targetQ";
+    private static final String LOCAL_TARGET_V = "localTargetV";
+    private static final String LOCAL_TARGET_Q = "localTargetQ";
 
     @Override
     protected String getRootElementName() {
@@ -53,8 +53,8 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         });
         writeVoltageSetpoint(svc, context, voltageSetpointName[0]);
         writeReactivePowerSetpoint(svc, context, reactivePowerSetpointName[0]);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_Q, svc.getLocalTargetQ()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, svc.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, svc.getLocalTargetQ()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, svc.getLocalTargetV()));
 
         // If SVC is not regulating in versions < 1.14, then its regulation mode should be exported as OFF (as it means that it has been imported with a "OFF" or null regulation mode)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
@@ -168,8 +168,8 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            adder.setTargetQ(context.getReader().readDoubleAttribute(TARGET_Q, Double.NaN));
-            adder.setTargetV(context.getReader().readDoubleAttribute(TARGET_V, Double.NaN));
+            adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
+            adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V, Double.NaN));
         });
         AtomicReference<Double> targetValueDoubleToUseInVoltageRegulationIfRemote = new AtomicReference<>(Double.NaN);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
@@ -182,8 +182,8 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                     regulationModeRef.set(RegulationMode.VOLTAGE);
                 }
             }
-            adder.setTargetV(voltageSetpoint.get());
-            adder.setTargetQ(reactivePowerSetpoint.get());
+            adder.setLocalTargetV(voltageSetpoint.get());
+            adder.setLocalTargetQ(reactivePowerSetpoint.get());
             if (RegulationMode.VOLTAGE.equals(regulationModeRef.get())) {
                 boolean regulating = regulatingRef.get();
                 adder.newVoltageRegulation()

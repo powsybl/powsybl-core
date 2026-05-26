@@ -17,10 +17,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
 public interface VoltageSourceConverterAdder extends AcDcConverterAdder<VoltageSourceConverter, VoltageSourceConverterAdder>,
         VoltageRegulationHolderAdder<VoltageSourceConverterAdder> {
 
-    VoltageSourceConverterAdder setTargetQ(double targetQ);
-
-    VoltageSourceConverterAdder setTargetV(double targetV);
-
     /**
      * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
      */

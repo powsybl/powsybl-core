@@ -49,7 +49,7 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
 
     GeneratorAdder setTargetP(double targetP);
 
-    GeneratorAdder setTargetQ(double targetQ);
+    GeneratorAdder setLocalTargetQ(double localTargetQ);
 
     GeneratorAdder setTargetV(double targetV);
 

@@ -47,7 +47,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(390.0, svc.getRegulatingTargetV(), 0.0);
         assertEquals(390.0, svc.getLocalTargetV(), 0.0);
         assertEquals(Double.NaN, svc.getLocalTargetQ());
-        assertEquals(Double.NaN, svc.getTargetV());
+        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue());
     }
 
     @Test
@@ -202,8 +202,8 @@ public abstract class AbstractStaticVarCompensatorTest {
                     .withTargetValue(regulatingTerminal != null ? 123 : Double.NaN)
                     .withTerminal(regulatingTerminal)
                     .add()
-                .setTargetV(390.0)
-                .setTargetQ(1.0)
+                .setLocalTargetV(390.0)
+                .setLocalTargetQ(1.0)
                 .add();
     }
 }

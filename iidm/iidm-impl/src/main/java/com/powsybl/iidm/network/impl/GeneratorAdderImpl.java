@@ -90,13 +90,13 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdderImpl setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
+    public GeneratorAdderImpl setLocalTargetQ(double localTargetQ) {
+        this.targetQ = localTargetQ;
         return this;
     }
 
     @Override
-    public double getTargetQ() {
+    public double getLocalTargetQ() {
         return this.targetQ;
     }
 

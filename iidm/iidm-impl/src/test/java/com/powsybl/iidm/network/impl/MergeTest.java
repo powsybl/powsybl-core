@@ -361,7 +361,7 @@ class MergeTest {
             .setMaxP(500.0)
             .setTargetP(p)
             .setTargetV(targetV)
-            .setTargetQ(q)
+            .setLocalTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

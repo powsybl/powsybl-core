@@ -269,8 +269,8 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
                 .withMode(RegulationMode.VOLTAGE)
                 .add();
         }
-        adderR.setTargetQ(targetQ)
-            .setTargetV(targetV);
+        adderR.setLocalTargetQ(targetQ)
+            .setLocalTargetV(targetV);
     }
 
     private static final class DcLineModel {

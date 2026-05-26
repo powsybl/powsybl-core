@@ -124,7 +124,7 @@ class TrippingTopologyTraverserTest {
                 .setDcNode2("dn2")
                 .setDcConnected1(true)
                 .setDcConnected2(true)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
 
         Set<DcTerminal> dcTerminalsToDisconnect = new HashSet<>();

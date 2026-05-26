@@ -24,9 +24,9 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double targetP = Double.NaN;
 
-    private double targetQ = Double.NaN;
+    private double localTargetQ = Double.NaN;
 
-    private double targetV = Double.NaN;
+    private double localTargetV = Double.NaN;
 
     private double minP = Double.NaN;
 
@@ -59,22 +59,22 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
      * {@inheritDoc}
      */
     @Override
-    public BatteryAdderImpl setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
+    public BatteryAdderImpl setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
         return this;
     }
 
     @Override
-    public double getTargetQ() {
-        return this.targetQ;
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BatteryAdderImpl setTargetV(double targetV) {
-        this.targetV = targetV;
+    public BatteryAdderImpl setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
     }
 
@@ -105,12 +105,12 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, localTargetQ, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, targetV, voltageRegulation, minP, maxP);
+        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, localTargetQ, localTargetV, voltageRegulation, minP, maxP);
         battery.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);

@@ -105,7 +105,7 @@ class ShuntCompensatorModificationTest {
         new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
         Assertions.assertEquals(2.0, shunt.getRegulatingTargetV(), 0.1); // and not 33.
-        Assertions.assertEquals(Double.NaN, shunt.getTargetV()); // and not 33.
+        Assertions.assertEquals(Double.NaN, shunt.getLocalTargetV()); // and not 33.
     }
 
     @Test
@@ -123,7 +123,7 @@ class ShuntCompensatorModificationTest {
         new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
         Assertions.assertEquals(2.0, shunt.getRegulatingTargetV(), 0.1);
-        Assertions.assertEquals(Double.NaN, shunt.getTargetV());
+        Assertions.assertEquals(Double.NaN, shunt.getLocalTargetV());
     }
 
     @Test

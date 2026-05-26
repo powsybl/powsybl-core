@@ -81,8 +81,8 @@ public final class VoltageRegulationSerDe {
                 // Assign a temporary value to localTargetQ to allow the validation
                 // without the VoltageRegulation object. This one will be created in a post-creation task.
                 // The real value will be restored at the same time.
-                double realLocalTargetQ = holderAdder.getTargetQ();
-                holderAdder.setTargetQ(0.0);
+                double realLocalTargetQ = holderAdder.getLocalTargetQ();
+                holderAdder.setLocalTargetQ(0.0);
 
                 TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
                 toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,

@@ -28,9 +28,9 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     private TerminalExt regulatingTerminal;
 
-    private double targetQ = Double.NaN;
+    private double localTargetQ = Double.NaN;
 
-    private double targetV = Double.NaN;
+    private double localTargetV = Double.NaN;
 
     private VoltageRegulationExt voltageRegulation = null;
 
@@ -68,20 +68,20 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     }
 
     @Override
-    public VscConverterStationAdder setTargetV(double targetV) {
-        this.targetV = targetV;
+    public VscConverterStationAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
     }
 
     @Override
-    public VscConverterStationAdder setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
+    public VscConverterStationAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
         return this;
     }
 
     @Override
-    public double getTargetQ() {
-        return this.targetQ;
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
     }
 
     @Override
@@ -95,9 +95,10 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null && voltageRegulation == null) {
             voltageRegulatorOn = false;
+            reactivePowerSetpoint = localTargetQ;
         }
-        if (voltageRegulation == null) {
-            createVoltageRegulationBackwardCompatibility(this.newVoltageRegulation(), voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
+        if (voltageRegulation == null && voltageRegulatorOn != null) {
+            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
         }
         String id = checkAndGetUniqueId();
         String name = getName();
@@ -105,7 +106,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         validate();
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetworkRef(),
-            targetQ, targetV, voltageRegulation);
+            localTargetQ, localTargetV, voltageRegulation);
         converterStation.addTerminal(terminal);
         getVoltageLevel().getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(converterStation);

@@ -102,7 +102,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         vl2.newGenerator().setId("GEN").setNode(0)
                 .setTargetP(10.01)
                 .setMinP(0).setMaxP(20)
-                .setTargetQ(1.10)
+                .setLocalTargetQ(1.10)
                 .add();
         vl2.getNodeBreakerView().newBreaker().setId("BK21").setNode1(0).setNode2(1).add();
         vl2.getNodeBreakerView().newBusbarSection().setId("BBS2").setNode(1).add();

@@ -442,7 +442,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setMinP(50)
             .setMaxP(200)
             .setTargetP(-p)
-            .setTargetQ(targetQ)
+            .setLocalTargetQ(targetQ)
             .setTargetV(21.987)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
@@ -469,7 +469,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setMinP(50)
             .setMaxP(200)
             .setTargetP(-p)
-            .setTargetQ(targetQ)
+            .setLocalTargetQ(targetQ)
             .setTargetV(115.5)
             .newVoltageRegulation()
                 .withTargetValue(115.5)
@@ -958,19 +958,21 @@ public final class CgmesConformity1NetworkCatalog {
                 .setAngle(-17.412200);
 
         VoltageLevel vlAnvers220 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_2);
-        vlAnvers220.newStaticVarCompensator()
+        StaticVarCompensator staticVarCompensator = vlAnvers220.newStaticVarCompensator()
                 .setId("3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
                 .setName("SVC-1230797516")
                 .setBus(BUS_ID_1)
                 .setConnectableBus(BUS_ID_1)
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
-                .setTargetV(229.5)
+                .setLocalTargetV(229.5)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .withRegulating(true)
                     .add()
                 .add();
+        staticVarCompensator.getVoltageRegulation().setTerminal(staticVarCompensator.getTerminal(), 229.5);
+        staticVarCompensator.setLocalTargetV(Double.NaN);
 
         double p = -118.0;
         double targetQ = 18.720301;

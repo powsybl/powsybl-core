@@ -12,7 +12,7 @@ generator = voltageLevel.newGenerator()
             .add()
         .setLocalTargetV(voltageLevel.nominalV)
         .setTargetP(800)
-        .setTargetQ(0)
+        .setLocalTargetQ(0)
         .add()
 
 generator.newReactiveCapabilityCurve()

@@ -389,10 +389,9 @@ public abstract class AbstractShuntCompensatorTest {
         shuntCompensator.setLocalTargetV(400);
         assertEquals(400, shuntCompensator.getRegulatingTargetV());
         assertEquals(400, shuntCompensator.getLocalTargetV());
-        assertEquals(Double.NaN, shuntCompensator.getTargetV());
         voltageRegulation.setRegulating(true);
-        assertEquals(400, shuntCompensator.getRegulatingTargetV(), 0.0);
-        assertEquals(Double.NaN, shuntCompensator.getTargetV());
+        assertEquals(400, shuntCompensator.getRegulatingTargetV());
+        assertEquals(400, shuntCompensator.getLocalTargetV());
 
         // targetDeadband
         try {

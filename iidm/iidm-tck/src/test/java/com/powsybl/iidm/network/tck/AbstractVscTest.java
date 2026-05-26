@@ -190,7 +190,7 @@ public abstract class AbstractVscTest {
                     .withMode(RegulationMode.VOLTAGE)
                     .withTerminal(cs2.getTerminal())
                     .add()
-                .setTargetQ(123)
+                .setLocalTargetQ(123)
                 .setConnectableBus("B1")
                 .setLossFactor((float) 1.1)
                 .add();

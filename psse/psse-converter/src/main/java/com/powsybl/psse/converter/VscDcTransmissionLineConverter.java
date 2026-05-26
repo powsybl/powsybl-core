@@ -52,7 +52,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         VscConverterStationAdder adder1 = voltageLevel1.newVscConverterStation()
                 .setId(getVscConverterId(getNetwork(), psseVscDcTransmissionLine, converter1))
                 .setLossFactor((float) getLossFactor1(converter1, activePowerSetpoint, convertersMode))
-                .setTargetQ(getReactiveSetpoint(converter1, activePowerSetpoint));
+                .setLocalTargetQ(getReactiveSetpoint(converter1, activePowerSetpoint));
 
         String equipmentId1 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, converter1.getIbus(), psseVscDcTransmissionLine.getName());
         OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId1, converter1.getIbus(), 0, 0, converter1.getIbus(), "I"));
@@ -70,7 +70,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         VscConverterStationAdder adder2 = voltageLevel2.newVscConverterStation()
                 .setId(getVscConverterId(getNetwork(), psseVscDcTransmissionLine, converter2))
                 .setLossFactor((float) getLossFactor2(converter2, activePowerSetpoint, convertersMode))
-                .setTargetQ(getReactiveSetpoint(converter2, activePowerSetpoint));
+                .setLocalTargetQ(getReactiveSetpoint(converter2, activePowerSetpoint));
 
         String equipmentId2 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, converter2.getIbus(), psseVscDcTransmissionLine.getName());
         OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId2, converter2.getIbus(), 0, 0, converter2.getIbus(), "I"));

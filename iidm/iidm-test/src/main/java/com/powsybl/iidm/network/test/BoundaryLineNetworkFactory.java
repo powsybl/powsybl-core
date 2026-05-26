@@ -105,7 +105,7 @@ public final class BoundaryLineNetworkFactory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(100.0)
                 .setTargetP(50.0)
-                .setTargetQ(30.0)
+                .setLocalTargetQ(30.0)
                 .setBus("BUS")
                 .add();
         return network;

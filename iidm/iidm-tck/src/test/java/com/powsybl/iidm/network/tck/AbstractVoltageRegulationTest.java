@@ -38,13 +38,12 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
  */
 public abstract class AbstractVoltageRegulationTest {
 
-    private Network network;
     private VoltageLevel voltageLevel;
     private Terminal remoteTerminal;
 
     @BeforeEach
     void initNetwork() {
-        network = BatteryNetworkFactory.create();
+        Network network = BatteryNetworkFactory.create();
         voltageLevel = network.getVoltageLevel("VLGEN");
         remoteTerminal = network.getBattery("BAT").getTerminal();
     }
@@ -70,7 +69,7 @@ public abstract class AbstractVoltageRegulationTest {
     void testMissingVoltageRegulationOk() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("missingVoltageRegulation")
-            .setTargetQ(10);
+            .setLocalTargetQ(10);
         // WHEN
         Generator generator = generatorAdder.add();
         // THEN
@@ -126,7 +125,7 @@ public abstract class AbstractVoltageRegulationTest {
         generatorAdder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .add()
-            .setTargetQ(10);
+            .setLocalTargetQ(10);
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
@@ -208,7 +207,7 @@ public abstract class AbstractVoltageRegulationTest {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("OK_Local_Voltage_OFF");
         VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
-            .setTargetQ(10)
+            .setLocalTargetQ(10)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withRegulating(false);
@@ -248,7 +247,7 @@ public abstract class AbstractVoltageRegulationTest {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("OK_Remote_Voltage_OFF");
         VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
-            .setTargetQ(10)
+            .setLocalTargetQ(10)
             .newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(220)
@@ -309,7 +308,7 @@ public abstract class AbstractVoltageRegulationTest {
     private Generator createGenerator(DataGeneratorCreator dataGeneratorCreator) {
         GeneratorAdder generatorAdder = newGeneratorAdder(dataGeneratorCreator.id())
             .setLocalTargetV(dataGeneratorCreator.localTargetV())
-            .setTargetQ(dataGeneratorCreator.localTargetQ());
+            .setLocalTargetQ(dataGeneratorCreator.localTargetQ());
         if (dataGeneratorCreator.mode() != null) {
             generatorAdder.newVoltageRegulation()
                 .withRegulating(dataGeneratorCreator.regulating())

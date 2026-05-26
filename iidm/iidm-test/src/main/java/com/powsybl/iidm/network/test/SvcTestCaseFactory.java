@@ -96,7 +96,7 @@ public final class SvcTestCaseFactory {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(LOCAL_TARGET_V)
+                .setLocalTargetV(LOCAL_TARGET_V)
                 .add();
         network.newLine()
                 .setId("L1")
@@ -132,8 +132,8 @@ public final class SvcTestCaseFactory {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(LOCAL_TARGET_V)
-                .setTargetQ(LOCAL_TARGET_Q)
+                .setLocalTargetV(LOCAL_TARGET_V)
+                .setLocalTargetQ(LOCAL_TARGET_Q)
                 .add();
 
         return network;

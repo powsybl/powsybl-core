@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.ArrayList;
@@ -238,7 +239,19 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        // TODO MSA add backward compatibility
+        if (this.voltageRegulation == null) {
+            boolean isWithTerminal = regulatingTerminal != null;
+            if (voltageRegulatorOn) {
+                this.newVoltageRegulation().withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(isWithTerminal ? targetV : Double.NaN)
+                    .withTargetDeadband(targetDeadband)
+                    .withTerminal(regulatingTerminal)
+                    .add();
+                if (!isWithTerminal) {
+                    localTargetV = targetV;
+                }
+            }
+        }
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV,
@@ -263,12 +276,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
-    public double getTargetQ() {
+    public double getLocalTargetQ() {
         return Double.NaN;
     }
 
     @Override
-    public ShuntCompensatorAdderImpl setTargetQ(double targetQ) {
+    public ShuntCompensatorAdderImpl setLocalTargetQ(double localTargetQ) {
         return this;
     }
 }

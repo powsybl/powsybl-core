@@ -89,7 +89,7 @@ class NodeBreakerConnectTest {
                 .add()
             .setTargetV(400)
             .setTargetP(1)
-            .setTargetQ(0)
+            .setLocalTargetQ(0)
             .add();
         return network;
     }

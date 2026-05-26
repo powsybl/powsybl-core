@@ -41,7 +41,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g2")
@@ -50,7 +50,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g3")
@@ -122,7 +122,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g2")
@@ -131,7 +131,7 @@ final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         vl.newGenerator()
                 .setId("g3")
@@ -219,7 +219,7 @@ final class ScalableTestNetwork {
             .setMinP(0.0)
             .setMaxP(150.0)
             .setTargetP(80.0)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
             .add();
         vl.newGenerator()
             .setId("g2")
@@ -228,7 +228,7 @@ final class ScalableTestNetwork {
             .setMinP(10.0)
             .setMaxP(100.0)
             .setTargetP(50.0)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
             .add();
         vl.newGenerator()
             .setId("g3")
@@ -292,7 +292,7 @@ final class ScalableTestNetwork {
             .setBus("bus2")
             .setConnectableBus("bus2")
             .setTargetP(9999.99)
-            .setTargetQ(9999.99)
+            .setLocalTargetQ(9999.99)
             .setMinP(-9999.99)
             .setMaxP(9999.99)
             .add();

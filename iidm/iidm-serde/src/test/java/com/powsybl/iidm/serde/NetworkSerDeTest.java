@@ -358,7 +358,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                     .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                     .setTargetV(24.5)
                     .setTargetP(607.0)
-                    .setTargetQ(301.0)
+                    .setLocalTargetQ(301.0)
                     .add();
             generator.newMinMaxReactiveLimits()
                     .setMinQ(-9999.99)

@@ -37,7 +37,7 @@
                 </iidm:reactiveCapabilityCurve>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
-            <iidm:vscConverterStation id="CS1-30-4" lossFactor="10.0" bus="BUS-30" connectableBus="BUS-30" targetV="1.01">
+            <iidm:vscConverterStation id="CS1-30-4" lossFactor="10.0" bus="BUS-30" connectableBus="BUS-30" localTargetV="1.01">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
@@ -48,7 +48,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-4" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:vscConverterStation id="CS2-30-4" lossFactor="1.1111112" bus="BUS-4" connectableBus="BUS-4" targetV="1.0">
+            <iidm:vscConverterStation id="CS2-30-4" lossFactor="1.1111112" bus="BUS-4" connectableBus="BUS-4" localTargetV="1.0">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
@@ -60,11 +60,11 @@
                 <iidm:bus id="BUS-5" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-5" loadType="UNDEFINED" p0="90.0" q0="30.0" bus="BUS-5" connectableBus="BUS-5"/>
-            <iidm:vscConverterStation id="CS1-5-8" lossFactor="0.0" connectableBus="BUS-5" targetV="1.0">
+            <iidm:vscConverterStation id="CS1-5-8" lossFactor="0.0" connectableBus="BUS-5" localTargetV="1.0">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
-            <iidm:vscConverterStation id="CS1-5-9" lossFactor="0.0" bus="BUS-5" connectableBus="BUS-5" targetV="1.0">
+            <iidm:vscConverterStation id="CS1-5-9" lossFactor="0.0" bus="BUS-5" connectableBus="BUS-5" localTargetV="1.0">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
@@ -83,7 +83,7 @@
                 <iidm:bus id="BUS-7" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-7" loadType="UNDEFINED" p0="100.0" q0="35.0" bus="BUS-7" connectableBus="BUS-7"/>
-            <iidm:vscConverterStation id="CS1-7-9" lossFactor="0.0" bus="BUS-7" connectableBus="BUS-7" targetV="1.0">
+            <iidm:vscConverterStation id="CS1-7-9" lossFactor="0.0" bus="BUS-7" connectableBus="BUS-7" localTargetV="1.0">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
@@ -94,7 +94,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-8" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:vscConverterStation id="CS2-5-8" lossFactor="0.0" connectableBus="BUS-8" targetV="1.0">
+            <iidm:vscConverterStation id="CS2-5-8" lossFactor="0.0" connectableBus="BUS-8" localTargetV="1.0">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
@@ -106,11 +106,11 @@
                 <iidm:bus id="BUS-9" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-9" loadType="UNDEFINED" p0="125.0" q0="50.0" bus="BUS-9" connectableBus="BUS-9"/>
-            <iidm:vscConverterStation id="CS2-7-9" lossFactor="0.0" bus="BUS-9" connectableBus="BUS-9" targetV="1.0">
+            <iidm:vscConverterStation id="CS2-7-9" lossFactor="0.0" bus="BUS-9" connectableBus="BUS-9" localTargetV="1.0">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
-            <iidm:vscConverterStation id="CS2-5-9" lossFactor="5.0" bus="BUS-9" connectableBus="BUS-9" targetV="0.98">
+            <iidm:vscConverterStation id="CS2-5-9" lossFactor="5.0" bus="BUS-9" connectableBus="BUS-9" localTargetV="0.98">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>

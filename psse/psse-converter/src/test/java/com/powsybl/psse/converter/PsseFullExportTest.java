@@ -211,7 +211,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                     .withTerminal(shunt.getTerminal())
                     .withTargetValue(vl1S4.getNominalV() * 1.02)
                     .add()
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
 
         ThreeWindingsTransformer t3w = sub4.newThreeWindingsTransformer()
@@ -293,7 +293,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(50.0)
                 .setTargetP(14.0)
-                .setTargetQ(3.5)
+                .setLocalTargetQ(3.5)
                 .add();
 
         Substation sub6 = createSubstation(network, "Sub6");
@@ -324,8 +324,8 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(vl1S2.getNominalV())
-                .setTargetQ(0.0)
+                .setLocalTargetV(vl1S2.getNominalV())
+                .setLocalTargetQ(0.0)
                 .add();
         vsc1.newMinMaxReactiveLimits().setMinQ(-250.0).setMaxQ(300.0).add();
         VscConverterStation vsc2 = vl1S4.newVscConverterStation()
@@ -333,8 +333,8 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setName("Vsc-Vl1-Sub4")
                 .setNode(2)
                 .setLossFactor(0.002f)
-                .setTargetQ(0.1)
-                .setTargetV(vl1S4.getNominalV())
+                .setLocalTargetQ(0.1)
+                .setLocalTargetV(vl1S4.getNominalV())
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-260.0).setMaxQ(310.0).add();
         network.newHvdcLine()
@@ -424,7 +424,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setMaxP(100.0)
                 .setRatedS(125.0)
                 .setTargetP(targetP)
-                .setTargetQ(targetQ)
+                .setLocalTargetQ(targetQ)
                 .setTargetV(targetV);
         if (isRegulating) {
             adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add();

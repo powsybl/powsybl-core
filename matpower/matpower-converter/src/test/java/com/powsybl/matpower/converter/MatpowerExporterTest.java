@@ -159,7 +159,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setTargetP(10)
                 .setMinP(0)
                 .setMaxP(1000)
-                .setTargetQ(5)
+                .setLocalTargetQ(5)
                 .add();
         exportToMatAndCompareTo(network, "/sim1-with-non-regulating-gen.json");
     }
@@ -232,7 +232,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         vlgen.newVscConverterStation()
                 .setId("VSC")
                 .setConnectableBus("NGEN")
-                .setTargetV(100)
+                .setLocalTargetV(100)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setLossFactor(0)
                 .add();
@@ -338,7 +338,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .newVoltageLevel().setId("VL32").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl32.getBusBreakerView().newBus().setId("BUS-32").add();
 
-        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setTargetQ(8.0).setTargetV(410.0).setMinP(0.0).setMaxP(15.0)
+        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setLocalTargetQ(8.0).setTargetV(410.0).setMinP(0.0).setMaxP(15.0)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
         SlackTerminal.attach(network.getBusBreakerView().getBus("BUS-11"));
@@ -353,8 +353,8 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         vl21.newLccConverterStation().setId("LCC-21").setBus("BUS-21").setPowerFactor(0.90f).setLossFactor(0.0f).add();
         network.newHvdcLine().setId("HVDCLINE-12-21").setConverterStationId1("LCC-12").setConverterStationId2("LCC-21").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
 
-        vl12.newVscConverterStation().setId("VSC-12").setBus("BUS-12").setLossFactor(0.0f).setTargetQ(4.0).setTargetV(410.0).newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add().add();
-        vl31.newVscConverterStation().setId("VSC-31").setBus("BUS-31").setLossFactor(0.0f).setTargetQ(4.0).setTargetV(410.0).newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add().add();
+        vl12.newVscConverterStation().setId("VSC-12").setBus("BUS-12").setLossFactor(0.0f).setLocalTargetQ(4.0).setLocalTargetV(410.0).newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add().add();
+        vl31.newVscConverterStation().setId("VSC-31").setBus("BUS-31").setLossFactor(0.0f).setLocalTargetQ(4.0).setLocalTargetV(410.0).newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add().add();
         network.newHvdcLine().setId("HVDCLINE-12-31").setConverterStationId1("VSC-12").setConverterStationId2("VSC-31").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
 
         return network;

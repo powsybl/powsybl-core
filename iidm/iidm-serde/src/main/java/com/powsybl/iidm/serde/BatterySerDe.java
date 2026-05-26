@@ -64,7 +64,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
         double maxP = context.getReader().readDoubleAttribute("maxP");
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         Battery b = adder.setTargetP(targetP)
-                .setTargetQ(targetQ)
+                .setLocalTargetQ(targetQ)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .add();

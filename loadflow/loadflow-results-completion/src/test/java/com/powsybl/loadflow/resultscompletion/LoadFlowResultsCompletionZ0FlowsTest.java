@@ -432,7 +432,7 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setMaxP(9999.99)
                 .setTargetV(115.0)
                 .setTargetP(0.490536)
-                .setTargetQ(-16.774788)
+                .setLocalTargetQ(-16.774788)
                 .add();
         g.getTerminal().setP(-0.490536).setQ(16.774788);
         g = vl.newGenerator()
@@ -446,7 +446,7 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setMaxP(9999.99)
                 .setTargetV(115.0)
                 .setTargetP(15.488468)
-                .setTargetQ(0.613118)
+                .setLocalTargetQ(0.613118)
                 .add();
         g.getTerminal().setP(-15.488468).setQ(-0.613118);
         g = vl.newGenerator()
@@ -460,7 +460,7 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setMaxP(9999.99)
                 .setTargetV(115.0)
                 .setTargetP(60.486267)
-                .setTargetQ(-110.743699)
+                .setLocalTargetQ(-110.743699)
                 .add();
         g.getTerminal().setP(-60.486267).setQ(110.743699);
         g = vl.newGenerator()
@@ -470,7 +470,7 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setTargetP(30.0)
-                .setTargetQ(-18)
+                .setLocalTargetQ(-18)
                 .add();
         g.getTerminal().setP(-30.0).setQ(18.0);
         vl.newShuntCompensator()

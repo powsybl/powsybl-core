@@ -32,7 +32,7 @@ public class RegulatingControlMappingForVscConverters {
     }
 
     public static void initialize(VscConverterStationAdder adder) {
-        adder.setTargetQ(0.0);
+        adder.setLocalTargetQ(0.0);
     }
 
     public void add(String vscConverterId, PropertyBag sm) {

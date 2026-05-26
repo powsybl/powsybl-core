@@ -115,7 +115,7 @@ public final class BatteryNetworkFactory {
                     .add()
                 .setTargetV(24.5)
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .add();
         generator.getTerminal().setP(-605);
         generator.getTerminal().setQ(-225);
@@ -128,7 +128,7 @@ public final class BatteryNetworkFactory {
                 .setBus(nbat.getId())
                 .setConnectableBus(nbat.getId())
                 .setTargetP(9999.99)
-                .setTargetQ(9999.99)
+                .setLocalTargetQ(9999.99)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .add();
@@ -143,7 +143,7 @@ public final class BatteryNetworkFactory {
                 .setBus(nbat.getId())
                 .setConnectableBus(nbat.getId())
                 .setTargetP(100)
-                .setTargetQ(200)
+                .setLocalTargetQ(200)
                 .setMinP(-200)
                 .setMaxP(200)
                 .add();

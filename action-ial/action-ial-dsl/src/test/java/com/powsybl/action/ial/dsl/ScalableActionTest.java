@@ -79,7 +79,7 @@ class ScalableActionTest {
                     .add()
                 .setLocalTargetV(124.5)
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
             .add();
         vlgen.newGenerator()
                 .setId("GEN3")
@@ -92,7 +92,7 @@ class ScalableActionTest {
                     .add()
                 .setLocalTargetV(224.5)
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
             .add();
     }
 }

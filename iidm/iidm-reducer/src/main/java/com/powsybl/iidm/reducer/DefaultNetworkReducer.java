@@ -273,7 +273,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setMinP(-maxP)
                 .setTargetP(-checkP(terminal))
                 .setTargetV(station.getLocalTargetV())
-                .setTargetQ(station.getLocalTargetQ());
+                .setLocalTargetQ(station.getLocalTargetQ());
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();

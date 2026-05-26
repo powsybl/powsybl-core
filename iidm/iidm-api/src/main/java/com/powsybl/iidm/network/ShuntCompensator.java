@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
@@ -287,11 +286,23 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
     }
 
     /**
+     * Get the shunt compensator's voltage target in kV if it exists. Else return NaN.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link #getLocalTargetV()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
+    default double getTargetV() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Set the shunt compensator's voltage target in kV.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
-     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#VOLTAGE} instead
+     * @deprecated use {@link #setLocalTargetV(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.3.0")
     default ShuntCompensator setTargetV(double targetV) {

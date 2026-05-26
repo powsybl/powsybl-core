@@ -200,7 +200,7 @@ public final class EurostagTutorialExample1Factory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(24.5)
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
             .add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-9999.99)
@@ -362,7 +362,7 @@ public final class EurostagTutorialExample1Factory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
                 .setTargetV(24.5)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .add();
         generator2.newReactiveCapabilityCurve()
                 .beginPoint()
@@ -405,7 +405,7 @@ public final class EurostagTutorialExample1Factory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
                 .setTargetV(24.5)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -775,7 +775,7 @@ public final class EurostagTutorialExample1Factory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                .setTargetP(607.0)
                 .setTargetV(24.5)
-               .setTargetQ(301.0)
+               .setLocalTargetQ(301.0)
                .add();
 
         ((Bus) network.getIdentifiable(NHV1)).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -879,7 +879,7 @@ public final class EurostagTutorialExample1Factory {
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(24.5)
+                .setLocalTargetQ(24.5)
                 .setTargetV(301.0)
                 .add();
 
@@ -951,7 +951,7 @@ public final class EurostagTutorialExample1Factory {
                 .setMaxP(9999.99)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .setTargetV(24.5)
                 .add();
 
@@ -1081,7 +1081,7 @@ public final class EurostagTutorialExample1Factory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
                 .setTargetV(24.5)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .add();
         vlhv3.newGenerator().setId("GEN3")
                 .setConnectableBus(ndisconnected.getId())
@@ -1090,7 +1090,7 @@ public final class EurostagTutorialExample1Factory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(607.0)
             .setTargetV(24.5)
-                .setTargetQ(301.0)
+                .setLocalTargetQ(301.0)
                 .add();
 
         vlhv3.newShuntCompensator()

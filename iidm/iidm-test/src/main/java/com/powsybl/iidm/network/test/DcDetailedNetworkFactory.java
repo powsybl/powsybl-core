@@ -113,7 +113,7 @@ public final class DcDetailedNetworkFactory {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetV(400.0)
                 .setTargetP(2000.0)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .setBus(b.getId())
                 .add();
         Load load = vl.newLoad()
@@ -786,8 +786,8 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(frPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(200.)
-                .setTargetQ(0.0)
-                .setTargetV(400.)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(400.)
                 .add();
         Terminal gbPccTerminal = dcNetwork.getTwoWindingsTransformer(getTransformerId(Country.GB, X_NODE_DC_1_GB, SUFFIX_NONE)).getTerminal1();
         dcNetwork.getVoltageLevel(getVoltageLevelId(Country.GB, X_NODE_DC_1_GB, SUFFIX_150)).newVoltageSourceConverter()
@@ -799,8 +799,8 @@ public final class DcDetailedNetworkFactory {
                 .setPccTerminal(gbPccTerminal)
                 .setTargetVdc(500.)
                 .setTargetP(-200.)
-                .setTargetQ(0.0)
-                .setTargetV(400.)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(400.)
                 .add();
         return Network.merge(dcNetwork, fr, gb);
     }

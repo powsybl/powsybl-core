@@ -178,7 +178,7 @@ public class IeeeCdfImporter implements Importer {
 
                 case HOLD_MVAR_GENERATION_WITHIN_VOLTAGE_LIMITS:
                     newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetQ(ieeeCdfBus.getReactiveGeneration())
+                            .setLocalTargetQ(ieeeCdfBus.getReactiveGeneration())
                             .add();
                     break;
 

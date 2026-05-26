@@ -44,10 +44,6 @@ public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscC
         return this;
     }
 
-    VscConverterStationAdder setTargetQ(double targetQ);
-
-    VscConverterStationAdder setTargetV(double targetV);
-
     @Override
     VscConverterStation add();
 }

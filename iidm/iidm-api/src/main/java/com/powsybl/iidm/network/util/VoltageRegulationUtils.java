@@ -32,7 +32,7 @@ public final class VoltageRegulationUtils {
                 .withTargetValue(terminal != null ? targetV : Double.NaN)
                 .withTerminal(terminal)
                 .add();
-        // REACTIVE Power case
+            // REACTIVE Power case
         } else if (Boolean.FALSE.equals(voltageRegulatorOn)
             && !Double.isNaN(targetQ)
             && terminal != null) {
@@ -40,6 +40,38 @@ public final class VoltageRegulationUtils {
                 .withTargetValue(targetQ)
                 .withTerminal(terminal)
                 .add();
+        }
+    }
+
+    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                double targetV,
+                                                                                                                double targetQ,
+                                                                                                                Boolean voltageRegulatorOn,
+                                                                                                                Terminal terminal) {
+        // VOLTAGE case
+        if (Boolean.TRUE.equals(voltageRegulatorOn)) {
+            VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE);
+            if (terminal != null) {
+                vrAdder.withTargetValue(targetV)
+                    .withTerminal(terminal);
+            } else {
+                adder.setLocalTargetV(targetV);
+            }
+            vrAdder.add();
+            adder.setLocalTargetQ(targetQ);
+            // REACTIVE Power case
+        } else if (Boolean.FALSE.equals(voltageRegulatorOn)
+            && !Double.isNaN(targetQ)
+            && terminal != null) {
+            adder.newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
+                .withTargetValue(targetQ)
+                .withTerminal(terminal)
+                .add();
+        } else {
+            adder.setLocalTargetV(targetV);
+            adder.setLocalTargetQ(targetQ);
         }
     }
 

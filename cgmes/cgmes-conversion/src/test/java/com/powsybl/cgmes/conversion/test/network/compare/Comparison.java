@@ -430,8 +430,8 @@ public class Comparison {
                 expected.getBmax(),
                 actual.getBmax());
         compare("targetV",
-                expected.getTargetV(),
-                actual.getTargetV());
+                expected.getLocalTargetV(),
+                actual.getLocalTargetV());
         compare("targetQ",
                 expected.getLocalTargetQ(),
                 actual.getLocalTargetQ());

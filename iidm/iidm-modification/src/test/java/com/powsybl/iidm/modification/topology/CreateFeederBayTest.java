@@ -205,7 +205,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .setMinP(-9999)
                 .setTargetV(25.5)
                 .setTargetP(600)
-                .setTargetQ(300)
+                .setLocalTargetQ(300)
                 .setRatedS(10)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setEnsureIdUnicity(true);
@@ -227,7 +227,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .setMaxP(9999)
                 .setMinP(-9999)
                 .setTargetP(100)
-                .setTargetQ(50);
+                .setLocalTargetQ(50);
         NetworkModification addBatteryModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(batteryAdder)
                 .withBusOrBusbarSectionId("bbs1")
@@ -285,8 +285,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
                             .withMode(RegulationMode.VOLTAGE)
                             .withRegulating(true)
                             .add()
-                        .setTargetV(390.0)
-                        .setTargetQ(1.0)
+                        .setLocalTargetV(390.0)
+                        .setLocalTargetQ(1.0)
                         .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter2.isPresent());
@@ -322,7 +322,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
                 .setId("newVscConverterStation")
                 .setLossFactor(1.1f)
-                .setTargetV(405.0)
+                .setLocalTargetV(405.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -663,7 +663,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setId("GEN")
             .setTargetP(0.0)
             .setTargetV(100.0)
-            .setTargetQ(0)
+            .setLocalTargetQ(0)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add()

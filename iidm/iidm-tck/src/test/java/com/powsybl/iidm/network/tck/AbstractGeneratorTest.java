@@ -212,7 +212,7 @@ public abstract class AbstractGeneratorTest {
                 .setMinP(10.0)
                 .setRatedS(2.0)
                 .setTargetP(30.0)
-                .setTargetQ(20.0)
+                .setLocalTargetQ(20.0)
                 .setNode(1)
                 .setTargetV(31.0)
                 .setCondenser(true)
@@ -410,7 +410,7 @@ public abstract class AbstractGeneratorTest {
             .setTargetP(15)
             .setMinP(10)
             .setMaxP(25)
-            .setTargetQ(10)
+            .setLocalTargetQ(10)
             .add();
         // WHEN
         generator.setLocalTargetV(targetV);
@@ -440,7 +440,7 @@ public abstract class AbstractGeneratorTest {
             .setMinP(minP)
             .setRatedS(ratedS)
             .setTargetP(activePowerSetpoint)
-            .setTargetQ(reactivePowerSetpoint)
+            .setLocalTargetQ(reactivePowerSetpoint)
             .setNode(1)
             .setTargetV(voltageSetpoint)
             .add();

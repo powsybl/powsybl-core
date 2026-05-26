@@ -80,7 +80,7 @@ class CgmesExportTest {
                 .setId("C1")
                 .setNode(5)
                 .setLossFactor(1.1f)
-                .setTargetV(405.0)
+                .setLocalTargetV(405.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -90,7 +90,7 @@ class CgmesExportTest {
                 .setId("C2")
                 .setNode(6)
                 .setLossFactor(1.1f)
-                .setTargetQ(123)
+                .setLocalTargetQ(123)
                 .add();
         network.newHvdcLine()
                 .setId("hvdc_line")

@@ -25,8 +25,8 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     static final VoltageSourceConverterSerDe INSTANCE = new VoltageSourceConverterSerDe();
     static final String ROOT_ELEMENT_NAME = "voltageSourceConverter";
     static final String ARRAY_ELEMENT_NAME = "voltageSourceConverters";
-    private static final String TARGET_V = "targetV";
-    private static final String TARGET_Q = "targetQ";
+    private static final String LOCAL_TARGET_V = "localTargetV";
+    private static final String LOCAL_TARGET_Q = "localTargetQ";
 
     @Override
     protected String getRootElementName() {
@@ -40,8 +40,8 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
             () -> context.getWriter().writeBooleanAttribute("voltageRegulatorOn", vsc.isRegulatingWithMode(RegulationMode.VOLTAGE)));
         writeVoltageSetpoint(vsc, context);
         writeReactivePowerSetpoint(vsc, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, vsc.getTargetV()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_Q, vsc.getLocalTargetQ()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, vsc.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, vsc.getLocalTargetQ()));
         super.writeRootElementPqiAttributes(vsc, context);
     }
 
@@ -71,8 +71,8 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint")));
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            adder.setTargetV(context.getReader().readDoubleAttribute(TARGET_V, Double.NaN));
-            adder.setTargetQ(context.getReader().readDoubleAttribute(TARGET_Q, Double.NaN));
+            adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V, Double.NaN));
+            adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
         });
 
         readVoltageRegulationPrevious117(adder, context, voltageRegulatorOnRef, voltageSetpoint, reactivePowerSetpoint);
@@ -85,8 +85,8 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     private static void readVoltageRegulationPrevious117(VoltageSourceConverterAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
             VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
-            adder.setTargetV(voltageRegulationData.targetV());
-            adder.setTargetQ(voltageRegulationData.targetQ());
+            adder.setLocalTargetV(voltageRegulationData.targetV());
+            adder.setLocalTargetQ(voltageRegulationData.targetQ());
             if (voltageRegulationData.regulationMode() != null) {
                 adder.newVoltageRegulation()
                     .withMode(voltageRegulationData.regulationMode())

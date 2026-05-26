@@ -140,7 +140,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     private void setReactivePowerControl(VoltageSourceConverterAdder adder) {
         // The default is 0 MVar reactive power at pcc terminal.
-        adder.setTargetQ(0.0);
+        adder.setLocalTargetQ(0.0);
     }
 
     private void setPowerFactor(LineCommutatedConverterAdder adder) {

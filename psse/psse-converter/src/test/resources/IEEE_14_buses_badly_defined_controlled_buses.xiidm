@@ -30,11 +30,11 @@
                 </iidm:shuntNonLinearModel>
                 <iidm:voltageRegulation targetDeadband="1.3799999999999955" mode="VOLTAGE" regulating="true"/>
             </iidm:shuntCompensator>
-            <iidm:vscConverterStation id="VscConverter-2-VSC-1" lossFactor="0.0" targetV="138.0" targetQ="0.0" bus="B2" connectableBus="B2">
+            <iidm:vscConverterStation id="VscConverter-2-VSC-1" lossFactor="0.0" localTargetV="138.0" localTargetQ="0.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
-            <iidm:vscConverterStation id="VscConverter-2-VSC-2" lossFactor="0.0" targetV="138.0" targetQ="0.0" bus="B2" connectableBus="B2">
+            <iidm:vscConverterStation id="VscConverter-2-VSC-2" lossFactor="0.0" localTargetV="138.0" localTargetQ="0.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
@@ -64,7 +64,7 @@
             <iidm:shuntCompensator id="B9-SH 1" sectionCount="1" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
-            <iidm:staticVarCompensator id="FactsDevice-StaticVar" name="StaticVar" bMin="-0.3281873555975635" bMax="0.3281873555975635" targetV="140.76" targetQ="0.0" bus="B7" connectableBus="B7">
+            <iidm:staticVarCompensator id="FactsDevice-StaticVar" name="StaticVar" bMin="-0.3281873555975635" bMax="0.3281873555975635" localTargetV="140.76" localTargetQ="0.0" bus="B7" connectableBus="B7">
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:staticVarCompensator>
         </iidm:voltageLevel>
@@ -113,10 +113,10 @@
             </iidm:generator>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B5" connectableBus="B5"/>
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>
-            <iidm:vscConverterStation id="VscConverter-5-VSC-1" lossFactor="0.0" targetV="138.0" targetQ="0.11180423740823946" bus="B5" connectableBus="B5">
+            <iidm:vscConverterStation id="VscConverter-5-VSC-1" lossFactor="0.0" localTargetV="138.0" localTargetQ="0.11180423740823946" bus="B5" connectableBus="B5">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
             </iidm:vscConverterStation>
-            <iidm:vscConverterStation id="VscConverter-5-VSC-2" lossFactor="0.0" targetV="138.0" targetQ="0.11180423740823946" bus="B5" connectableBus="B5">
+            <iidm:vscConverterStation id="VscConverter-5-VSC-2" lossFactor="0.0" localTargetV="138.0" localTargetQ="0.11180423740823946" bus="B5" connectableBus="B5">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>

@@ -20,9 +20,9 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
 
     StaticVarCompensatorAdder setBmax(double bMax);
 
-    StaticVarCompensatorAdder setTargetQ(double targetQ);
+    StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ);
 
-    StaticVarCompensatorAdder setTargetV(double targetV);
+    StaticVarCompensatorAdder setLocalTargetV(double localTargetV);
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}

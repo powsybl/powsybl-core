@@ -39,21 +39,14 @@ public interface VoltageRegulationHolder {
     Terminal getTerminal();
 
     /**
-     * Gets the target voltage value
-     *
-     * @return the target voltage value, or Double.NaN if not applicable
-     */
-    default double getTargetV() {
-        return Double.NaN;
-    }
-
-    /**
      * TODO MSA JAVADOC
      */
     VoltageRegulationHolder setLocalTargetV(double targetV);
 
     /**
-     * TODO MSA JAVADOC
+     * Gets the local target voltage value at the equipment's terminal
+     *
+     * @return the target voltage value, or Double.NaN if not applicable
      */
     default double getLocalTargetV() {
         return Double.NaN;

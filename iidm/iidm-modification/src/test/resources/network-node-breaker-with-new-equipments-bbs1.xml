@@ -104,10 +104,10 @@
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
             <iidm:boundaryLine id="newBoundaryLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>
-            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" targetV="390.0" targetQ="1.0" node="26">
+            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" localTargetV="390.0" localTargetQ="1.0" node="26">
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:staticVarCompensator>
-            <iidm:vscConverterStation id="newVscConverterStation" lossFactor="1.1" node="30" targetV="405.0">
+            <iidm:vscConverterStation id="newVscConverterStation" lossFactor="1.1" node="30" localTargetV="405.0">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:vscConverterStation>
