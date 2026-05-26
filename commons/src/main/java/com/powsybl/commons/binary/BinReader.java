@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import static com.powsybl.commons.binary.BinUtil.*;
@@ -331,10 +328,6 @@ public class BinReader extends AbstractTreeDataReader {
             throw new PowsyblException("Binary parsing: expected end node but got name index " + nextNameIdx);
         }
         peekNextEntry();
-    }
-
-    boolean readEndOfStream() {
-        return in.isEndOfStream();
     }
 
     @Override

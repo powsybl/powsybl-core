@@ -190,16 +190,26 @@ class BinWriterReaderTest {
     @Test
     void testSkipNode() {
         BinReader reader = roundTrip(writer -> {
-            writer.writeStartNode(null, "child");
+            writer.writeStartNode(null, "child1");
             writer.writeIntAttribute("x", 42);
             writer.writeStartNode(null, "grandchild");
             writer.writeBooleanAttribute("flag", true);
             writer.writeEndNode();
             writer.writeEndNode();
+            writer.writeStartNode(null, "child2");
+            writer.writeStringAttribute("y", "test");
+            writer.writeEndNode();
+
         });
 
-        reader.readChildNodes(nodeName -> reader.skipNode());
-        assertTrue(reader.readEndOfStream());
+        List<String> nodesNameSkipped = new ArrayList<>();
+        reader.readChildNodes(nodeName -> {
+            reader.skipNode();
+            nodesNameSkipped.add(nodeName);
+        });
+
+        assertEquals(List.of("child1", "child2"), nodesNameSkipped);
+
         reader.close();
     }
 
