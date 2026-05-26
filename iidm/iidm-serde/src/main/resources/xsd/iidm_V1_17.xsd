@@ -340,7 +340,7 @@
                 </xs:sequence>
                 <xs:attribute name="sectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="solvedSectionCount" type="xs:int"/>
-                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="localTargetV" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

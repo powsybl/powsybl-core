@@ -20,7 +20,7 @@
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="21.7" q0="12.7" bus="B2" connectableBus="B2"/>
-            <iidm:shuntCompensator id="B2-SwSH1" sectionCount="3" bus="B2" connectableBus="B2" targetV="137.31">
+            <iidm:shuntCompensator id="B2-SwSH1" sectionCount="3" bus="B2" connectableBus="B2" localTargetV="137.31">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="-0.0010501995379122034" g="0.0"/>
                     <iidm:section b="-7.876496534341525E-4" g="0.0"/>

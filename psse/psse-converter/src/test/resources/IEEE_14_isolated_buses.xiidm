@@ -141,7 +141,7 @@
             <iidm:generator id="B16-G1 " energySource="OTHER" minP="-10000.0" maxP="10000.0" targetP="0.0" targetV="41.42" targetQ="17.623" connectableBus="B16">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
-            <iidm:shuntCompensator id="B16-SwSH1" sectionCount="2" connectableBus="B16" targetV="37.81">
+            <iidm:shuntCompensator id="B16-SwSH1" sectionCount="2" connectableBus="B16" localTargetV="37.81">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.06925207756232687" g="0.0"/>

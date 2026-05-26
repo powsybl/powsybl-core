@@ -20,7 +20,7 @@
             <iidm:shuntCompensator id="B7-SH 1" sectionCount="1" bus="B7" connectableBus="B7">
                 <iidm:shuntLinearModel bPerSection="0.05864197530864197" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shuntCompensator>
-            <iidm:shuntCompensator id="B7-SwSH1" sectionCount="1" bus="B7" connectableBus="B7" targetV="18.459">
+            <iidm:shuntCompensator id="B7-SwSH1" sectionCount="1" bus="B7" connectableBus="B7" localTargetV="18.459">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.046141975308641975" g="0.0"/>

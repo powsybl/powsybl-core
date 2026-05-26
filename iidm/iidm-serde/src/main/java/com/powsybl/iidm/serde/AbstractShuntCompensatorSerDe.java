@@ -41,7 +41,8 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     private static final String SHUNT_LINEAR_MODEL = "shuntLinearModel";
     private static final String SHUNT_NON_LINEAR_MODEL = "shuntNonLinearModel";
     private static final String SECTION_COUNT = "sectionCount";
-    public static final String TARGET_V = "targetV";
+    private static final String TARGET_V = "targetV";
+    private static final String LOCAL_TARGET_V = "localTargetV";
 
     private final String rootElementName;
     private final IidmVersion minVersionInclusive;
@@ -95,7 +96,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                     () -> sc.setLocalTargetV(Double.NaN))));
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            double targetV = context.getReader().readDoubleAttribute(TARGET_V);
+            double targetV = context.getReader().readDoubleAttribute(LOCAL_TARGET_V);
             adder.setLocalTargetV(targetV);
         });
         readNodeOrBus(adder, context, parent.getTopologyKind());
@@ -171,7 +172,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
                 targetDeadband, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
-            () -> context.getWriter().writeDoubleAttribute(TARGET_V, sc.getLocalTargetV()));
+            () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, sc.getLocalTargetV()));
     }
 
     private static void writePowerAttributes(ShuntCompensator sc, NetworkSerializerContext context) {
