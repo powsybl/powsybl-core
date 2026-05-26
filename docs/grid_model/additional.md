@@ -406,43 +406,34 @@ Here the list of objects capable of such regulation by authorized mode:
 
 | Equipment                                                                  | Voltage | Reactive Power | Voltage Per Reactive Power | Reactive Power Per Active Power |
 |----------------------------------------------------------------------------|---------|----------------|----------------------------|---------------------------------|
-| [Battery](./network_subnetwork.md#battery)                                 | X       | X              |                            |                                 |
-| [Generator](./network_subnetwork.md#generator)                             | X       | X              |                            | X                               |
-| [RatioTapChanger](#ratio-tap-changer)                                      | X       | X              |                            |                                 |
+| [Battery](./network_subnetwork.md#battery)                                 | X       | X (*)          |                            |                                 |
+| [Generator](./network_subnetwork.md#generator)                             | X       | X (*)          |                            | X                               |
+| [RatioTapChanger](#ratio-tap-changer)                                      | X       | X (*)          |                            |                                 |
 | [ShuntCompensator](./network_subnetwork.md#shunt-compensator)              | X       |                |                            |                                 |
 | [StaticVarCompensator](./network_subnetwork.md#static-var-compensator)     | X       | X              | X                          |                                 |
-| [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X              |                            |                                 |
-| [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter) | X       | X              |                            |                                 |
+| [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X (*)          |                            |                                 |
+| [VoltageSourceConverter](./network_subnetwork.md#voltage-source-converter) | X       | X (*)          |                            |                                 |
 
-**API from VoltageRegulationHolder**
-
-| Method           | Parameters  | Description                                                                                                                                     |
-|------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal which can be remote or local                                                   |
-| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                              |
-| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode)          |
-| $Terminal$       |             | The regulating Terminal which can be remote or local                  |
-| $Mode$           |             | The kind of regulation  |
-| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                            |
+(*) If the terminal is set
 
 **Characteristics**
 
-| Attribute        | Unit        | Description                                                                                                                                     |
-|------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal which can be remote or local                                                   |
-| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                              |
-| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode)          |
-| $Terminal$       |             | The regulating Terminal which can be remote or local                  |
-| $Mode$           |             | The kind of regulation  |
-| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                            |
+| Attribute        | Unit        | Description                                                                                                                            |
+|------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| $TargetValue$    | kV or MVar  | The voltage target or the reactive target at regulating terminal                                                                       |
+| $TargetDeadband$ | kV          | The deadband used to avoid excessive update of controls (`RatioTapChanger` and `ShuntCompensator`)                                     |
+| $Slope$          | kV per MVar | The sensibility of the voltage with respect to reactive power (`VOLTAGE_PER_REACTIVE_POWER` or `REACTIVE_POWER_PER_ACTIVE_POWER` mode) |
+| $Terminal$       |             | The regulating Terminal which can be remote or local                                                                                   |
+| $Mode$           |             | The kind of regulation                                                                                                                 |
+| $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                   |
 
 **Specifications**
 
-The values `TargetValue`, `Regulating` and `Mode` are required.
+The values `Regulating` and `Mode` are required and `TargetValue` is required if the `Terminal` is set
 
-`Terminal` is optional. If not set, the local terminal of the connectable should be used.
-
-`TargetValue` TODO MSA add local value if VOLTAGE or REACTIVE_POWER.
+`Terminal` is optional. If not set, the local terminal of the connectable will be used.  
+Once a `Terminal` has been set, it is considered a `Remote` terminal even if it is the connectable Terminal (local).  
+`TargetValue` is used only if the `Terminal` is set. Otherwise, the local target voltage or reactive value is used
 
 Regulation `Mode` has the following values : 
 - `VOLTAGE`
