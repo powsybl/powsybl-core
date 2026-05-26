@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.jspecify.annotations.NonNull;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS;
@@ -25,6 +28,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
 
     static final String ROOT_ELEMENT_NAME = "battery";
     static final String ARRAY_ELEMENT_NAME = "batteries";
+    public static final String LOCAL_TARGET_V = "localTargetV";
 
     @Override
     protected String getRootElementName() {
@@ -35,8 +39,9 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8),
                 b.getTargetP());
-        context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8),
+        context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", getTargetQName(context), context.getVersion(), IidmVersion.V_1_8),
                 b.getLocalTargetQ());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, b.getLocalTargetV()));
         context.getWriter().writeDoubleAttribute("minP", b.getMinP());
         context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
         writeNodeOrBus(null, b.getTerminal(), context);
@@ -59,7 +64,8 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
         double targetP = context.getReader().readDoubleAttribute(
                 IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8));
         double targetQ = context.getReader().readDoubleAttribute(
-                IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8));
+                IidmSerDeUtil.getAttributeName("q0", getTargetQName(context), context.getVersion(), IidmVersion.V_1_8));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V)));
         double minP = context.getReader().readDoubleAttribute("minP");
         double maxP = context.getReader().readDoubleAttribute("maxP");
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
@@ -82,5 +88,11 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
                 default -> readSubElement(elementName, b, context);
             }
         });
+    }
+
+    private static <T extends AbstractOptions<T>> @NonNull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
+        AtomicReference<String> targetQName = new AtomicReference<>("targetQ");
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> targetQName.set("localTargetQ"));
+        return targetQName.get();
     }
 }

@@ -49,7 +49,7 @@
             <iidm:generator id="gen2" name="gen2" energySource="OTHER" minP="0.0" maxP="20.0" targetP="10.0" targetQ="10.0" node="10">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:battery id="newBattery" targetP="100.0" targetQ="50.0" minP="-9999.0" maxP="9999.0" node="36">
+            <iidm:battery id="newBattery" targetP="100.0" localTargetQ="50.0" minP="-9999.0" maxP="9999.0" node="36">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:battery>
             <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" node="4"/>

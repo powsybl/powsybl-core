@@ -37,6 +37,15 @@ public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder>, Vol
     BatteryAdder setTargetP(double targetP);
 
     /**
+     * Set the target reactive power in MVar.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link #setLocalTargetQ(double)}  instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
+    BatteryAdder setTargetQ(double targetQ);
+
+    /**
      * Set the minimal active power in MW.
      */
     BatteryAdder setMinP(double minP);

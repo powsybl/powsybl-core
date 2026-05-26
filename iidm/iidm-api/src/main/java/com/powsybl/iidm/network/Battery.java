@@ -112,6 +112,24 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
     Battery setTargetP(double targetP);
 
     /**
+     * Get the target reactive power in MVar.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link #getRegulatingTargetQ()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
+    double getTargetQ();
+
+    /**
+     * Set the target reactive power in MVar.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     * @deprecated use {@link #setLocalTargetQ(double)} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
+    Battery setTargetQ(double targetQ);
+
+    /**
      * Get the minimal active power in MW.
      */
     double getMinP();

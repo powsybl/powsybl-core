@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.AcDcConverter;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,8 +54,41 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     @Test
     void testBattery() {
         // GIVEN
+        int targetQ = 10;
+
+        BatteryAdder adder = voltageLevel.newBattery()
+            .setId("battery_backwardCompatibility")
+            .setConnectableBus("NGEN")
+            .setMinP(0)
+            .setTargetP(10)
+            .setMaxP(20)
+            .setTargetQ(targetQ);
         // WHEN
+        Battery battery = adder.add();
         // THEN
+        assertNotNull(battery);
+        VoltageRegulationAttributesToCheck expectedAttributes = new VoltageRegulationAttributesToCheck(
+            Double.NaN,
+            targetQ,
+            Double.NaN,
+            Double.NaN,
+            Double.NaN,
+            RegulationMode.REACTIVE_POWER,
+            false,
+            null);
+        checkVoltageRegulationAttributes(expectedAttributes, battery);
+
+        assertEquals(battery.getTerminal(), battery.getRegulatingTerminal());
+        assertNull(battery.getVoltageRegulation());
+
+        assertEquals(Double.NaN, battery.getLocalTargetV());
+        assertEquals(Double.NaN, battery.getRegulatingTargetV());
+
+        assertEquals(targetQ, battery.getLocalTargetQ());
+        assertEquals(targetQ, battery.getTargetQ());
+        assertEquals(targetQ, battery.getRegulatingTargetQ());
+
+        assertFalse(battery.isRegulating());
     }
 
     @Test
@@ -269,18 +305,25 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         if (expected.terminal() != null) {
             assertEquals(expected.terminal().getConnectable().getId(), actual.getRegulatingTerminal().getConnectable().getId());
         } else {
-            assertNull(actual.getVoltageRegulation().getTerminal());
+            if (actual.getVoltageRegulation() != null) {
+                assertNull(actual.getVoltageRegulation().getTerminal());
+            }
         }
 
         assertEquals(expected.localTargetQ(), actual.getLocalTargetQ());
         assertEquals(expected.localTargetV(), actual.getLocalTargetV());
-        assertEquals(expected.targetValue(), actual.getVoltageRegulation().getTargetValue());
+        if (actual.getVoltageRegulation() != null) {
+            assertEquals(expected.targetValue(), actual.getVoltageRegulation().getTargetValue());
+        }
 
         assertEquals(expected.isRegulating(), actual.isRegulating());
         assertEquals(expected.terminal() != null, actual.isRemoteRegulating());
 
-        assertEquals(expected.targetDeadband(), actual.getVoltageRegulation().getTargetDeadband());
-        assertEquals(expected.slope(), actual.getVoltageRegulation().getSlope());
+        if (actual.getVoltageRegulation() != null) {
+            assertEquals(expected.targetDeadband(), actual.getVoltageRegulation().getTargetDeadband());
+
+            assertEquals(expected.slope(), actual.getVoltageRegulation().getSlope());
+        }
     }
 
     private record VoltageRegulationAttributesToCheck(

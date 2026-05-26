@@ -88,6 +88,16 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
+    @Override
+    public double getTargetQ() {
+        return this.getLocalTargetQ();
+    }
+
+    @Override
+    public Battery setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
+    }
+
     /**
      * {@inheritDoc}
      */

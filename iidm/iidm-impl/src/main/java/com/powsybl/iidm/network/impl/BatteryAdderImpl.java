@@ -55,6 +55,11 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
+    @Override
+    public BatteryAdder setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
+    }
+
     /**
      * {@inheritDoc}
      */

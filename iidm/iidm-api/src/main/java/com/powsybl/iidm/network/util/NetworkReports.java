@@ -20,6 +20,7 @@ public final class NetworkReports {
 
     private static final String BOUNDARY_LINE_ID_1 = "boundaryLineId1";
     private static final String BOUNDARY_LINE_ID_2 = "boundaryLineId2";
+    private static final String LOCAL_TARGET_Q = "localTargetQ";
 
     private NetworkReports() {
     }
@@ -321,7 +322,7 @@ public final class NetworkReports {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn")
             .withTypedValue("id", id, TypedValue.ID)
-            .withTypedValue("localTargetQ", localTargetQ, TypedValue.REACTIVE_POWER)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
     }
@@ -330,7 +331,7 @@ public final class NetworkReports {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.invalidLocalTargetQVoltageRegulationUnset")
             .withTypedValue("id", id, TypedValue.ID)
-            .withTypedValue("localTargetQ", localTargetQ, TypedValue.REACTIVE_POWER)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
     }
@@ -339,7 +340,7 @@ public final class NetworkReports {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.invalidLocalTargetQRegulatingOff")
             .withTypedValue("id", id, TypedValue.ID)
-            .withTypedValue("localTargetQ", localTargetQ, TypedValue.REACTIVE_POWER)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
             .withSeverity(TypedValue.ERROR_SEVERITY)
             .add();
     }
