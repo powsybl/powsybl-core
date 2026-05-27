@@ -10,7 +10,7 @@ package com.powsybl.commons.binary;
 import java.nio.ByteBuffer;
 
 /**
- * Growable direct {@link ByteBuffer} used to stage binary payloads in memory before draining
+ * Growable heap {@link ByteBuffer} used to stage binary payloads in memory before draining
  * them to a channel. Capacity doubles on overflow.
  *
  * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
@@ -26,13 +26,13 @@ final class GrowingByteBuffer {
     }
 
     GrowingByteBuffer(int initialCapacity) {
-        this.buffer = ByteBuffer.allocateDirect(initialCapacity);
+        this.buffer = ByteBuffer.allocate(initialCapacity);
     }
 
     private void ensureSpace(int n) {
         if (buffer.remaining() < n) {
             int newCapacity = Math.max(buffer.capacity() * 2, buffer.position() + n);
-            ByteBuffer next = ByteBuffer.allocateDirect(newCapacity);
+            ByteBuffer next = ByteBuffer.allocate(newCapacity);
             buffer.flip();
             next.put(buffer);
             buffer = next;
