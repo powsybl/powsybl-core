@@ -40,11 +40,11 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, NetworkSerializerContext context) {
-        readCommonTapChangerAttributes(tcs, context);
+        writeCommonTapChangerAttributes(tcs, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(tcs, context));
     }
 
-    private static TreeDataWriter readCommonTapChangerAttributes(TapChangerStep<?> tcs, NetworkSerializerContext context) {
+    private static TreeDataWriter writeCommonTapChangerAttributes(TapChangerStep<?> tcs, NetworkSerializerContext context) {
         TreeDataWriter writer = context.getWriter();
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
             writer.writeDoubleAttribute("r", tcs.getR());
@@ -63,7 +63,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     protected static void writePhaseTapChangerStep(PhaseTapChangerStep ptcs, NetworkSerializerContext context) {
-        readCommonTapChangerAttributes(ptcs, context).writeDoubleAttribute("alpha", ptcs.getAlpha());
+        writeCommonTapChangerAttributes(ptcs, context).writeDoubleAttribute("alpha", ptcs.getAlpha());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () -> PropertiesSerDe.write(ptcs, context));
     }
 
