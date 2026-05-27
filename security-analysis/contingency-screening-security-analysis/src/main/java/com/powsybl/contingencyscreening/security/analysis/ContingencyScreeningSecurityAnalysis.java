@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  *
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
  */
-public class ContingencyScreeningSecurityAnalysisHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContingencyScreeningSecurityAnalysisHandler.class);
+public class ContingencyScreeningSecurityAnalysis {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContingencyScreeningSecurityAnalysis.class);
 
     private final Network network;
     private final String workingVariantId;
@@ -44,16 +44,16 @@ public class ContingencyScreeningSecurityAnalysisHandler {
     private ReportNode reportNode;
     private List<Contingency> allContingencies;
 
-    public ContingencyScreeningSecurityAnalysisHandler(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
-                                                       SecurityAnalysisRunParameters runParameters, ContingencyScreeningSecurityAnalysisParameters parameters) {
+    public ContingencyScreeningSecurityAnalysis(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
+                                                SecurityAnalysisRunParameters runParameters, ContingencyScreeningSecurityAnalysisParameters parameters) {
         this(network, workingVariantId, contingenciesProvider, runParameters, parameters,
                 findProvider(parameters.getFirstProviderName()),
                 findProvider(parameters.getSecondProviderName()));
     }
 
-    public ContingencyScreeningSecurityAnalysisHandler(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
-                                                       SecurityAnalysisRunParameters runParameters, ContingencyScreeningSecurityAnalysisParameters parameters,
-                                                       SecurityAnalysisProvider firstProvider, SecurityAnalysisProvider secondProvider) {
+    public ContingencyScreeningSecurityAnalysis(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider,
+                                                SecurityAnalysisRunParameters runParameters, ContingencyScreeningSecurityAnalysisParameters parameters,
+                                                SecurityAnalysisProvider firstProvider, SecurityAnalysisProvider secondProvider) {
         this.network = network;
         this.workingVariantId = workingVariantId;
         this.contingenciesProvider = contingenciesProvider;
@@ -203,11 +203,12 @@ public class ContingencyScreeningSecurityAnalysisHandler {
         if (firstLogBytes.isPresent() && secondLogBytes.isEmpty()) {
             return firstLogBytes.get();
         }
-        if (secondLogBytes.isPresent() && firstLogBytes.isEmpty()) {
+        if (firstLogBytes.isEmpty() && secondLogBytes.isPresent()) {
             return secondLogBytes.get();
         }
 
         if (firstLogBytes.isEmpty()) {
+            // Both logs are empty
             return new byte[0];
         }
 

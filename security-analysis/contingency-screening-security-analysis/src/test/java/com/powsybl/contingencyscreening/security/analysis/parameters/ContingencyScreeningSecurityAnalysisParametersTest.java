@@ -13,8 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-/** * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}*/
 
+/**
+ * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
+ */
 class ContingencyScreeningSecurityAnalysisParametersTest {
     private ContingencyScreeningSecurityAnalysisParameters contingencyScreeningSecurityAnalysisParameters;
 
@@ -31,8 +33,8 @@ class ContingencyScreeningSecurityAnalysisParametersTest {
 
     @Test
     void testSetBothProviders() {
-        contingencyScreeningSecurityAnalysisParameters.setFirstProviderName("OpenLoadFlow");
-        contingencyScreeningSecurityAnalysisParameters.setSecondProviderName("DynaFlow");
+        contingencyScreeningSecurityAnalysisParameters.setFirstProviderName("OpenLoadFlow")
+                .setSecondProviderName("DynaFlow");
 
         assertEquals("OpenLoadFlow", contingencyScreeningSecurityAnalysisParameters.getFirstProviderName());
         assertEquals("DynaFlow", contingencyScreeningSecurityAnalysisParameters.getSecondProviderName());
@@ -57,8 +59,8 @@ class ContingencyScreeningSecurityAnalysisParametersTest {
 
     @Test
     void testCompleteConfiguration() {
-        contingencyScreeningSecurityAnalysisParameters.setFirstProviderName("OpenLoadFlow");
-        contingencyScreeningSecurityAnalysisParameters.setSecondProviderName("Dynaflow");
+        contingencyScreeningSecurityAnalysisParameters.setFirstProviderName("OpenLoadFlow")
+                .setSecondProviderName("Dynaflow");
         assertEquals("OpenLoadFlow", contingencyScreeningSecurityAnalysisParameters.getFirstProviderName());
         assertEquals("Dynaflow", contingencyScreeningSecurityAnalysisParameters.getSecondProviderName());
     }
