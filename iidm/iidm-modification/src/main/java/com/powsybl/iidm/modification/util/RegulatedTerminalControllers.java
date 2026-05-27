@@ -109,7 +109,7 @@ public class RegulatedTerminalControllers {
     }
 
     private static Terminal findRegulatedTerminalInExtension(Identifiable<?> identifiable, String extensionName) {
-        if (extensionName.equals("slackTerminal")) {
+        if ("slackTerminal".equals(extensionName)) {
             VoltageLevel voltageLevel = (VoltageLevel) identifiable;
             SlackTerminal slackTerminal = voltageLevel.getExtension(SlackTerminal.class);
             return slackTerminal.getTerminal();

@@ -429,11 +429,11 @@ Here the list of objects capable of such regulation by authorized mode:
 
 **Specifications**
 
-The values `Regulating` and `Mode` are required and `TargetValue` is required if the `Terminal` is set
+The values `Regulating` and `Mode` are always required. `TargetValue` is required when the `Terminal` is set.
 
 `Terminal` is optional. If not set, the local terminal of the connectable will be used.  
 Once a `Terminal` has been set, it is considered a `Remote` terminal even if it is the connectable Terminal (local).  
-`TargetValue` is used only if the `Terminal` is set. Otherwise, the local target voltage or reactive value is used
+`TargetValue` is used only when the `Terminal` is set. Otherwise, the local target voltage or reactive value is used.
 
 Regulation `Mode` has the following values : 
 - `VOLTAGE`

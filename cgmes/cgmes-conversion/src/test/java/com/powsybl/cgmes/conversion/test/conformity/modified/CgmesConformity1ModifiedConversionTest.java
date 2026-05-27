@@ -360,7 +360,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(shunt.isWithMode(VOLTAGE));
         assertFalse(shunt.isRegulatingWithMode(VOLTAGE));
         assertEquals(Double.NaN, shunt.getRegulatingTargetV(), 0.0d);
-        assertEquals(Double.NaN, shunt.getTargetV());
+        assertEquals(Double.NaN, shunt.getLocalTargetV());
         assertEquals(0.0d, shunt.getVoltageRegulation().getTargetDeadband(), 0.0d);
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
     }
