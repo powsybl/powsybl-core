@@ -109,7 +109,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             return fromModifs;
         }
 
-        double fromGenerator = generator.getTargetV();
+        double fromGenerator = generator.getLocalTargetV();
         if (!Double.isNaN(fromGenerator)) {
             return fromGenerator;
         }
@@ -316,7 +316,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (areValuesEqual(modifs.getMinP(), g.getMinP(), false)
             && areValuesEqual(modifs.getMaxP(), g.getMaxP(), false)
-            && areValuesEqual(modifs.getTargetV(), g.getTargetV(), false)
+            && areValuesEqual(modifs.getTargetV(), g.getLocalTargetV(), false)
             && areValuesEqual(modifs.getTargetQ(), g.getLocalTargetQ(), false)
             && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
             && voltageRegulationHasNoImpactOnNetwork(g)

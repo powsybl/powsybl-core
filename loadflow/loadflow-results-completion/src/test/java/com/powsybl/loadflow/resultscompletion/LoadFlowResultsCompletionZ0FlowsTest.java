@@ -430,7 +430,7 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                     .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
+                .setLocalTargetV(115.0)
                 .setTargetP(0.490536)
                 .setLocalTargetQ(-16.774788)
                 .add();
@@ -444,7 +444,7 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                     .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
+                .setLocalTargetV(115.0)
                 .setTargetP(15.488468)
                 .setLocalTargetQ(0.613118)
                 .add();
@@ -458,7 +458,7 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                     .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
+                .setLocalTargetV(115.0)
                 .setTargetP(60.486267)
                 .setLocalTargetQ(-110.743699)
                 .add();

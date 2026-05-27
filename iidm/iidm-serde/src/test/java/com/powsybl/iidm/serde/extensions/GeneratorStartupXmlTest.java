@@ -81,7 +81,7 @@ class GeneratorStartupXmlTest extends AbstractIidmSerDeTest {
                 .setBus("B")
                 .setConnectableBus("B")
                 .setTargetP(100)
-                .setTargetV(380)
+                .setLocalTargetV(380)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMaxP(100)
                 .setMinP(0)

@@ -64,7 +64,7 @@ public final class SvcTestCaseFactory {
                 .setBus("B1")
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();

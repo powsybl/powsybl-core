@@ -425,7 +425,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setRatedS(125.0)
                 .setTargetP(targetP)
                 .setLocalTargetQ(targetQ)
-                .setTargetV(targetV);
+                .setLocalTargetV(targetV);
         if (isRegulating) {
             adder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add();
         }

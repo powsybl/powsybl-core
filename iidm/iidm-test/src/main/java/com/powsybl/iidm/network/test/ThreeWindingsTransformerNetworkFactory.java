@@ -49,7 +49,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setMinP(0.0)
                 .setMaxP(140)
                 .setTargetP(7.2)
-                .setTargetV(135)
+                .setLocalTargetV(135)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
 
@@ -228,7 +228,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setMinP(0.0)
                 .setMaxP(140)
                 .setTargetP(7.2)
-                .setTargetV(135)
+                .setLocalTargetV(135)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
 

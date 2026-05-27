@@ -82,7 +82,7 @@ class IssuesTest {
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add()
-            .setTargetV(400)
+            .setLocalTargetV(400)
             .add();
         assertEquals(g1.getRegulatingTerminal(), g1.getTerminal());
         vl2.getBusBreakerView().newBus()

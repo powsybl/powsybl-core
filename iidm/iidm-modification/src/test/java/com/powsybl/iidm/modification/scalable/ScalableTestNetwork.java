@@ -62,7 +62,7 @@ final class ScalableTestNetwork {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(1.0)
+                .setLocalTargetV(1.0)
                 .add();
         vl.newLoad()
                 .setId("l1")
@@ -143,7 +143,7 @@ final class ScalableTestNetwork {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(1.0)
+                .setLocalTargetV(1.0)
                 .add();
         vl.newLoad()
                 .setId("l1")
@@ -240,7 +240,7 @@ final class ScalableTestNetwork {
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add()
-            .setTargetV(1.0)
+            .setLocalTargetV(1.0)
             .add();
         vl.newLoad()
             .setId("l1")

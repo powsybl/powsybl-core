@@ -130,11 +130,11 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     private static double getVoltageTarget(Generator gen) {
-        if (Double.isNaN(gen.getTargetV()) || gen.getTargetV() <= 0.0) {
+        if (Double.isNaN(gen.getLocalTargetV()) || gen.getLocalTargetV() <= 0.0) {
             return 1.0;
         } else {
             double vNominal = gen.getRegulatingTerminal() != null ? gen.getRegulatingTerminal().getVoltageLevel().getNominalV() : gen.getTerminal().getVoltageLevel().getNominalV();
-            return gen.getTargetV() / vNominal;
+            return gen.getLocalTargetV() / vNominal;
         }
     }
 

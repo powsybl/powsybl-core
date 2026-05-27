@@ -70,7 +70,7 @@ public final class NetworkBusBreakerTest1Factory {
                 .setMaxP(900.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(900.0)
-                .setTargetV(380.0)
+                .setLocalTargetV(380.0)
                 .setBus(voltageLevel1Bus2.getId())
                 .add();
         generator1.newReactiveCapabilityCurve()

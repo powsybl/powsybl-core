@@ -168,6 +168,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
+    public double getTargetQ() {
+        return this.getRegulatingTargetQ();
+    }
+
+    @Override
     public double getLocalTargetQ() {
         return this.targetQ.get(network.get().getVariantIndex());
     }
@@ -190,7 +195,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getTargetV() {
-        return this.localTargetV.get(network.get().getVariantIndex());
+        return this.getRegulatingTargetV();
     }
 
     @Override
@@ -226,7 +231,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getEquivalentLocalTargetV() {
-        return this.getTargetV();
+        return this.getLocalTargetV();
     }
 
     @Override

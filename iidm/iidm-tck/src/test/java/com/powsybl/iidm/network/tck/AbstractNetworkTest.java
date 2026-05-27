@@ -162,7 +162,7 @@ public abstract class AbstractNetworkTest {
         assertSame(EnergySource.NUCLEAR, generator1.getEnergySource());
         assertSame(RegulationMode.VOLTAGE, generator1.getVoltageRegulation().getMode());
         assertEquals(900.0, generator1.getTargetP(), 0.0);
-        assertEquals(380.0, generator1.getTargetV(), 0.0);
+        assertEquals(380.0, generator1.getLocalTargetV(), 0.0);
         ReactiveCapabilityCurve rcc1 = generator1.getReactiveLimits(ReactiveCapabilityCurve.class);
         assertEquals(2, rcc1.getPointCount());
         assertEquals(500.0, rcc1.getMaxQ(500), 0.0);

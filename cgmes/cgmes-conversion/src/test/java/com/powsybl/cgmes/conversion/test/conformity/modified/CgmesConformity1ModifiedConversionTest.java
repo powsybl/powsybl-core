@@ -244,7 +244,7 @@ class CgmesConformity1ModifiedConversionTest {
 
         Generator generator1 = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         assertNull(generator1.getVoltageRegulation());
-        assertTrue(Double.isNaN(generator1.getTargetV()));
+        assertTrue(Double.isNaN(generator1.getLocalTargetV()));
         assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
@@ -273,7 +273,7 @@ class CgmesConformity1ModifiedConversionTest {
 
         Generator generator = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         assertNull(generator.getVoltageRegulation());
-        assertTrue(Double.isNaN(generator.getTargetV()));
+        assertTrue(Double.isNaN(generator.getLocalTargetV()));
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
         assertNotNull(rtc);

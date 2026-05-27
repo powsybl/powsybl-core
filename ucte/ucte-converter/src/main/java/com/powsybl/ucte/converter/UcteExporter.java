@@ -261,10 +261,10 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getLocalTargetQ())) {
                 reactivePowerGeneration += generator.getLocalTargetQ();
             }
-            if (!Double.isNaN(generator.getTargetV())) {
+            if (!Double.isNaN(generator.getLocalTargetV())) {
                 // FIXME(mathbagu): what if not all the generators have the same targetV?
                 // Should we use bus.getV() instead?
-                voltageReference = generator.getTargetV();
+                voltageReference = generator.getLocalTargetV();
             }
             if (generator.getVoltageRegulation() != null
                 && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE

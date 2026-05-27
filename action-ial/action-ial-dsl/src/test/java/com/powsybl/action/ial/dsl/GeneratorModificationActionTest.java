@@ -61,7 +61,7 @@ class GeneratorModificationActionTest {
         assertEquals(20., g.getMinP(), 0.1);
         assertEquals(60., g.getMaxP(), 0.1);
         assertEquals(50., g.getTargetP(), 0.1);
-        assertEquals(10, g.getTargetV(), 0.1);
+        assertEquals(10, g.getLocalTargetV(), 0.1);
         assertEquals(25., g.getLocalTargetQ(), 0.1);
         assertFalse(g.isRegulating());
     }
@@ -71,7 +71,7 @@ class GeneratorModificationActionTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(Objects.requireNonNull(getClass().getResource("/generator-modification-action.groovy")))).load(network);
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulationMode VOLTAGE");
         action.run(network);
-        assertEquals(10, g.getTargetV(), 0.1);
+        assertEquals(10, g.getLocalTargetV(), 0.1);
         assertEquals(25., g.getLocalTargetQ(), 0.1);
         assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
     }
@@ -147,7 +147,7 @@ class GeneratorModificationActionTest {
         assertFalse(g.getTerminal().isConnected());
         assertEquals(RegulationMode.VOLTAGE, g.getVoltageRegulation().getMode());
         assertEquals(24.5, g.getRegulatingTargetV(), 0.01);
-        assertEquals(24.5, g.getTargetV());
+        assertEquals(24.5, g.getLocalTargetV());
         assertEquals(Double.NaN, g.getVoltageRegulation().getTargetValue());
         action = actionDb.getAction("connect with targetV change");
         action.run(network);

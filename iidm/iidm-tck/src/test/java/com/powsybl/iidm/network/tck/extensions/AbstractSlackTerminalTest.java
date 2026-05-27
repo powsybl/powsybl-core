@@ -67,7 +67,7 @@ public abstract class AbstractSlackTerminalTest {
             .setTargetP(100)
             .setMinP(0)
             .setMaxP(110)
-            .setTargetV(380)
+            .setLocalTargetV(380)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 

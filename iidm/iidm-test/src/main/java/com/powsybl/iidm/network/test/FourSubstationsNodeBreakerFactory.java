@@ -272,7 +272,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(100.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(85.3570)
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setLocalTargetQ(512.081)
                 .setNode(7)
                 .add();
@@ -297,7 +297,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(200.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(90)
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setLocalTargetQ(512.081)
                 .setNode(9)
                 .add();
@@ -322,7 +322,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(200.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(155.714)
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setLocalTargetQ(512.081)
                 .setNode(11)
                 .add();
@@ -419,7 +419,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(100.0)
                 .setTargetP(100.0)
                 .setLocalTargetQ(70)
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setNode(2)
                 .add();
         generatorThermal1.newReactiveCapabilityCurve()
@@ -509,7 +509,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxP(400.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(250.9944)
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setLocalTargetQ(71.8487)
                 .setNode(6)
                 .add();

@@ -66,7 +66,7 @@ public abstract class AbstractGeneratorTest {
         generator.setRatedS(ratedS);
         assertEquals(activePowerSetpoint, generator.getTargetP(), 0.0);
         assertEquals(reactivePowerSetpoint, generator.getLocalTargetQ(), 0.0);
-        assertEquals(voltageSetpoint, generator.getTargetV(), 0.0);
+        assertEquals(voltageSetpoint, generator.getLocalTargetV(), 0.0);
         assertEquals(ratedS, generator.getRatedS(), 0.0);
 
         // RegulationMode
@@ -214,7 +214,7 @@ public abstract class AbstractGeneratorTest {
                 .setTargetP(30.0)
                 .setLocalTargetQ(20.0)
                 .setNode(1)
-                .setTargetV(31.0)
+                .setLocalTargetV(31.0)
                 .setCondenser(true)
                 .add();
         Generator generator = network.getGenerator(GEN_ID);
@@ -227,7 +227,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(2.0, generator.getRatedS(), 0.0);
         assertEquals(30.0, generator.getTargetP(), 0.0);
         assertEquals(20.0, generator.getLocalTargetQ(), 0.0);
-        assertEquals(31.0, generator.getTargetV(), 0.0);
+        assertEquals(31.0, generator.getLocalTargetV(), 0.0);
         assertTrue(generator.isCondenser());
     }
 
@@ -368,7 +368,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getLocalTargetQ(), 0.0);
-        assertEquals(2.0, generator.getTargetV(), 0.0);
+        assertEquals(2.0, generator.getLocalTargetV(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
@@ -442,7 +442,7 @@ public abstract class AbstractGeneratorTest {
             .setTargetP(activePowerSetpoint)
             .setLocalTargetQ(reactivePowerSetpoint)
             .setNode(1)
-            .setTargetV(voltageSetpoint)
+            .setLocalTargetV(voltageSetpoint)
             .add();
     }
 

@@ -34,9 +34,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double targetP = Double.NaN;
 
-    private double targetQ = Double.NaN;
+    private double localTargetQ = Double.NaN;
 
-    private double targetV = Double.NaN;
+    private double targetValue = Double.NaN;
 
     private double localTargetV = Double.NaN;
 
@@ -90,24 +90,28 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public GeneratorAdder setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
+    }
+
+    @Override
     public GeneratorAdderImpl setLocalTargetQ(double localTargetQ) {
-        this.targetQ = localTargetQ;
+        this.localTargetQ = localTargetQ;
         return this;
     }
 
     @Override
     public double getLocalTargetQ() {
-        return this.targetQ;
+        return this.localTargetQ;
     }
 
-    @Override
     public GeneratorAdderImpl setTargetV(double targetV) {
-        return this.setLocalTargetV(targetV);
+        return this.setTargetV(targetV, targetV);
     }
 
     @Override
     public GeneratorAdderImpl setTargetV(double targetV, double equivalentLocalTargetV) {
-        this.targetV = equivalentLocalTargetV;
+        this.targetValue = targetV;
         return this.setLocalTargetV(equivalentLocalTargetV);
     }
 
@@ -148,17 +152,17 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRatedS(this, ratedS);
         // Backward compatibility : If a generator with old setters is added and voltageRegulation does not exist,
         // the new voltageRegulation will be created from the old attributes.
-        if (this.voltageRegulation == null) {
-            createVoltageRegulationBackwardCompatibility(this.newVoltageRegulation(), targetV, targetQ, voltageRegulatorOn, regulatingTerminal);
+        if (this.voltageRegulation == null && voltageRegulatorOn != null) {
+            createVoltageRegulationBackwardCompatibility(this, targetValue, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
         }
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, localTargetV, targetQ, voltageRegulation, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, localTargetV, localTargetQ, voltageRegulation, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
                                     voltageRegulation,
-                                    targetP, targetQ, localTargetV,
+                                    targetP, localTargetQ, localTargetV,
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);

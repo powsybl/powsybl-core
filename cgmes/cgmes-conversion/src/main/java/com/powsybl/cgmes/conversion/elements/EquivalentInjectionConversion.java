@@ -169,7 +169,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static double getDefaultTargetV(Generator generator, Context context) {
-        return getDefaultValue(null, generator.getTargetV(), Double.NaN, Double.NaN, context);
+        return getDefaultValue(null, generator.getLocalTargetV(), Double.NaN, Double.NaN, context);
     }
 
     private static boolean getDefaultRegulatingOn(Generator generator, Context context) {

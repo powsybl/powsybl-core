@@ -87,7 +87,7 @@ class NodeBreakerConnectTest {
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add()
-            .setTargetV(400)
+            .setLocalTargetV(400)
             .setTargetP(1)
             .setLocalTargetQ(0)
             .add();

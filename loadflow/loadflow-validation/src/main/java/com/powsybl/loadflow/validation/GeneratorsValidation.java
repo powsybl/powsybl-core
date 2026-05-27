@@ -93,7 +93,7 @@ public final class GeneratorsValidation {
         Bus bus = gen.getTerminal().getBusView().getBus();
         double targetP = gen.getTargetP();
         double targetQ = gen.getLocalTargetQ();
-        double targetV = gen.getTargetV();
+        double targetV = gen.getLocalTargetV();
         String regulationMode = gen.getVoltageRegulation() != null ? gen.getVoltageRegulation().getMode().toString() : null;
         boolean regulating = gen.getVoltageRegulation() != null && gen.getVoltageRegulation().isRegulating();
         double minP = gen.getMinP();

@@ -162,7 +162,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         // version < V_1_17
         // Terminal null because remote terminal information come from subElements regulatingTerminal
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
-            createVoltageRegulationBackwardCompatibility(adder.newVoltageRegulation(), Double.NaN, Double.NaN, voltageRegulatorOn, null));
+            createVoltageRegulationBackwardCompatibility(adder, Double.NaN, Double.NaN, voltageRegulatorOn, null));
         // version >= V_1_17 -> voltageRegulation is read with VoltageRegulationSerDe
         // Nothing to do
     }
@@ -174,10 +174,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             if (!Double.isNaN(equivalentLocalTargetV)) {
                 newTargetV = equivalentLocalTargetV;
             }
-            adder.setTargetV(newTargetV);
+            adder.setLocalTargetV(newTargetV);
         });
         // From V_1_17
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> adder.setTargetV(targetV));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> adder.setLocalTargetV(targetV));
     }
 
     private Boolean readVoltageRegulatorOnByVersion(NetworkDeserializerContext context) {

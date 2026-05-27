@@ -360,7 +360,7 @@ class MergeTest {
             .setMinP(-500.0)
             .setMaxP(500.0)
             .setTargetP(p)
-            .setTargetV(targetV)
+            .setLocalTargetV(targetV)
             .setLocalTargetQ(q)
             .setNode(node)
             .add();

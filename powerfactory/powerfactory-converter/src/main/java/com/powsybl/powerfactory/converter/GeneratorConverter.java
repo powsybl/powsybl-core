@@ -46,7 +46,7 @@ class GeneratorConverter extends AbstractConverter {
                 .setNode(nodeRef.node)
                 .setTargetP(generatorModel.targetP)
                 .setLocalTargetQ(generatorModel.targetQ)
-                .setTargetV(generatorModel.targetVpu * vl.getNominalV())
+                .setLocalTargetV(generatorModel.targetVpu * vl.getNominalV())
                 .setMinP(generatorModel.minP)
                 .setMaxP(generatorModel.maxP);
         if (voltageRegulatorOn) {

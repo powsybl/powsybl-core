@@ -48,7 +48,7 @@ class ReferencePrioritiesXmlTest extends AbstractIidmSerDeTest {
                 .setConnectableBus("B1")
                 .setTargetP(100)
                 .setLocalTargetQ(100)
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setMinP(0)
                 .setMaxP(200)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()

@@ -250,7 +250,7 @@ class SwitchesFlowTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(p)
-            .setTargetV(225.0)
+            .setLocalTargetV(225.0)
             .setLocalTargetQ(q)
             .setNode(node)
             .add();

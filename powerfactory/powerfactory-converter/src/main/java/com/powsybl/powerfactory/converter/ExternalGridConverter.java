@@ -43,7 +43,7 @@ class ExternalGridConverter extends AbstractConverter {
                 .setNode(nodeRef.node)
                 .setTargetP(externalGridModel.p)
                 .setLocalTargetQ(externalGridModel.q)
-                .setTargetV(externalGridModel.voltageSetpointpu * vl.getNominalV())
+                .setLocalTargetV(externalGridModel.voltageSetpointpu * vl.getNominalV())
                 .setMinP(externalGridModel.minP)
                 .setMaxP(externalGridModel.maxP);
         if (voltageRegulatorOn) {

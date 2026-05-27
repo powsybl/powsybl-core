@@ -319,7 +319,7 @@ public final class SteadyStateHypothesisExport {
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getRegulatingTargetQ(),
-                            controlEnabled, g.getTargetV(), cimNamespace, writer, context);
+                            controlEnabled, g.getLocalTargetV(), cimNamespace, writer, context);
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), controlEnabled,

@@ -25,21 +25,37 @@ public final class VoltageRegulationUtils {
         /* This utility class should not be instantiated */
     }
 
-    public static void createVoltageRegulationBackwardCompatibility(VoltageRegulationAdder<?> adder, double targetV, double targetQ, Boolean voltageRegulatorOn, Terminal terminal) {
+    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                double targetValue,
+                                                                                                                double localTargetV,
+                                                                                                                double targetQ,
+                                                                                                                Boolean voltageRegulatorOn,
+                                                                                                                Terminal terminal) {
         // VOLTAGE case
         if (Boolean.TRUE.equals(voltageRegulatorOn)) {
-            adder.withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(terminal != null ? targetV : Double.NaN)
-                .withTerminal(terminal)
-                .add();
+            VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE);
+            if (terminal != null) {
+                vrAdder.withTargetValue(targetValue)
+                    .withTerminal(terminal);
+                adder.setLocalTargetV(localTargetV);
+            } else {
+                adder.setLocalTargetV(localTargetV);
+            }
+            vrAdder.add();
+            adder.setLocalTargetQ(targetQ);
             // REACTIVE Power case
         } else if (Boolean.FALSE.equals(voltageRegulatorOn)
             && !Double.isNaN(targetQ)
             && terminal != null) {
-            adder.withMode(RegulationMode.REACTIVE_POWER)
+            adder.newVoltageRegulation()
+                .withMode(RegulationMode.REACTIVE_POWER)
                 .withTargetValue(targetQ)
                 .withTerminal(terminal)
                 .add();
+        } else {
+            adder.setLocalTargetV(localTargetV);
+            adder.setLocalTargetQ(targetQ);
         }
     }
 

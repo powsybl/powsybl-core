@@ -613,7 +613,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         vl.getBusBreakerView().newBus().setId("Bus1").add();
         Generator g = vl.newGenerator().setId("Generator1").setBus("Bus1")
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setTargetP(0).setMinP(0).setMaxP(10)
                 .add();
         g.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);

@@ -143,7 +143,7 @@ class GeneratorUpdateTest {
         assertNotNull(generator);
         assertTrue(Double.isNaN(generator.getTargetP()));
         assertTrue(Double.isNaN(generator.getLocalTargetQ()));
-        assertTrue(Double.isNaN(generator.getTargetV()));
+        assertTrue(Double.isNaN(generator.getLocalTargetV()));
         assertNotNull(generator.getRegulatingTerminal());
 
         String originalClass = generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS);

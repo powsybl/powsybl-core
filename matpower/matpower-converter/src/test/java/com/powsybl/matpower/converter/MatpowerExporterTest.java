@@ -338,7 +338,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .newVoltageLevel().setId("VL32").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl32.getBusBreakerView().newBus().setId("BUS-32").add();
 
-        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setLocalTargetQ(8.0).setTargetV(410.0).setMinP(0.0).setMaxP(15.0)
+        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setLocalTargetQ(8.0).setLocalTargetV(410.0).setMinP(0.0).setMaxP(15.0)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
         SlackTerminal.attach(network.getBusBreakerView().getBus("BUS-11"));

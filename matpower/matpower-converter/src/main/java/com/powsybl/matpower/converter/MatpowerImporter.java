@@ -201,7 +201,7 @@ public class MatpowerImporter implements Importer {
                     .setEnsureIdUnicity(true)
                     .setConnectableBus(busId)
                     .setBus(isInService(mGen) ? busId : null)
-                    .setTargetV(targetV)
+                    .setLocalTargetV(targetV)
                     .setTargetP(mGen.getRealPowerOutput())
                     .setLocalTargetQ(targetQ)
                     .newVoltageRegulation()

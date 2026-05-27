@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.AcDcConverter;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.DcNode;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
@@ -92,10 +94,100 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     }
 
     @Test
-    void testGenerator() {
+    void testGeneratorRemoteVoltageRegulation() {
         // GIVEN
+        int remoteTargetV = 220;
+        int localTargetV = 110;
+        int targetQ = 10;
+
+        GeneratorAdder adder = voltageLevel.newGenerator()
+            .setId("generator_backwardCompatibility")
+            .setConnectableBus("NGEN")
+            .setMinP(0)
+            .setTargetP(20)
+            .setMaxP(100)
+            .setVoltageRegulatorOn(true)
+            .setRegulatingTerminal(remoteTerminal)
+            .setTargetV(remoteTargetV, localTargetV)
+            .setTargetQ(targetQ);
         // WHEN
+        Generator generator = adder.add();
         // THEN
+        assertNotNull(generator);
+        VoltageRegulationAttributesToCheck expectedAttributes = new VoltageRegulationAttributesToCheck(
+            localTargetV,
+            targetQ,
+            remoteTargetV,
+            Double.NaN,
+            Double.NaN,
+            RegulationMode.VOLTAGE,
+            true,
+            remoteTerminal);
+        checkVoltageRegulationAttributes(expectedAttributes, generator);
+
+        assertEquals(remoteTerminal, generator.getRegulatingTerminal());
+        assertEquals(remoteTerminal, generator.getVoltageRegulation().getTerminal());
+
+        assertEquals(localTargetV, generator.getLocalTargetV());
+        assertEquals(localTargetV, generator.getEquivalentLocalTargetV());
+        assertEquals(remoteTargetV, generator.getTargetV());
+        assertEquals(remoteTargetV, generator.getRegulatingTargetV());
+        assertEquals(remoteTargetV, generator.getVoltageRegulation().getTargetValue());
+
+        assertEquals(targetQ, generator.getLocalTargetQ());
+        assertEquals(targetQ, generator.getTargetQ());
+        assertEquals(targetQ, generator.getRegulatingTargetQ());
+
+        assertTrue(generator.isRegulating());
+        assertTrue(generator.isVoltageRegulatorOn());
+    }
+
+    @Test
+    void testGeneratorLocalVoltageRegulation() {
+        // GIVEN
+        int remoteTargetV = 220;
+        int localTargetV = 110;
+        int targetQ = 10;
+
+        GeneratorAdder adder = voltageLevel.newGenerator()
+            .setId("generator_backwardCompatibility")
+            .setConnectableBus("NGEN")
+            .setMinP(0)
+            .setTargetP(20)
+            .setMaxP(100)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(remoteTargetV, localTargetV)
+            .setTargetQ(targetQ);
+        // WHEN
+        Generator generator = adder.add();
+        // THEN
+        assertNotNull(generator);
+        VoltageRegulationAttributesToCheck expectedAttributes = new VoltageRegulationAttributesToCheck(
+            localTargetV,
+            targetQ,
+            Double.NaN,
+            Double.NaN,
+            Double.NaN,
+            RegulationMode.VOLTAGE,
+            true,
+            null);
+        checkVoltageRegulationAttributes(expectedAttributes, generator);
+
+        assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
+        assertNull(generator.getVoltageRegulation().getTerminal());
+
+        assertEquals(localTargetV, generator.getLocalTargetV());
+        assertEquals(localTargetV, generator.getEquivalentLocalTargetV());
+        assertEquals(localTargetV, generator.getTargetV());
+        assertEquals(localTargetV, generator.getRegulatingTargetV());
+        assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
+
+        assertEquals(targetQ, generator.getLocalTargetQ());
+        assertEquals(targetQ, generator.getTargetQ());
+        assertEquals(targetQ, generator.getRegulatingTargetQ());
+
+        assertTrue(generator.isRegulating());
+        assertTrue(generator.isVoltageRegulatorOn());
     }
 
     @Test

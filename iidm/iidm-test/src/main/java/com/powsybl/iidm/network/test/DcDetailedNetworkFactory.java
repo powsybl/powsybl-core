@@ -111,7 +111,7 @@ public final class DcDetailedNetworkFactory {
                 .setMinP(0.0)
                 .setMaxP(4000.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .setTargetP(2000.0)
                 .setLocalTargetQ(0.0)
                 .setBus(b.getId())

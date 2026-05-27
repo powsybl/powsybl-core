@@ -257,7 +257,7 @@ public class UcteImporter implements Importer {
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
                 .setTargetP(generatorP)
                 .setLocalTargetQ(generatorQ)
-                .setTargetV(ucteNode.getVoltageReference());
+                .setLocalTargetV(ucteNode.getVoltageReference());
         if (regulatingVoltage) {
             adder.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)

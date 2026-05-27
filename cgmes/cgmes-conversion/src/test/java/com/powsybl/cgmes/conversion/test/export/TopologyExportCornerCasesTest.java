@@ -472,7 +472,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
                 .setMaxP(900.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(900.0)
-                .setTargetV(380.0);
+                .setLocalTargetV(380.0);
     }
 
     private static TwoWindingsTransformerAdder createTwoWindingsTransformerAdder(Substation substation, String name, String voltageLevel1, String voltageLevel2) {
