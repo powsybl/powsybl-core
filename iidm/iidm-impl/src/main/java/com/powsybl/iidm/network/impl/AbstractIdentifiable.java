@@ -69,15 +69,17 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public I setId(String id) {
-        NetworkIndex.checkId(id);
-        if (getNetwork().getIndex().get(id) != null) {
-            throw new PowsyblException("Object with id (" + id + ") already exists");
+        if (!this.id.equals(id)) {
+            NetworkIndex.checkId(id);
+            if (getNetwork().getIndex().get(id) != null) {
+                throw new PowsyblException("Object with id (" + id + ") already exists");
+            }
+            getNetwork().getIndex().remove(this);
+            String oldId = this.id;
+            this.id = id;
+            getNetwork().getIndex().checkAndAdd(this);
+            getNetwork().getListeners().notifyUpdate(this, "id", oldId, id);
         }
-        getNetwork().getIndex().remove(this);
-        String oldId = this.id;
-        this.id = id;
-        getNetwork().getIndex().checkAndAdd(this);
-        getNetwork().getListeners().notifyUpdate(this, "id", oldId, id);
         return (I) this;
     }
 
