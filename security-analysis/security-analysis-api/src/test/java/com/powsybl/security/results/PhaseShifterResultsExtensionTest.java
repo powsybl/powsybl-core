@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class PhaseShifterResultsExtensionTest {
 
-    private static final MovedPhaseShifterResult PHASE_SHIFTER_RESULT_1 = new MovedPhaseShifterResult("PS1", 1, 3);
+    private static final PhaseShifterResultsExtension.MovedPhaseShifterResult PHASE_SHIFTER_RESULT_1 = new PhaseShifterResultsExtension.MovedPhaseShifterResult("PS1", 1, 3);
 
-    private static final MovedPhaseShifterResult PHASE_SHIFTER_RESULT_2 = new MovedPhaseShifterResult("PS2", 2, 4);
+    private static final PhaseShifterResultsExtension.MovedPhaseShifterResult PHASE_SHIFTER_RESULT_2 = new PhaseShifterResultsExtension.MovedPhaseShifterResult("PS2", 2, 4);
 
     @Test
     void testConstructorAndGetters() {
@@ -50,7 +50,7 @@ class PhaseShifterResultsExtensionTest {
 
     @Test
     void testMovedPhaseShifterResultGettersAndToString() {
-        MovedPhaseShifterResult result = new MovedPhaseShifterResult("PS6", 11, 12);
+        PhaseShifterResultsExtension.MovedPhaseShifterResult result = new PhaseShifterResultsExtension.MovedPhaseShifterResult("PS6", 11, 12);
 
         assertEquals("PS6", result.getTransformerId());
         assertEquals(11, result.getInitialTap());
@@ -65,7 +65,7 @@ class PhaseShifterResultsExtensionTest {
 
     @Test
     void testNullTransformerIdThrowsException() {
-        assertThrows(NullPointerException.class, () -> new MovedPhaseShifterResult(null, 1, 2));
+        assertThrows(NullPointerException.class, () -> new PhaseShifterResultsExtension.MovedPhaseShifterResult(null, 1, 2));
     }
 
     @Test
@@ -82,8 +82,8 @@ class PhaseShifterResultsExtensionTest {
         );
 
         // Create the extension
-        MovedPhaseShifterResult phaseShifterResult1 = new MovedPhaseShifterResult("PS3", 5, 6);
-        MovedPhaseShifterResult phaseShifterResult2 = new MovedPhaseShifterResult("PS4", 7, 8);
+        PhaseShifterResultsExtension.MovedPhaseShifterResult phaseShifterResult1 = new PhaseShifterResultsExtension.MovedPhaseShifterResult("PS3", 5, 6);
+        PhaseShifterResultsExtension.MovedPhaseShifterResult phaseShifterResult2 = new PhaseShifterResultsExtension.MovedPhaseShifterResult("PS4", 7, 8);
         PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(Arrays.asList(phaseShifterResult1, phaseShifterResult2));
 
         // Add the extension to the PostContingencyResult
@@ -102,7 +102,7 @@ class PhaseShifterResultsExtensionTest {
 
     @Test
     void testToString() {
-        MovedPhaseShifterResult phaseShifterResult = new MovedPhaseShifterResult("PS5", 9, 10);
+        PhaseShifterResultsExtension.MovedPhaseShifterResult phaseShifterResult = new PhaseShifterResultsExtension.MovedPhaseShifterResult("PS5", 9, 10);
         PhaseShifterResultsExtension extension = new PhaseShifterResultsExtension(Collections.singletonList(phaseShifterResult));
         String expectedToString = "PhaseShifterResultsExtension{phaseShifterResults={PS5=MovedPhaseShifterResult{transformerId='PS5', initialTap=9, newTap=10}}}";
         assertEquals(expectedToString, extension.toString());

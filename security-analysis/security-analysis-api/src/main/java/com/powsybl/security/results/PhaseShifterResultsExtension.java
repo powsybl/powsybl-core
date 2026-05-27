@@ -57,4 +57,41 @@ public class PhaseShifterResultsExtension extends AbstractExtension<PostContinge
                "phaseShifterResults=" + phaseShifterResults +
                '}';
     }
+
+    /**
+     * Represents the result of a moved phase shifter.
+     */
+    public static class MovedPhaseShifterResult {
+
+        private final String transformerId;
+        private final int initialTap;
+        private final int newTap;
+
+        public MovedPhaseShifterResult(String transformerId, int initialTap, int newTap) {
+            this.transformerId = Objects.requireNonNull(transformerId, "Transformer ID cannot be null");
+            this.initialTap = initialTap;
+            this.newTap = newTap;
+        }
+
+        public String getTransformerId() {
+            return transformerId;
+        }
+
+        public int getInitialTap() {
+            return initialTap;
+        }
+
+        public int getNewTap() {
+            return newTap;
+        }
+
+        @Override
+        public String toString() {
+            return "MovedPhaseShifterResult{" +
+                    "transformerId='" + transformerId + '\'' +
+                    ", initialTap=" + initialTap +
+                    ", newTap=" + newTap +
+                    '}';
+        }
+    }
 }
