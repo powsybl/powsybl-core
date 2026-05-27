@@ -33,13 +33,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-/** @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}*/
-class ContingencyScreeningSecurityAnalysisHandlerTest {
+/**
+ * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
+ */
+class ContingencyScreeningSecurityAnalysisTest {
 
     private Network network;
     private String workingVariantId;
     private ContingenciesProvider contingenciesProvider;
-    private ContingencyScreeningSecurityAnalysisHandler contingencyScreeningSecurityAnalysisHandler;
+    private ContingencyScreeningSecurityAnalysis contingencyScreeningSecurityAnalysis;
     private Contingency contingency1;
     private Contingency contingency2;
     private SecurityAnalysisProvider firstProvider;
@@ -63,14 +65,14 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         secondProvider = mock(SecurityAnalysisProvider.class);
         when(secondProvider.getName()).thenReturn("SecondProvider");
 
-        ContingencyScreeningSecurityAnalysisParameters extension = new ContingencyScreeningSecurityAnalysisParameters();
-        extension.setFirstProviderName("FirstProvider");
-        extension.setSecondProviderName("SecondProvider");
+        ContingencyScreeningSecurityAnalysisParameters extension = new ContingencyScreeningSecurityAnalysisParameters()
+                .setFirstProviderName("FirstProvider")
+                .setSecondProviderName("SecondProvider");
         contingency1 = new Contingency("contingency-1");
         contingency2 = new Contingency("contingency-2");
 
         workingVariantId = network.getVariantManager().getWorkingVariantId();
-        contingencyScreeningSecurityAnalysisHandler = new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId, contingenciesProvider,
+        contingencyScreeningSecurityAnalysis = new ContingencyScreeningSecurityAnalysis(network, workingVariantId, contingenciesProvider,
                 runParameters, extension, firstProvider, secondProvider);
     }
 
@@ -95,7 +97,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         when(secondProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(secondReport));
 
         // 1. Launch the contingency screening analysis
-        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysis.run().join();
 
         // 2. Test the result
         assertNotNull(report);
@@ -136,7 +138,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         );
         when(secondProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(secondReport));
 
-        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysis.run().join();
 
         List<PostContingencyResult> results = report.getResult().getPostContingencyResults();
         assertEquals(2, results.size());
@@ -164,7 +166,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
                 CompletableFuture.failedFuture(new RuntimeException("first failure"))
         );
 
-        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysis.run().join();
 
         assertNotNull(report);
         assertEquals(0, report.getResult().getPostContingencyResults().size());
@@ -183,7 +185,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         );
         when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
 
-        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysis.run().join();
 
         assertSame(firstReport, report);
         verify(secondProvider, never()).run(any(), any(), any(), any());
@@ -223,7 +225,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
                     ));
                 });
 
-        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysis.run().join();
 
         List<PostContingencyResult> results = report.getResult().getPostContingencyResults();
         assertEquals(3, results.size());
@@ -238,7 +240,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         ContingencyScreeningSecurityAnalysisParameters extension = createExtension("NonExistentProvider1", "NonExistentProvider2");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysis(network, workingVariantId,
                         contingenciesProvider, runParameters, extension));
 
         assertEquals("Security analysis provider 'NonExistentProvider1' not found by ServiceLoader.", exception.getMessage());
@@ -249,13 +251,13 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         ContingencyScreeningSecurityAnalysisParameters extension = createExtension("FirstProvider", "SecondProvider");
 
         NullPointerException firstProviderException = assertThrows(NullPointerException.class, () ->
-                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysis(network, workingVariantId,
                         contingenciesProvider, runParameters, extension,
                         null, secondProvider));
         assertEquals("First provider is required", firstProviderException.getMessage());
 
         NullPointerException secondProviderException = assertThrows(NullPointerException.class, () ->
-                new ContingencyScreeningSecurityAnalysisHandler(network, workingVariantId,
+                new ContingencyScreeningSecurityAnalysis(network, workingVariantId,
                         contingenciesProvider, runParameters, extension,
                         firstProvider, null));
         assertEquals("Second provider is required", secondProviderException.getMessage());
@@ -274,7 +276,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
 
         when(firstProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(firstReport));
 
-        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysis.run().join();
         assertNotNull(report.getResult().getNetworkMetadata());
     }
 
@@ -301,7 +303,7 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
         );
         when(secondProvider.run(any(), any(), any(), any())).thenReturn(CompletableFuture.completedFuture(secondReport));
 
-        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysisHandler.run().join();
+        SecurityAnalysisReport report = contingencyScreeningSecurityAnalysis.run().join();
 
         assertArrayEquals(logBytes, report.getLogBytes().orElseThrow());
     }
@@ -316,10 +318,9 @@ class ContingencyScreeningSecurityAnalysisHandlerTest {
     }
 
     private static ContingencyScreeningSecurityAnalysisParameters createExtension(String firstProviderName, String secondProviderName) {
-        ContingencyScreeningSecurityAnalysisParameters extension = new ContingencyScreeningSecurityAnalysisParameters();
-        extension.setFirstProviderName(firstProviderName);
-        extension.setSecondProviderName(secondProviderName);
-        return extension;
+        return new ContingencyScreeningSecurityAnalysisParameters()
+                .setFirstProviderName(firstProviderName)
+                .setSecondProviderName(secondProviderName);
     }
 
     private PostContingencyResult createPostContingencyResult(Contingency contingency,

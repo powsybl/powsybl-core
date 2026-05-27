@@ -17,8 +17,8 @@ import java.util.Optional;
 /**
  * This class contains configuration parameters specific to
  * contingency screening security analysis.
- * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>} */
-
+ * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
+ */
 public class ContingencyScreeningSecurityAnalysisParameters extends AbstractExtension<SecurityAnalysisParameters> {
 
     public static final String NAME = "contingency-screening-security-analysis-parameters";
@@ -37,16 +37,18 @@ public class ContingencyScreeningSecurityAnalysisParameters extends AbstractExte
         return firstProviderName;
     }
 
-    public void setFirstProviderName(String firstProviderName) {
+    public ContingencyScreeningSecurityAnalysisParameters setFirstProviderName(String firstProviderName) {
         this.firstProviderName = firstProviderName;
+        return this;
     }
 
     public String getSecondProviderName() {
         return secondProviderName;
     }
 
-    public void setSecondProviderName(String secondProviderName) {
+    public ContingencyScreeningSecurityAnalysisParameters setSecondProviderName(String secondProviderName) {
         this.secondProviderName = secondProviderName;
+        return this;
     }
 
     @Override
@@ -60,10 +62,9 @@ public class ContingencyScreeningSecurityAnalysisParameters extends AbstractExte
 
     public static ContingencyScreeningSecurityAnalysisParameters load(PlatformConfig platformConfig) {
         ContingencyScreeningSecurityAnalysisParameters parameters = new ContingencyScreeningSecurityAnalysisParameters();
-        platformConfig.getOptionalModuleConfig(NAME).ifPresent(config -> {
-            parameters.setFirstProviderName(config.getStringProperty("firstProviderName"));
-            parameters.setSecondProviderName(config.getStringProperty("secondProviderName"));
-        });
+        platformConfig.getOptionalModuleConfig(NAME).ifPresent(config ->
+            parameters.setFirstProviderName(config.getStringProperty("firstProviderName"))
+                      .setSecondProviderName(config.getStringProperty("secondProviderName")));
 
         return parameters;
     }

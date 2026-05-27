@@ -12,8 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 
 /**
  * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
- * */
-
+ */
 public final class ContingencyScreeningSecurityAnalysisReports {
 
     private ContingencyScreeningSecurityAnalysisReports() {

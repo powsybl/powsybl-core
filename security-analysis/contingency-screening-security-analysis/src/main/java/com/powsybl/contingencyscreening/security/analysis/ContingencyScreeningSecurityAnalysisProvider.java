@@ -29,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
  * {@link SecurityAnalysisProvider} orchestrating a first pass followed by a selective
  * second pass, discovered automatically via {@link java.util.ServiceLoader}.
  *
- * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>} */
-
+ * @author Riad Benradi {@literal <riad.benradi_externe at rte-france.com>}
+ */
 @AutoService(SecurityAnalysisProvider.class)
 public class ContingencyScreeningSecurityAnalysisProvider implements SecurityAnalysisProvider {
 
@@ -52,7 +52,7 @@ public class ContingencyScreeningSecurityAnalysisProvider implements SecurityAna
 
     /**
      * Reads {@link ContingencyScreeningSecurityAnalysisParameters} from {@code runParameters} and delegates
-     * to {@link ContingencyScreeningSecurityAnalysisHandler}.
+     * to {@link ContingencyScreeningSecurityAnalysis}.
      *
      * @throws IllegalArgumentException if {@link ContingencyScreeningSecurityAnalysisParameters} is absent
      */
@@ -78,7 +78,7 @@ public class ContingencyScreeningSecurityAnalysisProvider implements SecurityAna
                 parameters.getFirstProviderName(),
                 parameters.getSecondProviderName());
 
-        ContingencyScreeningSecurityAnalysisHandler analysis = new ContingencyScreeningSecurityAnalysisHandler(
+        ContingencyScreeningSecurityAnalysis analysis = new ContingencyScreeningSecurityAnalysis(
                 network,
                 workingVariantId,
                 contingenciesProvider,
