@@ -102,28 +102,19 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
             // List of cubicles connected to DC terminals
             List<DataObject> connectedCubic = dcElmTerms.stream().flatMap(e -> e.getChildrenByClass("StaCubic").stream()).toList();
-            // List of ElmCoup that are connected to at least one DC terminal, with repetitions
-            List<DataObject> connectedElmCoup = connectedCubic.stream()
-                    .flatMap(cubic -> cubic.findObjectAttributeValue(OBJ_ID).flatMap(DataObjectRef::resolve).stream()) // all equipment connected to at least one DC terminal
-                    .filter(obj -> "ElmCoup".equals(obj.getDataClassName())) // Keep only ElmCoup
-                    .toList();
 
             // Each ElmCoup appears once per DC terminal it is connected to, so counting occurrences gives
             // the number of DC terminals connected to each switch.
-            Map<DataObject, Long> terminalCount = connectedElmCoup.stream()
+            Map<DataObject, Long> terminalCount = connectedCubic.stream()
+                    .flatMap(cubic -> cubic.findObjectAttributeValue(OBJ_ID).flatMap(DataObjectRef::resolve).stream()) // all equipment connected to at least one DC terminal, with repetitions
+                    .filter(obj -> "ElmCoup".equals(obj.getDataClassName())) // Keep only ElmCoup
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-            for (Map.Entry<DataObject, Long> entry : terminalCount.entrySet()) {
-                long count = entry.getValue();
-                long id = entry.getKey().getId();
-                if (count == 1) {
-                    throw new PowerFactoryException("ElmCoup " + id + " is connected to a single DC terminal.");
+            terminalCount.forEach((elmCoup, count) -> {
+                if (count != 2) {
+                    throw new PowerFactoryException("ElmCoup " + elmCoup.getId() + " is connected to " + count + " DC terminals, expected exactly 2.");
                 }
-                if (count > 2) {
-                    // Caught already in ContainersMappingHelper for 3 terminals but not 4+.
-                    throw new PowerFactoryException("ElmCoup " + id + " is connected to " + count + " DC terminals, expected exactly 2.");
-                }
-            }
+            });
 
             return new HashSet<>(terminalCount.keySet());
 
@@ -222,20 +213,13 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         // Find the nodes
         List<String> dcNodeIds = getAndCheckDcNodes(elmCoup, 2, objIdDcNodeRef);
 
-        // disconnector unless explicitly a breaker
-        String aUsage = elmCoup.findStringAttributeValue("aUsage").orElse("dct");
-        DcSwitchKind kind = switch (aUsage) {
-            case "dct" -> DcSwitchKind.DISCONNECTOR;
-            case "cbk" -> DcSwitchKind.BREAKER;
-            default -> throw new PowerFactoryException("Unsupported aUsage value '" + aUsage + "' for ElmCoup " + elmCoup.getId()
-                                                        + ". Supported values: 'dct' (disconnector), 'cbk' (breaker).");
-        };
+        DcSwitchKind kind = getKind(elmCoup);
 
         // connected unless explicitly disconnected
         int onOff = elmCoup.findIntAttributeValue("on_off").orElse(1);
 
         // get resistance in TypSwitch if present, otherwise default to zero
-        double r = getSwitchResistance(elmCoup);
+        double r = getDcSwitchResistance(elmCoup);
 
         network.newDcSwitch()
                 .setId(idInNetworkString(elmCoup))
@@ -248,15 +232,35 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     }
 
     /**
+     * Get the kind of DcSwitch from the string in elmCoup aUsage field. If aUsage is absent, default to
+     * disconnector.
+     * @param elmCoup ElmCoup object from the DGS file.
+     * @return DcSwitchKind associated with the ElmCoup DGS object.
+     * @throws PowerFactoryException in case of unsupported string in aUsage field.
+     */
+    private static DcSwitchKind getKind(DataObject elmCoup) {
+        // disconnector unless explicitly a breaker
+        String aUsage = elmCoup.findStringAttributeValue("aUsage").orElse("dct");
+        DcSwitchKind kind = switch (aUsage) {
+            case "dct" -> DcSwitchKind.DISCONNECTOR;
+            case "cbk" -> DcSwitchKind.BREAKER;
+            default -> throw new PowerFactoryException("Unsupported aUsage value '" + aUsage + "' for ElmCoup " + elmCoup.getId()
+                                                        + ". Supported values: 'dct' (disconnector), 'cbk' (breaker).");
+        };
+        return kind;
+    }
+
+    /**
      * get resistance of DC switch if present in a related TypSwitch.
      * @param elmCoup data object of the DC switch
      * @return resistance of the switch if present in the related TypSwitch
      * or zero if absent or if no related TypSwitch.
      */
-    private static double getSwitchResistance(DataObject elmCoup) {
-        Optional<DataObject> typSwitch = elmCoup.findObjectAttributeValue(TYP_ID)
-                .flatMap(DataObjectRef::resolve);
-        return (double) typSwitch.map(t -> t.findFloatAttributeValue("R_on").orElse(0.0f)).orElse(0.0f);
+    private static double getDcSwitchResistance(DataObject elmCoup) {
+        return elmCoup.findObjectAttributeValue(TYP_ID)
+                .flatMap(DataObjectRef::resolve)
+                .flatMap(t -> t.findFloatAttributeValue("R_on"))
+                .orElse(0.0f);
     }
 
     /**
