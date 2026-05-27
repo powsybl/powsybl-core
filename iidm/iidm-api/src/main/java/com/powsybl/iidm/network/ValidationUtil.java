@@ -270,18 +270,18 @@ public final class ValidationUtil {
             }
         } else if (RegulationMode.VOLTAGE.equals(regulationMode)) {
             if (Double.isNaN(localTargetV)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal", actionOnError,
+                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
                     id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
                 return ValidationLevel.EQUIPMENT;
             }
             if (localTargetV < 0) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal", actionOnError,
+                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
                     id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
                 return ValidationLevel.EQUIPMENT;
             }
         } else if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
             if (Double.isNaN(localTargetQ)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with REACTIVE_POWER mode and regulating true and unset terminal", actionOnError,
+                throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset", actionOnError,
                     id -> NetworkReports.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn(reportNode, id, localTargetV));
                 return ValidationLevel.EQUIPMENT;
             }

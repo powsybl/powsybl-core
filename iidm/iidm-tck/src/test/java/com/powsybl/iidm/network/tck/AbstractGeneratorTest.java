@@ -181,7 +181,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidVoltageSetpoint() {
         ValidationException e = assertThrows(ValidationException.class, () -> createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, 40.0, true, Double.NaN));
-        assertEquals("Generator 'invalid': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", e.getMessage());
+        assertEquals("Generator 'invalid': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", e.getMessage());
     }
 
     @Test
@@ -396,7 +396,7 @@ public abstract class AbstractGeneratorTest {
         // WHEN
         ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'GEN1': invalid value (-10.0) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", e.getMessage());
+        assertEquals("Generator 'GEN1': invalid value (-10.0) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", e.getMessage());
     }
 
     @Test
@@ -417,7 +417,7 @@ public abstract class AbstractGeneratorTest {
         VoltageRegulationBuilder voltageRegulationBuilder = generator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE);
         ValidationException e = assertThrows(ValidationException.class, voltageRegulationBuilder::build);
         // THEN
-        assertEquals("Generator 'GEN1': invalid value (-17.6) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", e.getMessage());
+        assertEquals("Generator 'GEN1': invalid value (-17.6) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", e.getMessage());
 
         generator.setLocalTargetV(-targetV);
         voltageRegulationBuilder.withTargetValue(targetV).withTerminal(remoteTerminal);

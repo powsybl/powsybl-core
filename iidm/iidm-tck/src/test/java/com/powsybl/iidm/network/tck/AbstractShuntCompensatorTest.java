@@ -379,7 +379,7 @@ public abstract class AbstractShuntCompensatorTest {
         // targetV
         voltageRegulation.setRegulating(true);
         ValidationException validationException = assertThrows(ValidationException.class, () -> shuntCompensator.setLocalTargetV(Double.NaN));
-        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", validationException.getMessage());
+        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
 
         voltageRegulation.setRegulating(false);
         shuntCompensator.setLocalTargetV(Double.NaN);
@@ -425,13 +425,13 @@ public abstract class AbstractShuntCompensatorTest {
     @Test
     public void invalidTargetV() {
         ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, true, -10, 0));
-        assertEquals("Shunt compensator 'invalid': invalid value (-10.0) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", e.getMessage());
+        assertEquals("Shunt compensator 'invalid': invalid value (-10.0) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", e.getMessage());
     }
 
     @Test
     public void invalidNanTargetV() {
         ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 5.0, 1.0, 6, 10, null, true, Double.NaN, 0));
-        assertEquals("Shunt compensator 'invalid': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", e.getMessage());
+        assertEquals("Shunt compensator 'invalid': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", e.getMessage());
     }
 
     @Test

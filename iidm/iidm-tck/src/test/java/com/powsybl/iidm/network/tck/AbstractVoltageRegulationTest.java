@@ -115,7 +115,7 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", validationException.getMessage());
+        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
     }
 
     @Test
@@ -129,7 +129,7 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal)", validationException.getMessage());
+        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
     }
 
     @Test
