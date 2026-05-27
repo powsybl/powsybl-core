@@ -20,7 +20,7 @@ import java.util.List;
  */
 final class GrowingByteBuffer {
 
-    private static final int BLOCK_SIZE = 1024 * 1024;
+    private static final int BLOCK_SIZE = 64 * 1024;
 
     private final int blockSize;
     private final List<ByteBuffer> filledBlocks = new ArrayList<>();
