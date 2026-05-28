@@ -32,5 +32,8 @@ public abstract class AbstractIdentifiableTest {
 
         Generator gen = network.getGenerator("GEN");
         assertThrows(PowsyblException.class, () -> gen.setId("NEW_LOAD_ID"), "Object with id (NEW_LOAD_ID) already exists");
+
+        load.setId("NEW_LOAD_ID");
+        assertEquals("NEW_LOAD_ID", load.getId());
     }
 }
