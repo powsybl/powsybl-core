@@ -24,16 +24,23 @@ public abstract class AbstractIdentifiableTest {
     @Test
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
+
+        // Test updating id
         Load load = network.getLoad("LOAD");
         assertEquals("LOAD", load.getId());
         load.setId("NEW_LOAD_ID");
         assertEquals(load.getId(), network.getIdentifiable("NEW_LOAD_ID").getId());
         assertEquals("NEW_LOAD_ID", load.getId());
 
+        // Test setting an already used id
         Generator gen = network.getGenerator("GEN");
         assertThrows(PowsyblException.class, () -> gen.setId("NEW_LOAD_ID"), "Object with id (NEW_LOAD_ID) already exists");
 
+        // Test setting same ID
         load.setId("NEW_LOAD_ID");
         assertEquals("NEW_LOAD_ID", load.getId());
+
+        // Test nothing is returned when using old id
+        assertNull(network.getIdentifiable("LOAD"));
     }
 }
