@@ -26,13 +26,8 @@ public final class TopologyLevelUtil {
     public static TopologyLevel determineTopologyLevel(VoltageLevel vl, NetworkSerializerContext context) {
         TopologyLevel exportTopologyLevel = context.getVoltageLevelExportTopologyLevel(vl.getId());
         if (exportTopologyLevel == null) {
-            if (context.getOptions().getBusBranchVoltageLevelIncompatibilityBehavior()
-                    == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.KEEP_ORIGINAL_TOPOLOGY && requiresNodeBreakerExport(vl)) {
-                exportTopologyLevel = TopologyLevel.NODE_BREAKER;
-            } else {
-                TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
-                exportTopologyLevel = checkVoltageLevelExportTopology(vl, context, TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel));
-            }
+            TopologyLevel configTopologyLevel = Objects.requireNonNullElse(context.getOptions().getVoltageLevelTopologyLevel(vl.getId()), context.getOptions().getTopologyLevel());
+            exportTopologyLevel = checkVoltageLevelExportTopology(vl, context, TopologyLevel.min(vl.getTopologyKind(), configTopologyLevel));
             context.addVoltageLevelExportTopologyLevel(vl.getId(), exportTopologyLevel);
         }
         return exportTopologyLevel;
@@ -42,6 +37,13 @@ public final class TopologyLevelUtil {
         return vl.getTopologyKind() == TopologyKind.NODE_BREAKER
                 && vl.getConnectableStream()
                 .anyMatch(BusbarSection.class::isInstance);
+    }
+
+    private static boolean withNullConnectableBus(VoltageLevel vl) {
+        return vl.getConnectableStream()
+                .map(Connectable::getTerminals)
+                .flatMap(List<Terminal>::stream)
+                .anyMatch(t -> t.getBusView().getConnectableBus() == null);
     }
 
     /**
@@ -68,10 +70,7 @@ public final class TopologyLevelUtil {
      */
     private static TopologyLevel checkVoltageLevelExportTopology(VoltageLevel vl, NetworkSerializerContext context, TopologyLevel topologyLevel) {
         if (topologyLevel == TopologyLevel.BUS_BRANCH
-                && vl.getConnectableStream()
-                    .map(Connectable::getTerminals)
-                    .flatMap(List<Terminal>::stream)
-                    .anyMatch(t -> t.getBusView().getConnectableBus() == null)) {
+                && withNullConnectableBus(vl)) {
             if (context.getOptions()
                     .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
                 throw new PowsyblException("Cannot export voltage level \"" + vl.getId() + "\" in BUS_BRANCH topology: this would lead to an invalid IIDM.");
