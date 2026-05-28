@@ -46,6 +46,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
+     * @param createPositionExtensionForNewLine           Automatically creates connectable position extension for both new lines
+     *                                                    on the side of which they are connected to the attachement point.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
                               String line2Id, String line2Name, Line line, boolean createPositionExtensionForNewLine) {

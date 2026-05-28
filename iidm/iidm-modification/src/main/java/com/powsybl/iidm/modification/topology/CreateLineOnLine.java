@@ -66,6 +66,9 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
+     * @param createPositionExtensionForNewLine           Automatically creates connectable position extension for the line between
+     *                                                    the fictitious voltage level and the voltage level voltageLevelId on the side of which the line is
+     *                                                    connected to voltageLevelId.
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
