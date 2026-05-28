@@ -9,20 +9,23 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
@@ -289,5 +292,44 @@ class CreateLineOnLineTest extends AbstractModificationTest {
 
         NetworkModification modification3 = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withPositionPercent(Double.NaN).withLine(line).withLineAdder(adder).build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification3.hasImpactOnNetwork(network));
+    }
+
+    @Test
+    void testWithPositionAdder() {
+        Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+                .withBusbarIndex(1)
+                .withSectionIndex(1)
+                .add();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withLineAdder(adder)
+                .withPositionPercent(40)
+                .withFictitiousVoltageLevelId("FICTVL")
+                .withFictitiousVoltageLevelName("FICTITIOUSVL")
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId("FICTSUB")
+                .withFictitiousSubstationName("FICTITIOUSSUB")
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .withCreatePositionExtensionForNewLine(true)
+                .build();
+        modification.apply(network);
+        Line lineTest = network.getLine("testLine");
+        assertNotNull(lineTest);
+        ConnectablePosition<Line> connectablePosition = lineTest.getExtension(ConnectablePosition.class);
+        assertNotNull(connectablePosition);
+        assertNotNull(connectablePosition.getFeeder2());
+        assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder2().getDirection());
+        assertTrue(connectablePosition.getFeeder2().getOrder().isPresent());
+        assertEquals(0, connectablePosition.getFeeder2().getOrder().get());
+        assertTrue(connectablePosition.getFeeder2().getName().isPresent());
+        assertEquals("testLine", connectablePosition.getFeeder2().getName().get());
     }
 }

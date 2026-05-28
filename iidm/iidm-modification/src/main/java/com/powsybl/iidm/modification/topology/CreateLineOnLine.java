@@ -72,8 +72,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                      boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                      String line1Id, String line1Name, String line2Id, String line2Name,
-                     Line line, LineAdder lineAdder) {
-        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
+                     Line line, LineAdder lineAdder, boolean createPositionExtensionForNewLine) {
+        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line, createPositionExtensionForNewLine);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
         this.createFictSubstation = createFictSubstation;
@@ -236,6 +236,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         // Create the new line
         Line newLine = lineAdder.add();
+
+        // line position
+        createPositionExtensionForNewLine(network, newLine, TwoSides.TWO);
+
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
     }

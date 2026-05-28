@@ -12,8 +12,12 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import org.apache.commons.lang3.Range;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedPercent;
@@ -36,9 +40,10 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     protected double positionPercent;
 
     protected VoltageLevel voltageLevel;
+    protected boolean createPositionExtensionForNewLine;
 
     protected AbstractLineConnectionModification(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                                       String line2Id, String line2Name, Line line) {
+                                       String line2Id, String line2Name, Line line, boolean createPositionExtensionForNewLine) {
         this.positionPercent = positionPercent;
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.line1Id = Objects.requireNonNull(line1Id);
@@ -46,6 +51,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         this.line2Id = Objects.requireNonNull(line2Id);
         this.line2Name = line2Name;
         this.line = Objects.requireNonNull(line);
+        this.createPositionExtensionForNewLine = createPositionExtensionForNewLine;
     }
 
     public M setLine1Id(String line1Id) {
@@ -142,6 +148,26 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
             unexpectedIdentifiableType(reportNode, identifiable);
             logOrThrow(throwException, String.format("Unexpected type of identifiable %s: %s", identifiable.getId(), identifiable.getType()));
             return null;
+        }
+    }
+
+    protected void createPositionExtensionForNewLine(Network network, Line line, TwoSides twoSides) {
+        TopologyKind topologyKind = voltageLevel.getTopologyKind();
+        if (createPositionExtensionForNewLine && topologyKind == TopologyKind.NODE_BREAKER) {
+            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            Optional<Range<Integer>> rangePosition = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
+            rangePosition.ifPresent(integerRange -> {
+                ConnectablePositionAdder positionAdder = line.newExtension(ConnectablePositionAdder.class);
+                ConnectablePositionAdder.FeederAdder feederAdder = switch (twoSides) {
+                    case ONE -> positionAdder.newFeeder1();
+                    case TWO -> positionAdder.newFeeder2();
+                };
+                feederAdder.withDirection(ConnectablePosition.Direction.UNDEFINED)
+                        .withOrder(integerRange.getMinimum())
+                        .withName(line.getId())
+                        .add();
+                positionAdder.add();
+            });
         }
     }
 }

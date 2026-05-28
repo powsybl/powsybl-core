@@ -24,10 +24,11 @@ public class ConnectVoltageLevelOnLineBuilder {
     private String line2Name = null;
 
     private Line line = null;
+    private boolean createPositionExtensionForNewLine = false;
 
     public ConnectVoltageLevelOnLine build() {
         return new ConnectVoltageLevelOnLine(positionPercent, bbsOrBusId, line1Id, line1Name,
-                line2Id, line2Name, line);
+                line2Id, line2Name, line, createPositionExtensionForNewLine);
     }
 
     public ConnectVoltageLevelOnLineBuilder withPositionPercent(double positionPercent) {
@@ -68,6 +69,11 @@ public class ConnectVoltageLevelOnLineBuilder {
         if (line2Id == null) {
             line2Id = line.getId() + "_2";
         }
+        return this;
+    }
+
+    public ConnectVoltageLevelOnLineBuilder withCreatePositionExtensionForNewLine(boolean createPositionExtensionForNewLine) {
+        this.createPositionExtensionForNewLine = createPositionExtensionForNewLine;
         return this;
     }
 }
