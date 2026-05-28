@@ -81,7 +81,7 @@ public interface ObservabilityArea extends Extension<VoltageLevel> {
          */
         interface NodeBreakerData {
             /**
-             * The list of nodes that compose that snapshot bus.
+             * The list of nodes that make up the snapshot bus.
              */
             Set<Integer> getNodes();
         }
@@ -91,7 +91,7 @@ public interface ObservabilityArea extends Extension<VoltageLevel> {
          */
         interface BusBreakerData {
             /**
-             * The list of "bus-breaker" buses that compose that snapshot bus.
+             * The list of "bus-breaker" buses that make up the snapshot bus.
              */
             Set<String> getBusIds();
         }

@@ -132,7 +132,7 @@ class BusBreakerObservabilityAreaTest {
         vlgen.getBusBreakerView().getSwitch("TEST2_SW").setOpen(false);
         ObservabilityArea.BusView busView = ext.getBusView();
         PowsyblException inconsistentAreas = assertThrows(PowsyblException.class, () -> busView.getObservabilityArea("VLGEN_0"));
-        assertEquals("Inconsistent observabilities areas: bus VLGEN_0 is associated to different area numbers and/or status", inconsistentAreas.getMessage());
+        assertEquals("Inconsistent observability areas: bus VLGEN_0 is associated to different area numbers and/or status", inconsistentAreas.getMessage());
         ObservabilityArea.AreaCharacteristics survivingArea = busView.getObservabilityArea("VLGEN_0", false);
         assertNotNull(survivingArea);
         assertTrue(Set.of(1, 2).contains(survivingArea.getAreaNumber()));
@@ -143,7 +143,7 @@ class BusBreakerObservabilityAreaTest {
         vlgen.getBusBreakerView().removeSwitch("TEST2_SW");
         vlgen.getBusBreakerView().removeBus("TEST");
         PowsyblException missingBus = assertThrows(PowsyblException.class, () -> busView.getObservabilityArea("VLGEN_0"));
-        assertEquals("Inconsistent observabilities areas: bus TEST does not exist anymore in bus-breaker view", missingBus.getMessage());
+        assertEquals("Inconsistent observability areas: bus TEST does not exist anymore in bus-breaker view", missingBus.getMessage());
         ObservabilityArea.AreaCharacteristics areaAfterRemoval = ext.getBusView().getObservabilityArea("VLGEN_0", false);
         assertNotNull(areaAfterRemoval);
         assertEquals(1, areaAfterRemoval.getAreaNumber());

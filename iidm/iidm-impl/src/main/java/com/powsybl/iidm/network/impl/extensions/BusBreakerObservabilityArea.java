@@ -81,7 +81,12 @@ class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel> implem
         public Map<String, AreaCharacteristics> getObservabilityAreaByBus(boolean throwException) {
             Map<String, AreaCharacteristics> observabilityAreaByBusViewBus = new HashMap<>();
             busBreakerView.observabilityAreas.forEach((key, value) -> {
-                String busViewBusId = voltageLevel.getBusView().getMergedBus(key).getId();
+                Bus bus = voltageLevel.getBusView().getMergedBus(key);
+                if (bus == null) {
+                    handleNotExistingBusError(key, throwException);
+                    return;
+                }
+                String busViewBusId = bus.getId();
                 if (observabilityAreaByBusViewBus.containsKey(busViewBusId)) {
                     AreaCharacteristics previous = observabilityAreaByBusViewBus.get(busViewBusId);
                     if (previous != value) {
@@ -120,17 +125,17 @@ class BusBreakerObservabilityArea extends AbstractExtension<VoltageLevel> implem
         }
 
         private void handleNotExistingBusError(String busId, boolean throwException) {
-            LOG.error("Inconsistent observabilities areas: bus {} does not exist anymore in bus-breaker view", busId);
+            LOG.error("Inconsistent observability areas: bus {} does not exist anymore in bus-breaker view", busId);
             if (throwException) {
-                throw new PowsyblException("Inconsistent observabilities areas: bus " + busId + " does not exist anymore in bus-breaker view");
+                throw new PowsyblException("Inconsistent observability areas: bus " + busId + " does not exist anymore in bus-breaker view");
             }
         }
 
         private void handleOverridingObservabilityAreaError(String busId, boolean throwException) {
-            LOG.error("Inconsistent observabilities areas: bus {} is associated " +
+            LOG.error("Inconsistent observability areas: bus {} is associated " +
                       "to different area numbers and/or status. Some will be lost.", busId);
             if (throwException) {
-                throw new PowsyblException("Inconsistent observabilities areas: bus " + busId + " is associated " +
+                throw new PowsyblException("Inconsistent observability areas: bus " + busId + " is associated " +
                                            "to different area numbers and/or status");
             }
         }
