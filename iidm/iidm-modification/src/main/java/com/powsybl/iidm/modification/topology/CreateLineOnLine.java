@@ -241,7 +241,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         Line newLine = lineAdder.add();
 
         // line position
-        createPositionExtensionForNewLine(network, newLine, TwoSides.TWO);
+        createConnectablePositionExtensionForNewLine(network, newLine, TwoSides.TWO);
 
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);

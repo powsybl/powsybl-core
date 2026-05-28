@@ -151,14 +151,14 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
     }
 
-    protected void createPositionExtensionForNewLine(Network network, Line line, TwoSides twoSides) {
+    protected void createConnectablePositionExtensionForNewLine(Network network, Line line, TwoSides twoSides) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (createPositionExtensionForNewLine && topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
             Optional<Range<Integer>> rangePosition = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
             rangePosition.ifPresent(integerRange -> {
-                ConnectablePositionAdder positionAdder = line.newExtension(ConnectablePositionAdder.class);
-                ConnectablePositionAdder.FeederAdder feederAdder = switch (twoSides) {
+                ConnectablePositionAdder<?> positionAdder = line.newExtension(ConnectablePositionAdder.class);
+                ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
                     case ONE -> positionAdder.newFeeder1();
                     case TWO -> positionAdder.newFeeder2();
                 };
