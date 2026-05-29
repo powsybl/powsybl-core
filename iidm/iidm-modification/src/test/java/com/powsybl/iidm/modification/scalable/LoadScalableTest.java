@@ -293,34 +293,39 @@ class LoadScalableTest {
         assertFalse(Double.isNaN(load.getQ0()));
     }
 
-    private static Stream<Arguments> minQRateCases() {
-        // P0=100; floor = q0 * 0.5
-        return Stream.of(
-                // proportional Q=20, floor=50 -> clamped up
-                Arguments.of("positive Q clamped to floor", 100.0, 80, GENERATOR, 20.0, 50.0),
-                // proportional Q=-20; floor=-50; -20 > -50 -> clamped to -50
-                Arguments.of("negative Q clamped to floor", -100.0, 80, GENERATOR, 20.0, -50.0),
-                // proportional Q=80, floor=50 -> no clamp
-                Arguments.of("no clamp, positive Q above floor", 100.0, 20, GENERATOR, 80.0, 80.0),
-                // proportional Q=-80; floor=-50; -80 < -50 -> no clamp
-                Arguments.of("no clamp, negative Q already below floor", -100.0, 20, GENERATOR, 80.0, -80.0),
-                // LOAD convention
-                Arguments.of("positive Q clamped to floor (LOAD)", 100.0, -80, LOAD, 20.0, 50.0)
-        );
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("minQRateCases")
-    void testMinQRate(String name, double q0, double asked, ScalingConvention convention,
-                      double expectedP, double expectedQ) {
+    @ParameterizedTest
+    @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
+             p0,   q0,    newP, minQRate, expectedQ, comment
+             10.0, 10.0,  2.0,  0.5,     5.0,       'MinQRate applied, positive Q'
+             10.0, -10.0, 2.0,  0.5,     -5.0,      'MinQRate applied, negative Q'
+             10.0, 10.0,  8.0,  0.5,     8.0,       'MinQRate, positive Q already above limit'
+             10.0, -10.0, 8.0,  0.5,     -8.0,      'MinQRate, negative Q already below limit'
+             10.0, 10.0,  2.0,  null,    2.0,        'no minQRate, Q scales proportionally'
+             10.0, -10.0, 2.0,  null,    -2.0,       'no minQRate, negative Q scales proportionally'
+            """
+            // With P0 = 10 & Q0 = +/-10 and minQRate = 0.5, we have minQ = q0 * 0.5 = +/-5
+            // Q scales proportionally to P: newQ = newP * q0 / p0
+            // minQRate sets a floor on the absolute value of Q: scaled Q cannot be closer to 0 than minQ
+            // If the proportional newQ would fall between 0 and minQ, it is limited to minQ instead
+            // Examples (positive Q):
+            //      newP = 2: proportional Q = 2 * 10 / 10 = 2, below limit of 5 => limited to 5
+            //      newP = 8: proportional Q = 8 * 10 / 10 = 8, above limit of 5 => not limited
+            // Examples (negative Q):
+            //      newP = 2: proportional Q = 2 * -10 / 10 = -2, above limit of -5 => limited to -5
+            //      newP = 8: proportional Q = 8 * -10 / 10 = -8, below limit of -5 => not limited
+    )
+    void testMinQRate(double p0, double q0, double newP, Double minQRate, double expectedQ, String comment) {
         ScalingParameters params = new ScalingParameters()
                 .setConstantPowerFactor(true)
-                .setScalingConvention(convention)
-                .setLoadMinQRate(0.5);
+                .setScalingConvention(LOAD); // no impact on Q scaling, just on P scaling
+        if (minQRate != null) {
+            params.setLoadMinQRate(minQRate);
+        }
         Load load = network.getLoad("l1");
-        load.setQ0(q0);
-        ls1.scale(network, asked, params);
-        assertEquals(expectedP, load.getP0(), 1e-3);
+        load.setP0(p0).setQ0(q0);
+        double askedDelta = newP - p0;
+        ls1.scale(network, askedDelta, params);
+        assertEquals(newP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
     }
 
