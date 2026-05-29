@@ -249,7 +249,7 @@ class LoadScalableTest {
     }
 
     @ParameterizedTest
-    @CsvSource(useHeadersInDisplayName = true, nullValues={"null"}, textBlock = """
+    @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
              p0,   q0,   newP, minPowerFactor, expectedQ, comment
              10.,  20.,  5.,   null,           10.0,      'No minPowerFactor, positive P & Q'
              10.,  20.,  5.,   0.4,            10.0,      'MinPowerFactor too low, positive P & Q'
