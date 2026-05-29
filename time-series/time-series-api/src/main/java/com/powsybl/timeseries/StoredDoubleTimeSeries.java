@@ -82,17 +82,16 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
 
     @Override
     public List<DoubleTimeSeries> split(int newChunkSize) {
-        int pointCount = metadata.getIndex().getPointCount();
-        int chunkCount = TimeSeries.computeChunkCount(metadata.getIndex(), newChunkSize);
+        double[] compactArray = toCompactArray();
+        int chunkCount = (int) Math.ceil((double) compactArray.length / newChunkSize);
         List<DoubleTimeSeries> result = new ArrayList<>(chunkCount);
 
-        double[] allValues = toArray();
         for (int i = 0; i < chunkCount; i++) {
             int offset = i * newChunkSize;
-            int length = Math.min(newChunkSize, pointCount - offset);
+            int length = Math.min(newChunkSize, compactArray.length - offset);
             double[] dest = new double[length];
-            System.arraycopy(allValues, offset, dest, 0, length);
-            DoubleDataChunk chunk = new UncompressedDoubleDataChunk(offset, dest).tryToCompress();
+            System.arraycopy(compactArray, offset, dest, 0, length);
+            DoubleDataChunk chunk = new UncompressedDoubleDataChunk(getMinOffset() + offset, dest);
             result.add(new StoredDoubleTimeSeries(metadata, chunk));
         }
         return result;
