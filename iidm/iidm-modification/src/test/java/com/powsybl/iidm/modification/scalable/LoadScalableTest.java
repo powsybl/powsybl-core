@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
@@ -39,79 +40,6 @@ class LoadScalableTest {
     private Scalable l3;
     private Scalable l4;
     private ScalingConvention convention;
-
-    private static Stream<Arguments> minPowerFactorCases() {
-        // P0=100 throughout
-        // GENERATOR: asked > 0 reduces P
-        // LOAD: asked < 0 reduces P
-        return Stream.of(
-                // newP=50, proportional Q=100, maxQ=50 -> clamped
-                Arguments.of("clamps positive Q", 200.0, 50, GENERATOR, 50.0),
-                // sign preserved when negative Q is clamped
-                Arguments.of("clamps negative Q, sign preserved", -200.0, 50, GENERATOR, -50.0),
-                // newP=80, proportional Q=8, maxQ=80 -> no clamp
-                Arguments.of("no clamp", 10.0, 20, GENERATOR, 8.0),
-                // LOAD convention: same arithmetic, asked sign flipped
-                Arguments.of("clamps positive Q (LOAD)", 200.0, -50, LOAD, 50.0),
-                Arguments.of("no clamp (LOAD)", 10.0, -20, LOAD, 8.0)
-        );
-    }
-
-    private static Stream<Arguments> minQRateCases() {
-        // P0=100; floor = q0 * 0.5
-        return Stream.of(
-                // proportional Q=20, floor=50 -> clamped up
-                Arguments.of("positive Q clamped to floor", 100.0, 80, GENERATOR, 20.0, 50.0),
-                // proportional Q=-20; floor=-50; -20 > -50 -> clamped to -50
-                Arguments.of("negative Q clamped to floor", -100.0, 80, GENERATOR, 20.0, -50.0),
-                // proportional Q=80, floor=50 -> no clamp
-                Arguments.of("no clamp, positive Q above floor", 100.0, 20, GENERATOR, 80.0, 80.0),
-                // proportional Q=-80; floor=-50; -80 < -50 -> no clamp
-                Arguments.of("no clamp, negative Q already below floor", -100.0, 20, GENERATOR, 80.0, -80.0),
-                // LOAD convention
-                Arguments.of("positive Q clamped to floor (LOAD)", 100.0, -80, LOAD, 20.0, 50.0)
-        );
-    }
-
-    private static Stream<Arguments> maxQRateCases() {
-        // P0=100; ceiling = q0 * rate
-        return Stream.of(
-                // asked=-100 -> newP=200; proportional Q=40, ceiling=30 -> clamped
-                Arguments.of("positive Q clamped to ceiling", 20.0, -100, 1.5, GENERATOR, 200.0, 30.0),
-                // asked=-20 -> newP=120; proportional Q=24, ceiling=30 -> no clamp
-                Arguments.of("no clamp, positive Q below ceiling", 20.0, -20, 1.5, GENERATOR, 120.0, 24.0),
-                // asked=-200 -> newP=300; proportional Q=-300, ceiling=-200 -> clamped
-                Arguments.of("negative Q clamped to ceiling", -100.0, -200, 2.0, GENERATOR, 300.0, -200.0),
-                // asked=-20 -> newP=120; proportional Q=-120, ceiling=-200 -> no clamp
-                Arguments.of("no clamp, negative Q within ceiling", -100.0, -20, 2.0, GENERATOR, 120.0, -120.0),
-                // LOAD convention: asked=100 increases P to 200; proportional Q=40, ceiling=30 -> clamped
-                Arguments.of("positive Q clamped to ceiling (LOAD)", 20.0, 100, 1.5, LOAD, 200.0, 30.0)
-        );
-    }
-
-    private static Stream<Arguments> signChangeScalingCases() {
-        return Stream.of(
-                // cosphi_initial ~ 0.316 > 0.3 -> proportional scaling, no clamp
-                Arguments.of("positive P to negative P", 1000.0, 3000.0, 2000.0, 0.3, -1000.0, -3000.0),
-                Arguments.of("negative P to positive P", -1000.0, -3000.0, -2000.0, 0.3, 1000.0, 3000.0),
-                Arguments.of("negative P grows in magnitude", -1000.0, -3000.0, 1000.0, 0.3, -2000.0, -6000.0),
-
-                // cosphi_initial ~ 0.316 < 0.5 -> clamp; limitedQ = tan(acos(0.5)) * |newP| * signum(newQ)
-                // tan(acos(0.5)) = tan(60°) = sqrt(3) ~ 1.732
-                Arguments.of("positive P to negative P, clamped", 1000.0, 3000.0, 2000.0, 0.5, -1000.0, -Math.tan(Math.acos(0.5)) * 1000),
-                Arguments.of("negative P to positive P, clamped", -1000.0, -3000.0, -2000.0, 0.5, 1000.0, Math.tan(Math.acos(0.5)) * 1000),
-                Arguments.of("negative P grows in magnitude, clamped", -1000.0, -3000.0, 1000.0, 0.5, -2000.0, -Math.tan(Math.acos(0.5)) * 2000),
-
-                // Opposite-sign P and Q, P crosses zero
-                // P0=+1000, Q0=-3000 -> newP=-1000; newQ(proportional)=+3000 (Q flips sign)
-                Arguments.of("positive P to negative P, Q flips sign, no clamp", 1000.0, -3000.0, 2000.0, 0.3, -1000.0, 3000.0),
-                Arguments.of("positive P to negative P, Q flips sign, clamped", 1000.0, -3000.0, 2000.0, 0.5, -1000.0, Math.tan(Math.acos(0.5)) * 1000),
-
-                // P0=-1000, Q0=+3000 -> newP=+1000; newQ(proportional)=-3000 (Q flips sign)
-                Arguments.of("negative P to positive P, Q flips sign, no clamp", -1000.0, 3000.0, -2000.0, 0.3, 1000.0, -3000.0),
-                Arguments.of("negative P to positive P, Q flips sign, clamped", -1000.0, 3000.0, -2000.0, 0.5, 1000.0, -Math.tan(Math.acos(0.5)) * 1000)
-        );
-    }
 
     @BeforeEach
     void setUp() {
@@ -320,17 +248,35 @@ class LoadScalableTest {
         assertEquals(0.0, scaleResult, 1e-3);
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("minPowerFactorCases")
-    void testMinPowerFactor(String name, double q0, double asked, ScalingConvention convention, double expectedQ) {
-        // INV_SQRT2 -> maxQ = newP * tan(acos(INV_SQRT2)) = newP * 1, so clamp threshold equals newP
+    @ParameterizedTest
+    @CsvSource(useHeadersInDisplayName = true, nullValues={"null"}, textBlock = """
+             p0,   q0,   newP, minPowerFactor, expectedQ, comment
+             10.,  20.,  5.,   null,           10.0,      'No minPowerFactor, positive P & Q'
+             10.,  20.,  5.,   0.4,            10.0,      'MinPowerFactor too low, positive P & Q'
+             10.,  20.,  5.,   0.7071,         5.0,       'MinPowerFactor applied, positive P & Q'
+             -10., 20.,  5.,   null,           -10.0,     'No minPowerFactor, negative to positive P & positive Q'
+             -10., 20.,  5.,   0.4,            -10.0,     'MinPowerFactor too low, negative to positive P & positive Q'
+             -10., 20.,  5.,   0.7071,         -5.0,      'MinPowerFactor applied, negative to positive P & positive Q'
+             -10., 20.,  -5.,  0.7071,         5.0,       'MinPowerFactor applied, negative P & positive Q'
+             10.,  -20., 5.,   0.7071,         -5.0,      'MinPowerFactor applied, positive P & negative Q'
+            """
+            // With P0 = +/-10 & Q0 = +/-20, we have cosphi_initial = cos(atan(20 / 10)) = 0,447
+            // Any minPowerFactor below this cosphi_initial will not limit Q scaling for this load => Q will be scaled proportionally (as it would with no minPowerFactor)
+            // A minPowerFactor of 0.7071 is above this cosphi_initial, so it should limit Q_scaled abs value to tan(acos(0.7071)) * newP ~= 1 * newP
+            // The sign of Q_scaled depends on the sign that Q would have had if scaled proportionally
+    )
+    void testMinPowerFactor(double p0, double q0, double newP, Double minPowerFactor, double expectedQ, String comment) {
         ScalingParameters params = new ScalingParameters()
                 .setConstantPowerFactor(true)
-                .setScalingConvention(convention)
-                .setLoadMinPowerFactor(INV_SQRT2);
+                .setScalingConvention(LOAD); // no impact on Q scaling, just on P scaling
+        if (minPowerFactor != null) {
+            params.setLoadMinPowerFactor(minPowerFactor);
+        }
         Load load = network.getLoad("l1");
-        load.setQ0(q0);
-        ls1.scale(network, asked, params);
+        load.setP0(p0).setQ0(q0);
+        double askedDelta = newP - p0; // with load convention: asked < 0 reduces P
+        l4.scale(network, askedDelta, params);
+        assertEquals(newP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
     }
 
@@ -347,6 +293,22 @@ class LoadScalableTest {
         assertFalse(Double.isNaN(load.getQ0()));
     }
 
+    private static Stream<Arguments> minQRateCases() {
+        // P0=100; floor = q0 * 0.5
+        return Stream.of(
+                // proportional Q=20, floor=50 -> clamped up
+                Arguments.of("positive Q clamped to floor", 100.0, 80, GENERATOR, 20.0, 50.0),
+                // proportional Q=-20; floor=-50; -20 > -50 -> clamped to -50
+                Arguments.of("negative Q clamped to floor", -100.0, 80, GENERATOR, 20.0, -50.0),
+                // proportional Q=80, floor=50 -> no clamp
+                Arguments.of("no clamp, positive Q above floor", 100.0, 20, GENERATOR, 80.0, 80.0),
+                // proportional Q=-80; floor=-50; -80 < -50 -> no clamp
+                Arguments.of("no clamp, negative Q already below floor", -100.0, 20, GENERATOR, 80.0, -80.0),
+                // LOAD convention
+                Arguments.of("positive Q clamped to floor (LOAD)", 100.0, -80, LOAD, 20.0, 50.0)
+        );
+    }
+
     @ParameterizedTest(name = "{0}")
     @MethodSource("minQRateCases")
     void testMinQRate(String name, double q0, double asked, ScalingConvention convention,
@@ -360,6 +322,22 @@ class LoadScalableTest {
         ls1.scale(network, asked, params);
         assertEquals(expectedP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
+    }
+
+    private static Stream<Arguments> maxQRateCases() {
+        // P0=100; ceiling = q0 * rate
+        return Stream.of(
+                // asked=-100 -> newP=200; proportional Q=40, ceiling=30 -> clamped
+                Arguments.of("positive Q clamped to ceiling", 20.0, -100, 1.5, GENERATOR, 200.0, 30.0),
+                // asked=-20 -> newP=120; proportional Q=24, ceiling=30 -> no clamp
+                Arguments.of("no clamp, positive Q below ceiling", 20.0, -20, 1.5, GENERATOR, 120.0, 24.0),
+                // asked=-200 -> newP=300; proportional Q=-300, ceiling=-200 -> clamped
+                Arguments.of("negative Q clamped to ceiling", -100.0, -200, 2.0, GENERATOR, 300.0, -200.0),
+                // asked=-20 -> newP=120; proportional Q=-120, ceiling=-200 -> no clamp
+                Arguments.of("no clamp, negative Q within ceiling", -100.0, -20, 2.0, GENERATOR, 120.0, -120.0),
+                // LOAD convention: asked=100 increases P to 200; proportional Q=40, ceiling=30 -> clamped
+                Arguments.of("positive Q clamped to ceiling (LOAD)", 20.0, 100, 1.5, LOAD, 200.0, 30.0)
+        );
     }
 
     @ParameterizedTest(name = "{0}")
@@ -518,6 +496,30 @@ class LoadScalableTest {
         ls1.scale(network, 100, params); // newP = 0
         assertEquals(0.0, load.getP0(), 1e-3);
         assertEquals(50.0, load.getQ0(), 1e-3);
+    }
+
+    private static Stream<Arguments> signChangeScalingCases() {
+        return Stream.of(
+                // cosphi_initial ~ 0.316 > 0.3 -> proportional scaling, no clamp
+                Arguments.of("positive P to negative P", 1000.0, 3000.0, 2000.0, 0.3, -1000.0, -3000.0),
+                Arguments.of("negative P to positive P", -1000.0, -3000.0, -2000.0, 0.3, 1000.0, 3000.0),
+                Arguments.of("negative P grows in magnitude", -1000.0, -3000.0, 1000.0, 0.3, -2000.0, -6000.0),
+
+                // cosphi_initial ~ 0.316 < 0.5 -> clamp; limitedQ = tan(acos(0.5)) * |newP| * signum(newQ)
+                // tan(acos(0.5)) = tan(60°) = sqrt(3) ~ 1.732
+                Arguments.of("positive P to negative P, clamped", 1000.0, 3000.0, 2000.0, 0.5, -1000.0, -Math.tan(Math.acos(0.5)) * 1000),
+                Arguments.of("negative P to positive P, clamped", -1000.0, -3000.0, -2000.0, 0.5, 1000.0, Math.tan(Math.acos(0.5)) * 1000),
+                Arguments.of("negative P grows in magnitude, clamped", -1000.0, -3000.0, 1000.0, 0.5, -2000.0, -Math.tan(Math.acos(0.5)) * 2000),
+
+                // Opposite-sign P and Q, P crosses zero
+                // P0=+1000, Q0=-3000 -> newP=-1000; newQ(proportional)=+3000 (Q flips sign)
+                Arguments.of("positive P to negative P, Q flips sign, no clamp", 1000.0, -3000.0, 2000.0, 0.3, -1000.0, 3000.0),
+                Arguments.of("positive P to negative P, Q flips sign, clamped", 1000.0, -3000.0, 2000.0, 0.5, -1000.0, Math.tan(Math.acos(0.5)) * 1000),
+
+                // P0=-1000, Q0=+3000 -> newP=+1000; newQ(proportional)=-3000 (Q flips sign)
+                Arguments.of("negative P to positive P, Q flips sign, no clamp", -1000.0, 3000.0, -2000.0, 0.3, 1000.0, -3000.0),
+                Arguments.of("negative P to positive P, Q flips sign, clamped", -1000.0, 3000.0, -2000.0, 0.5, 1000.0, -Math.tan(Math.acos(0.5)) * 1000)
+        );
     }
 
     @ParameterizedTest(name = "{0}")
