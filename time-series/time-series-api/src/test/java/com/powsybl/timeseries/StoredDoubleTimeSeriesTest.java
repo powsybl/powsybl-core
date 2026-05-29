@@ -14,6 +14,9 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
@@ -23,9 +26,12 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.lang.Double.NaN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -408,7 +414,7 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    void testToArray() {
+    void toArrayWhenTimeSeriesData() {
         // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
@@ -427,10 +433,17 @@ class StoredDoubleTimeSeriesTest {
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesArray, 0d);
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, tsArray1, 0d);
         assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, tsArray2, 0d);
+
+        double originalAt3 = timeSeries.get(3);
+        assertEquals(4.0, originalAt3, 0d);
+
+        double splitAt3 = chunks.get(0).get(3);
+        assertEquals(4.0, splitAt3, 0d);
+        assertEquals(originalAt3, splitAt3, 0d);
     }
 
     @Test
-    void testToCompactArray() {
+    void toCompactArrayShouldKeepOriginalIndexeWithoutNaN() {
         // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
@@ -461,6 +474,29 @@ class StoredDoubleTimeSeriesTest {
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d, NaN}, timeSeries.toArray());
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
+    }
+
+    @ParameterizedTest(name = "tsSize={0}, newChunkSize={1} => chunkCount={2}")
+    @MethodSource("splitManyMultiChunkCases")
+    void splitManyMultiChunkTimeSeriesTest(int tsSize, int newChunkSize, int expectedChunkCount) {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(tsSize);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        DoubleDataChunk[] chunks = new DoubleDataChunk[tsSize];
+        for (int i = 0; i < chunks.length; i++) {
+            chunks[i] = new UncompressedDoubleDataChunk(i, new double[] { i });
+        }
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunks);
+        List<List<DoubleTimeSeries>> split = TimeSeries.split(Collections.singletonList(timeSeries), newChunkSize);
+        assertThat(split).hasSize(expectedChunkCount);
+    }
+
+    private static Stream<Arguments> splitManyMultiChunkCases() {
+        return Stream.of(
+                arguments(100_000, 100_000, 1),
+                arguments(200_000, 200_000, 1),
+                arguments(200_000, 60_000, 4)
+        );
     }
 
 }

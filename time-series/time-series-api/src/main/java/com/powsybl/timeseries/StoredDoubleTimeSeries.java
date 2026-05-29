@@ -9,6 +9,7 @@ package com.powsybl.timeseries;
 
 import java.nio.DoubleBuffer;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -77,6 +78,24 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
     @Override
     public DoubleTimeSeriesValues getDoubleTimeSeriesValues() {
         return new DoubleTimeSeriesValues(toCompactArray(), getMinOffset());
+    }
+
+    @Override
+    public List<DoubleTimeSeries> split(int newChunkSize) {
+        int pointCount = metadata.getIndex().getPointCount();
+        int chunkCount = TimeSeries.computeChunkCount(metadata.getIndex(), newChunkSize);
+        List<DoubleTimeSeries> result = new ArrayList<>(chunkCount);
+
+        double[] allValues = toArray();
+        for (int i = 0; i < chunkCount; i++) {
+            int offset = i * newChunkSize;
+            int length = Math.min(newChunkSize, pointCount - offset);
+            double[] dest = new double[length];
+            System.arraycopy(allValues, offset, dest, 0, length);
+            DoubleDataChunk chunk = new UncompressedDoubleDataChunk(offset, dest).tryToCompress();
+            result.add(new StoredDoubleTimeSeries(metadata, chunk));
+        }
+        return result;
     }
 
 }
