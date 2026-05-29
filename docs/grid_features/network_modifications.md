@@ -25,19 +25,19 @@ A `NetworkModification` offers a method to check whether or not its application 
 <span style="color: red">TODO</span>
 
 #### loadMinPowerFactor
-The minimum power factor allowed when scaling load reactive power. Only applies when `constantPowerFactor` is `true`.
+The minimum active/apparent power factor (ie P/S factor) allowed when scaling load reactive power Q. Only applies when `constantPowerFactor` is `true`.
 
 Normally, the reactive power Q is scaled proportionally to the active power P to keep the power factor constant. If the initial power factor is below this value, Q is instead recomputed from the new P using this minimum power factor. Default is `0.0` (disabled). Must be in the range `[0, 1]`.
 
 #### loadMinQRate
 The minimum allowed ratio between the scaled reactive power and the initial reactive power. Only applies when `constantPowerFactor` is `true`.
 
-Prevents Q from decreasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot fall below this multiple of its initial value. For example, a value of `0.5` means Q cannot drop below half its initial value. For negative Q, the constraint is symmetric: Q cannot become less negative than `Q_initial * loadMinQRate`. Default is `Double.MIN_VALUE` (disabled).
+Prevents Q from decreasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot fall below this multiple of its initial value. For example, a value of `0.5` means Q cannot drop below half its initial value. For negative Q, the constraint is symmetric: Q cannot become less negative than `Q_initial * loadMinQRate`. Default is `Double.MIN_VALUE` (disabled). Must be in <= 1.
 
 #### loadMaxQRate
 The maximum allowed ratio between the scaled reactive power and the initial reactive power. Only applies when `constantPowerFactor` is `true`.
 
-Prevents Q from increasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot grow beyond this multiple of its initial value. For example, a value of `1.5` means Q cannot exceed 1.5 times its initial value. For negative Q, the constraint is symmetric: Q cannot become more negative than `Q_initial * loadMaxQRate`. Default is `Double.MAX_VALUE` (disabled).
+Prevents Q from increasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot grow beyond this multiple of its initial value. For example, a value of `1.5` means Q cannot exceed 1.5 times its initial value. For negative Q, the constraint is symmetric: Q cannot become more negative than `Q_initial * loadMaxQRate`. Default is `Double.MAX_VALUE` (disabled).Must be in >= 1.
 
 ## Topology modifications
 Powsybl provides classes that can be used to easily modify the topology of the network.
