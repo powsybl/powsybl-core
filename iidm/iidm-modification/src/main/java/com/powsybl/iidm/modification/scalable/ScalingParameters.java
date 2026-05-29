@@ -242,12 +242,13 @@ public class ScalingParameters {
 
     /**
      * Sets the minimum allowed ratio between the scaled reactive power and the initial reactive power.
+     * Must be in <= 1
      *
      * @param loadMinQRate the minimum Q rate
      */
     public ScalingParameters setLoadMinQRate(double loadMinQRate) {
-        if (loadMinQRate > loadMaxQRate) {
-            throw new IllegalArgumentException("loadMinQRate cannot be greater than loadMaxQRate");
+        if (loadMinQRate > 1) {
+            throw new IllegalArgumentException("loadMinQRate cannot be greater than 1");
         }
 
         this.loadMinQRate = loadMinQRate;
@@ -261,6 +262,7 @@ public class ScalingParameters {
      * Q_scaled &le; Q_initial &times; loadMaxQRate
      * <p>
      * Default is {@code Double.MAX_VALUE} (no constraint)
+     * Must be in >= 1
      *
      * @return the maximum Q rate
      */
@@ -274,8 +276,8 @@ public class ScalingParameters {
      * @param loadMaxQRate the maximum Q rate
      */
     public ScalingParameters setLoadMaxQRate(double loadMaxQRate) {
-        if (loadMaxQRate < loadMinQRate) {
-            throw new IllegalArgumentException("loadMaxQRate cannot be lower than loadMinQRate");
+        if (loadMaxQRate < 1) {
+            throw new IllegalArgumentException("loadMaxQRate cannot be lower than 1.");
         }
 
         this.loadMaxQRate = loadMaxQRate;
