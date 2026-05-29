@@ -14,11 +14,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.GENERATOR;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
@@ -259,6 +255,8 @@ class LoadScalableTest {
              -10., 20.,  5.,   0.7071,         -5.0,      'MinPowerFactor applied, negative to positive P & positive Q'
              -10., 20.,  -5.,  0.7071,         5.0,       'MinPowerFactor applied, negative P & positive Q'
              10.,  -20., 5.,   0.7071,         -5.0,      'MinPowerFactor applied, positive P & negative Q'
+             10.,  20.,  0.,   0.7071,         0.0,       'MinPowerFactor applied, newP=0 => newQ=0'
+             100., 100., 80.,  1.0,            0.0,       'minPowerFactor=1.0 forces Q to zero'
             """
             // With P0 = +/-10 & Q0 = +/-20, we have cosphi_initial = cos(atan(20 / 10)) = 0,447
             // Any minPowerFactor below this cosphi_initial will not limit Q scaling for this load => Q will be scaled proportionally (as it would with no minPowerFactor)
@@ -278,19 +276,6 @@ class LoadScalableTest {
         l4.scale(network, askedDelta, params);
         assertEquals(newP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
-    }
-
-    @Test
-    void testMinPowerFactorOneClampedToZero() {
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(true)
-                .setLoadMinPowerFactor(1.0);
-        Load load = network.getLoad("l1");
-        load.setQ0(100.0);
-        ls1.scale(network, 20, params); // newP = 80
-        assertEquals(80.0, load.getP0(), 1e-3);
-        assertEquals(0.0, load.getQ0(), 1e-3);
-        assertFalse(Double.isNaN(load.getQ0()));
     }
 
     @ParameterizedTest
@@ -388,19 +373,6 @@ class LoadScalableTest {
         load.setQ0(50.0);
         ls1.scale(network, -20, params);
         assertEquals(50.0, load.getQ0(), 1e-3);
-    }
-
-    @Test
-    void testScaledPIsZeroQIsZeroAndNotNaN() {
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(true)
-                .setLoadMinPowerFactor(INV_SQRT2);
-        Load load = network.getLoad("l1");
-        load.setQ0(100.0);
-        ls1.scale(network, 100, params); // newP = 0
-        assertEquals(0.0, load.getP0(), 1e-3);
-        assertEquals(0.0, load.getQ0(), 1e-3);
-        assertFalse(Double.isNaN(load.getQ0()));
     }
 
     @Test
