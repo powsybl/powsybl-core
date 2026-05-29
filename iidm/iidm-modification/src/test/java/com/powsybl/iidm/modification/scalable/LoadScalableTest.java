@@ -329,34 +329,39 @@ class LoadScalableTest {
         assertEquals(expectedQ, load.getQ0(), 1e-3);
     }
 
-    private static Stream<Arguments> maxQRateCases() {
-        // P0=100; ceiling = q0 * rate
-        return Stream.of(
-                // asked=-100 -> newP=200; proportional Q=40, ceiling=30 -> clamped
-                Arguments.of("positive Q clamped to ceiling", 20.0, -100, 1.5, GENERATOR, 200.0, 30.0),
-                // asked=-20 -> newP=120; proportional Q=24, ceiling=30 -> no clamp
-                Arguments.of("no clamp, positive Q below ceiling", 20.0, -20, 1.5, GENERATOR, 120.0, 24.0),
-                // asked=-200 -> newP=300; proportional Q=-300, ceiling=-200 -> clamped
-                Arguments.of("negative Q clamped to ceiling", -100.0, -200, 2.0, GENERATOR, 300.0, -200.0),
-                // asked=-20 -> newP=120; proportional Q=-120, ceiling=-200 -> no clamp
-                Arguments.of("no clamp, negative Q within ceiling", -100.0, -20, 2.0, GENERATOR, 120.0, -120.0),
-                // LOAD convention: asked=100 increases P to 200; proportional Q=40, ceiling=30 -> clamped
-                Arguments.of("positive Q clamped to ceiling (LOAD)", 20.0, 100, 1.5, LOAD, 200.0, 30.0)
-        );
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("maxQRateCases")
-    void testMaxQRate(String name, double q0, double asked, double rate, ScalingConvention convention,
-                      double expectedP, double expectedQ) {
+    @ParameterizedTest
+    @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
+         p0,   q0,    newP,  maxQRate, expectedQ, comment
+         10.0, 10.0,  20.0,  1.5,     15.0,      'MaxQRate applied, positive Q'
+         10.0, -10.0, 20.0,  1.5,     -15.0,     'MaxQRate applied, negative Q'
+         10.0, 10.0,  12.0,  1.5,     12.0,      'MaxQRate, positive Q already below limit'
+         10.0, -10.0, 12.0,  1.5,     -12.0,     'MaxQRate, negative Q already above limit'
+         10.0, 10.0,  20.0,  null,    20.0,       'no maxQRate, Q scales proportionally'
+         10.0, -10.0, 20.0,  null,    -20.0,      'no maxQRate, negative Q scales proportionally'
+        """
+            // With P0 = 10 & Q0 = +/-10 and maxQRate = 1.5, we have maxQ = q0 * 1.5 = +/-15
+            // Q scales proportionally to P: newQ = newP * q0 / p0
+            // maxQRate sets a ceiling on the absolute value of Q: scaled Q cannot be further from 0 than maxQ
+            // If the proportional newQ would exceed maxQ, it is limited to maxQ instead
+            // Examples (positive Q):
+            //      newP = 20: proportional Q = 20 * 10 / 10 = 20, above limit of 15 => limited to 15
+            //      newP = 12: proportional Q = 12 * 10 / 10 = 12, below limit of 15 => not limited
+            // Examples (negative Q):
+            //      newP = 20: proportional Q = 20 * -10 / 10 = -20, below limit of -15 => limited to -15
+            //      newP = 12: proportional Q = 12 * -10 / 10 = -12, above limit of -15 => not limited
+    )
+    void testMaxQRate(double p0, double q0, double newP, Double maxQRate, double expectedQ, String comment) {
         ScalingParameters params = new ScalingParameters()
                 .setConstantPowerFactor(true)
-                .setScalingConvention(convention)
-                .setLoadMaxQRate(rate);
+                .setScalingConvention(LOAD); // no impact on Q scaling, just on P scaling
+        if (maxQRate != null) {
+            params.setLoadMaxQRate(maxQRate);
+        }
         Load load = network.getLoad("l1");
-        load.setQ0(q0);
-        ls1.scale(network, asked, params);
-        assertEquals(expectedP, load.getP0(), 1e-3);
+        load.setP0(p0).setQ0(q0);
+        double askedDelta = newP - p0;
+        ls1.scale(network, askedDelta, params);
+        assertEquals(newP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
     }
 
