@@ -33,12 +33,6 @@ public final class TopologyLevelUtil {
         return exportTopologyLevel;
     }
 
-    private static boolean requiresNodeBreakerExport(VoltageLevel vl) {
-        return vl.getTopologyKind() == TopologyKind.NODE_BREAKER
-                && vl.getConnectableStream()
-                .anyMatch(BusbarSection.class::isInstance);
-    }
-
     private static boolean withNullConnectableBus(VoltageLevel vl) {
         return vl.getConnectableStream()
                 .map(Connectable::getTerminals)
