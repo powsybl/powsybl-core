@@ -203,7 +203,7 @@ public final class TopologyModificationUtils {
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
             voltageLevelRemovingEquipmentsLeftReport(reportNode, vlId);
-            LOGGER.warn("Voltage level {} still contains equipments.", vlId);
+            LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
             return;
         }
         // substation must be gotten before removing the voltageLevel
@@ -841,7 +841,7 @@ public final class TopologyModificationUtils {
         }
     }
 
-    private static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
+    public static void cleanNodeBreakerTopologyForTerminal(Terminal terminal, String connectableId, ReportNode reportNode) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             Graph<Integer, Object> graph = createGraphFromTerminal(terminal);
             int node = terminal.getNodeBreakerView().getNode();
