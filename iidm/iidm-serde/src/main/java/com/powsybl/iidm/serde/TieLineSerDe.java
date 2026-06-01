@@ -81,8 +81,10 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_9, context, () -> {
-            writeLimits(context, 1, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup1().orElse(null), tl.getOperationalLimitsGroups1());
-            writeLimits(context, 2, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup2().orElse(null), tl.getOperationalLimitsGroups2());
+            writeLimits(context, 1, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup1().orElse(null),
+                context.getOptions().isOnlySelectedOperationalLimitsGroups() ? tl.getAllSelectedOperationalLimitsGroups(TwoSides.ONE) : tl.getOperationalLimitsGroups1());
+            writeLimits(context, 2, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup2().orElse(null),
+                context.getOptions().isOnlySelectedOperationalLimitsGroups() ? tl.getAllSelectedOperationalLimitsGroups(TwoSides.TWO) : tl.getOperationalLimitsGroups2());
         });
     }
 

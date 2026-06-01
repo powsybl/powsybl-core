@@ -51,6 +51,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean flatten = false;
 
+    private boolean onlySelectedOperationalLimitsGroups = false;
+
     private String version;
 
     private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
@@ -101,6 +103,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
                          IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean flatten) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, iidmVersionIncompatibilityBehavior, flatten, false);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean flatten, boolean onlySelectedOperationalLimitsGroups) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -110,6 +117,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.version = version;
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
         this.flatten = flatten;
+        this.onlySelectedOperationalLimitsGroups = onlySelectedOperationalLimitsGroups;
     }
 
     public boolean isWithBranchSV() {
@@ -274,6 +282,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setFlatten(boolean flatten) {
         this.flatten = flatten;
+        return this;
+    }
+
+    public boolean isOnlySelectedOperationalLimitsGroups() {
+        return onlySelectedOperationalLimitsGroups;
+    }
+
+    public ExportOptions setOnlySelectedOperationalLimitsGroups(boolean onlySelectedOperationalLimitsGroups) {
+        this.onlySelectedOperationalLimitsGroups = onlySelectedOperationalLimitsGroups;
         return this;
     }
 }

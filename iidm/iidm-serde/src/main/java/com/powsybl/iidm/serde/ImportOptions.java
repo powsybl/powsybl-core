@@ -21,6 +21,7 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
     private boolean withAutomationSystems = true;
+    private boolean onlySelectedOperationalLimitsGroups = false;
     private double missingPermanentLimitPercentage = 100.;
 
     private ValidationLevel minimalValidationLevel = null;
@@ -48,6 +49,15 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     public ImportOptions setWithAutomationSystems(boolean withAutomationSystems) {
         this.withAutomationSystems = withAutomationSystems;
+        return this;
+    }
+
+    public boolean isOnlySelectedOperationalLimitsGroups() {
+        return onlySelectedOperationalLimitsGroups;
+    }
+
+    public ImportOptions setOnlySelectedOperationalLimitsGroups(boolean onlySelectedOperationalLimitsGroups) {
+        this.onlySelectedOperationalLimitsGroups = onlySelectedOperationalLimitsGroups;
         return this;
     }
 

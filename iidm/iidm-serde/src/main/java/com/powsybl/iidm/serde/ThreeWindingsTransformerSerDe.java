@@ -93,8 +93,10 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
                 IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_1, context, () -> writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context));
         int[] i = new int[1];
         i[0] = 1;
+        boolean onlySelectedOperationalLimitsGroups = context.getOptions().isOnlySelectedOperationalLimitsGroups();
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getSelectedOperationalLimitsGroup().orElse(null), leg.getOperationalLimitsGroups());
+            writeLimits(context, i[0], ROOT_ELEMENT_NAME, leg.getSelectedOperationalLimitsGroup().orElse(null),
+                onlySelectedOperationalLimitsGroups ? leg.getAllSelectedOperationalLimitsGroups() : leg.getOperationalLimitsGroups());
             i[0]++;
         }
     }

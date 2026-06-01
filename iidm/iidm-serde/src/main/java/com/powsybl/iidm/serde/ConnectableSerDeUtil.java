@@ -18,7 +18,6 @@ import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.IntConsumer;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
@@ -293,16 +292,23 @@ public final class ConnectableSerDeUtil {
         });
     }
 
-    static void readLoadingLimitsGroup(Function<String, OperationalLimitsGroup> groupBuilder, String groupElementName, NetworkDeserializerContext context) {
+    static void readLoadingLimitsGroup(Branch<?> branch, TwoSides side, String groupElementName, NetworkDeserializerContext context) {
         String id = context.getReader().readStringAttribute("id");
-        OperationalLimitsGroup group = groupBuilder.apply(id);
-        readAllLoadingLimits(groupElementName, group, context);
+        if (!context.getOptions().isOnlySelectedOperationalLimitsGroups() || branch.getAllSelectedOperationalLimitsGroupIds(side).contains(id)) {
+            OperationalLimitsGroup group = switch (side) {
+                case ONE -> branch.newOperationalLimitsGroup1(id);
+                case TWO -> branch.newOperationalLimitsGroup2(id);
+            };
+            readAllLoadingLimits(groupElementName, group, context);
+        }
     }
 
     static void readLoadingLimitsGroups(FlowsLimitsHolder h, String groupElementName, NetworkDeserializerContext context) {
         String id = context.getReader().readStringAttribute("id");
-        OperationalLimitsGroup group = h.newOperationalLimitsGroup(id);
-        readAllLoadingLimits(groupElementName, group, context);
+        if (!context.getOptions().isOnlySelectedOperationalLimitsGroups() || h.getAllSelectedOperationalLimitsGroupIds().contains(id)) {
+            OperationalLimitsGroup group = h.newOperationalLimitsGroup(id);
+            readAllLoadingLimits(groupElementName, group, context);
+        }
     }
 
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmVersion version,
