@@ -52,4 +52,15 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         chunks.forEach(chunk -> chunk.fillBuffer(buffer, 0));
         return buffer.toArray();
     }
+
+    public String[] toCompactArray() {
+        if (chunks.isEmpty()) {
+            return new String[0];
+        }
+        int minOffset = getMinOffset();
+        int compactLength = getMaxChunkEnd() - minOffset;
+        CompactStringBuffer buffer = new CompactStringBuffer(ByteBuffer::allocate, compactLength);
+        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
+        return buffer.toArray();
+    }
 }

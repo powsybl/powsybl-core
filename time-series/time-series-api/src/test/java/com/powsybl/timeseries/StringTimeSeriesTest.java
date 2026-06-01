@@ -12,6 +12,7 @@ import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -142,4 +143,88 @@ class StringTimeSeriesTest {
         assertArrayEquals(compressedPointsRef, timeSeries.compressedStream().toArray());
         assertIteratorsEquals(List.of(compressedPointsRef).iterator(), timeSeries.compressedIterator());
     }
+
+    @Test
+    void toArrayWhenNoTimeSeriesData() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.STRING, index);
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata);
+
+        // When
+        String[] timeSeriesArray = timeSeries.toArray();
+        String[] timeSeriesCompactArray = timeSeries.toCompactArray();
+
+        // Then
+        assertArrayEquals(new String[]{null, null, null}, timeSeriesArray);
+        assertArrayEquals(new String[]{}, timeSeriesCompactArray);
+    }
+
+    @Test
+    void toArrayWhenTimeSeriesData() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedStringDataChunk chunk1 = new UncompressedStringDataChunk(0, new String[]{"a", "b", "c", "d", "e", "f"});
+        UncompressedStringDataChunk chunk2 = new UncompressedStringDataChunk(6, new String[]{"g", "h"});
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk1, chunk2);
+
+        // When
+        List<StringTimeSeries> chunks = timeSeries.split(4);
+        String[] timeSeriesArray = timeSeries.toArray();
+        String[] tsArray1 = chunks.get(0).toArray();
+        String[] tsArray2 = chunks.get(1).toArray();
+
+        // Then
+        assertArrayEquals(new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}, timeSeriesArray);
+        assertArrayEquals(new String[]{"a", "b", "c", "d", null, null, null, null}, tsArray1);
+        assertArrayEquals(new String[]{null, null, null, null, "e", "f", "g", "h"}, tsArray2);
+
+        String originalAt3 = valueAtGlobalIndex(timeSeries, 3);
+        assertEquals("d", originalAt3);
+
+        String splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        assertEquals("d", splitAt3);
+        assertEquals(originalAt3, splitAt3);
+    }
+
+    @Test
+    void toCompactArrayShouldKeepOriginalIndexeWithoutNull() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedStringDataChunk chunk1 = new UncompressedStringDataChunk(0, new String[]{"a", "b", "c", "d", "e", "f"});
+        UncompressedStringDataChunk chunk2 = new UncompressedStringDataChunk(6, new String[]{"g", "h"});
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk1, chunk2);
+
+        // When
+        List<StringTimeSeries> chunks = timeSeries.split(4);
+        String[] timeSeriesArray = timeSeries.toCompactArray();
+        String[] tsArray1 = chunks.get(0).toCompactArray();
+        String[] tsArray2 = chunks.get(1).toCompactArray();
+
+        // Then
+        assertArrayEquals(new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}, timeSeriesArray);
+        assertArrayEquals(new String[]{"a", "b", "c", "d"}, tsArray1);
+        assertArrayEquals(new String[]{"e", "f", "g", "h"}, tsArray2);
+
+        String originalAt3 = valueAtGlobalIndex(timeSeries, 3);
+        assertEquals("d", originalAt3);
+
+        String splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        assertEquals("d", splitAt3);
+        assertEquals(originalAt3, splitAt3);
+    }
+
+    private static String valueAtGlobalIndex(StringTimeSeries ts, int index) {
+        return ts.compressedStream()
+                .filter(p -> p.getIndex() == index)
+                .map(StringPoint::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
 }

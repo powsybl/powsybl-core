@@ -67,19 +67,8 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         int minOffset = getMinOffset();
         int compactLength = getMaxChunkEnd() - minOffset;
         DoubleBuffer buffer = DoubleBuffer.allocate(compactLength);
-        for (int i = 0; i < compactLength; i++) {
-            buffer.put(i, Double.NaN);
-        }
-        fillBuffer(buffer, -minOffset);
+        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
         return buffer.array();
-    }
-
-    private int getMinOffset() {
-        return chunks.stream().mapToInt(DoubleDataChunk::getOffset).min().orElse(0);
-    }
-
-    private int getMaxChunkEnd() {
-        return chunks.stream().mapToInt(chunk -> chunk.getOffset() + chunk.getLength()).max().orElse(0);
     }
 
 }
