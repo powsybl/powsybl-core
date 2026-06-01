@@ -348,4 +348,39 @@ class LoadScalableTest {
         assertEquals(newP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
     }
+
+    @ParameterizedTest
+    @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
+         p0,   q0,    newP, minPowerFactor, minQRate, maxQRate, expectedQ, comment
+         10.,  10.,   2.,   0.7071,         0.5,      null,     5.0,       'MinPowerFactor and minQRate applied, minQRate wins'
+         10.,  10.,   8.,   0.7071,         null,     1.5,      8.0,       'MinPowerFactor and maxQRate. Only minPowerFactor applied'
+         10.,  10.,   20.,  0.7071,         null,     1.5,      15.0,      'MinPowerFactor and maxQRate, maxQRate wins'
+         10.,  10.,   20.,  0.7071,         0.5,      1.5,      15.0,      'All three parameters. MinPowerFactor and maxQRate applied, maxQRate wins'
+         10.,  10.,   2.,   0.7071,         0.5,      1.5,      5.0,       'All three parameters. MinPowerFactor and minQRate applied, minQRate wins'
+         10.,  -10.,  2.,   0.7071,         0.5,      null,     -5.0,      'Negative Q: MinPowerFactor and minQRate applied, minQRate wins'
+         10.,  -10.,  20.,  0.7071,         null,     1.5,      -15.0,     'Negative Q: MinPowerFactor and maxQRate applied, maxQRate wins'
+        """
+    )
+    void testMinPowerFactorWithQRates(double p0, double q0, double newP,
+                                      Double minPowerFactor, Double minQRate, Double maxQRate,
+                                      double expectedQ, String comment) {
+        ScalingParameters params = new ScalingParameters()
+                .setConstantPowerFactor(true)
+                .setScalingConvention(LOAD);
+        if (minPowerFactor != null) {
+            params.setLoadMinPowerFactor(minPowerFactor);
+        }
+        if (minQRate != null) {
+            params.setLoadMinQRate(minQRate);
+        }
+        if (maxQRate != null) {
+            params.setLoadMaxQRate(maxQRate);
+        }
+        Load load = network.getLoad("l1");
+        load.setP0(p0).setQ0(q0);
+        double askedDelta = newP - p0;
+        l4.scale(network, askedDelta, params);
+        assertEquals(newP, load.getP0(), 1e-3);
+        assertEquals(expectedQ, load.getQ0(), 1e-3);
+    }
 }
