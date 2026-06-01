@@ -140,6 +140,15 @@ class ScalingParametersTest {
         assertEquals(1.007, parameters.getLoadMaxQRate());
     }
 
+    @Test
+    void invalidParametersTest() {
+        ScalingParameters parameters = new ScalingParameters();
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinPowerFactor(1.1));
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinPowerFactor(-0.1));
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinQRate(1.1));
+        assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMaxQRate(0.9));
+    }
+
     /**
      * This test will have to be deleted when the depreciated methods are deleted.
      */
