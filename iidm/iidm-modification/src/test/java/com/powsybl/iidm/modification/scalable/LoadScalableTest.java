@@ -27,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  */
 class LoadScalableTest {
 
-    private static final double INV_SQRT2 = 1.0 / Math.sqrt(2);
-
     private Network network;
     private Scalable l1;
     private LoadScalable ls1;
