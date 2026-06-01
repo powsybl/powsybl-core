@@ -16,6 +16,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
@@ -97,49 +98,49 @@ class StoredDoubleTimeSeriesTest {
         assertEquals(timeSeries, objectMapper.readValue(objectMapper.writeValueAsString(timeSeries), DoubleTimeSeries.class));
     }
 
-    // TODO refactor doSplitTest, to make the intent clearer (use Parametrized test for example)
-    @Test
-    void splitTest() {
-        doSplitTest(3, 10);
-    }
-
-    @Test
-    void splitTestHuge() {
-        doSplitTest(100000003, 100000010);
-    }
-
-    private void doSplitTest(int chunkPosition, int totalSize) {
+    /**
+     * <pre>
+     *  Cases: offset/total
+     *       test case 1: offset = 3 , total = 10
+     *       test case 2: offset = 100000003 , total = 100000010
+     *
+     *  test case 1:
+     *  index    0   1   2   3   4   5   6   7   8   9
+     *  chunk1   NAN NaN NaN 0   0   0   0   0   NAN NaN
+     *  => split 2
+     *                      [----]  [----]  [--]
+     *                      [2*0]   [2*0]   [1*0]
+     *
+     * </pre>
+     */
+    @ParameterizedTest(name = "offset/totalSize={1}/{0} => expectedStartPosition={2}")
+    @CsvSource({"10, 3, 3", "100000010, 100000003, 100000003"})
+    void splitShouldReturnChunksWithExpectedStartPosition(int totalSize, int offset, int expectedStartPosition) {
+        // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(totalSize);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
-        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(chunkPosition,
-            new double[] {0d, 0d, 0d, 0d, 0d });
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(offset, new double[] {0d, 0d, 0d, 0d, 0d });
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk);
+        // When
         List<DoubleTimeSeries> split = timeSeries.split(2);
-
+        // Then
         // check there is 3 new chunks
         assertEquals(3, split.size());
+        assertChunk(split.get(0), expectedStartPosition, 2);
+        assertChunk(split.get(1), expectedStartPosition + 2, 2);
+        assertChunk(split.get(2), expectedStartPosition + 4, 1);
+    }
 
-        // check first chunk
-        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(0));
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().size());
-        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0));
-        assertEquals(chunkPosition, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getOffset());
-        assertEquals(2, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getLength());
-
-        // check second chunk
-        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().size());
-        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0));
-        assertEquals(chunkPosition + 2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getOffset());
-        assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getLength());
-
-        // check third chunk
-        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(2));
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().size());
-        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0));
-        assertEquals(chunkPosition + 4, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getOffset());
-        assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
+    private static void assertChunk(DoubleTimeSeries ts, int expectedOffset, int expectedLength) {
+        StoredDoubleTimeSeries timeSeries = assertInstanceOf(StoredDoubleTimeSeries.class, ts);
+        assertEquals(1, timeSeries.getChunks().size());
+        DoubleDataChunk dataChunk = timeSeries.getChunks().getFirst();
+        assertAll(
+                () -> assertInstanceOf(UncompressedDoubleDataChunk.class, dataChunk),
+                () -> assertEquals(expectedOffset, dataChunk.getOffset()),
+                () -> assertEquals(expectedLength, dataChunk.getLength())
+        );
     }
 
     private void doSplitTestByRanges(Range<@NonNull Integer> firstRange, Range<@NonNull Integer> secondRange, int chunkLength) {
