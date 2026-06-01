@@ -12,6 +12,9 @@ import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
@@ -21,9 +24,12 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -173,7 +179,7 @@ class StringTimeSeriesTest {
     }
 
     @Test
-    void testToArray() {
+    void toArrayWhenTimeSeriesData() {
         // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
@@ -192,10 +198,17 @@ class StringTimeSeriesTest {
         assertArrayEquals(new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}, timeSeriesArray);
         assertArrayEquals(new String[]{"a", "b", "c", "d", null, null, null, null}, tsArray1);
         assertArrayEquals(new String[]{null, null, null, null, "e", "f", "g", "h"}, tsArray2);
+
+        String originalAt3 = timeSeries.get(3);
+        assertEquals("d", originalAt3);
+
+        String splitAt3 = chunks.get(0).get(3);
+        assertEquals("d", splitAt3);
+        assertEquals(originalAt3, splitAt3);
     }
 
     @Test
-    void testToCompactArray() {
+    void toCompactArrayShouldKeepOriginalIndexeWithoutNull() {
         // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
@@ -214,10 +227,17 @@ class StringTimeSeriesTest {
         assertArrayEquals(new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}, timeSeriesArray);
         assertArrayEquals(new String[]{"a", "b", "c", "d"}, tsArray1);
         assertArrayEquals(new String[]{"e", "f", "g", "h"}, tsArray2);
+
+        String originalAt3 = timeSeries.get(3);
+        assertEquals("d", originalAt3);
+
+        String splitAt3 = chunks.get(0).get(3);
+        assertEquals("d", splitAt3);
+        assertEquals(originalAt3, splitAt3);
     }
 
     @Test
-    void testToCompactArrayWhenNaNExistsAtTheMiddle() {
+    void toCompactArrayWhenNaNExistsAtTheMiddle() {
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(9);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
@@ -250,6 +270,31 @@ class StringTimeSeriesTest {
         assertEquals(expectedAtIndex1, timeSeries.get(1));
         assertEquals(expectedAtIndex5, timeSeries.get(5));
         assertEquals(expectedAtIndex6, timeSeries.get(6));
+    }
+
+    @ParameterizedTest(name = "tsSize={0}, newChunkSize={1} => chunkCount={2}")
+    @MethodSource("splitManyMultiChunkCases")
+    void splitManyMultiChunkTimeSeriesTest(int tsSize, int newChunkSize, int expectedChunkCount) {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(tsSize);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+
+        StringDataChunk[] chunks = new StringDataChunk[tsSize];
+        for (int i = 0; i < chunks.length; i++) {
+            chunks[i] = new UncompressedStringDataChunk(i, new String[] {"a" + i});
+        }
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunks);
+
+        List<List<StringTimeSeries>> split = TimeSeries.split(Collections.singletonList(timeSeries), newChunkSize);
+        assertThat(split).hasSize(expectedChunkCount);
+    }
+
+    private static Stream<Arguments> splitManyMultiChunkCases() {
+        return Stream.of(
+                arguments(100_000, 100_000, 1),
+                arguments(200_000, 200_000, 1),
+                arguments(200_000, 60_000, 4)
+        );
     }
 
 }
