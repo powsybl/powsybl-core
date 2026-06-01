@@ -27,7 +27,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     private final String ownerId;
 
     protected double permanentLimit = Double.NaN;
-    protected DetectionKind detectionKind = DetectionKind.LOW;
+    protected DetectionKind detectionKind = DetectionKind.HIGH;
     protected final String operationalGroupId;
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);

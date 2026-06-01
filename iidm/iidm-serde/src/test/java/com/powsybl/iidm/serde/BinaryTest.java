@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.io.TreeDataFormat;
-import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
@@ -35,9 +34,9 @@ class BinaryTest extends AbstractIidmSerDeTest {
                 .setVoltageLevel2("vl2").setNode2(0)
                 .setR(0.1).setX(10)
                 .add();
-        l0.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().setDetectionKind(DetectionKind.HIGH).add();
+        l0.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().add();
         l0.cancelSelectedOperationalLimitsGroup1(); // selected group id is now null on side 1
-        l0.newOperationalLimitsGroup2("").newCurrentLimits().setDetectionKind(DetectionKind.HIGH).add();
+        l0.newOperationalLimitsGroup2("").newCurrentLimits().add();
         l0.setSelectedOperationalLimitsGroup2(""); // selected group id is now "" on side 2
 
         Path binFile = fileSystem.getPath("/work/test");
