@@ -1,15 +1,11 @@
-/**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2019-2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.ieeecdf.model;
-
-import com.univocity.parsers.annotations.Convert;
-import com.univocity.parsers.annotations.FixedWidth;
-import com.univocity.parsers.annotations.Parsed;
+package com.powsybl.ieeecdf.model.elements;
 
 import java.time.LocalDate;
 
@@ -29,7 +25,7 @@ import java.time.LocalDate;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class IeeeCdfTitle {
+public class IeeeCdfTitle extends AbstractIeeeElement {
 
     public enum Season {
         SUMMER,
@@ -39,45 +35,31 @@ public class IeeeCdfTitle {
     /**
      * Date
      */
-    @FixedWidth(from = 1, to = 10)
-    @Parsed
-    @Convert(conversionClass = LocalDateConversion.class)
     private LocalDate date;
 
     /**
      * Originator's name
      */
-    @FixedWidth(from = 10, to = 30)
-    @Parsed
     private String originatorName;
 
     /**
      * MVA Base
      */
-    @FixedWidth(from = 31, to = 37)
-    @Parsed
     private double mvaBase;
 
     /**
      * Year
      */
-    @FixedWidth(from = 38, to = 42)
-    @Parsed
     private int year;
 
     /**
      *  Season
      */
-    @FixedWidth(from = 43, to = 44)
-    @Parsed
-    @Convert(conversionClass = SeasonConversion.class)
     private Season season;
 
     /**
      * Case identification
      */
-    @FixedWidth(from = 45, to = 73)
-    @Parsed
     private String caseIdentification;
 
     public LocalDate getDate() {
