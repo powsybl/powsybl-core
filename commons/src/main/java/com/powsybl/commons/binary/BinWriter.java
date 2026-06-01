@@ -12,7 +12,6 @@ import com.powsybl.commons.io.AbstractTreeDataWriter;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,7 +27,7 @@ import static com.powsybl.commons.binary.BinUtil.*;
  */
 public class BinWriter extends AbstractTreeDataWriter {
 
-    private static final int HEADER_INITIAL_CAPACITY = 4 * 1024;
+    private static final int HEADER_BLOCK_SIZE = 4 * 1024;
 
     private final String rootVersion;
     private final byte[] binaryMagicNumber;
@@ -207,15 +206,15 @@ public class BinWriter extends AbstractTreeDataWriter {
     @Override
     public void close() {
         try (channel) {
-            drain(buildHeader());
-            drain(body.toReadBuffer());
+            buildHeader().drainTo(channel);
+            body.drainTo(channel);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private ByteBuffer buildHeader() {
-        GrowingByteBuffer header = new GrowingByteBuffer(HEADER_INITIAL_CAPACITY);
+    private GrowingByteBuffer buildHeader() {
+        GrowingByteBuffer header = new GrowingByteBuffer(HEADER_BLOCK_SIZE);
         header.writeBytes(binaryMagicNumber);
         writeString(rootVersion, header);
 
@@ -230,12 +229,6 @@ public class BinWriter extends AbstractTreeDataWriter {
             writeString(key.name(), header);
             header.writeByte(key.type());
         }
-        return header.toReadBuffer();
-    }
-
-    private void drain(ByteBuffer buf) throws IOException {
-        while (buf.hasRemaining()) {
-            channel.write(buf);
-        }
+        return header;
     }
 }

@@ -7,61 +7,66 @@
  */
 package com.powsybl.commons.binary;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Growable direct {@link ByteBuffer} used to stage binary payloads in memory before draining
- * them to a channel. Capacity doubles on overflow.
+ * Segmented heap buffer used to stage binary payloads in memory before draining them to a channel.
  *
  * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
  */
 final class GrowingByteBuffer {
 
-    private static final int DEFAULT_INITIAL_CAPACITY = 1024 * 1024;
+    private static final int BLOCK_SIZE = 64 * 1024;
 
-    private ByteBuffer buffer;
+    private final int blockSize;
+    private final List<ByteBuffer> filledBlocks = new ArrayList<>();
+    private ByteBuffer current;
 
     GrowingByteBuffer() {
-        this(DEFAULT_INITIAL_CAPACITY);
+        this(BLOCK_SIZE);
     }
 
-    GrowingByteBuffer(int initialCapacity) {
-        this.buffer = ByteBuffer.allocateDirect(initialCapacity);
+    GrowingByteBuffer(int blockSize) {
+        this.blockSize = blockSize;
+        this.current = ByteBuffer.allocate(blockSize);
     }
 
+    /** Rolls to a fresh block if the current one cannot hold {@code n} more bytes. */
     private void ensureSpace(int n) {
-        if (buffer.remaining() < n) {
-            int newCapacity = Math.max(buffer.capacity() * 2, buffer.position() + n);
-            ByteBuffer next = ByteBuffer.allocateDirect(newCapacity);
-            buffer.flip();
-            next.put(buffer);
-            buffer = next;
+        if (current.remaining() < n) {
+            current.flip();
+            filledBlocks.add(current);
+            current = ByteBuffer.allocate(blockSize);
         }
     }
 
     void writeByte(int b) {
         ensureSpace(1);
-        buffer.put((byte) b);
+        current.put((byte) b);
     }
 
     void writeShort(int s) {
         ensureSpace(2);
-        buffer.putShort((short) s);
+        current.putShort((short) s);
     }
 
     void writeInt(int i) {
         ensureSpace(4);
-        buffer.putInt(i);
+        current.putInt(i);
     }
 
     void writeFloat(float f) {
         ensureSpace(4);
-        buffer.putFloat(f);
+        current.putFloat(f);
     }
 
     void writeDouble(double d) {
         ensureSpace(8);
-        buffer.putDouble(d);
+        current.putDouble(d);
     }
 
     void writeBoolean(boolean b) {
@@ -69,14 +74,25 @@ final class GrowingByteBuffer {
     }
 
     void writeBytes(byte[] bytes) {
-        ensureSpace(bytes.length);
-        buffer.put(bytes);
+        int offset = 0;
+        while (offset < bytes.length) {
+            if (current.remaining() == 0) {
+                ensureSpace(1);
+            }
+            int n = Math.min(current.remaining(), bytes.length - offset);
+            current.put(bytes, offset, n);
+            offset += n;
+        }
     }
 
-    /** Returns a view positioned at 0, limit at current size, ready for {@code channel.write()}. */
-    ByteBuffer toReadBuffer() {
-        ByteBuffer view = buffer.duplicate();
-        view.flip();
-        return view;
+    /** Writes every staged byte to the channel in order, blocking until fully drained. */
+    void drainTo(WritableByteChannel channel) throws IOException {
+        current.flip();
+        filledBlocks.add(current);
+        for (ByteBuffer block : filledBlocks) {
+            while (block.hasRemaining()) {
+                channel.write(block);
+            }
+        }
     }
 }
