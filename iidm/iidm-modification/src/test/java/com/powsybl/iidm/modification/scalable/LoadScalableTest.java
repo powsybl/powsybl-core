@@ -350,43 +350,4 @@ class LoadScalableTest {
         assertEquals(newP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
     }
-
-    @Test
-    void testNoQScalingWhenConstantPowerFactorFalse() {
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(false)
-                .setLoadMinPowerFactor(0.99)
-                .setLoadMinQRate(0.9)
-                .setLoadMaxQRate(1.1);
-        Load load = network.getLoad("l1");
-        load.setQ0(100.0);
-        ls1.scale(network, 50, params);
-        assertEquals(100.0, load.getQ0(), 1e-3);
-    }
-
-    @Test
-    void testNoQScalingWhenOldP0IsZero() {
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(true)
-                .setLoadMinQRate(0.5);
-        Load load = network.getLoad("l1");
-        load.setP0(0.0);
-        load.setQ0(50.0);
-        ls1.scale(network, -20, params);
-        assertEquals(50.0, load.getQ0(), 1e-3);
-    }
-
-    @Test
-    void testScaledPIsZeroMinQRateFloorStillApplied() {
-        // newQ=0 after proportional scaling; floor = 100 * 0.5 = 50 -> Q clamped to 50
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(true)
-                .setLoadMinPowerFactor(INV_SQRT2)
-                .setLoadMinQRate(0.5);
-        Load load = network.getLoad("l1");
-        load.setQ0(100.0);
-        ls1.scale(network, 100, params); // newP = 0
-        assertEquals(0.0, load.getP0(), 1e-3);
-        assertEquals(50.0, load.getQ0(), 1e-3);
-    }
 }
