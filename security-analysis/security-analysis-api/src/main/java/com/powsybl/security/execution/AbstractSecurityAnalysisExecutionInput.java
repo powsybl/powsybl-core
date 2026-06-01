@@ -12,7 +12,7 @@ import com.powsybl.action.Action;
 import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.contingency.violations.LimitViolationType;
-import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitscaling.LimitScaling;
 import com.powsybl.security.monitor.StateMonitor;
 
 import java.util.*;
@@ -30,7 +30,7 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
     private final List<OperatorStrategy> operatorStrategies = new ArrayList<>();
     private final List<Action> actions = new ArrayList<>();
     private final List<StateMonitor> monitors = new ArrayList<>();
-    private final List<LimitReduction> limitReductions = new ArrayList<>();
+    private final List<LimitScaling> limitScalings = new ArrayList<>();
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -60,8 +60,8 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         return Collections.unmodifiableList(monitors);
     }
 
-    public List<LimitReduction> getLimitReductions() {
-        return Collections.unmodifiableList(limitReductions);
+    public List<LimitScaling> getLimitReductions() {
+        return Collections.unmodifiableList(limitScalings);
     }
 
     public boolean isWithLogs() {
@@ -129,10 +129,10 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         return self();
     }
 
-    public T setLimitReductions(List<LimitReduction> limitReductions) {
-        Objects.requireNonNull(limitReductions);
-        this.limitReductions.clear();
-        this.limitReductions.addAll(limitReductions);
+    public T setLimitReductions(List<LimitScaling> limitScalings) {
+        Objects.requireNonNull(limitScalings);
+        this.limitScalings.clear();
+        this.limitScalings.addAll(limitScalings);
         return self();
     }
 

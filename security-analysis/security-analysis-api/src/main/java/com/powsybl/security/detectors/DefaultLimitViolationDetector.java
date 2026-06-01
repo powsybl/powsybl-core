@@ -13,7 +13,7 @@ import com.powsybl.contingency.violations.LoadingLimitType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.security.*;
-import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 
 import java.util.*;
 import java.util.function.Consumer;

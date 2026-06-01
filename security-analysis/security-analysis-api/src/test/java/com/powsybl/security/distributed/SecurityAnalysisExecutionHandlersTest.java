@@ -27,7 +27,7 @@ import com.powsybl.action.Action;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
-import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitscaling.LimitScaling;
 import com.powsybl.security.results.ConnectivityResult;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
@@ -125,7 +125,7 @@ class SecurityAnalysisExecutionHandlersTest {
     void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
         OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
-        LimitReduction limitReduction = new LimitReduction(LimitType.CURRENT, 0.9);
+        LimitScaling limitScaling = new LimitScaling(LimitType.CURRENT, 0.9);
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
@@ -135,7 +135,7 @@ class SecurityAnalysisExecutionHandlersTest {
                 .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
                 .setOperatorStrategies(List.of(strategy))
-                .setLimitReductions(List.of(limitReduction));
+                .setLimitReductions(List.of(limitScaling));
         ExecutionHandler<SecurityAnalysisReport> handler = SecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         Path workingDir = fileSystem.getPath("/work");

@@ -16,9 +16,9 @@ import com.powsybl.contingency.strategy.OperatorStrategyList;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.NetworkVariant;
-import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.limitreduction.LimitReductionList;
+import com.powsybl.security.json.limitscaling.LimitScalingListSerDeUtil;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.LimitScalingList;
 import com.powsybl.security.monitor.StateMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,14 +231,14 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
     /**
      * Add limit reductions file option, and write it as JSON to working directory.
      */
-    private void addLimitReductionsFile(S options, Path workingDir, List<LimitReduction> limitReductions) {
-        if (limitReductions.isEmpty()) {
+    private void addLimitReductionsFile(S options, Path workingDir, List<LimitScaling> limitScalings) {
+        if (limitScalings.isEmpty()) {
             return;
         }
         Path path = getLimitReductionsPath(workingDir);
         options.limitReductionsFile(path);
         LOGGER.debug("Writing limit reductions to file {}", path);
-        LimitReductionListSerDeUtil.write(new LimitReductionList(limitReductions), path);
+        LimitScalingListSerDeUtil.write(new LimitScalingList(limitScalings), path);
     }
 
     /**

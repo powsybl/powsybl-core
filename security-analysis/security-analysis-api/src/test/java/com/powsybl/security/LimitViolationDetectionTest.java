@@ -18,9 +18,9 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.detectors.AbstractLimitViolationDetectionTest;
-import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.limitscaling.DefaultLimitScalingsApplier;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
@@ -129,8 +129,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     void testSingleTempLimitIncrease() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
-        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
-            List.of(LimitReduction.builder(LimitType.CURRENT, 1.1)
+        DefaultLimitScalingsApplier applier = new DefaultLimitScalingsApplier(
+            List.of(LimitScaling.builder(LimitType.CURRENT, 1.1)
                 .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
                 .build()
@@ -153,8 +153,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     void testTempLimitIntervertedWithIncrease() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
-        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
-            List.of(LimitReduction.builder(LimitType.CURRENT, 1.3)
+        DefaultLimitScalingsApplier applier = new DefaultLimitScalingsApplier(
+            List.of(LimitScaling.builder(LimitType.CURRENT, 1.3)
                 .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
                 .build()
@@ -276,15 +276,15 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testPermanentLimitLimitsComputer() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        List<LimitReduction> limitReductionList = new ArrayList<>();
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+        List<LimitScaling> limitScalingList = new ArrayList<>();
+        LimitScaling reduction1 = LimitScaling.builder(LimitType.CURRENT, 0.5)
             .withMonitoringOnly(false)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
             .withLimitDurationCriteria(new PermanentDurationCriterion())
             .build();
-        limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        limitScalingList.add(reduction1);
+        DefaultLimitScalingsApplier computer = new DefaultLimitScalingsApplier(limitScalingList);
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.ONE, 315, violationsCollector::add, computer);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
@@ -300,15 +300,15 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testTemporaryLimitLimitsComputer() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        List<LimitReduction> limitReductionList = new ArrayList<>();
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+        List<LimitScaling> limitScalingList = new ArrayList<>();
+        LimitScaling reduction1 = LimitScaling.builder(LimitType.CURRENT, 0.5)
             .withMonitoringOnly(false)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
             .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
             .build();
-        limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        limitScalingList.add(reduction1);
+        DefaultLimitScalingsApplier computer = new DefaultLimitScalingsApplier(limitScalingList);
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.TWO, 751, violationsCollector::add, computer);
         assertEquals(1, violationsCollector.size());
         assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
@@ -532,15 +532,15 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     void testLimitsComputerMultipleSelectedGroups() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         double reductionValue = 0.75;
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, reductionValue)
+        LimitScaling reduction1 = LimitScaling.builder(LimitType.CURRENT, reductionValue)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of(EurostagTutorialExample1Factory.NHV1_NHV2_1)))
             //apply to default and activated_1_2 but not to activated_1_1
             .withOperationalLimitsGroupIdSelection("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO)
             .build();
-        List<LimitReduction> limitReductionList = new ArrayList<>();
-        limitReductionList.add(reduction1);
-        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        List<LimitScaling> limitScalingList = new ArrayList<>();
+        limitScalingList.add(reduction1);
+        DefaultLimitScalingsApplier computer = new DefaultLimitScalingsApplier(limitScalingList);
         checkCurrent(network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1), TwoSides.ONE, 1000, violationsCollector::add, computer);
         Assertions.assertThat(violationsCollector)
             .hasSize(2)

@@ -214,7 +214,7 @@ The following example is a result of a security analysis with remedial action, e
         "operationalLimitsGroupId" : "activated_1_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
-        "limitReduction" : 0.95,
+        "limitScaling" : 0.95,
         "value" : 110.0,
         "side" : "ONE",
         "extensions" : {
@@ -292,7 +292,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO",
         "extensions" : {
@@ -312,7 +312,7 @@ The following example is a result of a security analysis with remedial action, e
         },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.9,
+        "limitScaling" : 0.9,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
@@ -323,7 +323,7 @@ The following example is a result of a security analysis with remedial action, e
         },
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.7,
+        "limitScaling" : 0.7,
         "value" : 115.0,
         "extensions" : {
           "Voltage" : {
@@ -336,7 +336,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "ONE"
       }, {
@@ -345,7 +345,7 @@ The following example is a result of a security analysis with remedial action, e
         "limitName" : "20'",
         "acceptableDuration" : 1200,
         "limit" : 100.0,
-        "limitReduction" : 1.0,
+        "limitScaling" : 1.0,
         "value" : 110.0,
         "side" : "TWO"
       } ],

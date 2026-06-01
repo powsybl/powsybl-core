@@ -471,7 +471,7 @@ itools security-analysis \
 ```json lines
 {
   "version": "1.0",
-  "limitReductions": [
+  "limitScalings": [
     {
       "value": 0.9,
       "limitType": "CURRENT",

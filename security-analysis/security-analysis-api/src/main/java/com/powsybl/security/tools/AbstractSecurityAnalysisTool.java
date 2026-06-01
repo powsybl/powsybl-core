@@ -24,7 +24,7 @@ import com.powsybl.security.*;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionInput;
-import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
+import com.powsybl.security.json.limitscaling.LimitScalingListSerDeUtil;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
@@ -135,7 +135,7 @@ public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAna
         options.getPath(ACTIONS_FILE)
                 .ifPresent(actionFilePath -> inputs.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
         options.getPath(LIMIT_REDUCTIONS_FILE)
-                .ifPresent(limitReductionsFilePath -> inputs.setLimitReductions(LimitReductionListSerDeUtil.read(limitReductionsFilePath).getLimitReductions()));
+                .ifPresent(limitReductionsFilePath -> inputs.setLimitReductions(LimitScalingListSerDeUtil.read(limitReductionsFilePath).getLimitReductions()));
     }
 
     protected SecurityAnalysisReport runSecurityAnalysisWithLog(Supplier<SecurityAnalysisReport> supplier, Path logPath) {

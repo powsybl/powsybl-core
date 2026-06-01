@@ -7,7 +7,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitscaling.LimitScaling;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
     private static final Supplier<SecurityAnalysisParameters> DEFAULT_SA_PARAMETERS_SUPPLIER = SecurityAnalysisParameters::load;
 
     private SecurityAnalysisParameters securityAnalysisParameters;
-    private List<LimitReduction> limitReductions = new ArrayList<>();
+    private List<LimitScaling> limitScalings = new ArrayList<>();
 
     /**
      * Returns a {@link SecurityAnalysisRunParameters} instance with default value on each field.
@@ -47,8 +47,8 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
         return securityAnalysisParameters;
     }
 
-    public List<LimitReduction> getLimitReductions() {
-        return limitReductions;
+    public List<LimitScaling> getLimitReductions() {
+        return limitScalings;
     }
 
     /**
@@ -61,17 +61,17 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
     }
 
     /**
-     * Sets the list of the limit reductions to apply, see {@link LimitReduction}
+     * Sets the list of the limit reductions to apply, see {@link LimitScaling}
      */
-    public SecurityAnalysisRunParameters setLimitReductions(List<LimitReduction> limitReductions) {
-        Objects.requireNonNull(limitReductions, "LimitReductions list should not be null");
-        this.limitReductions = limitReductions;
+    public SecurityAnalysisRunParameters setLimitReductions(List<LimitScaling> limitScalings) {
+        Objects.requireNonNull(limitScalings, "LimitReductions list should not be null");
+        this.limitScalings = limitScalings;
         return self();
     }
 
-    public SecurityAnalysisRunParameters addLimitReduction(LimitReduction limitReduction) {
-        Objects.requireNonNull(limitReduction, "LimitReduction should not be null");
-        limitReductions.add(limitReduction);
+    public SecurityAnalysisRunParameters addLimitReduction(LimitScaling limitScaling) {
+        Objects.requireNonNull(limitScaling, "LimitScaling should not be null");
+        limitScalings.add(limitScaling);
         return self();
     }
 
