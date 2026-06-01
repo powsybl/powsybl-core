@@ -251,20 +251,18 @@ public final class ConnectableSerDeUtil {
         IidmVersion iidmVersion = context.getVersion();
         ImportOptions options = context.getOptions();
         ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(context.getNetworkValidationLevel());
-        //Read old permanent limit
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
             String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
-            if (permanentLimitName == null) {
-                permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
+            if (permanentLimitName != null) {
+                adder.setPermanentLimitName(permanentLimitName);
             }
-            adder.setPermanentLimitName(permanentLimitName);
         });
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
         if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
             throw new PowsyblException(PERMANENT_LIMIT_VALUE + " is absent in '" + type + "'");
         }
         adder.setPermanentLimit(permanentLimit);
-        // Read and add the permanent and temporary limits
+        // Read and add the temporary limits
         reader.readChildNodes(elementName -> {
             switch (elementName) {
                 case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
