@@ -218,7 +218,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             // Insert the busbar section before the first section or after the last
 
             // Create a new busbar section
-            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition);
+            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, List.of(switchKind1, switchKind2));
 
             // Create new switches between busbarSection and newBusbarSection
             createSwitchesBetweenBusbarSections(voltageLevel, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1, switchOpen1);
@@ -243,7 +243,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             switchesEncountered.forEach(s -> voltageLevel.getNodeBreakerView().removeSwitch(s.getId()));
 
             // Create a new busbar section
-            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition);
+            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, List.of(switchKind1, switchKind2));
 
             // Create new switches between busbarSection and newBusbarSection
             createSwitchesBetweenBusbarSections(voltageLevel, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1, switchOpen1);
@@ -341,13 +341,14 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
     private BusbarSection createBusbarSection(VoltageLevel vl,
                                               NamingStrategy namingStrategy,
-                                              BusbarSectionPosition busbarSectionPosition) {
+                                              BusbarSectionPosition busbarSectionPosition,
+                                              List<SwitchKind> switchKinds) {
         int busbarSectionNode = vl.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int sectionNum = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? busbarSectionPosition.getSectionIndex() + 1 : busbarSectionPosition.getSectionIndex() - 1;
         int busbarNum = busbarSectionPosition.getBusbarIndex();
         BusbarSection busbarSection = vl.getNodeBreakerView()
             .newBusbarSection()
-            .setId(namingStrategy.getBusbarId(busbarSectionPrefixId, busbarNum, sectionNum))
+            .setId(namingStrategy.getBusbarId(busbarSectionPrefixId, switchKinds, busbarNum, sectionNum))
             .setName(Integer.toString(busbarSectionNode))
             .setNode(busbarSectionNode)
             .setEnsureIdUnicity(true)
