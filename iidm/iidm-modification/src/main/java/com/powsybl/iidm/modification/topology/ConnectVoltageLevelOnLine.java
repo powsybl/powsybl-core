@@ -124,11 +124,11 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
+
         // add line positions
-        if (createPositionExtensionForNewLine && topologyKind == TopologyKind.NODE_BREAKER) {
-            createConnectablePositionExtensionForNewLine(network, line1, TwoSides.TWO);
-            createConnectablePositionExtensionForNewLine(network, line2, TwoSides.ONE);
-        }
+        createConnectablePositionExtensionForNewLine(network, line1, TwoSides.TWO);
+        createConnectablePositionExtensionForNewLine(network, line2, TwoSides.ONE);
+
         //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
         //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
         groupsCopy.applyGroupsToBranch(line1, TwoSides.values());
