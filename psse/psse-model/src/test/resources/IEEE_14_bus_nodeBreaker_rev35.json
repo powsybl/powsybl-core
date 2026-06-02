@@ -1664,11 +1664,13 @@
   "gneDevice" : [ ],
   "inductionMachines" : [ ],
   "substations" : [ {
-    "is" : 1,
-    "name" : "STATION 1",
-    "lati" : 0.0,
-    "long" : 0.0,
-    "srg" : 0.1,
+    "record" : {
+      "is" : 1,
+      "name" : "STATION 1",
+      "lati" : 0.0,
+      "srg" : 0.1,
+      "long" : 0.0
+    },
     "nodes" : [ {
       "ni" : 1,
       "name" : "NB1",
@@ -1777,11 +1779,13 @@
       "k" : 0
     } ]
   }, {
-    "is" : 2,
-    "name" : "STATION 5",
-    "lati" : 0.0,
-    "long" : 0.0,
-    "srg" : 0.1,
+    "record" : {
+      "is" : 2,
+      "name" : "STATION 5",
+      "lati" : 0.0,
+      "srg" : 0.1,
+      "long" : 0.0
+    },
     "nodes" : [ {
       "ni" : 1,
       "name" : "NB1",
