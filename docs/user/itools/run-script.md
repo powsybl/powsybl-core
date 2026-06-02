@@ -122,7 +122,7 @@ saveNetwork(format, network, output_file)
 
 To run the previous script, pass the input and output file names:
 ```shell
-itools run-script loadflow.groovy XIIDM /tmp/case.xiidm /tmp/case-lf.xiidm
+itools run-script --file loadflow.groovy XIIDM /tmp/case.xiidm /tmp/case-lf.xiidm
 ```
 
 ## Going further
