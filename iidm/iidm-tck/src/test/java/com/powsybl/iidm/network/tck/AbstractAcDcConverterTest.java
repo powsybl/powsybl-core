@@ -862,6 +862,7 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(24.0, vscA.getRegulatingTargetQ(), 0.0);
         assertEquals(400.0, vscA.getRegulatingTargetV(), 0.0);
         assertFalse(vscA.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(vscA.isRegulating());
 
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         VariantManager variantManager = network.getVariantManager();
@@ -875,6 +876,7 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(24.0, vscA.getRegulatingTargetQ(), 0.0);
         assertEquals(400.0, vscA.getRegulatingTargetV(), 0.0);
         assertFalse(vscA.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(vscA.isRegulating());
         // change values in s4
         vscA.setControlMode(AcDcConverter.ControlMode.V_DC);
         vscA.setTargetP(-50.);
@@ -896,7 +898,7 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(495., vscA.getTargetVdc(), 0.0);
         assertEquals(20.0, vscA.getRegulatingTargetQ(), 0.0);
         assertEquals(405.0, vscA.getRegulatingTargetV(), 0.0);
-        assertTrue(vscA.isWithMode(RegulationMode.VOLTAGE));
+        assertTrue(vscA.isRegulatingWithMode(RegulationMode.VOLTAGE));
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
@@ -917,5 +919,6 @@ public abstract class AbstractAcDcConverterTest {
         assertThrows(PowsyblException.class, vscA::getTargetVdc, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::getRegulatingTargetQ, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::getRegulatingTargetV, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::isRegulating, "Variant index not set");
     }
 }

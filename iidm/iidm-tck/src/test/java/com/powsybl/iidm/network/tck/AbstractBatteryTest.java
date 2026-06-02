@@ -274,7 +274,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    void test() {
+    void regulationTest() {
         // GIVEN
         // WHEN
         RegulationMode regulationMode = RegulationMode.VOLTAGE;

@@ -149,7 +149,7 @@ public final class SvcTestCaseFactory {
         StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
         svc2.getVoltageRegulation()
                 // use a real remote terminal
-                .setTerminal(network.getGenerator("G1").getTerminal(), REMOTE_TARGET_VALUE);
+                .setTerminal(network.getLoad("L2").getTerminal(), REMOTE_TARGET_VALUE);
         svc2.setLocalTargetV(Double.NaN);
         return network;
     }

@@ -25,12 +25,13 @@ public final class VoltageRegulationUtils {
         /* This utility class should not be instantiated */
     }
 
-    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
-                                                                                                                double targetValue,
-                                                                                                                double localTargetV,
-                                                                                                                double targetQ,
-                                                                                                                Boolean voltageRegulatorOn,
-                                                                                                                Terminal terminal) {
+    private static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
+                                                                                                          boolean withTargetValue,
+                                                                                                          double targetValue,
+                                                                                                          double localTargetV,
+                                                                                                          double targetQ,
+                                                                                                          Boolean voltageRegulatorOn,
+                                                                                                          Terminal terminal) {
         // VOLTAGE case
         if (Boolean.TRUE.equals(voltageRegulatorOn)) {
             VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
@@ -38,8 +39,8 @@ public final class VoltageRegulationUtils {
             if (terminal != null) {
                 vrAdder.withTargetValue(targetValue)
                     .withTerminal(terminal);
-                adder.setLocalTargetV(localTargetV);
-            } else {
+            }
+            if (withTargetValue || terminal == null) {
                 adder.setLocalTargetV(localTargetV);
             }
             vrAdder.add();
@@ -57,6 +58,16 @@ public final class VoltageRegulationUtils {
             adder.setLocalTargetV(localTargetV);
             adder.setLocalTargetQ(targetQ);
         }
+
+    }
+
+    public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
+                                                                                                                double targetValue,
+                                                                                                                double localTargetV,
+                                                                                                                double targetQ,
+                                                                                                                Boolean voltageRegulatorOn,
+                                                                                                                Terminal terminal) {
+        createVoltageRegulationBackwardCompatibility(adder, true, targetValue, localTargetV, targetQ, voltageRegulatorOn, terminal);
     }
 
     public static <T extends VoltageRegulationHolderAdder<T>> void createVoltageRegulationBackwardCompatibility(VoltageRegulationHolderAdder<T> adder,
@@ -64,31 +75,7 @@ public final class VoltageRegulationUtils {
                                                                                                                 double targetQ,
                                                                                                                 Boolean voltageRegulatorOn,
                                                                                                                 Terminal terminal) {
-        // VOLTAGE case
-        if (Boolean.TRUE.equals(voltageRegulatorOn)) {
-            VoltageRegulationAdder<T> vrAdder = adder.newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE);
-            if (terminal != null) {
-                vrAdder.withTargetValue(targetV)
-                    .withTerminal(terminal);
-            } else {
-                adder.setLocalTargetV(targetV);
-            }
-            vrAdder.add();
-            adder.setLocalTargetQ(targetQ);
-            // REACTIVE Power case
-        } else if (Boolean.FALSE.equals(voltageRegulatorOn)
-            && !Double.isNaN(targetQ)
-            && terminal != null) {
-            adder.newVoltageRegulation()
-                .withMode(RegulationMode.REACTIVE_POWER)
-                .withTargetValue(targetQ)
-                .withTerminal(terminal)
-                .add();
-        } else {
-            adder.setLocalTargetV(targetV);
-            adder.setLocalTargetQ(targetQ);
-        }
+        createVoltageRegulationBackwardCompatibility(adder, false, targetV, targetV, targetQ, voltageRegulatorOn, terminal);
     }
 
     /**

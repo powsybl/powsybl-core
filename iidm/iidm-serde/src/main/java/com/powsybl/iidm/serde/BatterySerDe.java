@@ -13,8 +13,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.jspecify.annotations.NonNull;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS;
 import static com.powsybl.iidm.serde.ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE;
@@ -91,8 +89,6 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     }
 
     private static <T extends AbstractOptions<T>> @NonNull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
-        AtomicReference<String> targetQName = new AtomicReference<>("targetQ");
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> targetQName.set("localTargetQ"));
-        return targetQName.get();
+        return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetQ" : "localTargetQ";
     }
 }

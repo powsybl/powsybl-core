@@ -64,7 +64,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                 context.getWriter().writeEnumAttribute(REGULATION_MODE, RegulationModeSerDe.OFF);
             }
         });
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_14, IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_14, IidmVersion.V_1_16, context, () -> {
             if (svc.getVoltageRegulation() != null) {
                 context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getVoltageRegulation().getMode());
                 context.getWriter().writeBooleanAttribute(REGULATING, svc.getVoltageRegulation().isRegulating());
@@ -162,7 +162,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                 regulatingRef.set(!RegulationModeSerDe.OFF.equals(regulationModeSerDe));
             }
         });
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_14, IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_14, IidmVersion.V_1_16, context, () -> {
             regulationModeRef.set(context.getReader().readEnumAttribute(REGULATION_MODE, RegulationMode.class));
             regulatingRef.set(context.getReader().readBooleanAttribute(REGULATING, false));
         });

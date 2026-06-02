@@ -689,13 +689,9 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
         assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
         assertEquals(VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
-        assertFalse(generatorDisabledRegulation.getVoltageRegulation().isRegulating());
-        assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
         assertEquals(10.0, generatorDisabledRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
-        assertEquals(VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
         // Even if the control is disabled, the target voltage must be set
         assertEquals(10.0, generatorWithRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
-        assertEquals(VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
     }
 
     @Test

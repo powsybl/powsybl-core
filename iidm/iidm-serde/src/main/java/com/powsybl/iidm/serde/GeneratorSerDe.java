@@ -53,7 +53,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     }
 
     private static void writeEquivalentLocalTargetV(Generator g, NetworkSerializerContext context) {
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> {
             double equivalentTargetV = Double.NaN;
             if (g.isRemoteRegulating() && g.isWithMode(RegulationMode.VOLTAGE)) {
                 equivalentTargetV = g.getLocalTargetV();
@@ -121,7 +121,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         adder.setTargetP(targetP);
         AtomicReference<Double> equivalentLocalTargetV = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> equivalentLocalTargetV.set(context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> equivalentLocalTargetV.set(context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
         buildVoltageRegulationFromOlderVersions(context, adder, voltageRegulatorOn);
         addTargetV(context, adder, targetV, equivalentLocalTargetV.get());
         adder.setLocalTargetQ(targetQ);
@@ -188,14 +188,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     }
 
     private static <T extends AbstractOptions<T>> @Nonnull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
-        AtomicReference<String> targetQName = new AtomicReference<>("targetQ");
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> targetQName.set("localTargetQ"));
-        return targetQName.get();
+        return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetQ" : "localTargetQ";
     }
 
     private static <T extends AbstractOptions<T>> @Nonnull String getTargetVName(AbstractNetworkSerDeContext<T> context) {
-        AtomicReference<String> targetVName = new AtomicReference<>("targetV");
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> targetVName.set("localTargetV"));
-        return targetVName.get();
+        return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetV" : "localTargetV";
     }
 }

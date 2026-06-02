@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
@@ -164,6 +165,12 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
     }
 
     default void setTargetQToQ() {
+        // If remote reactive power regulation is enabled, the target value is updated
+        if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
+            double remoteQ = getVoltageRegulation().getTerminal().getQ();
+            getVoltageRegulation().setTargetValue(-remoteQ);
+        }
+        // In any cases we set the localTargetQ
         this.setLocalTargetQ(-this.getTerminal().getQ());
     }
 }

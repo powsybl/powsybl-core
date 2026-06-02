@@ -190,16 +190,4 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      */
     @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
-
-    /**
-     * @deprecated use {@link #setLocalTargetQ(double)} instead
-     */
-    @Deprecated(forRemoval = true, since = "7.3.0")
-    VoltageSourceConverter setTargetQ(double targetQ);
-
-    /**
-     * @deprecated use {@link #setLocalTargetV(double)} instead
-     */
-    @Deprecated(forRemoval = true, since = "7.3.0")
-    VoltageSourceConverter setTargetV(double targetV);
 }

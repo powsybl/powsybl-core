@@ -261,7 +261,6 @@ class AmplNetworkReaderTest {
         assertTrue(Double.isNaN(generator.getTerminal().getQ()));
 
         reader.readGenerators();
-        // TODO MSA Change ampl output/input ?
 
         assertEquals(voltageLevel.getNominalV() * 1.01000, generator.getLocalTargetV(), 0.0);
         assertEquals(300.0, generator.getTargetP(), 0.0);

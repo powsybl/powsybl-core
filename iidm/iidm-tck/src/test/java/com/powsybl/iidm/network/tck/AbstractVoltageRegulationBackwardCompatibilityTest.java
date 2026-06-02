@@ -77,7 +77,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.REACTIVE_POWER,
             false,
-            null);
+            null,
+            false);
         checkVoltageRegulationAttributes(expectedAttributes, battery);
 
         assertEquals(battery.getTerminal(), battery.getRegulatingTerminal());
@@ -122,7 +123,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.VOLTAGE,
             true,
-            remoteTerminal);
+            remoteTerminal,
+            true);
         checkVoltageRegulationAttributes(expectedAttributes, generator);
 
         assertEquals(remoteTerminal, generator.getRegulatingTerminal());
@@ -170,7 +172,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.VOLTAGE,
             true,
-            null);
+            null,
+            true);
         checkVoltageRegulationAttributes(expectedAttributes, generator);
 
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
@@ -227,7 +230,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.VOLTAGE,
             true,
-            remoteTerminal);
+            remoteTerminal,
+            true);
         checkVoltageRegulationAttributes(expectedAttributes, shuntCompensator);
         assertEquals(remoteTerminal, shuntCompensator.getRegulatingTerminal());
         assertEquals(remoteTerminal, shuntCompensator.getVoltageRegulation().getTerminal());
@@ -272,7 +276,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.VOLTAGE,
             true,
-            remoteTerminal);
+            remoteTerminal,
+            true);
         checkVoltageRegulationAttributes(expectedAttributes, staticVarCompensator);
 
         assertEquals(remoteTerminal, staticVarCompensator.getRegulatingTerminal());
@@ -316,7 +321,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.VOLTAGE,
             true,
-            remoteTerminal);
+            remoteTerminal,
+            true);
         checkVoltageRegulationAttributes(expectedAttributes, vscConverterStation);
 
         assertEquals(remoteTerminal, vscConverterStation.getRegulatingTerminal());
@@ -372,7 +378,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.VOLTAGE,
             true,
-            null);
+            null,
+            true);
         checkVoltageRegulationAttributes(expectedAttributes, voltageSourceConverter);
 
         assertEquals(targetV, voltageSourceConverter.getLocalTargetV());
@@ -404,8 +411,10 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
 
         assertEquals(expected.localTargetQ(), actual.getLocalTargetQ());
         assertEquals(expected.localTargetV(), actual.getLocalTargetV());
-        if (actual.getVoltageRegulation() != null) {
+        if (expected.withVoltageRegulationPresent) {
             assertEquals(expected.targetValue(), actual.getVoltageRegulation().getTargetValue());
+        } else {
+            assertNull(actual.getVoltageRegulation());
         }
 
         assertEquals(expected.isRegulating(), actual.isRegulating());
@@ -426,7 +435,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         double slope,
         RegulationMode mode,
         boolean isRegulating,
-        Terminal terminal
+        Terminal terminal,
+        boolean withVoltageRegulationPresent
     ) {
     }
 

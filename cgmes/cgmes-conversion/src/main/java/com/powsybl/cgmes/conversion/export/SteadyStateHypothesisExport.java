@@ -304,8 +304,15 @@ public final class SteadyStateHypothesisExport {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, PROPERTY_REGULATING_CONTROL);
-            RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
-                s.isRegulatingWithMode(RegulationMode.VOLTAGE), s.getVoltageRegulation().getTargetDeadband(), s.getVoltageRegulation().getTargetValue(), "k");
+            double targetDeadband = s.getVoltageRegulation() != null ? s.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+            double targetValue = s.getVoltageRegulation() != null ? s.getVoltageRegulation().getTargetValue() : Double.NaN;
+            RegulatingControlView rcv = new RegulatingControlView(rcid,
+                RegulatingControlType.REGULATING_CONTROL,
+                true,
+                s.isRegulatingWithMode(RegulationMode.VOLTAGE),
+                targetDeadband,
+                targetValue,
+                "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
@@ -315,7 +322,7 @@ public final class SteadyStateHypothesisExport {
         for (Generator g : network.getGenerators()) {
             String cgmesOriginalClass = g.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
-            boolean controlEnabled = g.getVoltageRegulation() != null && g.getVoltageRegulation().isRegulating();
+            boolean controlEnabled = g.isRegulating();
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getRegulatingTargetQ(),

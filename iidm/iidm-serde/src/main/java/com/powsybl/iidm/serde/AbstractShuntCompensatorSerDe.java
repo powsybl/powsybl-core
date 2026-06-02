@@ -81,7 +81,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
             OptionalInt solvedSectionCount = context.getReader().readOptionalIntAttribute("solvedSectionCount");
             solvedSectionCount.ifPresent(adder::setSolvedSectionCount);
         });
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> {
             boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
             double targetV = context.getReader().readDoubleAttribute(TARGET_V);
             double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
@@ -198,7 +198,7 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> writeModel(sc, context));
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmSerDeUtil.assertMinimumVersion(rootElementName, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_2, context);
-            IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_2, IidmVersion.V_1_16, context, () -> TerminalRefSerDe.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
         }
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(sc.getVoltageRegulation(), context));
     }

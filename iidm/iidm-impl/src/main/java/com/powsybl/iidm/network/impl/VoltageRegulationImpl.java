@@ -171,7 +171,6 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public void removeTerminal() {
-        // TODO MSA check if it's true
         // No exception on ShuntCompensator case
         if (classHolder != ShuntCompensator.class) {
             ValidationUtil.checkLocalTargetQandV(validable, this.parent.getLocalTargetV(), this.parent.getLocalTargetQ(), false, isRegulating(), mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());

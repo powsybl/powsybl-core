@@ -34,7 +34,6 @@ class StaticVarCompensatorModificationTest {
         svc = network.getStaticVarCompensators().iterator().next();
         svc.setLocalTargetQ(0);
         svc.setLocalTargetV(0);
-        svc.getVoltageRegulation();
     }
 
     @Test
