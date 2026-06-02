@@ -31,46 +31,46 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
     private void createBusbarSection(VoltageLevel vl, String id, int node, int busbarIndex, int sectionIndex) {
         BusbarSection bbs = vl.getNodeBreakerView()
-            .newBusbarSection()
-            .setId(id)
-            .setNode(node)
-            .add();
+                .newBusbarSection()
+                .setId(id)
+                .setNode(node)
+                .add();
         if (busbarIndex != -1 && sectionIndex != -1) {
             bbs.newExtension(BusbarSectionPositionAdder.class)
-                .withBusbarIndex(busbarIndex)
-                .withSectionIndex(sectionIndex)
-                .add();
+                    .withBusbarIndex(busbarIndex)
+                    .withSectionIndex(sectionIndex)
+                    .add();
         }
     }
 
     private void createDisconnector(VoltageLevel vl, String id, int node1, int node2) {
         vl.getNodeBreakerView().newDisconnector()
-            .setId(id)
-            .setNode1(node1)
-            .setNode2(node2)
-            .setOpen(false)
-            .add();
+                .setId(id)
+                .setNode1(node1)
+                .setNode2(node2)
+                .setOpen(false)
+                .add();
     }
 
     private void createBreaker(VoltageLevel vl, String id, int node1, int node2) {
         vl.getNodeBreakerView().newBreaker()
-            .setId(id)
-            .setNode1(node1)
-            .setNode2(node2)
-            .setOpen(false)
-            .add();
+                .setId(id)
+                .setNode1(node1)
+                .setNode2(node2)
+                .setOpen(false)
+                .add();
     }
 
     private void createGenerator(VoltageLevel vl, String id, int node) {
         vl.newGenerator()
-            .setId(id)
-            .setNode(node)
-            .setMaxP(100)
-            .setMinP(0)
-            .setTargetP(100)
-            .setTargetV(400)
-            .setVoltageRegulatorOn(true)
-            .add();
+                .setId(id)
+                .setNode(node)
+                .setMaxP(100)
+                .setMinP(0)
+                .setTargetP(100)
+                .setTargetV(400)
+                .setVoltageRegulatorOn(true)
+                .add();
     }
 
     private Network createNetwork() {
@@ -80,14 +80,14 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
         // Substations
         Substation s1 = network.newSubstation()
-            .setId("S1")
-            .setCountry(Country.FR)
-            .add();
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add();
         VoltageLevel vl1 = s1.newVoltageLevel()
-            .setId("VL1")
-            .setNominalV(1.0)
-            .setTopologyKind(TopologyKind.NODE_BREAKER)
-            .add();
+                .setId("VL1")
+                .setNominalV(1.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
 
         // Busbar sections
         createBusbarSection(vl1, "BBS11", 0, 1, 1);
@@ -153,28 +153,28 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
         // Network modification
         CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
-            .withReferenceBusbarSectionId(referenceBusbarSectionId)
-            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createTheBusbarSectionsAfterTheReferenceBusbarSection)
-            .withAllBusbars(allBusbars)
-            .withLeftSwitchKind(leftSwitchKind)
-            .withLeftSwitchOpen(leftSwitchOpen)
-            .withRightSwitchKind(rightSwitchKind)
-            .withRightSwitchOpen(rightSwitchOpen)
-            .withSwitchPrefixId("VL1")
-            .withBusbarSectionPrefixId("VL1")
-            .build();
+                .withReferenceBusbarSectionId(referenceBusbarSectionId)
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(createTheBusbarSectionsAfterTheReferenceBusbarSection)
+                .withAllBusbars(allBusbars)
+                .withLeftSwitchKind(leftSwitchKind)
+                .withLeftSwitchOpen(leftSwitchOpen)
+                .withRightSwitchKind(rightSwitchKind)
+                .withRightSwitchOpen(rightSwitchOpen)
+                .withSwitchPrefixId("VL1")
+                .withBusbarSectionPrefixId("VL1")
+                .build();
         modification.apply(network);
         writeXmlTest(network, resourceFile);
     }
 
     private static Stream<Arguments> parametersOK() {
         return Stream.of(
-            Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.BREAKER, SwitchKind.BREAKER, false, true, "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
-            Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, true, false, "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
-            Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, false, false, "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
-            Arguments.of("BBS21", false, true, SwitchKind.BREAKER, SwitchKind.BREAKER, true, true, "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
-            Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
+                Arguments.of("BBS12", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-between-2-sections-with-disconnectors.xiidm"),
+                Arguments.of("BBS11", true, true, SwitchKind.BREAKER, SwitchKind.BREAKER, false, true, "/create-vl-sections-insert-between-2-sections-with-breakers.xiidm"),
+                Arguments.of("BBS11", true, true, SwitchKind.DISCONNECTOR, SwitchKind.BREAKER, true, false, "/create-vl-sections-insert-between-2-sections-with-disconnectors-on-left-side-and-breakers-on-right-side.xiidm"),
+                Arguments.of("BBS12", true, false, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, false, false, "/create-vl-sections-insert-between-2-sections-on-only-one-busbar-with-disconnectors.xiidm"),
+                Arguments.of("BBS21", false, true, SwitchKind.BREAKER, SwitchKind.BREAKER, true, true, "/create-vl-sections-insert-before-first-section-with-breakers.xiidm"),
+                Arguments.of("BBS13", true, true, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR, true, true, "/create-vl-sections-insert-after-last-section-with-disconnectors.xiidm")
         );
     }
 
@@ -190,23 +190,23 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
         // Network modification
         CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
-            .withReferenceBusbarSectionId(referenceBusbarSectionId)
-            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
-            .withAllBusbars(true)
-            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
-            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
-            .withSwitchPrefixId("VL1")
-            .withBusbarSectionPrefixId("VL1")
-            .build();
+                .withReferenceBusbarSectionId(referenceBusbarSectionId)
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+                .withAllBusbars(true)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withSwitchPrefixId("VL1")
+                .withBusbarSectionPrefixId("VL1")
+                .build();
         PowsyblException exception = assertThrows(PowsyblException.class, () -> modification.apply(network, true, ReportNode.NO_OP));
         assertEquals(exceptionMessage, exception.getMessage());
     }
 
     private static Stream<Arguments> parametersNOK() {
         return Stream.of(
-            Arguments.of("unknown_bbs", false, "Busbar section unknown_bbs not found"),
-            Arguments.of("GEN_1", false, "Busbar section GEN_1 not found"),
-            Arguments.of("BBS12", true, "Some busbar sections have no position in voltage level (VL1)")
+                Arguments.of("unknown_bbs", false, "Busbar section unknown_bbs not found"),
+                Arguments.of("GEN_1", false, "Busbar section GEN_1 not found"),
+                Arguments.of("BBS12", true, "Some busbar sections have no position in voltage level (VL1)")
         );
     }
 
@@ -217,33 +217,33 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
         // Network modification
         CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
-            .withReferenceBusbarSectionId("BBS11")
-            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
-            .withAllBusbars(true)
-            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
-            .withLeftSwitchFictitious(false)
-            .withLeftSwitchOpen(true)
-            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
-            .withRightSwitchFictitious(false)
-            .withRightSwitchOpen(false)
-            .withSwitchPrefixId("VL1")
-            .withBusbarSectionPrefixId("VL1")
-            .build();
+                .withReferenceBusbarSectionId("BBS11")
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+                .withAllBusbars(true)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withLeftSwitchFictitious(false)
+                .withLeftSwitchOpen(true)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchFictitious(false)
+                .withRightSwitchOpen(false)
+                .withSwitchPrefixId("VL1")
+                .withBusbarSectionPrefixId("VL1")
+                .build();
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification1.hasImpactOnNetwork(network));
 
         CreateVoltageLevelSections modification2 = new CreateVoltageLevelSectionsBuilder()
-            .withReferenceBusbarSectionId("BBS1")
-            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
-            .withAllBusbars(true)
-            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
-            .withLeftSwitchFictitious(false)
-            .withLeftSwitchOpen(true)
-            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
-            .withRightSwitchFictitious(false)
-            .withRightSwitchOpen(false)
-            .withSwitchPrefixId("VL1")
-            .withBusbarSectionPrefixId("VL1")
-            .build();
+                .withReferenceBusbarSectionId("BBS1")
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+                .withAllBusbars(true)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withLeftSwitchFictitious(false)
+                .withLeftSwitchOpen(true)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchFictitious(false)
+                .withRightSwitchOpen(false)
+                .withSwitchPrefixId("VL1")
+                .withBusbarSectionPrefixId("VL1")
+                .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
     }
 
@@ -254,37 +254,153 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
 
         // Network modification
         CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
-            .withReferenceBusbarSectionId("BBS11")
-            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
-            .withAllBusbars(true)
-            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
-            .withLeftSwitchFictitious(false)
-            .withLeftSwitchOpen(true)
-            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
-            .withRightSwitchFictitious(false)
-            .withRightSwitchOpen(false)
-            .withSwitchPrefixId("VL1")
-            .withBusbarSectionPrefixId("VL1")
-            .build();
+                .withReferenceBusbarSectionId("BBS11")
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+                .withAllBusbars(true)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withLeftSwitchFictitious(false)
+                .withLeftSwitchOpen(true)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchFictitious(false)
+                .withRightSwitchOpen(false)
+                .withSwitchPrefixId("VL1")
+                .withBusbarSectionPrefixId("VL1")
+                .build();
         modification1.apply(network);
         assertTrue(network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionStream()
-            .map(BusbarSection::getId).toList().containsAll(List.of("VL1_1_2", "VL1_2_2", "VL1_3_2")));
+                .map(BusbarSection::getId).toList().containsAll(List.of("VL1_1_2", "VL1_2_2", "VL1_3_2")));
         CreateVoltageLevelSections modification2 = new CreateVoltageLevelSectionsBuilder()
-            .withReferenceBusbarSectionId("VL1_1_2")
-            .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(false)
-            .withAllBusbars(true)
-            .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
-            .withLeftSwitchFictitious(false)
-            .withLeftSwitchOpen(true)
-            .withRightSwitchKind(SwitchKind.DISCONNECTOR)
-            .withRightSwitchFictitious(false)
-            .withRightSwitchOpen(false)
-            .withSwitchPrefixId("VL1")
-            .withBusbarSectionPrefixId("VL1")
-            .build();
+                .withReferenceBusbarSectionId("VL1_1_2")
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(false)
+                .withAllBusbars(true)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withLeftSwitchFictitious(false)
+                .withLeftSwitchOpen(true)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchFictitious(false)
+                .withRightSwitchOpen(false)
+                .withSwitchPrefixId("VL1")
+                .withBusbarSectionPrefixId("VL1")
+                .build();
         modification2.apply(network);
         assertTrue(network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSectionStream()
-            .map(BusbarSection::getId).toList().containsAll(List.of("VL1_1_2", "VL1_2_2", "VL1_3_2",
-                "VL1_1_2#0", "VL1_2_2#0", "VL1_3_2#0")));
+                .map(BusbarSection::getId).toList().containsAll(List.of("VL1_1_2", "VL1_2_2", "VL1_3_2",
+                        "VL1_1_2#0", "VL1_2_2#0", "VL1_3_2#0")));
+    }
+
+    private static final class NamingStrategyTest implements NamingStrategy {
+
+        private static final String SEPARATOR = "_";
+
+        @Override
+        public String getName() {
+            return "";
+        }
+
+        @Override
+        public String getSectioningPrefix(String baseId, BusbarSection bbs, int busBarNum, int section1Num, int section2Num) {
+            return "";
+        }
+
+        @Override
+        public String getChunkPrefix(String baseId, List<SwitchKind> switchKindList, int busBarNum, int section1Num, int section2Num) {
+            return "";
+        }
+
+        @Override
+        public String getDisconnectorId(String baseId, int id1Num, int id2Num) {
+            return "";
+        }
+
+        @Override
+        public String getDisconnectorId(BusbarSection bbs, String baseId, int id1Num, int id2Num, int side) {
+            return "";
+        }
+
+        @Override
+        public String getDisconnectorBetweenChunksId(BusbarSection bbs1, String baseId, int id1Num, int id2Num) {
+            return "";
+        }
+
+        @Override
+        public String getBreakerId(String baseId) {
+            return "";
+        }
+
+        @Override
+        public String getBreakerId(String baseId, int id1Num, int id2Num) {
+            return "";
+        }
+
+        @Override
+        public String getSwitchId(String baseId) {
+            return "";
+        }
+
+        @Override
+        public String getSwitchId(String baseId, int idNum) {
+            return "";
+        }
+
+        @Override
+        public String getSwitchId(String baseId, int id1Num, int id2Num) {
+            return "";
+        }
+
+        @Override
+        public String getBusbarId(String baseId, int id1Num, int id2Num) {
+            return "";
+        }
+
+        @Override
+        public String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num) {
+            if (switchKindList.contains(SwitchKind.BREAKER)) {
+                return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num + "_BREAKER";
+            } else if (switchKindList.contains(SwitchKind.LOAD_BREAK_SWITCH)) {
+                return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num + "_LOAD_BREAKER";
+            }
+            return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num + "_DISCONNECTOR";
+        }
+
+        @Override
+        public String getBusId(String baseId) {
+            return "";
+        }
+
+        @Override
+        public String getSwitchBaseId(Connectable<?> connectable, int side) {
+            return "";
+        }
+
+        @Override
+        public String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2) {
+            return "";
+        }
+    }
+
+    @Test
+    void testWithNamingStrategy() {
+        Network network = createNetwork();
+        // Network modification with Breaker
+        CreateVoltageLevelSections modification1 = new CreateVoltageLevelSectionsBuilder()
+                .withReferenceBusbarSectionId("BBS11")
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(true)
+                .withAllBusbars(true)
+                .withLeftSwitchKind(SwitchKind.DISCONNECTOR)
+                .withLeftSwitchFictitious(false)
+                .withLeftSwitchOpen(true)
+                .withRightSwitchKind(SwitchKind.DISCONNECTOR)
+                .withRightSwitchFictitious(false)
+                .withRightSwitchOpen(false)
+                .withSwitchPrefixId("VL1")
+                .withBusbarSectionPrefixId("VL1")
+                .build();
+        modification1.apply(network, new NamingStrategyTest());
+        List<String> busbarSectionIds = network.getVoltageLevel("VL1")
+                .getNodeBreakerView()
+                .getBusbarSectionStream()
+                .map(BusbarSection::getId)
+                .toList();
+        assertTrue(busbarSectionIds.containsAll(List.of("VL1_1_2_BREAKER", "VL1_2_2_BREAKER", "VL1_3_2_BREAKER")));
     }
 }
