@@ -23,11 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -162,6 +158,21 @@ class StringTimeSeriesTest {
     }
 
     @Test
+    void toCompactArrayWhenNoTimeSeriesDataShouldReturnEmpty() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.STRING, index);
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata);
+
+        // When
+        String[] timeSeriesCompactArray = timeSeries.toCompactArray();
+
+        // Then
+        assertArrayEquals(new String[]{}, timeSeriesCompactArray);
+    }
+
+    @Test
     void toArrayWhenTimeSeriesData() {
         // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
@@ -217,6 +228,18 @@ class StringTimeSeriesTest {
         String splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
         assertEquals("d", splitAt3);
         assertEquals(originalAt3, splitAt3);
+    }
+
+    @Test
+    void toCompactArrayWhenNaNExistsAtTheMiddle() {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(9);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        StringDataChunk chunk1 = new UncompressedStringDataChunk(0, new String[]{"a", "b", "c"});
+        StringDataChunk chunk2 = new UncompressedStringDataChunk(6, new String[]{"g", "h"});
+        StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk1, chunk2);
+        assertArrayEquals(new String[] {"a", "b", "c", null, null, null, "g", "h", null}, timeSeries.toArray());
+        assertArrayEquals(new String[] {"a", "b", "c", null, null, null, "g", "h"}, timeSeries.toCompactArray());
     }
 
     private static String valueAtGlobalIndex(StringTimeSeries ts, int index) {

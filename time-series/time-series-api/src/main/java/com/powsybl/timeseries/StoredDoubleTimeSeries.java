@@ -67,7 +67,10 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         int minOffset = getMinOffset();
         int compactLength = getMaxChunkEnd() - minOffset;
         DoubleBuffer buffer = DoubleBuffer.allocate(compactLength);
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
+        for (int i = 0; i < compactLength; i++) {
+            buffer.put(i, Double.NaN);
+        }
+        fillBuffer(buffer, -minOffset);
         return buffer.array();
     }
 

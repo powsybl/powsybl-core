@@ -470,6 +470,18 @@ class StoredDoubleTimeSeriesTest {
         assertEquals(originalAt3, splitAt3, 0d);
     }
 
+    @Test
+    void toCompactArrayWhenNaNExistsAtTheMiddle() {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(9);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        DoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        DoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d, NaN}, timeSeries.toArray());
+        assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
+    }
+
     private static double valueAtGlobalIndex(DoubleTimeSeries ts, int index) {
         return ts.compressedStream()
                 .filter(p -> p.getIndex() == index)
