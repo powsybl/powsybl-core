@@ -15,9 +15,7 @@ import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
@@ -27,12 +25,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static java.lang.Double.NaN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -479,7 +475,7 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @ParameterizedTest(name = "tsSize={0}, newChunkSize={1} => chunkCount={2}")
-    @MethodSource("splitManyMultiChunkCases")
+    @CsvSource({"100000, 100000, 1", "200000, 200000, 1", "200000, 60000, 4"})
     void splitManyMultiChunkTimeSeriesTest(int tsSize, int newChunkSize, int expectedChunkCount) {
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(tsSize);
@@ -491,14 +487,6 @@ class StoredDoubleTimeSeriesTest {
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunks);
         List<List<DoubleTimeSeries>> split = TimeSeries.split(Collections.singletonList(timeSeries), newChunkSize);
         assertThat(split).hasSize(expectedChunkCount);
-    }
-
-    private static Stream<Arguments> splitManyMultiChunkCases() {
-        return Stream.of(
-                arguments(100_000, 100_000, 1),
-                arguments(200_000, 200_000, 1),
-                arguments(200_000, 60_000, 4)
-        );
     }
 
 }
