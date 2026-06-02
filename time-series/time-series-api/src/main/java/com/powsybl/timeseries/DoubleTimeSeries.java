@@ -31,11 +31,11 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
     }
 
     default double get(int index) {
-        return compressedStream()
-                .filter(p -> p.getIndex() == index)
-                .mapToDouble(DoublePoint::getValue)
-                .findFirst()
-                .orElse(Double.NaN);
+        return getDoubleTimeSeriesValues().get(index);
+    }
+
+    default DoubleTimeSeriesValues getDoubleTimeSeriesValues() {
+        return new DoubleTimeSeriesValues(toCompactArray(), 0);
     }
 
     static Iterator<DoubleMultiPoint> iterator(List<DoubleTimeSeries> timeSeriesList) {

@@ -65,11 +65,11 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
     }
 
     public String get(int index) {
-        return compressedStream()
-                .filter(p -> p.getIndex() == index)
-                .map(StringPoint::getValue)
-                .findFirst()
-                .orElse(null);
+        return getStringTimeSeriesValues().get(index);
+    }
+
+    private StringTimeSeriesValues getStringTimeSeriesValues() {
+        return new StringTimeSeriesValues(toCompactArray(), 0);
     }
 
 }
