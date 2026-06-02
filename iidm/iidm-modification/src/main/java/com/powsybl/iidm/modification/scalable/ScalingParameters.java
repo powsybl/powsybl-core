@@ -41,6 +41,8 @@ public class ScalingParameters {
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
     public static final Set<String> DEFAULT_IGNORED_INJECTION_IDS = Collections.emptySet();
     public static final double DEFAULT_LOAD_MIN_POWER_FACTOR = 0.0;
+    public static final Double DEFAULT_LOAD_MIN_Q_RATE = null;
+    public static final Double DEFAULT_LOAD_MAX_Q_RATE = null;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
     private boolean reconnect = DEFAULT_RECONNECT;
@@ -50,8 +52,8 @@ public class ScalingParameters {
     private Priority priority = DEFAULT_PRIORITY;
     private Set<String> ignoredInjectionIds = DEFAULT_IGNORED_INJECTION_IDS;
     private double loadMinPowerFactor = DEFAULT_LOAD_MIN_POWER_FACTOR;
-    private Double loadMinQRate = null;
-    private Double loadMaxQRate = null;
+    private Double loadMinQRate = DEFAULT_LOAD_MIN_Q_RATE;
+    private Double loadMaxQRate = DEFAULT_LOAD_MAX_Q_RATE;
 
     public ScalingParameters() {
     }
@@ -243,8 +245,7 @@ public class ScalingParameters {
      * @param loadMinQRate the minimum Q rate
      */
     public ScalingParameters setLoadMinQRate(Double loadMinQRate) {
-        Objects.requireNonNull(loadMinQRate);
-        if (loadMinQRate > 1) {
+        if (loadMinQRate != null && loadMinQRate > 1) {
             throw new IllegalArgumentException("loadMinQRate cannot be greater than 1");
         }
 
@@ -271,8 +272,7 @@ public class ScalingParameters {
      * @param loadMaxQRate the maximum Q rate
      */
     public ScalingParameters setLoadMaxQRate(Double loadMaxQRate) {
-        Objects.requireNonNull(loadMaxQRate);
-        if (loadMaxQRate < 1) {
+        if (loadMaxQRate != null && loadMaxQRate < 1) {
             throw new IllegalArgumentException("loadMaxQRate cannot be lower than 1.");
         }
 

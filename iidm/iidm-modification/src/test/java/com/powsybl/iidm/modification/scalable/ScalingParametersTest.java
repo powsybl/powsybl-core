@@ -147,9 +147,7 @@ class ScalingParametersTest {
         assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinPowerFactor(1.1), "loadMinPowerFactor must be in [0, 1], got: 1.1");
         assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinPowerFactor(-0.1), "loadMinPowerFactor must be in [0, 1], got: 0.1");
         assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMinQRate(1.1), "loadMinQRate cannot be greater than 1");
-        assertThrows(NullPointerException.class, () -> parameters.setLoadMinQRate(null));
         assertThrows(IllegalArgumentException.class, () -> parameters.setLoadMaxQRate(0.9), "loadMaxQRate cannot be less than 1");
-        assertThrows(NullPointerException.class, () -> parameters.setLoadMaxQRate(null));
     }
 
     /**
