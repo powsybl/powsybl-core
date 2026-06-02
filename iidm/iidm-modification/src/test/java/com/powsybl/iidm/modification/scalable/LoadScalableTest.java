@@ -320,24 +320,22 @@ class LoadScalableTest {
     @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
          q0,    newP,   minQRate, maxQRate, expectedQ, comment
          10.,   2.,     0.5,      null,     5.0,       'MinPowerFactor and minQRate applied, minQRate wins'
-         10.,   20.,    null,     1.5,      15.0,      'MinPowerFactor and maxQRate, maxQRate wins'
+         10.,   24.,    null,     1.5,      15.0,      'MinPowerFactor and maxQRate, maxQRate wins'
          -10.,  2.,     0.5,      null,     -5.0,      'Negative Q: MinPowerFactor and minQRate applied, minQRate wins'
-         -10.,  20.,    null,     1.5,      -15.0,     'Negative Q: MinPowerFactor and maxQRate applied, maxQRate wins'
+         -10.,  24.,    null,     1.5,      -15.0,     'Negative Q: MinPowerFactor and maxQRate applied, maxQRate wins'
         """
-            // With P0 = 10, Q0 = +/-10, we have cosphi_initial = cos(atan(20 / 10)) = 0,447
+            // With P0 = 10, Q0 = +/-10, we have cosphi_initial = cos(atan(10 / 10)) = 0,7071
             // Any minPowerFactor below this cosphi_initial will not limit Q scaling for this load => Q will be scaled proportionally (as it would with no minPowerFactor)
-            // A minPowerFactor of 0.7071 is above this cosphi_initial, so it should limit Q_scaled abs value to tan(acos(0.7071)) * newP ~= 1 * newP
+            // A minPowerFactor of 0.8 is above this cosphi_initial, so it should limit Q_scaled abs value to tan(acos(8)) * newP ~= 0.75 * newP
             // Rate limits then apply relative to oldQ, regardless of the power factor limits output.
-            // Examples (positive Q, q0=10):
-            //      newP = 2:  intermediateQ = 1.0 * 2 = 2,  minQRate = 0.5 => floor = 10 * 0.5 = 5  => limited to 5
-            //      newP = 20: intermediateQ = 1.0 * 20 = 20, maxQRate = 1.5 => ceiling = 10 * 1.5 = 15 => limited to 15
-            // Examples (negative Q, q0=-10):
-            //      newP = 2:  intermediateQ = -2,  minQRate = 0.5 => floor = -10 * 0.5 = -5 => limited to -5
-            //      newP = 20: intermediateQ = -20, maxQRate = 1.5 => ceiling = -10 * 1.5 = -15 => limited to -15
+            // Examples (positive Q, q0 = 10):
+            //      newP = 2: powerFactor-limited Q = 0.75 * 2 = 1.5, below minQRate floor of 5 => limited to 5
+            //      newP = 24: powerFactor-limited Q = 0.75 * 24 = 18, above maxQRate ceiling of 15 => limited to 15
+            // Examples (negative Q, q0 = -10): symmetric, signs flipped
     )
     void testMinPowerFactorWithQRates(double q0, double newP, Double minQRate, Double maxQRate,
                                       double expectedQ, String comment) {
-        testScalingReactivePower(10.0, q0, newP, 0.7071, minQRate, maxQRate, expectedQ);
+        testScalingReactivePower(10.0, q0, newP, 0.8, minQRate, maxQRate, expectedQ);
     }
 
     private void testScalingReactivePower(double p0, double q0, double newP,
