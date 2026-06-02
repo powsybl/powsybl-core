@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class GetSwitchKindsBetweenBusBarTraverserTest {
+class GetSwitchKindsBetweenBusBarTraverserTest {
 
     /*
     vl1 :
