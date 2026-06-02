@@ -262,30 +262,19 @@ class LoadScalableTest {
             // The sign of Q_scaled depends on the sign that Q would have had if scaled proportionally
     )
     void testMinPowerFactor(double p0, double q0, double newP, Double minPowerFactor, double expectedQ, String comment) {
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(true)
-                .setScalingConvention(LOAD); // no impact on Q scaling, just on P scaling
-        if (minPowerFactor != null) {
-            params.setLoadMinPowerFactor(minPowerFactor);
-        }
-        Load load = network.getLoad("l1");
-        load.setP0(p0).setQ0(q0);
-        double askedDelta = newP - p0; // with load convention: asked < 0 reduces P
-        l4.scale(network, askedDelta, params);
-        assertEquals(newP, load.getP0(), 1e-3);
-        assertEquals(expectedQ, load.getQ0(), 1e-3);
+        testScalingReactivePower(p0, q0, newP, minPowerFactor, null, null, expectedQ);
     }
 
     @ParameterizedTest
     @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
              p0,   q0,    newP, minQRate, expectedQ, comment
+             10.,  10.,   2.,   null,     2.0,       'no minQRate, Q scales proportionally'
+             10.,  -10.,  2.,   null,     -2.0,      'no minQRate, negative Q scales proportionally'
              10.,  10.,   2.,   0.5,      5.0,       'MinQRate applied, positive Q'
              10.,  -10.,  2.,   0.5,      -5.0,      'MinQRate applied, negative Q'
              10.,  10.,   8.,   0.5,      8.0,       'MinQRate, positive Q already above limit'
              10.,  -10.,  8.,   0.5,      -8.0,      'MinQRate, negative Q already below limit'
-             10.,  10.,   2.,   null,     2.0,       'no minQRate, Q scales proportionally'
-             10.,  -10.,  2.,   null,     -2.0,      'no minQRate, negative Q scales proportionally'
-             10.,  10.,   0.,   0.5,      5.0,       'minQRate applied when newP is zero'
+             -10., 10.,   8.,   0.5,      5.0,       'MinQRate applied, blocks Q sign change (5 instead of -8)'
             """
             // With P0 = 10 & Q0 = +/-10 and minQRate = 0.5, we have minQ = q0 * 0.5 = +/-5
             // Q scales proportionally to P: newQ = newP * q0 / p0
@@ -299,29 +288,18 @@ class LoadScalableTest {
             //      newP = 8: proportional Q = 8 * -10 / 10 = -8, below limit of -5 => not limited
     )
     void testMinQRate(double p0, double q0, double newP, Double minQRate, double expectedQ, String comment) {
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(true)
-                .setScalingConvention(LOAD); // no impact on Q scaling, just on P scaling
-        if (minQRate != null) {
-            params.setLoadMinQRate(minQRate);
-        }
-        Load load = network.getLoad("l1");
-        load.setP0(p0).setQ0(q0);
-        double askedDelta = newP - p0;
-        l4.scale(network, askedDelta, params);
-        assertEquals(newP, load.getP0(), 1e-3);
-        assertEquals(expectedQ, load.getQ0(), 1e-3);
+        testScalingReactivePower(p0, q0, newP, null, minQRate, null, expectedQ);
     }
 
     @ParameterizedTest
     @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
-         p0,   q0,    newP,  maxQRate, expectedQ, comment
-         10.,  10.,   20.,   1.5,      15.0,      'MaxQRate applied, positive Q'
-         10.,  -10.,  20.,   1.5,      -15.0,     'MaxQRate applied, negative Q'
-         10.,  10.,   12.,   1.5,      12.0,      'MaxQRate, positive Q already below limit'
-         10.,  -10.,  12.,   1.5,      -12.0,     'MaxQRate, negative Q already above limit'
-         10.,  10.,   20.,   null,     20.0,      'no maxQRate, Q scales proportionally'
-         10.,  -10.,  20.,   null,     -20.0,     'no maxQRate, negative Q scales proportionally'
+         q0,    newP,  maxQRate, expectedQ, comment
+         10.,   20.,   null,     20.0,      'no maxQRate, Q scales proportionally'
+         -10.,  20.,   null,     -20.0,     'no maxQRate, negative Q scales proportionally'
+         10.,   20.,   1.5,      15.0,      'MaxQRate applied, positive Q'
+         -10.,  20.,   1.5,      -15.0,     'MaxQRate applied, negative Q'
+         10.,   12.,   1.5,      12.0,      'MaxQRate, positive Q already below limit'
+         -10.,  12.,   1.5,      -12.0,     'MaxQRate, negative Q already above limit'
         """
             // With P0 = 10 & Q0 = +/-10 and maxQRate = 1.5, we have maxQ = q0 * 1.5 = +/-15
             // Q scales proportionally to P: newQ = newP * q0 / p0
@@ -334,39 +312,39 @@ class LoadScalableTest {
             //      newP = 20: proportional Q = 20 * -10 / 10 = -20, below limit of -15 => limited to -15
             //      newP = 12: proportional Q = 12 * -10 / 10 = -12, above limit of -15 => not limited
     )
-    void testMaxQRate(double p0, double q0, double newP, Double maxQRate, double expectedQ, String comment) {
-        ScalingParameters params = new ScalingParameters()
-                .setConstantPowerFactor(true)
-                .setScalingConvention(LOAD); // no impact on Q scaling, just on P scaling
-        if (maxQRate != null) {
-            params.setLoadMaxQRate(maxQRate);
-        }
-        Load load = network.getLoad("l1");
-        load.setP0(p0).setQ0(q0);
-        double askedDelta = newP - p0;
-        l4.scale(network, askedDelta, params);
-        assertEquals(newP, load.getP0(), 1e-3);
-        assertEquals(expectedQ, load.getQ0(), 1e-3);
+    void testMaxQRate(double q0, double newP, Double maxQRate, double expectedQ, String comment) {
+        testScalingReactivePower(10.0, q0, newP, null, null, maxQRate, expectedQ);
     }
 
     @ParameterizedTest
     @CsvSource(useHeadersInDisplayName = true, nullValues = {"null"}, textBlock = """
-         p0,   q0,    newP, minPowerFactor, minQRate, maxQRate, expectedQ, comment
-         10.,  10.,   2.,   0.7071,         0.5,      null,     5.0,       'MinPowerFactor and minQRate applied, minQRate wins'
-         10.,  10.,   8.,   0.7071,         null,     1.5,      8.0,       'MinPowerFactor and maxQRate. Only minPowerFactor applied'
-         10.,  10.,   20.,  0.7071,         null,     1.5,      15.0,      'MinPowerFactor and maxQRate, maxQRate wins'
-         10.,  10.,   20.,  0.7071,         0.5,      1.5,      15.0,      'All three parameters. MinPowerFactor and maxQRate applied, maxQRate wins'
-         10.,  10.,   2.,   0.7071,         0.5,      1.5,      5.0,       'All three parameters. MinPowerFactor and minQRate applied, minQRate wins'
-         10.,  -10.,  2.,   0.7071,         0.5,      null,     -5.0,      'Negative Q: MinPowerFactor and minQRate applied, minQRate wins'
-         10.,  -10.,  20.,  0.7071,         null,     1.5,      -15.0,     'Negative Q: MinPowerFactor and maxQRate applied, maxQRate wins'
+         q0,    newP,   minQRate, maxQRate, expectedQ, comment
+         10.,   2.,     0.5,      null,     5.0,       'MinPowerFactor and minQRate applied, minQRate wins'
+         10.,   20.,    null,     1.5,      15.0,      'MinPowerFactor and maxQRate, maxQRate wins'
+         -10.,  2.,     0.5,      null,     -5.0,      'Negative Q: MinPowerFactor and minQRate applied, minQRate wins'
+         -10.,  20.,    null,     1.5,      -15.0,     'Negative Q: MinPowerFactor and maxQRate applied, maxQRate wins'
         """
+            // With P0 = 10, Q0 = +/-10, we have cosphi_initial = cos(atan(20 / 10)) = 0,447
+            // Any minPowerFactor below this cosphi_initial will not limit Q scaling for this load => Q will be scaled proportionally (as it would with no minPowerFactor)
+            // A minPowerFactor of 0.7071 is above this cosphi_initial, so it should limit Q_scaled abs value to tan(acos(0.7071)) * newP ~= 1 * newP
+            // Rate limits then apply relative to oldQ, regardless of the power factor limits output.
+            // Examples (positive Q, q0=10):
+            //      newP = 2:  intermediateQ = 1.0 * 2 = 2,  minQRate = 0.5 => floor = 10 * 0.5 = 5  => limited to 5
+            //      newP = 20: intermediateQ = 1.0 * 20 = 20, maxQRate = 1.5 => ceiling = 10 * 1.5 = 15 => limited to 15
+            // Examples (negative Q, q0=-10):
+            //      newP = 2:  intermediateQ = -2,  minQRate = 0.5 => floor = -10 * 0.5 = -5 => limited to -5
+            //      newP = 20: intermediateQ = -20, maxQRate = 1.5 => ceiling = -10 * 1.5 = -15 => limited to -15
     )
-    void testMinPowerFactorWithQRates(double p0, double q0, double newP,
-                                      Double minPowerFactor, Double minQRate, Double maxQRate,
+    void testMinPowerFactorWithQRates(double q0, double newP, Double minQRate, Double maxQRate,
                                       double expectedQ, String comment) {
+        testScalingReactivePower(10.0, q0, newP, 0.7071, minQRate, maxQRate, expectedQ);
+    }
+
+    private void testScalingReactivePower(double p0, double q0, double newP,
+                                          Double minPowerFactor, Double minQRate, Double maxQRate, double expectedQ) {
         ScalingParameters params = new ScalingParameters()
                 .setConstantPowerFactor(true)
-                .setScalingConvention(LOAD);
+                .setScalingConvention(LOAD); // no impact on Q scaling, just on P scaling
         if (minPowerFactor != null) {
             params.setLoadMinPowerFactor(minPowerFactor);
         }
@@ -378,7 +356,7 @@ class LoadScalableTest {
         }
         Load load = network.getLoad("l1");
         load.setP0(p0).setQ0(q0);
-        double askedDelta = newP - p0;
+        double askedDelta = newP - p0; // with load convention: asked < 0 reduces P
         l4.scale(network, askedDelta, params);
         assertEquals(newP, load.getP0(), 1e-3);
         assertEquals(expectedQ, load.getQ0(), 1e-3);
