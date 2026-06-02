@@ -198,8 +198,8 @@ public class LoadScalable extends AbstractInjectionScalable {
 
     private static double applyRelativeQRateLimits(ScalingParameters parameters, Load load, double oldQ, double newQ) {
         double limitedQ = newQ;
-        double minRate = parameters.getLoadMinQRate();
-        if (minRate != ScalingParameters.DEFAULT_LOAD_MIN_Q_RATE) {
+        if (parameters.getLoadMinQRate().isPresent()) {
+            double minRate = parameters.getLoadMinQRate().getAsDouble();
             double minQ = oldQ * minRate;
             if (oldQ >= 0) {
                 limitedQ = Math.max(limitedQ, minQ); // floor: prevent Q from dropping below minQ
@@ -208,8 +208,8 @@ public class LoadScalable extends AbstractInjectionScalable {
             }
             logReactivePowerLimitation(load, "minimum Q rate", newQ, limitedQ, "minQRate=" + minRate);
         }
-        double maxRate = parameters.getLoadMaxQRate();
-        if (maxRate != ScalingParameters.DEFAULT_LOAD_MAX_Q_RATE) {
+        if (parameters.getLoadMaxQRate().isPresent()) {
+            double maxRate = parameters.getLoadMaxQRate().getAsDouble();
             double maxQ = oldQ * maxRate;
             if (oldQ >= 0) {
                 limitedQ = Math.min(limitedQ, maxQ); // ceiling: prevent Q from exceeding maxQ

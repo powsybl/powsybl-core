@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
@@ -83,8 +84,8 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
         assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
         assertEquals(0.07, parameters.getLoadMinPowerFactor());
-        assertEquals(-1.007, parameters.getLoadMinQRate());
-        assertEquals(1.007, parameters.getLoadMaxQRate());
+        assertEquals(OptionalDouble.of(-1.007), parameters.getLoadMinQRate());
+        assertEquals(OptionalDouble.of(1.007), parameters.getLoadMaxQRate());
     }
 
     @Test

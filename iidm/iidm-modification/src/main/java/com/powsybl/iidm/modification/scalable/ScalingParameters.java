@@ -41,8 +41,6 @@ public class ScalingParameters {
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
     public static final Set<String> DEFAULT_IGNORED_INJECTION_IDS = Collections.emptySet();
     public static final double DEFAULT_LOAD_MIN_POWER_FACTOR = 0.0;
-    public static final double DEFAULT_LOAD_MIN_Q_RATE = Double.MIN_VALUE;
-    public static final double DEFAULT_LOAD_MAX_Q_RATE = Double.MAX_VALUE;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
     private boolean reconnect = DEFAULT_RECONNECT;
@@ -52,8 +50,8 @@ public class ScalingParameters {
     private Priority priority = DEFAULT_PRIORITY;
     private Set<String> ignoredInjectionIds = DEFAULT_IGNORED_INJECTION_IDS;
     private double loadMinPowerFactor = DEFAULT_LOAD_MIN_POWER_FACTOR;
-    private double loadMinQRate = DEFAULT_LOAD_MIN_Q_RATE;
-    private double loadMaxQRate = DEFAULT_LOAD_MAX_Q_RATE;
+    private Double loadMinQRate = null;
+    private Double loadMaxQRate = null;
 
     public ScalingParameters() {
     }
@@ -231,13 +229,11 @@ public class ScalingParameters {
      * <p>
      * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
      * Q_scaled &ge; Q_initial &times; loadMinQRate
-     * <p>
-     * Default is {@code Double.MIN_VALUE} (no constraint)
      *
      * @return the minimum Q rate
      */
-    public double getLoadMinQRate() {
-        return loadMinQRate;
+    public OptionalDouble getLoadMinQRate() {
+        return loadMinQRate != null ? OptionalDouble.of(loadMinQRate) : OptionalDouble.empty();
     }
 
     /**
@@ -246,7 +242,8 @@ public class ScalingParameters {
      *
      * @param loadMinQRate the minimum Q rate
      */
-    public ScalingParameters setLoadMinQRate(double loadMinQRate) {
+    public ScalingParameters setLoadMinQRate(Double loadMinQRate) {
+        Objects.requireNonNull(loadMinQRate);
         if (loadMinQRate > 1) {
             throw new IllegalArgumentException("loadMinQRate cannot be greater than 1");
         }
@@ -260,14 +257,12 @@ public class ScalingParameters {
      * <p>
      * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
      * Q_scaled &le; Q_initial &times; loadMaxQRate
-     * <p>
-     * Default is {@code Double.MAX_VALUE} (no constraint)
      * Must be in >= 1
      *
      * @return the maximum Q rate
      */
-    public double getLoadMaxQRate() {
-        return loadMaxQRate;
+    public OptionalDouble getLoadMaxQRate() {
+        return loadMaxQRate != null ? OptionalDouble.of(loadMaxQRate) : OptionalDouble.empty();
     }
 
     /**
@@ -275,7 +270,8 @@ public class ScalingParameters {
      *
      * @param loadMaxQRate the maximum Q rate
      */
-    public ScalingParameters setLoadMaxQRate(double loadMaxQRate) {
+    public ScalingParameters setLoadMaxQRate(Double loadMaxQRate) {
+        Objects.requireNonNull(loadMaxQRate);
         if (loadMaxQRate < 1) {
             throw new IllegalArgumentException("loadMaxQRate cannot be lower than 1.");
         }
@@ -302,8 +298,8 @@ public class ScalingParameters {
                     .map(list -> (Set<String>) new HashSet<>(list))
                     .orElse(DEFAULT_IGNORED_INJECTION_IDS));
             scalingParameters.setLoadMinPowerFactor(config.getDoubleProperty("loadMinPowerFactor", DEFAULT_LOAD_MIN_POWER_FACTOR));
-            scalingParameters.setLoadMinQRate(config.getDoubleProperty("loadMinQRate", DEFAULT_LOAD_MIN_Q_RATE));
-            scalingParameters.setLoadMaxQRate(config.getDoubleProperty("loadMaxQRate", DEFAULT_LOAD_MAX_Q_RATE));
+            config.getOptionalDoubleProperty("loadMinQRate").ifPresent(scalingParameters::setLoadMinQRate);
+            config.getOptionalDoubleProperty("loadMaxQRate").ifPresent(scalingParameters::setLoadMaxQRate);
         });
         return scalingParameters;
     }
