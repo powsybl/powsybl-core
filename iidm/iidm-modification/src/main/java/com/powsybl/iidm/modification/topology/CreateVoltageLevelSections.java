@@ -269,11 +269,8 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         if (switchList == null || switchList.isEmpty()) {
             return null;
         }
-        if (switchList.stream().anyMatch(sw -> sw.getKind().equals(SwitchKind.BREAKER))) {
+        if (switchList.stream().anyMatch(sw -> sw.getKind().equals(SwitchKind.BREAKER) || sw.getKind().equals(SwitchKind.LOAD_BREAK_SWITCH))) {
             return SwitchKind.BREAKER;
-        }
-        if (switchList.stream().anyMatch(sw -> sw.getKind().equals(SwitchKind.LOAD_BREAK_SWITCH))) {
-            return SwitchKind.LOAD_BREAK_SWITCH;
         }
         return SwitchKind.DISCONNECTOR;
     }
