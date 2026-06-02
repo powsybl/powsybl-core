@@ -17,6 +17,10 @@ import java.util.List;
  */
 class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChangerAdderImpl, PhaseTapChangerParent, PhaseTapChanger, PhaseTapChangerStepImpl> implements PhaseTapChangerAdder {
 
+    private boolean regulating = false;
+    private double regulationValue = Double.NaN;
+    private double targetDeadband = Double.NaN;
+    private TerminalExt regulationTerminal;
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 
     class StepAdderImpl extends AbstractBasePropertiesHolder implements PhaseTapChangerAdder.StepAdder {
@@ -95,7 +99,12 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     @Override
-    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, Integer solvedTapPosition, boolean regulating, boolean loadTapChangingCapabilities, double regulationValue, double targetDeadband) {
+    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, Integer tapPosition, Integer solvedTapPosition, boolean loadTapChangingCapabilities) {
+        NetworkImpl network = getNetwork();
+        network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, loadTapChangingCapabilities, regulationTerminal));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), regulating,
+            targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+
         PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;
@@ -115,5 +124,29 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     @Override
     protected String getValidableType() {
         return "phase tap changer";
+    }
+
+    @Override
+    public PhaseTapChangerAdder setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return self();
+    }
+
+    @Override
+    public PhaseTapChangerAdder setRegulationValue(double regulationValue) {
+        this.regulationValue = regulationValue;
+        return self();
+    }
+
+    @Override
+    public PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
+        this.targetDeadband = targetDeadband;
+        return self();
+    }
+
+    @Override
+    public PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
+        this.regulationTerminal = (TerminalExt) regulationTerminal;
+        return self();
     }
 }

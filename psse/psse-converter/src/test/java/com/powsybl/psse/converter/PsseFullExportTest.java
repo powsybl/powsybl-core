@@ -142,9 +142,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .beginStep().setRho(1.05).endStep()
                 .beginStep().setRho(1.0).endStep()
                 .beginStep().setRho(0.95).endStep()
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setTargetV(vl2S3.getNominalV() * 1.02)
-                .setRegulationTerminal(t2w.getTerminal2());
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(vl2S3.getNominalV() * 1.02)
+                    .withTerminal(t2w.getTerminal2())
+                    .add();
         t2w.newOperationalLimitsGroup1("ApparentPowerLimits")
                 .newApparentPowerLimits()
                 .setPermanentLimit(95.0)
@@ -261,10 +263,12 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .beginStep()
                 .setRho(0.98)
                 .endStep()
-                .setRegulationTerminal(t3w.getLeg2().getTerminal())
-                .setTargetV(vl2S4.getNominalV() * 0.99)
-                .setTargetDeadband(0.5)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE);
+                .newVoltageRegulation()
+                    .withTerminal(t3w.getLeg2().getTerminal())
+                    .withTargetValue(vl2S4.getNominalV() * 0.99)
+                    .withTargetDeadband(0.5)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add();
         t3w.getLeg1().newOperationalLimitsGroup("ActivePowerLimits")
                 .newActivePowerLimits()
                 .setPermanentLimit(210.0)

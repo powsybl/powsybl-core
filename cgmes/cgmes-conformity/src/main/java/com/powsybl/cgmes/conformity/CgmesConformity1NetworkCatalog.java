@@ -589,14 +589,16 @@ public final class CgmesConformity1NetworkCatalog {
         TwoSides side = TwoSides.TWO;
         RatioTapChangerAdder rtca = tx.newRatioTapChanger()
             .setLowTapPosition(low)
-            .setTapPosition(14)
-            .setTargetDeadband(0.5);
+            .setTapPosition(14);
         addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setTargetV(10.815)
-            // TODO Set the right regulation terminal
-            .setRegulationTerminal(tx.getTerminal(side));
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                // TODO Set the right regulation terminal
+                .withTerminal(tx.getTerminal(side))
+                .withTargetValue(10.815)
+                .withTargetDeadband(0.5)
+                .add();
         rtca.add();
     }
 
@@ -657,10 +659,13 @@ public final class CgmesConformity1NetworkCatalog {
             .setTapPosition(10);
         addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(false)
-            .setTargetV(0.0)
-            .setTargetDeadband(0.5)
-            .setRegulationTerminal(txBE22.getTerminal2());
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetValue(0.0)
+                .withTargetDeadband(0.5)
+                .withTerminal(txBE22.getTerminal2())
+                .add();
         rtca.add();
 
     }
@@ -834,9 +839,13 @@ public final class CgmesConformity1NetworkCatalog {
             .setTapPosition(position);
         addTapSteps(rtca, TwoSides.ONE, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(false)
-            .setTargetV(0.0)
-            .setTargetDeadband(0.5);
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetValue(0.0)
+                .withTerminal(txBETR3.getLeg2().getTerminal())
+                .withTargetDeadband(0.5)
+                .add();
         rtca.add();
     }
 

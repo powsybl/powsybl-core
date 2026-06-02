@@ -356,7 +356,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private void attachVoltageRegulation() {
         getOptionalVoltageRegulation().ifPresent(vr -> {
             vr.updateValidable(this);
-            vr.setParent(this);
+            vr.setHolder(this);
         });
     }
 }

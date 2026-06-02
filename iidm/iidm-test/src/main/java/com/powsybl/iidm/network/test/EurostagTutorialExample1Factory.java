@@ -178,11 +178,12 @@ public final class EurostagTutorialExample1Factory {
                 .endStep()
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(158.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(nhv2Nload.getTerminal2())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(158.0)
+                    .withTerminal(nhv2Nload.getTerminal2())
+                    .withTargetDeadband(0)
+                    .add()
             .add();
         vlload.newLoad()
                 .setId("LOAD")
@@ -1197,10 +1198,12 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithReactiveTcc() {
         Network network = create();
-        network.getTwoWindingsTransformer(NHV2_NLOAD)
-                .getRatioTapChanger()
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        RatioTapChanger ratioTapChanger = network.getTwoWindingsTransformer(NHV2_NLOAD).getRatioTapChanger();
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(100)
+            .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .build();
         return network;
     }
 
@@ -1333,11 +1336,12 @@ public final class EurostagTutorialExample1Factory {
                 .endStep()
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(158.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getTerminal())
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(158.0)
+                    .withTerminal(network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getTerminal())
+                    .withTargetDeadband(0.0)
+                    .add()
             .add();
     }
 
@@ -1371,10 +1375,12 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network create3wWithReactiveTcc() {
         Network network = createWith3wWithVoltageControl();
-        network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1()
-                .getRatioTapChanger()
-                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
-                .setRegulationValue(100);
+        RatioTapChanger ratioTapChanger = network.getThreeWindingsTransformer(NGEN_V2_NHV1).getLeg1().getRatioTapChanger();
+        ratioTapChanger.newVoltageRegulation()
+            .withMode(RegulationMode.REACTIVE_POWER)
+            .withTargetValue(100)
+            .withTerminal(ratioTapChanger.getRegulatingTerminal())
+            .build();
         return network;
     }
 

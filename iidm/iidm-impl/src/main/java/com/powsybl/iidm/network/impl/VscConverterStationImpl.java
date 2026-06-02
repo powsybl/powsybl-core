@@ -249,7 +249,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     private void attachVoltageRegulation() {
         getOptionalVoltageRegulation().ifPresent(vr -> {
             vr.updateValidable(this);
-            vr.setParent(this);
+            vr.setHolder(this);
         });
     }
 }

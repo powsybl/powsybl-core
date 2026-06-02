@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.regulation.*;
@@ -68,8 +69,9 @@ public final class VoltageRegulationSerDe {
             .build());
     }
 
+    // TODO MSA remove Duplications
     public static <T extends VoltageRegulationHolder & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
-            List<Consumer<T>> toApply, VoltageRegulationHolderAdder<A> holderAdder, NetworkDeserializerContext context) {
+        List<Consumer<T>> toApply, VoltageRegulationHolderAdder<A> holderAdder, NetworkDeserializerContext context) {
         VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
         AtomicBoolean isWithTerminal = new AtomicBoolean(false);
@@ -88,12 +90,51 @@ public final class VoltageRegulationSerDe {
                 toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
                     () -> {
                         Terminal terminal = Terminal.getTerminal(voltageRegulationHolder.getNetwork(),
-                                terminalData.id(), terminalData.side(), terminalData.number());
+                            terminalData.id(), terminalData.side(), terminalData.number());
                         configureAdderOrBuilder(voltageRegulationHolder.newVoltageRegulation(), attributes)
-                                .withTerminal(terminal)
-                                .build();
+                            .withTerminal(terminal)
+                            .build();
                         // Restore the real localTargetQ value.
                         if (!(voltageRegulationHolder instanceof ShuntCompensator)) {
+                            voltageRegulationHolder.setLocalTargetQ(realLocalTargetQ);
+                        }
+                    }));
+            } else {
+                throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
+            }
+        });
+        if (!isWithTerminal.get()) {
+            configureAdderOrBuilder(adder, attributes).add();
+        }
+    }
+
+    // TODO MSA remove Duplications
+    public static <T extends VoltageRegulationHolder, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
+        List<Consumer<T>> toApply, VoltageRegulationHolderAdder<A> holderAdder, NetworkDeserializerContext context, Network network) {
+        VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
+        VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
+        AtomicBoolean isWithTerminal = new AtomicBoolean(false);
+
+        // Read Sub Elements
+        context.getReader().readChildNodes(subElementName -> {
+            if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
+                isWithTerminal.set(true);
+                // Assign a temporary value to localTargetQ to allow the validation
+                // without the VoltageRegulation object. This one will be created in a post-creation task.
+                // The real value will be restored at the same time.
+                double realLocalTargetQ = holderAdder.getLocalTargetQ();
+                holderAdder.setLocalTargetQ(0.0);
+
+                TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
+                toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
+                    () -> {
+                        Terminal terminal = Terminal.getTerminal(network,
+                            terminalData.id(), terminalData.side(), terminalData.number());
+                        configureAdderOrBuilder(voltageRegulationHolder.newVoltageRegulation(), attributes)
+                            .withTerminal(terminal)
+                            .build();
+                        // Restore the real localTargetQ value.
+                        if (!(voltageRegulationHolder instanceof ShuntCompensator) && !(voltageRegulationHolder instanceof RatioTapChanger)) {
                             voltageRegulationHolder.setLocalTargetQ(realLocalTargetQ);
                         }
                     }));

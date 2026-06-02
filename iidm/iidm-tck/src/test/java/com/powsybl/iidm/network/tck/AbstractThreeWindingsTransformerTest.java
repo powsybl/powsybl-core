@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.jupiter.api.Test;
 
@@ -181,8 +182,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
 
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
-        ratioTapChangerInLeg1.setTargetV(12).setTapPosition(2);
-        assertEquals(ratioTapChangerInLeg1.getTargetV(), transformer.getLeg(ThreeSides.ONE).getRatioTapChanger().getTargetV(), 0.0);
+        ratioTapChangerInLeg1.setTapPosition(2);
+        ratioTapChangerInLeg1.getVoltageRegulation().setTargetValue(12);
+        assertEquals(ratioTapChangerInLeg1.getRegulatingTargetV(), transformer.getLeg(ThreeSides.ONE).getRatioTapChanger().getRegulatingTargetV(), 0.0);
         assertEquals(ratioTapChangerInLeg1.getTapPosition(), transformer.getLeg(ThreeSides.ONE).getRatioTapChanger().getTapPosition());
 
         assertTrue(leg1.getOptionalRatioTapChanger().isPresent());
@@ -925,14 +927,16 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal, boolean regulating) {
         return leg.newRatioTapChanger()
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(200.0)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(200.0)
+                .withRegulating(regulating)
+                .withTerminal(terminal)
+                .withTargetDeadband(0.5)
+                .add()
             .setLoadTapChangingCapabilities(regulating)
             .setLowTapPosition(0)
             .setTapPosition(0)
-            .setRegulating(regulating)
-            .setRegulationTerminal(terminal)
-            .setTargetDeadband(0.5)
             .beginStep()
                 .setR(39.78473)
                 .setX(39.784725)
@@ -959,14 +963,16 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
         return leg.newRatioTapChanger()
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(200.0)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(200.0)
+                .withRegulating(false)
+                .withTerminal(terminal)
+                .withTargetDeadband(0.5)
+                .add()
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
             .setTapPosition(0)
-            .setRegulating(false)
-            .setRegulationTerminal(terminal)
-            .setTargetDeadband(0.5)
             .beginStep()
                 .setR(r)
                 .setX(x)

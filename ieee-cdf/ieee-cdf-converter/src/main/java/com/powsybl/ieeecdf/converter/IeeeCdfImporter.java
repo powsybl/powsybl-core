@@ -434,10 +434,13 @@ public class IeeeCdfImporter implements Importer {
         }
         RatioTapChangerAdder ratioTapChangerAdder = transformer.newRatioTapChanger()
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(regulating)
-                .setRegulationTerminal(regulatingTerminal)
-                .setTargetV(targetV)
-                .setTargetDeadband(regulating ? 0.0 : Double.NaN)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTerminal(regulatingTerminal)
+                    .withTargetValue(targetV)
+                    .withTargetDeadband(regulating ? 0.0 : Double.NaN)
+                    .withRegulating(regulating)
+                    .add()
                 .setTapPosition(0);
         for (double rho : rhos) {
             ratioTapChangerAdder.beginStep()

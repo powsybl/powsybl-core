@@ -305,7 +305,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     private void attachVoltageRegulation() {
         getOptionalVoltageRegulation().ifPresent(vr -> {
             vr.updateValidable(this);
-            vr.setParent(this);
+            vr.setHolder(this);
         });
     }
 }

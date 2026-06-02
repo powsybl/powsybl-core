@@ -496,10 +496,13 @@ public class UcteImporter implements Importer {
                 .setLoadTapChangingCapabilities(!Double.isNaN(uctePhaseRegulation.getU()));
         if (!Double.isNaN(uctePhaseRegulation.getU())) {
             rtca.setLoadTapChangingCapabilities(true)
-                    .setRegulating(true)
-                    .setTargetV(uctePhaseRegulation.getU())
-                    .setTargetDeadband(0.0)
-                    .setRegulationTerminal(transformer.getTerminal1());
+                .newVoltageRegulation()
+                    .withRegulating(true)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(uctePhaseRegulation.getU())
+                    .withTargetDeadband(0.0)
+                    .withTerminal(transformer.getTerminal1())
+                    .add();
         }
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             double rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100);

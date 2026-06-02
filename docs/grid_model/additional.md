@@ -408,7 +408,7 @@ Here the list of objects capable of such regulation by authorized mode:
 |----------------------------------------------------------------------------|---------|----------------|----------------------------|---------------------------------|
 | [Battery](./network_subnetwork.md#battery)                                 | X       | X (*)          |                            |                                 |
 | [Generator](./network_subnetwork.md#generator)                             | X       | X (*)          |                            | X                               |
-| [RatioTapChanger](#ratio-tap-changer)                                      | X       | X (*)          |                            |                                 |
+| [RatioTapChanger](#ratio-tap-changer)                                      | X (*)   | X (*)          |                            |                                 |
 | [ShuntCompensator](./network_subnetwork.md#shunt-compensator)              | X       |                |                            |                                 |
 | [StaticVarCompensator](./network_subnetwork.md#static-var-compensator)     | X       | X              | X                          |                                 |
 | [VscConverterStation](./network_subnetwork.md#vsc-converter-station)       | X       | X (*)          |                            |                                 |
@@ -428,6 +428,8 @@ Here the list of objects capable of such regulation by authorized mode:
 | $Regulating$     |             | True if the equipment is regulating, false otherwise                                                                                   |
 
 **Specifications**
+
+TODO MSA add information when the voltageRegulation is absent
 
 The values `Regulating` and `Mode` are always required. `TargetValue` is required when the `Terminal` is set.
 

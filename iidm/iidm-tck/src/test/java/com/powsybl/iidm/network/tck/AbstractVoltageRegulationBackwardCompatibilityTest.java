@@ -14,11 +14,14 @@ import com.powsybl.iidm.network.DcNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.VoltageSourceConverterAdder;
@@ -196,8 +199,57 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     @Test
     void testRatioTapChanger() {
         // GIVEN
+        int targetValue = 120;
+        int targetV = 220;
+        double targetDeadband = 5.0;
+
+        TwoWindingsTransformer t2wt = network.getSubstation("P1").newTwoWindingsTransformer()
+            .setId("twoWindingsTransformer_backwardCompatibility")
+            .setVoltageLevel1("VLGEN")
+            .setVoltageLevel2("VLGEN")
+            .setConnectableBus1("NGEN")
+            .setConnectableBus2("NGEN")
+            .setR(2)
+            .setX(1)
+            .add();
+        Terminal terminalLeg1 = t2wt.getTerminal1();
+        RatioTapChangerAdder adder = t2wt.newRatioTapChanger()
+            .setTapPosition(0)
+            .beginStep().setRho(1).endStep()
+            .setLoadTapChangingCapabilities(true)
+            .setRegulating(true)
+            .setRegulationMode(RegulationMode.REACTIVE_POWER)
+            .setTargetDeadband(targetDeadband)
+            .setTargetV(targetV)
+            .setRegulationValue(targetValue)
+            .setRegulationTerminal(terminalLeg1);
         // WHEN
+        RatioTapChanger ratioTapChanger = adder.add();
         // THEN
+        assertNotNull(ratioTapChanger);
+        VoltageRegulationAttributesToCheck expectedAttributes = new VoltageRegulationAttributesToCheck(
+            Double.NaN,
+            Double.NaN,
+            targetValue,
+            targetDeadband,
+            Double.NaN,
+            RegulationMode.VOLTAGE,
+            true,
+            terminalLeg1);
+        checkVoltageRegulationAttributes(expectedAttributes, ratioTapChanger);
+
+        assertNull(ratioTapChanger.getTerminal());
+        assertEquals(terminalLeg1, ratioTapChanger.getRegulatingTerminal());
+
+        assertEquals(Double.NaN, ratioTapChanger.getLocalTargetV());
+        assertEquals(targetValue, ratioTapChanger.getTargetV());
+        assertEquals(targetValue, ratioTapChanger.getRegulatingTargetV());
+        assertEquals(targetValue, ratioTapChanger.getVoltageRegulation().getTargetValue());
+
+        assertEquals(Double.NaN, ratioTapChanger.getLocalTargetQ());
+        assertEquals(Double.NaN, ratioTapChanger.getRegulatingTargetQ());
+
+        assertTrue(ratioTapChanger.isRegulating());
     }
 
     @Test

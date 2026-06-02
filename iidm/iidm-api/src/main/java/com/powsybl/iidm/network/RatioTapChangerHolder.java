@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+
 import java.util.Optional;
 
 /**
@@ -26,16 +28,19 @@ public interface RatioTapChangerHolder {
      * transformer, initialized with the values of an existing ratio tap changer.
      */
     default RatioTapChangerAdder newRatioTapChanger(RatioTapChanger ratioTapChanger) {
+        VoltageRegulation voltageRegulation = ratioTapChanger.getVoltageRegulation();
         RatioTapChangerAdder adder = this.newRatioTapChanger()
-                .setRegulationTerminal(ratioTapChanger.getRegulationTerminal())
-                .setRegulationMode(ratioTapChanger.getRegulationMode())
-                .setRegulationValue(ratioTapChanger.getRegulationValue())
                 .setLoadTapChangingCapabilities(ratioTapChanger.hasLoadTapChangingCapabilities())
-                .setTargetV(ratioTapChanger.getTargetV())
                 .setLowTapPosition(ratioTapChanger.getLowTapPosition())
                 .setTapPosition(ratioTapChanger.getTapPosition())
-                .setRegulating(ratioTapChanger.isRegulating())
-                .setTargetDeadband(ratioTapChanger.getTargetDeadband());
+                .newVoltageRegulation()
+                    .withMode(voltageRegulation.getMode())
+                    .withTargetValue(voltageRegulation.getTargetValue())
+                    .withTerminal(voltageRegulation.getTerminal())
+                    .withRegulating(voltageRegulation.isRegulating())
+                    .withTargetDeadband(voltageRegulation.getTargetDeadband())
+                    .withSlope(voltageRegulation.getSlope())
+                    .add();
         for (int tapPosition = ratioTapChanger.getLowTapPosition(); tapPosition <= ratioTapChanger.getHighTapPosition(); tapPosition++) {
             RatioTapChangerStep step = ratioTapChanger.getStep(tapPosition);
             adder.beginStep()

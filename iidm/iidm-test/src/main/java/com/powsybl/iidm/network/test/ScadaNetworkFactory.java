@@ -172,7 +172,6 @@ public final class ScadaNetworkFactory {
                 .setVoltageLevel(vl3.getId())
                 .add().add();
         t3wt.getLeg1().newRatioTapChanger()
-                .setRegulating(true)
                 .beginStep()
                 .setRho(1.0)
                 .setR(1.0)
@@ -206,7 +205,6 @@ public final class ScadaNetworkFactory {
                 .setVoltageLevel2(vl2.getId())
                 .add();
         t2wt.newRatioTapChanger()
-                .setRegulating(true)
                 .beginStep()
                 .setRho(1.0)
                 .setR(1.0)

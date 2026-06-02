@@ -389,7 +389,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     private void attachVoltageRegulation() {
         getOptionalVoltageRegulation().ifPresent(vr -> {
             vr.updateValidable(this);
-            vr.setParent(this);
+            vr.setHolder(this);
         });
     }
 }

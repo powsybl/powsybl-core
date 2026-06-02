@@ -211,6 +211,7 @@ public interface TapChanger<
      * Depends on the working variant.
      * @see VariantManager
      */
+    // TODO MSA move to phase and ratio tapChanger and add @Deprecated to the ratioTapChanger one
     default double getTargetDeadband() {
         throw new UnsupportedOperationException();
     }

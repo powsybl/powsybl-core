@@ -742,11 +742,13 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(225.0)
-            .setTargetDeadband(0)
-            .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
+            .newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(225.0)
+                .withTargetDeadband(0)
+                .withTerminal(twt.getTerminal(TwoSides.ONE))
+                .add()
             .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);
@@ -804,11 +806,13 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(110.0)
-            .setTargetDeadband(0)
-            .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
+            .newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(110.0)
+                .withTargetDeadband(0)
+                .withTerminal(twt.getTerminal(TwoSides.ONE))
+                .add()
             .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);
@@ -867,11 +871,13 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(225.0)
-            .setTargetDeadband(0)
-            .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
+            .newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(225.0)
+                .withTargetDeadband(0)
+                .withTerminal(twt.getTerminal(TwoSides.ONE))
+                .add()
             .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);

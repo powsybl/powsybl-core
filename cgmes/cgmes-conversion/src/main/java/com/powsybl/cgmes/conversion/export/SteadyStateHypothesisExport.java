@@ -536,12 +536,13 @@ public final class SteadyStateHypothesisExport {
                     case RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER -> "M";
                     default -> "none";
                 };
+                double regulationValue = ratioTapChanger.getVoltageRegulation() != null ? ratioTapChanger.getVoltageRegulation().getTargetValue() : Double.NaN;
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
                         ratioTapChanger.isRegulating(),
                         ratioTapChanger.getTargetDeadband(),
-                        ratioTapChanger.getRegulationValue(),
+                        regulationValue,
                         unitMultiplier);
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
                     && tapChangerControlIsDefined(phaseTapChanger)) {

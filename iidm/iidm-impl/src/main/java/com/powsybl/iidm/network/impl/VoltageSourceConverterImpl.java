@@ -261,7 +261,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     private void attachVoltageRegulation() {
         getOptionalVoltageRegulation().ifPresent(vr -> {
             vr.updateValidable(this);
-            vr.setParent(this);
+            vr.setHolder(this);
         });
     }
 }

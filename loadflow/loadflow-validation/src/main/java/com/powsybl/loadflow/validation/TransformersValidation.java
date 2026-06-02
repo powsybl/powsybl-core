@@ -80,7 +80,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
         double rho = ratioTapChanger.getCurrentStep().getRho();
         double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition - 1).getRho();
         double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition + 1).getRho();
-        double targetV = ratioTapChanger.getTargetV();
+        double targetV = ratioTapChanger.getRegulatingTargetV();
         TwoSides regulatedSide;
         if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {
             regulatedSide = TwoSides.ONE;

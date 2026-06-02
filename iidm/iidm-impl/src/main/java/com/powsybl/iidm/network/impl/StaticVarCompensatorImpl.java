@@ -266,7 +266,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     private void attachVoltageRegulation() {
         getOptionalVoltageRegulation().ifPresent(vr -> {
             vr.updateValidable(this);
-            vr.setParent(this);
+            vr.setHolder(this);
         });
     }
 

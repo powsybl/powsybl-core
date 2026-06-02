@@ -24,7 +24,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     private Validable validable;
-    private VoltageRegulationHolder parent;
+    private VoltageRegulationHolder holder;
     private final Class<? extends VoltageRegulationHolder> classHolder;
     private TerminalExt terminal;
     private final RegulationMode mode;
@@ -36,7 +36,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     private final TBooleanArrayList regulating;
 
     public VoltageRegulationImpl(Validable validable,
-                                 VoltageRegulationHolder parent,
+                                 VoltageRegulationHolder holder,
                                  Class<? extends VoltageRegulationHolder> classHolder,
                                  Ref<NetworkImpl> network,
                                  double targetValue,
@@ -46,7 +46,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                                  RegulationMode mode,
                                  boolean regulating) {
         this.validable = validable;
-        this.parent = parent;
+        this.holder = holder;
         this.classHolder = classHolder;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -156,12 +156,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             // ShuntCompensator regulating only on the Voltage
             if (classHolder == ShuntCompensator.class) {
                 if (regulating) {
-                    ValidationUtil.checkNotNanValue(validable, this.parent.getLocalTargetV(), "localTargetV", null);
-                    ValidationUtil.checkDoublePositive(validable, this.parent.getLocalTargetV(), "localTargetV");
+                    ValidationUtil.checkNotNanValue(validable, this.holder.getLocalTargetV(), "localTargetV", null);
+                    ValidationUtil.checkDoublePositive(validable, this.holder.getLocalTargetV(), "localTargetV");
                 }
                 // StaticVarCompensator ignore localTarget V and Q when regulating false
             } else if (classHolder != StaticVarCompensator.class || regulating) {
-                ValidationUtil.checkLocalTargetQandV(validable, this.parent.getLocalTargetV(), this.parent.getLocalTargetQ(), false, regulating, mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+                ValidationUtil.checkLocalTargetQandV(validable, this.holder.getLocalTargetV(), this.holder.getLocalTargetQ(), false, regulating, mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
             }
         }
         // In any case we will check the voltageRegulation object
@@ -173,7 +173,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     public void removeTerminal() {
         // No exception on ShuntCompensator case
         if (classHolder != ShuntCompensator.class) {
-            ValidationUtil.checkLocalTargetQandV(validable, this.parent.getLocalTargetV(), this.parent.getLocalTargetQ(), false, isRegulating(), mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+            ValidationUtil.checkLocalTargetQandV(validable, this.holder.getLocalTargetV(), this.holder.getLocalTargetQ(), false, isRegulating(), mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         }
         this.updateTerminal(null);
         this.setTargetValue(Double.NaN);
@@ -241,8 +241,8 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     @Override
-    public void setParent(VoltageRegulationHolder parent) {
-        this.parent = parent;
+    public void setHolder(VoltageRegulationHolder holder) {
+        this.holder = holder;
     }
 
     @Override

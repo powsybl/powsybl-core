@@ -338,7 +338,7 @@ public final class CgmesExportUtil {
     }
 
     static boolean tapChangerControlIsDefined(RatioTapChanger rtc) {
-        return !Double.isNaN(rtc.getRegulationValue())
+        return rtc.getVoltageRegulation() != null && !Double.isNaN(rtc.getVoltageRegulation().getTargetValue())
                 && rtc.getRegulationTerminal() != null;
     }
 
@@ -564,12 +564,13 @@ public final class CgmesExportUtil {
     }
 
     public static String getTcMode(RatioTapChanger rtc) {
-        if (rtc.getRegulationMode() == null) {
+        if (rtc.getVoltageRegulation() == null || rtc.getVoltageRegulation().getMode() == null) {
             throw new PowsyblException("Regulation mode not defined for RTC.");
         }
-        return switch (rtc.getRegulationMode()) {
+        return switch (rtc.getVoltageRegulation().getMode()) {
             case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            default -> throw new PowsyblException("Regulation mode not defined for RTC.");
         };
     }
 
