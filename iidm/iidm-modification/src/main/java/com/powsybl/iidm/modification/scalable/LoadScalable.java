@@ -172,31 +172,29 @@ public class LoadScalable extends AbstractInjectionScalable {
         // If the absolute value of the initial power factor is below the configured minimal power factor,
         //  the reactive power setpoint will be recalculated according to the scaled active power and the minimal power factor
         // Otherwise, the reactive power setpoint will be scaled with the active power while maintaining the initial power factor
-        double limitedQ = applyPowerFactorLimit(parameters, l, oldQ, oldP, newP);
+        double limitedQ = applyPowerFactorLimit(parameters, oldQ, oldP, newP);
         // Limit 2: apply rate limits relative to the initial Q (from ScalingParameters)
         // Q_scaled must stay in [Q_initial * minQRate, Q_initial * maxQRate]
-        limitedQ = applyRelativeQRateLimits(parameters, l, oldQ, limitedQ);
+        limitedQ = applyRelativeQRateLimits(parameters, oldQ, limitedQ);
         setQ0(l, limitedQ);
         LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
                 l.getId(), oldQ, limitedQ);
     }
 
-    private static double applyPowerFactorLimit(ScalingParameters parameters, Load l, double oldQ, double oldP, double newP) {
+    private static double applyPowerFactorLimit(ScalingParameters parameters, double oldQ, double oldP, double newP) {
         double minPowerFactor = parameters.getLoadMinPowerFactor();
         double newQ = newP * oldQ / oldP;
         if (minPowerFactor == 0) {
             return newQ;
         }
         double cosphiInitial = Math.cos(Math.atan(oldQ / oldP));
-        if (minPowerFactor > cosphiInitial) {
-            double limitedQ = Math.copySign(Math.tan(Math.acos(minPowerFactor)) * newP, newQ);
-            logReactivePowerLimitation(l, "minimum power factor", newQ, limitedQ, "minPowerFactor=" + minPowerFactor);
-            return limitedQ;
+        if (minPowerFactor < cosphiInitial) {
+            return newQ;
         }
-        return newQ;
+        return Math.copySign(Math.tan(Math.acos(minPowerFactor)) * newP, newQ);
     }
 
-    private static double applyRelativeQRateLimits(ScalingParameters parameters, Load load, double oldQ, double newQ) {
+    private static double applyRelativeQRateLimits(ScalingParameters parameters, double oldQ, double newQ) {
         double limitedQ = newQ;
         if (parameters.getLoadMinQRate().isPresent()) {
             double minRate = parameters.getLoadMinQRate().getAsDouble();
@@ -206,7 +204,6 @@ public class LoadScalable extends AbstractInjectionScalable {
             } else {
                 limitedQ = Math.min(limitedQ, minQ); // floor: prevent Q from becoming less negative than minQ
             }
-            logReactivePowerLimitation(load, "minimum Q rate", newQ, limitedQ, "minQRate=" + minRate);
         }
         if (parameters.getLoadMaxQRate().isPresent()) {
             double maxRate = parameters.getLoadMaxQRate().getAsDouble();
@@ -216,17 +213,8 @@ public class LoadScalable extends AbstractInjectionScalable {
             } else {
                 limitedQ = Math.max(limitedQ, maxQ); // ceiling: prevent Q from becoming more negative than maxQ
             }
-            logReactivePowerLimitation(load, "maximum Q rate", newQ, limitedQ, "maxQRate=" + maxRate);
         }
         return limitedQ;
-    }
-
-    private static void logReactivePowerLimitation(Load load, String constraint, double originalQ, double constrainedQ, String details) {
-        if (originalQ == constrainedQ) {
-            return;
-        }
-        LOGGER.info("Reactive power of {} limited by {}: from {} to {} ({})",
-                load.getId(), constraint, originalQ, constrainedQ, details);
     }
 
     @Override
