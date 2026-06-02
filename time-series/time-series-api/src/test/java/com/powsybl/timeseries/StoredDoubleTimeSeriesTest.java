@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static java.lang.Float.NaN;
+import static java.lang.Double.NaN;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -433,10 +433,10 @@ class StoredDoubleTimeSeriesTest {
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, tsArray1, 0d);
         assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, tsArray2, 0d);
 
-        double originalAt3 = valueAtGlobalIndex(timeSeries, 3);
+        double originalAt3 = timeSeries.get(3);
         assertEquals(4.0, originalAt3, 0d);
 
-        double splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        double splitAt3 = chunks.get(0).get(3);
         assertEquals(4.0, splitAt3, 0d);
         assertEquals(originalAt3, splitAt3, 0d);
     }
@@ -462,10 +462,10 @@ class StoredDoubleTimeSeriesTest {
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, tsCompactArray1, 0d);
         assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, tsCompactArray2, 0d);
 
-        double originalAt3 = valueAtGlobalIndex(timeSeries, 3);
+        double originalAt3 = timeSeries.get(3);
         assertEquals(4.0, originalAt3, 0d);
 
-        double splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        double splitAt3 = chunks.get(0).get(3);
         assertEquals(4.0, splitAt3, 0d);
         assertEquals(originalAt3, splitAt3, 0d);
     }
@@ -480,14 +480,6 @@ class StoredDoubleTimeSeriesTest {
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d, NaN}, timeSeries.toArray());
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
-    }
-
-    private static double valueAtGlobalIndex(DoubleTimeSeries ts, int index) {
-        return ts.compressedStream()
-                .filter(p -> p.getIndex() == index)
-                .mapToDouble(DoublePoint::getValue)
-                .findFirst()
-                .orElse(NaN);
     }
 
 }

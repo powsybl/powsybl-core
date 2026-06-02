@@ -63,4 +63,13 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
         return buffer.toArray();
     }
+
+    public String get(int index) {
+        return compressedStream()
+                .filter(p -> p.getIndex() == index)
+                .map(StringPoint::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
 }

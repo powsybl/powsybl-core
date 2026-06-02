@@ -30,6 +30,14 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
         return toArray();
     }
 
+    default double get(int index) {
+        return compressedStream()
+                .filter(p -> p.getIndex() == index)
+                .mapToDouble(DoublePoint::getValue)
+                .findFirst()
+                .orElse(Double.NaN);
+    }
+
     static Iterator<DoubleMultiPoint> iterator(List<DoubleTimeSeries> timeSeriesList) {
         return iterator(timeSeriesList, DoubleTimeSeries::iterator);
     }

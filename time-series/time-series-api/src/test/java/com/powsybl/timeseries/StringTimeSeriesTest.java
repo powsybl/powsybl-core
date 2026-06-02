@@ -193,10 +193,10 @@ class StringTimeSeriesTest {
         assertArrayEquals(new String[]{"a", "b", "c", "d", null, null, null, null}, tsArray1);
         assertArrayEquals(new String[]{null, null, null, null, "e", "f", "g", "h"}, tsArray2);
 
-        String originalAt3 = valueAtGlobalIndex(timeSeries, 3);
+        String originalAt3 = timeSeries.get(3);
         assertEquals("d", originalAt3);
 
-        String splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        String splitAt3 = chunks.get(0).get(3);
         assertEquals("d", splitAt3);
         assertEquals(originalAt3, splitAt3);
     }
@@ -222,10 +222,10 @@ class StringTimeSeriesTest {
         assertArrayEquals(new String[]{"a", "b", "c", "d"}, tsArray1);
         assertArrayEquals(new String[]{"e", "f", "g", "h"}, tsArray2);
 
-        String originalAt3 = valueAtGlobalIndex(timeSeries, 3);
+        String originalAt3 = timeSeries.get(3);
         assertEquals("d", originalAt3);
 
-        String splitAt3 = valueAtGlobalIndex(chunks.get(0), 3);
+        String splitAt3 = chunks.get(0).get(3);
         assertEquals("d", splitAt3);
         assertEquals(originalAt3, splitAt3);
     }
@@ -240,14 +240,6 @@ class StringTimeSeriesTest {
         StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk1, chunk2);
         assertArrayEquals(new String[] {"a", "b", "c", null, null, null, "g", "h", null}, timeSeries.toArray());
         assertArrayEquals(new String[] {"a", "b", "c", null, null, null, "g", "h"}, timeSeries.toCompactArray());
-    }
-
-    private static String valueAtGlobalIndex(StringTimeSeries ts, int index) {
-        return ts.compressedStream()
-                .filter(p -> p.getIndex() == index)
-                .map(StringPoint::getValue)
-                .findFirst()
-                .orElse(null);
     }
 
 }

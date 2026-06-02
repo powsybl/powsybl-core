@@ -8,6 +8,7 @@
 package com.powsybl.timeseries;
 
 import java.nio.DoubleBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -66,12 +67,11 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         }
         int minOffset = getMinOffset();
         int compactLength = getMaxChunkEnd() - minOffset;
-        DoubleBuffer buffer = DoubleBuffer.allocate(compactLength);
-        for (int i = 0; i < compactLength; i++) {
-            buffer.put(i, Double.NaN);
-        }
-        fillBuffer(buffer, -minOffset);
-        return buffer.array();
+        double[] array = new double[compactLength];
+        Arrays.fill(array, Double.NaN);
+        DoubleBuffer buffer = DoubleBuffer.wrap(array);
+        chunks.forEach(chunk -> chunk.fillBuffer(buffer, -minOffset));
+        return array;
     }
 
 }
