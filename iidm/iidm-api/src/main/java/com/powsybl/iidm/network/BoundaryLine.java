@@ -108,6 +108,14 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The boundary line's pairing key</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">PairingSide</td>
+ *             <td style="border: 1px solid black">PairingSide</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The boundary line's pairing side, used with the pairing key to pair two boundary lines into a tie line</td>
+ *         </tr>
  *     </tbody>
  * </table>
  *
@@ -285,6 +293,14 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
      * throw exception otherwise.
      */
     BoundaryLine setPairingKey(String pairingKey);
+
+    /**
+     * Get the pairing side of this boundary line, used together with the pairing key to pair two
+     * boundary lines into a tie line. Return null if not defined.
+     */
+    PairingSide getPairingSide();
+
+    BoundaryLine setPairingSide(PairingSide pairingSide);
 
     Boundary getBoundary();
 

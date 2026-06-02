@@ -1336,6 +1336,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private void pairBoundaryLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byPairingKey) {
         if (dl1 != null) {
+            normalizePairingSides(dl1, dl2);
             if (dl1.getPairingKey() != null) {
                 dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
             }
@@ -1359,6 +1360,20 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
                 l.dl1Id = l.dl2Id;
                 l.dl2Id = tmp;
             }
+        }
+    }
+
+    /**
+     * When pairing two boundary lines during a merge, if exactly one of them has no pairing side, assign it the side
+     * opposite to the other one, so that the resulting pair always has consistent, opposite pairing sides.
+     */
+    private static void normalizePairingSides(BoundaryLine dl1, BoundaryLine dl2) {
+        PairingSide side1 = dl1.getPairingSide();
+        PairingSide side2 = dl2.getPairingSide();
+        if (side1 == null && side2 != null && !dl1.isPaired()) {
+            dl1.setPairingSide(side2.getOppositeSide());
+        } else if (side2 == null && side1 != null && !dl2.isPaired()) {
+            dl2.setPairingSide(side1.getOppositeSide());
         }
     }
 

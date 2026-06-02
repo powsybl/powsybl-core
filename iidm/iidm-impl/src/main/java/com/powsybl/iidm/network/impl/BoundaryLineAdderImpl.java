@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BoundaryLineAdder;
+import com.powsybl.iidm.network.PairingSide;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
@@ -31,6 +32,8 @@ class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl
     private double b = 0.0;
 
     private String pairingKey;
+
+    private PairingSide pairingSide;
 
     private GenerationAdderImpl generationAdder;
 
@@ -90,6 +93,12 @@ class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl
     }
 
     @Override
+    public BoundaryLineAdder setPairingSide(PairingSide pairingSide) {
+        this.pairingSide = pairingSide;
+        return this;
+    }
+
+    @Override
     public GenerationAdder newGeneration() {
         return new GenerationAdderImpl(this);
     }
@@ -112,7 +121,7 @@ class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl
             generation = generationAdder.build();
         }
 
-        BoundaryLineImpl boundaryLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
+        BoundaryLineImpl boundaryLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, pairingSide, generation);
         boundaryLine.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(boundaryLine);

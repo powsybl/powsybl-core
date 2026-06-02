@@ -43,6 +43,8 @@ public interface BoundaryLineAdder extends InjectionAdder<BoundaryLine, Boundary
 
     BoundaryLineAdder setPairingKey(String pairingKey);
 
+    BoundaryLineAdder setPairingSide(PairingSide pairingSide);
+
     default GenerationAdder newGeneration() {
         throw new UnsupportedOperationException();
     }

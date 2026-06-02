@@ -250,6 +250,8 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     private String pairingKey;
 
+    private PairingSide pairingSide;
+
     private final GenerationImpl generation;
 
     private final OperationalLimitsGroupsImpl operationalLimitsGroups;
@@ -261,7 +263,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     private final BoundaryLineBoundaryImplExt boundary;
 
-    BoundaryLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
+    BoundaryLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, PairingSide pairingSide, GenerationImpl generation) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -276,6 +278,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         this.g = g;
         this.b = b;
         this.pairingKey = pairingKey;
+        this.pairingSide = pairingSide;
         this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new BoundaryLineBoundaryImplExt(this);
         this.generation = generation != null ? generation.attach(this) : null;
@@ -427,6 +430,21 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
             String oldValue = this.pairingKey;
             this.pairingKey = pairingKey;
             notifyUpdate("pairing_key", oldValue, pairingKey);
+        }
+        return this;
+    }
+
+    @Override
+    public PairingSide getPairingSide() { return pairingSide; }
+
+    @Override
+    public BoundaryLine setPairingSide(PairingSide pairingSide) {
+        if (this.isPaired()) {
+            throw new ValidationException(this, "pairing side cannot be set if boundary line is paired.");
+        } else {
+            PairingSide oldValue = this.pairingSide;
+            this.pairingSide = pairingSide;
+            notifyUpdate("pairing_side", oldValue, pairingSide);
         }
         return this;
     }

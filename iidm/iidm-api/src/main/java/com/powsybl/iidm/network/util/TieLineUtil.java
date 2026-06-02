@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -164,9 +163,11 @@ public final class TieLineUtil {
      * <li>the only disconnected boundary line of pairing key 'k', if no connected boundary line of pairing key 'k' exists.</li>
      * <li>no boundary line at all</li>
      * </b>
+     * <p>Candidates are selected independently for each pairing side: two boundary lines sharing a pairing key but
+     * located on different pairing sides are the two halves of a tie line, not concurrent candidates.</p>
      * @param network a network
      * @param logPairingKey a Predicate indicating if we want to log a warning when several boundary lines are found for the same pairing key.
-     * @return The list of the boundary lines which are candidate to become tie lines (one or zero by pairing key)
+     * @return The list of the boundary lines which are candidate to become tie lines (one or zero per pairing key and per pairing side)
      */
     public static List<BoundaryLine> findCandidateBoundaryLines(Network network, Predicate<String> logPairingKey) {
         Objects.requireNonNull(network);
@@ -174,43 +175,68 @@ public final class TieLineUtil {
 
         List<BoundaryLine> candidates = new ArrayList<>();
         Set<String> pairingKeys = new HashSet<>();
-        Map<String, List<BoundaryLine>> connectedByPairingKey = new HashMap<>();
-        Map<String, List<BoundaryLine>> disconnectedByPairingKey = new HashMap<>();
 
-        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(dl -> {
-            String pairingKey = dl.getPairingKey();
-            Map<String, List<BoundaryLine>> mapToUpdate = dl.getTerminal().isConnected() ? connectedByPairingKey : disconnectedByPairingKey;
-            mapToUpdate.computeIfAbsent(pairingKey, k -> new ArrayList<>()).add(dl);
+        Map<String, Map<PairingSide, List<BoundaryLine>>> connectedByKeyAndSide = new HashMap<>();
+        Map<String, Map<PairingSide, List<BoundaryLine>>> disconnectedByKeyAndSide = new HashMap<>();
+
+        network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).forEach(bl -> {
+            String pairingKey = bl.getPairingKey();
+            Map<String, Map<PairingSide, List<BoundaryLine>>> mapToUpdate = bl.getTerminal().isConnected() ? connectedByKeyAndSide : disconnectedByKeyAndSide;
+            mapToUpdate.computeIfAbsent(pairingKey, k -> new HashMap<>())
+                    .computeIfAbsent(bl.getPairingSide(), s -> new ArrayList<>())
+                    .add(bl);
             pairingKeys.add(pairingKey);
         });
 
         for (String pairingKey : pairingKeys) {
             boolean doLog = logPairingKey.test(pairingKey);
-            List<BoundaryLine> connected = Optional.ofNullable(connectedByPairingKey.get(pairingKey)).orElse(Collections.emptyList());
-            List<BoundaryLine> disconnected = Optional.ofNullable(disconnectedByPairingKey.get(pairingKey)).orElse(Collections.emptyList());
-            if (connected.isEmpty()) {
-                BoundaryLine dl = disconnected.get(0); // Cannot be empty here: we always have at least 1 connected or disconnected boundary line
-                if (disconnected.size() == 1) {
-                    candidates.add(dl);
-                } else if (doLog) {
-                    LOGGER.warn("Several disconnected boundary lines {} (and no connected one) of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                            disconnected.stream().map(BoundaryLine::getId).toList(), pairingKey);
+            Map<PairingSide, List<BoundaryLine>> connectedBySide = connectedByKeyAndSide.getOrDefault(pairingKey, Collections.emptyMap());
+            Map<PairingSide, List<BoundaryLine>> disconnectedBySide = disconnectedByKeyAndSide.getOrDefault(pairingKey, Collections.emptyMap());
+            Set<PairingSide> sides = new HashSet<>(connectedBySide.keySet());
+            sides.addAll(disconnectedBySide.keySet());
+            for (PairingSide side : sides) {
+                BoundaryLine bl = chooseBoundaryLine(pairingKey,
+                        connectedBySide.getOrDefault(side, Collections.emptyList()),
+                        disconnectedBySide.getOrDefault(side, Collections.emptyList()),
+                        doLog);
+                if (bl != null) {
+                    candidates.add(bl);
                 }
-            } else if (connected.size() == 1) {
-                BoundaryLine dl = connected.get(0);
-                candidates.add(dl);
-                if (!disconnected.isEmpty() && doLog) {
-                    LOGGER.warn("Several boundary lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                    "Only '{}' is considered (the only connected one)",
-                            Stream.concat(Stream.of(dl.getId()), disconnected.stream().map(BoundaryLine::getId)).collect(Collectors.toList()),
-                            pairingKey, dl.getId());
-                }
-            } else if (doLog) {
-                LOGGER.warn("Several connected boundary lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                        connected.stream().map(BoundaryLine::getId).toList(), pairingKey);
             }
         }
         return candidates;
+    }
+
+    /**
+     * Choose at most one candidate boundary line among the connected and disconnected boundary lines sharing the same
+     * pairing key <b>and</b> the same pairing side, following the rule:
+     * <li>exactly one connected: the connected one is selected (even if disconnected siblings exist);</li>
+     * <li>no connected and exactly one disconnected: the disconnected one is selected;</li>
+     * <li>otherwise (several connected, or no connected and several disconnected): no candidate (ambiguity).</li>
+     */
+    private static BoundaryLine chooseBoundaryLine(String pairingKey, List<BoundaryLine> connected, List<BoundaryLine> disconnected, boolean doLog) {
+        // Exactly one connected wins, even if disconnected siblings exist on the same side
+        if (connected.size() == 1) {
+            if (!disconnected.isEmpty() && doLog) {
+                LOGGER.warn("Several boundary lines {} are candidate for pairing key '{}'. " +
+                                "Only '{}' is considered (the only connected one).",
+                        Stream.concat(connected.stream(), disconnected.stream()).map(BoundaryLine::getId).toList(),
+                        pairingKey, connected.getFirst().getId());
+            }
+            return connected.getFirst();
+        }
+        // No connected, exactly one disconnected
+        if (connected.isEmpty() && disconnected.size() == 1) {
+            return disconnected.getFirst();
+        }
+        // Real ambiguity on this pairing side: several connected, or no connected and several disconnected
+        if (doLog && !(connected.isEmpty() && disconnected.isEmpty())) {
+            String status = connected.size() > 1 ? "connected" : "disconnected";
+            List<String> ambiguousIds = (connected.size() > 1 ? connected : disconnected).stream().map(BoundaryLine::getId).toList();
+            LOGGER.warn("Several {} boundary lines {} are candidate for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
+                    status, ambiguousIds, pairingKey);
+        }
+        return null;
     }
 
     /**
@@ -233,43 +259,52 @@ public final class TieLineUtil {
         Objects.requireNonNull(associateBoundaryLines);
         // mapping by pairing key
         if (candidateBoundaryLine.getPairingKey() != null) { // if pairing key null: no associated boundary line
-            // If we call this method on the results of "findCandidateBoundaryLines", the following test is useless
+            PairingSide candidateSide = candidateBoundaryLine.getPairingSide();
+            // If we call this method on the results of "findCandidateBoundaryLines", the following test is useless.
             if (candidateBoundaryLine.getNetwork().getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
-                    .filter(d -> d != candidateBoundaryLine)
-                    .filter(d -> candidateBoundaryLine.getPairingKey().equals(d.getPairingKey()))
-                    .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected boundary line with same pairing key in the network to be merged
+                    .filter(b -> b != candidateBoundaryLine)
+                    .filter(b -> candidateBoundaryLine.getPairingKey().equals(b.getPairingKey()))
+                    .filter(b -> Objects.equals(candidateSide, b.getPairingSide()))
+                    .anyMatch(b -> b.getTerminal().isConnected())) { // check that there is no connected boundary line with same pairing key and side in the network to be merged
                 return;                                         // in that case, do nothing
             }
-            List<BoundaryLine> dls = getBoundaryLinesByPairingKey.apply(candidateBoundaryLine.getPairingKey());
-            if (dls != null) {
-                if (dls.size() == 1) { // if there is exactly one boundary line in the merging network, merge it
-                    associateBoundaryLines.accept(dls.get(0), candidateBoundaryLine);
+            List<BoundaryLine> bls = getBoundaryLinesByPairingKey.apply(candidateBoundaryLine.getPairingKey());
+            if (bls != null) {
+                List<BoundaryLine> compatibleBls = bls.stream()
+                        .filter(b -> arePairingSidesCompatible(candidateSide, b.getPairingSide()))
+                        .toList();
+                if (compatibleBls.size() == 1) { // if there is exactly one boundary line in the merging network, merge it
+                    associateBoundaryLines.accept(compatibleBls.getFirst(), candidateBoundaryLine);
                 }
-                if (dls.size() > 1) { // if more than one boundary line in the merging network, check how many are connected
-                    associateConnectedBoundaryLine(candidateBoundaryLine, dls, associateBoundaryLines);
+                if (compatibleBls.size() > 1) { // if more than one boundary line in the merging network, check how many are connected
+                    associateConnectedBoundaryLine(candidateBoundaryLine, compatibleBls, associateBoundaryLines);
                 }
             }
         }
 
     }
 
-    private static void associateConnectedBoundaryLine(BoundaryLine candidateBoundaryLine, List<BoundaryLine> dls,
+    private static boolean arePairingSidesCompatible(PairingSide side1, PairingSide side2) {
+        return side2 == null || side1 != side2;
+    }
+
+    private static void associateConnectedBoundaryLine(BoundaryLine candidateBoundaryLine, List<BoundaryLine> bls,
                                                        BiConsumer<BoundaryLine, BoundaryLine> associateBoundaryLines) {
         // Connected BoundaryLines
-        List<BoundaryLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).toList();
+        List<BoundaryLine> connectedBls = bls.stream().filter(bl -> bl.getTerminal().isConnected()).toList();
 
         // If there is exactly one connected boundary line in the merging network, merge it. Otherwise, do nothing
-        if (connectedDls.size() == 1) {
+        if (connectedBls.size() == 1) {
             LOGGER.warn("Several boundary lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
                     "Tie line automatically created using the only connected one '{}'.",
-                dls.stream().map(BoundaryLine::getId).toList(), connectedDls.get(0).getPairingKey(),
-                connectedDls.get(0).getId());
-            associateBoundaryLines.accept(connectedDls.get(0), candidateBoundaryLine);
+                bls.stream().map(BoundaryLine::getId).toList(), connectedBls.getFirst().getPairingKey(),
+                connectedBls.getFirst().getId());
+            associateBoundaryLines.accept(connectedBls.getFirst(), candidateBoundaryLine);
         } else {
-            String status = connectedDls.size() > 1 ? "connected" : "disconnected";
+            String status = connectedBls.size() > 1 ? "connected" : "disconnected";
             LOGGER.warn("Several {} boundary lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                status, connectedDls.stream().map(BoundaryLine::getId).toList(),
-                connectedDls.get(0).getPairingKey());
+                status, connectedBls.stream().map(BoundaryLine::getId).toList(),
+                connectedBls.getFirst().getPairingKey());
         }
     }
 
