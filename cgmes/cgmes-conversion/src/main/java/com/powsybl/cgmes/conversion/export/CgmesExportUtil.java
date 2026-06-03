@@ -539,7 +539,7 @@ public final class CgmesExportUtil {
             return switch (generator.getVoltageRegulation().getMode()) {
                 case REACTIVE_POWER ->
                     RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-                case VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER ->
+                case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER ->
                     RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
             };
         }
