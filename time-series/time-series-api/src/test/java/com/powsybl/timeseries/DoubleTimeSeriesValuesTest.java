@@ -14,8 +14,7 @@ import java.time.Duration;
 import java.util.List;
 
 import static java.lang.Double.NaN;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
@@ -60,5 +59,14 @@ class DoubleTimeSeriesValuesTest {
         assertEquals(expectedAtIndex1, timeSeries.get(1), 0d);
         assertEquals(expectedAtIndex5, timeSeries.get(5), 0d);
         assertEquals(expectedAtIndex6, timeSeries.get(6), 0d);
+    }
+
+    @Test
+    void testEqualsAndToString() {
+        DoubleTimeSeriesValues timeSeriesValues1 = new DoubleTimeSeriesValues(new double[] {1d, 2d}, 3);
+        DoubleTimeSeriesValues timeSeriesValues2 = new DoubleTimeSeriesValues(new double[] {1d, 2d}, 3);
+        assertEquals(timeSeriesValues1, timeSeriesValues2);
+        assertEquals(timeSeriesValues1.hashCode(), timeSeriesValues2.hashCode());
+        assertEquals("DoubleTimeSeriesValues{values=[1.0, 2.0], offset=3}", timeSeriesValues2.toString());
     }
 }

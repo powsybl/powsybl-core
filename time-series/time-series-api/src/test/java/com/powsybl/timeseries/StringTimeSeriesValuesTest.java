@@ -38,6 +38,15 @@ class StringTimeSeriesValuesTest {
         assertTimeSerie(timeSeries2, null, "f", "g");
     }
 
+    @Test
+    void testEqualsAndToString() {
+        StringTimeSeriesValues timeSeriesValues1 = new StringTimeSeriesValues(new String[] {"A", "B"}, 3);
+        StringTimeSeriesValues timeSeriesValues2 = new StringTimeSeriesValues(new String[] {"A", "B"}, 3);
+        assertEquals(timeSeriesValues1, timeSeriesValues2);
+        assertEquals(timeSeriesValues1.hashCode(), timeSeriesValues2.hashCode());
+        assertEquals("StringTimeSeriesValues{values=[A, B], offset=3}", timeSeriesValues2.toString());
+    }
+
     private static void assertTimeSerie(StringTimeSeries timeSeries, String expectedAtIndex1, String expectedAtIndex5, String expectedAtIndex6) {
         assertEquals(expectedAtIndex1, timeSeries.get(1));
         assertEquals(expectedAtIndex5, timeSeries.get(5));
