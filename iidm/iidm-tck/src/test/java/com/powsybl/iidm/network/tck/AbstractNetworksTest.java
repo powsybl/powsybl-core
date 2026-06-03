@@ -8,10 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.jupiter.api.Test;
 
@@ -138,4 +135,20 @@ public abstract class AbstractNetworksTest {
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
         assertNull(twt.getRatioTapChanger().getSolvedTapPosition());
     }
+
+    @Test
+    public void unsetDcSolvedValues() {
+        Network network = DcDetailedNetworkFactory.createSimple4NodesDcLinesSwitchLine();
+
+        DcLine line = network.getDcLine("dcLine1");
+        line.getDcTerminal1().setP(10);
+        line.getDcTerminal1().setI(20);
+        network.getDcBus("n1_dcBus").setV(100);
+
+        Networks.unsetSolvedValues(network);
+        assertEquals(Double.NaN, line.getDcTerminal1().getP());
+        assertEquals(Double.NaN, line.getDcTerminal1().getI());
+        assertEquals(Double.NaN, network.getDcBus("n1_dcBus").getV());
+    }
+
 }
