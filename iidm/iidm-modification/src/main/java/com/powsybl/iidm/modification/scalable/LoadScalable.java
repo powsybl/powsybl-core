@@ -168,51 +168,56 @@ public class LoadScalable extends AbstractInjectionScalable {
     }
 
     private void scaleReactivePower(ScalingParameters parameters, Load l, double oldQ, double oldP, double newP) {
-        // Limit 1: apply loadMinPowerFactor
-        // If the absolute value of the initial power factor is below the configured minimal power factor,
-        //  the reactive power setpoint will be recalculated according to the scaled active power and the minimal power factor
-        // Otherwise, the reactive power setpoint will be scaled with the active power while maintaining the initial power factor
         double limitedQ = applyPowerFactorLimit(parameters, oldQ, oldP, newP);
-        // Limit 2: apply rate limits relative to the initial Q (from ScalingParameters)
-        // Q_scaled must stay in [Q_initial * minQRate, Q_initial * maxQRate]
         limitedQ = applyRelativeQRateLimits(parameters, oldQ, limitedQ);
         setQ0(l, limitedQ);
-        LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
-                l.getId(), oldQ, limitedQ);
+        LOGGER.info("Change reactive power setpoint of {} from {} to {} ", l.getId(), oldQ, limitedQ);
     }
 
+    /**
+     * Scales reactive power proportionally to the active power change, subject to a minimum power factor constraint.
+     * <p>
+     * If the absolute value of the initial power factor is below {@code loadMinPowerFactor}, the reactive power
+     * is recalculated from {@code newP} and the minimum power factor instead of scaling proportionally.
+     *
+     * @param parameters scaling parameters
+     * @param oldQ       initial reactive power
+     * @param oldP       initial active power
+     * @param newP       scaled active power
+     * @return the new reactive power, respecting the minimum power factor constraint
+     */
     private static double applyPowerFactorLimit(ScalingParameters parameters, double oldQ, double oldP, double newP) {
-        double minPowerFactor = parameters.getLoadMinPowerFactor();
         double newQ = newP * oldQ / oldP;
-        if (minPowerFactor == 0) {
-            return newQ;
-        }
-        double cosphiInitial = Math.cos(Math.atan(oldQ / oldP));
-        if (minPowerFactor < cosphiInitial) {
+        double minPowerFactor = parameters.getLoadMinPowerFactor();
+        if (minPowerFactor == 0 || minPowerFactor < Math.cos(Math.atan(oldQ / oldP))) {
             return newQ;
         }
         return Math.copySign(Math.tan(Math.acos(minPowerFactor)) * newP, newQ);
     }
 
+    /**
+     * Limits the scaled reactive power to the rate-based bounds defined in {@link ScalingParameters}.
+     * <p>
+     * {@code minQRate} prevents Q from decreasing too much: Q is kept at or above {@code Q_initial * minQRate}.
+     * For negative Q, the constraint is symmetric: Q cannot become less negative than {@code Q_initial * minQRate}.
+     * <p>
+     * {@code maxQRate} prevents Q from increasing too much: Q is kept at or below {@code Q_initial * maxQRate}.
+     * For negative Q, the constraint is symmetric: Q cannot become more negative than {@code Q_initial * maxQRate}.
+     *
+     * @param parameters scaling parameters
+     * @param oldQ       initial reactive power
+     * @param newQ       reactive power after power-factor limiting
+     * @return the reactive power limited to the configured rate limits
+     */
     private static double applyRelativeQRateLimits(ScalingParameters parameters, double oldQ, double newQ) {
         double limitedQ = newQ;
         if (parameters.getLoadMinQRate().isPresent()) {
-            double minRate = parameters.getLoadMinQRate().getAsDouble();
-            double minQ = oldQ * minRate;
-            if (oldQ >= 0) {
-                limitedQ = Math.max(limitedQ, minQ); // floor: prevent Q from dropping below minQ
-            } else {
-                limitedQ = Math.min(limitedQ, minQ); // floor: prevent Q from becoming less negative than minQ
-            }
+            double minQ = oldQ * parameters.getLoadMinQRate().getAsDouble();
+            limitedQ = oldQ >= 0 ? Math.max(limitedQ, minQ) : Math.min(limitedQ, minQ);
         }
         if (parameters.getLoadMaxQRate().isPresent()) {
-            double maxRate = parameters.getLoadMaxQRate().getAsDouble();
-            double maxQ = oldQ * maxRate;
-            if (oldQ >= 0) {
-                limitedQ = Math.min(limitedQ, maxQ); // ceiling: prevent Q from exceeding maxQ
-            } else {
-                limitedQ = Math.max(limitedQ, maxQ); // ceiling: prevent Q from becoming more negative than maxQ
-            }
+            double maxQ = oldQ * parameters.getLoadMaxQRate().getAsDouble();
+            limitedQ = oldQ >= 0 ? Math.min(limitedQ, maxQ) : Math.max(limitedQ, maxQ);
         }
         return limitedQ;
     }
