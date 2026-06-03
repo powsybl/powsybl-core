@@ -7,10 +7,8 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import com.powsybl.iidm.serde.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +16,6 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Teofil Calin Banc {@literal <teofil-calin.banc at rte-france.com>}
@@ -56,19 +53,21 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void shouldFallbackToNodeBreakerForBusbarConnectedScenario() {
+    void shouldDetectBusbarTerminalRefIssue() {
 
         Network network = Network.create("n1", "test");
 
-        Substation s = network.newSubstation().setId("S1").add();
-
-        VoltageLevel vl = s.newVoltageLevel()
-                .setId("VL1")
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .setNominalV(225)
+        Substation substation = network.newSubstation()
+                .setId("S1")
                 .add();
 
-        vl.getNodeBreakerView().newBusbarSection()
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(225.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        BusbarSection bbs = vl.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setNode(0)
                 .add();
@@ -88,46 +87,19 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
                 .setOpen(false)
                 .add();
 
-        ExportOptions options = new ExportOptions();
-        options.setTopologyLevel(TopologyLevel.BUS_BRANCH);
-        options.setBusBranchVoltageLevelIncompatibilityBehavior(
-                ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.KEEP_ORIGINAL_TOPOLOGY
-        );
+        boolean result = TopologyLevelUtil.hasReferencedBusbarSections(vl);
 
-        NetworkSerializerContext context =
-                new NetworkSerializerContext(
-                        new SimpleAnonymizer(),
-                        mock(TreeDataWriter.class),
-                        options,
-                        mock(BusFilter.class),
-                        CURRENT_IIDM_VERSION,
-                        true);
-
-        TopologyLevel result = TopologyLevelUtil.determineTopologyLevel(vl, context);
-
-        assertEquals(TopologyLevel.NODE_BREAKER, result);
+        assertTrue(result,
+                "BusbarSection should be detected as referenced by a terminalRef");
     }
 
     @Test
-    void shouldNotFallbackForFictitiousSwitchRef() {
+    void shouldNotDetectFalsePositive() {
 
         Network network = FictitiousSwitchFactory.create();
         VoltageLevel vl = network.getVoltageLevel("C");
 
-        ExportOptions options = new ExportOptions();
-        options.setTopologyLevel(TopologyLevel.BUS_BRANCH);
-
-        NetworkSerializerContext context =
-                new NetworkSerializerContext(
-                        new SimpleAnonymizer(),
-                        mock(TreeDataWriter.class),
-                        options,
-                        mock(BusFilter.class),
-                        CURRENT_IIDM_VERSION,
-                        true);
-
-        TopologyLevel result = TopologyLevelUtil.determineTopologyLevel(vl, context);
-
-        assertEquals(TopologyLevel.BUS_BRANCH, result);
+        assertFalse(TopologyLevelUtil.hasReferencedBusbarSections(vl),
+                "Should not detect terminalRef issue for valid case");
     }
 }

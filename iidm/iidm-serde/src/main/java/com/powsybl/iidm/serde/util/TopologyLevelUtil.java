@@ -12,10 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -35,47 +33,19 @@ public final class TopologyLevelUtil {
         return exportTopologyLevel;
     }
 
-    private static boolean withNullConnectableBus(VoltageLevel vl) {
+    public static boolean withNullConnectableBus(VoltageLevel vl) {
         return vl.getConnectableStream()
                 .map(Connectable::getTerminals)
                 .flatMap(List<Terminal>::stream)
                 .anyMatch(t -> t.getBusView().getConnectableBus() == null);
     }
 
-    private static boolean isBusbarTerminalRefIssue(VoltageLevel vl) {
-
+    public static boolean hasReferencedBusbarSections(VoltageLevel vl) {
         if (vl.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             return false;
         }
-
-        boolean hasBusbar = vl.getConnectableStream()
-                .anyMatch(BusbarSection.class::isInstance);
-
-        if (!hasBusbar) {
-            return false;
-        }
-
-        boolean hasOtherConnectable = vl.getConnectableStream()
-                .anyMatch(c -> !(c instanceof BusbarSection));
-
-        if (!hasOtherConnectable) {
-            return false;
-        }
-
-        Set<Integer> nodes = new HashSet<>();
-
-        vl.getConnectableStream().forEach(c -> {
-            Connectable<?> connectable = (Connectable<?>) c;
-
-            for (Terminal t : connectable.getTerminals()) {
-                Integer node = t.getNodeBreakerView().getNode();
-                if (node != null) {
-                    nodes.add(node);
-                }
-            }
-        });
-
-        return nodes.size() > 1;
+        return vl.getNodeBreakerView().getBusbarSectionStream()
+                .anyMatch(bbs -> !bbs.getTerminal().getReferrers().isEmpty());
     }
 
     /**
@@ -102,7 +72,7 @@ public final class TopologyLevelUtil {
      */
     private static TopologyLevel checkVoltageLevelExportTopology(VoltageLevel vl, NetworkSerializerContext context, TopologyLevel topologyLevel) {
         if (topologyLevel == TopologyLevel.BUS_BRANCH &&
-                (withNullConnectableBus(vl) || isBusbarTerminalRefIssue(vl))) {
+                (withNullConnectableBus(vl) || hasReferencedBusbarSections(vl))) {
             if (context.getOptions()
                     .getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.THROW_EXCEPTION) {
                 throw new PowsyblException("Cannot export voltage level \"" + vl.getId() + "\" in BUS_BRANCH topology: this would lead to an invalid IIDM.");
