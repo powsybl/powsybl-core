@@ -197,12 +197,6 @@ public class ScalingParameters {
     }
 
     /**
-     * Returns the minimum power factor allowed when scaling load reactive power.
-     * <p>
-     * When {@code isConstantPowerFactor()} is {@code true}, the reactive power is scaled
-     * proportionally to the active power. This parameter caps Q so that the resulting
-     * power factor never drops below this value.
-     * <p>
      * @return the minimum power factor, in [0, 1]
      */
     public double getLoadMinPowerFactor() {
@@ -211,7 +205,6 @@ public class ScalingParameters {
 
     /**
      * Sets the minimum power factor allowed when scaling load reactive power.
-     *
      * @param loadMinPowerFactor the minimum power factor must be in [0, 1]
      * @throws IllegalArgumentException if the value is outside [0, 1]
      */
@@ -225,12 +218,6 @@ public class ScalingParameters {
     }
 
     /**
-     * Returns the minimum allowed ratio between the scaled reactive power and the initial reactive power.
-     * <p>
-     * When set, prevents Q from deviating too much from its initial value after scaling.
-     * For positive Q, it enforces that `Q_scaled >= Q_initial * loadMinQRate`.
-     * For negative Q, it enforces that `Q_scaled <= Q_initial * loadMinQRate`.
-     *
      * @return the minimum Q rate, or empty if disabled
      */
     public OptionalDouble getLoadMinQRate() {
@@ -239,8 +226,7 @@ public class ScalingParameters {
 
     /**
      * Sets the minimum allowed ratio between the scaled reactive power and the initial reactive power.
-     *
-     * @param loadMinQRate the minimum Q rate (must be &le; 1), or {@code null} to disable
+     * @param loadMinQRate the minimum Q rate (must be <= 1), or {@code null} to disable
      * @throws IllegalArgumentException if {@code loadMinQRate} is greater than 1
      */
     public ScalingParameters setLoadMinQRate(Double loadMinQRate) {
@@ -252,12 +238,6 @@ public class ScalingParameters {
     }
 
     /**
-     * Returns the maximum allowed ratio between the scaled reactive power and the initial reactive power.
-     * <p>
-     *  When set, prevents Q from deviating too much from its initial value after scaling.
-     * For positive Q, it enforces that `Q_scaled <= Q_initial * loadMaxQRate`.
-     * For negative Q, it enforces that `Q_scaled >= Q_initial * loadMaxQRate`.
-     *
      * @return the maximum Q rate, or empty if disabled
      */
     public OptionalDouble getLoadMaxQRate() {
@@ -266,8 +246,7 @@ public class ScalingParameters {
 
     /**
      * Sets the maximum allowed ratio between the scaled reactive power and the initial reactive power.
-     *
-     * @param loadMaxQRate the maximum Q rate (must be &ge; 1), or {@code null} to disable
+     * @param loadMaxQRate the maximum Q rate (must be >= 1), or {@code null} to disable
      * @throws IllegalArgumentException if {@code loadMaxQRate} is less than 1
      */
     public ScalingParameters setLoadMaxQRate(Double loadMaxQRate) {

@@ -196,8 +196,10 @@ public class LoadScalable extends AbstractInjectionScalable {
     }
 
     /**
-     * Limits the scaled reactive power to the rate-based bounds defined in {@link ScalingParameters}.
-     * Preventing Q from deviating too much from its initial value.
+     * Limits scaled Q to avoid deviating too much from its initial value
+     * If Q0 was positive, Q_scaled should be in [Q_initial * loadMinQRate, Q_initial * loadMaxQRate].
+     * Otherwise, it should be in [Q_initial * loadMaxQRate, Q_initial * loadMinQRate].
+     *
      * @param parameters scaling parameters
      * @param oldQ       initial reactive power
      * @param newQ       reactive power after power-factor limiting
