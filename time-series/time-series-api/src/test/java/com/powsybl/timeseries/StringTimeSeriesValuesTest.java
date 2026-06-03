@@ -8,10 +8,6 @@
 package com.powsybl.timeseries;
 
 import org.junit.jupiter.api.Test;
-import org.threeten.extra.Interval;
-
-import java.time.Duration;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,20 +18,13 @@ class StringTimeSeriesValuesTest {
 
     @Test
     void testGet() {
-        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
-        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
-        UncompressedStringDataChunk chunk1 = new UncompressedStringDataChunk(0, new String[]{"a", "b", "c", "d", "e", "f"});
-        UncompressedStringDataChunk chunk2 = new UncompressedStringDataChunk(6, new String[]{"g", "h"});
-        StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk1, chunk2);
-        List<StringTimeSeries> splitTimeSeries = timeSeries.split(4);
-        StringTimeSeries timeSeries1 = splitTimeSeries.get(0);
-        StringTimeSeries timeSeries2 = splitTimeSeries.get(1);
-        // Original time series
-        assertTimeSerie(timeSeries, "b", "f", "g");
-        // First split time series
-        assertTimeSerie(timeSeries1, "b", null, null);
-        // Second split time series
-        assertTimeSerie(timeSeries2, null, "f", "g");
+        StringTimeSeriesValues values = new StringTimeSeriesValues(new String[] {"A", "B", null, "D"}, 2);
+        assertEquals("A", values.get(2));
+        assertEquals("B", values.get(3));
+        assertEquals(null, values.get(4));
+        assertEquals("D", values.get(5));
+        assertEquals(null, values.get(6));
+        assertEquals(null, values.get(7));
     }
 
     @Test
@@ -45,12 +34,6 @@ class StringTimeSeriesValuesTest {
         assertEquals(timeSeriesValues1, timeSeriesValues2);
         assertEquals(timeSeriesValues1.hashCode(), timeSeriesValues2.hashCode());
         assertEquals("StringTimeSeriesValues{values=[A, B], offset=3}", timeSeriesValues2.toString());
-    }
-
-    private static void assertTimeSerie(StringTimeSeries timeSeries, String expectedAtIndex1, String expectedAtIndex5, String expectedAtIndex6) {
-        assertEquals(expectedAtIndex1, timeSeries.get(1));
-        assertEquals(expectedAtIndex5, timeSeries.get(5));
-        assertEquals(expectedAtIndex6, timeSeries.get(6));
     }
 
 }
