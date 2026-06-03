@@ -82,6 +82,9 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      */
     boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
 
+    /**
+     * Removes P and Q values on all terminals of this connectable.
+     */
     default void unsetSolvedValues() {
         this.getTerminals().forEach(Terminal::unsetSolvedValues);
     }

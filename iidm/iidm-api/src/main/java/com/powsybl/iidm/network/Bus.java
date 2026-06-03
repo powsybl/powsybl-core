@@ -44,6 +44,9 @@ public interface Bus extends Identifiable<Bus> {
      */
     Bus setAngle(double angle);
 
+    /**
+     * Removes voltage magnitude and angle values obtained by a computation.
+     */
     default void unsetSolvedValues() {
         this.setV(Double.NaN);
         this.setAngle(Double.NaN);

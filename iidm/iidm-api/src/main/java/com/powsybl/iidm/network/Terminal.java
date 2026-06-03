@@ -150,6 +150,9 @@ public interface Terminal {
      */
     double getI();
 
+    /**
+     * Removes P and Q values of this terminal.
+     */
     default void unsetSolvedValues() {
         this.setP(Double.NaN).setQ(Double.NaN);
     }

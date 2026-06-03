@@ -133,6 +133,9 @@ public interface DcTerminal {
      */
     boolean disconnect();
 
+    /**
+     * Removes P and I values obtained by a computation.
+     */
     default void unsetSolvedValues() {
         setP(Double.NaN);
         setI(Double.NaN);
