@@ -25,4 +25,8 @@ public interface DcConnectable<I extends DcConnectable<I>> extends Identifiable<
      * Remove the DC connectable from the network.
      */
     void remove();
+
+    default void unsetSolvedValues() {
+        getDcTerminals().forEach(DcTerminal::unsetSolvedValues);
+    }
 }

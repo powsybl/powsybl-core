@@ -150,6 +150,10 @@ public interface Terminal {
      */
     double getI();
 
+    default void unsetSolvedValues() {
+        this.setP(Double.NaN).setQ(Double.NaN);
+    }
+
     /**
      * Try to connect the terminal.<br/>
      * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,

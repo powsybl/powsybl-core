@@ -469,4 +469,9 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     default void setPhaseTapPositionToSolvedTapPosition() {
         this.getLegStream().forEach(leg -> leg.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues));
     }
+
+    default void unsetSolvedTapChangerValues() {
+        this.getLegStream().forEach(leg -> leg.getOptionalRatioTapChanger().ifPresent(TapChanger::unsetSolvedTapPosition));
+        this.getLegStream().forEach(leg -> leg.getOptionalPhaseTapChanger().ifPresent(TapChanger::unsetSolvedTapPosition));
+    }
 }

@@ -19,8 +19,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Chamseddine BENHAMED {@literal <chamseddine.benhamed at rte-france.com>}
@@ -119,5 +118,24 @@ public abstract class AbstractNetworksTest {
 
         Networks.applySolvedValues(network);
         assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+    }
+
+    @Test
+    public void unsetSolvedValues() {
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
+        Networks.unsetSolvedValues(network);
+
+        Line line = network.getLine("NHV1_NHV2_1");
+        assertEquals(Double.NaN, line.getTerminal1().getP());
+        assertEquals(Double.NaN, line.getTerminal2().getP());
+        assertEquals(Double.NaN, line.getTerminal1().getQ());
+        assertEquals(Double.NaN, line.getTerminal2().getQ());
+
+        Bus bus = network.getBusView().getBus("VLHV1_0");
+        assertEquals(Double.NaN, bus.getV());
+        assertEquals(Double.NaN, bus.getAngle());
+
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
+        assertNull(twt.getRatioTapChanger().getSolvedTapPosition());
     }
 }

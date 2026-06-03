@@ -44,6 +44,11 @@ public interface Bus extends Identifiable<Bus> {
      */
     Bus setAngle(double angle);
 
+    default void unsetSolvedValues() {
+        this.setV(Double.NaN);
+        this.setAngle(Double.NaN);
+    }
+
     /**
      * Get the active power in MW injected by equipment connected to the bus using the load sign convention (a positive value means that
      * equipment connected to the bus consumes active power)

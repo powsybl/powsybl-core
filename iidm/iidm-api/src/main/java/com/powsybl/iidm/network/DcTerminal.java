@@ -132,4 +132,9 @@ public interface DcTerminal {
      * @see VariantManager
      */
     boolean disconnect();
+
+    default void unsetSolvedValues() {
+        setP(Double.NaN);
+        setI(Double.NaN);
+    }
 }
