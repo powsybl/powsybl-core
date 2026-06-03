@@ -232,7 +232,6 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmTerms(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.stream().allMatch(e -> ELMNET.equals(e.getDataClassName()));
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream()).toList();
     }
@@ -245,7 +244,6 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmVscs(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.stream().allMatch(e -> ELMNET.equals(e.getDataClassName()));
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream()).toList();
     }
@@ -256,7 +254,6 @@ public class PowerFactoryImporter implements Importer {
      * @param slackObjects collection of slack buses gathered in convertEquipment.
      */
     private static void attachSlackBus(Network network, List<DataObject> slackObjects) {
-        assert slackObjects.stream().allMatch(e -> Set.of("ElmGenstat", "ElmAsm", "ElmSym", "ElmXnet").contains(e.getDataClassName()));
         // It might be possible to inline this directly to convertEquipment, without
         // populating the slackObjects. But maybe some things need to be processed first, let's
         // take no risk.
@@ -371,7 +368,6 @@ public class PowerFactoryImporter implements Importer {
                                             AbstractHvdcConverter hvdcConverter,
                                             Network network,
                                             List<DataObject> slackObjects) {
-        assert slackObjects.isEmpty();
         studyCase.getElmNets().stream()
             .flatMap(elmNet -> elmNet.search(".*").stream())
             .forEach(obj -> processEquipment(importContext, hvdcConverter, network, slackObjects, obj));

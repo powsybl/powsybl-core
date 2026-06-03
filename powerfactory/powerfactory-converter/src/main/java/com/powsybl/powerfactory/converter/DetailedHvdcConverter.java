@@ -53,12 +53,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
          * Selection is done based on the systp attribute of ElmTerm and of TypLne.
          */
         static DcGridData createGridData(List<DataObject> elmNets) {
-            assert elmNets.stream().allMatch(e -> ELMNET.equals(e.getDataClassName()));
-
             List<DataObject> elmTerms = PowerFactoryImporter.gatherElmTerms(elmNets);
-            assert elmTerms.stream().allMatch(e -> ELMTERM.equals(e.getDataClassName()));
             List<DataObject> elmVscs = PowerFactoryImporter.gatherElmVscs(elmNets);
-            assert elmVscs.stream().allMatch(e -> "ElmVsc".equals(e.getDataClassName()));
 
             // Add DC lines
             Set<DataObject> dcElmLnes = new HashSet<>();
@@ -98,7 +94,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
          * @return set of ElmCoup data objects that are connected to 2 DC terminals.
          */
         private static @NonNull Set<DataObject> getDcSwitchObjs(Set<DataObject> dcElmTerms) {
-            assert dcElmTerms.stream().allMatch(e -> ELMTERM.equals(e.getDataClassName()));
 
             // List of cubicles connected to DC terminals
             List<DataObject> connectedCubic = dcElmTerms.stream().flatMap(e -> e.getChildrenByClass("StaCubic").stream()).toList();
@@ -241,13 +236,12 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     private static DcSwitchKind getKind(DataObject elmCoup) {
         // disconnector unless explicitly a breaker
         String aUsage = elmCoup.findStringAttributeValue("aUsage").orElse("dct");
-        DcSwitchKind kind = switch (aUsage) {
+        return switch (aUsage) {
             case "dct" -> DcSwitchKind.DISCONNECTOR;
             case "cbk" -> DcSwitchKind.BREAKER;
             default -> throw new PowerFactoryException("Unsupported aUsage value '" + aUsage + "' for ElmCoup " + elmCoup.getId()
                                                         + ". Supported values: 'dct' (disconnector), 'cbk' (breaker).");
         };
-        return kind;
     }
 
     /**
@@ -305,13 +299,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @throws PowerFactoryException if a referenced node is absent from the network.
      */
     private static void objIdDcNodeRefSanityCheck(Map<Long, List<DcNodeRef>> objIdDcNodeRef, Network network, Set<DataObject> elmTerms) {
-        assert elmTerms != null;
-        assert elmTerms.stream().allMatch(e -> ELMTERM.equals(e.getDataClassName()));
         for (var entry : objIdDcNodeRef.entrySet()) {
             for (DcNodeRef nodeRef : entry.getValue()) {
                 if (network.getDcNode(nodeRef.dcNodeId()) == null) {
                     DataObject elmTerm = elmTerms.stream().filter(term -> idInNetworkString(term).equals(nodeRef.dcNodeId())).findFirst().orElse(null);
-                    assert elmTerm != null;
                     throw new PowerFactoryException("ElmTerm "
                             + elmTerm.getId() + " is referenced by equipment "
                             + entry.getKey()
@@ -336,7 +327,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         }
 
         String gndId = idInNetworkString(elmGndswt);
-        assert gndId != null;
 
         // Find terminal connected to ground
         List<String> dcNodesId = getAndCheckDcNodes(elmGndswt, 1, objIdDcNodeRef);
@@ -353,9 +343,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param network  where to add the node.
      */
     private static void addDcNode(DataObject terminal, Network network) {
-
-        assert ELMTERM.equals(terminal.getDataClassName());
-
         network.newDcNode().setId(idInNetworkString(terminal)).setName(terminal.getLocName()).setNominalV(terminal.getFloatAttributeValue("uknom")).add();
 
         double uknom = terminal.getFloatAttributeValue("uknom");
@@ -480,10 +467,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param network       PowSyBl network with all DC nodes already added.
      */
     private void addAcDcConverter(DataObject elmVsc, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
-
-        assert "ElmVsc".equals(elmVsc.getDataClassName());
-        assert network.getDcNodeCount() > 0;
-
         // Fetch data from the ElmVsc DataObject
         PowerFactoryAcDcConverterParameters pfParams = fetchPowerFactoryAcDcConverterParameters(elmVsc);
 
