@@ -14,7 +14,8 @@ import java.time.Duration;
 import java.util.List;
 
 import static java.lang.Double.NaN;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
