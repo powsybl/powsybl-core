@@ -322,7 +322,7 @@ public final class SteadyStateHypothesisExport {
         for (Generator g : network.getGenerators()) {
             String cgmesOriginalClass = g.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
-            boolean controlEnabled = g.isRegulating();
+            boolean controlEnabled = g.isRegulatingWithMode(RegulationMode.VOLTAGE);
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getRegulatingTargetQ(),

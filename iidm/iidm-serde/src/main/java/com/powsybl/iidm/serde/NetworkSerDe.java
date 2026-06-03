@@ -357,7 +357,7 @@ public final class NetworkSerDe {
                 double targetV = b.getVoltageRegulation().getTerminal() != null ? b.getVoltageRegulation().getTargetValue() : b.getLocalTargetV();
                 VoltageRegulationExtension removedExtension = new VoltageRegulationExtension(b,
                     b.getVoltageRegulation().getTerminal(),
-                    b.isRegulating(),
+                    b.isRegulatingWithMode(RegulationMode.VOLTAGE),
                     targetV);
                 //
                 mapMsa.get(b.getId()).add(removedExtension);
