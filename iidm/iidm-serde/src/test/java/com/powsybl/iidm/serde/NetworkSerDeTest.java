@@ -427,7 +427,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testValidateByVersionWhenMatchingOldNetwork() throws IOException {
+    void testValidateByVersionOnIidm102() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_2/shuntRoundTripRef.xml")) {
             assertNotNull(is);
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_2));
@@ -435,7 +435,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testValidateByVersionWhenMatchingRecentNetwork() throws IOException {
+    void testValidateByVersionOnIidm116() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml")) {
             assertNotNull(is);
             assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));

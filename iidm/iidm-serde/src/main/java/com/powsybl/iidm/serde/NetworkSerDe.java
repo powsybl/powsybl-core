@@ -243,7 +243,7 @@ public final class NetworkSerDe {
         }
     }
 
-     /**
+    /**
      * Build the list of XSD required to validate extensions for a given IIDM version.
      *
      * <p>Some extension XSDs import an IIDM schema through {@code xs:import/@schemaLocation}</p>

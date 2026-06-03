@@ -56,7 +56,6 @@ public final class XmlUtil {
     private static final Supplier<DocumentBuilderFactory> DOCUMENT_BUILDER_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createDocumentBuilderFactoryInstance);
     private static final Supplier<CSVFormat> CSV_FORMAT_SUPPLIER = Suppliers.memoize(XmlUtil::createCsvFormatInstance);
     private static final Supplier<SchemaFactory> SCHEMA_FACTORY_SUPPLIER = Suppliers.memoize(XmlUtil::createSchemaFactoryInstance);
-
     private static final String XML_DISALLOW_DOCTYPE = "http://apache.org/xml/features/disallow-doctype-decl";
     private static final String SAX_EXTERNAL_GENERAL_ENTITIES = "http://xml.org/sax/features/external-general-entities";
     private static final String SAX_EXTERNAL_PARAMETER_ENTITIES = "http://xml.org/sax/features/external-parameter-entities";
@@ -207,12 +206,12 @@ public final class XmlUtil {
         try {
             saxParser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         } catch (SAXException e) {
-            logUnsupportedSaxParserProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
+            logUnsupportedProperty("SAXParser", XMLConstants.ACCESS_EXTERNAL_SCHEMA);
         }
         try {
             saxParser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         } catch (SAXException e) {
-            logUnsupportedSaxParserProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
+            logUnsupportedProperty("SAXParser", XMLConstants.ACCESS_EXTERNAL_DTD);
         }
         // Create XMLReader from parser
         XMLReader xmlReader = saxParser.getXMLReader();
@@ -301,17 +300,13 @@ public final class XmlUtil {
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         factory.setNamespaceAware(true);
-        setFeatures(factory);
-        factory.setXIncludeAware(false);
-        factory.setExpandEntityReferences(false);
-        return factory;
-    }
-
-    private static void setFeatures(DocumentBuilderFactory factory) {
         setFeature(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
         setFeature(factory, XML_DISALLOW_DOCTYPE, true);
         setFeature(factory, SAX_EXTERNAL_GENERAL_ENTITIES, false);
         setFeature(factory, SAX_EXTERNAL_PARAMETER_ENTITIES, false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+        return factory;
     }
 
     private static void setFeature(DocumentBuilderFactory factory, String feature, boolean value) {
@@ -353,22 +348,18 @@ public final class XmlUtil {
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         } catch (SAXException e) {
-            logUnsupportedSchemaFactoryProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA);
+            logUnsupportedProperty("SchemaFactory", XMLConstants.ACCESS_EXTERNAL_SCHEMA);
         }
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         } catch (SAXException e) {
-            logUnsupportedSchemaFactoryProperty(XMLConstants.ACCESS_EXTERNAL_DTD);
+            logUnsupportedProperty("SchemaFactory", XMLConstants.ACCESS_EXTERNAL_DTD);
         }
         return factory;
     }
 
-    private static void logUnsupportedSchemaFactoryProperty(String property) {
-        LOGGER.info("- Property unsupported by SchemaFactory implementation: {}", property);
-    }
-
-    private static void logUnsupportedSaxParserProperty(String property) {
-        LOGGER.info("- Property unsupported by SAXParser implementation: {}", property);
+    private static void logUnsupportedProperty(String factory, String property) {
+        LOGGER.info("- Property unsupported by {} implementation: {}", factory, property);
     }
 
     public static SchemaFactory getSchemaFactory() {
