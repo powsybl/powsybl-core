@@ -128,13 +128,18 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            boolean oldValue = vr.isRegulating();
-            vr.setRegulating(voltageRegulatorOn);
+        if (voltageRegulation != null) {
+            boolean oldValue = voltageRegulation.isRegulating();
+            voltageRegulation.setRegulating(voltageRegulatorOn);
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
-        });
+        } else {
+            newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(voltageRegulatorOn)
+                .build();
+        }
         return this;
     }
 
@@ -146,6 +151,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
             voltageRegulation.setTerminal(regulatingTerminal, targetValue);
             notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
+        } else {
+            newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(regulatingTerminal)
+                .withRegulating(false)
+                .build();
         }
         return this;
     }
@@ -226,12 +237,27 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setTargetV(double targetV, double equivalentLocalTargetV) {
-        return this.setTargetV(targetV);
+        if (voltageRegulation != null) {
+            if (isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+                setLocalTargetV(equivalentLocalTargetV);
+                getVoltageRegulation().setTargetValue(targetV);
+            } else {
+                setLocalTargetV(targetV);
+            }
+        } else {
+            newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(targetV)
+                .withRegulating(false)
+                .build();
+            setLocalTargetV(equivalentLocalTargetV);
+        }
+        return this;
     }
 
     @Override
     public double getEquivalentLocalTargetV() {
-        return this.getLocalTargetV();
+        return isRemoteRegulating() ? this.getLocalTargetV() : Double.NaN;
     }
 
     @Override

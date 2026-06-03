@@ -211,7 +211,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * <p/>
      * <p>Depends on the working variant.</p>
      * @see VariantManager
+     * @deprecated use {@link #setLocalTargetV(double)} instead.
      */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     Generator setTargetV(double targetV);
 
     /**

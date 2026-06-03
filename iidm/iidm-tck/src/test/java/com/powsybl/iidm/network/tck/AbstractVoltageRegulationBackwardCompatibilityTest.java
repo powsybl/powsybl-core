@@ -180,7 +180,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertNull(generator.getVoltageRegulation().getTerminal());
 
         assertEquals(localTargetV, generator.getLocalTargetV());
-        assertEquals(localTargetV, generator.getEquivalentLocalTargetV());
+        assertEquals(Double.NaN, generator.getEquivalentLocalTargetV());
         assertEquals(localTargetV, generator.getTargetV());
         assertEquals(localTargetV, generator.getRegulatingTargetV());
         assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
