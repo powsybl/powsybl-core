@@ -12,11 +12,17 @@ import org.jspecify.annotations.NonNull;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
+ */
 public record StringTimeSeriesValues(String[] values, int offset) {
 
     public String get(int globalIndex) {
-        return globalIndex >= offset && globalIndex < values.length + offset ?
-                values[globalIndex - offset] : null;
+        int localIndex = globalIndex - offset;
+        if (localIndex < 0 || localIndex >= values.length) {
+            return null;
+        }
+        return values[localIndex];
     }
 
     @Override

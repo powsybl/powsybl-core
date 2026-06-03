@@ -15,6 +15,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
+ */
 class StringTimeSeriesValuesTest {
 
     @Test
@@ -25,21 +28,20 @@ class StringTimeSeriesValuesTest {
         UncompressedStringDataChunk chunk2 = new UncompressedStringDataChunk(6, new String[]{"g", "h"});
         StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk1, chunk2);
         List<StringTimeSeries> splitTimeSeries = timeSeries.split(4);
-        StringTimeSeries ts1 = splitTimeSeries.get(0);
-        StringTimeSeries ts2 = splitTimeSeries.get(1);
+        StringTimeSeries timeSeries1 = splitTimeSeries.get(0);
+        StringTimeSeries timeSeries2 = splitTimeSeries.get(1);
         // Original time series
-        assertEquals("b", timeSeries.get(1));
-        assertEquals("f", timeSeries.get(5));
-        assertEquals("g", timeSeries.get(6));
-
+        assertTimeSerie(timeSeries, "b", "f", "g");
         // First split time series
-        assertEquals("b", ts1.get(1));
-        assertEquals(null, ts1.get(5));
-        assertEquals(null, ts1.get(6));
-
+        assertTimeSerie(timeSeries1, "b", null, null);
         // Second split time series
-        assertEquals("f", ts2.get(1));
-        assertEquals(null, ts2.get(5));
-        assertEquals(null, ts2.get(6));
+        assertTimeSerie(timeSeries2, null, "f", "g");
     }
+
+    private static void assertTimeSerie(StringTimeSeries timeSeries, String expectedAtIndex1, String expectedAtIndex5, String expectedAtIndex6) {
+        assertEquals(expectedAtIndex1, timeSeries.get(1));
+        assertEquals(expectedAtIndex5, timeSeries.get(5));
+        assertEquals(expectedAtIndex6, timeSeries.get(6));
+    }
+
 }

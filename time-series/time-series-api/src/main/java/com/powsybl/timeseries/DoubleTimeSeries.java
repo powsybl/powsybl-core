@@ -35,7 +35,7 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
     }
 
     default DoubleTimeSeriesValues getDoubleTimeSeriesValues() {
-        return new DoubleTimeSeriesValues(toCompactArray(), 0);
+        return new DoubleTimeSeriesValues(toArray(), 0);
     }
 
     static Iterator<DoubleMultiPoint> iterator(List<DoubleTimeSeries> timeSeriesList) {

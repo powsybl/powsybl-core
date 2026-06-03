@@ -68,8 +68,8 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         return getStringTimeSeriesValues().get(index);
     }
 
-    private StringTimeSeriesValues getStringTimeSeriesValues() {
-        return new StringTimeSeriesValues(toCompactArray(), 0);
+    public StringTimeSeriesValues getStringTimeSeriesValues() {
+        return new StringTimeSeriesValues(toCompactArray(), getMinOffset());
     }
 
 }

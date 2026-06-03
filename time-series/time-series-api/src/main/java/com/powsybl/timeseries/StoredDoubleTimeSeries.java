@@ -74,4 +74,9 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         return array;
     }
 
+    @Override
+    public DoubleTimeSeriesValues getDoubleTimeSeriesValues() {
+        return new DoubleTimeSeriesValues(toCompactArray(), getMinOffset());
+    }
+
 }

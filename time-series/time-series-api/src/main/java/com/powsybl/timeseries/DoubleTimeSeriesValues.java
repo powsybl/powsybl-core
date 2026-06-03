@@ -12,11 +12,17 @@ import org.jspecify.annotations.NonNull;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
+ */
 public record DoubleTimeSeriesValues(double[] values, int offset) {
 
     public double get(int globalIndex) {
-        return globalIndex >= offset && globalIndex < values.length + offset ?
-                values[globalIndex - offset] : Double.NaN;
+        int localIndex = globalIndex - offset;
+        if (localIndex < 0 || localIndex >= values.length) {
+            return Double.NaN;
+        }
+        return values[localIndex];
     }
 
     @Override
