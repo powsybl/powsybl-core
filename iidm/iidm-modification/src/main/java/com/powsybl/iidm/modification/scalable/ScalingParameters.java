@@ -197,14 +197,12 @@ public class ScalingParameters {
     }
 
     /**
-     * Returns the minimum power factor allowed when scaling load reactive power
+     * Returns the minimum power factor allowed when scaling load reactive power.
      * <p>
      * When {@code isConstantPowerFactor()} is {@code true}, the reactive power is scaled
      * proportionally to the active power. This parameter caps Q so that the resulting
      * power factor never drops below this value.
      * <p>
-     * Must be in the range [0, 1]. A value of 0 (the default) disables this constraint.
-     *
      * @return the minimum power factor, in [0, 1]
      */
     public double getLoadMinPowerFactor() {
@@ -212,7 +210,7 @@ public class ScalingParameters {
     }
 
     /**
-     * Sets the minimum power factor allowed when scaling load reactive power
+     * Sets the minimum power factor allowed when scaling load reactive power.
      *
      * @param loadMinPowerFactor the minimum power factor must be in [0, 1]
      * @throws IllegalArgumentException if the value is outside [0, 1]
@@ -227,12 +225,13 @@ public class ScalingParameters {
     }
 
     /**
-     * Returns the minimum allowed ratio between the scaled reactive power and the initial reactive power
+     * Returns the minimum allowed ratio between the scaled reactive power and the initial reactive power.
      * <p>
-     * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
-     * Q_scaled &ge; Q_initial &times; loadMinQRate
+     * When set, prevents Q from decreasing too much after scaling.
+     * For positive Q, the result will not fall below {@code Q_initial * loadMinQRate}.
+     * For negative Q, the constraint is symmetric: Q will not become less negative than {@code Q_initial * loadMinQRate}.
      *
-     * @return the minimum Q rate
+     * @return the minimum Q rate, or empty if disabled
      */
     public OptionalDouble getLoadMinQRate() {
         return loadMinQRate != null ? OptionalDouble.of(loadMinQRate) : OptionalDouble.empty();
@@ -240,42 +239,41 @@ public class ScalingParameters {
 
     /**
      * Sets the minimum allowed ratio between the scaled reactive power and the initial reactive power.
-     * Must be in <= 1
      *
-     * @param loadMinQRate the minimum Q rate
+     * @param loadMinQRate the minimum Q rate (must be &le; 1), or {@code null} to disable
+     * @throws IllegalArgumentException if {@code loadMinQRate} is greater than 1
      */
     public ScalingParameters setLoadMinQRate(Double loadMinQRate) {
         if (loadMinQRate != null && loadMinQRate > 1) {
             throw new IllegalArgumentException("loadMinQRate cannot be greater than 1");
         }
-
         this.loadMinQRate = loadMinQRate;
         return this;
     }
 
     /**
-     * Returns the maximum allowed ratio between the scaled reactive power and the initial reactive power
+     * Returns the maximum allowed ratio between the scaled reactive power and the initial reactive power.
      * <p>
-     * When {@code isConstantPowerFactor()} is {@code true}, Q_scaled will always satisfy:
-     * Q_scaled &le; Q_initial &times; loadMaxQRate
-     * Must be in >= 1
+     * When set, prevents Q from increasing too much after scaling.
+     * For positive Q, the result will not exceed {@code Q_initial * loadMaxQRate}.
+     * For negative Q, the constraint is symmetric: Q will not become more negative than {@code Q_initial * loadMaxQRate}.
      *
-     * @return the maximum Q rate
+     * @return the maximum Q rate, or empty if disabled
      */
     public OptionalDouble getLoadMaxQRate() {
         return loadMaxQRate != null ? OptionalDouble.of(loadMaxQRate) : OptionalDouble.empty();
     }
 
     /**
-     * Sets the maximum allowed ratio between the scaled reactive power and the initial reactive power
+     * Sets the maximum allowed ratio between the scaled reactive power and the initial reactive power.
      *
-     * @param loadMaxQRate the maximum Q rate
+     * @param loadMaxQRate the maximum Q rate (must be &ge; 1), or {@code null} to disable
+     * @throws IllegalArgumentException if {@code loadMaxQRate} is less than 1
      */
     public ScalingParameters setLoadMaxQRate(Double loadMaxQRate) {
         if (loadMaxQRate != null && loadMaxQRate < 1) {
             throw new IllegalArgumentException("loadMaxQRate cannot be lower than 1.");
         }
-
         this.loadMaxQRate = loadMaxQRate;
         return this;
     }
