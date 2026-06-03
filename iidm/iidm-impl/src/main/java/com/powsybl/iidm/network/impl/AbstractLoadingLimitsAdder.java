@@ -133,7 +133,6 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public A setPermanentLimit(double permanentLimit) {
         this.permanentLimit = permanentLimit;
-        this.detectionKind = DetectionKind.HIGH;
         return (A) this;
     }
 
