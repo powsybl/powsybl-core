@@ -346,12 +346,8 @@ class LoadScalableTest {
         if (minPowerFactor != null) {
             params.setLoadMinPowerFactor(minPowerFactor);
         }
-        if (minQRate != null) {
-            params.setLoadMinQRate(minQRate);
-        }
-        if (maxQRate != null) {
-            params.setLoadMaxQRate(maxQRate);
-        }
+        params.setLoadMinQRate(minQRate);
+        params.setLoadMaxQRate(maxQRate);
         Load load = network.getLoad("l1");
         load.setP0(p0).setQ0(q0);
         double askedDelta = newP - p0; // with load convention: asked < 0 reduces P
