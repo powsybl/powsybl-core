@@ -488,6 +488,6 @@ public final class Networks {
         network.getShuntCompensatorStream().forEach(ShuntCompensator::unsetSolvedSectionCount);
 
         network.getDcBusStream().forEach(bus -> bus.setV(Double.NaN));
-        network.getDcConnectableStream().forEach(DcConnectable::unsetSolvedValues);
+        network.getDcConnectableStream().forEach(DcConnectable::unsetDcSolvedValues);
     }
 }

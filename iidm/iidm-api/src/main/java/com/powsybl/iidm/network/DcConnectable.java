@@ -29,7 +29,7 @@ public interface DcConnectable<I extends DcConnectable<I>> extends Identifiable<
     /**
      * Removes P and I obtained by a computation on each DC terminal of the connectable.
      */
-    default void unsetSolvedValues() {
+    default void unsetDcSolvedValues() {
         getDcTerminals().forEach(DcTerminal::unsetSolvedValues);
     }
 }
