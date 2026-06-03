@@ -227,9 +227,9 @@ public class ScalingParameters {
     /**
      * Returns the minimum allowed ratio between the scaled reactive power and the initial reactive power.
      * <p>
-     * When set, prevents Q from decreasing too much after scaling.
-     * For positive Q, the result will not fall below {@code Q_initial * loadMinQRate}.
-     * For negative Q, the constraint is symmetric: Q will not become less negative than {@code Q_initial * loadMinQRate}.
+     * When set, prevents Q from deviating too much from its initial value after scaling.
+     * For positive Q, it enforces that `Q_scaled >= Q_initial * loadMinQRate`.
+     * For negative Q, it enforces that `Q_scaled <= Q_initial * loadMinQRate`.
      *
      * @return the minimum Q rate, or empty if disabled
      */
@@ -254,9 +254,9 @@ public class ScalingParameters {
     /**
      * Returns the maximum allowed ratio between the scaled reactive power and the initial reactive power.
      * <p>
-     * When set, prevents Q from increasing too much after scaling.
-     * For positive Q, the result will not exceed {@code Q_initial * loadMaxQRate}.
-     * For negative Q, the constraint is symmetric: Q will not become more negative than {@code Q_initial * loadMaxQRate}.
+     *  When set, prevents Q from deviating too much from its initial value after scaling.
+     * For positive Q, it enforces that `Q_scaled <= Q_initial * loadMaxQRate`.
+     * For negative Q, it enforces that `Q_scaled >= Q_initial * loadMaxQRate`.
      *
      * @return the maximum Q rate, or empty if disabled
      */

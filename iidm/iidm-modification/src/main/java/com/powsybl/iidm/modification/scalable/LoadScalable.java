@@ -198,12 +198,18 @@ public class LoadScalable extends AbstractInjectionScalable {
     /**
      * Limits the scaled reactive power to the rate-based bounds defined in {@link ScalingParameters}.
      * <p>
-     * {@code minQRate} prevents Q from decreasing too much: Q is kept at or above {@code Q_initial * minQRate}.
-     * For negative Q, the constraint is symmetric: Q cannot become less negative than {@code Q_initial * minQRate}.
+     * {@code minQRate}
+     * <ul>
+     * <li> For positive Q, it enforces that {@code Q_scaled >= Q_initial * loadMinQRate}.
+     * <li> For negative Q, it enforces that {@code Q_scaled <= Q_initial * loadMinQRate}.
+     * </ul>
      * <p>
-     * {@code maxQRate} prevents Q from increasing too much: Q is kept at or below {@code Q_initial * maxQRate}.
-     * For negative Q, the constraint is symmetric: Q cannot become more negative than {@code Q_initial * maxQRate}.
-     *
+     * {@code maxQRate} prevents Q from deviating too much from its initial value:
+     * <ul>
+     * <li> For positive Q, it enforces that {@code Q_scaled <= Q_initial * loadMaxQRate}.
+     * <li> For negative Q, it enforces that {@code Q_scaled >= Q_initial * loadMaxQRate}.
+     * </ul>
+     * <p>
      * @param parameters scaling parameters
      * @param oldQ       initial reactive power
      * @param newQ       reactive power after power-factor limiting
