@@ -32,12 +32,12 @@ Normally, the reactive power Q is scaled proportionally to the active power P to
 #### loadMinQRate
 The minimum allowed ratio between the scaled reactive power and the initial reactive power. Only applies when `constantPowerFactor` is `true`.
 
-Prevents Q from decreasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot fall below this multiple of its initial value. For example, a value of `0.5` means Q cannot drop below half its initial value. For negative Q, the constraint is symmetric: Q cannot become less negative than `Q_initial * loadMinQRate`. Default is `Double.MIN_VALUE` (disabled). Must be in <= 1.
+Prevents Q from decreasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot fall below this multiple of its initial value. For example, a value of `0.5` means Q cannot drop below half its initial value. For negative Q, the constraint is symmetric: Q cannot become less negative than `Q_initial * loadMinQRate`. Default is `null` (disabled). Must be in <= 1.
 
 #### loadMaxQRate
 The maximum allowed ratio between the scaled reactive power and the initial reactive power. Only applies when `constantPowerFactor` is `true`.
 
-Prevents Q from increasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot grow beyond this multiple of its initial value. For example, a value of `1.5` means Q cannot exceed 1.5 times its initial value. For negative Q, the constraint is symmetric: Q cannot become more negative than `Q_initial * loadMaxQRate`. Default is `Double.MAX_VALUE` (disabled). Must be in >= 1.
+Prevents Q from increasing too much relative to its initial value. After proportional scaling, Q is limited so it cannot grow beyond this multiple of its initial value. For example, a value of `1.5` means Q cannot exceed 1.5 times its initial value. For negative Q, the constraint is symmetric: Q cannot become more negative than `Q_initial * loadMaxQRate`. Default is `null` (disabled). Must be in >= 1.
 
 ## Topology modifications
 Powsybl provides classes that can be used to easily modify the topology of the network.
