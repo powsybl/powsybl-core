@@ -536,11 +536,13 @@ public final class CgmesExportUtil {
 
     public static String getGeneratorRegulatingControlMode(Generator generator) {
         if (generator.getVoltageRegulation() != null) {
-            return switch (generator.getVoltageRegulation().getMode()) {
+            RegulationMode regulationMode = generator.getVoltageRegulation().getMode();
+            return switch (regulationMode) {
                 case REACTIVE_POWER ->
                     RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-                case VOLTAGE, VOLTAGE_PER_REACTIVE_POWER ->
+                case VOLTAGE ->
                     RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+                default -> throw new IllegalStateException("Unexpected regulation mode: " + regulationMode);
             };
         }
         return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
