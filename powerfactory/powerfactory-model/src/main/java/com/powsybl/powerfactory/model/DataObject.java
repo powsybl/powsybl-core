@@ -206,8 +206,8 @@ public class DataObject {
         return findObjectAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object", name));
     }
 
-    public DataObject setObjectAttributeValue(String name, long id) {
-        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(id, index));
+    public DataObject setObjectAttributeValue(String name, DataObjectRefKey key) {
+        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(key, index));
         return this;
     }
 
@@ -220,9 +220,9 @@ public class DataObject {
                 .orElseThrow(() -> createAttributeNotFoundException("Object vector", name));
     }
 
-    public DataObject setObjectVectorAttributeValue(String name, List<Long> ids) {
-        List<DataObjectRef> value = Objects.requireNonNull(ids).stream()
-                .map(objId -> new DataObjectRef(objId, index))
+    public DataObject setObjectVectorAttributeValue(String name, List<DataObjectRefKey> keys) {
+        List<DataObjectRef> value = Objects.requireNonNull(keys).stream()
+                .map(key -> new DataObjectRef(key, index))
                 .collect(Collectors.toList());
         setGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR, value);
         return this;
@@ -525,7 +525,7 @@ public class DataObject {
                     return true;
                 case OBJECT:
                     parser.nextToken();
-                    context.attributeValues.put(fieldName, new DataObjectRef(parser.getValueAsLong(), index));
+                    context.attributeValues.put(fieldName, new DataObjectRef(DataObjectRefKey.ofId(parser.getValueAsLong()), index));
                     return true;
                 case INTEGER_VECTOR:
                     context.attributeValues.put(fieldName, JsonUtil.parseIntegerArray(parser));
@@ -541,7 +541,7 @@ public class DataObject {
                     return true;
                 case OBJECT_VECTOR:
                     context.attributeValues.put(fieldName, JsonUtil.parseLongArray(parser).stream()
-                            .map(id -> new DataObjectRef(id, index))
+                            .map(id -> new DataObjectRef(DataObjectRefKey.ofId(id), index))
                             .collect(Collectors.toList()));
                     return true;
                 case STRING_VECTOR:
