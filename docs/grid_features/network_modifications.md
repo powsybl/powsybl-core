@@ -25,19 +25,38 @@ A `NetworkModification` offers a method to check whether or not its application 
 <span style="color: red">TODO</span>
 
 #### loadMinPowerFactor
-The minimum active/apparent power factor (ie P/S factor) allowed when scaling load reactive power Q. Only applies when `constantPowerFactor` is `true`.
+The minimum active/apparent power factor (ie P/S factor) allowed when scaling load reactive power Q.
+Only applies when `constantPowerFactor` is `true`.
 
-Normally, the reactive power Q is scaled proportionally to the active power P to keep the power factor constant. If the initial power factor is below this value, Q is instead recomputed from the new P using this minimum power factor. Default is `0.0` (disabled). Must be in the range `[0, 1]`.
+Normally, the reactive power Q is scaled proportionally to the active power P to keep the power factor constant.
+If the initial power factor is below this value, Q is instead recomputed from the new P using this minimum power factor.
+Default is `0.0` meaning that no minimum power factor is enforced. Must be in the range `[0, 1]`.
 
 #### loadMinQRate
-The minimum allowed ratio between the scaled reactive power and the initial reactive power. Only applies when `constantPowerFactor` is `true`.
+The minimum allowed ratio between the scaled reactive power and the initial reactive power.
+Only applies when `constantPowerFactor` is `true`.
 
-Prevents Q from deviating too much from its initial value by enforcing that `Q_scaled >= Q_initial * loadMinQRate` if `Q_initial >= 0`, or `Q_scaled <= Q_initial * loadMinQRate` otherwise. Default is `null` (disabled). Must be in <= 1.
+Prevents Q from deviating too much from its initial value by enforcing that:
+- `Q_scaled >= Q_initial * loadMinQRate` if `Q_initial >= 0`,
+- or `Q_scaled <= Q_initial * loadMinQRate` otherwise.
+
+Default is `null` meaning that no minimum Q rate limit is applied. Must be less than or equal to `1.0`.
+
+`loadMinQRate` is applied after [`loadMinPowerFactor`](#loadMinPowerFactor),
+ensuring that reactive power does not change excessively even when power factor limits have already been enforced.
 
 #### loadMaxQRate
-The maximum allowed ratio between the scaled reactive power and the initial reactive power. Only applies when `constantPowerFactor` is `true`.
+The maximum allowed ratio between the scaled reactive power and the initial reactive power.
+Only applies when `constantPowerFactor` is `true`.
 
-Prevents Q from deviating too much from its initial value by enforcing that `Q_scaled <= Q_initial * loadMaxQRate` if `Q_initial >= 0`, or `Q_scaled >= Q_initial * loadMaxQRate` otherwise. Default is `null` (disabled). Must be in >= 1.
+Prevents Q from deviating too much from its initial value by enforcing that:
+- `Q_scaled <= Q_initial * loadMaxQRate` if `Q_initial >= 0`,
+- or `Q_scaled >= Q_initial * loadMaxQRate` otherwise. 
+
+Default is `null` meaning that no maximum Q rate limit is applied. Must be greater than or equal to `1.0`.
+
+`loadMaxQRate` is applied after [`loadMinPowerFactor`](#loadMinPowerFactor),
+ensuring that reactive power does not change excessively even when power factor limits have already been enforced.
 
 ## Topology modifications
 Powsybl provides classes that can be used to easily modify the topology of the network.
