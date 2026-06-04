@@ -215,8 +215,12 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
         BusbarSectionPosition busbarSectionPosition = busbarSection.getExtension(BusbarSectionPosition.class);
         List<SwitchKind> switchKindsBetweenExistingSectionOnBusBar = new ArrayList<>();
-        switchKindsBetweenExistingSectionOnBusBar.add(switchKind1);
-        switchKindsBetweenExistingSectionOnBusBar.add(switchKind2);
+        if (switchKind1 != null) {
+            switchKindsBetweenExistingSectionOnBusBar.add(switchKind1);
+        }
+        if (switchKind2 != null) {
+            switchKindsBetweenExistingSectionOnBusBar.add(switchKind2);
+        }
         if (busbarSectionPosition != null) {
             GetSwitchKindsBetweenBusBarTraverser traverser = new GetSwitchKindsBetweenBusBarTraverser(busbarSection);
             busbarSection.getTerminal().traverse(traverser);
