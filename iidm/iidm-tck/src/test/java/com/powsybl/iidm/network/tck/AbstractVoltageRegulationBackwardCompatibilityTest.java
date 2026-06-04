@@ -235,7 +235,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             Double.NaN,
             RegulationMode.VOLTAGE,
             true,
-            terminalLeg1);
+            terminalLeg1,
+            true);
         checkVoltageRegulationAttributes(expectedAttributes, ratioTapChanger);
 
         assertNull(ratioTapChanger.getTerminal());

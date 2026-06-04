@@ -114,7 +114,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, rtc.hasLoadTapChangingCapabilities());
         double targetValue = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getTargetValue() : Double.NaN;
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", targetValue));
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_12, IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_16, context, () -> {
             VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
             context.getWriter().writeEnumAttribute(ATTR_REGULATION_MODE, voltageRegulation != null ? voltageRegulation.getMode() : null);
             context.getWriter().writeDoubleAttribute(ATTR_REGULATION_VALUE, voltageRegulation != null ? voltageRegulation.getTargetValue() : Double.NaN);
@@ -364,7 +364,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
             }
             voltageRegulationAdder.withTargetValue(targetV);
         });
-        IidmSerDeUtil.runFromMinimumVersionAndUntilMaximumVersion(IidmVersion.V_1_12, IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_16, context, () -> {
             RegulationMode regulationMode = context.getReader().readEnumAttribute(ATTR_REGULATION_MODE, RegulationMode.class);
             double regulationValue = context.getReader().readDoubleAttribute(ATTR_REGULATION_VALUE);
             voltageRegulationAdder.withMode(regulationMode)
