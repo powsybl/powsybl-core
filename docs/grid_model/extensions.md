@@ -342,7 +342,7 @@ The attributes of a `MutualCoupling` are:
 The position of the mutual coupling is expressed as a ratio between 0 and 1, through a `LineSegment` object.
 A `LineSegment` has a start and an end position, with the constraint that: 0 ≤ start ≤ end ≤ 1
 Mutual coupling is symmetric: a coupling between line1 and line2 is equivalent to a coupling between line2 and line1.
-The list of mutual couplings cannot contain duplicates or symmetrical couplings.
+Mutual couplings are considered symmetric. Therefore, the extension cannot contain both (line1, line2) and (line2, line1).
 
 Example of code to add a mutual coupling:
 
