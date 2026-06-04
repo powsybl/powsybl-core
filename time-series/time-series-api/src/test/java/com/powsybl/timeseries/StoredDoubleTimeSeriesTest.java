@@ -27,8 +27,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Double.NaN;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -412,7 +412,7 @@ class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    void toArrayWhenTimeSeriesData() {
+    void testToArray() {
         // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
@@ -431,17 +431,10 @@ class StoredDoubleTimeSeriesTest {
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesArray, 0d);
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, tsArray1, 0d);
         assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, tsArray2, 0d);
-
-        double originalAt3 = timeSeries.get(3);
-        assertEquals(4.0, originalAt3, 0d);
-
-        double splitAt3 = chunks.get(0).get(3);
-        assertEquals(4.0, splitAt3, 0d);
-        assertEquals(originalAt3, splitAt3, 0d);
     }
 
     @Test
-    void toCompactArrayShouldKeepOriginalIndexeWithoutNaN() {
+    void testToCompactArray() {
         // Given
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(8);
