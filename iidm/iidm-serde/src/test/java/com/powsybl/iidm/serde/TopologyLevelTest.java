@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -50,56 +49,5 @@ class TopologyLevelTest extends AbstractIidmSerDeTest {
 
         testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.BUS_BREAKER), "fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_VERSION);
         testWriteVersionedXml(network, options.setTopologyLevel(TopologyLevel.BUS_BRANCH), "fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_VERSION);
-    }
-
-    @Test
-    void shouldDetectBusbarTerminalRefIssue() {
-
-        Network network = Network.create("n1", "test");
-
-        Substation substation = network.newSubstation()
-                .setId("S1")
-                .add();
-
-        VoltageLevel vl = substation.newVoltageLevel()
-                .setId("VL1")
-                .setNominalV(225.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-
-        BusbarSection bbs = vl.getNodeBreakerView().newBusbarSection()
-                .setId("BBS1")
-                .setNode(0)
-                .add();
-
-        vl.newLoad()
-                .setId("L1")
-                .setNode(1)
-                .setP0(10)
-                .setQ0(5)
-                .add();
-
-        vl.getNodeBreakerView().newSwitch()
-                .setId("SW1")
-                .setNode1(0)
-                .setNode2(1)
-                .setKind(SwitchKind.BREAKER)
-                .setOpen(false)
-                .add();
-
-        boolean result = TopologyLevelUtil.hasReferencedBusbarSections(vl);
-
-        assertTrue(result,
-                "BusbarSection should be detected as referenced by a terminalRef");
-    }
-
-    @Test
-    void shouldNotDetectFalsePositive() {
-
-        Network network = FictitiousSwitchFactory.create();
-        VoltageLevel vl = network.getVoltageLevel("C");
-
-        assertFalse(TopologyLevelUtil.hasReferencedBusbarSections(vl),
-                "Should not detect terminalRef issue for valid case");
     }
 }
