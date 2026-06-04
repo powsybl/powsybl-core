@@ -48,6 +48,10 @@ The parameters may also be overridden with a JSON file, in which case the config
   "debugDir": "/tmp/debugDir"
 }
 ```
+```{warning}
+The "version" field of a JSON parameters file must be located at the top of the file.
+```
+
 
 ### Optional properties
 
