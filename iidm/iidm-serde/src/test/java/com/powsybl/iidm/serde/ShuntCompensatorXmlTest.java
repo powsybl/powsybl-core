@@ -123,7 +123,7 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripVersionedJsonFromMinToCurrentVersionTest("shuntCompensator.jiidm", IidmVersion.V_1_16);
+        roundTripVersionedJsonFromMinVersionTest("shuntCompensator.jiidm", IidmVersion.V_1_16);
     }
 
     private void write(Network network, String version) {

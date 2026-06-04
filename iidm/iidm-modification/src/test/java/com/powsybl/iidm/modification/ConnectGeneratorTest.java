@@ -45,7 +45,7 @@ class ConnectGeneratorTest {
         g2.getVoltageRegulation().setRegulating(false);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(22., g2.getTargetV(), 0.01);
+        assertEquals(22., g2.getLocalTargetV(), 0.01);
     }
 
     @Test
@@ -63,21 +63,21 @@ class ConnectGeneratorTest {
         g2.getVoltageRegulation().setRegulating(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(22., g2.getTargetV(), 0.01);
+        assertEquals(22., g2.getLocalTargetV(), 0.01);
     }
 
     @Test
     void testConnectGeneratorWithWrongTargetV() {
         g2.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(g2.getTargetV())
+            .withTargetValue(g2.getLocalTargetV())
             .withTerminal(g3.getTerminal())
                 .build();
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(RegulationMode.VOLTAGE, g2.getVoltageRegulation().getMode());
         assertEquals(33., g2.getVoltageRegulation().getTargetValue(), 0.01);
-        assertEquals(22., g2.getTargetV(), 0.01);
+        assertEquals(22., g2.getLocalTargetV(), 0.01);
         assertEquals(g3.getTerminal(), g2.getVoltageRegulation().getTerminal());
         assertEquals(g3.getRegulatingTargetV(), g2.getRegulatingTargetV());
         assertEquals(g3.getVoltageRegulation().getMode(), g2.getVoltageRegulation().getMode());
@@ -115,8 +115,8 @@ class ConnectGeneratorTest {
         modifs.setConnected(true);
         new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
-        assertEquals(g2.getTargetV(), g2.getRegulatingTargetV());
+        assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getLocalTargetV(), 0.01);
+        assertEquals(g2.getLocalTargetV(), g2.getRegulatingTargetV());
         assertNotEquals(123.45, g2.getRegulatingTargetV());
     }
 

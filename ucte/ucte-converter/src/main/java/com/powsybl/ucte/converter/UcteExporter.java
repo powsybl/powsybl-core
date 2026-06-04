@@ -261,14 +261,12 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getLocalTargetQ())) {
                 reactivePowerGeneration += generator.getLocalTargetQ();
             }
-            if (!Double.isNaN(generator.getTargetV())) {
+            if (!Double.isNaN(generator.getLocalTargetV())) {
                 // FIXME(mathbagu): what if not all the generators have the same targetV?
                 // Should we use bus.getV() instead?
-                voltageReference = generator.getTargetV();
+                voltageReference = generator.getLocalTargetV();
             }
-            if (generator.getVoltageRegulation() != null
-                && generator.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE
-                && generator.getVoltageRegulation().isRegulating()) {
+            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
             minP = generator.getMinP();
@@ -713,8 +711,8 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
                 twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
                 Double.NaN);
-        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
-            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
+        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV())) {
+            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV());
         }
         return uctePhaseRegulation;
     }

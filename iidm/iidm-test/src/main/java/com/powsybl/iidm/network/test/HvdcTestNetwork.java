@@ -115,7 +115,7 @@ public final class HvdcTestNetwork {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(405.0)
+                .setLocalTargetV(405.0)
                 .add();
         cs1.getTerminal()
                 .setP(100.0)

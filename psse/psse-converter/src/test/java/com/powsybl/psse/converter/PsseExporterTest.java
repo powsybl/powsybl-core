@@ -28,6 +28,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.psse.converter.extensions.PsseModelExtension;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
@@ -435,9 +436,9 @@ class PsseExporterTest extends AbstractSerDeTest {
         Generator generator = voltageLevel.newGenerator()
                 .setId("Gen")
                 .setTargetP(10.0)
-                .setTargetQ(0.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMinP(0.0)
                 .setMaxP(25.0)
                 .setBus("bus1")
@@ -451,9 +452,9 @@ class PsseExporterTest extends AbstractSerDeTest {
         Generator generator = voltageLevel.newGenerator()
                 .setId("Gen")
                 .setTargetP(10.0)
-                .setTargetQ(0.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMinP(0.0)
                 .setMaxP(25.0)
                 .setNode(10)

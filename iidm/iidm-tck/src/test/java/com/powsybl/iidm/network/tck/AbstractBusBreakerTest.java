@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public abstract class AbstractBusBreakerTest {
 
@@ -52,7 +51,7 @@ public abstract class AbstractBusBreakerTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -87,7 +86,7 @@ public abstract class AbstractBusBreakerTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -151,7 +150,7 @@ public abstract class AbstractBusBreakerTest {
                                                     .setName("vsc")
                                                     .setBus("bus1")
                                                     .setLossFactor(0.011f)
-                                                    .setTargetQ(1.0)
+                                                    .setLocalTargetQ(1.0)
                                                     .setConnectableBus("bus1")
                                                 .add();
         assertEquals(HvdcConverterStation.HvdcType.LCC, lccConverterStation.getHvdcType());

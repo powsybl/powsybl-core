@@ -442,8 +442,8 @@ public final class CgmesConformity1NetworkCatalog {
             .setMinP(50)
             .setMaxP(200)
             .setTargetP(-p)
-            .setTargetQ(targetQ)
-            .setTargetV(21.987)
+            .setLocalTargetQ(targetQ)
+            .setLocalTargetV(21.987)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add()
@@ -469,8 +469,8 @@ public final class CgmesConformity1NetworkCatalog {
             .setMinP(50)
             .setMaxP(200)
             .setTargetP(-p)
-            .setTargetQ(targetQ)
-            .setTargetV(115.5)
+            .setLocalTargetQ(targetQ)
+            .setLocalTargetV(115.5)
             .newVoltageRegulation()
                 .withTargetValue(115.5)
                 .withMode(RegulationMode.VOLTAGE)
@@ -589,14 +589,16 @@ public final class CgmesConformity1NetworkCatalog {
         TwoSides side = TwoSides.TWO;
         RatioTapChangerAdder rtca = tx.newRatioTapChanger()
             .setLowTapPosition(low)
-            .setTapPosition(14)
-            .setTargetDeadband(0.5);
+            .setTapPosition(14);
         addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setTargetV(10.815)
-            // TODO Set the right regulation terminal
-            .setRegulationTerminal(tx.getTerminal(side));
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                // TODO Set the right regulation terminal
+                .withTerminal(tx.getTerminal(side))
+                .withTargetValue(10.815)
+                .withTargetDeadband(0.5)
+                .add();
         rtca.add();
     }
 
@@ -657,10 +659,13 @@ public final class CgmesConformity1NetworkCatalog {
             .setTapPosition(10);
         addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(false)
-            .setTargetV(0.0)
-            .setTargetDeadband(0.5)
-            .setRegulationTerminal(txBE22.getTerminal2());
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetValue(0.0)
+                .withTargetDeadband(0.5)
+                .withTerminal(txBE22.getTerminal2())
+                .add();
         rtca.add();
 
     }
@@ -834,9 +839,13 @@ public final class CgmesConformity1NetworkCatalog {
             .setTapPosition(position);
         addTapSteps(rtca, TwoSides.ONE, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(false)
-            .setTargetV(0.0)
-            .setTargetDeadband(0.5);
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTargetValue(0.0)
+                .withTerminal(txBETR3.getLeg2().getTerminal())
+                .withTargetDeadband(0.5)
+                .add();
         rtca.add();
     }
 
@@ -958,19 +967,21 @@ public final class CgmesConformity1NetworkCatalog {
                 .setAngle(-17.412200);
 
         VoltageLevel vlAnvers220 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_2);
-        vlAnvers220.newStaticVarCompensator()
+        StaticVarCompensator staticVarCompensator = vlAnvers220.newStaticVarCompensator()
                 .setId("3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
                 .setName("SVC-1230797516")
                 .setBus(BUS_ID_1)
                 .setConnectableBus(BUS_ID_1)
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
-                .setTargetV(229.5)
+                .setLocalTargetV(229.5)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .withRegulating(true)
                     .add()
                 .add();
+        staticVarCompensator.getVoltageRegulation().setTerminal(staticVarCompensator.getTerminal(), 229.5);
+        staticVarCompensator.setLocalTargetV(Double.NaN);
 
         double p = -118.0;
         double targetQ = 18.720301;

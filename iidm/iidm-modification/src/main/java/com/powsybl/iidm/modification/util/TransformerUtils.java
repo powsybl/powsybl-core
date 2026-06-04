@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.apache.commons.math3.complex.Complex;
 
@@ -66,14 +67,19 @@ public final class TransformerUtils {
 
     private static void copyCommonRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc) {
         rtcAdder.setTapPosition(rtc.getTapPosition())
-                .setTargetV(rtc.getTargetV())
                 .setLoadTapChangingCapabilities(rtc.hasLoadTapChangingCapabilities())
-                .setRegulationMode(rtc.getRegulationMode())
-                .setRegulationValue(rtc.getRegulationValue())
-                .setLowTapPosition(rtc.getLowTapPosition())
-                .setRegulating(rtc.isRegulating())
-                .setRegulationTerminal(rtc.getRegulationTerminal())
-                .setTargetDeadband(rtc.getTargetDeadband());
+                .setLowTapPosition(rtc.getLowTapPosition());
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
+        if (voltageRegulation != null) {
+            rtcAdder.newVoltageRegulation()
+                .withMode(voltageRegulation.getMode())
+                .withTargetValue(voltageRegulation.getTargetValue())
+                .withTerminal(voltageRegulation.getTerminal())
+                .withRegulating(voltageRegulation.isRegulating())
+                .withTargetDeadband(voltageRegulation.getTargetDeadband())
+                .withSlope(voltageRegulation.getSlope())
+                .add();
+        }
     }
 
     public static void copyAndAddPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {

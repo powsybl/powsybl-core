@@ -341,7 +341,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setDcConnected1(true)
                 .setDcConnected2(true)
                 .setPccTerminal(lineax.getTerminal1())
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
     }
 
@@ -355,7 +355,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setDcConnected1(false)
                 .setDcConnected2(false)
                 .setPccTerminal(linebx.getTerminal1())
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
     }
 
@@ -601,7 +601,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         VoltageSourceConverter converterSubnet2 = vlSubnet2
                 .newVoltageSourceConverter()
@@ -612,7 +612,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
 
         List<VoltageSourceConverter> dcConverterList = List.of(converterSubnet1, converterSubnet2);
@@ -671,7 +671,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
-                .setTargetQ(0.0);
+                .setLocalTargetQ(0.0);
 
         // test cannot create Converter across subnetwork1 & subnetwork2
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
@@ -802,7 +802,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         assertTrue(acDcConverterA.getTerminal2().isEmpty());
         assertSame(acDcConverterA.getPccTerminal(), acDcConverterA.getTerminal1());
@@ -820,7 +820,7 @@ public abstract class AbstractAcDcConverterTest {
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
         assertTrue(acDcConverterA.getTerminal2().isPresent());
         assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal()); // defaults to AC Terminal 1
@@ -853,8 +853,8 @@ public abstract class AbstractAcDcConverterTest {
                 .setControlMode(AcDcConverter.ControlMode.P_PCC)
                 .setTargetP(100.)
                 .setTargetVdc(500.)
-                .setTargetQ(24.0)
-                .setTargetV(400.0)
+                .setLocalTargetQ(24.0)
+                .setLocalTargetV(400.0)
                 .add();
         assertEquals(AcDcConverter.ControlMode.P_PCC, vscA.getControlMode());
         assertEquals(100.0, vscA.getTargetP(), 0.0);
@@ -862,6 +862,7 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(24.0, vscA.getRegulatingTargetQ(), 0.0);
         assertEquals(400.0, vscA.getRegulatingTargetV(), 0.0);
         assertFalse(vscA.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(vscA.isRegulating());
 
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         VariantManager variantManager = network.getVariantManager();
@@ -875,6 +876,7 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(24.0, vscA.getRegulatingTargetQ(), 0.0);
         assertEquals(400.0, vscA.getRegulatingTargetV(), 0.0);
         assertFalse(vscA.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(vscA.isRegulating());
         // change values in s4
         vscA.setControlMode(AcDcConverter.ControlMode.V_DC);
         vscA.setTargetP(-50.);
@@ -896,7 +898,7 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(495., vscA.getTargetVdc(), 0.0);
         assertEquals(20.0, vscA.getRegulatingTargetQ(), 0.0);
         assertEquals(405.0, vscA.getRegulatingTargetV(), 0.0);
-        assertTrue(vscA.isWithMode(RegulationMode.VOLTAGE));
+        assertTrue(vscA.isRegulatingWithMode(RegulationMode.VOLTAGE));
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
@@ -917,5 +919,6 @@ public abstract class AbstractAcDcConverterTest {
         assertThrows(PowsyblException.class, vscA::getTargetVdc, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::getRegulatingTargetQ, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::getRegulatingTargetV, "Variant index not set");
+        assertThrows(PowsyblException.class, vscA::isRegulating, "Variant index not set");
     }
 }

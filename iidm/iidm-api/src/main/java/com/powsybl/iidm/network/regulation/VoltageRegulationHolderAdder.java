@@ -13,7 +13,9 @@ package com.powsybl.iidm.network.regulation;
 public interface VoltageRegulationHolderAdder<T extends VoltageRegulationHolderAdder<T>> {
     VoltageRegulationAdder<T> newVoltageRegulation();
 
-    double getTargetQ();
+    double getLocalTargetQ();
 
-    T setTargetQ(double targetQ);
+    T setLocalTargetQ(double localTargetQ);
+
+    T setLocalTargetV(double localTargetV);
 }

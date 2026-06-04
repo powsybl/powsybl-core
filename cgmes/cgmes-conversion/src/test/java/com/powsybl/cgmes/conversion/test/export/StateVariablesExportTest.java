@@ -102,7 +102,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         vl2.newGenerator().setId("GEN").setNode(0)
                 .setTargetP(10.01)
                 .setMinP(0).setMaxP(20)
-                .setTargetQ(1.10)
+                .setLocalTargetQ(1.10)
                 .add();
         vl2.getNodeBreakerView().newBreaker().setId("BK21").setNode1(0).setNode2(1).add();
         vl2.getNodeBreakerView().newBusbarSection().setId("BBS2").setNode(1).add();
@@ -399,7 +399,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         VoltageLevel vl = s.newVoltageLevel().setId("VL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
         vl.getBusBreakerView().newBus().setId("B").add().setV(400).setAngle(0);
         vl.newLoad().setId("L").setConnectableBus("B").setBus("B").setP0(100.0).setQ0(0.0).add();
-        Generator g = vl.newGenerator().setId("G").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0)
+        Generator g = vl.newGenerator().setId("G").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setLocalTargetV(400.0)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 

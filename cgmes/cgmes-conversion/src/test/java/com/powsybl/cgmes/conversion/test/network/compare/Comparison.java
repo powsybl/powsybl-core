@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -430,8 +431,8 @@ public class Comparison {
                 expected.getBmax(),
                 actual.getBmax());
         compare("targetV",
-                expected.getTargetV(),
-                actual.getTargetV());
+                expected.getLocalTargetV(),
+                actual.getLocalTargetV());
         compare("targetQ",
                 expected.getLocalTargetQ(),
                 actual.getLocalTargetQ());
@@ -753,7 +754,16 @@ public class Comparison {
         compare("ratioTapChanger.hasLoadTapChangingCapabilities",
                 expected.hasLoadTapChangingCapabilities(),
                 actual.hasLoadTapChangingCapabilities());
-        compare("ratioTapChanger.targetV", expected.getTargetV(), actual.getTargetV());
+        compare("ratioTapChanger.regulatingTargetV", expected.getRegulatingTargetV(), actual.getRegulatingTargetV());
+        VoltageRegulation expectedVoltageRegulation = expected.getVoltageRegulation();
+        VoltageRegulation actualVoltageRegulation = actual.getVoltageRegulation();
+        if (expectedVoltageRegulation != null) {
+            compare("ratioTapChanger.voltageRegulation.targetValue", expectedVoltageRegulation.getTargetValue(), actualVoltageRegulation.getTargetValue());
+            compare("ratioTapChanger.voltageRegulation.mode", expectedVoltageRegulation.getMode(), actualVoltageRegulation.getMode());
+            compare("ratioTapChanger.voltageRegulation.regulating", expectedVoltageRegulation.isRegulating(), actualVoltageRegulation.isRegulating());
+            compare("ratioTapChanger.voltageRegulation.slope", expectedVoltageRegulation.getSlope(), actualVoltageRegulation.getSlope());
+            compare("ratioTapChanger.voltageRegulation.targetDeadband", expectedVoltageRegulation.getTargetDeadband(), actualVoltageRegulation.getTargetDeadband());
+        }
     }
 
     private void comparePhaseTapChanger(

@@ -10,6 +10,7 @@ package com.powsybl.iidm.reducer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -226,7 +227,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
         if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscStation = (VscConverterStation) station;
-            if (vscStation.isRegulating()) {
+            if (vscStation.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
                 replaceHvdcLineByGenerator(hvdcLine, vl, terminal, vscStation);
             } else {
                 replaceHvdcLineByLoad(hvdcLine, vl, terminal);
@@ -262,18 +263,17 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, VscConverterStation station) {
         double maxP = hvdcLine.getMaxP();
+        station.isRemoteRegulating();
         GeneratorAdder genAdder = vl.newGenerator()
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
-                .newVoltageRegulation()
-                    .withMode(RegulationMode.VOLTAGE)
-                    .add()
                 .setMaxP(maxP)
                 .setMinP(-maxP)
                 .setTargetP(-checkP(terminal))
-                .setTargetV(station.getLocalTargetV())
-                .setTargetQ(station.getLocalTargetQ());
+                .setLocalTargetV(station.getLocalTargetV())
+                .setLocalTargetQ(station.getLocalTargetQ());
+        addVoltageRegulation(genAdder, station);
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();
@@ -315,6 +315,16 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         generator.newExtension(ActivePowerControlAdder.class).withParticipate(false).add();
 
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
+    }
+
+    private void addVoltageRegulation(GeneratorAdder genAdder, VscConverterStation station) {
+        VoltageRegulationAdder<GeneratorAdder> adder = genAdder.newVoltageRegulation();
+        adder.withMode(RegulationMode.VOLTAGE);
+        if (station.isRemoteRegulating()) {
+            adder.withTargetValue(station.getVoltageRegulation().getTargetValue())
+                .withTerminal(station.getVoltageRegulation().getTerminal());
+        }
+        adder.add();
     }
 
     private static void fillNodeOrBus(InjectionAdder<?, ?> adder, Terminal terminal) {

@@ -64,7 +64,7 @@ public final class SvcTestCaseFactory {
                 .setBus("B1")
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();
@@ -96,7 +96,7 @@ public final class SvcTestCaseFactory {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(LOCAL_TARGET_V)
+                .setLocalTargetV(LOCAL_TARGET_V)
                 .add();
         network.newLine()
                 .setId("L1")
@@ -132,8 +132,8 @@ public final class SvcTestCaseFactory {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(LOCAL_TARGET_V)
-                .setTargetQ(LOCAL_TARGET_Q)
+                .setLocalTargetV(LOCAL_TARGET_V)
+                .setLocalTargetQ(LOCAL_TARGET_Q)
                 .add();
 
         return network;
@@ -149,7 +149,7 @@ public final class SvcTestCaseFactory {
         StaticVarCompensator svc2 = network.getStaticVarCompensator("SVC2");
         svc2.getVoltageRegulation()
                 // use a real remote terminal
-                .setTerminal(network.getGenerator("G1").getTerminal(), REMOTE_TARGET_VALUE);
+                .setTerminal(network.getLoad("L2").getTerminal(), REMOTE_TARGET_VALUE);
         svc2.setLocalTargetV(Double.NaN);
         return network;
     }

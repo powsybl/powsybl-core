@@ -38,24 +38,34 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
     /**
      * @deprecated use {@link #newVoltageRegulation()}
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal);
 
     GeneratorAdder setTargetP(double targetP);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     GeneratorAdder setTargetQ(double targetQ);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     GeneratorAdder setTargetV(double targetV);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()}
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     GeneratorAdder setTargetV(double targetV, double equivalentLocalTargetV);
-
-    GeneratorAdder setLocalTargetV(double localTargetV);
 
     GeneratorAdder setRatedS(double ratedS);
 

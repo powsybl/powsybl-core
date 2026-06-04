@@ -704,7 +704,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "25.2", "k");
 
             // Generator with local reactive
-            // TODO MSA fix me (in the 1.16 version localReactiveenerator was used with remoteReactivePowerExtension)
+            // TODO MSA fix me (in the 1.16 version localReactiveGenerator was used with remoteReactivePowerExtension)
             network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "GEN_RC", "false", "true", "0", "200", "M");

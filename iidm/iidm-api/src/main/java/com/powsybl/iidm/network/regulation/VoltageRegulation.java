@@ -54,7 +54,7 @@ public interface VoltageRegulation {
     /**
      * The slope attribute is relevant for:
      * {@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}: it corresponds to the lambda in U0 = U + lambda*Q
-     * {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER}: it corresponds to the tan(phi) in Q = tan(phi)*P
+     * Not yet supported: {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER}: it corresponds to the tan(phi) in Q = tan(phi)*P
      * @see VariantManager
      */
     double getSlope();

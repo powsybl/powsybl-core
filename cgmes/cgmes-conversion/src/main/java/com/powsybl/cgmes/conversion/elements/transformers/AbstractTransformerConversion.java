@@ -19,6 +19,7 @@ import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -240,14 +241,13 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     // and the regulation must be turned off before assigning potentially invalid regulation values,
     // to ensure consistency with the applied checks
     private static void setRegulation(RatioTapChanger rtc, double targetV, double targetDeadband, boolean regulatingOn) {
-        if (regulatingOn) {
-            rtc.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband)
-                    .setRegulating(true);
+        VoltageRegulation voltageRegulation = rtc.getVoltageRegulation();
+        if (voltageRegulation != null) {
+            voltageRegulation.setTargetValue(targetV);
+            voltageRegulation.setTargetDeadband(targetDeadband);
+            voltageRegulation.setRegulating(regulatingOn);
         } else {
-            rtc.setRegulating(false)
-                    .setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
+            // TODO MSA ERROR? missing voltageRegulation
         }
     }
 
@@ -410,7 +410,7 @@ public abstract class AbstractTransformerConversion extends AbstractConductingEq
     }
 
     private static double getDefaultTargetV(com.powsybl.iidm.network.RatioTapChanger ratioTapChanger, Context context) {
-        return getDefaultValue(null, ratioTapChanger.getTargetV(), Double.NaN, Double.NaN, context);
+        return getDefaultValue(null, ratioTapChanger.getRegulatingTargetV(), Double.NaN, Double.NaN, context);
     }
 
     private static double getDefaultTargetValue(com.powsybl.iidm.network.PhaseTapChanger phaseTapChanger, Context context) {

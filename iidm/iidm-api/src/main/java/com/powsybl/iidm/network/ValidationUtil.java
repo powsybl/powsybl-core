@@ -227,24 +227,22 @@ public final class ValidationUtil {
             }
         } else if (Double.isNaN(reactivePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "targetQ", "VoltageRegulation not set or set with regulating=false", actionOnError,
-                    id -> NetworkReports.reactivePowerSetpointInvalidVoltageRegulatorOff(reportNode, id, reactivePowerSetpoint));
+                    id -> NetworkReports.invalidLocalTargetQVoltageRegulationUnset(reportNode, id, reactivePowerSetpoint));
             return ValidationLevel.EQUIPMENT;
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
-    public static ValidationLevel checkDoublePositive(Validable validable, double value, String valueName) {
+    public static void checkDoublePositive(Validable validable, double value, String valueName) {
         if (!Double.isNaN(value) && value < 0) {
             throw createInvalidValueException(validable, value, valueName, "must be positive");
         }
-        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
-    public static ValidationLevel checkNotNanValue(Validable validable, double value, String valueName, String reason) {
+    public static void checkNotNanValue(Validable validable, double value, String valueName, String reason) {
         if (Double.isNaN(value)) {
             throw createInvalidValueException(validable, value, valueName, reason);
         }
-        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     public static ValidationLevel checkLocalTargetQandV(Validable validable,
@@ -261,30 +259,30 @@ public final class ValidationUtil {
         if (voltageRegulationMissing) {
             if (Double.isNaN(localTargetQ) && !(validable instanceof StaticVarCompensator)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is not set", actionOnError,
-                    id -> NetworkReports.reactivePowerSetpointInvalidVoltageRegulatorOff(reportNode, id, localTargetQ));
+                    id -> NetworkReports.invalidLocalTargetQVoltageRegulationUnset(reportNode, id, localTargetQ));
                 return ValidationLevel.EQUIPMENT;
             }
         } else if (!regulating) {
             if (Double.isNaN(localTargetQ) && !(validable instanceof StaticVarCompensator)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with regulating false", actionOnError,
-                    id -> NetworkReports.reactivePowerSetpointInvalidVoltageRegulatorOff(reportNode, id, localTargetQ));
+                    id -> NetworkReports.invalidLocalTargetQRegulatingOff(reportNode, id, localTargetQ));
                 return ValidationLevel.EQUIPMENT;
             }
         } else if (RegulationMode.VOLTAGE.equals(regulationMode)) {
             if (Double.isNaN(localTargetV)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal", actionOnError,
-                    id -> NetworkReports.reactivePowerSetpointInvalidVoltageRegulatorOff(reportNode, id, localTargetV));
+                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
+                    id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
                 return ValidationLevel.EQUIPMENT;
             }
             if (localTargetV < 0) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and unset terminal", actionOnError,
-                    id -> NetworkReports.reactivePowerSetpointInvalidVoltageRegulatorOff(reportNode, id, localTargetV));
+                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
+                    id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
                 return ValidationLevel.EQUIPMENT;
             }
         } else if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
             if (Double.isNaN(localTargetQ)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with REACTIVE_POWER mode and regulating true and unset terminal", actionOnError,
-                    id -> NetworkReports.reactivePowerSetpointInvalidVoltageRegulatorOff(reportNode, id, localTargetV));
+                throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset", actionOnError,
+                    id -> NetworkReports.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn(reportNode, id, localTargetV));
                 return ValidationLevel.EQUIPMENT;
             }
         }
@@ -318,7 +316,7 @@ public final class ValidationUtil {
                                                         ReportNode reportNode) {
         if (voltageRegulation == null) {
             return checkLocalTargetQandV(validable, localTargetV, localTargetQ, true, false, null, actionOnError, reportNode);
-        } else if (!voltageRegulation.isWithTerminal()) {
+        } else if (!voltageRegulation.isWithTerminal() || !voltageRegulation.isRegulating()) {
             return checkLocalTargetQandV(validable, localTargetV, localTargetQ, false, voltageRegulation.isRegulating(), voltageRegulation.getMode(), actionOnError, reportNode);
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -578,13 +576,13 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
+                                                                 Terminal regulationTerminal, RegulationMode regulationMode,
                                                                  double regulationValue, Network network, ValidationLevel validationLevel, ReportNode reportNode) {
         return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, regulationMode, regulationValue, network, checkValidationActionOnError(validationLevel), reportNode);
     }
 
     private static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, RatioTapChanger.RegulationMode regulationMode,
+                                                                 Terminal regulationTerminal, RegulationMode regulationMode,
                                                                  double regulationValue, Network network, ActionOnError actionOnError,
                                                                  ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -604,7 +602,7 @@ public final class ValidationUtil {
                         id -> NetworkReports.regulatingRtcNoRegulationValue(reportNode, id));
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
-            if (regulationMode == RatioTapChanger.RegulationMode.VOLTAGE && regulationValue <= 0) {
+            if (regulationMode == RegulationMode.VOLTAGE && regulationValue <= 0) {
                 throwExceptionOrLogError(validable, "bad target voltage " + regulationValue, actionOnError,
                         id -> NetworkReports.regulatingRtcBadTargetVoltage(reportNode, id, regulationValue));
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
@@ -1053,7 +1051,7 @@ public final class ValidationUtil {
         if (isWithTerminal) {
             if (Double.isNaN(targetValue)) {
                 throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", actionOnError,
-                    id -> NetworkReports.invalidVoltageRegulationTargetValue(reportNode, id));
+                    id -> NetworkReports.invalidVoltageRegulationTargetValueUndefined(reportNode, id));
                 return ValidationLevel.EQUIPMENT;
             }
             if (mode == RegulationMode.VOLTAGE) {
@@ -1062,7 +1060,7 @@ public final class ValidationUtil {
         } else {
             if (!Double.isNaN(targetValue)) {
                 throwExceptionOrLogError(owner, "Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", actionOnError,
-                    id -> NetworkReports.invalidVoltageRegulationTargetValue(reportNode, id));
+                    id -> NetworkReports.invalidVoltageRegulationTargetValueInvalid(reportNode, id));
                 return ValidationLevel.EQUIPMENT;
             }
         }
@@ -1096,7 +1094,7 @@ public final class ValidationUtil {
     }
 
     private static ValidationLevel checkVoltageRegulationSlope(@NonNull Validable owner, RegulationMode mode, double slope, ActionOnError actionOnError, ReportNode reportNode) {
-        Set<RegulationMode> slopeMode = Set.of(com.powsybl.iidm.network.regulation.RegulationMode.VOLTAGE_PER_REACTIVE_POWER, com.powsybl.iidm.network.regulation.RegulationMode.REACTIVE_POWER_PER_ACTIVE_POWER);
+        Set<RegulationMode> slopeMode = Set.of(RegulationMode.VOLTAGE_PER_REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
         if (mode != null && Double.isNaN(slope) && slopeMode.contains(mode)) {
             throwExceptionOrLogError(owner, "Undefined value for voltageRegulation.slope. Must be not null for regulationMode VOLTAGE_PER_REACTIVE_POWER and REACTIVE_POWER_PER_ACTIVE_POWER", actionOnError,
                 id -> NetworkReports.invalidVoltageRegulationSlope(reportNode, id));
@@ -1141,7 +1139,7 @@ public final class ValidationUtil {
             Set<RegulationMode> allowedModes = RegulationMode.getAllowedRegulationModes(isRemote, classHolder);
             if (!allowedModes.contains(mode)) {
                 String allowedModesString = allowedModes.stream().map(RegulationMode::name).collect(Collectors.joining(", "));
-                String message = String.format("The current regulationMode is %s but allowed modes are %s when isRemote = %s",
+                String message = String.format("The current regulationMode is %s but allowed modes are [%s] when isRemote = %s",
                     mode, allowedModesString, isRemote);
                 throwExceptionOrLogError(owner, message, actionOnError,
                     id -> NetworkReports.invalidVoltageRegulationModeAllowed(reportNode, id, mode.name(), allowedModesString));

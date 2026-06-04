@@ -112,7 +112,7 @@ public abstract class AbstractBatteryTest {
                 .setMaxP(20.0)
                 .setMinP(10.0)
                 .setTargetP(15.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setBus("NBAT")
                 .add();
         Battery battery = network.getBattery(BAT_ID);
@@ -266,7 +266,7 @@ public abstract class AbstractBatteryTest {
         voltageLevel.newBattery()
                 .setId(id)
                 .setTargetP(targetP)
-                .setTargetQ(targetQ)
+                .setLocalTargetQ(targetQ)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setBus("NBAT")
@@ -274,7 +274,7 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
-    void test() {
+    void regulationTest() {
         // GIVEN
         // WHEN
         RegulationMode regulationMode = RegulationMode.VOLTAGE;
@@ -289,7 +289,7 @@ public abstract class AbstractBatteryTest {
             .setMinP(-999.0)
             .setMaxP(999.0)
             .setTargetP(100.0)
-            .setTargetQ(50.0)
+            .setLocalTargetQ(50.0)
             .newVoltageRegulation()
                 .withMode(regulationMode)
                 .withTargetValue(targetValue)

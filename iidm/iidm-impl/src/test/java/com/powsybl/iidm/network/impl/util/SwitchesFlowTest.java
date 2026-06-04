@@ -250,8 +250,8 @@ class SwitchesFlowTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(p)
-            .setTargetV(225.0)
-            .setTargetQ(q)
+            .setLocalTargetV(225.0)
+            .setLocalTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

@@ -99,13 +99,6 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         return this.localTargetQ.get(getNetwork().getVariantIndex());
     }
 
-    public void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setParent(this);
-        });
-    }
-
     @Override
     public double getVoltageSetpoint() {
         return this.getRegulatingTargetV();
@@ -250,12 +243,6 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     }
 
     @Override
-    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
-        return this.voltageRegulation;
-    }
-
-    @Override
     public VoltageRegulation getVoltageRegulation() {
         return this.voltageRegulation;
     }
@@ -274,6 +261,13 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
         this.attachVoltageRegulation();
+    }
+
+    private void attachVoltageRegulation() {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(this);
+            vr.setHolder(this);
+        });
     }
 
 }

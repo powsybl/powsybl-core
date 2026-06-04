@@ -13,7 +13,6 @@ import com.powsybl.commons.PowsyblException
 import com.powsybl.iidm.modification.GeneratorModification
 import com.powsybl.iidm.modification.NetworkModification
 import com.powsybl.iidm.network.regulation.RegulationMode
-import com.powsybl.iidm.network.regulation.VoltageRegulation
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -46,6 +45,8 @@ class GeneratorModificationModificationExtension implements DslModificationExten
         Double targetQ
         RegulationMode voltageRegulationMode
         Boolean regulating;
+        // Backward compatibility, use regulating and voltageRegulationMode instead
+        @Deprecated(forRemoval = true, since = "7.3.0")
         Boolean voltageRegulatorOn
         Boolean connected
 
@@ -106,16 +107,13 @@ class GeneratorModificationModificationExtension implements DslModificationExten
             this.targetQ = targetQ
         }
 
+        @Deprecated(forRemoval = true, since = "7.3.0")
         void voltageRegulatorOn(Boolean voltageRegulatorOn) {
             this.voltageRegulatorOn = voltageRegulatorOn
         }
 
         void voltageRegulationMode(RegulationMode voltageRegulationMode) {
             this.voltageRegulationMode = voltageRegulationMode
-        }
-
-        void voltageRegulationTargetValue(Double voltageRegulationTargetValue) {
-            this.voltageRegulationTargetValue = voltageRegulationTargetValue
         }
 
         void regulating(Boolean regulating) {

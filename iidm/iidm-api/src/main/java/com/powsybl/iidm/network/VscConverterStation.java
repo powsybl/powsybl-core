@@ -82,7 +82,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return true if voltage regulator is on, false otherwise
      * @deprecated use {@link VoltageRegulation#isRegulating()} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -91,7 +91,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return the converter itself to allow method chaining
      * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VscConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
@@ -99,7 +99,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return the voltage setpoint
      * @deprecated use {@link #getRegulatingTargetV()} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     double getVoltageSetpoint();
 
     /**
@@ -108,7 +108,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return the converter itself to allow method chaining
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#VOLTAGE} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VscConverterStation setVoltageSetpoint(double voltageSetpoint);
 
     /**
@@ -116,7 +116,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return the reactive power setpoint
      * @deprecated use {@link #getRegulatingTargetQ()} ()} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     double getReactivePowerSetpoint();
 
     /**
@@ -125,13 +125,13 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return the converter itself to allow method chaining
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#REACTIVE_POWER} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
      * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     default VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
         return this;
     }

@@ -65,7 +65,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setMaxP(20.0)
                 .setMinP(10.0)
                 .setTargetP(15.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setNode(4)
                 .add();
         voltageLevel1.newShuntCompensator()
@@ -82,7 +82,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode(12)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -97,7 +97,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc1", networkId))
                 .setNode(10)
                 .setLossFactor(1.1f)
-                .setTargetV(405.0)
+                .setLocalTargetV(405.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -124,7 +124,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("vsc2", networkId))
                 .setNode(11)
                 .setLossFactor(1.1f)
-                .setTargetQ(123)
+                .setLocalTargetQ(123)
                 .add();
 
         n.newHvdcLine()
@@ -288,7 +288,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setDcNode2(dcNode2.getId())
                 .setTargetP(0.)
                 .setTargetVdc(500.)
-                .setTargetQ(0.0)
+                .setLocalTargetQ(0.0)
                 .add();
 
         return n;

@@ -216,8 +216,8 @@ class SVTest {
             .setMaxP(500.0)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .setTargetP(p)
-            .setTargetV(targetV)
-            .setTargetQ(q)
+            .setLocalTargetV(targetV)
+            .setLocalTargetQ(q)
             .setNode(node)
             .add();
         generator.newMinMaxReactiveLimits()

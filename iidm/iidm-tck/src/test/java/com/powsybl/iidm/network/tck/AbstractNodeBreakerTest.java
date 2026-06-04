@@ -101,7 +101,7 @@ public abstract class AbstractNodeBreakerTest {
             .setMaxP(100)
             .setMinP(50)
             .setTargetP(100)
-            .setTargetV(400)
+            .setLocalTargetV(400)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
         vl.newGenerator()
@@ -110,7 +110,7 @@ public abstract class AbstractNodeBreakerTest {
             .setMaxP(100)
             .setMinP(50)
             .setTargetP(100)
-            .setTargetV(400)
+            .setLocalTargetV(400)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 

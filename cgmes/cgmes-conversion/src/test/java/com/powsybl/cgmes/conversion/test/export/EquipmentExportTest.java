@@ -28,6 +28,8 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -613,7 +615,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         vl.getBusBreakerView().newBus().setId("Bus1").add();
         Generator g = vl.newGenerator().setId("Generator1").setBus("Bus1")
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setTargetP(0).setMinP(0).setMaxP(10)
                 .add();
         g.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
@@ -797,9 +799,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .beginStep()
                 .setRho(1.0)
                 .endStep()
-                .setTargetV(twtNetwork.getTerminal1().getVoltageLevel().getNominalV())
-                .setTargetDeadband(2.0)
-                .setRegulationTerminal(twtNetwork.getTerminal1())
+                .setLoadTapChangingCapabilities(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(twtNetwork.getTerminal1().getVoltageLevel().getNominalV())
+                    .withTerminal(twtNetwork.getTerminal1())
+                    .withTargetDeadband(2.0)
+                    .add()
                 .add();
         twtNetwork.newPhaseTapChanger()
                 .setLowTapPosition(0)
@@ -825,7 +831,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
 
-        assertEquals(twtNetwork.getRatioTapChanger().getTargetV(), twtActual.getRatioTapChanger().getTargetV());
+        assertEquals(twtNetwork.getRatioTapChanger().getRegulatingTargetV(), twtActual.getRatioTapChanger().getRegulatingTargetV());
         assertEquals(twtNetwork.getRatioTapChanger().getTargetDeadband(), twtActual.getRatioTapChanger().getTargetDeadband());
 
         assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
@@ -904,9 +910,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .beginStep()
                 .setRho(1.0)
                 .endStep()
-                .setTargetV(leg.getTerminal().getVoltageLevel().getNominalV())
-                .setTargetDeadband(2.0)
-                .setRegulationTerminal(leg.getTerminal())
+                .setLoadTapChangingCapabilities(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(leg.getTerminal().getVoltageLevel().getNominalV())
+                    .withTerminal(leg.getTerminal())
+                    .withTargetDeadband(2.0)
+                    .add()
                 .add();
         leg.newPhaseTapChanger()
                 .setLowTapPosition(0)
@@ -923,7 +933,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private static void checkLeg(ThreeWindingsTransformer.Leg legNetwork, ThreeWindingsTransformer.Leg legActual) {
-        assertEquals(legNetwork.getRatioTapChanger().getTargetV(), legActual.getRatioTapChanger().getTargetV());
+        assertEquals(legNetwork.getRatioTapChanger().getRegulatingTargetV(), legActual.getRatioTapChanger().getRegulatingTargetV());
         assertEquals(legNetwork.getRatioTapChanger().getTargetDeadband(), legActual.getRatioTapChanger().getTargetDeadband());
 
         assertEquals(legNetwork.getPhaseTapChanger().getRegulationMode().name(), legActual.getPhaseTapChanger().getRegulationMode().name());
@@ -1421,7 +1431,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setCondenser(true)
                 .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -1796,7 +1806,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
             } else if (identifiable instanceof Branch<?> branch) {
                 branch.getTerminal1().setP(0.0).setQ(0.0);
                 branch.getTerminal2().setP(0.0).setQ(0.0);
+                if (branch instanceof TwoWindingsTransformer twoWindingsTransformer) {
+                    prepareVoltageRegulationForEqComparison(twoWindingsTransformer.getRatioTapChanger());
+                }
             } else if (identifiable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
+                prepareVoltageRegulationForEqComparison(threeWindingsTransformer);
                 threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
                 threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);
@@ -1814,6 +1828,24 @@ class EquipmentExportTest extends AbstractSerDeTest {
         network.removeExtension(CimCharacteristics.class);
 
         return network;
+    }
+
+    private void prepareVoltageRegulationForEqComparison(ThreeWindingsTransformer threeWindingsTransformer) {
+        Arrays.stream(ThreeSides.values())
+            .forEach(side ->
+                prepareVoltageRegulationForEqComparison(threeWindingsTransformer.getLeg(side).getRatioTapChanger()));
+    }
+
+    private void prepareVoltageRegulationForEqComparison(VoltageRegulationHolder holder) {
+        if (holder != null) {
+            VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+            if (voltageRegulation != null) {
+                voltageRegulation.setTargetValue(Double.NaN);
+                voltageRegulation.setRegulating(false);
+                voltageRegulation.setTargetDeadband(Double.NaN);
+                voltageRegulation.setSlope(Double.NaN);
+            }
+        }
     }
 
     private static Network allGeneratingUnitTypesNetwork() {
@@ -1840,7 +1872,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .add();
         voltageLevel1.newGenerator()
                 .setId("nuclear")
@@ -1848,7 +1880,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .add();
         voltageLevel1.newGenerator()
@@ -1857,7 +1889,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setEnergySource(EnergySource.THERMAL)
                 .add();
         voltageLevel1.newGenerator()
@@ -1866,7 +1898,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setEnergySource(EnergySource.HYDRO)
                 .add();
         voltageLevel1.newGenerator()
@@ -1875,7 +1907,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setEnergySource(EnergySource.SOLAR)
                 .add();
         Generator windOnshore = voltageLevel1.newGenerator()
@@ -1884,7 +1916,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setEnergySource(EnergySource.WIND)
                 .add();
         Generator windOffshore = voltageLevel1.newGenerator()
@@ -1893,7 +1925,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(25.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setEnergySource(EnergySource.WIND)
                 .add();
         topology1.newInternalConnection().setNode1(0).setNode2(1).add();

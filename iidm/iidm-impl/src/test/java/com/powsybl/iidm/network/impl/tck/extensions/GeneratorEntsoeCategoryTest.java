@@ -43,7 +43,7 @@ class GeneratorEntsoeCategoryTest {
             .setMaxP(100)
             .setMinP(50)
             .setTargetP(100)
-            .setTargetV(400)
+            .setLocalTargetV(400)
             .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 

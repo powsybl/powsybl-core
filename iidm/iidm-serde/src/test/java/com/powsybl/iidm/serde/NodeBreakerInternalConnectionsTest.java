@@ -52,7 +52,7 @@ class NodeBreakerInternalConnectionsTest extends AbstractIidmSerDeTest {
                 .setMaxP(100)
                 .setTargetP(10)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .add();
         n1.newInternalConnection().setNode1(0).setNode2(1).add();
         n1.newSwitch().setId("br1").setNode1(1).setNode2(2).setKind(SwitchKind.BREAKER).add();

@@ -31,8 +31,8 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
 
     static final String ROOT_ELEMENT_NAME = "vscConverterStation";
     static final String ARRAY_ELEMENT_NAME = "vscConverterStations";
-    private static final String TARGET_V = "targetV";
-    private static final String TARGET_Q = "targetQ";
+    private static final String LOCAL_TARGET_V = "localTargetV";
+    private static final String LOCAL_TARGET_Q = "localTargetQ";
 
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
 
@@ -48,8 +48,8 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
         context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
         writeVoltageSetpoint(cs, context);
         writeReactivePowerSetpoint(cs, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_V, cs.getLocalTargetV()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(TARGET_Q, cs.getLocalTargetQ()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, cs.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, cs.getLocalTargetQ()));
 
         writeNodeOrBus(null, cs.getTerminal(), context);
         writePQ(null, cs.getTerminal(), context.getWriter());
@@ -86,8 +86,8 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint")));
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            adder.setTargetV(context.getReader().readDoubleAttribute(TARGET_V, Double.NaN));
-            adder.setTargetQ(context.getReader().readDoubleAttribute(TARGET_Q, Double.NaN));
+            adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V, Double.NaN));
+            adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
         });
 
         readVoltageRegulation(adder, context, voltageRegulatorOnRef, voltageSetpoint, reactivePowerSetpoint);
@@ -106,8 +106,8 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
     private static void readVoltageRegulation(VscConverterStationAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
             VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
-            adder.setTargetV(voltageRegulationData.targetV());
-            adder.setTargetQ(voltageRegulationData.targetQ());
+            adder.setLocalTargetV(voltageRegulationData.targetV());
+            adder.setLocalTargetQ(voltageRegulationData.targetQ());
             if (voltageRegulationData.regulationMode() != null) {
                 adder.newVoltageRegulation()
                     .withMode(voltageRegulationData.regulationMode())

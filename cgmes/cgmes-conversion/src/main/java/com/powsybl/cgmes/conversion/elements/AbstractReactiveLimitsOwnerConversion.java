@@ -215,6 +215,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         if (voltageRegulation == null || voltageRegulation.getMode() != RegulationMode.REACTIVE_POWER) {
             return;
         }
+        // VoltageRegulation With Reactive_POWER for generator = remote ReactivePower
         Optional<PropertyBag> cgmesRegulatingControl = findCgmesRegulatingControl(generator, context);
         int terminalSign = findTerminalSign(generator);
         double defaultTargetQ = getDefaultTargetQ(voltageRegulation.getTargetValue(), context);

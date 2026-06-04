@@ -76,7 +76,7 @@ public abstract class AbstractNetworksTest {
         assertNotEquals(load.getTerminal().getQ(), load.getQ0());
         assertNotEquals(-generator.getTerminal().getP(), generator.getTargetP());
         assertNotEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
-        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
+        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
 
         Networks.applySolvedValues(network);
         assertEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
@@ -86,7 +86,7 @@ public abstract class AbstractNetworksTest {
         assertEquals(load.getTerminal().getQ(), load.getQ0());
         assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
         assertEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
-        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
+        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
     }
 
     @Test

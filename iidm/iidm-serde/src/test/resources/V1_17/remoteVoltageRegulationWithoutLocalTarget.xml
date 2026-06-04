@@ -9,14 +9,14 @@
                 <iidm:switch id="breaker3" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
             </iidm:nodeBreakerTopology>
 
-            <iidm:generator id="generator1" energySource="OTHER" minP="0.0" maxP="100.0" targetP="10.0" targetV="400.0" isCondenser="true" node="0">
+            <iidm:generator id="generator1" energySource="OTHER" minP="0.0" maxP="100.0" targetP="10.0" isCondenser="true" node="0">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true" targetValue="400.0">
-                    <iidm:terminal id="load"/>
+                    <iidm:terminalRef id="load"/>
                 </iidm:voltageRegulation>
             </iidm:generator>
 
-            <iidm:generator id="generator2" energySource="OTHER" minP="0.0" maxP="100.0" targetP="10.0" targetV="400.0" node="1">
+            <iidm:generator id="generator2" energySource="OTHER" minP="0.0" maxP="100.0" targetP="10.0" localTargetV="400.0" node="1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
                 <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>

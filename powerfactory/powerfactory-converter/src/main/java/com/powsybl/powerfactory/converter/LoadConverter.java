@@ -62,7 +62,7 @@ class LoadConverter extends AbstractConverter {
                     .setEnsureIdUnicity(true)
                     .setNode(newNode)
                     .setTargetP(-generatorModel.p0)
-                    .setTargetQ(-generatorModel.q0)
+                    .setLocalTargetQ(-generatorModel.q0)
                     .setMaxP(-generatorModel.p0)
                     .setMinP(-generatorModel.p0)
                     .add();

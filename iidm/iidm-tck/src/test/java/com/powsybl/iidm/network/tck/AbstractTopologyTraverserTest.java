@@ -50,7 +50,7 @@ public abstract class AbstractTopologyTraverserTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
         vl1.getNodeBreakerView().newInternalConnection()

@@ -109,7 +109,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             return fromModifs;
         }
 
-        double fromGenerator = generator.getTargetV();
+        double fromGenerator = generator.getLocalTargetV();
         if (!Double.isNaN(fromGenerator)) {
             return fromGenerator;
         }
@@ -258,7 +258,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         /**
          * @deprecated use {@link VoltageRegulation#isRegulating()} instead
          */
-        @Deprecated(forRemoval = true, since = "7.2.0")
+        @Deprecated(forRemoval = true, since = "7.3.0")
         public Boolean getVoltageRegulatorOn() {
             return this.voltageRegulationMode != null && this.voltageRegulationMode == RegulationMode.VOLTAGE;
         }
@@ -266,7 +266,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         /**
          * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
          */
-        @Deprecated(forRemoval = true, since = "7.2.0")
+        @Deprecated(forRemoval = true, since = "7.3.0")
         public void setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
             if (TRUE.equals(voltageRegulatorOn)) {
                 this.voltageRegulationMode = RegulationMode.VOLTAGE;
@@ -316,7 +316,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (areValuesEqual(modifs.getMinP(), g.getMinP(), false)
             && areValuesEqual(modifs.getMaxP(), g.getMaxP(), false)
-            && areValuesEqual(modifs.getTargetV(), g.getTargetV(), false)
+            && areValuesEqual(modifs.getTargetV(), g.getLocalTargetV(), false)
             && areValuesEqual(modifs.getTargetQ(), g.getLocalTargetQ(), false)
             && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
             && voltageRegulationHasNoImpactOnNetwork(g)

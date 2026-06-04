@@ -20,6 +20,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
@@ -701,10 +702,20 @@ public final class EquipmentExport {
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
             // TODO OPE: use a "default" regulation mode?
-            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(),
-                    context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()),
-                    regulatingControlId, inductiveRating, capacitiveRating, svc.getVoltageRegulation().getSlope(),
-                    svc.getVoltageRegulation().getMode(), svc.getRegulatingTargetV(), cimNamespace, writer, context);
+            RegulationMode regulationMode = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getMode() : null;
+            double slope = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getSlope() : Double.NaN;
+            StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc),
+                svc.getNameOrId(),
+                context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()),
+                regulatingControlId,
+                inductiveRating,
+                capacitiveRating,
+                slope,
+                regulationMode,
+                svc.getRegulatingTargetV(),
+                cimNamespace,
+                writer,
+                context);
         }
     }
 

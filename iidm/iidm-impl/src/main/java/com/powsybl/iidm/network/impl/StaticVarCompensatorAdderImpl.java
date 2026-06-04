@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -61,19 +63,19 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
-    public StaticVarCompensatorAdder setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
+    public StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ) {
+        this.targetQ = localTargetQ;
         return this;
     }
 
     @Override
-    public double getTargetQ() {
+    public double getLocalTargetQ() {
         return this.targetQ;
     }
 
     @Override
-    public StaticVarCompensatorAdder setTargetV(double targetV) {
-        this.targetV = targetV;
+    public StaticVarCompensatorAdder setLocalTargetV(double localTargetV) {
+        this.targetV = localTargetV;
         return this;
     }
 
@@ -124,19 +126,8 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         if (regulationMode == null) {
             regulationMode = RegulationMode.VOLTAGE;
         }
-        if (voltageRegulation == null) {
-            double targetValue;
-            if (regulationMode == RegulationMode.VOLTAGE) {
-                targetValue = voltageSetpoint;
-            } else {
-                targetValue = reactivePowerSetpoint;
-            }
-            newVoltageRegulation()
-                .withMode(regulationMode)
-                .withTerminal(regulatingTerminal)
-                .withTargetValue(targetValue)
-                .withRegulating(Boolean.TRUE.equals(regulating))
-                .add();
+        if (voltageRegulation == null && regulating != null) {
+            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
         }
 
         TerminalExt terminal = checkAndGetTerminal();

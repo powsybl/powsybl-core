@@ -11,10 +11,10 @@
                 <iidm:switch id="disconnector_gen2" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="5"/>
                 <iidm:switch id="breaker_gen2" kind="BREAKER" retained="false" open="false" node1="5" node2="6"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="gen1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="10.0" targetQ="0.0" node="4">
+            <iidm:generator id="gen1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="10.0" localTargetQ="0.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
-            <iidm:generator id="gen2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="20.0" targetQ="0.0" node="6">
+            <iidm:generator id="gen2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="20.0" localTargetQ="0.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
         </iidm:voltageLevel>

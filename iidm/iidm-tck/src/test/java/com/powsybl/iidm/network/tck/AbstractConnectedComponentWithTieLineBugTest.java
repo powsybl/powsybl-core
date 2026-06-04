@@ -38,7 +38,7 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setBus("b1")
                 .setConnectableBus("b1")
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setLocalTargetV(400.0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMinP(50.0)
                 .setMaxP(150.0)

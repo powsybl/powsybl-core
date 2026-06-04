@@ -175,7 +175,7 @@ class SetGeneratorToLocalRegulationTest {
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
-                .setTargetV(25)
+                .setLocalTargetV(25)
                 // No regulatingTerminal set == use its own terminal for regulation
                 .add();
 
@@ -186,7 +186,7 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setTargetV(22)
+                .setLocalTargetV(22)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -214,8 +214,8 @@ class SetGeneratorToLocalRegulationTest {
                 .setMinP(100)
                 .setMaxP(200)
                 .setTargetP(200)
-                .setTargetV(20.1) // Very close to 20.0 but as we are with the REACTIVE mode we don't use
-                .setTargetQ(111) // Very close to 20.0 but as we are with the REACTIVE mode we don't use
+                .setLocalTargetV(20.1) // Very close to 20.0 but as we are with the REACTIVE mode we don't use
+                .setLocalTargetQ(111) // Very close to 20.0 but as we are with the REACTIVE mode we don't use
                 // No regulatingTerminal set == use its own terminal for regulation
                 .add();
 

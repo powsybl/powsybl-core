@@ -145,7 +145,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @return true if voltage regulator is on, false otherwise
      * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -154,7 +154,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @return the converter itself to allow method chaining
      * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverter setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
@@ -162,7 +162,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @return the voltage setpoint
      * @deprecated use {@link #getRegulatingTargetV()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     double getVoltageSetpoint();
 
     /**
@@ -171,7 +171,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @return the converter itself to allow method chaining
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#VOLTAGE} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverter setVoltageSetpoint(double voltageSetpoint);
 
     /**
@@ -179,7 +179,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @return the reactive power setpoint
      * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     double getReactivePowerSetpoint();
 
     /**
@@ -188,12 +188,6 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * @return the converter itself to allow method chaining
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#REACTIVE_POWER} instead
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);
-
-    @Deprecated(forRemoval = true, since = "7.2.0")
-    VoltageSourceConverter setTargetQ(double targetQ);
-
-    @Deprecated(forRemoval = true, since = "7.2.0")
-    VoltageSourceConverter setTargetV(double targetV);
 }

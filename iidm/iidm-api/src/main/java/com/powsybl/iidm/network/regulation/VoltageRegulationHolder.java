@@ -22,11 +22,6 @@ public interface VoltageRegulationHolder {
     VoltageRegulationBuilder newVoltageRegulation();
 
     /**
-     * Creates a new VoltageRegulation instance based on the provided VoltageRegulation
-     */
-    VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation);
-
-    /**
      * Gets the current VoltageRegulation instance
      */
     VoltageRegulation getVoltageRegulation();
@@ -44,21 +39,14 @@ public interface VoltageRegulationHolder {
     Terminal getTerminal();
 
     /**
-     * Gets the target voltage value
-     *
-     * @return the target voltage value, or Double.NaN if not applicable
-     */
-    default double getTargetV() {
-        return Double.NaN;
-    }
-
-    /**
      * TODO MSA JAVADOC
      */
     VoltageRegulationHolder setLocalTargetV(double targetV);
 
     /**
-     * TODO MSA JAVADOC
+     * Gets the local target voltage value at the equipment's terminal
+     *
+     * @return the target voltage value, or Double.NaN if not applicable
      */
     default double getLocalTargetV() {
         return Double.NaN;
@@ -72,24 +60,17 @@ public interface VoltageRegulationHolder {
     }
 
     /**
-     * TODO MSA JAVADOC
-     * Get the target reactive power in MVar.
-     * <p>Depends on the working variant.
-     *
-     * @see VariantManager
-     */
-
-    /**
      * Gets the target reactive power value
      *
-     * @return the target reactive power value, or throw ?? MSA
+     * @return the target reactive power value, or Double.NaN if not applicable
      */
     default double getLocalTargetQ() {
-        return Double.NaN; // TODO MSA throw exception which one?
+        return Double.NaN;
     }
 
     /**
      * Checks if the object is associated with the specified regulation mode.
+     * In the case of the REACTIVE_POWER mode, we return true if the VoltageRegulation is missing.
      *
      * @param mode the regulation mode to check
      * @return true if associated with the specified mode, false otherwise
@@ -112,7 +93,8 @@ public interface VoltageRegulationHolder {
     }
 
     /**
-     * Checks if the object is regulating with the specified mode
+     * Checks if the object is regulating with the specified mode.
+     * In the case of the REACTIVE_POWER mode, we return true if the VoltageRegulation is missing.
      *
      * @param mode the regulation mode to check
      * @return true if regulating with the specified mode, false otherwise

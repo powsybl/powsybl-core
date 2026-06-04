@@ -91,7 +91,7 @@ final class TopologyTestUtils {
                 .setNode(2)
                 .setTargetP(0)
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
-                .setTargetV(400)
+                .setLocalTargetV(400)
                 .setMinP(0)
                 .setMaxP(10)
                 .add();

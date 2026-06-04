@@ -48,7 +48,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(390.0, svc.getRegulatingTargetV(), 0.0);
         assertEquals(390.0, svc.getLocalTargetV(), 0.0);
         assertEquals(Double.NaN, svc.getLocalTargetQ());
-        assertEquals(Double.NaN, svc.getTargetV());
+        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue());
     }
 
     @Test
@@ -85,7 +85,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc.setLocalTargetV(390.0);
         VoltageRegulationBuilder voltageRegulationBuilder = svc.newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER);
         ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationBuilder::build);
-        assertEquals("Static var compensator 'SVC2': invalid value (NaN) for localTargetQ (voltageRegulation is set with REACTIVE_POWER mode and regulating true and unset terminal)", validationException.getMessage());
+        assertEquals("Static var compensator 'SVC2': invalid value (NaN) for localTargetQ (voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset)", validationException.getMessage());
     }
 
     @Test
@@ -225,8 +225,8 @@ public abstract class AbstractStaticVarCompensatorTest {
                     .withTargetValue(regulatingTerminal != null ? 123 : Double.NaN)
                     .withTerminal(regulatingTerminal)
                     .add()
-                .setTargetV(390.0)
-                .setTargetQ(1.0)
+                .setLocalTargetV(390.0)
+                .setLocalTargetQ(1.0)
                 .add();
     }
 }

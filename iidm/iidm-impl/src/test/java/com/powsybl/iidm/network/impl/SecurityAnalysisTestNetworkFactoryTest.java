@@ -95,7 +95,7 @@ class SecurityAnalysisTestNetworkFactoryTest {
         assertEquals(150, generator.getMaxP(), threshold);
         assertTrue(generator.getVoltageRegulation().isRegulating());
         assertEquals(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
-        assertEquals(400, generator.getTargetV(), threshold);
+        assertEquals(400, generator.getLocalTargetV(), threshold);
         assertEquals(100, generator.getTargetP(), threshold);
     }
 

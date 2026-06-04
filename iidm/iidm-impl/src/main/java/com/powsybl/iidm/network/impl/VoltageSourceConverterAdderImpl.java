@@ -22,8 +22,8 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
     private Boolean voltageRegulatorOn;
     private double voltageSetpoint = Double.NaN;
     private double reactivePowerSetpoint = Double.NaN;
-    private double targetQ = Double.NaN;
-    private double targetV = Double.NaN;
+    private double localTargetQ = Double.NaN;
+    private double localTargetV = Double.NaN;
     private VoltageRegulationExt voltageRegulation = null;
 
     VoltageSourceConverterAdderImpl(VoltageLevelExt voltageLevel) {
@@ -42,19 +42,19 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
     }
 
     @Override
-    public VoltageSourceConverterAdder setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
+    public VoltageSourceConverterAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
         return this;
     }
 
     @Override
-    public double getTargetQ() {
-        return this.targetQ;
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
     }
 
     @Override
-    public VoltageSourceConverterAdder setTargetV(double targetV) {
-        this.targetV = targetV;
+    public VoltageSourceConverterAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
         return this;
     }
 
@@ -84,14 +84,14 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn != null && voltageRegulation == null) {
             voltageRegulatorOn = false;
         }
-        if (voltageRegulation == null) {
-            createVoltageRegulationBackwardCompatibility(this.newVoltageRegulation(), voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, null);
+        if (voltageRegulation == null && voltageRegulatorOn != null) {
+            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, null);
         }
         ValidationUtil.checkRegulatingTerminal(this, this.pccTerminal, network);
         VoltageSourceConverterImpl dcVsConverter = new VoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,
-                targetQ, targetV, voltageRegulation);
+            localTargetQ, localTargetV, voltageRegulation);
         super.checkAndAdd(dcVsConverter);
         return dcVsConverter;
     }

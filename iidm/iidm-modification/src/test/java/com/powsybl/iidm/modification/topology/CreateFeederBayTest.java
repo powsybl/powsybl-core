@@ -203,9 +203,9 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setMaxP(9999)
                 .setMinP(-9999)
-                .setTargetV(25.5)
+                .setLocalTargetV(25.5)
                 .setTargetP(600)
-                .setTargetQ(300)
+                .setLocalTargetQ(300)
                 .setRatedS(10)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setEnsureIdUnicity(true);
@@ -227,7 +227,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .setMaxP(9999)
                 .setMinP(-9999)
                 .setTargetP(100)
-                .setTargetQ(50);
+                .setLocalTargetQ(50);
         NetworkModification addBatteryModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(batteryAdder)
                 .withBusOrBusbarSectionId("bbs1")
@@ -285,8 +285,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
                             .withMode(RegulationMode.VOLTAGE)
                             .withRegulating(true)
                             .add()
-                        .setTargetV(390.0)
-                        .setTargetQ(1.0)
+                        .setLocalTargetV(390.0)
+                        .setLocalTargetQ(1.0)
                         .setEnsureIdUnicity(false);
         Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter2.isPresent());
@@ -322,7 +322,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
                 .setId("newVscConverterStation")
                 .setLossFactor(1.1f)
-                .setTargetV(405.0)
+                .setLocalTargetV(405.0)
                 .newVoltageRegulation()
                     .withMode(RegulationMode.VOLTAGE)
                     .add()
@@ -662,8 +662,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
         GeneratorAdder adder = network.getVoltageLevel("S1VL2").newGenerator()
             .setId("GEN")
             .setTargetP(0.0)
-            .setTargetV(100.0)
-            .setTargetQ(0)
+            .setLocalTargetV(100.0)
+            .setLocalTargetQ(0)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add()
@@ -742,11 +742,13 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(225.0)
-            .setTargetDeadband(0)
-            .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
+            .newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(225.0)
+                .withTargetDeadband(0)
+                .withTerminal(twt.getTerminal(TwoSides.ONE))
+                .add()
             .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);
@@ -804,11 +806,13 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(110.0)
-            .setTargetDeadband(0)
-            .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
+            .newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(110.0)
+                .withTargetDeadband(0)
+                .withTerminal(twt.getTerminal(TwoSides.ONE))
+                .add()
             .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);
@@ -867,11 +871,13 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-            .setRegulationValue(225.0)
-            .setTargetDeadband(0)
-            .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
+            .newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(225.0)
+                .withTargetDeadband(0)
+                .withTerminal(twt.getTerminal(TwoSides.ONE))
+                .add()
             .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);

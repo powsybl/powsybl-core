@@ -84,8 +84,8 @@ public final class TwoVoltageLevelNetworkFactory {
             .setMinP(0.0)
             .setMaxP(70.0)
             .setTargetP(0.0)
-            .setTargetV(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetV(0.0)
+            .setLocalTargetQ(0.0)
             .setBus("BUS1")
             .add();
         substation.newTwoWindingsTransformer()

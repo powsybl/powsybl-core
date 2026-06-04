@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
-import static com.powsybl.iidm.network.RatioTapChanger.RegulationMode.VOLTAGE;
 import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,13 +110,14 @@ public abstract class AbstractTapChangerHolderTest {
         Network network = exampleNetwork();
         RatioTapChanger existingRatioTapChanger = network.getTwoWindingsTransformer("transformer").newRatioTapChanger()
                 .setTapPosition(1)
-                .setTargetV(400)
-                .setRegulationValue(12)
-                .setRegulationMode(VOLTAGE)
+                .newVoltageRegulation()
+                    .withTargetValue(12)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(false)
+                    .withTargetDeadband(3)
+                    .add()
                 .setLowTapPosition(0)
-                .setRegulating(false)
                 .setLoadTapChangingCapabilities(true)
-                .setTargetDeadband(3)
                 .beginStep().setRho(2).setR(3).setG(4).setB(5).setX(6)
                 .endStep()
                 .beginStep().setRho(3).setR(4).setG(5).setB(6).setX(7)
@@ -131,12 +132,12 @@ public abstract class AbstractTapChangerHolderTest {
 
         assertEquals(existingRatioTapChanger.getTapPosition(), newRatioTapChanger.getTapPosition());
         assertEquals(existingRatioTapChanger.getLowTapPosition(), newRatioTapChanger.getLowTapPosition());
-        assertEquals(existingRatioTapChanger.getRegulationValue(), newRatioTapChanger.getRegulationValue());
-        assertEquals(existingRatioTapChanger.getRegulationMode(), newRatioTapChanger.getRegulationMode());
+        assertEquals(existingRatioTapChanger.getVoltageRegulation().getTargetValue(), newRatioTapChanger.getVoltageRegulation().getTargetValue());
+        assertEquals(existingRatioTapChanger.getVoltageRegulation().getMode(), newRatioTapChanger.getVoltageRegulation().getMode());
         assertEquals(existingRatioTapChanger.isRegulating(), newRatioTapChanger.isRegulating());
         assertEquals(existingRatioTapChanger.getTargetDeadband(), newRatioTapChanger.getTargetDeadband());
         assertEquals(existingRatioTapChanger.getRegulationTerminal(), newRatioTapChanger.getRegulationTerminal());
-        assertEquals(existingRatioTapChanger.getTargetV(), newRatioTapChanger.getTargetV());
+        assertEquals(existingRatioTapChanger.getRegulatingTargetV(), newRatioTapChanger.getRegulatingTargetV());
         assertEquals(existingRatioTapChanger.hasLoadTapChangingCapabilities(), newRatioTapChanger.hasLoadTapChangingCapabilities());
 
         newRatioTapChanger.getAllSteps().forEach((tap, newStep) -> {

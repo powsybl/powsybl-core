@@ -17,8 +17,8 @@ import java.util.Set;
 public enum RegulationMode {
     VOLTAGE,
     REACTIVE_POWER,
-    VOLTAGE_PER_REACTIVE_POWER,
-    REACTIVE_POWER_PER_ACTIVE_POWER;
+    VOLTAGE_PER_REACTIVE_POWER;
+    // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
 
     public static Set<RegulationMode> getAllowedRegulationModes(boolean isRemoteRegulating, Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
         return isRemoteRegulating ? getRemoteAllowedRegulationModes(voltageRegulationHolder) : getLocalAllowedRegulationModes(voltageRegulationHolder);
@@ -27,7 +27,7 @@ public enum RegulationMode {
     private static Set<RegulationMode> getRemoteAllowedRegulationModes(Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
-            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER, REACTIVE_POWER_PER_ACTIVE_POWER);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
             case Class<?> c when c == RatioTapChanger.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
             case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
@@ -40,8 +40,8 @@ public enum RegulationMode {
     private static Set<RegulationMode> getLocalAllowedRegulationModes(Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE);
-            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER_PER_ACTIVE_POWER);
-            case Class<?> c when c == RatioTapChanger.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+            case Class<?> c when c == RatioTapChanger.class -> Set.of();
             case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
             case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
             case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE);

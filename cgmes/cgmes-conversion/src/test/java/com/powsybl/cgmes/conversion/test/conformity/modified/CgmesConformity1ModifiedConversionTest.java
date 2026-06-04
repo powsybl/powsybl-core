@@ -244,13 +244,13 @@ class CgmesConformity1ModifiedConversionTest {
 
         Generator generator1 = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         assertNull(generator1.getVoltageRegulation());
-        assertTrue(Double.isNaN(generator1.getTargetV()));
+        assertTrue(Double.isNaN(generator1.getLocalTargetV()));
         assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
-        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertTrue(Double.isNaN(rtc.getRegulatingTargetV()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
 
@@ -273,12 +273,12 @@ class CgmesConformity1ModifiedConversionTest {
 
         Generator generator = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
         assertNull(generator.getVoltageRegulation());
-        assertTrue(Double.isNaN(generator.getTargetV()));
+        assertTrue(Double.isNaN(generator.getLocalTargetV()));
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
-        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertTrue(Double.isNaN(rtc.getRegulatingTargetV()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
 
@@ -360,7 +360,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(shunt.isWithMode(VOLTAGE));
         assertFalse(shunt.isRegulatingWithMode(VOLTAGE));
         assertEquals(Double.NaN, shunt.getRegulatingTargetV(), 0.0d);
-        assertEquals(Double.NaN, shunt.getTargetV());
+        assertEquals(Double.NaN, shunt.getLocalTargetV());
         assertEquals(0.0d, shunt.getVoltageRegulation().getTargetDeadband(), 0.0d);
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
     }
@@ -689,13 +689,9 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
         assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
         assertEquals(VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
-        assertFalse(generatorDisabledRegulation.getVoltageRegulation().isRegulating());
-        assertTrue(generatorWithRegulation.getVoltageRegulation().isRegulating());
         assertEquals(10.0, generatorDisabledRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
-        assertEquals(VOLTAGE, generatorDisabledRegulation.getVoltageRegulation().getMode());
         // Even if the control is disabled, the target voltage must be set
         assertEquals(10.0, generatorWithRegulation.getVoltageRegulation().getTargetValue(), 1e-10);
-        assertEquals(VOLTAGE, generatorWithRegulation.getVoltageRegulation().getMode());
     }
 
     @Test

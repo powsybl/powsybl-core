@@ -465,8 +465,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     }
 
     private static void addVoltageRegulation(VoltageSourceConverterAdder converterAdder, boolean acVoltageRegulation, double voltageSetPointAc, double targetQ) {
-        converterAdder.setTargetV(voltageSetPointAc)
-            .setTargetQ(-targetQ);
+        converterAdder.setLocalTargetV(voltageSetPointAc)
+            .setLocalTargetQ(-targetQ);
         if (acVoltageRegulation) {
             converterAdder.newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)

@@ -20,38 +20,38 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
 
     StaticVarCompensatorAdder setBmax(double bMax);
 
-    StaticVarCompensatorAdder setTargetQ(double targetQ);
+    StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ);
 
-    StaticVarCompensatorAdder setTargetV(double targetV);
+    StaticVarCompensatorAdder setLocalTargetV(double localTargetV);
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode);
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensatorAdder setRegulating(boolean regulating);
 
     /**
      * @deprecated use {@link #newVoltageRegulation()}
      */
-    @Deprecated(forRemoval = true, since = "7.2.0")
+    @Deprecated(forRemoval = true, since = "7.3.0")
     default StaticVarCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not yet implemented");
     }

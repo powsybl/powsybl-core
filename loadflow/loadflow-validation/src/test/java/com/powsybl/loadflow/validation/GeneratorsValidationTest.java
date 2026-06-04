@@ -83,7 +83,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(generator.getVoltageRegulation()).thenReturn(voltageRegulation);
         Mockito.when(generator.getTargetP()).thenReturn(targetP);
         Mockito.when(generator.getLocalTargetQ()).thenReturn(targetQ);
-        Mockito.when(generator.getTargetV()).thenReturn(targetV);
+        Mockito.when(generator.getLocalTargetV()).thenReturn(targetV);
         Mockito.when(generator.getMaxP()).thenReturn(maxP);
         Mockito.when(generator.getMinP()).thenReturn(minP);
         Mockito.when(generator.getReactiveLimits()).thenReturn(genReactiveLimits);
@@ -215,7 +215,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(voltageRegulation1.getMode()).thenReturn(RegulationMode.REACTIVE_POWER);
         Mockito.when(generator1.getTargetP()).thenReturn(targetP);
         Mockito.when(generator1.getLocalTargetQ()).thenReturn(targetQ);
-        Mockito.when(generator1.getTargetV()).thenReturn(targetV);
+        Mockito.when(generator1.getLocalTargetV()).thenReturn(targetV);
         Mockito.when(generator1.getMaxP()).thenReturn(maxP);
         Mockito.when(generator1.getMinP()).thenReturn(minP);
         Mockito.when(generator1.getReactiveLimits()).thenReturn(genReactiveLimits1);
@@ -259,7 +259,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(voltageRegulation2.getMode()).thenReturn(RegulationMode.REACTIVE_POWER);
         Mockito.when(generator2.getTargetP()).thenReturn(155.107);
         Mockito.when(generator2.getLocalTargetQ()).thenReturn(targetQ);
-        Mockito.when(generator2.getTargetV()).thenReturn(targetV);
+        Mockito.when(generator2.getLocalTargetV()).thenReturn(targetV);
         Mockito.when(generator2.getMaxP()).thenReturn(227.5);
         Mockito.when(generator2.getMinP()).thenReturn(-227.5);
         Mockito.when(generator2.getReactiveLimits()).thenReturn(genReactiveLimits1);

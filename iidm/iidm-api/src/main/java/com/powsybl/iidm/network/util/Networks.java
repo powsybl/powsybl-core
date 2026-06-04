@@ -307,11 +307,11 @@ public final class Networks {
         for (Generator g : network.getGenerators()) {
             double dp = Math.abs(g.getTerminal().getP() + g.getTargetP());
             double dq = Math.abs(g.getTerminal().getQ() + g.getLocalTargetQ());
-            double dv = Math.abs(g.getTerminal().getBusBreakerView().getConnectableBus().getV() - g.getTargetV());
+            double dv = Math.abs(g.getTerminal().getBusBreakerView().getConnectableBus().getV() - g.getLocalTargetV());
             if (dp > 1 || dq > 5 || dv > 0.1) {
                 logger.warn("Generator {}: ({}, {}, {}) ({}, {}, {}) -> ({}, {}, {})", g.getId(),
                         dp, dq, dv,
-                        -g.getTargetP(), -g.getLocalTargetQ(), g.getTargetV(),
+                        -g.getTargetP(), -g.getLocalTargetQ(), g.getLocalTargetV(),
                         g.getTerminal().getP(), g.getTerminal().getQ(), g.getTerminal().getBusBreakerView().getConnectableBus().getV());
             }
         }

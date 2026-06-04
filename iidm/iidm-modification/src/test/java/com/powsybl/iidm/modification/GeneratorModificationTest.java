@@ -262,7 +262,7 @@ class GeneratorModificationTest {
         assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
         assertEquals(301.0, generator.getRegulatingTargetQ());
         assertEquals(301.0, generator.getLocalTargetQ());
-        assertEquals(24.5, generator.getTargetV());
+        assertEquals(24.5, generator.getLocalTargetV());
         assertEquals(24.5, generator.getRegulatingTargetV());
         assertTrue(generator.getVoltageRegulation().isRegulating());
     }
@@ -279,7 +279,7 @@ class GeneratorModificationTest {
         assertNotNull(generator.getVoltageRegulation());
         assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
         assertEquals(301.0, generator.getLocalTargetQ());
-        assertEquals(24.5, generator.getTargetV());
+        assertEquals(24.5, generator.getLocalTargetV());
         assertFalse(generator.getVoltageRegulation().isRegulating());
     }
 
@@ -298,7 +298,7 @@ class GeneratorModificationTest {
         assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
         assertEquals(140.0, generator.getRegulatingTargetQ());
         assertEquals(140.0, generator.getLocalTargetQ());
-        assertEquals(24.5, generator.getTargetV());
+        assertEquals(24.5, generator.getLocalTargetV());
         assertEquals(24.5, generator.getRegulatingTargetV());
         assertFalse(generator.getVoltageRegulation().isRegulating());
     }
@@ -333,7 +333,7 @@ class GeneratorModificationTest {
         assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
         assertEquals(301.0, generator.getRegulatingTargetQ());
         assertEquals(301.0, generator.getLocalTargetQ());
-        assertEquals(120.0, generator.getTargetV());
+        assertEquals(120.0, generator.getLocalTargetV());
         assertEquals(120.0, generator.getRegulatingTargetV());
         assertTrue(generator.isRegulating());
     }

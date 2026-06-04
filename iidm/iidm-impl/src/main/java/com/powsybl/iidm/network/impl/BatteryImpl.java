@@ -88,19 +88,22 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
+    @Override
+    public double getTargetQ() {
+        return this.getLocalTargetQ();
+    }
+
+    @Override
+    public Battery setTargetQ(double targetQ) {
+        return this.setLocalTargetQ(targetQ);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public double getLocalTargetQ() {
         return localTargetQ.get(getNetwork().getVariantIndex());
-    }
-
-    public void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setParent(this);
-        });
     }
 
     /**
@@ -287,12 +290,6 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
-    public VoltageRegulation newVoltageRegulation(VoltageRegulation voltageRegulation) {
-        this.setVoltageRegulation((VoltageRegulationExt) voltageRegulation);
-        return this.voltageRegulation;
-    }
-
-    @Override
     public void removeVoltageRegulation() {
         ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
@@ -303,5 +300,12 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
         this.voltageRegulation = voltageRegulation;
         this.attachVoltageRegulation();
+    }
+
+    private void attachVoltageRegulation() {
+        getOptionalVoltageRegulation().ifPresent(vr -> {
+            vr.updateValidable(this);
+            vr.setHolder(this);
+        });
     }
 }

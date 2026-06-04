@@ -148,7 +148,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(25.0)
-            .setTargetQ(10.0)
+            .setLocalTargetQ(10.0)
             .setCondenser(true)
             .add();
         generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -161,7 +161,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(0.0)
-            .setTargetQ(10.0)
+            .setLocalTargetQ(10.0)
             .setCondenser(true)
             .add();
         generator2.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
@@ -174,7 +174,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(-100.0)
             .setMaxP(0.0)
             .setTargetP(-10.0)
-            .setTargetQ(10.0)
+            .setLocalTargetQ(10.0)
             .add();
         ReactiveCapabilityCurveAdder rcca = generator3.newReactiveCapabilityCurve();
         rcca.beginPoint()
@@ -197,7 +197,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(-10.0)
             .setMaxP(10.0)
             .setTargetP(0.0)
-            .setTargetQ(0.0)
+            .setLocalTargetQ(0.0)
             .add();
         battery.getTerminal().disconnect();
         voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(4).add();
@@ -209,8 +209,8 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(10.0)
             .setTargetP(0.0)
-            .setTargetQ(0.0)
-            .setTargetV(400.0)
+            .setLocalTargetQ(0.0)
+            .setLocalTargetV(400.0)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .add()
@@ -224,7 +224,7 @@ class GeneratorConversionTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(100.0)
             .setTargetP(0.0)
-            .setTargetQ(10.0)
+            .setLocalTargetQ(10.0)
             .setCondenser(false)
             .add();
         generator4.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();

@@ -18,6 +18,6 @@ class BatteryAdderExtension {
     }
 
     static BatteryAdder setQ0(BatteryAdder self, double q0) {
-        self.setTargetQ(q0)
+        self.setLocalTargetQ(q0)
     }
 }
