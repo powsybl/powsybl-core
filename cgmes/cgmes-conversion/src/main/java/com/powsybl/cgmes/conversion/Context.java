@@ -353,7 +353,12 @@ public class Context {
 
     private static void logIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
         if (LOG.isWarnEnabled()) {
-            LOG.warn("{}: {}. Reason: {}", category, what, reason.get());
+            String r = reason.get();
+            if (r.isEmpty()) {
+                LOG.warn("{}: {}", category, what);
+            } else {
+                LOG.warn("{}: {}. Reason: {}", category, what, r);
+            }
         }
     }
 

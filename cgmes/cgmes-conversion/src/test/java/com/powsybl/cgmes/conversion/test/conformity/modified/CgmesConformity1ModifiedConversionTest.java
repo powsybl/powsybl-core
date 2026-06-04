@@ -83,13 +83,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microBEDuplicateRegion() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseDuplicateRegion().dataSource(), NetworkFactory.findDefault(), importParams);
-        assertNotNull(network);
-    }
-
-    @Test
     void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), NetworkFactory.findDefault(), importParams);

@@ -62,7 +62,8 @@
         "q3" : 2.2,
         "i3" : 3.2
       } ]
-    }
+    },
+    "distributedActivePower" : 1.23
   },
   "postContingencyResults" : [ {
     "contingency" : {
@@ -161,7 +162,8 @@
       "disconnectedLoadActivePower" : 0.0,
       "disconnectedGenerationActivePower" : 0.0,
       "disconnectedElements" : [ ]
-    }
+    },
+    "distributedActivePower" : 2.34
   } ],
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {
@@ -188,7 +190,8 @@
         "branchResults" : [ ],
         "busResults" : [ ],
         "threeWindingsTransformerResults" : [ ]
-      }
+      },
+      "distributedActivePower" : 3.45
     } ]
   }, {
     "operatorStrategy" : {

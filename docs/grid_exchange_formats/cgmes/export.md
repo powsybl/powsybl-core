@@ -362,6 +362,9 @@ The corresponding targets are:
 ### Line
 
 PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `ACLineSegment`.
+The attribute `ConductingEquipment.BaseVoltage` is written from the `nominalV` of the voltage level on both sides of the line:
+- if the nominal voltage is the same on both sides of the `Line`, then the `BaseVoltage` is set to this nominal voltage,
+- otherwise, it is set to the highest nominal voltage.
 
 <span style="color: red">TODO details</span>
 
@@ -371,6 +374,20 @@ PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `AC
 PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad` or `EnergyConsumer` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
 
 <span style="color: red">TODO details</span>
+
+(cgmes-fictitious-injections-export)=
+### Fictitious injections (fictitiousP0/fictitiousQ0)
+
+The fictitious injections on buses (bus-branch topology) or on nodes (node-breaker topology) are created using:
+- Bus topology: `Bus.setFictitiousP0(double)` and `Bus.setFictitiousQ0(double)`
+- Node-breaker: `VoltageLevel.getNodeBreakerView().setFictitiousP0(int node, double)` and `setFictitiousQ0(int node, double)`
+
+These fictitious injections are exported in CGMES as either a `NonConformLoad` or an `EnergySource`, depending on the sign of `fictitiousP0`, 
+with values written to SSH and connectivity/topology bindings set according to the network topology and CIM version. 
+A corresponding 'SvPowerFlow' is written for the terminal in the SV.
+In case of a node-breaker or CIM100 export, the terminal will refer to a `ConnectivityNode`.
+
+If the EQ profile is not exported and the network contains fictitious injections, note that the references to equipment in the SSH and SV will be invalid.
 
 (cgmes-shunt-compensator-export)=
 ### Shunt compensator
@@ -448,6 +465,9 @@ at the regulated terminal with the regulation value.
 ### TwoWindingsTransformer
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
+
+If the IIDM `TwoWindingsTransformer` does not have a `ratedS`, then a default value of `100` is exported for `PowerTransformerEnd.ratedS` as this field is mandatory.
+The `ratedS` will be the same on both ends of the `PowerTransformer`.
 
 If the transformer has a `TapChanger`, the CGMES SSH `step` is written from the IIDM `TapPosition` and the CGMES SV
 `SVtapStep` is written from the IIDM `SolvedTapPosition` if it is not null, otherwise `TapPosition`.

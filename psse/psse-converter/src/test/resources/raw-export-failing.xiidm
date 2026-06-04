@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="N400_3S" caseDate="2026-02-05T20:44:33.788Z" forecastDistance="0" sourceFormat="demo" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="N400_3S" caseDate="2026-02-05T20:44:33.788Z" forecastDistance="0" sourceFormat="demo" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" name="S1" country="CZ">
         <iidm:voltageLevel id="VL1_400" name="VL1_400" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

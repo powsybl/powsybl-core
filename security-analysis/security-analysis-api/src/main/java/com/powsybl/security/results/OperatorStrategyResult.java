@@ -32,12 +32,18 @@ public class OperatorStrategyResult {
 
         private final NetworkResult networkResult;
 
-        public ConditionalActionsResult(String conditionalActionsId, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
-                                        NetworkResult networkResult) {
+        private final double distributedActivePower;
+
+        public ConditionalActionsResult(String conditionalActionsId,
+                                        PostContingencyComputationStatus status,
+                                        LimitViolationsResult limitViolationsResult,
+                                        NetworkResult networkResult,
+                                        double distributedActivePower) {
             this.conditionalActionsId = conditionalActionsId;
             this.status = Objects.requireNonNull(status);
             this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
             this.networkResult = Objects.requireNonNull(networkResult);
+            this.distributedActivePower = distributedActivePower;
         }
 
         public String getConditionalActionsId() {
@@ -55,21 +61,19 @@ public class OperatorStrategyResult {
         public NetworkResult getNetworkResult() {
             return networkResult;
         }
+
+        public double getDistributedActivePower() {
+            return distributedActivePower;
+        }
     }
 
     private final OperatorStrategy operatorStrategy;
 
-    private List<ConditionalActionsResult> conditionalActionsResults = new ArrayList<>();
-
-    public OperatorStrategyResult(OperatorStrategy operatorStrategy, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
-                                  NetworkResult networkResult) {
-        this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
-        this.conditionalActionsResults.add(new ConditionalActionsResult(operatorStrategy.getId(), status, limitViolationsResult, networkResult));
-    }
+    private final List<ConditionalActionsResult> conditionalActionsResults;
 
     public OperatorStrategyResult(OperatorStrategy operatorStrategy, List<ConditionalActionsResult> conditionalActionsResults) {
         this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
-        this.conditionalActionsResults = conditionalActionsResults;
+        this.conditionalActionsResults = Objects.requireNonNull(conditionalActionsResults);
     }
 
     /**
@@ -115,7 +119,7 @@ public class OperatorStrategyResult {
      */
     public ConditionalActionsResult getFinalOperatorStrategyResult() {
         if (!conditionalActionsResults.isEmpty()) {
-            return conditionalActionsResults.get(conditionalActionsResults.size() - 1);
+            return conditionalActionsResults.getLast();
         } else {
             throw new PowsyblException("No conditional action results available.");
         }
