@@ -180,6 +180,9 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
 
     /**
      * Set the minimal active power in MW.
+     * <p><b>Note:</b> XML serialization is not yet supported for non-default values.
+     * Setting a value other than {@link Double#NEGATIVE_INFINITY} will cause
+     * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
      */
     I setMinP(double minP);
 
@@ -191,6 +194,9 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
 
     /**
      * Set the maximal active power in MW.
+     * <p><b>Note:</b> XML serialization is not yet supported for non-default values.
+     * Setting a value other than {@link Double#POSITIVE_INFINITY} will cause
+     * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
      */
     I setMaxP(double maxP);
 
