@@ -122,6 +122,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String VOLTAGE_LEVELS_NODE_BREAKER = "iidm.export.xml.topology-level.voltage-levels.node-breaker";
     public static final String VOLTAGE_LEVELS_BUS_BREAKER = "iidm.export.xml.topology-level.voltage-levels.bus-breaker";
     public static final String VOLTAGE_LEVELS_BUS_BRANCH = "iidm.export.xml.topology-level.voltage-levels.bus-branch";
+    public static final String ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS = "iidm.export.xml.only-selected-operational-limits-groups";
 
     private static final String THROW_EXCEPTION = "THROW_EXCEPTION";
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
@@ -154,11 +155,15 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             "Apply Bus/Breaker topology level at export for listed voltage levels", List.of());
     private static final Parameter VOLTAGE_LEVELS_BUSBRANCH_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BRANCH, ParameterType.STRING_LIST,
             "Apply Bus/Branch topology level at export for listed voltage levels", List.of());
+    private static final Parameter ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER = new Parameter(ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS,
+        ParameterType.BOOLEAN, "For each equipment, export only the selected operational limits groups if this is true",
+        false);
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_INCLUDED_LIST_PARAMETER,
             EXTENSIONS_EXCLUDED_LIST_PARAMETER, SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER,
-            VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, FLATTEN_PARAMETER);
+            VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, FLATTEN_PARAMETER,
+            ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     protected AbstractTreeDataExporter(PlatformConfig platformConfig) {

@@ -58,6 +58,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String MINIMAL_VALIDATION_LEVEL = "iidm.import.minimal-validation-level";
 
+    public static final String ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS = "iidm.import.only-selected-operational-limits-groups";
+
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
             .addAdditionalNames("throwExceptionIfExtensionNotFound");
@@ -81,6 +83,10 @@ public abstract class AbstractTreeDataImporter implements Importer {
             ParameterType.STRING, "Minimal validation level accepted",
             null);
 
+    public static final Parameter ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER = new Parameter(ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS,
+        ParameterType.BOOLEAN, "For each equipment, import only the selected operational limits groups if this is true",
+        false);
+
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     static final String SUFFIX_MAPPING = "_mapping";
@@ -98,7 +104,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
         List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER,
                 EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER,
                 WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
-                MINIMAL_VALIDATION_LEVEL_PARAMETER);
+                MINIMAL_VALIDATION_LEVEL_PARAMETER, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER);
         return ConfiguredParameter.load(parameters, getFormat(), defaultValueConfig);
     }
 
