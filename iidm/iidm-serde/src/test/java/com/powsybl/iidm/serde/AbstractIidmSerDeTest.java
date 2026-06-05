@@ -286,29 +286,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * @return the Network read just before the end of the round trip
      */
     public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version, ExportOptions exportOptions) throws IOException {
-        return allFormatsRoundTripTest(network, filename, version, exportOptions, new ImportOptions());
-    }
-
-    /**
-     * All-formats round trip from given network with versioned reference xml file:
-     * <ul>
-     *     <li>write given network to a JSON file</li>
-     *     <li>read the resulting file</li>
-     *     <li>write the resulting network to a XML file</li>
-     *     <li>validate the resulting file</li>
-     *     <li>compare the resulting file to reference file</li>
-     *     <li>read the resulting file</li>
-     *     <li>write the resulting network to a XML file</li>
-     *     <li>compare the resulting file to reference file</li>
-     * </ul>
-     * @param network the network to start with
-     * @param filename the filename of the reference versioned file resource
-     * @param version the version to use for exporting and for the versioned filename
-     * @param exportOptions the options to use for exporting
-     * @return the Network read just before the end of the round trip
-     */
-    public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version, ExportOptions exportOptions, ImportOptions importOptions) throws IOException {
-        return allFormatsRoundTripTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")), importOptions);
+        return allFormatsRoundTripTest(network, getVersionedNetworkPath(filename, version), exportOptions.setVersion(version.toString(".")));
     }
 
     /**
@@ -337,66 +315,26 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
-     * All-formats round trip from given network with reference xml file:
-     * <ul>
-     *     <li>write given network to a JSON file</li>
-     *     <li>read the resulting file</li>
-     *     <li>write the resulting network to a XML file</li>
-     *     <li>validate the resulting file</li>
-     *     <li>compare the resulting file to reference file</li>
-     *     <li>read the resulting file</li>
-     *     <li>write the resulting network to a XML file</li>
-     *     <li>compare the resulting file to reference file</li>
-     * </ul>
-     * @param network the network to start with
-     * @param refXmlFile the name of the reference file resource, including its path
-     * @param exportOptions the options to use for exporting
-     * @param importOptions the options to use for importing
-     * @return the Network read just before the end of the round trip
-     */
-    public Network allFormatsRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions, ImportOptions importOptions) throws IOException {
-        return roundTripXmlTest(network,
-            (n, p) -> binWriteAndRead(jsonWriteAndRead(n, exportOptions, importOptions, p), exportOptions, importOptions, p),
-            (n, p) -> NetworkSerDe.write(n, exportOptions, p),
-            (Path p) -> NetworkSerDe.validateAndRead(p, importOptions),
-            refXmlFile);
-    }
-
-    /**
      * Writes given network to JSON file, then reads the resulting file and returns the resulting network
      */
-    protected static Network jsonWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+    private static Network jsonWriteAndRead(Network networkInput, ExportOptions options, Path path) {
         return writeAndRead(TreeDataFormat.JSON, networkInput, options, path);
     }
 
-    private static Network jsonWriteAndRead(Network networkInput, ExportOptions exportOptions, ImportOptions importOptions, Path path) {
-        return writeAndRead(TreeDataFormat.JSON, networkInput, exportOptions, importOptions, path);
-    }
-
-    protected static Network binWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+    private static Network binWriteAndRead(Network networkInput, ExportOptions options, Path path) {
         return writeAndRead(TreeDataFormat.BIN, networkInput, options, path);
-    }
-
-    private static Network binWriteAndRead(Network networkInput, ExportOptions exportOptions, ImportOptions importOptions, Path path) {
-        return writeAndRead(TreeDataFormat.BIN, networkInput, exportOptions, importOptions, path);
     }
 
     /**
      * Writes given network to file of given format, then reads the resulting file and returns the resulting network
      */
     private static Network writeAndRead(TreeDataFormat format, Network networkInput, ExportOptions options, Path path) {
-        return writeAndRead(format, networkInput, options, new ImportOptions(), path);
-    }
-
-    private static Network writeAndRead(TreeDataFormat format, Network networkInput, ExportOptions exportOptions, ImportOptions importOptions, Path path) {
-        TreeDataFormat previousExportFormat = exportOptions.getFormat();
-        TreeDataFormat previousImportFormat = importOptions.getFormat();
-        exportOptions.setFormat(format);
-        Anonymizer anonymizer = NetworkSerDe.write(networkInput, exportOptions, path);
+        TreeDataFormat previousFormat = options.getFormat();
+        options.setFormat(format);
+        Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
         try (InputStream is = Files.newInputStream(path)) {
-            Network networkOutput = NetworkSerDe.read(is, importOptions.setFormat(format), anonymizer);
-            exportOptions.setFormat(previousImportFormat);
-            importOptions.setFormat(previousExportFormat);
+            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(format), anonymizer);
+            options.setFormat(previousFormat);
             return networkOutput;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
