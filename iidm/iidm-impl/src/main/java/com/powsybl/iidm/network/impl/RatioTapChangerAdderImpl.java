@@ -141,10 +141,6 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         return null;
     }
 
-    private void setVoltageRegulation(VoltageRegulationImpl voltageRegulation) {
-        this.voltageRegulation = voltageRegulation;
-    }
-
     @Override
     public RatioTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();

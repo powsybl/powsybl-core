@@ -68,7 +68,9 @@ class VoltageRegulationExtensionTest {
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(Double.NaN, voltageRegulation.getTargetValue(), 0);
         assertEquals(50.0, bat.getLocalTargetV(), 0);
-        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        // first variant was created before adding VOLTAGE regulation
+        assertFalse(voltageRegulation.isRegulating());
+        assertNull(voltageRegulation.getMode());
     }
 
     @Test

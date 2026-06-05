@@ -908,7 +908,7 @@ public abstract class AbstractAcDcConverterTest {
         assertEquals(500.0, vscA.getTargetVdc(), 0.0);
         assertEquals(24.0, vscA.getRegulatingTargetQ(), 0.0);
         assertEquals(400.0, vscA.getRegulatingTargetV(), 0.0);
-        assertTrue(vscA.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(vscA.isWithMode(RegulationMode.VOLTAGE));
         assertFalse(vscA.isRegulating());
 
         // remove working variant s4

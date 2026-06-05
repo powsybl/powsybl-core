@@ -1836,7 +1836,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 prepareVoltageRegulationForEqComparison(threeWindingsTransformer.getLeg(side).getRatioTapChanger()));
     }
 
-    private void prepareVoltageRegulationForEqComparison(VoltageRegulationHolder holder) {
+    private <T extends VoltageRegulationHolder<T>> void prepareVoltageRegulationForEqComparison(T holder) {
         if (holder != null) {
             VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
             if (voltageRegulation != null) {

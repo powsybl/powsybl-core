@@ -51,7 +51,7 @@ public final class VoltageRegulationSerDe {
         });
     }
 
-    public static void readVoltageRegulation(VoltageRegulationHolder holder, NetworkDeserializerContext context, Network network) {
+    public static void readVoltageRegulation(VoltageRegulationHolder<?> holder, NetworkDeserializerContext context, Network network) {
         // Read attributes
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
         // Create new Voltage Regulation
@@ -70,14 +70,14 @@ public final class VoltageRegulationSerDe {
             .build());
     }
 
-    public static <T extends VoltageRegulationHolder & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
+    public static <T extends VoltageRegulationHolder<?> & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
         List<Consumer<T>> toApply,
         VoltageRegulationHolderAdder<A> holderAdder,
         NetworkDeserializerContext context) {
         doReadVoltageRegulation(toApply, holderAdder, context, T::getNetwork);
     }
 
-    public static <T extends VoltageRegulationHolder, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
+    public static <T extends VoltageRegulationHolder<?>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
         List<Consumer<T>> toApply,
         VoltageRegulationHolderAdder<A> holderAdder,
         NetworkDeserializerContext context,
@@ -85,7 +85,7 @@ public final class VoltageRegulationSerDe {
         doReadVoltageRegulation(toApply, holderAdder, context, holder -> network);
     }
 
-    private static <T extends VoltageRegulationHolder, A extends VoltageRegulationHolderAdder<A>> void doReadVoltageRegulation(
+    private static <T extends VoltageRegulationHolder<?>, A extends VoltageRegulationHolderAdder<A>> void doReadVoltageRegulation(
         List<Consumer<T>> toApply,
         VoltageRegulationHolderAdder<A> holderAdder,
         NetworkDeserializerContext context,
@@ -137,7 +137,7 @@ public final class VoltageRegulationSerDe {
                 .withRegulating(attributes.isRegulating());
     }
 
-    public static <T extends VoltageRegulationHolder & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+    public static <T extends VoltageRegulationHolder<?> & Identifiable<T>> void readRegulatingTerminal(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
         TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
         toApply.add(holder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
             () -> {

@@ -25,9 +25,9 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
 
-    protected final Class<? extends VoltageRegulationHolder> classHolder;
+    protected final Class<? extends VoltageRegulationHolder<?>> classHolder;
     protected final Validable validable;
-    protected final VoltageRegulationHolder holder;
+    protected final VoltageRegulationHolder<?> holder;
     protected final Consumer<VoltageRegulationExt> voltageRegulationSetter;
     protected final Ref<NetworkImpl> network;
     protected double targetValue = Double.NaN;
@@ -37,9 +37,9 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected RegulationMode mode = null;
     protected boolean regulating = true;
 
-    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder> classHolder,
+    protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                       Validable validable,
-                                                      VoltageRegulationHolder holder,
+                                                      VoltageRegulationHolder<?> holder,
                                                       Ref<NetworkImpl> network,
                                                       Consumer<VoltageRegulationExt> voltageRegulationSetter) {
         this.classHolder = classHolder;

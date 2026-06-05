@@ -15,16 +15,44 @@ import java.util.Set;
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public enum RegulationMode {
-    VOLTAGE,
-    REACTIVE_POWER,
-    VOLTAGE_PER_REACTIVE_POWER;
+    VOLTAGE(1),
+    REACTIVE_POWER(2),
+    VOLTAGE_PER_REACTIVE_POWER(3);
     // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
 
-    public static Set<RegulationMode> getAllowedRegulationModes(boolean isRemoteRegulating, Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
+    public static final int UNDEFINED_MODE = -1;
+
+    private final int index;
+
+    RegulationMode(int index) {
+        this.index = index;
+    }
+
+    public static RegulationMode fromIndex(int index) {
+        for (RegulationMode mode : RegulationMode.values()) {
+            if (mode.index == index) {
+                return mode;
+            }
+            if (UNDEFINED_MODE == index) {
+                return null;
+            }
+        }
+        throw new IllegalArgumentException("Unknown index: " + index);
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public static int getIndex(RegulationMode mode) {
+        return mode == null ? UNDEFINED_MODE : mode.index;
+    }
+
+    public static Set<RegulationMode> getAllowedRegulationModes(boolean isRemoteRegulating, Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
         return isRemoteRegulating ? getRemoteAllowedRegulationModes(voltageRegulationHolder) : getLocalAllowedRegulationModes(voltageRegulationHolder);
     }
 
-    private static Set<RegulationMode> getRemoteAllowedRegulationModes(Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
+    private static Set<RegulationMode> getRemoteAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
             case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
@@ -37,7 +65,7 @@ public enum RegulationMode {
         };
     }
 
-    private static Set<RegulationMode> getLocalAllowedRegulationModes(Class<? extends VoltageRegulationHolder> voltageRegulationHolder) {
+    private static Set<RegulationMode> getLocalAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
         return switch (voltageRegulationHolder) {
             case Class<?> c when c == Battery.class -> Set.of(VOLTAGE);
             case Class<?> c when c == Generator.class -> Set.of(VOLTAGE); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported

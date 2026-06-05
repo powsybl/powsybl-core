@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -122,20 +121,17 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
             RegulationMode.VOLTAGE, targetV, n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         if (voltageRegulation != null) {
             if (!Double.isNaN(targetV) && !isWithMode(RegulationMode.VOLTAGE)) {
-                RegulationMode oldMode = voltageRegulation.getMode();
-                newVoltageRegulation()
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withTargetValue(targetV)
-                    .withTerminal(voltageRegulation.getTerminal())
-                    .withTargetDeadband(voltageRegulation.getTargetDeadband())
-                    .withSlope(voltageRegulation.getSlope())
-                    .build();
+                RegulationMode oldMode = voltageRegulation.setMode(RegulationMode.VOLTAGE);
                 n.invalidateValidationLevel();
                 notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", variantId, oldMode, RegulationMode.VOLTAGE);
-            } else if (isWithMode(RegulationMode.VOLTAGE)) {
+            }
+            if (isWithMode(RegulationMode.VOLTAGE) && isRemoteRegulating()) {
                 oldValue = voltageRegulation.getTargetValue();
                 voltageRegulation.setTargetValue(targetV);
                 n.invalidateValidationLevel();
+            } else {
+                oldValue = getLocalTargetV();
+                setLocalTargetV(targetV);
             }
         } else {
             newVoltageRegulation()
@@ -154,25 +150,17 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    public RatioTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
+    public RatioTapChangerImpl setRegulationMode(RegulationMode newRegulationMode) {
         RegulationMode oldValue = null;
         if (voltageRegulation != null) {
-            oldValue = voltageRegulation.getMode();
-            newVoltageRegulation()
-                .withMode(regulationMode)
-                .withTerminal(voltageRegulation.getTerminal())
-                .withTargetValue(voltageRegulation.getTargetValue())
-                .withTargetDeadband(voltageRegulation.getTargetDeadband())
-                .withRegulating(voltageRegulation.isRegulating())
-                .withSlope(voltageRegulation.getSlope())
-                .build();
+            oldValue = voltageRegulation.setMode(newRegulationMode);
         } else {
             newVoltageRegulation()
-                .withMode(regulationMode)
+                .withMode(newRegulationMode)
                 .withRegulating(false)
                 .build();
         }
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, newRegulationMode);
         return this;
     }
 
@@ -324,8 +312,8 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    public VoltageRegulationHolder setLocalTargetV(double targetV) {
-        return null;
+    public RatioTapChangerImpl setLocalTargetV(double targetV) {
+        return this;
     }
 
     private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {

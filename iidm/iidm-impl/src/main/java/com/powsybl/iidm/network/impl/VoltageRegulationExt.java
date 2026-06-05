@@ -30,7 +30,7 @@ public interface VoltageRegulationExt extends VoltageRegulation, MultiVariantObj
      * The Parent is set when the VoltageRegulation is build with {@link VoltageRegulationBuilder}
      * but must be set in the equipment's constructor when we use an adder {@link VoltageRegulationAdder}
      */
-    void setHolder(VoltageRegulationHolder holder);
+    void setHolder(VoltageRegulationHolder<?> holder);
 
     void remove();
 }

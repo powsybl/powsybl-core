@@ -21,7 +21,7 @@ public interface RatioTapChanger extends TapChanger<
     RatioTapChangerStep,
     RatioTapChangerStepsReplacer,
     RatioTapChangerStepsReplacer.StepAdder>,
-    VoltageRegulationHolder {
+    VoltageRegulationHolder<RatioTapChanger> {
 
     /**
      * Get the regulation mode.

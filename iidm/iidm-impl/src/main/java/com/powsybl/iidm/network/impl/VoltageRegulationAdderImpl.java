@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
     private final T equipmentAdder;
 
-    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder> holderClass,
+    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                       Validable validable,
                                       T equipmentAdder,
                                       Ref<NetworkImpl> network,

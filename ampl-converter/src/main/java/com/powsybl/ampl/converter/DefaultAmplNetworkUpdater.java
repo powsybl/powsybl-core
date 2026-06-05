@@ -84,22 +84,32 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     }
 
     public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
-        // TODO MSA BEFORE this refactoring : the regulation could be different depending on the variant
-        // TODO MSA WITH THE REFACTORING : same regulationMode regardless of the variant
         if (vregul) {
-            svc.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).build();
+            svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+            svc.getVoltageRegulation().setRegulating(true);
         } else {
             if (q == 0) {
-                svc.removeVoltageRegulation();
+                svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+                svc.getVoltageRegulation().setRegulating(false);
             } else {
-                svc.setLocalTargetQ(-q);
-                svc.newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER).build();
+                if (svc.isRemoteRegulating()) {
+                    svc.getVoltageRegulation().setTargetValue(-q);
+                } else {
+                    svc.setLocalTargetQ(-q);
+                }
+                svc.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+                svc.getVoltageRegulation().setRegulating(true);
             }
         }
         Terminal t = svc.getTerminal();
         t.setQ(q);
         double nominalV = svc.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        svc.setLocalTargetV(targetV * nominalV);
+        double targetValue = targetV * nominalV;
+        if (svc.isRemoteRegulating()) {
+            svc.getVoltageRegulation().setTargetValue(targetValue);
+        } else {
+            svc.setLocalTargetV(targetValue);
+        }
         busConnection(t, busNum, networkMapper);
     }
 

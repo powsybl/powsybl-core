@@ -95,8 +95,21 @@ public interface VoltageRegulation {
      *     <li>VOLTAGE_PER_REACTIVE_POWER</li>
      *     <li>REACTIVE_POWER_PER_ACTIVE_POWER</li>
      * </ul>
+     * @see VariantManager
      */
     RegulationMode getMode();
+
+    /**
+     * RegulationMode is an enum describing the kinds of regulation. It has the following values:
+     * <ul>
+     *     <li>VOLTAGE</li>
+     *     <li>REACTIVE_POWER</li>
+     *     <li>VOLTAGE_PER_REACTIVE_POWER</li>
+     *     <li>REACTIVE_POWER_PER_ACTIVE_POWER</li>
+     * </ul>
+     * @see VariantManager
+     */
+    RegulationMode setMode(RegulationMode mode);
 
     /**
      * To know if the object is regulating or not.

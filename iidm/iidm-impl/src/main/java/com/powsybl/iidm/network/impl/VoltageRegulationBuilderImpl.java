@@ -20,9 +20,9 @@ import java.util.function.Consumer;
  */
 public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
 
-    public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder> holderClass,
+    public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                         Validable validable,
-                                        VoltageRegulationHolder holder,
+                                        VoltageRegulationHolder<?> holder,
                                         Ref<NetworkImpl> network,
                                         Consumer<VoltageRegulationExt> voltageRegulationSetter) {
         super(holderClass, validable, holder, network, voltageRegulationSetter);

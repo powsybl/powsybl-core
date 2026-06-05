@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -381,7 +380,6 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    @Disabled("TODO MSA fix me, variants with regulationMode modified")
     public void testTapChangerSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createPhaseTapChangerWith2Steps(1, 0, false, false,
@@ -409,16 +407,16 @@ public abstract class AbstractTapChangerTest {
         phaseTapChanger.setRegulationValue(9.9);
         ratioTapChanger.setTapPosition(0);
         ratioTapChanger.setRegulating(false);
-        ratioTapChanger.setRegulationMode(RegulationMode.VOLTAGE);
-        ratioTapChanger.setRegulationValue(3.5);
+        ratioTapChanger.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+        ratioTapChanger.getVoltageRegulation().setTargetValue(3.5);
         ratioTapChangerInLeg2.setTapPosition(2);
         ratioTapChangerInLeg2.setRegulating(false);
-        ratioTapChangerInLeg2.setRegulationMode(RegulationMode.REACTIVE_POWER);
-        ratioTapChangerInLeg2.setRegulationValue(31.5);
+        ratioTapChangerInLeg2.getVoltageRegulation().setMode(RegulationMode.REACTIVE_POWER);
+        ratioTapChangerInLeg2.getVoltageRegulation().setTargetValue(31.5);
         ratioTapChangerInLeg3.setTapPosition(4);
         ratioTapChangerInLeg3.setRegulating(false);
-        ratioTapChangerInLeg3.setRegulationMode(RegulationMode.VOLTAGE);
-        ratioTapChangerInLeg3.setRegulationValue(13.5);
+        ratioTapChangerInLeg3.getVoltageRegulation().setMode(RegulationMode.VOLTAGE);
+        ratioTapChangerInLeg3.getVoltageRegulation().setTargetValue(13.5);
 
         // remove s2
         variantManager.removeVariant("s2");
