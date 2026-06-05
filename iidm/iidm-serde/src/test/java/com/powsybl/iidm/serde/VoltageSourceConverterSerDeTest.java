@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -14,11 +15,18 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
+
+    @Test
+    void testMaxPNotSupported() {
+        Network network = createNetworkWithNonDefaultMaxP();
+        assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, tmpDir.resolve("fail")));
+    }
 
     @Test
     void testNetworkVoltageSourceConverter() throws IOException {
@@ -181,6 +189,28 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
         vsc3.getTerminal1().setP(-105.); // no Q
         vsc3.getTerminal2().orElseThrow().setQ(-200.8); // no P
 
+        return network;
+    }
+
+    private static Network createNetworkWithNonDefaultMaxP() {
+        Network network = Network.create("voltageSourceConverterTest", "code");
+        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
+        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
+        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel().setId("vl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
+        vl.getBusBreakerView().newBus().setId("bus").add();
+        vl.newVoltageSourceConverter()
+                .setId("vsc")
+                .setDcNode1(dcNode1.getId()).setDcConnected1(false)
+                .setDcNode2(dcNode2.getId()).setDcConnected2(false)
+                .setConnectableBus1("bus")
+                .setControlMode(AcDcConverter.ControlMode.V_DC)
+                .setTargetVdc(500.)
+                .setVoltageRegulatorOn(false)
+                .setReactivePowerSetpoint(0.)
+                .setMaxP(500.)
+                .add();
         return network;
     }
 

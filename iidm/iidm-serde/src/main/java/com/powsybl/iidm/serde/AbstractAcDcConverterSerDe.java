@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -37,6 +38,12 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         context.getWriter().writeEnumAttribute("controlMode", converter.getControlMode());
         context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
         context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
+        if (converter.getMinP() != Double.NEGATIVE_INFINITY) {
+            throw new PowsyblException(getRootElementName() + " '" + converter.getId() + "': minP serialization is not yet supported");
+        }
+        if (converter.getMaxP() != Double.POSITIVE_INFINITY) {
+            throw new PowsyblException(getRootElementName() + " '" + converter.getId() + "': maxP serialization is not yet supported");
+        }
 
         writeNodeOrBus(converter, context);
     }

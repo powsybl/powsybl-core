@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -14,11 +15,18 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
+
+    @Test
+    void testMinPNotSupported() {
+        Network network = createNetworkWithNonDefaultMinP();
+        assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, tmpDir.resolve("fail")));
+    }
 
     @Test
     void testNetworkLineCommutatedConverter() throws IOException {
@@ -174,6 +182,28 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
         lcc3.getTerminal1().setP(-105.); // no Q
         lcc3.getTerminal2().orElseThrow().setQ(-200.8); // no P
 
+        return network;
+    }
+
+    private static Network createNetworkWithNonDefaultMinP() {
+        Network network = Network.create("lineCommutatedConverterTest", "code");
+        network.setCaseDate(ZonedDateTime.parse("2025-01-02T03:04:05.000+01:00"));
+        DcNode dcNode1 = network.newDcNode().setId("dcNode1").setNominalV(500.).add();
+        DcNode dcNode2 = network.newDcNode().setId("dcNode2").setNominalV(500.).add();
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel().setId("vl").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(400.).add();
+        vl.getBusBreakerView().newBus().setId("bus").add();
+        vl.newLineCommutatedConverter()
+                .setId("lcc")
+                .setDcNode1(dcNode1.getId()).setDcConnected1(false)
+                .setDcNode2(dcNode2.getId()).setDcConnected2(false)
+                .setConnectableBus1("bus")
+                .setReactiveModel(LineCommutatedConverter.ReactiveModel.FIXED_POWER_FACTOR)
+                .setPowerFactor(0.92)
+                .setControlMode(AcDcConverter.ControlMode.V_DC)
+                .setTargetVdc(500.)
+                .setMinP(-100.)
+                .add();
         return network;
     }
 

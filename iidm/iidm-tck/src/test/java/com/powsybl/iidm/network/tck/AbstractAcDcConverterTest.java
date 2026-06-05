@@ -498,11 +498,23 @@ public abstract class AbstractAcDcConverterTest {
         PowsyblException e6 = assertThrows(PowsyblException.class, acDcConverterA::getResistiveLoss);
         assertEquals("Cannot access resistiveLoss of removed equipment converterA", e6.getMessage());
 
-        PowsyblException e7 = assertThrows(PowsyblException.class, t1::isConnected);
-        assertEquals("Cannot access removed equipment converterA", e7.getMessage());
+        PowsyblException e7 = assertThrows(PowsyblException.class, () -> acDcConverterA.setMinP(2.));
+        assertEquals("Cannot modify minP of removed equipment converterA", e7.getMessage());
 
-        PowsyblException e8 = assertThrows(PowsyblException.class, () -> t2.setConnected(false));
-        assertEquals("Cannot modify removed equipment converterA", e8.getMessage());
+        PowsyblException e8 = assertThrows(PowsyblException.class, acDcConverterA::getMinP);
+        assertEquals("Cannot access minP of removed equipment converterA", e8.getMessage());
+
+        PowsyblException e9 = assertThrows(PowsyblException.class, () -> acDcConverterA.setMaxP(2.));
+        assertEquals("Cannot modify maxP of removed equipment converterA", e9.getMessage());
+
+        PowsyblException e10 = assertThrows(PowsyblException.class, acDcConverterA::getMaxP);
+        assertEquals("Cannot access maxP of removed equipment converterA", e10.getMessage());
+
+        PowsyblException e11 = assertThrows(PowsyblException.class, t1::isConnected);
+        assertEquals("Cannot access removed equipment converterA", e11.getMessage());
+
+        PowsyblException e12 = assertThrows(PowsyblException.class, () -> t2.setConnected(false));
+        assertEquals("Cannot modify removed equipment converterA", e12.getMessage());
     }
 
     @Test
