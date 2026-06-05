@@ -76,17 +76,10 @@ public final class TerminalRefSerDe {
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
-
         if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER
                 && TopologyLevelUtil.determineTopologyLevel(t.getVoltageLevel(), context) != TopologyLevel.NODE_BREAKER
                 && t.getConnectable() instanceof BusbarSection) {
-
-            if (context.getOptions().getBusBranchVoltageLevelIncompatibilityBehavior() == ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.KEEP_ORIGINAL_TOPOLOGY) {
-                return;
-            }
-
-            throw new PowsyblException(String.format(
-                    "Terminal ref should not point to a busbar section (here %s). Try to export in node-breaker or delete this terminal ref.",
+            throw new PowsyblException(String.format("Terminal ref should not point to a busbar section (here %s). Try to export in node-breaker or delete this terminal ref.",
                     t.getConnectable().getId()));
         }
     }
