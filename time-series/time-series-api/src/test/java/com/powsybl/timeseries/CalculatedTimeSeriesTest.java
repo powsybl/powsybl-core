@@ -437,4 +437,24 @@ class CalculatedTimeSeriesTest {
         e0 = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseJson(jsonValueNull));
         assertEquals("Unexpected JSON token: VALUE_NULL", e0.getMessage());
     }
+
+    @Test
+    void testCacheReturnsSameInstance() {
+        timeSeries.synchronize(RegularTimeSeriesIndex.create(
+            Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15)));
+        double[] values1 = timeSeries.toArray();
+        double[] values2 = timeSeries.toArray();
+        assertSame(values1, values2);
+    }
+
+    @Test
+    void testCacheInvalidatedOnSetTimeSeriesNameResolver() {
+        timeSeries.synchronize(RegularTimeSeriesIndex.create(
+            Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:15:00Z"), Duration.ofMinutes(15)));
+        DoubleTimeSeriesValues v1 = timeSeries.getDoubleTimeSeriesValues();
+        timeSeries.setTimeSeriesNameResolver(CalculatedTimeSeries.EMPTY_RESOLVER);
+        DoubleTimeSeriesValues v2 = timeSeries.getDoubleTimeSeriesValues();
+        assertNotSame(v1, v2);
+        assertEquals(v1, v2);
+    }
 }
