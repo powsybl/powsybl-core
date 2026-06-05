@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
-import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class VoltageRegulationImpl implements VoltageRegulationExt {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VoltageRegulation.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VoltageRegulationImpl.class);
 
     private Validable validable;
     private VoltageRegulationHolder holder;

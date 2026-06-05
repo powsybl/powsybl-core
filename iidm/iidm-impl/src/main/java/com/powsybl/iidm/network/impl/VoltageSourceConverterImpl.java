@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Optional;
@@ -219,7 +218,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
-    public VoltageRegulationHolder setLocalTargetV(double targetV) {
+    public VoltageSourceConverter setLocalTargetV(double targetV) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkDoublePositive(this, targetV, "localTargetV");
         int variantIndex = n.getVariantIndex();
@@ -231,7 +230,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
-    public VoltageRegulationHolder setLocalTargetQ(double targetV) {
+    public VoltageSourceConverter setLocalTargetQ(double targetV) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkDoublePositive(this, targetV, "localTargetQ");
         int variantIndex = n.getVariantIndex();

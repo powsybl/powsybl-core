@@ -61,8 +61,8 @@ public abstract class AbstractGeneratorTest {
         double voltageSetpoint = 31.0;
         double ratedS = 41.0;
         generator.setTargetP(activePowerSetpoint);
-        generator.setTargetQ(reactivePowerSetpoint);
-        generator.setTargetV(voltageSetpoint);
+        generator.setLocalTargetQ(reactivePowerSetpoint);
+        generator.setLocalTargetV(voltageSetpoint);
         generator.setRatedS(ratedS);
         assertEquals(activePowerSetpoint, generator.getTargetP(), 0.0);
         assertEquals(reactivePowerSetpoint, generator.getLocalTargetQ(), 0.0);
@@ -346,9 +346,9 @@ public abstract class AbstractGeneratorTest {
         // change values in s4
         generator.getVoltageRegulation().setRegulating(false);
         generator.setTargetP(12.1);
-        generator.setTargetQ(9.2);
+        generator.setLocalTargetQ(9.2);
         generator.getVoltageRegulation().setTargetValue(9.3);
-        generator.setTargetV(4.2);
+        generator.setLocalTargetV(4.2);
 
         // remove s2
         variantManager.removeVariant("s2");

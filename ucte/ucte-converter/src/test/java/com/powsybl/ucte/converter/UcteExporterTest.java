@@ -187,13 +187,20 @@ class UcteExporterTest extends AbstractSerDeTest {
         }
         for (Generator gen : network.getGenerators()) {
             if (gen.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
-                gen.setTargetV(gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4);
+                double targetV = gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4;
+                if (gen.isRemoteRegulating()) {
+                    gen.getVoltageRegulation().setTargetValue(targetV);
+                } else {
+                    gen.setLocalTargetV(targetV);
+                }
             }
         }
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             RatioTapChanger rtc = twt.getRatioTapChanger();
             if (rtc != null && rtc.isRegulating()) {
-                rtc.setTargetV(rtc.getRegulationTerminal().getVoltageLevel().getNominalV() * 1.4);
+                double targetV = rtc.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4;
+                // Always with a Terminal
+                rtc.getVoltageRegulation().setTargetValue(targetV);
             }
         }
         testExporter(network, "/invalidVoltageReference.uct");

@@ -448,7 +448,7 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertTrue(voltageSourceConverter.isRegulating());
     }
 
-    private void checkVoltageRegulationAttributes(VoltageRegulationAttributesToCheck expected, VoltageRegulationHolder actual) {
+    private <T extends VoltageRegulationHolder<T>> void checkVoltageRegulationAttributes(VoltageRegulationAttributesToCheck expected, T actual) {
         assertNotNull(expected);
         assertNotNull(actual);
 

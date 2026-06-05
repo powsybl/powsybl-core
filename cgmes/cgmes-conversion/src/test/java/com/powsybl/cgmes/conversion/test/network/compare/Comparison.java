@@ -364,6 +364,8 @@ public class Comparison {
             compare("voltageRegulation.isRegulating",
                 expected.getVoltageRegulation().isRegulating(),
                 actual.getVoltageRegulation().isRegulating());
+        } else {
+            compare("voltageRegulation", null, actual.getVoltageRegulation());
         }
         compare("localTargetV",
             expected.getLocalTargetV(),
@@ -430,10 +432,10 @@ public class Comparison {
         compare("Bmax",
                 expected.getBmax(),
                 actual.getBmax());
-        compare("targetV",
+        compare("localTargetV",
                 expected.getLocalTargetV(),
                 actual.getLocalTargetV());
-        compare("targetQ",
+        compare("localTargetQ",
                 expected.getLocalTargetQ(),
                 actual.getLocalTargetQ());
         compare("voltageSetpoint",
@@ -476,11 +478,13 @@ public class Comparison {
         compare("maxP", expected.getMaxP(), actual.getMaxP());
         compareGeneratorReactiveLimits(expected.getReactiveLimits(), actual.getReactiveLimits());
         compare("targetP", expected.getTargetP(), actual.getTargetP());
-        compare("targetQ", expected.getLocalTargetQ(), actual.getLocalTargetQ());
+        compare("localTargetQ", expected.getLocalTargetQ(), actual.getLocalTargetQ());
         if (expected.getVoltageRegulation() != null) {
             compare("VoltageRegulation.mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
             compare("VoltageRegulation.regulating", expected.getVoltageRegulation().isRegulating(), actual.getVoltageRegulation().isRegulating());
             compare("VoltageRegulation.targetValue", expected.getVoltageRegulation().getTargetValue(), actual.getVoltageRegulation().getTargetValue());
+        } else {
+            compare("voltageRegulation", null, actual.getVoltageRegulation());
         }
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null

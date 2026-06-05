@@ -66,7 +66,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
             targetP = -updatedPowerFlow.p();
             targetQ = -updatedPowerFlow.q();
         }
-        generator.setTargetP(targetP).setTargetQ(targetQ);
+        generator.setTargetP(targetP).setLocalTargetQ(targetQ);
 
         Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(generator, controlEnabled, context);

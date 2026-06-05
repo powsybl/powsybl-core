@@ -99,7 +99,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface StaticVarCompensator extends Injection<StaticVarCompensator>, VoltageRegulationHolder {
+public interface StaticVarCompensator extends Injection<StaticVarCompensator>, VoltageRegulationHolder<StaticVarCompensator> {
 
     /**
      * Get the minimum susceptance in S.

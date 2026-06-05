@@ -44,7 +44,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         g.getVoltageRegulation().setRegulating(vregul);
 
         g.setTargetP(targetP);
-        g.setTargetQ(targetQ);
+        g.setLocalTargetQ(targetQ);
 
         Terminal t = g.getTerminal();
         t.setP(p).setQ(q);

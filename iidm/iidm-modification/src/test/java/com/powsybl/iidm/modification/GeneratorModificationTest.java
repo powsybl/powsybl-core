@@ -80,7 +80,7 @@ class GeneratorModificationTest {
 
         generator.getVoltageRegulation().setRegulating(false);
         generator.getVoltageRegulation().setRegulating(true);
-        generator.setTargetV(Double.NaN);
+        generator.setLocalTargetV(Double.NaN);
         modifs = new GeneratorModification.Modifs();
         modifs.setRegulating(false);
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);
@@ -306,7 +306,7 @@ class GeneratorModificationTest {
     @Test
     void testGeneratorWithVoltageRegulationModifToAddVoltageRegulationReactiveModeThrowException() {
         // GIVEN
-        generator.setTargetQ(Double.NaN);
+        generator.setLocalTargetQ(Double.NaN);
         generator.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).build();
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
         modifs.setVoltageRegulationMode(RegulationMode.REACTIVE_POWER);
@@ -342,7 +342,7 @@ class GeneratorModificationTest {
     void testGeneratorWithVoltageRegulationModifToAddVoltageRegulationVoltageModeAndValueFromTargetV() {
         // GIVEN
         generator.removeVoltageRegulation();
-        generator.setTargetV(130.0);
+        generator.setLocalTargetV(130.0);
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);
         GeneratorModification modification = new GeneratorModification(generator.getId(), modifs);
@@ -374,5 +374,34 @@ class GeneratorModificationTest {
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> modification.apply(network));
         // THEN
         assertEquals("Unexpected value: " + unsupportedMode + " not yet implemented", exception.getMessage());
+    }
+
+    @Test
+    void testBackwardCompatibilitySetVoltageRegulatorOn() {
+        // GIVEN
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        modifs.setRegulating(true);
+        modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE);
+
+        // WHEN
+        modifs.setVoltageRegulatorOn(null);
+        // THEN
+        assertNull(modifs.getRegulating());
+        assertNull(modifs.getVoltageRegulationMode());
+        assertNull(modifs.getVoltageRegulatorOn());
+
+        // WHEN
+        modifs.setVoltageRegulatorOn(true);
+        // THEN
+        assertTrue(modifs.getRegulating());
+        assertEquals(RegulationMode.VOLTAGE, modifs.getVoltageRegulationMode());
+        assertTrue(modifs.getVoltageRegulatorOn());
+
+        // WHEN
+        modifs.setVoltageRegulatorOn(false);
+        // THEN
+        assertFalse(modifs.getRegulating());
+        assertEquals(RegulationMode.VOLTAGE, modifs.getVoltageRegulationMode());
+        assertFalse(modifs.getVoltageRegulatorOn());
     }
 }

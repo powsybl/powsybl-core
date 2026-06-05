@@ -132,7 +132,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
  *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConverter>, ReactiveLimitsHolder, VoltageRegulationHolder {
+public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConverter>, ReactiveLimitsHolder, VoltageRegulationHolder<VoltageSourceConverter> {
 
     @Override
     default IdentifiableType getType() {

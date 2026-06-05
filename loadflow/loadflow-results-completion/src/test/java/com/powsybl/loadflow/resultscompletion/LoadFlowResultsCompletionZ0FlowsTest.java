@@ -506,15 +506,15 @@ class LoadFlowResultsCompletionZ0FlowsTest {
 
         network.getGenerator("G1")
                 .setTargetP(1.180568)
-                .setTargetQ(18.060835);
+                .setLocalTargetQ(18.060835);
         network.getGenerator("G1").getTerminal().setP(-1.180568).setQ(-18.060835);
         network.getGenerator("G2")
                 .setTargetP(16.128860)
-                .setTargetQ(-4.462291);
+                .setLocalTargetQ(-4.462291);
         network.getGenerator("G2").getTerminal().setP(-16.128860).setQ(4.462291);
         network.getGenerator("G5")
                 .setTargetP(61.123773)
-                .setTargetQ(-134.882226);
+                .setLocalTargetQ(-134.882226);
         network.getGenerator("G5").getTerminal().setP(-61.123773).setQ(134.882226);
         network.getLine("L1-2")
                 .getTerminal2().getBusBreakerView().getBus()

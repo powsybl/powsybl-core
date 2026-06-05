@@ -20,7 +20,6 @@ import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
-import static java.lang.Boolean.TRUE;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -55,10 +54,10 @@ public class GeneratorModification extends AbstractNetworkModification {
             g.setMaxP(modifs.getMaxP());
         }
         if (modifs.getTargetV() != null) {
-            g.setTargetV(modifs.getTargetV());
+            g.setLocalTargetV(modifs.getTargetV());
         }
         if (modifs.getTargetQ() != null) {
-            g.setTargetQ(modifs.getTargetQ());
+            g.setLocalTargetQ(modifs.getTargetQ());
         }
         boolean skipOtherConnectionChange = false;
         if (modifs.getConnected() != null) {
@@ -115,7 +114,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         }
 
         double plausible = getPlausibleTargetV(generator);
-        generator.setTargetV(plausible);
+        generator.setLocalTargetV(plausible);
         return plausible;
     }
 
@@ -259,8 +258,12 @@ public class GeneratorModification extends AbstractNetworkModification {
          * @deprecated use {@link VoltageRegulation#isRegulating()} instead
          */
         @Deprecated(forRemoval = true, since = "7.3.0")
+        @javax.annotation.CheckForNull
         public Boolean getVoltageRegulatorOn() {
-            return this.voltageRegulationMode != null && this.voltageRegulationMode == RegulationMode.VOLTAGE;
+            if (this.voltageRegulationMode == null || this.regulating == null) {
+                return null;
+            }
+            return this.voltageRegulationMode == RegulationMode.VOLTAGE && regulating;
         }
 
         /**
@@ -268,12 +271,15 @@ public class GeneratorModification extends AbstractNetworkModification {
          */
         @Deprecated(forRemoval = true, since = "7.3.0")
         public void setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
-            if (TRUE.equals(voltageRegulatorOn)) {
+            if (Boolean.TRUE.equals(voltageRegulatorOn)) {
                 this.voltageRegulationMode = RegulationMode.VOLTAGE;
                 this.regulating = true;
             } else if (Boolean.FALSE.equals(voltageRegulatorOn)) {
-                this.voltageRegulationMode = RegulationMode.REACTIVE_POWER;
-                this.regulating = true;
+                this.voltageRegulationMode = RegulationMode.VOLTAGE;
+                this.regulating = false;
+            } else {
+                this.voltageRegulationMode = null;
+                this.regulating = null;
             }
         }
 

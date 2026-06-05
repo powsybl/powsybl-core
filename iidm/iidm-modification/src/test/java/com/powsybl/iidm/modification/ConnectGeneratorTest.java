@@ -32,9 +32,9 @@ class ConnectGeneratorTest {
         Generator g1 = network.getGenerator("GH1");
         g2 = network.getGenerator("GH2");
         g3 = network.getGenerator("GH3");
-        g1.setTargetV(11.);
-        g2.setTargetV(22.);
-        g3.setTargetV(33.);
+        g1.setLocalTargetV(11.);
+        g2.setLocalTargetV(22.);
+        g3.setLocalTargetV(33.);
         g1.getTerminal().disconnect();
         g2.getTerminal().disconnect();
         network.getVoltageLevel("S1VL2").getBusView().getBus("S1VL2_0").setV(99.);
@@ -108,7 +108,7 @@ class ConnectGeneratorTest {
         g2.getVoltageRegulation().setRegulating(false);
         g3.getVoltageRegulation().setRegulating(false);
         g2.getVoltageRegulation().setTerminal(g3.getTerminal(), 43);
-        g2.setTargetV(Double.NaN);
+        g2.setLocalTargetV(Double.NaN);
         g2.getVoltageRegulation().setTargetValue(123.45);
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
         modifs.setVoltageRegulationMode(RegulationMode.VOLTAGE); // no targetV provided!

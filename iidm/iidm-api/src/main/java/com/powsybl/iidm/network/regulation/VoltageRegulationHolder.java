@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Terminal;
  *
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public interface VoltageRegulationHolder {
+public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
 
     /**
      * Creates a new VoltageRegulationBuilder instance
@@ -41,7 +41,7 @@ public interface VoltageRegulationHolder {
     /**
      * TODO MSA JAVADOC
      */
-    VoltageRegulationHolder setLocalTargetV(double targetV);
+    T setLocalTargetV(double targetV);
 
     /**
      * Gets the local target voltage value at the equipment's terminal
@@ -55,7 +55,7 @@ public interface VoltageRegulationHolder {
     /**
      * TODO MSA JAVADOC
      */
-    default VoltageRegulationHolder setLocalTargetQ(double localTargetQ) {
+    default T setLocalTargetQ(double localTargetQ) {
         throw new UnsupportedOperationException();
     }
 
@@ -82,7 +82,7 @@ public interface VoltageRegulationHolder {
         }
         return voltageRegulation != null
             && voltageRegulation.isRegulating()
-            && isWithMode(mode);
+            && voltageRegulation.getMode() == mode;
     }
 
     /**

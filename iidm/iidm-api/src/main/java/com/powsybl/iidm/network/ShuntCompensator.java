@@ -111,7 +111,7 @@ import java.util.OptionalInt;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see ShuntCompensatorAdder
  */
-public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRegulationHolder {
+public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRegulationHolder<ShuntCompensator> {
 
     /**
      * Get the count of sections in service.

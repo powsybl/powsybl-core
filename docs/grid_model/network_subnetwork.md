@@ -263,7 +263,7 @@ battery side and vice versa. The power flow is bidirectional, and it is controll
 | Attribute           | Unit | Description                                                  |
 |---------------------|------|--------------------------------------------------------------|
 | $TargetP$           | MW   | The active power target                                      |
-| $LocalTargetQ$      | MVAr | The reactive power target at local terminal                  |
+| $LocalTargetQ$      | MVar | The reactive power target at local terminal                  |
 | $LocalTargetV$      | kV   | The voltage target at local terminal                         |
 | $MinP$              | MW   | The Minimal active power (charging limit)                    |
 | $MaxP$              | MW   | The Maximum active power (discharging limit)                 |

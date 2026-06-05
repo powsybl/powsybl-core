@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.*;
@@ -64,7 +63,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public VoltageRegulationHolder setLocalTargetV(double targetV) {
+    public ShuntCompensator setLocalTargetV(double targetV) {
         if (this.isRegulating()) {
             ValidationUtil.checkLocalTargetQandV(this, targetV, Double.NaN, getVoltageRegulation(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         }

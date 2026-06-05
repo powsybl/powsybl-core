@@ -989,7 +989,7 @@ public final class CgmesConformity1NetworkCatalog {
         Generator genBrussels21 = network
                 .getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                 .setTargetP(-p)
-                .setTargetQ(targetQ);
+                .setLocalTargetQ(targetQ);
         genBrussels21.getTerminal().setP(p).setQ(q);
 
         p = -90.0;
@@ -998,7 +998,7 @@ public final class CgmesConformity1NetworkCatalog {
         Generator genBrussels10 = network
                 .getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0")
                 .setTargetP(-p)
-                .setTargetQ(targetQ);
+                .setLocalTargetQ(targetQ);
         genBrussels10.getTerminal().setP(p).setQ(q);
 
         // Line _df16b3dd (scAnvers) comes from a SeriesCompensator in CGMES model

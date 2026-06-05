@@ -58,9 +58,9 @@ class GeneratorModificationModificationExtension implements DslModificationExten
             modifs.setDeltaTargetP(deltaTargetP)
             modifs.setTargetV(targetV)
             modifs.setTargetQ(targetQ)
+            modifs.setVoltageRegulatorOn(voltageRegulatorOn)
             modifs.setVoltageRegulationMode(voltageRegulationMode)
             modifs.setRegulating(regulating)
-            modifs.setVoltageRegulatorOn(voltageRegulatorOn)
             modifs.setConnected(connected)
             return modifs
         }

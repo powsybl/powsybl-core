@@ -75,7 +75,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public interface VscConverterStation extends HvdcConverterStation<VscConverterStation>, ReactiveLimitsHolder, VoltageRegulationHolder {
+public interface VscConverterStation extends HvdcConverterStation<VscConverterStation>, ReactiveLimitsHolder, VoltageRegulationHolder<VscConverterStation> {
 
     /**
      * Check if voltage regulator is on.

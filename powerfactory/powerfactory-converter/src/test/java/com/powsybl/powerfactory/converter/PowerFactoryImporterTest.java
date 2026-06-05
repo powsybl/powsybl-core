@@ -515,7 +515,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
         // The case does not have the reactive of the generator. We set it manually
-        generator2.setTargetQ(targetQ);
+        generator2.setLocalTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
@@ -608,7 +608,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
         // The case does not have the reactive of the generator. We set it manually
-        generator2.setTargetQ(targetQ);
+        generator2.setLocalTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(ThreeSides.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);

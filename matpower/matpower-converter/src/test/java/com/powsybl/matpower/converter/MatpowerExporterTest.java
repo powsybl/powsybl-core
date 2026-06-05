@@ -221,7 +221,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     @Test
     void testNanTargetQIssue() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
-        network.getGenerator("GEN").setTargetQ(Double.NaN);
+        network.getGenerator("GEN").setLocalTargetQ(Double.NaN);
         exportToMatAndCompareTo(network, "/sim1-with-nan-target-q.json");
     }
 
