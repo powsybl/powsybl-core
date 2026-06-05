@@ -16,6 +16,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -32,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Set;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -88,6 +90,31 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             IidmVersion.V_1_12,
             IidmVersion.V_1_15
         );
+    }
+
+    @Test
+    void roundTripTestExportOnlyActiveGroups() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        //network with some inactive groups, export only active
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
+    }
+
+    @Test
+    void testImportOnlyActiveGroups() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        ImportOptions importOptions = new ImportOptions().setOnlySelectedOperationalLimitsGroups(true);
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+
+        Path transformFile = tmpDir.resolve("data");
+
+        //write network with all groups
+        NetworkSerDe.write(network, exportOptions, transformFile);
+        //read only active groups
+        Network onlyActiveGroupsNetwork = NetworkSerDe.validateAndRead(transformFile, importOptions);
+        writeTest(onlyActiveGroupsNetwork, (n, p) -> NetworkSerDe.write(n, exportOptions, p), ComparisonUtils::assertTxtEquals, getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION));
     }
 
     @ParameterizedTest

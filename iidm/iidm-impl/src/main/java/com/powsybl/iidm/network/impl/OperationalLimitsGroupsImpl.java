@@ -28,7 +28,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     private final String attributeName;
     private final LinkedHashSet<String> selectedLimitsIds = new LinkedHashSet<>();
 
-    private final Map<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
+    private final LinkedHashMap<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
     private final AbstractIdentifiable<?> identifiable;
 
     OperationalLimitsGroupsImpl(AbstractIdentifiable<?> identifiable, String attributeName) {
@@ -177,7 +177,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
                 .stream()
                 .filter(e -> selectedLimitsIds.contains(e.getKey()))
                 .map(Map.Entry::getValue)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.toList());
     }
 
     @Override
