@@ -109,7 +109,7 @@ class BusBranchExportTest extends AbstractSerDeTest {
     }
 
     @Test
-    void shouldReturnFalseWhenTopologyIsBusBranch() {
+    void shouldReturnFalseWhenTopologyIsBusBreaker() {
         Network network = Network.create("n1", "test");
 
         Substation substation = network.newSubstation()
