@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -105,5 +106,22 @@ class BusBranchExportTest extends AbstractSerDeTest {
 
         NetworkSerDe.write(network, options, file);
         assertDoesNotThrow(() -> NetworkSerDe.read(file));
+    }
+
+    @Test
+    void shouldReturnFalseWhenTopologyIsBusBranch() {
+        Network network = Network.create("n1", "test");
+
+        Substation substation = network.newSubstation()
+                .setId("S1")
+                .add();
+
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(225.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        assertFalse(TopologyLevelUtil.hasReferencedBusbarSections(vl));
     }
 }
