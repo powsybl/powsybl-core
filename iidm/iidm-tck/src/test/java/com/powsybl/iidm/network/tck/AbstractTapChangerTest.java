@@ -568,7 +568,7 @@ public abstract class AbstractTapChangerTest {
         assertEquals(3, ratioTapChanger.getAllSteps().size());
         assertTrue(ratioTapChanger.hasLoadTapChangingCapabilities());
         assertTrue(ratioTapChanger.isRegulating());
-        assertEquals(1.0, ratioTapChanger.getTargetDeadband(), 0.0);
+        assertEquals(1.0, ratioTapChanger.getVoltageRegulation().getTargetDeadband(), 0.0);
         assertEquals(RegulationMode.VOLTAGE, ratioTapChanger.getVoltageRegulation().getMode());
         assertEquals(220.0, ratioTapChanger.getVoltageRegulation().getTargetValue(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
@@ -596,23 +596,24 @@ public abstract class AbstractTapChangerTest {
         assertEquals(-50.0, ratioTapChanger.getVoltageRegulation().getTargetValue(), 0.0);
         ratioTapChanger.setRegulating(false);
         assertFalse(ratioTapChanger.isRegulating());
-        ratioTapChanger.setTargetDeadband(0.5);
-        assertEquals(0.5, ratioTapChanger.getTargetDeadband(), 0.0);
+        ratioTapChanger.getVoltageRegulation().setTargetDeadband(0.5);
+        assertEquals(0.5, ratioTapChanger.getVoltageRegulation().getTargetDeadband(), 0.0);
         ratioTapChanger.setRegulationTerminal(twt.getTerminal2());
         assertSame(twt.getTerminal2(), ratioTapChanger.getRegulationTerminal());
         ratioTapChanger.setLoadTapChangingCapabilities(false);
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
 
-        ratioTapChanger.setTargetDeadband(-1);
-        ratioTapChanger.setTargetDeadband(1);
+        ratioTapChanger.getVoltageRegulation().setTargetDeadband(-1);
+        assertEquals(-1, ratioTapChanger.getVoltageRegulation().getTargetDeadband());
+        ratioTapChanger.getVoltageRegulation().setTargetDeadband(1);
         ratioTapChanger.setLoadTapChangingCapabilities(true);
         ratioTapChanger.setRegulating(true);
-        ValidationException validationException = assertThrows(ValidationException.class, () -> ratioTapChanger.setTargetDeadband(-1));
+        ValidationException validationException = assertThrows(ValidationException.class, () -> ratioTapChanger.getVoltageRegulation().setTargetDeadband(-1));
         assertEquals("2 windings transformer 'twt': Unexpected value for target deadband of RatioTapChanger: -1.0 < 0", validationException.getMessage());
 
         ratioTapChanger.setRegulating(false);
         ratioTapChanger.setLoadTapChangingCapabilities(false);
-        ratioTapChanger.setTargetDeadband(Double.NaN);
+        ratioTapChanger.getVoltageRegulation().setTargetDeadband(Double.NaN);
         validationException = assertThrows(ValidationException.class, () -> ratioTapChanger.setRegulating(true));
         assertEquals("2 windings transformer 'twt': regulation cannot be enabled on ratio tap changer without load tap changing capabilities", validationException.getMessage());
 

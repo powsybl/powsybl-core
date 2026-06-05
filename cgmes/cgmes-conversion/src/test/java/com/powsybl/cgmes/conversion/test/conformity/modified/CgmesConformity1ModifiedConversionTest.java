@@ -817,7 +817,7 @@ class CgmesConformity1ModifiedConversionTest {
 
         transformerId = "b94318f6-6d24-4f56-96b9-df2531ad6543";
         RatioTapChanger rtc = network.getTwoWindingsTransformer(transformerId).getRatioTapChanger();
-        assertTrue(Double.isNaN(rtc.getTargetDeadband()));
+        assertTrue(Double.isNaN(rtc.getVoltageRegulation().getTargetDeadband()));
         assertFalse(rtc.isRegulating());
     }
 

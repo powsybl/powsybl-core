@@ -376,6 +376,7 @@ class GeneratorModificationTest {
         assertEquals("Unexpected value: " + unsupportedMode + " not yet implemented", exception.getMessage());
     }
 
+    @SuppressWarnings("removal") // Removal warnings are ignored. In fact, these tests are here to verify backward compatibility
     @Test
     void testBackwardCompatibilitySetVoltageRegulatorOn() {
         // GIVEN

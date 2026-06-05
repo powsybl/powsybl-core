@@ -110,7 +110,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeOptionalBooleanAttribute(ATTR_REGULATING, optionalRegulatingValue));
 
         writeTapChanger(rtc, context);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> writeTargetDeadband(rtc.getTargetDeadband(), context));
+        double targetDeadband = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getTargetDeadband() : Double.NaN;
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> writeTargetDeadband(targetDeadband, context));
         context.getWriter().writeBooleanAttribute(ATTR_LOAD_TAP_CHANGING_CAPABILITIES, rtc.hasLoadTapChangingCapabilities());
         double targetValue = rtc.getVoltageRegulation() != null ? rtc.getVoltageRegulation().getTargetValue() : Double.NaN;
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_11, context, () -> context.getWriter().writeDoubleAttribute("targetV", targetValue));
