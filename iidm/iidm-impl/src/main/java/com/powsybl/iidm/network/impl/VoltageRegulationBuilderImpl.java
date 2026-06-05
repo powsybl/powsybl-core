@@ -35,7 +35,6 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
 
     @Override
     public VoltageRegulation build() {
-        // TODO MSA add check if several variants are presents
         VoltageRegulationExt voltageRegulation = checkAndCreateVoltageRegulation();
         this.voltageRegulationSetter.accept(voltageRegulation);
         if (!holder.isRemoteRegulating() && (!ShuntCompensator.class.equals(classHolder) || holder.isRegulating())) {

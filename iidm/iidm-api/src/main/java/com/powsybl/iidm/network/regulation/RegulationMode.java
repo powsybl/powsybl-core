@@ -20,8 +20,6 @@ public enum RegulationMode {
     VOLTAGE_PER_REACTIVE_POWER(3);
     // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
 
-    public static final int UNDEFINED_MODE = -1;
-
     private final int index;
 
     RegulationMode(int index) {
@@ -33,9 +31,6 @@ public enum RegulationMode {
             if (mode.index == index) {
                 return mode;
             }
-            if (UNDEFINED_MODE == index) {
-                return null;
-            }
         }
         throw new IllegalArgumentException("Unknown index: " + index);
     }
@@ -44,8 +39,8 @@ public enum RegulationMode {
         return index;
     }
 
-    public static int getIndex(RegulationMode mode) {
-        return mode == null ? UNDEFINED_MODE : mode.index;
+    public static Integer getIndex(RegulationMode mode) {
+        return mode == null ? null : mode.index;
     }
 
     public static Set<RegulationMode> getAllowedRegulationModes(boolean isRemoteRegulating, Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {

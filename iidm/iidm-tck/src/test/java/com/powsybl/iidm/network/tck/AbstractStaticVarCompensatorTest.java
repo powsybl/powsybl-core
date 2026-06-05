@@ -136,7 +136,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(RegulationMode.REACTIVE_POWER, svc5.getVoltageRegulation().getMode());
         lineTerminal.getConnectable().remove();
         assertEquals(svc5.getTerminal(), svc5.getRegulatingTerminal());
-        assertEquals(RegulationMode.REACTIVE_POWER, svc5.getVoltageRegulation().getMode()); // TODO MSA check that why not keeping the old mode ??
+        assertEquals(RegulationMode.VOLTAGE, svc5.getVoltageRegulation().getMode());
     }
 
     @Test

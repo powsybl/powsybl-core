@@ -41,6 +41,8 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     private final TDoubleArrayList slope;
     private final TBooleanArrayList regulating;
     private final TIntArrayList regulationMode;
+    //
+    private static final int UNDEFINED_REGULATION_MODE = -1;
 
     public VoltageRegulationImpl(Validable validable,
                                  VoltageRegulationHolder<?> holder,
@@ -69,6 +71,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     private void initVariantAttributes(double targetValue, double targetDeadband, double slope, boolean regulating, RegulationMode mode, int variantArraySize) {
+        Integer index = RegulationMode.getIndex(mode);
         for (int i = 0; i < variantArraySize - 1; i++) {
             // When the VoltageRegulation object is created and there's already other variants,
             // it is created with "empty" values and defined as not regulating for the other variants.
@@ -76,13 +79,13 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             this.targetDeadband.add(Double.NaN);
             this.slope.add(Double.NaN);
             this.regulating.add(false);
-            this.regulationMode.add(RegulationMode.UNDEFINED_MODE);
+            this.regulationMode.add(UNDEFINED_REGULATION_MODE);
         }
         this.targetValue.add(targetValue);
         this.targetDeadband.add(targetDeadband);
         this.slope.add(slope);
         this.regulating.add(regulating);
-        this.regulationMode.add(RegulationMode.getIndex(mode));
+        this.regulationMode.add(index != null ? index : UNDEFINED_REGULATION_MODE);
     }
 
     @Override
@@ -146,13 +149,19 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public RegulationMode getMode() {
-        return RegulationMode.fromIndex(regulationMode.get(getCurrentIndex()));
+        int modeIndex = regulationMode.get(getCurrentIndex());
+        return UNDEFINED_REGULATION_MODE == modeIndex ? null : RegulationMode.fromIndex(modeIndex);
     }
 
     @Override
     public RegulationMode setMode(RegulationMode mode) {
         ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), isWithTerminal(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        return RegulationMode.fromIndex(regulationMode.set(getCurrentIndex(), mode.getIndex()));
+        if (mode == null) {
+            regulationMode.set(getCurrentIndex(), UNDEFINED_REGULATION_MODE);
+            return null;
+        } else {
+            return RegulationMode.fromIndex(regulationMode.set(getCurrentIndex(), mode.getIndex()));
+        }
     }
 
     @Override
@@ -292,9 +301,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     private void actionOnRemovedTerminal() {
         TerminalExt oldRegulatingTerminal = terminal;
         Terminal localTerminal = holder.getTerminal();
-        String regulatedEquipmentId = "TODO MSA";
+        String regulatedEquipmentId = getRegulatedEquipmentId(localTerminal);
+        boolean updateTerminal = StaticVarCompensator.class != classHolder || holder.isWithMode(RegulationMode.VOLTAGE);
         // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
-        if (localTerminal != null && isRegulating()) {
+        if (localTerminal != null && updateTerminal) {
             Bus bus = terminal.getBusView().getBus();
             Bus localBus = localTerminal.getBusView().getBus();
             if (bus != null && bus == localBus) {
@@ -315,5 +325,19 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (getMode() != null) {
             setMode(RegulationMode.VOLTAGE);
         }
+    }
+
+    private String getRegulatedEquipmentId(Terminal localTerminal) {
+        String regulatedEquipmentId;
+        if (localTerminal != null) {
+            regulatedEquipmentId = localTerminal.getConnectable().getId();
+        } else {
+            if (validable instanceof RatioTapChangerParent parent) {
+                regulatedEquipmentId = parent.getTransformer().getId();
+            } else {
+                regulatedEquipmentId = "";
+            }
+        }
+        return regulatedEquipmentId;
     }
 }
