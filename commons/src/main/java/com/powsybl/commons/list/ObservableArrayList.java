@@ -29,7 +29,7 @@ public class ObservableArrayList<E> extends ArrayList<E> implements ObservableLi
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final WeakListenerList<ListChangeListener<E>> listeners = new WeakListenerList<>();
+    private final transient WeakListenerList<ListChangeListener<E>> listeners = new WeakListenerList<>();
 
     public ObservableArrayList() {
         super();
