@@ -32,6 +32,10 @@ public interface AcDcConverterAdder<T extends AcDcConverter<T> & Connectable<T> 
 
     A setDcConnected2(boolean connected2);
 
+    A setMinP(double minP);
+
+    A setMaxP(double maxP);
+
     A setIdleLoss(double idleLoss);
 
     A setSwitchingLoss(double switchingLoss);

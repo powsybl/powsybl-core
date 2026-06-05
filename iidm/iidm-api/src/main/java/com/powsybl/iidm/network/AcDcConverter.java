@@ -173,6 +173,28 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
     DcTerminal getDcTerminal(TerminalNumber terminalNumber);
 
     /**
+     * Get the minimal active power in MW.
+     * Defaults to {@link Double#NEGATIVE_INFINITY} if not set.
+     */
+    double getMinP();
+
+    /**
+     * Set the minimal active power in MW.
+     */
+    I setMinP(double minP);
+
+    /**
+     * Get the maximal active power in MW.
+     * Defaults to {@link Double#POSITIVE_INFINITY} if not set.
+     */
+    double getMaxP();
+
+    /**
+     * Set the maximal active power in MW.
+     */
+    I setMaxP(double maxP);
+
+    /**
      * Set the idle loss (MW).
      */
     I setIdleLoss(double idleLoss);
