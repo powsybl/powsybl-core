@@ -7,14 +7,16 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Teofil Calin Banc {@literal <teofil-calin.banc at rte-france.com>}
