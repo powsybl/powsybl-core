@@ -183,7 +183,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator>, V
      * <p>Depends on the working variant.</p>
      * @param regulationMode the regulating mode
      * @return this to allow method chaining
-     * @deprecated use {@link #newVoltageRegulation()} instead
+     * @deprecated use {@link #newVoltageRegulation()} with {@link com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder#withMode(RegulationMode)} instead
      */
     @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);

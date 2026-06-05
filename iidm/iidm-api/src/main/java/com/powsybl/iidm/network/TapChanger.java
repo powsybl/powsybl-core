@@ -205,29 +205,6 @@ public interface TapChanger<
     C setRegulationTerminal(Terminal regulationTerminal);
 
     /**
-     * Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
-     * This attribute is necessary only if the tap changer is regulating.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    // TODO MSA move to phase and ratio tapChanger and add @Deprecated to the ratioTapChanger one
-    default double getTargetDeadband() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Set the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
-     * This attribute is necessary only if the tap changer is regulating. It must be positive.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
-     */
-    default C setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
      * Remove the tap changer.
      */
     void remove();

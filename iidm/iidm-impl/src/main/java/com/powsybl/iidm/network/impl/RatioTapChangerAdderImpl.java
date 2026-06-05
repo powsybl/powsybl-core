@@ -87,7 +87,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         if (!Double.isNaN(targetV)) {
             this.regulationMode = RegulationMode.VOLTAGE;
         }
-        return setRegulationValue(targetV); // TODO MSA change with settargetV ?
+        return setRegulationValue(targetV);
     }
 
     @Override

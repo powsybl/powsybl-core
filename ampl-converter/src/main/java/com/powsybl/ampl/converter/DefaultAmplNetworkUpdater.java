@@ -50,7 +50,12 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         t.setP(p).setQ(q);
 
         double nominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
-        g.setTargetV(targetV * nominalV);
+        double targetValue = targetV * nominalV;
+        if (g.isRemoteRegulating()) {
+            g.getVoltageRegulation().setTargetValue(targetValue);
+        } else {
+            g.setLocalTargetV(targetValue);
+        }
         busConnection(t, busNum, networkMapper);
     }
 

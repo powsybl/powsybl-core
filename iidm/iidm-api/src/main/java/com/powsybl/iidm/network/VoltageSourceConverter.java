@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
@@ -169,7 +168,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * Set the AC voltage setpoint (kV).
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#VOLTAGE} instead
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetV(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverter setVoltageSetpoint(double voltageSetpoint);
@@ -186,7 +185,7 @@ public interface VoltageSourceConverter extends AcDcConverter<VoltageSourceConve
      * Set the reactive power setpoint (MVar).
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return the converter itself to allow method chaining
-     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} and {@link VoltageRegulation#setMode(RegulationMode)} with {@link RegulationMode#REACTIVE_POWER} instead
+     * @deprecated use {@link VoltageRegulation#setTargetValue(double)} or {@link #setLocalTargetQ(double)} instead
      */
     @Deprecated(forRemoval = true, since = "7.3.0")
     VoltageSourceConverter setReactivePowerSetpoint(double reactivePowerSetpoint);

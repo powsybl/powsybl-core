@@ -112,11 +112,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Avoid negative zeros during the comparison
         expected.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
         actual.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
 
         assertTrue(compareNetworksEQdata(expected, actual));
@@ -131,11 +131,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Avoid negative zeros during the comparison
         expected.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
         actual.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
 
         assertTrue(compareNetworksEQdata(expected, actual));
@@ -583,7 +583,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
-            actualGenerator.setTargetQ(expectedGenerator.getLocalTargetQ());
+            actualGenerator.setLocalTargetQ(expectedGenerator.getLocalTargetQ());
         });
 
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
@@ -662,7 +662,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
-            actualGenerator.setTargetQ(expectedGenerator.getLocalTargetQ());
+            actualGenerator.setLocalTargetQ(expectedGenerator.getLocalTargetQ());
         });
 
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
@@ -1780,9 +1780,9 @@ class EquipmentExportTest extends AbstractSerDeTest {
                 shuntCompensator.setSectionCount(0);
             } else if (identifiable instanceof Generator generator) {
                 generator.removeVoltageRegulation();
-                generator.setTargetV(Double.NaN);
+                generator.setLocalTargetV(Double.NaN);
                 generator.setTargetP(Double.NaN);
-                generator.setTargetQ(Double.NaN);
+                generator.setLocalTargetQ(Double.NaN);
                 generator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
                 staticVarCompensator.removeVoltageRegulation();

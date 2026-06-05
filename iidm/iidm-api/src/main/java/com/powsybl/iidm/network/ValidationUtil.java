@@ -587,11 +587,7 @@ public final class ValidationUtil {
                                                                  ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (regulating) {
-            if (!loadTapChangingCapabilities) {
-                throwExceptionOrLogError(validable, "regulation cannot be enabled on ratio tap changer without load tap changing capabilities", actionOnError,
-                        id -> NetworkReports.rtcRegulationCannotBeEnabledWithoutLoadTapChanging(reportNode, id));
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
-            }
+            validationLevel = ValidationLevel.min(validationLevel, checkRTCLoadTapChangingCapabilities(validable, loadTapChangingCapabilities, regulating, actionOnError, reportNode, validationLevel));
             if (Objects.isNull(regulationMode)) {
                 throwExceptionOrLogError(validable, "regulation mode of regulating ratio tap changer must be given", actionOnError,
                         id -> NetworkReports.regulatingRtcNoRegulationMode(reportNode, id));
@@ -873,8 +869,21 @@ public final class ValidationUtil {
                     id -> NetworkReports.tapPositionNotSet(reportNode, id));
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
-        validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating(), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getRegulationMode(), rtc.getRegulationValue(), network, actionOnError, reportNode));
-        validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "ratio tap changer", rtc.isRegulating(), rtc.getTargetDeadband(), actionOnError, reportNode));
+        validationLevel = ValidationLevel.min(validationLevel, checkRTCLoadTapChangingCapabilities(validable, rtc.hasLoadTapChangingCapabilities(), rtc.isRegulating(), actionOnError, reportNode, validationLevel));
+        validationLevel = ValidationLevel.min(validationLevel, checkVoltageRegulationIfRegulating(validable, rtc.getVoltageRegulation(), network, RatioTapChanger.class, actionOnError, reportNode));
+        return validationLevel;
+    }
+
+    public static ValidationLevel checkRTCLoadTapChangingCapabilities(@NonNull Validable owner, boolean loadTapChangingCapabilities, boolean regulating, ValidationLevel validationLevel, ReportNode reportNode) {
+        return checkRTCLoadTapChangingCapabilities(owner, loadTapChangingCapabilities, regulating, checkValidationActionOnError(validationLevel), reportNode, validationLevel);
+    }
+
+    private static ValidationLevel checkRTCLoadTapChangingCapabilities(Validable validable, boolean loadTapChangingCapabilities, boolean regulating, ActionOnError actionOnError, ReportNode reportNode, ValidationLevel validationLevel) {
+        if (regulating && !loadTapChangingCapabilities) {
+            throwExceptionOrLogError(validable, "regulation cannot be enabled on ratio tap changer without load tap changing capabilities", actionOnError,
+                id -> NetworkReports.rtcRegulationCannotBeEnabledWithoutLoadTapChanging(reportNode, id));
+            return ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+        }
         return validationLevel;
     }
 
@@ -1117,7 +1126,7 @@ public final class ValidationUtil {
                     id -> NetworkReports.invalidVoltageRegulationTerminal(reportNode, id));
                 return ValidationLevel.EQUIPMENT;
             }
-            // TODO MSA add check on terminal of the ratioTapCHanger must be a leg's terminal
+            // TODO MSA In the case of reactive power regulation, the regulated terminal should be the terminal of a branch or 3-winding transformer leg.
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }

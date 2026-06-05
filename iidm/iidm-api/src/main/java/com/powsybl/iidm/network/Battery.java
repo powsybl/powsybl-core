@@ -161,16 +161,24 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
     }
 
     default void setTargetPToP() {
-        this.setTargetP(-this.getTerminal().getP());
+        double p = this.getTerminal().getP();
+        if (!Double.isNaN(p)) {
+            this.setTargetP(-p);
+        }
     }
 
     default void setTargetQToQ() {
         // If remote reactive power regulation is enabled, the target value is updated
         if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
             double remoteQ = getVoltageRegulation().getTerminal().getQ();
-            getVoltageRegulation().setTargetValue(-remoteQ);
+            if (!Double.isNaN(remoteQ)) {
+                getVoltageRegulation().setTargetValue(-remoteQ);
+            }
         }
-        // In any cases we set the localTargetQ
-        this.setLocalTargetQ(-this.getTerminal().getQ());
+        double q = this.getTerminal().getQ();
+        if (!Double.isNaN(q)) {
+            // In any cases we set the localTargetQ
+            this.setLocalTargetQ(-this.getTerminal().getQ());
+        }
     }
 }

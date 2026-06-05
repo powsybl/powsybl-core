@@ -801,13 +801,13 @@ class TransformerConverter extends AbstractConverter {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
         }
+        rtc.setLoadTapChangingCapabilities(regulating);
         rtc.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(targetV)
             .withTargetDeadband(targetDeadBand)
             .withTerminal(regulatingTerminal)
             .build();
-        rtc.setLoadTapChangingCapabilities(regulating);
 
         return regulating;
     }

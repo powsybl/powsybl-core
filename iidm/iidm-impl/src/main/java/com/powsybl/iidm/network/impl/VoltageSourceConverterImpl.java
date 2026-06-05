@@ -87,19 +87,17 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public VoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
         String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-        if (isRemoteRegulating()) {
-            getOptionalVoltageRegulation().ifPresent(regulation -> {
-                if (isWithMode(RegulationMode.VOLTAGE)) {
-                    double oldValue = regulation.getTargetValue();
-                    regulation.setTargetValue(voltageSetpoint);
-                    notifyUpdate(VOLTAGE_SETPOINT_ATTRIBUTE, variantId, oldValue, voltageSetpoint);
-                }
-            });
+        double oldValue;
+        if (voltageRegulation != null
+            && isRemoteRegulating()
+            && isWithMode(RegulationMode.VOLTAGE)) {
+            oldValue = voltageRegulation.getTargetValue();
+            voltageRegulation.setTargetValue(voltageSetpoint);
         } else {
-            double oldValue = getLocalTargetV();
+            oldValue = getLocalTargetV();
             setLocalTargetV(voltageSetpoint);
-            notifyUpdate(VOLTAGE_SETPOINT_ATTRIBUTE, variantId, oldValue, voltageSetpoint);
         }
+        notifyUpdate(VOLTAGE_SETPOINT_ATTRIBUTE, variantId, oldValue, voltageSetpoint);
         return this;
     }
 
@@ -108,23 +106,20 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         return this.getRegulatingTargetQ();
     }
 
-    // TODO MSA fix this behavior (update the localValue or the targetValue)
     @Override
     public VoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-        if (isRemoteRegulating()) {
-            getOptionalVoltageRegulation().ifPresent(regulation -> {
-                if (isWithMode(RegulationMode.REACTIVE_POWER)) {
-                    double oldValue = regulation.getTargetValue();
-                    regulation.setTargetValue(reactivePowerSetpoint);
-                    notifyUpdate(REACTIVE_POWER_SETPOINT_ATTRIBUTE, variantId, oldValue, reactivePowerSetpoint);
-                }
-            });
+        double oldValue;
+        if (voltageRegulation != null
+            && isRemoteRegulating()
+            && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            oldValue = voltageRegulation.getTargetValue();
+            voltageRegulation.setTargetValue(reactivePowerSetpoint);
         } else {
-            double oldValue = getLocalTargetQ();
+            oldValue = getLocalTargetQ();
             setLocalTargetQ(reactivePowerSetpoint);
-            notifyUpdate(REACTIVE_POWER_SETPOINT_ATTRIBUTE, variantId, oldValue, reactivePowerSetpoint);
         }
+        notifyUpdate(REACTIVE_POWER_SETPOINT_ATTRIBUTE, variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
 

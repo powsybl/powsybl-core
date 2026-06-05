@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -90,6 +91,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected @NonNull VoltageRegulationExt checkAndCreateVoltageRegulation() {
         // VALIDATION
         if (validable != null) {
+            checkPreAttributes(validable);
             // MODE
             checkRegulationMode(validable);
             // SLOPE
@@ -104,6 +106,17 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
             return new VoltageRegulationImpl(validable, holder, classHolder, network, targetValue, targetDeadband, slope, terminal, mode, regulating);
         }
         throw new PowsyblException("VoltageRegulation cannot be validated because its parent is not a Validable class");
+    }
+
+    private void checkPreAttributes(Validable validable) {
+        if (holder instanceof RatioTapChanger ratioTapChanger) {
+            boolean loadTapChangingCapabilities = ratioTapChanger.hasLoadTapChangingCapabilities();
+            network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkRTCLoadTapChangingCapabilities(validable,
+                loadTapChangingCapabilities,
+                regulating,
+                network.get().getMinValidationLevel(),
+                network.get().getReportNodeContext().getReportNode()));
+        }
     }
 
     private void checkTargetValue(Validable validable) {

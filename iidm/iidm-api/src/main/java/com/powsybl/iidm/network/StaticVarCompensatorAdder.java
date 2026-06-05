@@ -37,7 +37,7 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
     StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
-     * @deprecated use {@link #newVoltageRegulation()}
+     * @deprecated use {@link #newVoltageRegulation()} with {@link com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder#withMode(RegulationMode)} instead
      */
     @Deprecated(forRemoval = true, since = "7.3.0")
     StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode);

@@ -9,25 +9,32 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public class VoltageRegulationImpl implements VoltageRegulationExt {
 
+    private static final Logger LOG = LoggerFactory.getLogger(VoltageRegulation.class);
+
     private Validable validable;
     private VoltageRegulationHolder holder;
     private final Class<? extends VoltageRegulationHolder> classHolder;
     private TerminalExt terminal;
-    private final RegulationMode mode;
+    private RegulationMode mode;
     private final Ref<NetworkImpl> network;
     // attributes depending on the variant
     private final TDoubleArrayList targetValue;
@@ -164,6 +171,9 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
                 ValidationUtil.checkLocalTargetQandV(validable, this.holder.getLocalTargetV(), this.holder.getLocalTargetQ(), false, regulating, mode, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
             }
         }
+        if (holder instanceof RatioTapChanger ratioTapChanger) {
+            ValidationUtil.checkRTCLoadTapChangingCapabilities(validable, ratioTapChanger.hasLoadTapChangingCapabilities(), regulating, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        }
         // In any case we will check the voltageRegulation object
         ValidationUtil.checkVoltageRegulation(validable, this, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return this.regulating.set(getCurrentIndex(), regulating);
@@ -224,7 +234,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     @Override
     public void onReferencedRemoval(Terminal removedReferenced) {
         if (this.terminal == removedReferenced) {
-            this.updateTerminal(null);
+            this.actionOnRemovedTerminal();
         }
     }
 
@@ -264,6 +274,34 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (terminal != null) {
             this.terminal = (TerminalExt) terminal;
             this.terminal.getReferrerManager().register(this);
+        }
+    }
+
+    private void actionOnRemovedTerminal() {
+        TerminalExt oldRegulatingTerminal = terminal;
+        Terminal localTerminal = holder.getTerminal();
+        String regulatedEquipmentId = "TODO MSA";
+        // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
+        if (localTerminal != null && isRegulating()) {
+            Bus bus = terminal.getBusView().getBus();
+            Bus localBus = localTerminal.getBusView().getBus();
+            if (bus != null && bus == localBus) {
+                LOG.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", terminal.getConnectable().getId(),
+                        regulatedEquipmentId, regulatedEquipmentId);
+                updateTerminal(localTerminal);
+                return;
+            } else {
+                updateTerminal(null);
+            }
+        } else {
+            updateTerminal(null);
+        }
+        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
+        if (regulating != null) {
+            regulating.fill(0, regulating.size(), false);
+        }
+        if (mode != null) {
+            mode = RegulationMode.VOLTAGE;
         }
     }
 }

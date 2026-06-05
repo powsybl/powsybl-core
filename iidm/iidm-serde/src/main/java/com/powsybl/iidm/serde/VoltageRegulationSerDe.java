@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Matthieu Saur {@literal <matthieu.saur at rte-france.com>}
@@ -69,48 +70,27 @@ public final class VoltageRegulationSerDe {
             .build());
     }
 
-    // TODO MSA remove Duplications
     public static <T extends VoltageRegulationHolder & Identifiable<T>, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
-        List<Consumer<T>> toApply, VoltageRegulationHolderAdder<A> holderAdder, NetworkDeserializerContext context) {
-        VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
-        VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
-        AtomicBoolean isWithTerminal = new AtomicBoolean(false);
-
-        // Read Sub Elements
-        context.getReader().readChildNodes(subElementName -> {
-            if (subElementName.equals(VoltageRegulationSerDe.TERMINAL)) {
-                isWithTerminal.set(true);
-                // Assign a temporary value to localTargetQ to allow the validation
-                // without the VoltageRegulation object. This one will be created in a post-creation task.
-                // The real value will be restored at the same time.
-                double realLocalTargetQ = holderAdder.getLocalTargetQ();
-                holderAdder.setLocalTargetQ(0.0);
-
-                TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
-                toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
-                    () -> {
-                        Terminal terminal = Terminal.getTerminal(voltageRegulationHolder.getNetwork(),
-                            terminalData.id(), terminalData.side(), terminalData.number());
-                        configureAdderOrBuilder(voltageRegulationHolder.newVoltageRegulation(), attributes)
-                            .withTerminal(terminal)
-                            .build();
-                        // Restore the real localTargetQ value.
-                        if (!(voltageRegulationHolder instanceof ShuntCompensator)) {
-                            voltageRegulationHolder.setLocalTargetQ(realLocalTargetQ);
-                        }
-                    }));
-            } else {
-                throw new PowsyblException("Unknown sub element name '" + subElementName + "' in 'voltageRegulation'");
-            }
-        });
-        if (!isWithTerminal.get()) {
-            configureAdderOrBuilder(adder, attributes).add();
-        }
+        List<Consumer<T>> toApply,
+        VoltageRegulationHolderAdder<A> holderAdder,
+        NetworkDeserializerContext context) {
+        doReadVoltageRegulation(toApply, holderAdder, context, T::getNetwork);
     }
 
-    // TODO MSA remove Duplications
     public static <T extends VoltageRegulationHolder, A extends VoltageRegulationHolderAdder<A>> void readVoltageRegulation(
-        List<Consumer<T>> toApply, VoltageRegulationHolderAdder<A> holderAdder, NetworkDeserializerContext context, Network network) {
+        List<Consumer<T>> toApply,
+        VoltageRegulationHolderAdder<A> holderAdder,
+        NetworkDeserializerContext context,
+        Network network) {
+        doReadVoltageRegulation(toApply, holderAdder, context, holder -> network);
+    }
+
+    private static <T extends VoltageRegulationHolder, A extends VoltageRegulationHolderAdder<A>> void doReadVoltageRegulation(
+        List<Consumer<T>> toApply,
+        VoltageRegulationHolderAdder<A> holderAdder,
+        NetworkDeserializerContext context,
+        Function<T, Network> networkProvider) {
+
         VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
         VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
         AtomicBoolean isWithTerminal = new AtomicBoolean(false);
@@ -128,7 +108,7 @@ public final class VoltageRegulationSerDe {
                 TerminalRefSerDe.TerminalData terminalData = TerminalRefSerDe.readTerminalData(context);
                 toApply.add(voltageRegulationHolder -> context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS,
                     () -> {
-                        Terminal terminal = Terminal.getTerminal(network,
+                        Terminal terminal = Terminal.getTerminal(networkProvider.apply(voltageRegulationHolder),
                             terminalData.id(), terminalData.side(), terminalData.number());
                         configureAdderOrBuilder(voltageRegulationHolder.newVoltageRegulation(), attributes)
                             .withTerminal(terminal)
