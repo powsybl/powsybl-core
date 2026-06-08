@@ -211,7 +211,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static boolean isExported(Bus bus, Context context) {
-        return bus != null && (context.synchronousComponentsToBeExported.contains(bus.getSynchronousComponent()));
+        return bus != null && context.synchronousComponentsToBeExported.contains(bus.getSynchronousComponent());
     }
 
     // In matpower cases, the bus number is the only way to identify it. During the export process, we preserve the
@@ -291,26 +291,26 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static void createBoundaryLineBuses(Network network, MatpowerModel model, Context context) {
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
             Bus bus = findBus(t);
             if (isExported(bus, context) && getStatus(t) == CONNECTED_STATUS) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
-                mBus.setNumber(findBusNumber(dl.getId(), context));
-                mBus.setName(dl.getNameOrId());
+                mBus.setNumber(findBusNumber(bl.getId(), context));
+                mBus.setName(bl.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
-                mBus.setBaseVoltage(dl.getTerminal().getVoltageLevel().getNominalV());
+                mBus.setBaseVoltage(bl.getTerminal().getVoltageLevel().getNominalV());
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
-                mBus.setRealPowerDemand(dl.getP0());
-                mBus.setReactivePowerDemand(dl.getQ0());
+                mBus.setRealPowerDemand(bl.getP0());
+                mBus.setReactivePowerDemand(bl.getQ0());
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV()));
-                mBus.setVoltageAngle(checkAndFixVoltageAngle(dl.getBoundary().getAngle()));
+                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(bl.getBoundary().getV() / vl.getNominalV()));
+                mBus.setVoltageAngle(checkAndFixVoltageAngle(bl.getBoundary().getAngle()));
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
@@ -699,21 +699,21 @@ public class MatpowerExporter implements Exporter {
     }
 
     private void createBoundaryLineBranches(Network network, MatpowerModel model, Context context) {
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isExported(bus, context) && context.mBusesNumbersByIds.get(dl.getId()) != null) {
+            if (isExported(bus, context) && context.mBusesNumbersByIds.get(bl.getId()) != null) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
-                mBranch.setTo(context.mBusesNumbersByIds.get(dl.getId()));
+                mBranch.setTo(context.mBusesNumbersByIds.get(bl.getId()));
                 mBranch.setStatus(getStatus(t)); // Only connected danglingLines are now exported
                 double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
-                double rpu = dl.getR() / zb;
-                double xpu = dl.getX() / zb;
-                setBranchRX(dl.getId(), mBranch, rpu, xpu);
-                mBranch.setB(dl.getB() * zb);
-                createLimits(List.of(dl), t.getVoltageLevel(), mBranch);
+                double rpu = bl.getR() / zb;
+                double xpu = bl.getX() / zb;
+                setBranchRX(bl.getId(), mBranch, rpu, xpu);
+                mBranch.setB(bl.getB() * zb);
+                createLimits(List.of(bl), t.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -804,15 +804,15 @@ public class MatpowerExporter implements Exporter {
     }
 
     private void findBoundaryLineGenerators(Network network, Context context) {
-        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
             Bus bus = t.getBusView().getBus(); // Only connected danglingLines are considered
             if (isExported(bus, context)) {
-                var g = dl.getGeneration();
+                var g = bl.getGeneration();
                 if (g != null) {
-                    int busNumber = context.mBusesNumbersByIds.get(dl.getId());
+                    int busNumber = context.mBusesNumbersByIds.get(bl.getId());
                     VoltageLevel vl = t.getVoltageLevel();
-                    addMgen(context, busNumber, dl.getId(),
+                    addMgen(context, busNumber, bl.getId(),
                             CONNECTED_STATUS, // always connected to the boundary bus of the danglingLine
                             checkAndFixTargetVpu(g.getTargetV() / vl.getNominalV()),
                             g.getTargetP(),
@@ -1061,8 +1061,8 @@ public class MatpowerExporter implements Exporter {
         context.generatorsToBeExported.computeIfAbsent(busNum, k -> new ArrayList<>()).add(genRc);
     }
 
-    // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation
-    // status. if the bus has PV type, all of its generator must have a valid voltage set point.
+    // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation status.
+    // If the bus has PV type, all of its generator must have a valid voltage set point.
     private static void createGeneratorsAndDefinePVBuses(MatpowerModel model, Context context) {
         context.generatorsToBeExported.keySet().stream().sorted().forEach(busNumber -> {
             List<Context.GenRc> genRcs = context.generatorsToBeExported.get(busNumber);

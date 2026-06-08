@@ -52,9 +52,9 @@ with a linear model and only one block count when `Gs` and `Bs` are not zero.
 A generator with a voltage control is created for each row of the `gen` matrix where the regulating control will be enabled if the 
 target voltage is valid.
 
-Each branch row is converted into a line or a two windings transformer based on the `ratio` and `angle` attributes. If the `ratio`
-is not zero it will be mapped to PowSyBl as a structural ratio by defining properly the `ratedU` of both ends. When the `angle` has a
-non-zero value a phaseTapChanger with only one step is created. 
+Each branch row is converted into either a line or a two-winding transformer based on the `ratio` and `angle` attributes. If the `ratio`
+is not zero it will be mapped to PowSyBl as a structural ratio by appropriately setting the `ratedU` values at both ends. When the `angle` is
+non-zero a phaseTapChanger with only one step is created. 
 
 Finally, each row of the DC line block data is converted into one HVDC Line with voltage source converters. 
 
