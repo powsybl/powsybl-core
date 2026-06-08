@@ -70,6 +70,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param createPositionExtensionForNewLine           Automatically creates connectable position extension for the line between
      *                                                    the fictitious voltage level and the voltage level voltageLevelId on the side of which the line is
      *                                                    connected to voltageLevelId.
+     * @param positionForNewLine       The order position for the new line connection if createPositionExtensionForNewLine is set to true, or null.
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
@@ -243,7 +244,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         Line newLine = lineAdder.add();
 
         // create line position for the new line on the side two which is connected to the existing voltage level
-        createConnectablePositionExtensionForNewLine(network, newLine, TwoSides.TWO, positionForNewLine);
+        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, reportNode);
 
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);

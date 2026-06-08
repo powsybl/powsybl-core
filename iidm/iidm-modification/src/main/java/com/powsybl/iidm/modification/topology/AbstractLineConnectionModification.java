@@ -18,8 +18,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
-import static com.powsybl.iidm.modification.util.ModificationReports.undefinedPercent;
-import static com.powsybl.iidm.modification.util.ModificationReports.unexpectedIdentifiableType;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -149,10 +148,17 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
     }
 
-    protected void createConnectablePositionExtensionForNewLine(Network network, Line line, TwoSides twoSides, Integer positionForNewLine) {
+    protected void createConnectablePositionExtensionForNewLine(Line line, TwoSides twoSides, Integer positionForNewLine, ReportNode reportNode) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
+        if (!createPositionExtensionForNewLine && positionForNewLine != null) {
+            createPositionExtensionForNewLine(reportNode, line, twoSides, "core.iidm.modification.voltageConnectedOnLinePositionNotUse");
+            return;
+        }
         if (createPositionExtensionForNewLine && topologyKind == TopologyKind.NODE_BREAKER) {
-            network.getBusbarSection(bbsOrBusId);
+            if (positionForNewLine == null) {
+                createPositionExtensionForNewLine(reportNode, line, twoSides, "core.iidm.modification.voltageConnectedOnLineMissingPosition");
+                return;
+            }
             ConnectablePositionAdder<?> positionAdder = line.newExtension(ConnectablePositionAdder.class);
             ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
                 case ONE -> positionAdder.newFeeder1();

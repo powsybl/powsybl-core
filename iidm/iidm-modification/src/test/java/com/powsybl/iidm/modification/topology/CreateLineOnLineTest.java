@@ -333,4 +333,74 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertTrue(connectablePosition.getFeeder2().getName().isPresent());
         assertEquals("testLine", connectablePosition.getFeeder2().getName().get());
     }
+
+    @Test
+    void testWithPositionAdderLogs() throws IOException {
+        // create position extension is set to false but position order is indicated
+        Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+                .withBusbarIndex(1)
+                .withSectionIndex(1)
+                .add();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withLineAdder(adder)
+                .withPositionPercent(40)
+                .withFictitiousVoltageLevelId("FICTVL")
+                .withFictitiousVoltageLevelName("FICTITIOUSVL")
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId("FICTSUB")
+                .withFictitiousSubstationName("FICTITIOUSSUB")
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .withCreatePositionExtensionForNewLine(false)
+                .withPositionForNewLine(5)
+                .build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestCreateLineOnLine")
+                .build();
+        modification.apply(network, reportNode);
+        testReportNode(reportNode, "/reportNode/create-line-on-line-with-position-warning.txt");
+    }
+
+    @Test
+    void testWithPositionAdderLogsWithMissingPosition() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        BusbarSection bbs = network.getBusbarSection("bbs");
+        bbs.newExtension(BusbarSectionPositionAdder.class)
+                .withBusbarIndex(1)
+                .withSectionIndex(1)
+                .add();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withLineAdder(adder)
+                .withPositionPercent(40)
+                .withFictitiousVoltageLevelId("FICTVL")
+                .withFictitiousVoltageLevelName("FICTITIOUSVL")
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId("FICTSUB")
+                .withFictitiousSubstationName("FICTITIOUSSUB")
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .withCreatePositionExtensionForNewLine(true)
+                .build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportTestCreateLineOnLine")
+                .build();
+        modification.apply(network, reportNode);
+        testReportNode(reportNode, "/reportNode/create-line-on-line-with-missing-position.txt");
+    }
 }
