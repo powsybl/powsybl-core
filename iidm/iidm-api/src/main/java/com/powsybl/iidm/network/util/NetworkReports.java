@@ -40,6 +40,22 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void alreadyConnectedIdentifiableDcTerminal(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.alreadyConnectedDcTerminal")
+            .withUntypedValue("identifiable", identifiableId)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+    }
+
+    public static void alreadyDisconnectedIdentifiableDcTerminal(ReportNode reportNode, String identifiableId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.alreadyDisconnectedDcTerminal")
+            .withUntypedValue("identifiable", identifiableId)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .add();
+    }
+
     public static void transformerHasBothRatioAndPhaseTapChanger(ReportNode reportNode, String id) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.validationWarningBothRatioPhase")
