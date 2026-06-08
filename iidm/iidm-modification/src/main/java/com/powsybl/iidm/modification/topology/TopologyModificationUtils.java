@@ -202,7 +202,7 @@ public final class TopologyModificationUtils {
         String vlId = voltageLevel.getId();
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
-            boolean noMoreBranch = voltageLevel.getConnectableStream().noneMatch(c -> switch(c.getType()) {
+            boolean noMoreBranch = voltageLevel.getConnectableStream().noneMatch(c -> switch (c.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION -> true;
                 default -> false;
             });
