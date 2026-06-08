@@ -182,7 +182,7 @@ public class XmlWriter extends AbstractTreeDataWriter {
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
         if (!values.isEmpty()) {
-            writeStringAttribute(name, String.join(",", values));
+            writeStringAttribute(name, XmlUtil.getCsvFormat().format(values.toArray()));
         }
     }
 

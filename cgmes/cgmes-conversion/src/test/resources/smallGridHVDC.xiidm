@@ -2419,7 +2419,7 @@
                 <iidm:internalConnection node1="41" node2="3"/>
                 <iidm:bus v="219.70726" angle="-2.44303131" nodes="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41"/>
             </iidm:nodeBreakerTopology>
-            <iidm:danglingLine id="0482fb33-c766-11e1-8775-005056c00008" name="68-116" p0="184.0" q0="0.0" r="0.16456" x="1.9602" g="0.0" b="3.38843E-4" ucteXnodeCode="XWE_BR21" node="41" p="184.11571995672992" q="-14.972663428883454">
+            <iidm:boundaryLine id="0482fb33-c766-11e1-8775-005056c00008" name="68-116" p0="184.0" q0="0.0" r="0.16456" x="1.9602" g="0.0" b="3.38843E-4" ucteXnodeCode="XWE_BR21" node="41" p="184.11571995672992" q="-14.972663428883454">
                 <iidm:alias>_04684742-c766-11e1-8775-005056c00008</iidm:alias>
                 <iidm:alias>_0459c855-c766-11e1-8775-005056c00008</iidm:alias>
                 <iidm:alias>_5631ccc1-d9d2-11e2-bb49-005056c00008</iidm:alias>
@@ -2430,7 +2430,7 @@
                     <iidm:temporaryLimit name="7c27ab8a-8043-4a55-851d-72adb14d9f4d" acceptableDuration="900" value="1150.0"/>
                     <iidm:temporaryLimit name="f4458b8d-a0e1-4adc-977f-14a07b3c44e9" acceptableDuration="60" value="1400.0"/>
                 </iidm:currentLimits>
-            </iidm:danglingLine>
+            </iidm:boundaryLine>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="044f6815-c766-11e1-8775-005056c00008" name="68-69" r="0.0" x="6.44688" g="0.0" b="0.0" ratedU1="220.0" ratedU2="132.0" node1="40" voltageLevelId1="0449e9d2-c766-11e1-8775-005056c00008" node2="62" voltageLevelId2="0471bd23-c766-11e1-8775-005056c00008">
             <iidm:alias>_0487dd39-c766-11e1-8775-005056c00008</iidm:alias>
@@ -7634,7 +7634,7 @@
             <iidm:load id="048740f1-c766-11e1-8775-005056c00008" name="TwinBrch LD" loadType="UNDEFINED" p0="47.0" q0="10.0" node="23" p="47.0" q="10.0">
                 <iidm:alias>_044ecbda-c766-11e1-8775-005056c00008</iidm:alias>
             </iidm:load>
-            <iidm:danglingLine id="045338a1-c766-11e1-8775-005056c00008" name="12-117" p0="20.0" q0="8.0" r="5.732496" x="24.3936" g="0.0" b="2.054637E-4" ucteXnodeCode="XMO_TE32" node="73" p="20.152549931578704" q="5.197252003124272">
+            <iidm:boundaryLine id="045338a1-c766-11e1-8775-005056c00008" name="12-117" p0="20.0" q0="8.0" r="5.732496" x="24.3936" g="0.0" b="2.054637E-4" ucteXnodeCode="XMO_TE32" node="73" p="20.152549931578704" q="5.197252003124272">
                 <iidm:alias>_5631f3d1-d9d2-11e2-bb49-005056c00008</iidm:alias>
                 <iidm:alias>_044afb42-c766-11e1-8775-005056c00008</iidm:alias>
                 <iidm:alias>_5631f3d0-d9d2-11e2-bb49-005056c00008</iidm:alias>
@@ -7645,7 +7645,7 @@
                     <iidm:temporaryLimit name="c42b1a7f-971e-44aa-b615-fb7d49f3256c" acceptableDuration="900" value="1150.0"/>
                     <iidm:temporaryLimit name="543c8189-a696-4529-9d26-f06fd03e57ad" acceptableDuration="60" value="1400.0"/>
                 </iidm:currentLimits>
-            </iidm:danglingLine>
+            </iidm:boundaryLine>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="04499bb4-c766-11e1-8775-005056c00008" name="Annúminas" country="GB" geographicalTags="0472a781-c766-11e1-8775-005056c00008">
@@ -8055,7 +8055,7 @@
                 <iidm:internalConnection node1="31" node2="6"/>
                 <iidm:bus v="129.843246" angle="-7.84748268" nodes="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"/>
             </iidm:nodeBreakerTopology>
-            <iidm:danglingLine id="044ef2e7-c766-11e1-8775-005056c00008" name="71-73" p0="6.0" q0="0.0" r="1.508918" x="7.910496" g="0.0" b="6.76079E-5" ucteXnodeCode="XMO_TE31" node="31" p="6.0032528483936884" q="-1.1224545076999586">
+            <iidm:boundaryLine id="044ef2e7-c766-11e1-8775-005056c00008" name="71-73" p0="6.0" q0="0.0" r="1.508918" x="7.910496" g="0.0" b="6.76079E-5" ucteXnodeCode="XMO_TE31" node="31" p="6.0032528483936884" q="-1.1224545076999586">
                 <iidm:alias>_046b2d7a-c766-11e1-8775-005056c00008</iidm:alias>
                 <iidm:alias>_04670ec2-c766-11e1-8775-005056c00008</iidm:alias>
                 <iidm:alias>_26a070b9-db0c-47cd-9991-0a461576aec2</iidm:alias>
@@ -8066,7 +8066,7 @@
                     <iidm:temporaryLimit name="d8fc27d8-dd8b-4396-ae7f-b877910f9726" acceptableDuration="900" value="1150.0"/>
                     <iidm:temporaryLimit name="1481884d-3134-4896-ae32-b507830cc47a" acceptableDuration="60" value="1400.0"/>
                 </iidm:currentLimits>
-            </iidm:danglingLine>
+            </iidm:boundaryLine>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="04595327-c766-11e1-8775-005056c00008" name="Lond Daer Enedh" country="GB" geographicalTags="0472a781-c766-11e1-8775-005056c00008">

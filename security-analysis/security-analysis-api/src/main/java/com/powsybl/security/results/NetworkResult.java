@@ -28,6 +28,12 @@ public class NetworkResult {
 
     private final Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults;
 
+    private static final NetworkResult EMPTY = new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+
+    public static NetworkResult empty() {
+        return EMPTY;
+    }
+
     public NetworkResult(Collection<BranchResult> branchResults, Collection<BusResult> busResults,
                          Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
         this.branchResults = Objects.requireNonNull(branchResults)

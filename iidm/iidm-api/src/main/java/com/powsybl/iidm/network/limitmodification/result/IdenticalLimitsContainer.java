@@ -12,9 +12,16 @@ package com.powsybl.iidm.network.limitmodification.result;
  */
 public class IdenticalLimitsContainer<L> implements LimitsContainer<L> {
     private final L originalLimits;
+    private final String operationalLimitsGroupId;
 
-    public IdenticalLimitsContainer(L originalLimits) {
+    public IdenticalLimitsContainer(L originalLimits, String operationalLimitsGroupId) {
         this.originalLimits = originalLimits;
+        this.operationalLimitsGroupId = operationalLimitsGroupId;
+    }
+
+    @Override
+    public String getOperationalLimitsGroupId() {
+        return operationalLimitsGroupId;
     }
 
     @Override

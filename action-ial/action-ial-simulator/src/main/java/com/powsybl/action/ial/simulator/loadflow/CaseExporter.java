@@ -13,7 +13,7 @@ import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.ExportersLoader;
 import com.powsybl.iidm.network.ExportersServiceLoader;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 import java.nio.file.Path;
 import java.util.List;

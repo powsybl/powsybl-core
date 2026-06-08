@@ -28,6 +28,11 @@ public interface Overload {
      */
     String getPreviousLimitName();
 
+     /**
+      * @return the id of the {@link OperationalLimitsGroup} this overload relates to
+      */
+    String getOperationalLimitsGroupId();
+
     default double getLimitReductionCoefficient() {
         return 1;
     }

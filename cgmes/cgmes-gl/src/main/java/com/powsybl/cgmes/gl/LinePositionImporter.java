@@ -37,36 +37,36 @@ public class LinePositionImporter {
     }
 
     public void importPositions() {
-        Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrDanglingLineCoordinates = new HashMap<>();
+        Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrBoundaryLineCoordinates = new HashMap<>();
 
-        cgmesGLModel.getLinesPositions().forEach(propertyBag -> importPositions(propertyBag, lineOrDanglingLineCoordinates));
+        cgmesGLModel.getLinesPositions().forEach(propertyBag -> importPositions(propertyBag, lineOrBoundaryLineCoordinates));
 
-        lineOrDanglingLineCoordinates.forEach((lOrDl, coordinates) ->
+        lineOrBoundaryLineCoordinates.forEach((lOrDl, coordinates) ->
                 lOrDl.newExtension(LinePositionAdder.class).withCoordinates(coordinates.values().stream().toList()).add());
     }
 
-    private void importPositions(PropertyBag linePositionData, Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrDanglingLineCoordinates) {
+    private void importPositions(PropertyBag linePositionData, Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrBoundaryLineCoordinates) {
         Objects.requireNonNull(linePositionData);
         String crsUrn = linePositionData.getId("crsUrn");
         if (!CgmesGLUtils.checkCoordinateSystem(crsUrn)) {
             throw new PowsyblException("Unsupported coordinates system: " + crsUrn);
         }
         String lineId = linePositionData.getId("powerSystemResource");
-        Identifiable<?> lineOrDanglingLine = getLineOrDanglingLine(lineId);
-        if (lineOrDanglingLine != null) {
-            lineOrDanglingLineCoordinates.computeIfAbsent(lineOrDanglingLine, k -> new TreeMap<>())
+        Identifiable<?> lineOrBoundaryLine = getLineOrBoundaryLine(lineId);
+        if (lineOrBoundaryLine != null) {
+            lineOrBoundaryLineCoordinates.computeIfAbsent(lineOrBoundaryLine, k -> new TreeMap<>())
                     .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
                     // y <=> lat, x <=> lon
         } else {
-            LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
+            LOG.warn("Cannot find line/boundary {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
         }
     }
 
-    private Identifiable<?> getLineOrDanglingLine(String lineId) {
+    private Identifiable<?> getLineOrBoundaryLine(String lineId) {
         Line line = network.getLine(lineId);
         if (line != null) {
             return line;
         }
-        return network.getDanglingLine(lineId);
+        return network.getBoundaryLine(lineId);
     }
 }

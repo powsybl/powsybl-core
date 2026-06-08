@@ -23,8 +23,8 @@ import java.util.stream.IntStream;
  */
 public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
 
-    public DefaultLimitsReducer(LoadingLimits originalLimits) {
-        super(originalLimits);
+    public DefaultLimitsReducer(LoadingLimits originalLimits, String limitsGroupId) {
+        super(originalLimits, limitsGroupId);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
                         tl.isFictitious(), tl.getValue(), reduction);
             }
         }
-        return new DefaultReducedLimitsContainer(reducedLoadingLimits, originalLimits);
+        return new DefaultReducedLimitsContainer(reducedLoadingLimits, originalLimits, getLimitsGroupId());
     }
 
     @Override

@@ -8,11 +8,11 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.modification.topology.RemoveFeederBay;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.TripleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class RemoveGroundsPostProcessor implements CgmesImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, TripleStore tripleStore) {
+    public void process(Network network, CgmesModel cgmesModel) {
         Objects.requireNonNull(network);
         LOG.info("Execute {} post processor on network {}", getName(), network.getId());
         List<String> grounds = network.getGroundStream().map(Identifiable::getId).toList();

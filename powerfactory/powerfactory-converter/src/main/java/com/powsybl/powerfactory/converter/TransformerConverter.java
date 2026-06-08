@@ -53,7 +53,7 @@ class TransformerConverter extends AbstractConverter {
 
         RatedModel ratedModel = RatedModel.create(typTr2, highAtEnd1);
         double nominalVoltageEnd2 = vl2.getNominalV();
-        TransformerModel transformerModel = TransformerModel.create(typTr2, ratedModel.ratedS, nominalVoltageEnd2);
+        TransformerModel transformerModel = TransformerModel.create(elmTr2.getLocName(), typTr2, ratedModel.ratedS, nominalVoltageEnd2);
 
         if (!tapChangerAtEnd1) {
             // Structural ratio at end2 = ratedU2 / vn2
@@ -119,7 +119,7 @@ class TransformerConverter extends AbstractConverter {
         double ratedU2 = ratedModel2.ratedU1;
         double ratedU3 = ratedModel3.ratedU1;
 
-        Transformer3WModel transformer3WModel = Transformer3WModel.create(typTr3, rated3WModel, vn0);
+        Transformer3WModel transformer3WModel = Transformer3WModel.create(elmTr3.getLocName(), typTr3, rated3WModel, vn0);
         TransformerModel transformerModel1 = transformer3WModel.getEnd(windingTypeEnds.get(0));
         TransformerModel transformerModel2 = transformer3WModel.getEnd(windingTypeEnds.get(1));
         TransformerModel transformerModel3 = transformer3WModel.getEnd(windingTypeEnds.get(2));
@@ -266,10 +266,10 @@ class TransformerConverter extends AbstractConverter {
             this.b = shuntAdmittance.getImaginary();
         }
 
-        private static TransformerModel create(DataObject typTr2, double ratedApparentPower, double nominalVoltageEnd2) {
+        private static TransformerModel create(String transformerId, DataObject typTr2, double ratedApparentPower, double nominalVoltageEnd2) {
 
             Complex impedance = createImpedance("uktr", "pcutr", typTr2, ratedApparentPower, nominalVoltageEnd2);
-            Complex shuntAdmittance = createShuntAdmittance("curmg", "pfe", typTr2, ratedApparentPower, nominalVoltageEnd2);
+            Complex shuntAdmittance = createShuntAdmittance(transformerId, "curmg", "pfe", typTr2, ratedApparentPower, nominalVoltageEnd2);
             Complex proportion = createProportion("itrdr", "itrdl", typTr2);
 
             if (isProportionDefined(proportion) && shuntAdmittance.abs() != 0.0) {
@@ -286,8 +286,12 @@ class TransformerConverter extends AbstractConverter {
             return createImpedanceFromMeasures(uktr, pcutr, ratedApparentPower, nominalVoltage);
         }
 
-        private static Complex createShuntAdmittance(String curmgT, String pfeT, DataObject typTr2, double ratedApparentPower, double nominalVoltage) {
+        private static Complex createShuntAdmittance(String transformerId, String curmgT, String pfeT, DataObject typTr2, double ratedApparentPower, double nominalVoltage) {
             float curmg = typTr2.getFloatAttributeValue(curmgT);
+            if (curmg == 0) {
+                LOGGER.warn("{} of transformer '{}' is zero, skipping shunt admittance", transformerId, curmgT);
+                return Complex.ZERO;
+            }
             float pfe = typTr2.getFloatAttributeValue(pfeT);
 
             return createShuntAdmittanceFromMeasures(curmg, pfe, ratedApparentPower, nominalVoltage);
@@ -384,7 +388,7 @@ class TransformerConverter extends AbstractConverter {
             return transformerModels.get(windingType);
         }
 
-        private static Transformer3WModel create(DataObject typTr3, Rated3WModel rated3WModel, double nominalVoltage) {
+        private static Transformer3WModel create(String transformerId, DataObject typTr3, Rated3WModel rated3WModel, double nominalVoltage) {
             double ratedSH = rated3WModel.getEnd(WindingType.HIGH).ratedS;
             double ratedSM = rated3WModel.getEnd(WindingType.MEDIUM).ratedS;
             double ratedSL = rated3WModel.getEnd(WindingType.LOW).ratedS;
@@ -399,7 +403,7 @@ class TransformerConverter extends AbstractConverter {
             Complex zM = zHM.add(zML).subtract(zLH).multiply(0.5);
             Complex zL = zML.add(zLH).subtract(zHM).multiply(0.5);
 
-            Complex ysh = TransformerModel.createShuntAdmittance("curm3", "pfe", typTr3, ratedSH, nominalVoltage);
+            Complex ysh = TransformerModel.createShuntAdmittance(transformerId, "curm3", "pfe", typTr3, ratedSH, nominalVoltage);
             int i3loc = typTr3.findIntAttributeValue("i3loc").orElse(0);
 
             Complex yshH = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.HIGH);

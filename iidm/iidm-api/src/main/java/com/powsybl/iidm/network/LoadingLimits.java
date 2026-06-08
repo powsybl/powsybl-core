@@ -18,7 +18,7 @@ public interface LoadingLimits extends OperationalLimits {
     /**
      * Temporary current limit.
      */
-    interface TemporaryLimit {
+    interface TemporaryLimit extends PropertiesHolder {
 
         /**
          * Get the temporary limit name

@@ -105,6 +105,7 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, null));
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null));
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION));
+        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION, Boolean.FALSE));
     }
 
     private void testDefaultExportOptions(ExportOptions options) {
@@ -119,6 +120,7 @@ class ExportOptionsTest extends AbstractOptionsTest<ExportOptions> {
         assertEquals(THROW_EXCEPTION, options.getIidmVersionIncompatibilityBehavior());
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
         assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
+        assertEquals(Boolean.FALSE, options.isFlatten());
     }
 
 }

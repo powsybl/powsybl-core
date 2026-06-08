@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.triplestore.api.TripleStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,7 @@ class CgmesImportPreAndPostProcessorsTest {
         }
 
         @Override
-        public void process(Network network, TripleStore tripleStore) {
+        public void process(Network network, CgmesModel cgmesModel) {
             activatedPostProcessorNames.add(getName());
         }
     }

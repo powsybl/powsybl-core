@@ -62,7 +62,7 @@ class CgmesControlAreasSerDeTest {
                     () -> assertFalse(boundaryOnTerminal.getBoundary().isPresent()),
                     () -> assertTrue(boundaryOnBoundary.isAc()),
                     () -> assertFalse(boundaryOnBoundary.getTerminal().isPresent()),
-                    () -> assertEquals("DL", boundaryOnBoundary.getBoundary().orElseThrow().getDanglingLine().getId())
+                    () -> assertEquals("DL", boundaryOnBoundary.getBoundary().orElseThrow().getBoundaryLine().getId())
             );
         }
 
@@ -98,7 +98,7 @@ class CgmesControlAreasSerDeTest {
                     () -> assertTrue(b.isAc()),
                     () -> assertFalse(b.getTerminal().isPresent()),
                     () -> assertTrue(b.getBoundary().isPresent()),
-                    () -> assertEquals("DL8", b.getBoundary().orElseThrow().getDanglingLine().getId())
+                    () -> assertEquals("DL8", b.getBoundary().orElseThrow().getBoundaryLine().getId())
             );
         }
 
@@ -117,7 +117,7 @@ class CgmesControlAreasSerDeTest {
             AreaBoundary b = area.getAreaBoundaries().iterator().next();
             assertAll(
                     () -> assertTrue(b.isAc()),
-                    () -> assertEquals("DL0", b.getBoundary().orElseThrow().getDanglingLine().getId()),
+                    () -> assertEquals("DL0", b.getBoundary().orElseThrow().getBoundaryLine().getId()),
                     () -> assertFalse(b.getTerminal().isPresent())
             );
         }
