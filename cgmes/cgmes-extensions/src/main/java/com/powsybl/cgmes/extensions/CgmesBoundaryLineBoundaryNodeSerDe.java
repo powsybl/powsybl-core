@@ -13,6 +13,8 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.serde.IidmVersion;
+import com.powsybl.iidm.serde.NetworkDeserializerContext;
+import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
 import com.powsybl.iidm.serde.extensions.SerDeVersion;
 
@@ -63,16 +65,21 @@ public class CgmesBoundaryLineBoundaryNodeSerDe extends AbstractVersionableNetwo
 
     @Override
     public void write(CgmesBoundaryLineBoundaryNode extension, SerializerContext context) {
+        NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
-        context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", extension.getLineEnergyIdentificationCodeEic().orElse(null));
+        String lineEnergyIdentificationCodeEic = extension.getLineEnergyIdentificationCodeEic().orElse(null);
+        String lineEnergyIdentificationCodeEicToWrite = networkContext.anonymizeFromMinimumVersion(lineEnergyIdentificationCodeEic, IidmVersion.V_1_16);
+        networkContext.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEicToWrite);
     }
 
     @Override
     public CgmesBoundaryLineBoundaryNode read(BoundaryLine extendable, DeserializerContext context) {
+        NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
-        String lineEnergyIdentificationCodeEic = context.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
+        String lineEnergyIdentificationCodeEic = networkContext.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
+        String lineEnergyIdentificationCodeEicToRead = networkContext.deanonymizeFromMinimumVersion(lineEnergyIdentificationCodeEic, IidmVersion.V_1_16);
         context.getReader().readEndNode();
-        extendable.newExtension(CgmesBoundaryLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
+        extendable.newExtension(CgmesBoundaryLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEicToRead).add();
         return extendable.getExtension(CgmesBoundaryLineBoundaryNode.class);
     }
 }

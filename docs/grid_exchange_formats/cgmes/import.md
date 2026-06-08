@@ -722,8 +722,65 @@ CgmesTopologyKind topologyKind = cimCharacteristics.getTopologyKind();
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
+(cgmes-base-voltage-mapping-import)=
+### Base voltage mapping
+
+This extension is attached to a network and is used to store information about BaseVoltage of the imported CGMES dataset.
+The extension consists of a collection of `BaseVoltageSource` objects, indexed by nominal voltage, with the following attributes:
+
+| Attribute | Type   | Unit | Required | Default value      | Description                                                                    |
+|-----------|--------|------|----------|--------------------|--------------------------------------------------------------------------------|
+| id        | String | -    | yes      | -                  | The rdf:ID of the CGMES BaseVoltage                                            |
+| nominalV  | double | kV   | yes      | -                  | The CGMES BaseVoltage's nominal voltage                                        |
+| source    | Source | -    | yes      | -                  | The kind of grid model containing the BaseVoltage definition (IGM or BOUNDARY) |
+
+Example of code to read the extension and retrieve the source of the 400kV base voltage assuming the network has been imported from a CGMES datasource:
+
+```java
+BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
+BaseVoltageMapping.BaseVoltageSource bvSource = bvMapping.getBaseVoltages().get(400.0);
+Source source = bvSource.getSource();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
+
 (cgmes-model-import)=
 ### CGMES model
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesModelExtension.html)
+
+This extension provides access to the PowSyBl CGMES Network Model implemented with a triplestore.
+
+Note that in order for this extension to be present, the corresponding property
+`iidm.import.cgmes.store-cgmes-model-as-network-extension` must be set to true.
+
+Exemple of code to read the extension and retrieve the substations in the CGMES input files:
+
+```java
+CgmesModelExtension cgmesModel = network.getExtension(CgmesModelExtension.class);
+PropertyBags substationBags = cgmesModel.getCgmesModel().substations();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
+
+(cgmes-conversion-context-import)=
+### CGMES conversion context
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesConversionContextExtension.html)
+
+This extension is useful for external validation of the mapping made between CGMES and IIDM.
+
+Note that in order for this extension to be present, the corresponding property
+`iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension` must be set to true.
+
+Exemple of code to read the extension and retrieve the naming strategy:
+
+```java
+CgmesConversionContextExtension cgmesConversionContext = network.getExtension(CgmesConversionContextExtension.class);
+NamingStrategy namingStrategy = cgmesConversionContext.getContext().namingStrategy();
+```
+
+This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
 
 (cgmes-import-options)=
 ## Options
@@ -782,10 +839,19 @@ Optional property that defines which Triplestore implementation is used. Current
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
 **iidm.import.cgmes.store-cgmes-model-as-network-extension**<br>
-Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model). The default value is `true`.
+Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model) of the IIDM output network.
+The default value is `false`.
+
+The CGMES model triplestore is not closed after CGMES import when this option is enabled.
+To reclaim memory, manually close the triplestore via the extension.
 
 **iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**<br>
-Optional property that defines if the CGMES conversion context is stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
+Optional property that defines if the CGMES conversion context is stored as an [extension](import.md#cgmes-conversion-context) of the IIDM output network.
+It is useful for external validation of the mapping made between CGMES and IIDM.
+Its default value is `false`.
+
+The CGMES model triplestore is not closed after CGMES import when this option is enabled.
+To reclaim memory, manually close the triplestore via the extension.
 
 **iidm.import.cgmes.use-detailed-dc-model**<br>
 Optional property that defines which IIDM DC model should be populated at import. Set to `true` to import DC objects into the detailed DC model, `false` to import into the reduced DC model. The default value is `false`.
@@ -829,4 +895,19 @@ If the option is set to `true` during an update, the update will be performed an
 Removing properties and aliases invalidates all subsequent updates but reduces the size of the IIDM network during serialization,
 thereby improving performance. This option is suitable when the user does not need to preserve CGMES data for persistency purposes
 or does not intend to perform further network updates.
+`false` by default.
+
+**iidm.import.cgmes.silence-frequent-issues-warnings**  
+Optional property that defines whether a warning log should be issued for the following issues that happen frequently on real cases:
+- cim:OperationalLimit-s which could not be imported into IIDM:
+  - cim:OperationalLimit-s of type CurrentLimit, ActivePowerLimit and ApparentPowerLimit can be imported in
+    IIDM only if they relate to Branches (Lines, Tie-Lines, Two Windings Transformers), Three Windings Transformers,
+    and Boundary Lines (at network side, limits at boundary side can not be imported).
+  - For all other equipment types, no convertion is done. This is the case for example for Switches, Generators, Loads, etc...
+- cim:Switch-es not imported because the import is Bus/Breaker and the switch from Bus and to Bus are the same Bus 
+- missing minQ/maxQ for cim:EquivalentInjection-s and cim:SynchronousMachine-s 
+
+If the option is set to `false`, a warning is logged for every occurrence of the above issues, which may lead to excessive logging in real cases.  
+If the option is set to `true`, no warning is logged for any of the above issues.  
+ 
 `false` by default.

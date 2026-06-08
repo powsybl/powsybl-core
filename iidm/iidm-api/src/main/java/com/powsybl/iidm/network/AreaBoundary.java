@@ -61,7 +61,7 @@ import java.util.Optional;
  * @see Area
  * @see Boundary
  */
-public interface AreaBoundary {
+public interface AreaBoundary extends PropertiesHolder {
 
     /**
      * @return the Area this AreaBoundary belongs to

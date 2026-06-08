@@ -46,6 +46,6 @@
     "type" : "BUS"
   } ],
   "extensions" : {
-    "dummy-extension" : { }
+    "dummy-contingency-extension" : { }
   }
 }

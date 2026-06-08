@@ -7,8 +7,9 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.contingency.violations.LoadingLimitType;
 import com.powsybl.iidm.network.*;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

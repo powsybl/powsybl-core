@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Collection;
@@ -166,32 +165,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean connectBoundaryLines() {
-        return connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
-    }
-
-    @Override
-    public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectBoundaryLines(isTypeSwitchToOperate, null);
-    }
-
-    @Override
     public boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfBoundaryLines(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnectBoundaryLines() {
-        return disconnectBoundaryLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
-    }
-
-    @Override
-    public boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable) {
-        return disconnectBoundaryLines(isSwitchOpenable, null);
     }
 
     @Override
@@ -252,6 +231,36 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
         return boundaryLine1.getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+        return getBoundaryLine(side).getAllSelectedOperationalLimitsGroups();
+    }
+
+    @Override
+    public Collection<String> getAllSelectedOperationalLimitsGroupIds(TwoSides side) {
+        return getBoundaryLine(side).getAllSelectedOperationalLimitsGroupIds();
+    }
+
+    @Override
+    public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides side) {
+        return getBoundaryLine(side).getAllSelectedOperationalLimitsGroupIdsOrdered();
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroups(TwoSides side, String... ids) {
+        getBoundaryLine(side).addSelectedOperationalLimitsGroups(ids);
+    }
+
+    @Override
+    public void addSelectedOperationalLimitsGroupByPredicate(TwoSides side, Predicate<String> operationalLimitsGroupIdPredicate) {
+        getBoundaryLine(side).addSelectedOperationalLimitsGroupByPredicate(operationalLimitsGroupIdPredicate);
+    }
+
+    @Override
+    public void deselectOperationalLimitsGroups(TwoSides side, String... ids) {
+        getBoundaryLine(side).deselectOperationalLimitsGroups(ids);
     }
 
     @Override
@@ -404,11 +413,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public int getOverloadDuration() {
-        return BranchUtil.getOverloadDuration(checkTemporaryLimits1(LimitType.CURRENT), checkTemporaryLimits2(LimitType.CURRENT));
-    }
-
-    @Override
     public boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type) {
         return BranchUtil.getFromSide(side,
             () -> checkPermanentLimit1(limitReductionValue, type),
@@ -470,6 +474,11 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public Overload checkTemporaryLimits2(LimitType type) {
         return checkTemporaryLimits2(1f, type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, getValueForLimit(getTerminal(side), type), type);
     }
 
     public double getValueForLimit(Terminal t, LimitType type) {

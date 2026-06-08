@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -23,6 +21,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_MODE;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeReactivePower;
 import static com.powsybl.cgmes.conversion.RegulatingControlMapping.isControlModeVoltage;
 
@@ -122,7 +122,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
                     .setMinQ(qRange.lowerEndpoint())
                     .setMaxQ(qRange.upperEndpoint())
                     .add();
-        } else {
+        } else if (!context.config().isSilenceFrequentIssuesWarnings()) {
             missing("minQ/maxQ are missing, default to unbounded reactive limits");
         }
     }
@@ -155,14 +155,14 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     }
 
     protected static void updateRegulatingControl(Generator generator, Boolean controlEnabled, Context context) {
-        String mode = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.MODE);
+        String mode = generator.getProperty(PROPERTY_MODE);
 
         if (isControlModeVoltage(mode)) {
             updateRegulatingControlVoltage(generator, controlEnabled, context);
         } else if (isControlModeReactivePower(mode)) {
             updateRegulatingControlReactivePower(generator, controlEnabled, context);
         } else {
-            context.ignored(mode, "Unsupported regulation mode for generator " + generator.getId());
+            context.ignored(mode, "Unsupported regulation mode for " + generator.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS, "generator") + " " + generator.getId());
         }
     }
 

@@ -270,6 +270,16 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Run a given runnable if the context's IIDM version equals or is more recent than a given minimum IIDM version.
+     */
+    public static void runFromMinimumVersion(IidmVersion minVersion, IidmVersion contextVersion, Runnable runnable) {
+        if (contextVersion.compareTo(minVersion) >= 0) {
+            runnable.run();
+        }
+
+    }
+
+    /**
      * Run a given runnable if the context's IIDM version equals or is older than a given maximum IIDM version.
      */
     public static <C extends AbstractNetworkSerDeContext> void runUntilMaximumVersion(IidmVersion maxVersion, C context, Runnable runnable) {
@@ -279,7 +289,12 @@ public final class IidmSerDeUtil {
     }
 
     /**
-     * Run a given runnable if the context's IIDM version equals or is between two versions.
+     * Run a given runnable if the context's IIDM versions is equals or is more recent that the minimum version given,
+     * and is equal or older than a given maximum IIDM version
+     * @param minVersion the minimum version from which to run the runnable (included)
+     * @param maxVersion the maximum version until which to run the runnable (included)
+     * @param context the context of the call
+     * @param runnable what we want to execute
      */
     public static <C extends AbstractNetworkSerDeContext> void runInBetweenTwoVersions(IidmVersion minVersion, IidmVersion maxVersion, C context, Runnable runnable) {
         if (context.getVersion().compareTo(maxVersion) <= 0 && context.getVersion().compareTo(minVersion) >= 0) {

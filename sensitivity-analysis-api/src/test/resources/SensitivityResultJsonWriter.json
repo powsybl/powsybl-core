@@ -1,0 +1,22 @@
+{
+  "sensitivityValues" : [ {
+    "factorIndex" : 0,
+    "value" : 1.0,
+    "functionReference" : 2.0
+  }, {
+    "factorIndex" : 1,
+    "contingencyIndex" : 0,
+    "operatorStrategyIndex" : 0,
+    "value" : 3.0,
+    "functionReference" : 4.0
+  } ],
+  "stateStatus" : [ {
+    "status" : "SUCCESS"
+  }, {
+    "contingencyId" : "NHV1_NHV2_2",
+    "operatorStrategyId" : "Open NHV1_NHV2_2",
+    "status" : "SUCCESS"
+  } ],
+  "contingencyIds" : [ "NHV1_NHV2_2" ],
+  "operatorStrategyIds" : [ "Open NHV1_NHV2_2" ]
+}

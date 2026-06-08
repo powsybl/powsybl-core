@@ -198,6 +198,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
+        public void addSelectedOperationalLimitsGroups(String... ids) {
+            operationalLimitsHolder.addSelectedOperationalLimitsGroups(ids);
+        }
+
+        @Override
         public void removeOperationalLimitsGroup(String id) {
             operationalLimitsHolder.removeOperationalLimitsGroup(id);
         }
@@ -210,6 +215,26 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         @Override
         public OperationalLimitsGroup getOrCreateSelectedOperationalLimitsGroup() {
             return operationalLimitsHolder.getOrCreateSelectedOperationalLimitsGroup();
+        }
+
+        @Override
+        public Collection<String> getAllSelectedOperationalLimitsGroupIds() {
+            return operationalLimitsHolder.getAllSelectedOperationalLimitsGroupIds();
+        }
+
+        @Override
+        public List<String> getAllSelectedOperationalLimitsGroupIdsOrdered() {
+            return operationalLimitsHolder.getAllSelectedOperationalLimitsGroupIdsOrdered();
+        }
+
+        @Override
+        public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+            return operationalLimitsHolder.getAllSelectedOperationalLimitsGroups();
+        }
+
+        @Override
+        public void deselectOperationalLimitsGroups(String... ids) {
+            operationalLimitsHolder.deselectOperationalLimitsGroups(ids);
         }
 
         /**
@@ -508,17 +533,6 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public int getOverloadDuration() {
-        Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
-        Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
-        Overload o3 = checkTemporaryLimits3(LimitType.CURRENT);
-        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration3 = o3 != null ? o3.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        return Math.min(Math.min(duration1, duration2), duration3);
-    }
-
-    @Override
     public boolean checkPermanentLimit(ThreeSides side, double limitReductionValue, LimitType type) {
         return LimitViolationUtils.checkPermanentLimit(this, side, limitReductionValue, type);
     }
@@ -596,5 +610,10 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public Overload checkTemporaryLimits3(LimitType type) {
         return checkTemporaryLimits3(1f, type);
+    }
+
+    @Override
+    public Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkAllTemporaryLimits(this, side, limitReductionValue, type);
     }
 }

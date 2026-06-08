@@ -177,11 +177,11 @@ A generator is a piece of equipment that injects or consumes active power, and i
 
 **Specifications**
 
-The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power output cannot be greater than the maximum active power output. `TargetP` must be inside this active power limits. `RatedS` specifies the nameplate apparent power rating for the unit, it is optional and should be a positive value if it is defined. The [reactive limits](./additional.md#reactive-limits) of the generator are optional, if they are not given the generator is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as a [reactive capability curve](./additional.md#reactive-capability-curve).
+The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power output cannot be greater than the maximum active power output. `TargetP` must be inside these active power limits. `RatedS` specifies the nameplate apparent power rating for the unit, it is optional and should be a positive value if it is defined. The [reactive limits](./additional.md#reactive-limits) of the generator are optional, if they are not given the generator is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as a [reactive capability curve](./additional.md#reactive-capability-curve).
 
-The `VoltageRegulatorOn` attribute is required. It voltage regulation is enabled, then `TargetV` and `RegulatingTerminal` must also be defined. If the voltage regulation is disabled, then `TargetQ` is required. `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
+The `VoltageRegulatorOn` attribute is required. If voltage regulation is enabled, then `TargetV` and `RegulatingTerminal` must also be defined. If the voltage regulation is disabled, then `TargetQ` is required. `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 
-Target values for generators (`TargetP` and `TargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The following diagram shows the sign convention of these quantities with an example.
+Target values for generators (`TargetP` and `TargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The diagram above shows the sign convention of these quantities with an example.
 
 The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
 
@@ -356,7 +356,7 @@ as a [TieLine](#tie-line), for both UCTE or CIM-CGMES formats.
 A boundary line has a `Boundary` object that emulates a terminal located at boundary side. A boundary line is a connectable
 with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
-are automatically computed using information from the terminal of the boundary line.  
+are automatically computed using information from the terminal of the boundary line.
 
 
 **Available extensions**
@@ -506,20 +506,17 @@ AC transmission lines are modeled using a standard $\pi$ model with distributed 
 With series impedance $z$ and the shunt admittance on each side $y_1$ and $y_2$:
 
 $$
-\begin{align*}
 \begin{array}{lcl}
 z & = & r+j.x\\
 y_1 & = & g_1 +j. b_1\\
 y_2 & = & g_2 +j. b_2
 \end{array}
-\end{align*}
 $$
 
 The equations of the line, in complex notations, are as follows:
 
 $$
-\begin{align*}
-& \left(\begin{array}{c}
+\left(\begin{array}{c}
 I_{1}\\
 I_{2}
 \end{array}\right)=\left(\begin{array}{cc}
@@ -529,7 +526,6 @@ y_{1}+\dfrac{1}{z} & -\dfrac{1}{z}\\
 V_{1}\\
 V_{2}
 \end{array}\right)
-\end{align*}
 $$
 
 **Characteristics**
@@ -909,6 +905,7 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 |------------|----------------|-------------------------------------------------------------------|
 | $Kind$     | `DcSwitchKind` | Either DISCONNECTOR or BREAKER                                    |
 | $Open$     |                | True if the switch is opened                                      |
+| $R$        | $\Omega$       | The series resistance, non-negative                               |
 
 (dc-ground)=
 #### DC Ground
@@ -1058,11 +1055,11 @@ DC equipment connectivity may be modified in two ways:
 
 PowSyBl's IIDM topology processor computes DC Buses as follows:
 - A DC Bus is formed when there is at least one DC Terminal connected to a DC Node.
-- DC Nodes linked by a closed DC switch are considered part of the same DC Bus.
+- DC Nodes linked by a closed DC switch are considered part of the same DC Bus when the resistance of the DcSwitch is zero, otherwise they are in distinct buses.
 - A DC Node with no switch connected but with at least a DC Terminal connected will form a DC Bus.
 - DC Nodes without any connected DC Terminal do not form a DC Bus. A DC Bus is guaranteed to contain at least one connected DC Terminal.
 
-DC Buses linked together via DC Lines and/or AC/DC Converters are part of the same *DC Component* (also called *DC Island*).
+DC Buses linked together via DC Lines, AC/DC Converters and/or closed DC switches are part of the same *DC Component* (also called *DC Island*).
 *Synchronous Components* (also called *AC Islands*) connected together via a DC island through AC/DC converters will form a
 *Connected Component*.
 

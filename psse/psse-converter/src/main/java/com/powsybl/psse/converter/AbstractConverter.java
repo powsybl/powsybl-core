@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.internal.PsseSubstationSwitchingDevice;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -191,7 +192,7 @@ public abstract class AbstractConverter {
         return Identifiables.getUniqueId("VscConverter-" + converter.getIbus() + "-" + psseVscDcTransmissionLine.getName(), id -> network.getVscConverterStation(id) != null);
     }
 
-    static String getSwitchId(String voltageLevelId, PsseSubstation.PsseSubstationSwitchingDevice switchingDevice) {
+    static String getSwitchId(String voltageLevelId, PsseSubstationSwitchingDevice switchingDevice) {
         return voltageLevelId + "-Sw-" + switchingDevice.getNi() + "-" + switchingDevice.getNj() + "-" + switchingDevice.getCkt();
     }
 
@@ -375,15 +376,25 @@ public abstract class AbstractConverter {
                 .map(Terminal.BusView::getBus);
     }
 
-    static Bus getTerminalConnectableBusView(Terminal terminal) {
-        return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
+    static Bus resolveTerminalBus(Terminal terminal) {
+        Bus bus;
+        if ((bus = terminal.getBusView().getBus()) != null) {
+            return bus;
+        }
+        if ((bus = terminal.getBusView().getConnectableBus()) != null) {
+            return bus;
+        }
+        if ((bus = terminal.getBusBreakerView().getBus()) != null) {
+            return bus;
+        }
+        return terminal.getBusBreakerView().getConnectableBus();
     }
 
     static int getTerminalBusI(Terminal terminal, ContextExport contextExport) {
         if (contextExport.getFullExport().isExportedAsNodeBreaker(terminal.getVoltageLevel())) {
             return contextExport.getFullExport().getBusI(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode()).orElseThrow();
         } else {
-            Bus bus = getTerminalConnectableBusView(terminal);
+            Bus bus = resolveTerminalBus(terminal);
             return contextExport.getFullExport().getBusI(bus).orElseThrow();
         }
     }

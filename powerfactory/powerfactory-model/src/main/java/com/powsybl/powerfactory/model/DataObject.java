@@ -23,7 +23,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Geoffroy Jamgotchian
+ *         {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DataObject {
 
@@ -56,7 +57,8 @@ public class DataObject {
     }
 
     public String getLocName() {
-        return findStringAttributeValue(DataAttribute.LOC_NAME).orElseThrow(() -> new PowerFactoryException("Attribute 'loc_name' not found in class " + dataClass.getName()));
+        return findStringAttributeValue(DataAttribute.LOC_NAME).orElseThrow(
+                () -> new PowerFactoryException("Attribute 'loc_name' not found in class " + dataClass.getName()));
     }
 
     public DataObject getParent() {
@@ -151,8 +153,9 @@ public class DataObject {
         return new PowerFactoryException("Attribute '" + name + "' not found");
     }
 
-    private static PowerFactoryException createAttributeNotFoundException(String type, String name) {
-        return new PowerFactoryException(type + " attribute '" + name + "' not found");
+    private PowerFactoryException createAttributeNotFoundException(String type, String name) {
+        return new PowerFactoryException(type + " attribute '" + name + "' not found in object (class: "
+                + dataClass.getName() + ", id: " + getId() + ")");
     }
 
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
@@ -203,8 +206,8 @@ public class DataObject {
         return findObjectAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object", name));
     }
 
-    public DataObject setObjectAttributeValue(String name, long id) {
-        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(id, index));
+    public DataObject setObjectAttributeValue(String name, DataObjectRefKey key) {
+        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(key, index));
         return this;
     }
 
@@ -213,12 +216,13 @@ public class DataObject {
     }
 
     public List<DataObjectRef> getObjectVectorAttributeValue(String name) {
-        return findObjectVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object vector", name));
+        return findObjectVectorAttributeValue(name)
+                .orElseThrow(() -> createAttributeNotFoundException("Object vector", name));
     }
 
-    public DataObject setObjectVectorAttributeValue(String name, List<Long> ids) {
-        List<DataObjectRef> value = Objects.requireNonNull(ids).stream()
-                .map(objId -> new DataObjectRef(objId, index))
+    public DataObject setObjectVectorAttributeValue(String name, List<DataObjectRefKey> keys) {
+        List<DataObjectRef> value = Objects.requireNonNull(keys).stream()
+                .map(key -> new DataObjectRef(key, index))
                 .collect(Collectors.toList());
         setGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR, value);
         return this;
@@ -243,7 +247,8 @@ public class DataObject {
     }
 
     public List<Integer> getIntVectorAttributeValue(String name) {
-        return findIntVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Int vector", name));
+        return findIntVectorAttributeValue(name)
+                .orElseThrow(() -> createAttributeNotFoundException("Int vector", name));
     }
 
     public DataObject setIntVectorAttributeValue(String name, List<Integer> value) {
@@ -256,7 +261,8 @@ public class DataObject {
     }
 
     public List<Long> getLongVectorAttributeValue(String name) {
-        return findLongVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Long vector", name));
+        return findLongVectorAttributeValue(name)
+                .orElseThrow(() -> createAttributeNotFoundException("Long vector", name));
     }
 
     public DataObject setLongVectorAttributeValue(String name, List<Long> value) {
@@ -269,7 +275,8 @@ public class DataObject {
     }
 
     public List<Float> getFloatVectorAttributeValue(String name) {
-        return findFloatVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Float vector", name));
+        return findFloatVectorAttributeValue(name)
+                .orElseThrow(() -> createAttributeNotFoundException("Float vector", name));
     }
 
     public DataObject setFloatVectorAttributeValue(String name, List<Float> value) {
@@ -282,7 +289,8 @@ public class DataObject {
     }
 
     public List<Double> getDoubleVectorAttributeValue(String name) {
-        return findDoubleVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Double vector", name));
+        return findDoubleVectorAttributeValue(name)
+                .orElseThrow(() -> createAttributeNotFoundException("Double vector", name));
     }
 
     public DataObject setDoubleVectorAttributeValue(String name, List<Double> value) {
@@ -295,7 +303,8 @@ public class DataObject {
     }
 
     public List<String> getStringVectorAttributeValue(String name) {
-        return findStringVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("String vector", name));
+        return findStringVectorAttributeValue(name)
+                .orElseThrow(() -> createAttributeNotFoundException("String vector", name));
     }
 
     public DataObject setStringVectorAttributeValue(String name, List<String> value) {
@@ -489,7 +498,8 @@ public class DataObject {
         return result.getValue();
     }
 
-    private static void parseValueJson(JsonParser parser, DataObjectIndex index, ParsingContext context, DataClass dataClass) throws IOException {
+    private static void parseValueJson(JsonParser parser, DataObjectIndex index, ParsingContext context,
+            DataClass dataClass) throws IOException {
         parser.nextToken();
         JsonUtil.parseObject(parser, fieldName -> {
             DataAttribute attribute = dataClass.getAttributeByName(fieldName);
@@ -515,7 +525,7 @@ public class DataObject {
                     return true;
                 case OBJECT:
                     parser.nextToken();
-                    context.attributeValues.put(fieldName, new DataObjectRef(parser.getValueAsLong(), index));
+                    context.attributeValues.put(fieldName, new DataObjectRef(DataObjectRefKey.ofId(parser.getValueAsLong()), index));
                     return true;
                 case INTEGER_VECTOR:
                     context.attributeValues.put(fieldName, JsonUtil.parseIntegerArray(parser));
@@ -531,7 +541,7 @@ public class DataObject {
                     return true;
                 case OBJECT_VECTOR:
                     context.attributeValues.put(fieldName, JsonUtil.parseLongArray(parser).stream()
-                            .map(id -> new DataObjectRef(id, index))
+                            .map(id -> new DataObjectRef(DataObjectRefKey.ofId(id), index))
                             .collect(Collectors.toList()));
                     return true;
                 case STRING_VECTOR:
@@ -564,13 +574,15 @@ public class DataObject {
                     parseValueJson(parser, index, context, dataClass);
                     return true;
                 case "children":
-                    JsonUtil.parseObjectArray(parser, context.children::add, parser2 -> DataObject.parseJson(parser2, index, scheme));
+                    JsonUtil.parseObjectArray(parser, context.children::add,
+                            parser2 -> DataObject.parseJson(parser2, index, scheme));
                     return true;
                 default:
                     return false;
             }
         });
-        DataObject object = new DataObject(context.id, scheme.getClassByName(context.className), index, context.attributeValues);
+        DataObject object = new DataObject(context.id, scheme.getClassByName(context.className), index,
+                context.attributeValues);
         for (DataObject child : context.children) {
             child.setParent(object);
         }

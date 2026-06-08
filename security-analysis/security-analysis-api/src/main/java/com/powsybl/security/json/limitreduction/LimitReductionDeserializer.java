@@ -36,6 +36,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
         ContingencyContext contingencyContext;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
+        List<String> operationalLimitsGroupIdsSelection;
     }
 
     @Override
@@ -71,6 +72,11 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
                     context.durationCriteria = JsonUtil.readList(deserializationContext, parser, LimitDurationCriterion.class);
                     return true;
                 }
+                case "operationalLimitsGroupIdsSelection" -> {
+                    parser.nextToken();
+                    context.operationalLimitsGroupIdsSelection = JsonUtil.readList(deserializationContext, parser, String.class);
+                    return true;
+                }
                 default -> {
                     return false;
                 }
@@ -85,6 +91,9 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
         }
         if (context.durationCriteria != null) {
             builder.withLimitDurationCriteria(context.durationCriteria);
+        }
+        if (context.operationalLimitsGroupIdsSelection != null) {
+            builder.withOperationalLimitsGroupIdSelection(context.operationalLimitsGroupIdsSelection);
         }
         return builder.build();
     }

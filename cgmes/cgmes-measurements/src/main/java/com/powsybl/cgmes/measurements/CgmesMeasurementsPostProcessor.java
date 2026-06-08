@@ -9,6 +9,7 @@ package com.powsybl.cgmes.measurements;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.commons.parameters.Parameter;
@@ -16,7 +17,6 @@ import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
 
 import java.util.Collections;
 import java.util.List;
@@ -59,8 +59,8 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
     }
 
     @Override
-    public void process(Network network, TripleStore tripleStore) {
-        CgmesMeasurementsModel model = new CgmesMeasurementsModel(tripleStore);
+    public void process(Network network, CgmesModel cgmesModel) {
+        CgmesMeasurementsModel model = new CgmesMeasurementsModel(cgmesModel.tripleStore());
         PropertyBags bays = model.bays();
         Map<String, PropertyBag> idToBayBag = bays.stream().collect(Collectors.toMap(b -> b.getId("Bay"), b -> b));
         Map<String, String> analogTypesMapping = createTypesMapping(

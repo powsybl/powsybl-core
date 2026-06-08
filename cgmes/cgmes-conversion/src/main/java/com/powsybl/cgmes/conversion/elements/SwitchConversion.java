@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -19,6 +18,9 @@ import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -40,15 +42,17 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             return false;
         }
         if (busId(1).equals(busId(2))) {
-            ignored("end buses are the same bus " + busId(1));
+            if (!context.config().isSilenceFrequentIssuesWarnings()) {
+                ignored("end buses are the same bus " + busId(1));
+            }
             return false;
         }
-        if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {
-            LOG.warn("Switch {} has at least one end in the boundary", id);
-            LOG.warn("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
-            LOG.warn("    side 1 is boundary    : {}", isBoundary(1));
-            LOG.warn("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
-            LOG.warn("    side 2 is boundary    : {}", isBoundary(2));
+        if ((isBoundary(1) || isBoundary(2)) && LOG.isDebugEnabled()) {
+            LOG.debug("Switch {} has at least one end in the boundary", id);
+            LOG.debug("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
+            LOG.debug("    side 1 is boundary    : {}", isBoundary(1));
+            LOG.debug("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
+            LOG.debug("    side 2 is boundary    : {}", isBoundary(2));
         }
         return true;
     }
@@ -91,8 +95,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         }
         // Always preserve the original type
         addAliasesAndProperties(s);
-        s.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
+        s.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, p.getLocal("type"));
+        s.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         return s;
     }
 
@@ -104,7 +108,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             String eqInstance = p.get("graph");
             boundaryLine = convertToBoundaryLine(eqInstance, boundarySide, CgmesNames.SWITCH);
             boolean normalOpen = p.asBoolean(CgmesNames.NORMAL_OPEN, false);
-            boundaryLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN, String.valueOf(normalOpen));
+            boundaryLine.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         }
     }
 
@@ -119,7 +123,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private void warnBoundaryLineCreated() {
-        fixed("Boundary line with low impedance", "Connected to a boundary node");
+        fixed("Converted as a boundary line with zero impedance", "Connected to a boundary node");
     }
 
     public static void update(BoundaryLine boundaryLine, PropertyBag cgmesData, Context context) {
@@ -135,7 +139,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     private static Boolean getNormalOpen(BoundaryLine boundaryLine) {
-        String property = boundaryLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN);
+        String property = boundaryLine.getProperty(PROPERTY_NORMAL_OPEN);
         return property != null ? Boolean.parseBoolean(property) : null;
     }
 

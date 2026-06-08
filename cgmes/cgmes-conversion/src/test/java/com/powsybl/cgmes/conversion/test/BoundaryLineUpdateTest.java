@@ -7,13 +7,13 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -135,9 +135,9 @@ class BoundaryLineUpdateTest {
         assertEquals(expected, network.getSubstationStream().allMatch(substation -> substation.getPropertyNames().isEmpty()));
         assertTrue(network.getSubstationStream().allMatch(substation -> substation.getAliases().isEmpty()));
 
-        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getPropertyNames().isEmpty()));
-        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getAliases().isEmpty()));
-        assertEquals(expected, network.getBoundaryLineStream().allMatch(dl -> dl.getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(bl -> bl.getPropertyNames().isEmpty()));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(bl -> bl.getAliases().isEmpty()));
+        assertEquals(expected, network.getBoundaryLineStream().allMatch(bl -> bl.getOperationalLimitsGroups().stream().allMatch(op -> op.getPropertyNames().isEmpty())));
     }
 
     private static void assertEq(Network network) {
@@ -213,7 +213,7 @@ class BoundaryLineUpdateTest {
             assertTrue(Double.isNaN(boundaryLine.getGeneration().getTargetQ()));
             assertFalse(boundaryLine.getGeneration().isVoltageRegulationOn());
         }
-        assertNotNull(boundaryLine.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertNotNull(boundaryLine.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
     }
 
     private static void assertSsh(BoundaryLine boundaryLine, double p0, double q0, boolean withGeneration, double targetP, double targetQ, double targetV, boolean isRegulatingOn) {

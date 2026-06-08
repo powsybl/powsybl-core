@@ -52,7 +52,7 @@ class BoundaryLineConverter extends AbstractConverter {
 
     // Boundary bus will always be exported as busBranch
     private static PsseBus createBoundaryLineBus(BoundaryLine boundaryLine, ContextExport contextExport) {
-        Bus networkBusView = getTerminalConnectableBusView(boundaryLine.getTerminal());
+        Bus networkBusView = resolveTerminalBus(boundaryLine.getTerminal());
         PsseBus psseBus = createDefaultBus();
         psseBus.setI(contextExport.getFullExport().getBusI(boundaryLine).orElseThrow());
         psseBus.setName(fixBusName(boundaryLine.getNameOrId()));

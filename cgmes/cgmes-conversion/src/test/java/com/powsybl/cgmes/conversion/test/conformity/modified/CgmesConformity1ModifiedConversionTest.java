@@ -69,8 +69,8 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUnmergedXnode().dataSource(),
                         NetworkFactory.findDefault(), importParams);
-        BoundaryLine dl = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
-        assertNotNull(dl);
+        BoundaryLine bl = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(bl);
         BoundaryLine test = network.getBoundaryLine("test");
         assertNotNull(test);
     }
@@ -79,13 +79,6 @@ class CgmesConformity1ModifiedConversionTest {
     void microBEExplicitBase() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEExplicitBase().dataSource(), NetworkFactory.findDefault(), importParams);
-        assertNotNull(network);
-    }
-
-    @Test
-    void microBEDuplicateRegion() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseDuplicateRegion().dataSource(), NetworkFactory.findDefault(), importParams);
         assertNotNull(network);
     }
 
@@ -362,10 +355,7 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog
                         .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), importParams);
         ShuntCompensator shunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
-        assertTrue(shunt.isVoltageRegulatorOn());
-        assertEquals(shunt.getTerminal().getVoltageLevel().getNominalV(), shunt.getTargetV(), 0.0d);
-        assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
-        assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
+        assertFalse(shunt.isVoltageRegulatorOn());
     }
 
     @Test
@@ -408,32 +398,32 @@ class CgmesConformity1ModifiedConversionTest {
     void microBESwitchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), importParams);
-        BoundaryLine dl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
-        assertEquals(0.0, dl.getR(), 0.0);
-        assertEquals(0.0, dl.getX(), 0.0);
-        assertEquals(0.0, dl.getG(), 0.0);
-        assertEquals(0.0, dl.getB(), 0.0);
+        BoundaryLine bl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(0.0, bl.getR(), 0.0);
+        assertEquals(0.0, bl.getX(), 0.0);
+        assertEquals(0.0, bl.getG(), 0.0);
+        assertEquals(0.0, bl.getB(), 0.0);
     }
 
     @Test
     void microBETransformerAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBETransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), importParams);
-        BoundaryLine dl = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
+        BoundaryLine bl = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
 
-        assertEquals(2.588687265185185, dl.getR(), 0.0);
-        assertEquals(13.880789206913578, dl.getX(), 0.0);
-        assertEquals(0.0, dl.getG(), 0.0);
-        assertEquals(0.0, dl.getB(), 0.0);
+        assertEquals(2.588687265185185, bl.getR(), 0.0);
+        assertEquals(13.880789206913578, bl.getX(), 0.0);
+        assertEquals(0.0, bl.getG(), 0.0);
+        assertEquals(0.0, bl.getB(), 0.0);
     }
 
     @Test
     void microBEEquivalentBranchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchAtBoundary().dataSource(),
             NetworkFactory.findDefault(), importParams);
-        BoundaryLine dl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
-        assertEquals(1.0, dl.getR(), 0.0);
-        assertEquals(10.0, dl.getX(), 0.0);
+        BoundaryLine bl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(1.0, bl.getR(), 0.0);
+        assertEquals(10.0, bl.getX(), 0.0);
     }
 
     @Test

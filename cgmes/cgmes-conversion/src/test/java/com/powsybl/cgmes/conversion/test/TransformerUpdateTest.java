@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -260,9 +260,9 @@ class TransformerUpdateTest {
 
     private static void assertEq(TwoWindingsTransformer t2w) {
         assertNotNull(t2w);
-        String tapChangerId = t2w.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).orElseThrow();
+        String tapChangerId = t2w.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).orElseThrow();
         int normalStep = getNormalStep(t2w, tapChangerId);
-        assertNotNull(t2w.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN));
+        assertNotNull(t2w.getProperty(PROPERTY_TERMINAL_SIGN));
         assertEquals(normalStep, t2w.getPhaseTapChanger().getTapPosition());
 
         assertTrue(Double.isNaN(t2w.getPhaseTapChanger().getRegulationValue()));
@@ -274,7 +274,7 @@ class TransformerUpdateTest {
 
     private static void assertEq(ThreeWindingsTransformer t3w) {
         assertNotNull(t3w);
-        String tapChangerId = t3w.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow();
+        String tapChangerId = t3w.getAliasFromType(ALIAS_RATIO_TAP_CHANGER2).orElseThrow();
         int normalStep = getNormalStep(t3w, tapChangerId);
         assertEquals(normalStep, t3w.getLeg2().getRatioTapChanger().getTapPosition());
 
