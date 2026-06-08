@@ -301,6 +301,98 @@ public abstract class AbstractBoundaryLineTest {
         assertNotSame(dl.getGeneration(), dl2.getGeneration());
     }
 
+    @Test
+    public void testPairingSide() {
+        BoundaryLine bl = addBoundaryLineForPairing("bl", "key", PairingSide.SIDE_1, true);
+        assertEquals(PairingSide.SIDE_1, bl.getPairingSide());
+        bl.setPairingSide(PairingSide.SIDE_2);
+        assertEquals(PairingSide.SIDE_2, bl.getPairingSide());
+        bl.setPairingSide(null);
+        assertNull(bl.getPairingSide());
+    }
+
+    @Test
+    public void testPairingSideDefaultsToNull() {
+        createBoundaryLine("bl", "bl", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "key");
+        assertNull(network.getBoundaryLine("bl").getPairingSide());
+    }
+
+    @Test
+    public void testAutomaticTieLineCreationOnSetPairingSide() {
+        // Two boundary lines sharing the same pairing key in the same network: setting an opposite pairing side
+        // on the second one triggers the automatic creation of the corresponding tie line.
+        BoundaryLine bl1 = addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
+        BoundaryLine bl2 = addBoundaryLineForPairing("bl2", "key", null, false);
+        assertEquals(0, network.getTieLineCount());
+
+        bl2.setPairingSide(PairingSide.SIDE_2);
+
+        assertEquals(1, network.getTieLineCount());
+        TieLine tieLine = network.getTieLine("bl1 + bl2");
+        assertNotNull(tieLine);
+        assertSame(bl1, tieLine.getBoundaryLine1());
+        assertSame(bl2, tieLine.getBoundaryLine2());
+        assertTrue(bl1.isPaired());
+        assertTrue(bl2.isPaired());
+    }
+
+    @Test
+    public void testNoAutomaticCreationWhenSamePairingSide() {
+        addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
+        BoundaryLine bl2 = addBoundaryLineForPairing("bl2", "key", null, false);
+        bl2.setPairingSide(PairingSide.SIDE_1);
+        assertEquals(0, network.getTieLineCount());
+    }
+
+    @Test
+    public void testNoAutomaticCreationWhenNoPairingKey() {
+        addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
+        BoundaryLine bl2 = addBoundaryLineForPairing("bl2", null, null, false);
+        bl2.setPairingSide(PairingSide.SIDE_2);
+        assertEquals(0, network.getTieLineCount());
+    }
+
+    @Test
+    public void testNoAutomaticCreationWhenOppositeSideAmbiguous() {
+        // Two connected candidates on the opposite side: the pairing is ambiguous, no tie line is created.
+        addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
+        addBoundaryLineForPairing("bl2", "key", PairingSide.SIDE_1, true);
+        BoundaryLine bl3 = addBoundaryLineForPairing("bl3", "key", null, true);
+        bl3.setPairingSide(PairingSide.SIDE_2);
+        assertEquals(0, network.getTieLineCount());
+    }
+
+    @Test
+    public void testSetPairingSideFailsIfPaired() {
+        BoundaryLine bl1 = addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
+        BoundaryLine bl2 = addBoundaryLineForPairing("bl2", "key", null, false);
+        bl2.setPairingSide(PairingSide.SIDE_2); // creates the tie line, both become paired
+        assertTrue(bl1.isPaired());
+
+        ValidationException e = assertThrows(ValidationException.class, () -> bl1.setPairingSide(PairingSide.SIDE_2));
+        assertTrue(e.getMessage().contains("pairing side cannot be set if boundary line is paired"));
+    }
+
+    private BoundaryLine addBoundaryLineForPairing(String id, String pairingKey, PairingSide side, boolean connected) {
+        BoundaryLineAdder adder = voltageLevel.newBoundaryLine()
+                .setId(id)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setPairingKey(pairingKey)
+                .setConnectableBus(BUS_VL_ID);
+        if (side != null) {
+            adder.setPairingSide(side);
+        }
+        if (connected) {
+            adder.setBus(BUS_VL_ID);
+        }
+        return adder.add();
+    }
+
     private void createBoundaryLine(String id, String name, double r, double x, double g, double b,
                                     double p0, double q0, String ucteCode) {
         voltageLevel.newBoundaryLine()

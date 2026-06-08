@@ -1371,10 +1371,32 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         PairingSide side1 = dl1.getPairingSide();
         PairingSide side2 = dl2.getPairingSide();
         if (side1 == null && side2 != null && !dl1.isPaired()) {
-            dl1.setPairingSide(side2.getOppositeSide());
+            ((BoundaryLineImpl) dl1).setPairingSideInternal(side2.getOppositeSide());
         } else if (side2 == null && side1 != null && !dl2.isPaired()) {
-            dl2.setPairingSide(side1.getOppositeSide());
+            ((BoundaryLineImpl) dl2).setPairingSideInternal(side1.getOppositeSide());
         }
+    }
+
+    /**
+     * When a boundary line gets a pairing side, try to automatically pair it with the unique boundary line of the
+     * opposite pairing side sharing the same pairing key, creating the corresponding tie line.
+     * {@link com.powsybl.iidm.network.util.TieLineUtil#findBoundaryLineToPair}).
+     */
+    void createTieLineIfAutomaticallyPairable(BoundaryLineImpl boundaryLine) {
+        findBoundaryLineToPair(boundaryLine).ifPresent(other -> {
+            BoundaryLine bl1 = boundaryLine.getPairingSide() == PairingSide.SIDE_1 ? boundaryLine : other;
+            BoundaryLine bl2 = boundaryLine.getPairingSide() == PairingSide.SIDE_1 ? other : boundaryLine;
+            // Subnetwork is left unset: the tie line is placed in the proper (sub)network by the adder, depending on
+            // whether both boundary lines belong to the same subnetwork or not.
+            newTieLine()
+                    .setId(buildMergedId(bl1.getId(), bl2.getId()))
+                    .setEnsureIdUnicity(true)
+                    .setName(buildMergedName(bl1.getId(), bl2.getId(),
+                            bl1.getOptionalName().orElse(null), bl2.getOptionalName().orElse(null)))
+                    .setBoundaryLine1(bl1.getId())
+                    .setBoundaryLine2(bl2.getId())
+                    .add();
+        });
     }
 
     private void replaceBoundaryLineByTieLine(List<BoundaryLinePair> lines) {

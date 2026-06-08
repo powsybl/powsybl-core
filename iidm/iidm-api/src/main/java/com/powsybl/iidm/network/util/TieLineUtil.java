@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -408,5 +409,35 @@ public final class TieLineUtil {
     public static Optional<BoundaryLine> getPairedBoundaryLine(BoundaryLine boundaryLine) {
         return boundaryLine.getTieLine().map(t ->
                 t.getBoundaryLine1() == boundaryLine ? t.getBoundaryLine2() : t.getBoundaryLine1());
+    }
+
+    /**
+     * <p>Find the boundary line that should be automatically paired with the given one to create a tie line, if any.
+     * <p>A boundary line to pair with is returned only if:</p>
+     * <ul>
+     *     <li>the given boundary line has a non-null pairing key and pairing side and is not already paired;</li>
+     *     <li>the given boundary line is the selected candidate of its own pairing side (same selection rule as the
+     *     merge: the only connected one, otherwise the only disconnected one);</li>
+     *     <li>there is exactly one selected candidate on the opposite pairing side.</li>
+     * </ul>
+     *
+     * @param boundaryLine the boundary line to pair
+     * @return an Optional containing the boundary line to pair with, or an empty Optional if no unambiguous pairing exists
+     */
+    public static Optional<BoundaryLine> findBoundaryLineToPair(BoundaryLine boundaryLine) {
+        Objects.requireNonNull(boundaryLine);
+        String pairingKey = boundaryLine.getPairingKey();
+        PairingSide side = boundaryLine.getPairingSide();
+        if (pairingKey == null || side == null || boundaryLine.isPaired()) {
+            return Optional.empty();
+        }
+        Map<PairingSide, BoundaryLine> candidateBySide = findCandidateBoundaryLines(boundaryLine.getNetwork(), k -> false).stream()
+                .filter(bl -> pairingKey.equals(bl.getPairingKey()) && bl.getPairingSide() != null)
+                .collect(Collectors.toMap(BoundaryLine::getPairingSide, Function.identity()));
+        // the given boundary line must be the selected candidate of its own side
+        if (candidateBySide.get(side) != boundaryLine) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(candidateBySide.get(side.getOppositeSide()));
     }
 }
