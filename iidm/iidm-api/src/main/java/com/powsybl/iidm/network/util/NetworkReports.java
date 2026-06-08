@@ -20,6 +20,7 @@ public final class NetworkReports {
 
     private static final String BOUNDARY_LINE_ID_1 = "boundaryLineId1";
     private static final String BOUNDARY_LINE_ID_2 = "boundaryLineId2";
+    private static final String IDENTIFIABLE = "identifiable";
 
     private NetworkReports() {
     }
@@ -27,7 +28,7 @@ public final class NetworkReports {
     public static void alreadyConnectedIdentifiableTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.alreadyConnectedTerminal")
-                .withUntypedValue("identifiable", identifiableId)
+                .withUntypedValue(IDENTIFIABLE, identifiableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -35,7 +36,7 @@ public final class NetworkReports {
     public static void alreadyDisconnectedIdentifiableTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.alreadyDisconnectedTerminal")
-                .withUntypedValue("identifiable", identifiableId)
+                .withUntypedValue(IDENTIFIABLE, identifiableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -43,7 +44,7 @@ public final class NetworkReports {
     public static void alreadyConnectedIdentifiableDcTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.alreadyConnectedDcTerminal")
-            .withUntypedValue("identifiable", identifiableId)
+            .withUntypedValue(IDENTIFIABLE, identifiableId)
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();
     }
@@ -51,7 +52,7 @@ public final class NetworkReports {
     public static void alreadyDisconnectedIdentifiableDcTerminal(ReportNode reportNode, String identifiableId) {
         reportNode.newReportNode()
             .withMessageTemplate("core.iidm.network.alreadyDisconnectedDcTerminal")
-            .withUntypedValue("identifiable", identifiableId)
+            .withUntypedValue(IDENTIFIABLE, identifiableId)
             .withSeverity(TypedValue.WARN_SEVERITY)
             .add();
     }
