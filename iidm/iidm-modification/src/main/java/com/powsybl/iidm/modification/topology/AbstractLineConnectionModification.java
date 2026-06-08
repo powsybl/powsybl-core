@@ -14,10 +14,8 @@ import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import org.apache.commons.lang3.Range;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.undefinedPercent;
@@ -151,23 +149,20 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
     }
 
-    protected void createConnectablePositionExtensionForNewLine(Network network, Line line, TwoSides twoSides) {
+    protected void createConnectablePositionExtensionForNewLine(Network network, Line line, TwoSides twoSides, Integer positionForNewLine) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (createPositionExtensionForNewLine && topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
-            Optional<Range<Integer>> rangePosition = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
-            rangePosition.ifPresent(integerRange -> {
-                ConnectablePositionAdder<?> positionAdder = line.newExtension(ConnectablePositionAdder.class);
-                ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
-                    case ONE -> positionAdder.newFeeder1();
-                    case TWO -> positionAdder.newFeeder2();
-                };
-                feederAdder.withDirection(ConnectablePosition.Direction.UNDEFINED)
-                        .withOrder(integerRange.getMinimum())
-                        .withName(line.getId())
-                        .add();
-                positionAdder.add();
-            });
+            ConnectablePositionAdder<?> positionAdder = line.newExtension(ConnectablePositionAdder.class);
+            ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
+                case ONE -> positionAdder.newFeeder1();
+                case TWO -> positionAdder.newFeeder2();
+            };
+            feederAdder.withDirection(ConnectablePosition.Direction.UNDEFINED)
+                    .withOrder(positionForNewLine)
+                    .withName(line.getId())
+                    .add();
+            positionAdder.add();
         }
     }
 }

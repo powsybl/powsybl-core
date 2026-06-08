@@ -32,6 +32,9 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectVoltageLevelOnLine.class);
 
+    private final Integer positionForNewLine1;
+    private final Integer positionForNewLine2;
+
     /**
      * Constructor.
      * <br/>
@@ -48,10 +51,15 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * @param line           The line on which the voltage level is to be attached.
      * @param createPositionExtensionForNewLine           Automatically creates connectable position extension for both new lines
      *                                                    on the side of which they are connected to the attachement point.
+     * @param positionForNewLine1 The order position for the new line connection at side 1, or null to use default order.
+     * @param positionForNewLine2 The order position for the new line connection at side 2, or null to use default order.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                              String line2Id, String line2Name, Line line, boolean createPositionExtensionForNewLine) {
+                              String line2Id, String line2Name, Line line, boolean createPositionExtensionForNewLine,
+                              Integer positionForNewLine1, Integer positionForNewLine2) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line, createPositionExtensionForNewLine);
+        this.positionForNewLine1 = positionForNewLine1;
+        this.positionForNewLine2 = positionForNewLine2;
     }
 
     @Override
@@ -125,9 +133,11 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         Line line1 = adder1.add();
         Line line2 = adder2.add();
 
-        // add line positions
-        createConnectablePositionExtensionForNewLine(network, line1, TwoSides.TWO);
-        createConnectablePositionExtensionForNewLine(network, line2, TwoSides.ONE);
+        // add line positions,
+        // add position of line 1 on side two because it is connected to the attached voltage level
+        // add position of line 2 on side one because it is connected to the attached voltage level
+        createConnectablePositionExtensionForNewLine(network, line1, TwoSides.TWO, positionForNewLine1);
+        createConnectablePositionExtensionForNewLine(network, line2, TwoSides.ONE, positionForNewLine2);
 
         //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
         //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available

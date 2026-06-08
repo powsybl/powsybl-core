@@ -44,6 +44,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private boolean createFictSubstation;
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
+    private Integer positionForNewLine;
 
     /**
      * Constructor.
@@ -75,7 +76,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                      boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                      String line1Id, String line1Name, String line2Id, String line2Name,
-                     Line line, LineAdder lineAdder, boolean createPositionExtensionForNewLine) {
+                     Line line, LineAdder lineAdder, boolean createPositionExtensionForNewLine, Integer positionForNewLine) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line, createPositionExtensionForNewLine);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
@@ -83,6 +84,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.fictitiousSubstationId = fictitiousSubstationId;
         this.fictitiousSubstationName = fictitiousSubstationName;
         this.lineAdder = Objects.requireNonNull(lineAdder);
+        this.positionForNewLine = positionForNewLine;
     }
 
     @Override
@@ -240,8 +242,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
 
-        // line position
-        createConnectablePositionExtensionForNewLine(network, newLine, TwoSides.TWO);
+        // create line position for the new line on the side two which is connected to the existing voltage level
+        createConnectablePositionExtensionForNewLine(network, newLine, TwoSides.TWO, positionForNewLine);
 
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);

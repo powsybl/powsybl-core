@@ -25,10 +25,12 @@ public class ConnectVoltageLevelOnLineBuilder {
 
     private Line line = null;
     private boolean createPositionExtensionForNewLine = false;
+    private Integer positionForNewLine1 = null;
+    private Integer positionForNewLine2 = null;
 
     public ConnectVoltageLevelOnLine build() {
         return new ConnectVoltageLevelOnLine(positionPercent, bbsOrBusId, line1Id, line1Name,
-                line2Id, line2Name, line, createPositionExtensionForNewLine);
+                line2Id, line2Name, line, createPositionExtensionForNewLine, positionForNewLine1, positionForNewLine2);
     }
 
     public ConnectVoltageLevelOnLineBuilder withPositionPercent(double positionPercent) {
@@ -74,6 +76,16 @@ public class ConnectVoltageLevelOnLineBuilder {
 
     public ConnectVoltageLevelOnLineBuilder withCreatePositionExtensionForNewLine(boolean createPositionExtensionForNewLine) {
         this.createPositionExtensionForNewLine = createPositionExtensionForNewLine;
+        return this;
+    }
+
+    public ConnectVoltageLevelOnLineBuilder withPositionForNewLine1(Integer positionForNewLine1) {
+        this.positionForNewLine1 = positionForNewLine1;
+        return this;
+    }
+
+    public ConnectVoltageLevelOnLineBuilder withPositionForNewLine2(Integer positionForNewLine2) {
+        this.positionForNewLine2 = positionForNewLine2;
         return this;
     }
 }

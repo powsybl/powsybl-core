@@ -263,6 +263,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .withCreatePositionExtensionForNewLine(true)
+                .withPositionForNewLine1(5)
+                .withPositionForNewLine2(10)
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
         Line line1 = network.getLine("CJ_1");
@@ -272,7 +274,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertNotNull(connectablePosition.getFeeder2());
         assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder2().getDirection());
         assertTrue(connectablePosition.getFeeder2().getOrder().isPresent());
-        assertEquals(0, connectablePosition.getFeeder2().getOrder().get());
+        assertEquals(5, connectablePosition.getFeeder2().getOrder().get());
         assertTrue(connectablePosition.getFeeder2().getName().isPresent());
         assertEquals("CJ_1", connectablePosition.getFeeder2().getName().get());
 
@@ -283,7 +285,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         assertNotNull(connectablePosition.getFeeder1());
         assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder1().getDirection());
         assertTrue(connectablePosition.getFeeder1().getOrder().isPresent());
-        assertEquals(1, connectablePosition.getFeeder1().getOrder().get());
+        assertEquals(10, connectablePosition.getFeeder1().getOrder().get());
         assertTrue(connectablePosition.getFeeder1().getName().isPresent());
         assertEquals("CJ_2", connectablePosition.getFeeder1().getName().get());
     }

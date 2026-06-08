@@ -319,6 +319,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLine2Id("FICT2L")
                 .withLine2Name("FICT2LName")
                 .withCreatePositionExtensionForNewLine(true)
+                .withPositionForNewLine(5)
                 .build();
         modification.apply(network);
         Line lineTest = network.getLine("testLine");
@@ -328,7 +329,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertNotNull(connectablePosition.getFeeder2());
         assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder2().getDirection());
         assertTrue(connectablePosition.getFeeder2().getOrder().isPresent());
-        assertEquals(0, connectablePosition.getFeeder2().getOrder().get());
+        assertEquals(5, connectablePosition.getFeeder2().getOrder().get());
         assertTrue(connectablePosition.getFeeder2().getName().isPresent());
         assertEquals("testLine", connectablePosition.getFeeder2().getName().get());
     }
