@@ -300,7 +300,7 @@ public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder
      */
     PairingSide getPairingSide();
 
-    BoundaryLine setPairingSide(PairingSide pairingSide);
+    BoundaryLine setPairingSideAndCreateTieLine(PairingSide pairingSide);
 
     Boundary getBoundary();
 

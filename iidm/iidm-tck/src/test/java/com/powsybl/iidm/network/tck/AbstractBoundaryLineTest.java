@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractBoundaryLineTest {
@@ -305,10 +306,11 @@ public abstract class AbstractBoundaryLineTest {
     public void testPairingSide() {
         BoundaryLine bl = addBoundaryLineForPairing("bl", "key", PairingSide.SIDE_1, true);
         assertEquals(PairingSide.SIDE_1, bl.getPairingSide());
-        bl.setPairingSide(PairingSide.SIDE_2);
+        bl.setPairingSideAndCreateTieLine(PairingSide.SIDE_2);
         assertEquals(PairingSide.SIDE_2, bl.getPairingSide());
-        bl.setPairingSide(null);
-        assertNull(bl.getPairingSide());
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> bl.setPairingSideAndCreateTieLine(null));
+        assertThat(e.getMessage()).isEqualTo("Pairing side cannot be null");
+
     }
 
     @Test
@@ -318,14 +320,14 @@ public abstract class AbstractBoundaryLineTest {
     }
 
     @Test
-    public void testAutomaticTieLineCreationOnSetPairingSide() {
+    public void testAutomaticTieLineCreationOnSetPairingSideAndCreateTieLine() {
         // Two boundary lines sharing the same pairing key in the same network: setting an opposite pairing side
         // on the second one triggers the automatic creation of the corresponding tie line.
         BoundaryLine bl1 = addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
         BoundaryLine bl2 = addBoundaryLineForPairing("bl2", "key", null, false);
         assertEquals(0, network.getTieLineCount());
 
-        bl2.setPairingSide(PairingSide.SIDE_2);
+        bl2.setPairingSideAndCreateTieLine(PairingSide.SIDE_2);
 
         assertEquals(1, network.getTieLineCount());
         TieLine tieLine = network.getTieLine("bl1 + bl2");
@@ -340,7 +342,7 @@ public abstract class AbstractBoundaryLineTest {
     public void testNoAutomaticCreationWhenSamePairingSide() {
         addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
         BoundaryLine bl2 = addBoundaryLineForPairing("bl2", "key", null, false);
-        bl2.setPairingSide(PairingSide.SIDE_1);
+        bl2.setPairingSideAndCreateTieLine(PairingSide.SIDE_1);
         assertEquals(0, network.getTieLineCount());
     }
 
@@ -348,7 +350,7 @@ public abstract class AbstractBoundaryLineTest {
     public void testNoAutomaticCreationWhenNoPairingKey() {
         addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
         BoundaryLine bl2 = addBoundaryLineForPairing("bl2", null, null, false);
-        bl2.setPairingSide(PairingSide.SIDE_2);
+        bl2.setPairingSideAndCreateTieLine(PairingSide.SIDE_2);
         assertEquals(0, network.getTieLineCount());
     }
 
@@ -358,18 +360,18 @@ public abstract class AbstractBoundaryLineTest {
         addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
         addBoundaryLineForPairing("bl2", "key", PairingSide.SIDE_1, true);
         BoundaryLine bl3 = addBoundaryLineForPairing("bl3", "key", null, true);
-        bl3.setPairingSide(PairingSide.SIDE_2);
+        bl3.setPairingSideAndCreateTieLine(PairingSide.SIDE_2);
         assertEquals(0, network.getTieLineCount());
     }
 
     @Test
-    public void testSetPairingSideFailsIfPaired() {
+    public void testSetPairingSideAndCreateTieLineFailsIfPaired() {
         BoundaryLine bl1 = addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
         BoundaryLine bl2 = addBoundaryLineForPairing("bl2", "key", null, false);
-        bl2.setPairingSide(PairingSide.SIDE_2); // creates the tie line, both become paired
+        bl2.setPairingSideAndCreateTieLine(PairingSide.SIDE_2); // creates the tie line, both become paired
         assertTrue(bl1.isPaired());
 
-        ValidationException e = assertThrows(ValidationException.class, () -> bl1.setPairingSide(PairingSide.SIDE_2));
+        ValidationException e = assertThrows(ValidationException.class, () -> bl1.setPairingSideAndCreateTieLine(PairingSide.SIDE_2));
         assertTrue(e.getMessage().contains("pairing side cannot be set if boundary line is paired"));
     }
 

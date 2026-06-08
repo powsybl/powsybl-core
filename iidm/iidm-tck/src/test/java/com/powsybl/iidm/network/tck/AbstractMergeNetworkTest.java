@@ -432,8 +432,8 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void testMergeWithOppositePairingSides() {
         addCommonSubstationsAndVoltageLevels();
-        addBoundaryLineWithSide(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1);
-        addBoundaryLineWithSide(n2, "vl2", "dl2", "code", "b2", PairingSide.SIDE_2);
+        addBoundaryLine(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1, true);
+        addBoundaryLine(n2, "vl2", "dl2", "code", "b2", PairingSide.SIDE_2, true);
         Network merge = Network.merge(n1, n2);
         assertNotNull(merge.getTieLine("dl1 + dl2"));
     }
@@ -441,20 +441,50 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void testMergeWithMissingPairingSideStillPairs() {
         addCommonSubstationsAndVoltageLevels();
-        addBoundaryLineWithSide(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1);
+        addBoundaryLine(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1, true);
         addBoundaryLines(n2, "vl2", "dl2", "code", "b2"); // no pairing side
         Network merge = Network.merge(n1, n2);
         // a defined side is compatible with an undefined one: the tie line is still created
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals(PairingSide.SIDE_1, merge.getBoundaryLine("dl1").getPairingSide());
-        assertNull(merge.getBoundaryLine("dl2").getPairingSide());
+        // the missing side is deduced to the opposite of the other end
+        assertEquals(PairingSide.SIDE_2, merge.getBoundaryLine("dl2").getPairingSide());
+    }
+
+    @Test
+    public void testMergeDeducesPairingSidesWhenAllNull() {
+        addCommonSubstationsAndVoltageLevels();
+        addCommonBoundaryLines("dl1", "code", "dl2", "code"); // no pairing side on either end
+        Network merge = Network.merge(n1, n2);
+        assertNotNull(merge.getTieLine("dl1 + dl2"));
+        PairingSide side1 = merge.getBoundaryLine("dl1").getPairingSide();
+        PairingSide side2 = merge.getBoundaryLine("dl2").getPairingSide();
+        // both sides are deduced and opposite
+        assertNotNull(side1);
+        assertNotNull(side2);
+        assertNotEquals(side1, side2);
+    }
+
+    @Test
+    public void testMergeDeducesSideForUnpairedBoundaryLineConsistentlyWithItsSubnetwork() {
+        addCommonSubstationsAndVoltageLevels();
+        addBoundaryLines(n1, "vl1", "dl1", "code", "b1"); // pairs with dl2
+        addBoundaryLines(n2, "vl2", "dl2", "code", "b2");
+        addBoundaryLines(n1, "vl1", "dl3", "orphanKey", "b1"); // dangling: no match in n2
+        Network merge = Network.merge(n1, n2);
+
+        // the dangling boundary line stays unpaired but still gets a (non-null) side
+        assertFalse(merge.getBoundaryLine("dl3").isPaired());
+        assertNotNull(merge.getBoundaryLine("dl3").getPairingSide());
+        // and that side is the one of its subnetwork (same as the paired boundary line of n1)
+        assertEquals(merge.getBoundaryLine("dl1").getPairingSide(), merge.getBoundaryLine("dl3").getPairingSide());
     }
 
     @Test
     public void testMergeWithSamePairingSideDoesNotPair() {
         addCommonSubstationsAndVoltageLevels();
-        addBoundaryLineWithSide(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1);
-        addBoundaryLineWithSide(n2, "vl2", "dl2", "code", "b2", PairingSide.SIDE_1);
+        addBoundaryLine(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1, true);
+        addBoundaryLine(n2, "vl2", "dl2", "code", "b2", PairingSide.SIDE_1, true);
         Network merge = Network.merge(n1, n2);
         assertEquals(0, merge.getTieLineCount());
         assertFalse(merge.getBoundaryLine("dl1").isPaired());
@@ -465,13 +495,13 @@ public abstract class AbstractMergeNetworkTest {
     public void testAutomaticTieLineCreationOnSetPairingSideAcrossSubnetworks() {
         addCommonSubstationsAndVoltageLevels();
         // Same side on both halves: the merge does not pair them.
-        addBoundaryLineWithSide(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1);
-        addBoundaryLineWithSide(n2, "vl2", "dl2", "code", "b2", PairingSide.SIDE_1);
+        addBoundaryLine(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1,true);
+        addBoundaryLine(n2, "vl2", "dl2", "code", "b2", PairingSide.SIDE_1, true);
         Network merge = Network.merge(n1, n2);
         assertEquals(0, merge.getTieLineCount());
 
         // Fixing the side on one half (now opposite) triggers the automatic pairing across the two subnetworks.
-        merge.getBoundaryLine("dl1").setPairingSide(PairingSide.SIDE_2);
+        merge.getBoundaryLine("dl1").setPairingSideAndCreateTieLine(PairingSide.SIDE_2);
 
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
@@ -482,21 +512,52 @@ public abstract class AbstractMergeNetworkTest {
         assertSame(merge.getBoundaryLine("dl1"), tieLine.getBoundaryLine2());
     }
 
-    private static void addBoundaryLineWithSide(Network n, String voltageLevelId, String id, String code, String busId, PairingSide side) {
-        n.getVoltageLevel(voltageLevelId).newBoundaryLine()
+    @Test
+    public void testMergeOfSameSideNetworksDoesNotPairAndInheritsTheSide() {
+        addCommonSubstationsAndVoltageLevels();
+        // both networks are oriented SIDE_2; n1 also has a sideless boundary line
+        addBoundaryLine(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_2, true);
+        addBoundaryLine(n1, "vl1", "dl1bis", "code", "b1", null, false); // sideless -> inherits n1's SIDE_2
+        addBoundaryLine(n2, "vl2", "dl2", "code", "b2", PairingSide.SIDE_2, true);
+        Network merge = Network.merge(n1, n2);
+        // same orientation on both sides: nothing pairs
+        assertEquals(0, merge.getTieLineCount());
+        // the sideless boundary line inherited its network's side
+        assertEquals(PairingSide.SIDE_2, merge.getBoundaryLine("dl1").getPairingSide());
+        assertEquals(PairingSide.SIDE_2, merge.getBoundaryLine("dl1bis").getPairingSide());
+        assertEquals(PairingSide.SIDE_2, merge.getBoundaryLine("dl2").getPairingSide());
+    }
+
+    @Test
+    public void testMergePairsTheConnectedCandidateWhenSeveralAreCompatible() {
+        addCommonSubstationsAndVoltageLevels();
+        addBoundaryLine(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1, true);   // connected
+        addBoundaryLine(n2, "vl2", "dl1bis", "code", "b2", PairingSide.SIDE_2, false); // disconnected
+        addBoundaryLine(n2, "vl2", "dl2", "code", "b2", null, true);                   // connected, sideless
+        Network merge = Network.merge(n1, n2);
+        assertNotNull(merge.getTieLine("dl1 + dl2"));
+        assertFalse(merge.getBoundaryLine("dl1bis").isPaired());
+    }
+
+    private static void addBoundaryLine(Network n, String voltageLevelId, String id, String code, String busId, PairingSide side, boolean connected) {
+        BoundaryLineAdder adder = n.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(id)
                 .setName(id + "_name")
                 .setConnectableBus(busId)
-                .setBus(busId)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.0)
                 .setX(2.0)
                 .setG(4.0)
                 .setB(5.0)
-                .setPairingKey(code)
-                .setPairingSide(side)
-                .add();
+                .setPairingKey(code);
+        if (side != null) {
+            adder.setPairingSide(side);
+        }
+        if (connected) {
+            adder.setBus(busId);
+        }
+        adder.add();
     }
 
     @Test

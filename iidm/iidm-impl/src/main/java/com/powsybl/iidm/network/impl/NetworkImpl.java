@@ -146,9 +146,15 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         NetworkImpl mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
         setValidationLevels(mergedNetwork, networks);
         setCommonCaseDate(mergedNetwork, networks);
+        // a boundary line without a pairing side inherits the side of its network, so that networks oriented on the
+        // same side do not pair together
+        for (Network n : networks) {
+            homogenizePairingSides(n);
+        }
         for (Network other : networks) {
             mergedNetwork.merge(other);
         }
+        mergedNetwork.deducePairingSides();
 
         return mergedNetwork;
     }
@@ -1327,6 +1333,64 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         sn.attachDcTopologyModel(original.detachDcTopologyModel(), sn.getRootNetworkRef(), sn.getRef());
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
+    }
+
+    /**
+     * Give a pairing side to the sideless boundary lines of a network about to be merged: if the network is oriented
+     * on a single pairing side (all its declared sides are equal), its sideless boundary lines inherit that side. This
+     * is done before pairing so that two networks oriented on the same side do not pair together. Networks with no
+     * declared side (legacy) or with mixed declared sides are left untouched.
+     */
+    private static void homogenizePairingSides(Network network) {
+        Set<PairingSide> declaredSides = network.getBoundaryLineStream(BoundaryLineFilter.ALL)
+                .map(BoundaryLine::getPairingSide)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (declaredSides.size() == 1) {
+            PairingSide side = declaredSides.iterator().next();
+            network.getBoundaryLineStream(BoundaryLineFilter.ALL)
+                    .filter(bl -> bl.getPairingSide() == null)
+                    .forEach(bl -> ((BoundaryLineImpl) bl).setPairingSide(side));
+        }
+    }
+
+    /**
+     * Make sure every boundary line has a pairing side after a merge, deducing the missing ones so that:
+     * <ul>
+     *     <li>the two boundary lines of a tie line always have opposite sides (hard constraint);</li>
+     *     <li>all the boundary lines of a same (sub)network share the same side, so that tie lines only ever pair
+     *     boundary lines of two different (sub)networks.</li>
+     * </ul>
+     * <p>Only sideless boundary lines are assigned a side: explicitly declared sides are left untouched.</p>
+     */
+    private void deducePairingSides() {
+        // 1. seed each (sub)network with an already declared side, if any
+        Map<Network, PairingSide> sideBySubnetwork = new HashMap<>();
+        getBoundaryLineStream(BoundaryLineFilter.ALL)
+                .filter(bl -> bl.getPairingSide() != null)
+                .forEach(bl -> sideBySubnetwork.putIfAbsent(bl.getParentNetwork(), bl.getPairingSide()));
+
+        // 2. color the (sub)networks through the tie lines so that the two ends of each tie line are opposite
+        for (TieLine tieLine : getTieLines()) {
+            Network net1 = tieLine.getBoundaryLine1().getParentNetwork();
+            Network net2 = tieLine.getBoundaryLine2().getParentNetwork();
+            PairingSide side1 = sideBySubnetwork.get(net1);
+            PairingSide side2 = sideBySubnetwork.get(net2);
+            if (side1 == null && side2 == null) {
+                sideBySubnetwork.put(net1, PairingSide.SIDE_1);
+                sideBySubnetwork.put(net2, PairingSide.SIDE_2);
+            } else if (side1 == null) {
+                sideBySubnetwork.put(net1, side2.getOppositeSide());
+            } else if (side2 == null) {
+                sideBySubnetwork.put(net2, side1.getOppositeSide());
+            }
+        }
+
+        // 3. assign to every remaining sideless boundary line the side of its (sub)network (SIDE_1 by default)
+        getBoundaryLineStream(BoundaryLineFilter.ALL)
+                .filter(bl -> bl.getPairingSide() == null)
+                .forEach(bl -> ((BoundaryLineImpl) bl).setPairingSide(
+                        sideBySubnetwork.getOrDefault(bl.getParentNetwork(), PairingSide.SIDE_1)));
     }
 
     private void pairBoundaryLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2) {

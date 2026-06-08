@@ -268,12 +268,25 @@ public final class TieLineUtil {
             List<BoundaryLine> compatible = sameKey.stream()
                     .filter(candidate1 -> arePairingSidesCompatible(candidate1.getPairingSide(), candidate2.getPairingSide()))
                     .toList();
-            if (compatible.size() == 1) {
-                BoundaryLine candidate1 = compatible.get(0);
+            BoundaryLine candidate1 = selectCandidate(compatible);
+            if (candidate1 != null) {
                 sameKey.remove(candidate1); // a boundary line can be paired at most once
                 associate.accept(candidate1, candidate2);
             }
         }
+    }
+
+    /**
+     * Among the boundary lines compatible with a same boundary line, select the one to pair with: the only candidate
+     * if there is a single one, otherwise the only connected one (disambiguation by connection). Returns {@code null}
+     * when the choice is ambiguous (no candidate, or several connected ones).
+     */
+    private static BoundaryLine selectCandidate(List<BoundaryLine> compatible) {
+        if (compatible.size() == 1) {
+            return compatible.getFirst();
+        }
+        List<BoundaryLine> connected = compatible.stream().filter(bl -> bl.getTerminal().isConnected()).toList();
+        return connected.size() == 1 ? connected.getFirst() : null;
     }
 
     /**
