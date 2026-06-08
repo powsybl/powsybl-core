@@ -126,6 +126,8 @@ class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(boundaryLine);
         network.getListeners().notifyCreation(boundaryLine);
+
+        network.createTieLineIfAutomaticallyPairable(boundaryLine);
         return boundaryLine;
     }
 
