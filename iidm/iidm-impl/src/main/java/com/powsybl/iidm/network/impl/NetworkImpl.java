@@ -1257,18 +1257,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
         checkMergeability(otherNetwork);
 
-        // try to find boundary lines couples
+        // try to find boundary lines couples by pairing the candidates of the already-merged network with those of
+        // the network being merged
         List<BoundaryLinePair> lines = new ArrayList<>();
-        Map<String, List<BoundaryLine>> dl1byPairingKey = new HashMap<>();
-
-        for (BoundaryLine dl1 : getBoundaryLines(BoundaryLineFilter.ALL)) {
-            if (dl1.getPairingKey() != null) {
-                dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
-            }
-        }
-        for (BoundaryLine dl2 : findCandidateBoundaryLines(other, dl1byPairingKey::containsKey)) {
-            findAndAssociateBoundaryLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairBoundaryLines(lines, dll1, dll2, dl1byPairingKey));
-        }
+        associateBoundaryLines(
+                findCandidateBoundaryLines(this, k -> true),
+                findCandidateBoundaryLines(other, k -> true),
+                (dl1, dl2) -> pairBoundaryLines(lines, dl1, dl2));
 
         // create a subnetwork for the other network
         createSubnetwork(this, otherNetwork);
@@ -1334,46 +1329,26 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         parent.index.checkAndAdd(sn);
     }
 
-    private void pairBoundaryLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byPairingKey) {
-        if (dl1 != null) {
-            normalizePairingSides(dl1, dl2);
-            if (dl1.getPairingKey() != null) {
-                dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
-            }
-            BoundaryLinePair l = new BoundaryLinePair();
-            l.id = buildMergedId(dl1.getId(), dl2.getId());
-            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+    private void pairBoundaryLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine dl1, BoundaryLine dl2) {
+        BoundaryLinePair l = new BoundaryLinePair();
+        l.id = buildMergedId(dl1.getId(), dl2.getId());
+        l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+        l.dl1Id = dl1.getId();
+        l.dl2Id = dl2.getId();
+        l.aliases = new HashMap<>();
+        // No need to merge properties or aliases because we keep the original boundary lines after merge
+        boundaryLinePairs.add(l);
+
+        if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename boundary lines
+            ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
+            ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
             l.dl1Id = dl1.getId();
             l.dl2Id = dl2.getId();
-            l.aliases = new HashMap<>();
-            // No need to merge properties or aliases because we keep the original boundary lines after merge
-            boundaryLinePairs.add(l);
-
-            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename boundary lines
-                ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
-                l.dl1Id = dl1.getId();
-                l.dl2Id = dl2.getId();
-            } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
-                // Invert the ids to always have them in lexicographical order (to ensure reproducibility)
-                var tmp = l.dl1Id;
-                l.dl1Id = l.dl2Id;
-                l.dl2Id = tmp;
-            }
-        }
-    }
-
-    /**
-     * When pairing two boundary lines during a merge, if exactly one of them has no pairing side, assign it the side
-     * opposite to the other one, so that the resulting pair always has consistent, opposite pairing sides.
-     */
-    private static void normalizePairingSides(BoundaryLine dl1, BoundaryLine dl2) {
-        PairingSide side1 = dl1.getPairingSide();
-        PairingSide side2 = dl2.getPairingSide();
-        if (side1 == null && side2 != null && !dl1.isPaired()) {
-            ((BoundaryLineImpl) dl1).setPairingSideInternal(side2.getOppositeSide());
-        } else if (side2 == null && side1 != null && !dl2.isPaired()) {
-            ((BoundaryLineImpl) dl2).setPairingSideInternal(side1.getOppositeSide());
+        } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
+            // Invert the ids to always have them in lexicographical order (to ensure reproducibility)
+            var tmp = l.dl1Id;
+            l.dl1Id = l.dl2Id;
+            l.dl2Id = tmp;
         }
     }
 

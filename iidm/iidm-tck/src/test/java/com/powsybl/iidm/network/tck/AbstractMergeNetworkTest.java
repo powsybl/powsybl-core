@@ -439,6 +439,18 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void testMergeWithMissingPairingSideStillPairs() {
+        addCommonSubstationsAndVoltageLevels();
+        addBoundaryLineWithSide(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1);
+        addBoundaryLines(n2, "vl2", "dl2", "code", "b2"); // no pairing side
+        Network merge = Network.merge(n1, n2);
+        // a defined side is compatible with an undefined one: the tie line is still created
+        assertNotNull(merge.getTieLine("dl1 + dl2"));
+        assertEquals(PairingSide.SIDE_1, merge.getBoundaryLine("dl1").getPairingSide());
+        assertNull(merge.getBoundaryLine("dl2").getPairingSide());
+    }
+
+    @Test
     public void testMergeWithSamePairingSideDoesNotPair() {
         addCommonSubstationsAndVoltageLevels();
         addBoundaryLineWithSide(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1);
@@ -447,18 +459,6 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(0, merge.getTieLineCount());
         assertFalse(merge.getBoundaryLine("dl1").isPaired());
         assertFalse(merge.getBoundaryLine("dl2").isPaired());
-    }
-
-    @Test
-    public void testMergeWithMissingPairingSideIsNormalized() {
-        addCommonSubstationsAndVoltageLevels();
-        addBoundaryLineWithSide(n1, "vl1", "dl1", "code", "b1", PairingSide.SIDE_1);
-        addBoundaryLines(n2, "vl2", "dl2", "code", "b2"); // no pairing side
-        Network merge = Network.merge(n1, n2);
-        assertNotNull(merge.getTieLine("dl1 + dl2"));
-        // the missing side is normalized to the opposite of the other one
-        assertEquals(PairingSide.SIDE_1, merge.getBoundaryLine("dl1").getPairingSide());
-        assertEquals(PairingSide.SIDE_2, merge.getBoundaryLine("dl2").getPairingSide());
     }
 
     @Test

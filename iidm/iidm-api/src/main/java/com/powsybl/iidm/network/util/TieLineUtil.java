@@ -241,72 +241,47 @@ public final class TieLineUtil {
     }
 
     /**
-     * If it exists, find the boundary line in the merging network that should be associated to a candidate boundary line in the network to be merged.
-     * Two boundary lines in different IGM should be associated if:
-     * - they have the same non-null pairing key and are the only boundary lines to have this pairing key in their respective networks
-     * OR
-     * - they have the same non-null pairing key and are the only connected boundary lines to have this pairing key in their respective networks
+     * <p>Associate the candidate boundary lines of two networks being merged into the couples that will become tie
+     * lines. Each candidate of the second network is associated with the unique compatible candidate of the first
+     * network, i.e. the one sharing the same non-null pairing key and having a compatible pairing side (see
+     * {@link #arePairingSidesCompatible}). When zero or several candidates are compatible, the association is ambiguous
+     * and is skipped.</p>
+     * <p>Each boundary line is associated at most once.</p>
      *
-     * @param candidateBoundaryLine candidate boundary line in the network to be merged
-     * @param getBoundaryLinesByPairingKey function to retrieve boundary lines with a given pairing key in the merging network.
-     * @param associateBoundaryLines function associating two boundary lines
+     * @param candidates1 candidate boundary lines of the first network (see {@link #findCandidateBoundaryLines})
+     * @param candidates2 candidate boundary lines of the second network
+     * @param associate function associating two boundary lines to be merged into a tie line
      */
-    public static void findAndAssociateBoundaryLines(BoundaryLine candidateBoundaryLine, Function<String, List<BoundaryLine>> getBoundaryLinesByPairingKey,
-                                                     BiConsumer<BoundaryLine, BoundaryLine> associateBoundaryLines) {
-        //TODO This method is quite complicated. It would be better to call `findCandidateBoundaryLines` on both networks to merge
-        // and to only process the retrieved candidate lists together.
-        Objects.requireNonNull(candidateBoundaryLine);
-        Objects.requireNonNull(getBoundaryLinesByPairingKey);
-        Objects.requireNonNull(associateBoundaryLines);
-        // mapping by pairing key
-        if (candidateBoundaryLine.getPairingKey() != null) { // if pairing key null: no associated boundary line
-            PairingSide candidateSide = candidateBoundaryLine.getPairingSide();
-            // If we call this method on the results of "findCandidateBoundaryLines", the following test is useless.
-            if (candidateBoundaryLine.getNetwork().getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
-                    .filter(b -> b != candidateBoundaryLine)
-                    .filter(b -> candidateBoundaryLine.getPairingKey().equals(b.getPairingKey()))
-                    .filter(b -> Objects.equals(candidateSide, b.getPairingSide()))
-                    .anyMatch(b -> b.getTerminal().isConnected())) { // check that there is no connected boundary line with same pairing key and side in the network to be merged
-                return;                                         // in that case, do nothing
+    public static void associateBoundaryLines(List<BoundaryLine> candidates1, List<BoundaryLine> candidates2,
+                                              BiConsumer<BoundaryLine, BoundaryLine> associate) {
+        Objects.requireNonNull(candidates1);
+        Objects.requireNonNull(candidates2);
+        Objects.requireNonNull(associate);
+        Map<String, List<BoundaryLine>> candidates1ByKey = candidates1.stream()
+                .filter(bl -> bl.getPairingKey() != null)
+                .collect(Collectors.groupingBy(BoundaryLine::getPairingKey, Collectors.toCollection(ArrayList::new)));
+        for (BoundaryLine candidate2 : candidates2) {
+            if (candidate2.getPairingKey() == null) {
+                continue;
             }
-            List<BoundaryLine> bls = getBoundaryLinesByPairingKey.apply(candidateBoundaryLine.getPairingKey());
-            if (bls != null) {
-                List<BoundaryLine> compatibleBls = bls.stream()
-                        .filter(b -> arePairingSidesCompatible(candidateSide, b.getPairingSide()))
-                        .toList();
-                if (compatibleBls.size() == 1) { // if there is exactly one boundary line in the merging network, merge it
-                    associateBoundaryLines.accept(compatibleBls.getFirst(), candidateBoundaryLine);
-                }
-                if (compatibleBls.size() > 1) { // if more than one boundary line in the merging network, check how many are connected
-                    associateConnectedBoundaryLine(candidateBoundaryLine, compatibleBls, associateBoundaryLines);
-                }
+            List<BoundaryLine> sameKey = candidates1ByKey.getOrDefault(candidate2.getPairingKey(), List.of());
+            List<BoundaryLine> compatible = sameKey.stream()
+                    .filter(candidate1 -> arePairingSidesCompatible(candidate1.getPairingSide(), candidate2.getPairingSide()))
+                    .toList();
+            if (compatible.size() == 1) {
+                BoundaryLine candidate1 = compatible.get(0);
+                sameKey.remove(candidate1); // a boundary line can be paired at most once
+                associate.accept(candidate1, candidate2);
             }
         }
-
     }
 
+    /**
+     * Two boundary lines can be paired together unless they are explicitly located on the same pairing side. A
+     * {@code null} side is undefined and is therefore compatible with any side.
+     */
     private static boolean arePairingSidesCompatible(PairingSide side1, PairingSide side2) {
-        return side2 == null || side1 != side2;
-    }
-
-    private static void associateConnectedBoundaryLine(BoundaryLine candidateBoundaryLine, List<BoundaryLine> bls,
-                                                       BiConsumer<BoundaryLine, BoundaryLine> associateBoundaryLines) {
-        // Connected BoundaryLines
-        List<BoundaryLine> connectedBls = bls.stream().filter(bl -> bl.getTerminal().isConnected()).toList();
-
-        // If there is exactly one connected boundary line in the merging network, merge it. Otherwise, do nothing
-        if (connectedBls.size() == 1) {
-            LOGGER.warn("Several boundary lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                    "Tie line automatically created using the only connected one '{}'.",
-                bls.stream().map(BoundaryLine::getId).toList(), connectedBls.getFirst().getPairingKey(),
-                connectedBls.getFirst().getId());
-            associateBoundaryLines.accept(connectedBls.getFirst(), candidateBoundaryLine);
-        } else {
-            String status = connectedBls.size() > 1 ? "connected" : "disconnected";
-            LOGGER.warn("Several {} boundary lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                status, connectedBls.stream().map(BoundaryLine::getId).toList(),
-                connectedBls.getFirst().getPairingKey());
-        }
+        return side1 == null || side2 == null || side1 != side2;
     }
 
     public static double getR(BoundaryLine dl1, BoundaryLine dl2) {

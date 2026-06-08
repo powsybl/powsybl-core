@@ -435,26 +435,21 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     }
 
     @Override
-    public PairingSide getPairingSide() { return pairingSide; }
+    public PairingSide getPairingSide() {
+        return pairingSide;
+    }
 
     @Override
     public BoundaryLine setPairingSide(PairingSide pairingSide) {
-        setPairingSideInternal(pairingSide);
-        getNetwork().createTieLineIfAutomaticallyPairable(this);
-        return this;
-    }
-
-    /**
-     * Set the pairing side without triggering the automatic tie line creation. Used by the merge, which pairs the
-     * boundary lines by itself.
-     */
-    void setPairingSideInternal(PairingSide pairingSide) {
         if (this.isPaired()) {
             throw new ValidationException(this, "pairing side cannot be set if boundary line is paired.");
         }
         PairingSide oldValue = this.pairingSide;
         this.pairingSide = pairingSide;
         notifyUpdate("pairing_side", oldValue, pairingSide);
+
+        getNetwork().createTieLineIfAutomaticallyPairable(this);
+        return this;
     }
 
     @Override
