@@ -28,7 +28,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     private final String attributeName;
     private final LinkedHashSet<String> selectedLimitsIds = new LinkedHashSet<>();
 
-    private final LinkedHashMap<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
+    private final Map<String, OperationalLimitsGroupImpl> operationalLimitsGroupById = new LinkedHashMap<>();
     private final AbstractIdentifiable<?> identifiable;
 
     OperationalLimitsGroupsImpl(AbstractIdentifiable<?> identifiable, String attributeName) {
