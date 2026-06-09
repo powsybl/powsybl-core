@@ -146,7 +146,7 @@ There are two possible behaviors:
 By default, this behavior is set as `THROW_EXCEPTION`
 
 **iidm.export.xml.force-export-network-with-beta-features**<br>
-The `iidm.export.xml.force-export-network-with-beta-features` property is an optional property that defines the behavior of the XIIDM exporter when export a network containing beta features that do not have a serialization yet.
+The `iidm.export.xml.force-export-network-with-beta-features` property is an optional property that defines the behavior of the IIDM exporter when exporting a network containing beta features that do not have a serialization support yet.
 There are two possible behaviors:
 - `false`, if the exporter encounters a beta element that cannot be serialized, the export will immediately stop and throw an error.
 - `true`, the export will skip beta elements that cannot be serialized. Be aware that this might result in an unreadable network.
