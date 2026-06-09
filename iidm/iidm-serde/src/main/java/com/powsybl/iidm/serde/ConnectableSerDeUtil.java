@@ -416,7 +416,7 @@ public final class ConnectableSerDeUtil {
         context.addSelectedGroupIds(
             branch.getId(),
             side.toThreeSides(),
-            readAllSelectedGroupIds(
+            readAndGetAllSelectedGroupIds(
                 side.getNum(),
                 c -> branch.addSelectedOperationalLimitsGroups(side, c.toArray(String[]::new)),
                 context
@@ -434,14 +434,14 @@ public final class ConnectableSerDeUtil {
         context.addSelectedGroupIds(
             transformer.getId(),
             side,
-            readAllSelectedGroupIds(
+            readAndGetAllSelectedGroupIds(
                 side.getNum(),
                 c -> transformer.getLeg(side).addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
                 context
             ));
     }
 
-    static Collection<String> readAllSelectedGroupIds(Integer index, Consumer<Collection<String>> consumer, NetworkDeserializerContext context) {
+    static Collection<String> readAndGetAllSelectedGroupIds(Integer index, Consumer<Collection<String>> consumer, NetworkDeserializerContext context) {
         String suffix = index == null ? "" : String.valueOf(index);
         Collection<String> allSelectedGroupIds = Objects.requireNonNullElse(context.getReader().readStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix), List.of());
         context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> consumer.accept(allSelectedGroupIds));
@@ -457,7 +457,7 @@ public final class ConnectableSerDeUtil {
         context.addSelectedGroupIds(
             boundaryLine.getId(),
             ThreeSides.ONE,
-            readAllSelectedGroupIds(
+            readAndGetAllSelectedGroupIds(
                 null,
                 c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
                 context
