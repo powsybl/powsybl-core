@@ -475,18 +475,13 @@ public final class Networks {
     }
 
     /**
-     * This methods replaces all the solved values in the network with NaN values. It includes all terminals P and Q (for AC)
+     * This method replaces all the solved values in the network with NaN values. It includes all terminals P and Q (for AC)
      * or I (for DC), buses voltage magnitude (and angle for AC), solved shunt/compensator section count, and tap
      * changers tap position.
      */
     public static void unsetSolvedValues(Network network) {
         network.getBusView().getBusStream().forEach(Bus::unsetSolvedValues);
         network.getConnectableStream().forEach(Connectable::unsetSolvedValues);
-
-        network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::unsetSolvedTapChangerValues);
-        network.getThreeWindingsTransformerStream().forEach(ThreeWindingsTransformer::unsetSolvedTapChangerValues);
-        network.getShuntCompensatorStream().forEach(ShuntCompensator::unsetSolvedSectionCount);
-
         network.getDcBusStream().forEach(bus -> bus.setV(Double.NaN));
         network.getDcConnectableStream().forEach(DcConnectable::unsetDcSolvedValues);
     }

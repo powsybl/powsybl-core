@@ -240,7 +240,9 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
         this.getOptionalPhaseTapChanger().ifPresent(TapChanger::applySolvedValues);
     }
 
-    default void unsetSolvedTapChangerValues() {
+    @Override
+    default void unsetSolvedValues() {
+        Connectable.super.unsetSolvedValues();
         this.getOptionalPhaseTapChanger().ifPresent(TapChanger::unsetSolvedTapPosition);
         this.getOptionalRatioTapChanger().ifPresent(TapChanger::unsetSolvedTapPosition);
     }
