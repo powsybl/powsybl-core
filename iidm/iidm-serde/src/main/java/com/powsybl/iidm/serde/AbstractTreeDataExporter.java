@@ -261,7 +261,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setFormat(getTreeDataFormat())
                 .setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.valueOf(
                         Parameter.readString(getFormat(), parameters, BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR_PARAMETER, defaultValueConfig)))
-                .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
+                .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
+                .setOnlySelectedOperationalLimitsGroups(Parameter.readBoolean(getFormat(), parameters, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, defaultValueConfig));
         boolean someExtensionsShouldBeIncluded = getAndCheckExtensionsToInclude(parameters, options, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, true);
         if (someExtensionsShouldBeIncluded) {
             addExtensionsVersions(parameters, options);

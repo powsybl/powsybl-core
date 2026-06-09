@@ -192,7 +192,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
                 .setExcludedExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_EXCLUDED_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
                 .setMissingPermanentLimitPercentage(Parameter.readDouble(getFormat(), parameters, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER, defaultValueConfig))
-                .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig));
+                .setMinimalValidationLevel(Parameter.readString(getFormat(), parameters, MINIMAL_VALIDATION_LEVEL_PARAMETER, defaultValueConfig))
+                .setOnlySelectedOperationalLimitsGroups(Parameter.readBoolean(getFormat(), parameters, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, defaultValueConfig));
         getAndCheckExtensionsToInclude(parameters, importOptions, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, false);
         return importOptions;
     }
