@@ -37,7 +37,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private ValidationLevel networkValidationLevel;
 
     private Set<String> ignoredEquipments = new HashSet<>();
-    private final Map<String, IdentifiableSelectedOperationalLimitGroups> selectedOperationalLimitGroupsByIdentifiableId = new HashMap<>();
+    private final Map<IdentifiableIdSide, Collection<String>> selectedOperationalLimitGroupsByIdentifiableId = new HashMap<>();
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
@@ -106,18 +106,20 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     }
 
     public void addSelectedGroupIds(String identifiableId, ThreeSides side, Collection<String> selectedGroupIds) {
-        IdentifiableSelectedOperationalLimitGroups selectedGroupsBySide = selectedOperationalLimitGroupsByIdentifiableId.get(identifiableId);
-        if (selectedGroupsBySide == null) {
-            selectedGroupsBySide = new IdentifiableSelectedOperationalLimitGroups(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-            selectedOperationalLimitGroupsByIdentifiableId.put(identifiableId, selectedGroupsBySide);
+        IdentifiableIdSide key = new IdentifiableIdSide(identifiableId, side);
+        Collection<String> alreadySelectedGroups = selectedOperationalLimitGroupsByIdentifiableId.get(key);
+        if (alreadySelectedGroups == null) {
+            selectedOperationalLimitGroupsByIdentifiableId.put(key, List.copyOf(selectedGroupIds));
+        } else {
+            alreadySelectedGroups.addAll(selectedGroupIds);
         }
-        selectedGroupsBySide.getSelectedFromSide(side).addAll(selectedGroupIds);
     }
 
     public Collection<String> getSelectedGroupIds(String identifiableId, ThreeSides side) {
-        IdentifiableSelectedOperationalLimitGroups selectedGroupsBySide = selectedOperationalLimitGroupsByIdentifiableId.get(identifiableId);
-        if (selectedGroupsBySide != null) {
-            return selectedGroupsBySide.getSelectedFromSide(side);
+        IdentifiableIdSide key = new IdentifiableIdSide(identifiableId, side);
+        Collection<String> selectedGroupIds = selectedOperationalLimitGroupsByIdentifiableId.get(key);
+        if (selectedGroupIds != null) {
+            return selectedGroupIds;
         } else {
             throw new NoSuchElementException("No identifiable of ID " + identifiableId + " has had its selected groups stored when deserializing the network");
         }
@@ -127,14 +129,6 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         return getVersion().compareTo(version) >= 0 ? getAnonymizer().deanonymizeString(val) : val;
     }
 
-    private record IdentifiableSelectedOperationalLimitGroups(Collection<String> selectedSide1, Collection<String> selectedSide2, Collection<String> selectedSide3) {
-        Collection<String> getSelectedFromSide(ThreeSides side) {
-            return switch (side) {
-                case ONE -> selectedSide1;
-                case TWO -> selectedSide2;
-                case THREE -> selectedSide3;
-            };
-        }
-    }
+    private record IdentifiableIdSide(String identifiableId, ThreeSides side) { }
 
 }
