@@ -331,7 +331,9 @@ public final class ConnectableSerDeUtil {
         if (limits != null) {
             if (limits.getDetectionKind() == DetectionKind.LOW) {
                 if (!exportOptions.isForceExportNetworkWithBetaFeatures()) {
-                    throw new NotImplementedException("The network contains low limits, export of this kind of limit is not yet supported. To force the export of the network and ignore those limits, set forceExportnetworkWithBetaFeature in the ExportOptions");
+                    throw new NotImplementedException("The network contains low limits, export of this kind of limit is not yet supported. " +
+                        "To force the export of the network and ignore those limits, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
+                        "or ExportOptions.setForceExportNetworkWithBetaFeatures");
                 }
             } else if (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty()) {
                 writer.writeStartNode(nsUri, type + indexToString(index));
