@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -25,7 +26,8 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void testMaxPNotSupported() {
         Network network = createNetworkWithNonDefaultMaxP();
-        assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, tmpDir.resolve("fail")));
+        Path filename = tmpDir.resolve("fail");
+        assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, filename));
     }
 
     @Test

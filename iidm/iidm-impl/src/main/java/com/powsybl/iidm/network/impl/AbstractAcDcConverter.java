@@ -181,6 +181,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public I setMinP(double minP) {
+        // We do no consistency check with target P here to avoid blocking the user
+        // when editing the network.
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, MIN_P);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkActivePowerLimits(this, minP, this.maxP);
@@ -198,6 +200,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public I setMaxP(double maxP) {
+        // We do no consistency check with target P here to avoid blocking the user
+        // when editing the network.
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, MAX_P);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, this.minP, maxP);
@@ -295,6 +299,8 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
 
     @Override
     public I setTargetP(double targetP) {
+        // We do no consistency check with min/max P here to avoid blocking the user
+        // when editing the network.
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_P);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, getControlMode(), targetP, getTargetVdc(),

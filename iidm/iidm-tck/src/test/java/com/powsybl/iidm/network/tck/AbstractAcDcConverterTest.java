@@ -959,35 +959,39 @@ public abstract class AbstractAcDcConverterTest {
         converter.setMinP(-500.0);
         converter.setMaxP(1000.0);
 
-        boolean[] minPUpdated = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        var minPListener = new DefaultNetworkListener() {
+            boolean updated = false;
+
             @Override
             public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 if ("minP".equals(attribute) && identifiable.getId().equals(converter.getId())) {
                     assertNull(variantId);
                     assertEquals(-500.0, (double) oldValue, 0.0);
                     assertEquals(-100.0, (double) newValue, 0.0);
-                    minPUpdated[0] = true;
+                    updated = true;
                 }
             }
-        });
+        };
+        network.addListener(minPListener);
         converter.setMinP(-100.0);
-        assertTrue(minPUpdated[0]);
+        assertTrue(minPListener.updated);
 
-        boolean[] maxPUpdated = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        var maxPListener = new DefaultNetworkListener() {
+            boolean updated = false;
+
             @Override
             public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 if ("maxP".equals(attribute) && identifiable.getId().equals(converter.getId())) {
                     assertNull(variantId);
                     assertEquals(1000.0, (double) oldValue, 0.0);
                     assertEquals(2000.0, (double) newValue, 0.0);
-                    maxPUpdated[0] = true;
+                    updated = true;
                 }
             }
-        });
+        };
+        network.addListener(maxPListener);
         converter.setMaxP(2000.0);
-        assertTrue(maxPUpdated[0]);
+        assertTrue(maxPListener.updated);
     }
 
     // ---- minP / maxP test methods ----
