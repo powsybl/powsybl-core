@@ -108,6 +108,22 @@ import java.util.Optional;
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">Curve which contains multiple droop segments</td>
  *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">minP</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> -inf MW</td>
+ *             <td style="border: 1px solid black">Minimum operating active power at point of common coupling, load sign convention</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">maxP</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> +inf MW</td>
+ *             <td style="border: 1px solid black">Maximum operating active power at point of common coupling, load sign convention</td>
+ *         </tr>
  *     </tbody>
  * </table>
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
