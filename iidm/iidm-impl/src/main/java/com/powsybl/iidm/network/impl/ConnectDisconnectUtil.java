@@ -160,7 +160,6 @@ public final class ConnectDisconnectUtil {
 
         // Booleans
         boolean isAlreadyConnected = true;
-        boolean isNowConnected = true;
 
         // Check if the element is already connected
         for (DcTerminal dcTerminal : dcTerminals) {
@@ -180,11 +179,9 @@ public final class ConnectDisconnectUtil {
         for (DcTerminal dcTerminal : dcTerminals) {
             if (!dcTerminal.isConnected()) {
                 dcTerminal.setConnected(true);
-                // At this point, isNowConnected should always stay true but let's be careful
-                isNowConnected = isNowConnected && dcTerminal.isConnected();
             }
         }
-        return isNowConnected;
+        return true;
     }
 
     /**
@@ -200,7 +197,6 @@ public final class ConnectDisconnectUtil {
 
         // Booleans
         boolean isAlreadyDisconnected = true;
-        boolean isNowDisconnected = true;
 
         // Check if the element is already disconnected
         for (DcTerminal dcTerminal : dcTerminals) {
@@ -221,10 +217,8 @@ public final class ConnectDisconnectUtil {
         for (DcTerminal dcTerminal : dcTerminals) {
             if (dcTerminal.isConnected()) {
                 dcTerminal.setConnected(false);
-                // At this point, isNowDisconnected should always stay true but let's be careful
-                isNowDisconnected = isNowDisconnected && !dcTerminal.isConnected();
             }
         }
-        return isNowDisconnected;
+        return true;
     }
 }

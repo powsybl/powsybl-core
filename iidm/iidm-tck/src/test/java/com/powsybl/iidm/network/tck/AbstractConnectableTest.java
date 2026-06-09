@@ -12,6 +12,7 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.test.DcDetailedNetworkFactory;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Test;
 
@@ -458,5 +459,40 @@ public abstract class AbstractConnectableTest {
         // disconnect the twt on side 3
         assertTrue(twt.disconnect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR, ThreeSides.THREE));
         assertFalse(twt.getTerminal(ThreeSides.THREE).isConnected());
+    }
+
+    @Test
+    public void connectAndDisconnectAcDcConverter() {
+        Network network = DcDetailedNetworkFactory.createVscAsymmetricalMonopole();
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("VscFr");
+
+        // Check vsc is fully connected
+        assertTrue(vsc.getTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal2().isConnected());
+
+        // Disconnect vsc, which should return true
+        assertTrue(vsc.disconnect());
+        assertFalse(vsc.getTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal1().isConnected()); // DC side is not modified
+        assertTrue(vsc.getDcTerminal2().isConnected());
+
+        // Disconnect vsc again, which should return False
+        assertFalse(vsc.disconnect());
+        assertFalse(vsc.getTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal2().isConnected());
+
+        // Connect vsc, which should return true
+        assertTrue(vsc.connect());
+        assertTrue(vsc.getTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal2().isConnected());
+
+        // Connect vsc again, which should return False
+        assertFalse(vsc.connect());
+        assertTrue(vsc.getTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal2().isConnected());
     }
 }
