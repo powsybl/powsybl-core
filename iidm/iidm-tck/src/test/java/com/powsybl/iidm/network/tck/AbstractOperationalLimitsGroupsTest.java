@@ -582,16 +582,6 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     public void getOperationalLimitsGroupsOrdering() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
-        List<OperationalLimitsGroup> expectedGroups = line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE);
-        expectedGroups.remove(1);
-        line.deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
-        assertEquals(expectedGroups, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE));
-        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED);
-        expectedGroups.add(line.getOperationalLimitsGroup1(EurostagTutorialExample1Factory.NOT_ACTIVATED).orElseThrow());
-        assertEquals(expectedGroups, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE));
-    public void getOperationalLimitsGroupsOrdering() {
-        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
-        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         assertArrayEquals(new String[]{"DEFAULT", "activated_1_1", "activated_1_2"},
                 line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).stream().map(OperationalLimitsGroup::getId).toArray());
         // Act
