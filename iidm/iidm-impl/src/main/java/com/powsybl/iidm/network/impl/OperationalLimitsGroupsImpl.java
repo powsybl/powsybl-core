@@ -172,7 +172,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
         return operationalLimitsGroupById.entrySet()
                 .stream()
                 .filter(e -> selectedLimitsIds.contains(e.getKey()))

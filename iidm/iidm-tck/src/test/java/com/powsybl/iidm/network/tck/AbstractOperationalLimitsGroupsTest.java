@@ -556,7 +556,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    public void operationalLimitsGroupOrdering() {
+    public void operationalLimitsGroupIdsOrdering() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         line.cancelSelectedOperationalLimitsGroup1();
@@ -576,6 +576,19 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             "DEFAULT"
         );
         assertEquals(expectedOrderedIds.size(), orderedGroupIds.size());
+    }
+
+    @Test
+    public void getOperationalLimitsGroupsOrdering() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        List<OperationalLimitsGroup> expectedGroups = line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE);
+        expectedGroups.remove(1);
+        line.deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        assertEquals(expectedGroups, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE));
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED);
+        expectedGroups.add(line.getOperationalLimitsGroup1(EurostagTutorialExample1Factory.NOT_ACTIVATED).orElseThrow());
+        assertEquals(expectedGroups, line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE));
     }
 
     private <L extends LoadingLimits> void assertLimits(Collection<L> actualLimits, Tuple... expectedLimitValues) {
