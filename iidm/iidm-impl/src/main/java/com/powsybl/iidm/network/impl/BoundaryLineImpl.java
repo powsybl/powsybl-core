@@ -441,8 +441,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     public BoundaryLine setPairingSideAndCreateTieLine(PairingSide pairingSide) {
+        if (this.pairingSide == pairingSide) {
+            return this;
+        }
         if (isPaired()) {
-            throw new ValidationException(this, "pairing side cannot be set if boundary line is paired.");
+            this.getTieLine().ifPresent(TieLine::remove);
         }
         setPairingSide(pairingSide);
         getNetwork().createTieLineIfAutomaticallyPairable(this);

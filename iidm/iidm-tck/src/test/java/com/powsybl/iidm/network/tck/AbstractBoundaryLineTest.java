@@ -364,17 +364,6 @@ public abstract class AbstractBoundaryLineTest {
         assertEquals(0, network.getTieLineCount());
     }
 
-    @Test
-    public void testSetPairingSideAndCreateTieLineFailsIfPaired() {
-        BoundaryLine bl1 = addBoundaryLineForPairing("bl1", "key", PairingSide.SIDE_1, true);
-        BoundaryLine bl2 = addBoundaryLineForPairing("bl2", "key", null, false);
-        bl2.setPairingSideAndCreateTieLine(PairingSide.SIDE_2); // creates the tie line, both become paired
-        assertTrue(bl1.isPaired());
-
-        ValidationException e = assertThrows(ValidationException.class, () -> bl1.setPairingSideAndCreateTieLine(PairingSide.SIDE_2));
-        assertTrue(e.getMessage().contains("pairing side cannot be set if boundary line is paired"));
-    }
-
     private BoundaryLine addBoundaryLineForPairing(String id, String pairingKey, PairingSide side, boolean connected) {
         BoundaryLineAdder adder = voltageLevel.newBoundaryLine()
                 .setId(id)
