@@ -65,7 +65,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private Charset charset = StandardCharsets.UTF_8;
 
-    private boolean forceExportNetworkWithBetaFeature = false;
+    private boolean forceExportNetworkWithBetaFeatures = false;
 
     /**
      * Sort IIDM objects so that generated XML does not depend on data model object order. Depending on object types the
@@ -283,14 +283,14 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
-    public boolean isForceExportNetworkWithBetaFeature() {
-        return forceExportNetworkWithBetaFeature;
+    public boolean isForceExportNetworkWithBetaFeatures() {
+        return forceExportNetworkWithBetaFeatures;
     }
 
-    public ExportOptions setForceExportNetworkWithBetaFeature(boolean forceExportNetworkWithBetaFeature) {
-        this.forceExportNetworkWithBetaFeature = forceExportNetworkWithBetaFeature;
-        if (forceExportNetworkWithBetaFeature) {
-            LOGGER.warn("Forcing export of network with BETA feature might result in an unreadable file.");
+    public ExportOptions setForceExportNetworkWithBetaFeatures(boolean forceExportNetworkWithBetaFeatures) {
+        this.forceExportNetworkWithBetaFeatures = forceExportNetworkWithBetaFeatures;
+        if (forceExportNetworkWithBetaFeatures) {
+            LOGGER.warn("Forcing export of network with BETA features might result in an unreadable file.");
         }
         return this;
     }

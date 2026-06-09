@@ -330,9 +330,8 @@ public final class ConnectableSerDeUtil {
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null) {
             if (limits.getDetectionKind() == DetectionKind.LOW) {
-                //need to check here instead of in the "if" above, otherwise when force export is true, we would try to get the permanent limit of a low limit
-                if (!exportOptions.isForceExportNetworkWithBetaFeature()) {
-                    throw new NotImplementedException("The network contains low limits, export of this kind of limit is not supported. To force the export of the network and ignore those limits, set forceExportnetworkWithBetaFeature in the ExportOptions");
+                if (!exportOptions.isForceExportNetworkWithBetaFeatures()) {
+                    throw new NotImplementedException("The network contains low limits, export of this kind of limit is not yet supported. To force the export of the network and ignore those limits, set forceExportnetworkWithBetaFeature in the ExportOptions");
                 }
             } else if (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty()) {
                 writer.writeStartNode(nsUri, type + indexToString(index));
