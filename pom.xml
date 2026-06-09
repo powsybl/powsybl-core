@@ -103,14 +103,14 @@
         <awaitility.version>4.3.0</awaitility.version>
         <commonscli.version>1.11.0</commonscli.version>
         <commonscompress.version>1.28.0</commonscompress.version>
-        <commons-configuration2.version>2.15.0</commons-configuration2.version>
+        <commons-configuration2.version>2.15.1</commons-configuration2.version>
         <commons-csv.version>1.14.1</commons-csv.version>
         <commonsio.version>2.22.0</commonsio.version>
         <commonslang3.version>3.20.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <commonstext.version>1.15.0</commonstext.version>
-        <ejml.version>0.44.0</ejml.version>
-        <fastcsv.version>4.0.0</fastcsv.version>
+        <ejml.version>0.45.1</ejml.version>
+        <fastcsv.version>4.3.0</fastcsv.version>
         <!-- findbugs cannot be updated until graphviz is updated/replaced since findbugs groupdId changed -->
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
@@ -119,17 +119,17 @@
         <!-- graphviz-builder seems abandoned - to be replaced ? -->
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <!-- groovy can be updated to v5 -->
-        <groovy.version>4.0.31</groovy.version>
+        <groovy.version>4.0.32</groovy.version>
         <guava.version>33.6.0-jre</guava.version>
         <!-- jackson-core can be updated to v3 -->
-        <jackson.version>2.21.2</jackson.version>
+        <jackson.version>2.21.4</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.3</jgrapht.version>
         <jimfs.version>1.3.1</jimfs.version>
         <!-- junit can be updated to v6 -->
         <junit-jupiter.version>5.14.4</junit-jupiter.version>
-        <logback.version>1.5.32</logback.version>
+        <logback.version>1.5.34</logback.version>
         <maven.compat>3.9.9</maven.compat>
         <maven.core.version>3.9.3</maven.core.version>
         <maven.plugin.annotations.version>3.15.2</maven.plugin.annotations.version>
@@ -141,7 +141,7 @@
         <rdf4j.version>5.3.1</rdf4j.version>
         <re2j.version>1.8</re2j.version>
         <sirocco.version>1.0</sirocco.version>
-        <slf4j.version>2.0.17</slf4j.version>
+        <slf4j.version>2.0.18</slf4j.version>
         <snakeyaml.version>2.6</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
@@ -152,7 +152,7 @@
         <trove4j.version>3.0.3</trove4j.version>
         <xmlunit.version>2.11.0</xmlunit.version>
         <xz.version>1.12</xz.version>
-        <zstdjni.version>1.5.7-7</zstdjni.version>
+        <zstdjni.version>1.5.7-10</zstdjni.version>
 
         <powsyblmathnative.version>1.4.0</powsyblmathnative.version>
 
