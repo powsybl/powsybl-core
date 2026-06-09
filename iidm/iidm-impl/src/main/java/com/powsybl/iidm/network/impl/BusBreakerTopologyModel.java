@@ -955,13 +955,8 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
             terminal.setVoltageLevel(null);
         } else {
             task.run();
-            // When the terminal is no more referenced in connectableBus for any variant,
-            // the link terminal => voltage level is removed,
-            // but only if multi-thread access to the variant manager is not allowed.
-            if (!getNetwork().getVariantManager().isVariantMultiThreadAccessAllowed() &&
-                    !connectableBus.isTerminalReferencedInAnyVariant((BusTerminal) terminal)) {
-                terminal.setVoltageLevel(null);
-            }
+            // The voltage level of the terminal is never set to null in this case
+            // (even when the terminal is no more referenced by any variant).
         }
     }
 

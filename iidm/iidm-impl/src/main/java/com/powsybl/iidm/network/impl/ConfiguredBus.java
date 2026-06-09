@@ -23,5 +23,4 @@ interface ConfiguredBus extends BusExt {
 
     void removeTerminal(BusTerminal t);
 
-    boolean isTerminalReferencedInAnyVariant(BusTerminal t);
 }
