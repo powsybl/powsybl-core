@@ -95,6 +95,11 @@ import static com.powsybl.iidm.serde.ExtensionOptionsUtil.getAndCheckExtensionsT
  *         <td>if true automation systems are exported</td>
  *         <td>true or false</td>
  *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.force-export-network-with-beta-features</td>
+ *         <td>if true, export network with not serializable beta element by ignoring those elements</td>
+ *         <td>true or false</td>
+ *     </tr>
  * </table>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
