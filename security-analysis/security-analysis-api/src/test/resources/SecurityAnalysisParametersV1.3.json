@@ -8,9 +8,9 @@
     "high-voltage-absolute-threshold" : 0.0
   },
   "monitored-element-modification-threshold" : {
-    "power-modification-threshold" : 0.0,
+    "power-modification-threshold" : 1.0,
     "voltage-modification-proportional-threshold" : 0.0,
-    "voltage-modification-absolute-threshold" : 0.0
+    "voltage-modification-absolute-threshold" : 10.0
   },
   "intermediate-results-in-operator-strategy" : true,
   "load-flow-parameters" : {

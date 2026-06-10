@@ -30,6 +30,8 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.2);
+        parameters.getModifiedMonitoredElementsParameters().setVoltageModificationAbsoluteThreshold(10.0);
+        parameters.getModifiedMonitoredElementsParameters().setPowerModificationThreshold(1.0);
         parameters.setIntermediateResultsInOperatorStrategy(true);
         roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.3.json");
     }

@@ -59,8 +59,12 @@ Same as before but for high-voltage violations.
 ### Monitoring modification thresholds
 When monitoring elements both before and after contingencies, it is possible to define thresholds that limit the number of element states stored in the post-contingency state.
 
+#### Thresholds on power
 **power-modification-threshold**<br>
 After a contingency, all the monitored branches and 3 windings transformers whose power has not changed by more than the threshold (in percentage) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
+
+#### Thresholds on voltage
+These two following parameters are not exclusive. When both are defined, the threshold in kV that will be used will be the minimum between the value of the absolute parameter and the result of the proportional parameter applied to the pre-contingency value.
 
 **voltage-modification-proportional-threshold**<br>
 After a contingency, all the monitored buses whose voltage has not changed by more than the threshold (in percentage) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
