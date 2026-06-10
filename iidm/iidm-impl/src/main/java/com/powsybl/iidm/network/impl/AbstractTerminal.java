@@ -165,11 +165,6 @@ abstract class AbstractTerminal implements TerminalExt {
                 / (Math.sqrt(3.) * getV() / 1000);
     }
 
-    @Override
-    public boolean connect() {
-        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
-    }
-
     /**
      * Try to connect the terminal.<br/>
      * Depends on the working variant.
@@ -190,11 +185,6 @@ abstract class AbstractTerminal implements TerminalExt {
         boolean connectedAfter = isConnected();
         connectable.notifyUpdate("endConnect", variantId, null, connectedAfter);
         return connected;
-    }
-
-    @Override
-    public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
     }
 
     /**

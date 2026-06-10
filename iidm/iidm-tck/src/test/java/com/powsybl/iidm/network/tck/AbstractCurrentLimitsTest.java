@@ -489,6 +489,41 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
     }
 
     @Test
+    public void testTemporaryLimitErrorCreation() {
+        Line line = createNetwork().getLine("L");
+        LoadingLimitsAdder.TemporaryLimitAdder temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setAcceptableDuration(20 * 60);
+        String message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': temporary limit value is not set for 'TL' within limit set 'DEFAULT'", message);
+        temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setAcceptableDuration(20 * 60)
+                .setValue(-1);
+        message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': temporary limit value must be >= 0 for 'TL' within limit set 'DEFAULT'", message);
+        temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setValue(100);
+        message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': acceptable duration is not set for 'TL' within limit set 'DEFAULT'", message);
+        temporaryLimitAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                .setName("TL")
+                .setValue(100)
+                .setAcceptableDuration(-1);
+        message = assertThrows(ValidationException.class, temporaryLimitAdder::endTemporaryLimit).getMessage();
+        assertEquals("AC line 'L': acceptable duration must be >= 0 for 'TL' within limit set 'DEFAULT'", message);
+    }
+
+    @Test
     public void testAdderGetOwner() {
         Line line = createNetwork().getLine("L");
         CurrentLimitsAdder adder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits();
