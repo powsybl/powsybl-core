@@ -7,7 +7,13 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedSaxException;
+import com.powsybl.commons.extensions.AbstractExtensionSerDe;
+import com.powsybl.commons.extensions.ExtensionSerDe;
+import com.powsybl.commons.io.DeserializerContext;
+import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
@@ -15,6 +21,8 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
+import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
@@ -27,9 +35,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -53,13 +63,11 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTestMultipleSelectedOperationalLimitsGroup() throws IOException {
-        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(),
-            "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(), "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility : in versions older than IIDM 1.16 we only export the last selected limits group
         // no need to test before 1.12 as OperationalLimitsGroup did not exist before
-        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml",
-            IidmVersion.V_1_12, IidmVersion.V_1_16);
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml", IidmVersion.V_1_12, IidmVersion.V_1_16);
     }
 
     @Test
@@ -71,11 +79,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         line.newOperationalLimitsGroup1(name);
         line.newOperationalLimitsGroup1(name2);
         line.addSelectedOperationalLimitsGroups(TwoSides.ONE, name, name2);
-        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml",
-            CURRENT_IIDM_VERSION);
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml", CURRENT_IIDM_VERSION);
         assertEquals(6, networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getOperationalLimitsGroups1().size());
-        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE),
-            networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
     }
 
     @Test
@@ -203,6 +209,28 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Path file3 = tmpDir.resolve("n3.xml");
         NetworkSerDe.write(network3, file3);
         assertTxtEquals(file1, file3);
+    }
+
+    @AutoService(ExtensionSerDe.class)
+    public static class BusbarSectionExtSerDe extends AbstractExtensionSerDe<BusbarSection, BusbarSectionExt> {
+
+        public BusbarSectionExtSerDe() {
+            super("busbarSectionExt", "network", BusbarSectionExt.class, "busbarSectionExt.xsd",
+                    "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
+        }
+
+        @Override
+        public void write(BusbarSectionExt busbarSectionExt, SerializerContext context) {
+            // this method is abstract
+        }
+
+        @Override
+        public BusbarSectionExt read(BusbarSection busbarSection, DeserializerContext context) {
+            context.getReader().readEndNode();
+            var bbsExt = new BusbarSectionExt(busbarSection);
+            busbarSection.addExtension(BusbarSectionExt.class, bbsExt);
+            return bbsExt;
+        }
     }
 
     static Network writeAndRead(Network network, ExportOptions options) throws IOException {
@@ -397,5 +425,94 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
         assertEquals(2, merged.getSubnetworks().size());
         assertEquals(2, readNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    void testValidateByVersionOnIidm102() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_2/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_2));
+        }
+    }
+
+    @Test
+    void testValidateByVersionOnIidm116() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMismatchedNetworkVersion() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_15))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.15, found namespace http://www.powsybl.org/schema/iidm/1_16");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInvalidNetwork() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Invalid content was found starting with element '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainSlackTerminalExtension() throws IOException {
+        // test extension loading including slackTerminal which is in version 1.5 and require iidm version 1.8, when validate should succeed
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/europeanLvTestFeederRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInSupportedEnumValue() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/gen_enum_not_supported.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_17))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
+                            "'[HYDRO, NUCLEAR, WIND, THERMAL, SOLAR, OTHER]'. It must be a value from the enumeration.");
+        }
+    }
+
+    @Test
+    void testValidateWithCustomExtensionSupplier() throws IOException {
+        ExtensionsSupplier customExtensionsSupplier = () -> DefaultExtensionsSupplier.getInstance().get();
+        assertNotSame(DefaultExtensionsSupplier.getInstance(), customExtensionsSupplier);
+
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16, customExtensionsSupplier));
+        }
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, customExtensionsSupplier));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMissingNamespace() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/network-without-namespace.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.16, found namespace  ");
+        }
+    }
+
+    @Test
+    void testValidateWhenParseMalformedXml() {
+        String xml = "<iidm:network";
+        byte[] bytes = xml.getBytes(StandardCharsets.UTF_8);
+        InputStream is = new ByteArrayInputStream(bytes);
+        assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                .isInstanceOf(UncheckedSaxException.class)
+                .hasMessageContaining("XML document structures must start and end within the same entity");
     }
 }
