@@ -12,74 +12,74 @@ import com.powsybl.commons.extensions.Extension;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class DefaultNetworkListener implements NetworkListener {
+public interface DefaultNetworkListener extends NetworkListener {
     @Override
-    public void onCreation(Identifiable<?> identifiable) {
+    default void onCreation(Identifiable<?> identifiable) {
         // empty default implementation
     }
 
     @Override
-    public void beforeRemoval(Identifiable<?> identifiable) {
+    default void beforeRemoval(Identifiable<?> identifiable) {
         // empty default implementation
     }
 
     @Override
-    public void afterRemoval(String identifiable) {
+    default void afterRemoval(String identifiable) {
         // empty default implementation
     }
 
     @Override
-    public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+    default void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         // empty default implementation
     }
 
     @Override
-    public void onExtensionCreation(Extension<?> extension) {
+    default void onExtensionCreation(Extension<?> extension) {
         // empty default implementation
     }
 
     @Override
-    public void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
+    default void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         // empty default implementation
     }
 
     @Override
-    public void onExtensionBeforeRemoval(Extension<?> extension) {
+    default void onExtensionBeforeRemoval(Extension<?> extension) {
         // empty default implementation
     }
 
     @Override
-    public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+    default void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
         // empty default implementation
     }
 
     @Override
-    public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
+    default void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
         // empty default implementation
     }
 
     @Override
-    public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
+    default void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
         // empty default implementation
     }
 
     @Override
-    public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
+    default void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
         // empty default implementation
     }
 
     @Override
-    public void onVariantCreated(String sourceVariantId, String targetVariantId) {
+    default void onVariantCreated(String sourceVariantId, String targetVariantId) {
         // empty default implementation
     }
 
     @Override
-    public void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
+    default void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
         // empty default implementation
     }
 
     @Override
-    public void onVariantRemoved(String variantId) {
+    default void onVariantRemoved(String variantId) {
         // empty default implementation
     }
 }

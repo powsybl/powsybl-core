@@ -27,7 +27,7 @@ class ControlZoneImpl implements ControlZone {
 
     private final PilotPoint pilotPoint;
 
-    private final List<ControlUnit> controlUnits;
+    private List<ControlUnit> controlUnits;
 
     ControlZoneImpl(String name, PilotPoint pilotPoint, List<ControlUnit> controlUnits) {
         this.name = Objects.requireNonNull(name);
@@ -56,6 +56,10 @@ class ControlZoneImpl implements ControlZone {
     @Override
     public List<ControlUnit> getControlUnits() {
         return Collections.unmodifiableList(controlUnits);
+    }
+
+    public void setControlUnits(List<ControlUnit> newControlUnits) {
+        controlUnits = newControlUnits;
     }
 
     @Override

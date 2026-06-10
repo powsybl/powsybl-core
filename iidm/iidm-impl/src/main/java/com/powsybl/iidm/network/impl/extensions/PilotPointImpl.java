@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 class PilotPointImpl implements PilotPoint {
 
-    private final List<String> busbarSectionsOrBusesIds;
+    private List<String> busbarSectionsOrBusesIds;
 
     private final TDoubleArrayList targetV;
 
@@ -51,6 +51,10 @@ class PilotPointImpl implements PilotPoint {
     @Override
     public List<String> getBusbarSectionsOrBusesIds() {
         return Collections.unmodifiableList(busbarSectionsOrBusesIds);
+    }
+
+    public void setBusbarSectionsOrBusesIds(List<String> newBusbarSectionsOrBusesIds) {
+        busbarSectionsOrBusesIds = newBusbarSectionsOrBusesIds;
     }
 
     @Override
