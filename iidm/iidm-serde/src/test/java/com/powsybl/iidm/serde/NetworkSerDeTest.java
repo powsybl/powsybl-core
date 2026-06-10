@@ -7,13 +7,8 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
-import com.powsybl.commons.extensions.AbstractExtensionSerDe;
-import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.DeserializerContext;
-import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
@@ -81,7 +76,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         line.addSelectedOperationalLimitsGroups(TwoSides.ONE, name, name2);
         Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml", CURRENT_IIDM_VERSION);
         assertEquals(6, networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getOperationalLimitsGroups1().size());
-        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE),
+            networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
     }
 
     @Test
@@ -209,28 +205,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Path file3 = tmpDir.resolve("n3.xml");
         NetworkSerDe.write(network3, file3);
         assertTxtEquals(file1, file3);
-    }
-
-    @AutoService(ExtensionSerDe.class)
-    public static class BusbarSectionExtSerDe extends AbstractExtensionSerDe<BusbarSection, BusbarSectionExt> {
-
-        public BusbarSectionExtSerDe() {
-            super("busbarSectionExt", "network", BusbarSectionExt.class, "busbarSectionExt.xsd",
-                    "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
-        }
-
-        @Override
-        public void write(BusbarSectionExt busbarSectionExt, SerializerContext context) {
-            // this method is abstract
-        }
-
-        @Override
-        public BusbarSectionExt read(BusbarSection busbarSection, DeserializerContext context) {
-            context.getReader().readEndNode();
-            var bbsExt = new BusbarSectionExt(busbarSection);
-            busbarSection.addExtension(BusbarSectionExt.class, bbsExt);
-            return bbsExt;
-        }
     }
 
     static Network writeAndRead(Network network, ExportOptions options) throws IOException {

@@ -40,7 +40,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.powsybl.powerfactory.converter.DataAttributeNames.ELMNET;
 import static com.powsybl.powerfactory.converter.DataAttributeNames.ELMTERM;
 
 /**
