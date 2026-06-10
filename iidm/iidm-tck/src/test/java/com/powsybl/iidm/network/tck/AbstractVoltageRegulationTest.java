@@ -135,12 +135,12 @@ public abstract class AbstractVoltageRegulationTest {
     @Test
     void testGeneratorErrorLocalTargetVMissingTargetValuePresent() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder.newVoltageRegulation()
+        GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(240);
+            .withTargetValue(240)
+            .add();
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
         assertEquals("Generator 'LocalVoltageTargetV_missing': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
     }
@@ -149,13 +149,14 @@ public abstract class AbstractVoltageRegulationTest {
     void testGeneratorErrorTargetValuePresent() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
+        generatorAdder
             .setLocalTargetV(24)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(240);
+                .withTargetValue(240)
+                .add();
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
         assertEquals("Generator 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
     }
@@ -190,12 +191,12 @@ public abstract class AbstractVoltageRegulationTest {
     void testGeneratorRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
         GeneratorAdder generatorAdder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
-            .newVoltageRegulation()
+        generatorAdder.newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTerminal(remoteTerminal);
+            .withTerminal(remoteTerminal)
+            .add();
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
         assertEquals("Generator 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", validationException.getMessage());
     }

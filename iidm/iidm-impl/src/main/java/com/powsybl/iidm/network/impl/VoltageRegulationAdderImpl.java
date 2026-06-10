@@ -12,20 +12,24 @@ import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
+public class VoltageRegulationAdderImpl<T extends VoltageRegulationHolderAdder<T>> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
     private final T equipmentAdder;
+
+    private final Consumer<Supplier<VoltageRegulation>> voltageRegulationCreatorConsumer;
 
     public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                       Validable validable,
                                       T equipmentAdder,
                                       Ref<NetworkImpl> network,
-                                      Consumer<VoltageRegulationExt> voltageRegulationSetter) {
-        super(holderClass, validable, null, network, voltageRegulationSetter);
+                                      Consumer<Supplier<VoltageRegulation>> voltageRegulationCreatorConsumer) {
+        super(holderClass, validable, null, network);
         this.equipmentAdder = equipmentAdder;
+        this.voltageRegulationCreatorConsumer = voltageRegulationCreatorConsumer;
     }
 
     @Override
@@ -35,7 +39,9 @@ public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdde
 
     @Override
     public T add() {
-        this.voltageRegulationSetter.accept(checkAndCreateVoltageRegulation());
+        if (voltageRegulationCreatorConsumer != null) {
+            voltageRegulationCreatorConsumer.accept(this::checkAndCreateVoltageRegulation);
+        }
         return equipmentAdder;
     }
 }

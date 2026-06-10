@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * {@inheritDoc}
@@ -32,7 +32,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    private VoltageRegulationExt voltageRegulation = null;
+    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -83,6 +83,10 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
+    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
+        this.voltageRegulationCreator = voltageRegulationCreator;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -114,6 +118,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
+        VoltageRegulationExt voltageRegulation = voltageRegulationCreator != null ?
+            (VoltageRegulationExt) voltageRegulationCreator.get() : null;
 
         BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, localTargetQ, localTargetV, voltageRegulation, minP, maxP);
         battery.addTerminal(terminal);
@@ -126,7 +132,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     @Override
     public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
-        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(Battery.class, this, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(Battery.class, this, this, getNetworkRef(), this::setVoltageRegulationCreator);
     }
+
 }

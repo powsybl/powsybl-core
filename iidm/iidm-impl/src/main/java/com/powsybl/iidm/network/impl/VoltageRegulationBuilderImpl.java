@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -20,12 +21,15 @@ import java.util.function.Consumer;
  */
 public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
 
+    private final Consumer<VoltageRegulationExt> voltageRegulationSetter;
+
     public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                         Validable validable,
                                         VoltageRegulationHolder<?> holder,
                                         Ref<NetworkImpl> network,
                                         Consumer<VoltageRegulationExt> voltageRegulationSetter) {
-        super(holderClass, validable, holder, network, voltageRegulationSetter);
+        super(holderClass, validable, holder, network);
+        this.voltageRegulationSetter = voltageRegulationSetter;
     }
 
     @Override
@@ -37,7 +41,9 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
     public VoltageRegulation build() {
         VoltageRegulationExt voltageRegulation = checkAndCreateVoltageRegulation();
         this.voltageRegulationSetter.accept(voltageRegulation);
-        if (!holder.isRemoteRegulating() && (!ShuntCompensator.class.equals(classHolder) || holder.isRegulating())) {
+        if (!holder.isRemoteRegulating()
+            && (!ShuntCompensator.class.equals(classHolder) || holder.isRegulating())
+            && !RatioTapChanger.class.equals(classHolder)) {
             ValidationUtil.checkLocalTargetQandV(validable, holder.getLocalTargetV(), holder.getLocalTargetQ(), voltageRegulation, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         }
         return voltageRegulation;

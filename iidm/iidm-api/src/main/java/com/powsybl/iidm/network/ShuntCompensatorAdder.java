@@ -63,10 +63,6 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
         throw new UnsupportedOperationException();
     }
 
-    default ShuntCompensatorAdder setLocalTargetV(double localTargetV) {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * @deprecated use {@link VoltageRegulationAdder#withTargetDeadband(double)} instead
      */

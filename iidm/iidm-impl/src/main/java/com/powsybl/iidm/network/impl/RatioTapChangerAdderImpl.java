@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  *
@@ -24,7 +24,8 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     private double targetDeadband = Double.NaN;
     private TerminalExt regulationTerminal;
     private RegulationMode regulationMode = null;
-    private VoltageRegulationExt voltageRegulation = null;
+    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
+    private VoltageRegulationExt voltageRegulation;
 
     class StepAdderImpl extends AbstractBasePropertiesHolder implements RatioTapChangerAdder.StepAdder {
 
@@ -122,8 +123,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
 
     @Override
     public VoltageRegulationAdder<RatioTapChangerAdder> newVoltageRegulation() {
-        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(RatioTapChanger.class, parent, this, parent.getNetwork().getRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(RatioTapChanger.class, parent, this, parent.getNetwork().getRef(), this::setVoltageRegulationCreator);
     }
 
     @Override
@@ -141,6 +141,10 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         return null;
     }
 
+    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
+        this.voltageRegulationCreator = voltageRegulationCreator;
+    }
+
     @Override
     public RatioTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
@@ -149,7 +153,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     @Override
     protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition, List<RatioTapChangerStepImpl> steps, Integer tapPosition, Integer solvedTapPosition, boolean loadTapChangingCapabilities) {
         // Backward compatibility
-        if (voltageRegulation == null && regulating != null) {
+        if (voltageRegulationCreator == null && regulating != null) {
             this.newVoltageRegulation()
                 .withMode(regulationMode)
                 .withTargetValue(regulationValue)
@@ -158,6 +162,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
                 .withTargetDeadband(targetDeadband)
                 .add();
         }
+        this.voltageRegulation = voltageRegulationCreator != null ? (VoltageRegulationExt) voltageRegulationCreator.get() : null;
 
         NetworkImpl network = getNetwork();
         if (voltageRegulation != null) {

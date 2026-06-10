@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import org.jspecify.annotations.NonNull;
 
-import java.util.function.Consumer;
-
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
@@ -28,7 +26,6 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected final Class<? extends VoltageRegulationHolder<?>> classHolder;
     protected final Validable validable;
     protected final VoltageRegulationHolder<?> holder;
-    protected final Consumer<VoltageRegulationExt> voltageRegulationSetter;
     protected final Ref<NetworkImpl> network;
     protected double targetValue = Double.NaN;
     protected double targetDeadband = Double.NaN;
@@ -40,12 +37,10 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                       Validable validable,
                                                       VoltageRegulationHolder<?> holder,
-                                                      Ref<NetworkImpl> network,
-                                                      Consumer<VoltageRegulationExt> voltageRegulationSetter) {
+                                                      Ref<NetworkImpl> network) {
         this.classHolder = classHolder;
         this.holder = holder;
         this.validable = validable;
-        this.voltageRegulationSetter = voltageRegulationSetter;
         this.network = network;
     }
 

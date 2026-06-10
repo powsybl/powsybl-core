@@ -9,11 +9,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 /**
@@ -35,7 +36,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulationExt voltageRegulation;
+    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
 
     private boolean voltageRegulatorOn = false;
 
@@ -196,8 +197,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     @Override
     public VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation() {
-        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, this, getNetworkRef(), this::setVoltageRegulationCreator);
     }
 
     @Override
@@ -224,6 +224,10 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         return this;
     }
 
+    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
+        this.voltageRegulationCreator = voltageRegulationCreator;
+    }
+
     @Override
     public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
@@ -239,7 +243,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        if (this.voltageRegulation == null) {
+        if (this.voltageRegulationCreator == null) {
             boolean isWithTerminal = regulatingTerminal != null;
             if (voltageRegulatorOn) {
                 this.newVoltageRegulation().withMode(RegulationMode.VOLTAGE)
@@ -252,6 +256,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 }
             }
         }
+        VoltageRegulationExt voltageRegulation = voltageRegulationCreator != null ? (VoltageRegulationExt) voltageRegulationCreator.get() : null;
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV,

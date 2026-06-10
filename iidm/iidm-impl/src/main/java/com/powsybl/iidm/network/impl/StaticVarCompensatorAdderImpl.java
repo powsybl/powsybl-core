@@ -9,10 +9,11 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
@@ -39,7 +40,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private Boolean regulating;
 
-    private VoltageRegulationExt voltageRegulation;
+    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
 
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.voltageLevel = Objects.requireNonNull(vl);
@@ -79,6 +80,10 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         return this;
     }
 
+    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
+        this.voltageRegulationCreator = voltageRegulationCreator;
+    }
+
     @Override
     public StaticVarCompensatorAdderImpl setVoltageSetpoint(double voltageSetpoint) {
         this.voltageSetpoint = voltageSetpoint;
@@ -111,8 +116,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     @Override
     public VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation() {
-        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, this, getNetworkRef(), this::setVoltageRegulationCreator);
     }
 
     @Override
@@ -126,9 +130,10 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         if (regulationMode == null) {
             regulationMode = RegulationMode.VOLTAGE;
         }
-        if (voltageRegulation == null && regulating != null) {
+        if (voltageRegulationCreator == null && regulating != null) {
             createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
         }
+        VoltageRegulationExt voltageRegulation = voltageRegulationCreator != null ? (VoltageRegulationExt) voltageRegulationCreator.get() : null;
 
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);

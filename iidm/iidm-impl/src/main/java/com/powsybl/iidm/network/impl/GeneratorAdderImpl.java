@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
@@ -28,7 +28,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulationExt voltageRegulation;
+    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
 
     private Boolean voltageRegulatorOn;
 
@@ -121,6 +121,10 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         return this;
     }
 
+    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
+        this.voltageRegulationCreator = voltageRegulationCreator;
+    }
+
     @Override
     public GeneratorAdder setRatedS(double ratedS) {
         this.ratedS = ratedS;
@@ -152,9 +156,10 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRatedS(this, ratedS);
         // Backward compatibility : If a generator with old setters is added and voltageRegulation does not exist,
         // the new voltageRegulation will be created from the old attributes.
-        if (this.voltageRegulation == null && voltageRegulatorOn != null) {
+        if (voltageRegulationCreator == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, targetValue, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
         }
+        VoltageRegulationExt voltageRegulation = voltageRegulationCreator != null ? (VoltageRegulationExt) voltageRegulationCreator.get() : null;
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, localTargetV, localTargetQ, voltageRegulation, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         GeneratorImpl generator
@@ -174,7 +179,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
-        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(Generator.class, this, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(Generator.class, this, this, getNetworkRef(), this::setVoltageRegulationCreator);
     }
 }

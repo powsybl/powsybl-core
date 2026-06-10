@@ -44,7 +44,7 @@ public final class VoltageRegulationSerDe {
 
     public static void writeVoltageRegulation(VoltageRegulation voltageRegulation, NetworkSerializerContext context) {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            if (voltageRegulation != null) {
+            if (voltageRegulation != null && voltageRegulation.getMode() != null) {
                 String namespace = context.getVersion().getNamespaceURI(context.isValid());
                 writeVoltageRegulation(voltageRegulation, context, namespace);
             }
