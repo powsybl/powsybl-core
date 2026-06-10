@@ -53,6 +53,7 @@ public class PowerFactoryImporter implements Importer {
 
     // Import parameters
     public static final String HVDC_IMPORT_MT = "powerfactory.import.dgs.HVDC-import-detailed";
+    public static final String FORCE_ALL_ELMTERMS_AS_BUSBARS = "powerfactory.import.dgs.force-all-elmTerms-as-busbars";
 
     public static final Parameter HVDC_IMPORT_DETAILED_PARAMETER = new Parameter(
             HVDC_IMPORT_MT,
@@ -61,9 +62,19 @@ public class PowerFactoryImporter implements Importer {
         Boolean.FALSE
     );
 
+    public static final Parameter FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER = new Parameter(
+            FORCE_ALL_ELMTERMS_AS_BUSBARS,
+            ParameterType.BOOLEAN,
+            "Import all ElmTerms as busbars",
+            Boolean.FALSE
+    );
+
     @Override
     public List<Parameter> getParameters() {
-        return ConfiguredParameter.load(Collections.singletonList(HVDC_IMPORT_DETAILED_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
+        List<Parameter> parameterList = List.of(
+                HVDC_IMPORT_DETAILED_PARAMETER,
+                FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER);
+        return ConfiguredParameter.load(parameterList, getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override
@@ -176,10 +187,11 @@ public class PowerFactoryImporter implements Importer {
         }
 
         // process terminals
+        boolean forceAllElmTermsAsBusBars = Parameter.readBoolean(FORMAT, parameters, FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER, ParameterDefaultValueConfig.INSTANCE);
         NodeConverter nodeConverter = new NodeConverter(importContext, network);
         for (DataObject elmTerm : elmTerms) {
             if (!hvdcConverter.isDcNode(elmTerm)) {
-                nodeConverter.createAndMapConnectedObjs(elmTerm);
+                nodeConverter.createAndMapConnectedObjs(elmTerm, forceAllElmTermsAsBusBars);
             }
         }
 
@@ -220,7 +232,6 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmTerms(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.isEmpty() || ELMNET.equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream()).toList();
     }
@@ -233,7 +244,6 @@ public class PowerFactoryImporter implements Importer {
      */
     static List<DataObject> gatherElmVscs(List<DataObject> elmNets) {
         Objects.requireNonNull(elmNets);
-        assert elmNets.isEmpty() || ELMNET.equals(elmNets.getFirst().getDataClassName());
         return elmNets.stream()
                 .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream()).toList();
     }
@@ -244,8 +254,6 @@ public class PowerFactoryImporter implements Importer {
      * @param slackObjects collection of slack buses gathered in convertEquipment.
      */
     private static void attachSlackBus(Network network, List<DataObject> slackObjects) {
-        assert slackObjects.isEmpty()
-                || Set.of("ElmGenstat", "ElmAsm", "ElmSym").contains(slackObjects.getFirst().getDataClassName());
         // It might be possible to inline this directly to convertEquipment, without
         // populating the slackObjects. But maybe some things need to be processed first, let's
         // take no risk.
@@ -268,6 +276,9 @@ public class PowerFactoryImporter implements Importer {
      */
     private static void processEquipment(ImportContext importContext, AbstractHvdcConverter hvdcConverter,
                                          Network network, List<DataObject> slackObjects, DataObject obj) {
+        if (hvdcConverter.isDcObject(obj)) {
+            return;
+        }
         switch (obj.getDataClassName()) {
             case "ElmCoup":
                 new SwitchConverter(importContext, network).createFromElmCoup(obj);
@@ -280,7 +291,14 @@ public class PowerFactoryImporter implements Importer {
                 }
                 break;
 
-            case "ElmLod":
+            case "ElmXnet":
+                new ExternalGridConverter(importContext, network).create(obj);
+                if (ExternalGridConverter.isSlack(obj)) {
+                    slackObjects.add(obj);
+                }
+                break;
+
+            case "ElmLod", "ElmLodmv":
                 new LoadConverter(importContext, network).create(obj);
                 break;
 
@@ -289,9 +307,7 @@ public class PowerFactoryImporter implements Importer {
                 break;
 
             case "ElmLne":
-                if (!hvdcConverter.isDcLink(obj)) {
-                    new LineConverter(importContext, network).create(obj);
-                }
+                new LineConverter(importContext, network).create(obj);
                 break;
             case "ElmTow":
                 new LineConverter(importContext, network).createTower(obj);
@@ -333,7 +349,7 @@ public class PowerFactoryImporter implements Importer {
             case "RelChar", "RelDir", "RelDisdir", "RelDisloadenc", "RelDismho", "RelDispoly", "RelDispspoly",
                  "RelFdetabb", "RelFdetaegalst", "RelFdetect", "RelFdetsie", "RelFmeas", "RelFrq", "RelIoc",
                  "RelLogdip", "RelLogic", "RelLslogic", "RelMeasure", "RelRecl", "RelSeldir", "RelTimer",
-                 "RelToc", "RelUlim", "RelZpol":
+                 "RelToc", "RelUlim", "RelZpol", "RndRef":
 
             case "StaCt", "StaPqmea", "StaVmea", "StaVt":
 
@@ -352,7 +368,6 @@ public class PowerFactoryImporter implements Importer {
                                             AbstractHvdcConverter hvdcConverter,
                                             Network network,
                                             List<DataObject> slackObjects) {
-        assert slackObjects.isEmpty();
         studyCase.getElmNets().stream()
             .flatMap(elmNet -> elmNet.search(".*").stream())
             .forEach(obj -> processEquipment(importContext, hvdcConverter, network, slackObjects, obj));

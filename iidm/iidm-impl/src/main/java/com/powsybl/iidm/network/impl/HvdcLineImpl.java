@@ -10,13 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.commons.util.fastutil.ExtendedIntArrayList;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.util.SwitchPredicates;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -235,32 +229,12 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public boolean connectConverterStations() {
-        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
-    }
-
-    @Override
-    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectConverterStations(isTypeSwitchToOperate, null);
-    }
-
-    @Override
     public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
             getNetwork().getReportNodeContext().getReportNode());
-    }
-
-    @Override
-    public boolean disconnectConverterStations() {
-        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
-    }
-
-    @Override
-    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
-        return disconnectConverterStations(isSwitchOpenable, null);
     }
 
     @Override

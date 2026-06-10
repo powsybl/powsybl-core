@@ -52,13 +52,27 @@ class SecurityTest {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
         // create pre-contingency results, just one violation on line1
-        line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        line1Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.0)
+            .side(TwoSides.ONE)
+            .build();
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
+        line2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(900.0)
+            .reduction(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
         result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));

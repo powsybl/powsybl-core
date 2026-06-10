@@ -154,7 +154,7 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         removedLineReport(reportNode, oldLine2Id);
         LOG.info(LINE_REMOVED_MESSAGE, oldLine2Id);
 
-        lineToBeDeleted.remove();
+        new RemoveFeederBay(lineToRemoveId).apply(network, namingStrategy, throwException, computationManager, ReportNode.NO_OP);
         removedLineReport(reportNode, lineToRemoveId);
         LOG.info(LINE_REMOVED_MESSAGE, lineToRemoveId);
 

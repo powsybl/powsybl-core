@@ -59,8 +59,7 @@ import com.google.common.jimfs.Jimfs;
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -1949,5 +1948,27 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals("onshore", getFirstMatch(eqXml, onshorePattern));
         Pattern offshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_offshore_WGU"), Pattern.DOTALL);
         assertEquals("offshore", getFirstMatch(eqXml, offshorePattern));
+    }
+
+    @Test
+    void linesWithDifferentBaseVoltageOnBothSideTest() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        double newNominalV = 400.0;
+        network.getVoltageLevel("VLHV1").setNominalV(newNominalV);
+        Line line = network.getLine("NHV1_NHV2_1");
+        assertEquals(newNominalV, line.getTerminal1().getVoltageLevel().getNominalV());
+        assertNotEquals(newNominalV, line.getTerminal2().getVoltageLevel().getNominalV());
+
+        String eqXml = writeCgmesProfile(network, "EQ", tmpDir);
+
+        String lineEq = getElement(eqXml, "ACLineSegment", line.getId());
+        assertNotNull(lineEq);
+
+        String baseVoltage = getResource(lineEq, "ConductingEquipment.BaseVoltage");
+        assertNotNull(baseVoltage);
+
+        String baseVoltageEq = getElement(eqXml, "BaseVoltage", baseVoltage);
+        assertNotNull(baseVoltageEq);
+        assertEquals(newNominalV, Double.parseDouble(getAttribute(baseVoltageEq, "BaseVoltage.nominalVoltage")));
     }
 }

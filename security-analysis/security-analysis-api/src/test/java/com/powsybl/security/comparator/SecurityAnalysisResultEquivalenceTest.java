@@ -36,20 +36,104 @@ class SecurityAnalysisResultEquivalenceTest {
     void equivalent() {
         SecurityAnalysisResultEquivalence resultEquivalence = new SecurityAnalysisResultEquivalence(0.1, NullWriter.INSTANCE);
 
-        LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
-        LimitViolation similarLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, TwoSides.ONE);
-        LimitViolation differentLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1101.0, TwoSides.ONE);
-        LimitViolation smallLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 950.09, TwoSides.ONE);
+        LimitViolation line1Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100)
+            .side1()
+            .build();
+        LimitViolation similarLine1Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100.09)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation differentLine1Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1101)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation smallLine1Violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(950.09)
+            .side1()
+            .build();
 
-        LimitViolation line1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.TWO);
-        LimitViolation similarLine1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, TwoSides.TWO);
-        LimitViolation differentLine1Violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1101.0, TwoSides.TWO);
+        LimitViolation line1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100)
+            .side2()
+            .build();
+        LimitViolation similarLine1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100.09)
+            .side(TwoSides.TWO)
+            .build();
+        LimitViolation differentLine1Violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1101)
+            .side(TwoSides.TWO)
+            .build();
 
-        LimitViolation line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
-        LimitViolation similarLine2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, TwoSides.ONE);
-        LimitViolation smallLine2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 950.09, TwoSides.ONE);
-        LimitViolation line3Violation = new LimitViolation("NHV1_NHV2_3", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
-        LimitViolation similarLine3Violation = new LimitViolation("NHV1_NHV2_3", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, TwoSides.ONE);
+        LimitViolation line2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
+        LimitViolation similarLine2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100.09)
+            .side1()
+            .build();
+        LimitViolation smallLine2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(950.09)
+            .side1()
+            .build();
+        LimitViolation line3Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_3")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100)
+            .side1()
+            .build();
+        LimitViolation similarLine3Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_3")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000)
+            .reduction(0.95)
+            .value(1100.09)
+            .side1()
+            .build();
 
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
