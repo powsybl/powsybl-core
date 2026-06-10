@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -122,14 +124,6 @@ class SensitivityFactorTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testResolveBusIdWithNonBusVoltageType() {
-        Network network = EurostagTutorialExample1Factory.create();
-        // For non-BUS_VOLTAGE types, the functionId should be returned as-is
-        String resolved = SensitivityFactor.resolveBusId("anyId", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, network);
-        assertEquals("anyId", resolved);
-    }
-
-    @Test
     void testResolveBusIdWithBusBarSectionId() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         // S1VL1_BBS is a bus bar section id in a node/breaker network
@@ -138,11 +132,18 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         assertEquals("S1VL1_0", resolved);
     }
 
-    @Test
-    void testResolveBusIdWithUnresolvableId() {
+    @EnumSource
+    @ParameterizedTest
+    void testResolveBusIdWithUnresolvableId(SensitivityFunctionType functionType) {
         Network network = EurostagTutorialExample1Factory.create();
-        PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> SensitivityFactor.resolveBusId("unknownBus", SensitivityFunctionType.BUS_VOLTAGE, network));
-        assertEquals("The bus ref for 'unknownBus' cannot be resolved.", exception.getMessage());
+        if (functionType == SensitivityFunctionType.BUS_VOLTAGE) {
+            PowsyblException exception = assertThrows(PowsyblException.class,
+                    () -> SensitivityFactor.resolveBusId("unknownBus", functionType, network));
+            assertEquals("The bus ref for 'unknownBus' cannot be resolved.", exception.getMessage());
+        } else {
+            // For non-BUS_VOLTAGE types, the functionId should be returned as-is
+            String resolved = SensitivityFactor.resolveBusId("anyId", functionType, network);
+            assertEquals("anyId", resolved);
+        }
     }
 }
