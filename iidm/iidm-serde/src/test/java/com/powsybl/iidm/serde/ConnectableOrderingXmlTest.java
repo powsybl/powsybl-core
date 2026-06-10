@@ -32,6 +32,6 @@ class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
     void testCopy() {
         Network network = Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm"));
         Network exportNetwork = NetworkSerDe.copy(network);
-        assertEquals(exportNetwork.getTwoWindingsTransformers().toString(), network.getTwoWindingsTransformers().toString());
+        assertEquals(network.getTwoWindingsTransformers().toString(), exportNetwork.getTwoWindingsTransformers().toString());
     }
 }
