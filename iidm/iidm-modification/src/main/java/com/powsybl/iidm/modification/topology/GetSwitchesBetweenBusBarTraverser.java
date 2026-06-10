@@ -16,14 +16,14 @@ import java.util.*;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class GetSwitchKindsBetweenBusBarTraverser implements Terminal.TopologyTraverser {
+public class GetSwitchesBetweenBusBarTraverser implements Terminal.TopologyTraverser {
 
     private final List<List<Switch>> switchesBetweenBusBarSections = new ArrayList<>();
     private final List<Switch> currentSwitches = new ArrayList<>();
     private final int busBarIndex;
     private final BusbarSection initialBusbarSection;
 
-    public GetSwitchKindsBetweenBusBarTraverser(BusbarSection initialBusbarSection) {
+    public GetSwitchesBetweenBusBarTraverser(BusbarSection initialBusbarSection) {
         this.initialBusbarSection = Objects.requireNonNull(initialBusbarSection);
         this.busBarIndex = initialBusbarSection.getExtension(BusbarSectionPosition.class).getBusbarIndex();
     }

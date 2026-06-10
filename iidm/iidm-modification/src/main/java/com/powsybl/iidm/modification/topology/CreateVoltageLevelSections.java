@@ -214,27 +214,25 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         boolean throwException = createSectionParameters.throwException;
 
         BusbarSectionPosition busbarSectionPosition = busbarSection.getExtension(BusbarSectionPosition.class);
-        List<SwitchKind> switchKindsBetweenExistingSectionOnBusBar = new ArrayList<>();
+        if (busbarSectionPosition == null) {
+            throw new PowsyblException("No busbar section Position found on busbar" + busbarSection.getId() + ", the busbar section has not been created");
+        }
+        List<SwitchKind> switchKindsBetweenExistingSectionsOnBusBar = new ArrayList<>();
         if (switchKind1 != null) {
-            switchKindsBetweenExistingSectionOnBusBar.add(switchKind1);
+            switchKindsBetweenExistingSectionsOnBusBar.add(switchKind1);
         }
         if (switchKind2 != null) {
-            switchKindsBetweenExistingSectionOnBusBar.add(switchKind2);
+            switchKindsBetweenExistingSectionsOnBusBar.add(switchKind2);
         }
-        if (busbarSectionPosition != null) {
-            GetSwitchKindsBetweenBusBarTraverser traverser = new GetSwitchKindsBetweenBusBarTraverser(busbarSection);
-            busbarSection.getTerminal().traverse(traverser);
-            traverser.getSwitchesBetweenBusBarSections().forEach(switchesBetweenBusBarSection ->
-                    switchKindsBetweenExistingSectionOnBusBar.add(getSwitchKind(switchesBetweenBusBarSection)));
-        }
-        if (busbarSectionPosition == null) {
-            throw new PowsyblException("No busbar section Position on the network, the busbar section has not been created");
-        }
+        GetSwitchesBetweenBusBarTraverser traverser = new GetSwitchesBetweenBusBarTraverser(busbarSection);
+        busbarSection.getTerminal().traverse(traverser);
+        traverser.getSwitchesBetweenBusBarSections().forEach(switchesBetweenBusBarSection ->
+                switchKindsBetweenExistingSectionsOnBusBar.add(getSwitchKind(switchesBetweenBusBarSection)));
         if (nextSectionIndex == -1) {
             // Insert the busbar section before the first section or after the last
 
             // Create a new busbar section
-            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionOnBusBar);
+            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionsOnBusBar);
 
             // Create new switches between busbarSection and newBusbarSection
             createSwitchesBetweenBusbarSections(voltageLevel, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1, switchOpen1);
@@ -259,7 +257,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             switchesEncountered.forEach(s -> voltageLevel.getNodeBreakerView().removeSwitch(s.getId()));
 
             // Create a new busbar section
-            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionOnBusBar);
+            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionsOnBusBar);
 
             // Create new switches between busbarSection and newBusbarSection
             createSwitchesBetweenBusbarSections(voltageLevel, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1, switchOpen1);

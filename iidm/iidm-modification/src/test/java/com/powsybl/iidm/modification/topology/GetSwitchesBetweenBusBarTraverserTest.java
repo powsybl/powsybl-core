@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class GetSwitchKindsBetweenBusBarTraverserTest {
+class GetSwitchesBetweenBusBarTraverserTest {
 
     /*
     vl1 :
@@ -152,7 +152,7 @@ class GetSwitchKindsBetweenBusBarTraverserTest {
     void test() {
         Network network = createNetwork();
         BusbarSection busbarSection = network.getBusbarSection("BBS1");
-        GetSwitchKindsBetweenBusBarTraverser traverser = new GetSwitchKindsBetweenBusBarTraverser(busbarSection);
+        GetSwitchesBetweenBusBarTraverser traverser = new GetSwitchesBetweenBusBarTraverser(busbarSection);
         busbarSection.getTerminal().traverse(traverser);
         List<List<String>> switchIdsBbs1 = traverser.getSwitchesBetweenBusBarSections().stream().map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList())).toList();
         assertEquals(2, switchIdsBbs1.size());
@@ -162,7 +162,7 @@ class GetSwitchKindsBetweenBusBarTraverserTest {
                 List.of("BBS23_DISCONNECTOR", "BBS2_BBS3_BREAKER", "BBS3_DISCONNECTOR"))));
 
         BusbarSection busbarSection2 = network.getBusbarSection("BBS2");
-        GetSwitchKindsBetweenBusBarTraverser traverser2 = new GetSwitchKindsBetweenBusBarTraverser(busbarSection2);
+        GetSwitchesBetweenBusBarTraverser traverser2 = new GetSwitchesBetweenBusBarTraverser(busbarSection2);
         busbarSection2.getTerminal().traverse(traverser2);
         List<List<String>> switchIdsBbs2 = traverser2.getSwitchesBetweenBusBarSections().stream().map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList())).toList();
         assertEquals(2, switchIdsBbs2.size());
@@ -172,7 +172,7 @@ class GetSwitchKindsBetweenBusBarTraverserTest {
         assertTrue(switchIdsBbs1.get(1).containsAll(switchIdsBbs2.get(1)));
 
         BusbarSection busbarSection3 = network.getBusbarSection("BBS4");
-        GetSwitchKindsBetweenBusBarTraverser traverser3 = new GetSwitchKindsBetweenBusBarTraverser(busbarSection3);
+        GetSwitchesBetweenBusBarTraverser traverser3 = new GetSwitchesBetweenBusBarTraverser(busbarSection3);
         busbarSection3.getTerminal().traverse(traverser3);
         List<List<String>> switchIdsBbs3 = traverser3.getSwitchesBetweenBusBarSections().stream().map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList())).toList();
         assertEquals(2, switchIdsBbs3.size());
