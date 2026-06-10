@@ -32,5 +32,10 @@ public interface VoltageRegulationExt extends VoltageRegulation, MultiVariantObj
      */
     void setHolder(VoltageRegulationHolder<?> holder);
 
-    void remove();
+    /**
+     * Use to unregister all referenced objects
+     */
+    void onRemove();
+
+    void setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation);
 }

@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -243,6 +244,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public void remove() {
         super.remove();
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         parent.setRatioTapChanger(null);
     }
 
@@ -301,7 +303,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public void removeVoltageRegulation() {
-        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::removeTerminal);
+        this.getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
 
     }
@@ -316,10 +318,28 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         return this;
     }
 
-    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
-        this.voltageRegulation = voltageRegulation;
+    /**
+     * Creates or updates the voltage regulation associated with this battery.
+     * <p>
+     * If a voltage regulation already exists, only the current variant attributes are updated from the
+     * provided voltage regulation, while keeping the existing instance.
+     * </p>
+     * <p>
+     * This method must remain private to ensure voltage regulation lifecycle operations are done through
+     * the public API and to avoid sharing a voltage regulation instance between equipments.
+     * </p>
+     *
+     * @param voltageRegulation the voltage regulation to attach or use as source attributes
+     * @return the voltage regulation associated with this equipment
+     */
+    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = voltageRegulation;
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
+        }
         this.attachVoltageRegulation();
+        return this.voltageRegulation;
     }
 
     private void attachVoltageRegulation() {

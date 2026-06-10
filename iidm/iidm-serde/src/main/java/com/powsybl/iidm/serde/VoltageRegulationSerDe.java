@@ -199,12 +199,4 @@ public final class VoltageRegulationSerDe {
         });
     }
 
-    public record VoltageRegulationAttributes(
-        double targetValue,
-        double targetDeadband,
-        double slope,
-        RegulationMode mode,
-        boolean isRegulating
-    ) {
-    }
 }

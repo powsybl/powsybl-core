@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -920,5 +921,162 @@ public abstract class AbstractAcDcConverterTest {
         assertThrows(PowsyblException.class, vscA::getRegulatingTargetQ, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::getRegulatingTargetV, "Variant index not set");
         assertThrows(PowsyblException.class, vscA::isRegulating, "Variant index not set");
+    }
+
+    @Test
+    public void testNewVoltageRegulationInMultiVariants() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        VoltageSourceConverter vsc = vla.newVoltageSourceConverter()
+                .setId("vscMultiVariant")
+                .setBus1(b1a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .setLocalTargetQ(0.0)
+                .add();
+
+        vsc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(123)
+                .withRegulating(false)
+                .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        VoltageRegulation voltageRegulation = vsc.newVoltageRegulation().withSlope(1).withRegulating(false).build();
+        // THEN
+        assertNotNull(voltageRegulation);
+        assertEquals(voltageRegulation, vsc.getVoltageRegulation());
+        // Variant1
+        assertNull(voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(1, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(123, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    public void testRemoveVoltageRegulationInMultiVariant() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        VoltageSourceConverter vsc = vla.newVoltageSourceConverter()
+                .setId("vscMultiVariant")
+                .setBus1(b1a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .setLocalTargetQ(0.0)
+                .add();
+
+        vsc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        vsc.removeVoltageRegulation();
+        // THEN
+        // Variant1
+        assertNull(vsc.getVoltageRegulation());
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNull(vsc.getVoltageRegulation());
+    }
+
+    @Test
+    public void testNewVoltageRegulationInMonoVariant() {
+        // GIVEN
+        VoltageSourceConverter vsc = vla.newVoltageSourceConverter()
+                .setId("vscMonoVariant")
+                .setBus1(b1a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(100.)
+                .setTargetVdc(500.)
+                .setLocalTargetQ(0.0)
+                .add();
+
+        // WHEN
+        VoltageRegulation voltageRegulation = vsc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetValue(400.0)
+                .withTerminal(vsc.getTerminal())
+                .withRegulating(true)
+                .withSlope(5.0)
+                .build();
+
+        // THEN
+        assertNotNull(voltageRegulation);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertEquals(400.0, voltageRegulation.getTargetValue());
+        assertTrue(voltageRegulation.isRegulating());
+        assertEquals(5.0, voltageRegulation.getSlope());
+
+        // WHEN creating it again (allowed in mono-variant)
+        VoltageRegulation voltageRegulation2 = vsc.newVoltageRegulation()
+                .withRegulating(false)
+                .build();
+        // THEN
+        assertNotNull(voltageRegulation2);
+        assertFalse(vsc.isRegulating());
+    }
+
+    @Test
+    public void regulationTest() {
+        // GIVEN
+        // WHEN
+        RegulationMode regulationMode = RegulationMode.VOLTAGE;
+        double targetValue = 400.0;
+        boolean regulating = true;
+        Terminal terminal = lineax.getTerminal1();
+        double slope = 4.0;
+        vla.newVoltageSourceConverter()
+                .setId("VSC12987")
+                .setBus1(b1a.getId())
+                .setBus2(b2a.getId())
+                .setDcNode1(dcNode1a.getId())
+                .setDcNode2(dcNode2a.getId())
+                .setControlMode(AcDcConverter.ControlMode.P_PCC)
+                .setTargetP(100.0)
+                .setTargetVdc(500.0)
+                .setLocalTargetQ(50.0)
+                .newVoltageRegulation()
+                .withMode(regulationMode)
+                .withTargetValue(targetValue)
+                .withRegulating(regulating)
+                .withTerminal(terminal)
+                .withSlope(slope)
+                .add()
+                .add();
+        // THEN
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("VSC12987");
+        assertNotNull(vsc);
+        assertNotNull(vsc.getVoltageRegulation());
+        assertEquals(regulationMode, vsc.getVoltageRegulation().getMode());
+        assertEquals(targetValue, vsc.getVoltageRegulation().getTargetValue());
+        assertEquals(regulating, vsc.getVoltageRegulation().isRegulating());
+        assertEquals(terminal, vsc.getVoltageRegulation().getTerminal());
+        assertEquals(slope, vsc.getVoltageRegulation().getSlope());
     }
 }

@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.regulation;
 
 import com.powsybl.iidm.network.*;
 
+import javax.annotation.Nullable;
+
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
@@ -95,9 +97,12 @@ public interface VoltageRegulation {
      *     <li>VOLTAGE_PER_REACTIVE_POWER</li>
      *     <li>REACTIVE_POWER_PER_ACTIVE_POWER</li>
      * </ul>
+     * Returns {@code null} when no regulationMode is defined for the current variant.
+     * This can happen in a multi-variant context, for instance when voltage regulation
+     * has been added only in another variant.
      * @see VariantManager
      */
-    RegulationMode getMode();
+    @Nullable RegulationMode getMode();
 
     /**
      * RegulationMode is an enum describing the kinds of regulation. It has the following values:
@@ -109,7 +114,7 @@ public interface VoltageRegulation {
      * </ul>
      * @see VariantManager
      */
-    RegulationMode setMode(RegulationMode mode);
+    @Nullable RegulationMode setMode(RegulationMode mode);
 
     /**
      * To know if the object is regulating or not.

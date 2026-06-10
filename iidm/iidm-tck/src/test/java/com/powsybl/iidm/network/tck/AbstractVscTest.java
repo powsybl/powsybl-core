@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -201,5 +203,80 @@ public abstract class AbstractVscTest {
         assertEquals(1.1, network.getVscConverterStation("C3").getLossFactor(), 0.01);
         assertEquals(cs2.getTerminal(), network.getVscConverterStation("C3").getRegulatingTerminal());
 
+    }
+
+    @Test
+    public void testNewVoltageRegulationInMultiVariants() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        cs1.setLocalTargetQ(10);
+        cs1.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(123)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        VoltageRegulation voltageRegulation = cs1.newVoltageRegulation().withSlope(1).withRegulating(false).build();
+        // THEN
+        assertNotNull(voltageRegulation);
+        assertEquals(voltageRegulation, cs1.getVoltageRegulation());
+        // Variant1
+        assertNull(voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(1, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(123, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    public void testRemoveVoltageRegulationInMultiVariant() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        cs1.setLocalTargetQ(10);
+        cs1.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        cs1.removeVoltageRegulation();
+        // THEN
+        // Variant1
+        assertNull(cs1.getVoltageRegulation());
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNull(cs1.getVoltageRegulation());
+    }
+
+    @Test
+    public void testNewVoltageRegulationInMonoVariant() {
+        // GIVEN
+        cs1.setLocalTargetQ(10);
+        cs1.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        VoltageRegulationBuilder voltageRegulationBuilder = cs1.newVoltageRegulation().withRegulating(false);
+        // WHEN
+        VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
+        // THEN
+        assertNotNull(voltageRegulation);
     }
 }

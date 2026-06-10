@@ -27,7 +27,7 @@ public interface VoltageRegulationHolder<T extends VoltageRegulationHolder<T>> {
     VoltageRegulation getVoltageRegulation();
 
     /**
-     * Removes the current VoltageRegulation instance
+     * Removes the current VoltageRegulation instance for all existing variants
      */
     void removeVoltageRegulation();
 

@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -177,7 +178,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public void remove() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         super.remove();
     }
 
@@ -203,7 +204,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public void removeVoltageRegulation() {
         ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
 
@@ -246,10 +247,28 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
         return this.localTargetQ.get(getNetwork().getVariantIndex());
     }
 
-    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
-        this.voltageRegulation = voltageRegulation;
+    /**
+     * Creates or updates the voltage regulation associated with this battery.
+     * <p>
+     * If a voltage regulation already exists, only the current variant attributes are updated from the
+     * provided voltage regulation, while keeping the existing instance.
+     * </p>
+     * <p>
+     * This method must remain private to ensure voltage regulation lifecycle operations are done through
+     * the public API and to avoid sharing a voltage regulation instance between equipments.
+     * </p>
+     *
+     * @param voltageRegulation the voltage regulation to attach or use as source attributes
+     * @return the voltage regulation associated with this equipment
+     */
+    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = voltageRegulation;
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
+        }
         this.attachVoltageRegulation();
+        return this.voltageRegulation;
     }
 
     private void attachVoltageRegulation() {

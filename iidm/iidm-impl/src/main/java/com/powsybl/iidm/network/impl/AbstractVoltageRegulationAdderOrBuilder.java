@@ -86,7 +86,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
     protected @NonNull VoltageRegulationExt checkAndCreateVoltageRegulation() {
         // VALIDATION
         if (validable != null) {
-            checkPreAttributes(validable);
+            checkAttributesNotFromVoltageRegulation(validable);
             // MODE
             checkRegulationMode(validable);
             // SLOPE
@@ -103,7 +103,7 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
         throw new PowsyblException("VoltageRegulation cannot be validated because its parent is not a Validable class");
     }
 
-    private void checkPreAttributes(Validable validable) {
+    private void checkAttributesNotFromVoltageRegulation(Validable validable) {
         if (holder instanceof RatioTapChanger ratioTapChanger) {
             boolean loadTapChangingCapabilities = ratioTapChanger.hasLoadTapChangingCapabilities();
             network.get().setValidationLevelIfGreaterThan(ValidationUtil.checkRTCLoadTapChangingCapabilities(validable,

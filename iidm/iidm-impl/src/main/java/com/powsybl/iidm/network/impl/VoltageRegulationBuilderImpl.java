@@ -14,20 +14,21 @@ import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
 
-    private final Consumer<VoltageRegulationExt> voltageRegulationSetter;
+    private final Function<VoltageRegulationExt, VoltageRegulationExt> voltageRegulationSetter;
 
     public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                         Validable validable,
                                         VoltageRegulationHolder<?> holder,
                                         Ref<NetworkImpl> network,
-                                        Consumer<VoltageRegulationExt> voltageRegulationSetter) {
+                                        UnaryOperator<VoltageRegulationExt> voltageRegulationSetter) {
         super(holderClass, validable, holder, network);
         this.voltageRegulationSetter = voltageRegulationSetter;
     }
@@ -40,7 +41,7 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
     @Override
     public VoltageRegulation build() {
         VoltageRegulationExt voltageRegulation = checkAndCreateVoltageRegulation();
-        this.voltageRegulationSetter.accept(voltageRegulation);
+        voltageRegulation = this.voltageRegulationSetter.apply(voltageRegulation);
         if (!holder.isRemoteRegulating()
             && (!ShuntCompensator.class.equals(classHolder) || holder.isRegulating())
             && !RatioTapChanger.class.equals(classHolder)) {

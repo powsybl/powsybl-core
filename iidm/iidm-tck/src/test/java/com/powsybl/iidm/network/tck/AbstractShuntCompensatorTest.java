@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -578,6 +579,87 @@ public abstract class AbstractShuntCompensatorTest {
         assertTrue(shuntCompensator.findSolvedSectionCount().isEmpty());
         assertNull(shuntCompensator.getSolvedSectionCount());
 
+    }
+
+    @Test
+    void testNewVoltageRegulationInMultiVariants() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createLinearShunt(TEST_MULTI_VARIANT, "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
+
+        ShuntCompensator shunt = network.getShuntCompensator(TEST_MULTI_VARIANT);
+        shunt.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(123)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        VoltageRegulation voltageRegulation = shunt.newVoltageRegulation().withSlope(1).withRegulating(false).build();
+        // THEN
+        assertNotNull(voltageRegulation);
+        assertEquals(voltageRegulation, shunt.getVoltageRegulation());
+        // Variant1
+        assertNull(voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(1, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(123, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    void testRemoveVoltageRegulationInMultiVariant() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createLinearShunt(TEST_MULTI_VARIANT, "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
+
+        ShuntCompensator shunt = network.getShuntCompensator(TEST_MULTI_VARIANT);
+        shunt.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        shunt.removeVoltageRegulation();
+        // THEN
+        // Variant1
+        assertNull(shunt.getVoltageRegulation());
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNull(shunt.getVoltageRegulation());
+    }
+
+    @Test
+    void testNewVoltageRegulationInMonoVariant() {
+        // GIVEN
+        createLinearShunt("testMonoVariant", "shuntName", 5.0, 4.0, 6, 10, terminal, true, 200, 10);
+
+        ShuntCompensator shunt = network.getShuntCompensator("testMonoVariant");
+        shunt.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        VoltageRegulationBuilder voltageRegulationBuilder = shunt.newVoltageRegulation().withRegulating(false);
+        // WHEN
+        VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
+        // THEN
+        assertNotNull(voltageRegulation);
     }
 
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
