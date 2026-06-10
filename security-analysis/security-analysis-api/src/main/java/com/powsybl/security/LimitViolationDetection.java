@@ -128,7 +128,7 @@ public final class LimitViolationDetection {
                     overload -> {
                         consumer.accept(
                             new LimitViolation(branch.getId(),
-                                branch.getOptionalName().orElse("null"),
+                                branch.getOptionalName().orElse(null),
                                 overload.getOperationalLimitsGroupId(),
                                 toLimitViolationType(type),
                                 overload.getPreviousLimitName(),
@@ -219,7 +219,7 @@ public final class LimitViolationDetection {
                 .forEach(overload -> {
                     consumer.accept(
                         new LimitViolation(transformer.getId(),
-                            transformer.getOptionalName().orElse("null"),
+                            transformer.getOptionalName().orElse(null),
                             overload.getOperationalLimitsGroupId(),
                             toLimitViolationType(type),
                             overload.getPreviousLimitName(),
