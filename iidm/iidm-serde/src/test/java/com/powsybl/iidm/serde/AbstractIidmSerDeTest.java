@@ -125,6 +125,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a round trip test reading the test resource IIDM-XML file with a given file name for all IIDM versions equals or more recent than
+     * a given minimum IIDM version <b>and</b> strictly older than a given maximum IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest(String file, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) < 0)
+            .toArray(IidmVersion[]::new));
+    }
+
+    /**
      * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
      * equals or more recent than a given minimum IIDM version.
      */
@@ -170,6 +180,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a given test for all IIDM versions between <code>minVersion</code> and <code>maxVersion</code> (both included)
+     */
+    protected void testForAllVersionsBetween(IidmVersion minVersion, IidmVersion maxVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0
+                        && v.compareTo(maxVersion) <= 0)
+                .forEach(test);
+    }
+
+    /**
      * Execute a write test for the given network, for all IIDM versions strictly older than a given maximum IIDM
      * version, and compare to the given versioned xml reference test resource.
      */
@@ -189,6 +209,15 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
                     (n, p) -> NetworkSerDe.write(n, exportOptions.setVersion(version.toString(".")), p),
                     getVersionedNetworkPath(filename, version));
         }
+    }
+
+    /**
+     * Write the network to all the specified versions between <code>minVersion</code> and <code>maxVersion</code> (both included), and compare with the corresponding versioned file <code>filename</code>
+     */
+    protected void testWriteVersionedXmlBetweenVersions(Network network, ExportOptions exportOptions, String filename, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+        testWriteVersionedXml(network, exportOptions, filename, Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) <= 0)
+            .toArray(IidmVersion[]::new));
     }
 
     private static IidmVersion[] allPreviousVersions(IidmVersion maxVersionExcluded) {

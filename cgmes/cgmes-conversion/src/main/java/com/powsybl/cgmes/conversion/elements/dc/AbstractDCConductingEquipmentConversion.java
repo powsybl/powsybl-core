@@ -9,13 +9,15 @@
 package com.powsybl.cgmes.conversion.elements.dc;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL1;
+import static com.powsybl.cgmes.conversion.Conversion.ALIAS_DC_TERMINAL2;
 
 /**
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
@@ -46,14 +48,15 @@ public abstract class AbstractDCConductingEquipmentConversion extends AbstractId
     }
 
     protected void addTerminalsAlias(Identifiable<?> identifiable) {
-        identifiable.addAlias(dcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
+        identifiable.addAlias(dcTerminal1, ALIAS_DC_TERMINAL1, context.config().isEnsureIdAliasUnicity());
         if (numDcTerminals == 2) {
-            identifiable.addAlias(dcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
+            identifiable.addAlias(dcTerminal2, ALIAS_DC_TERMINAL2, context.config().isEnsureIdAliasUnicity());
         }
     }
 
     protected static Optional<Boolean> isDcTerminalConnected(Identifiable<?> identifiable, int side, Context context) {
-        return identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + side)
+        String aliasType = side == 1 ? ALIAS_DC_TERMINAL1 : ALIAS_DC_TERMINAL2;
+        return identifiable.getAliasFromType(aliasType)
                 .map(context::cgmesDcTerminal)
                 .flatMap(dcTerminalBag -> dcTerminalBag.asBoolean(CgmesNames.CONNECTED));
     }

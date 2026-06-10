@@ -222,10 +222,10 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
     @Test
     void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
-        SensitivityAnalysisResult.SensitivityContingencyStatus value = new SensitivityAnalysisResult.SensitivityContingencyStatus("C1", SensitivityAnalysisResult.Status.SUCCESS);
+        SensitivityAnalysisResult.SensitivityStateStatus value = new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("C1"), SensitivityAnalysisResult.Status.SUCCESS);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, objectMapper), "/stateStatusRef.json");
     }
 
     @Test
@@ -253,6 +253,13 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
                 .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0.json"));
         assertEquals(0.0, parameters.getFlowFlowSensitivityValueThreshold(), 0.0001);
+    }
+
+    @Test
+    void readJsonVersion11() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.1.json"));
+        assertEquals(0.2, parameters.getFlowFlowSensitivityValueThreshold());
     }
 
     @Test

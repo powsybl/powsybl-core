@@ -24,8 +24,8 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
 
     private final NetworkImpl network;
 
-    public CurrentLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
-        super(validable, ownerId);
+    public CurrentLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, String operationalLimitGroupId, NetworkImpl network) {
+        super(validable, ownerId, operationalLimitGroupId);
         this.groupSupplier = groupSupplier;
         this.network = network;
     }
@@ -39,6 +39,7 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
         }
         CurrentLimitsImpl limits = new CurrentLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setCurrentLimits(limits);
+        this.copyPropertiesTo(limits);
         return limits;
     }
 

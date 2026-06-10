@@ -1,6 +1,6 @@
 # Grid features
 
-This section is dedicated to the description of the main network handling features in PowSyBl. 
+This section is dedicated to the description of the main network handling features in PowSyBl.
 
 ```{toctree}
 ---

@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 import java.io.IOException;
 
@@ -68,6 +70,12 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
         return new FooExt(value);
     }
 
+    @Override
+    public FooExt deserialize(JsonParser parser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
+        reportNode.newReportNode().withSeverity(TypedValue.INFO_SEVERITY).withMessageTemplate("deserialize").add();
+        return deserialize(parser, deserializationContext);
+    }
+
     private interface SerializationSpec {
 
         @JsonIgnore
@@ -88,5 +96,11 @@ public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {
         ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
         FooExt updatedParameters = objectReader.readValue(jsonParser, FooExt.class);
         return updatedParameters;
+    }
+
+    @Override
+    public FooExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FooExt parameters, ReportNode reportNode) throws IOException {
+        reportNode.newReportNode().withSeverity(TypedValue.INFO_SEVERITY).withMessageTemplate("deserialize_and_update").add();
+        return deserializeAndUpdate(jsonParser, deserializationContext, parameters);
     }
 }

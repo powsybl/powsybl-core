@@ -4,7 +4,7 @@
   "name" : "listslist1",
   "contingencyLists" : [ {
     "type" : "lineCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list1",
     "countryCriterion" : {
       "type" : "TWO_COUNTRY",
@@ -26,7 +26,7 @@
     }
   }, {
     "type" : "default",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "",
     "contingencies" : [ {
       "id" : "contingency1",
@@ -37,7 +37,7 @@
     } ]
   }, {
     "type" : "injectionCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list3",
     "identifiableType" : "LOAD",
     "countryCriterion" : {
@@ -55,7 +55,7 @@
     }
   }, {
     "type" : "hvdcCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list4",
     "countryCriterion" : {
       "type" : "TWO_COUNTRY",
@@ -79,7 +79,7 @@
     }
   }, {
     "type" : "twoWindingsTransformerCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list5",
     "countryCriterion" : {
       "type" : "SINGLE_COUNTRY",
@@ -102,7 +102,7 @@
     }
   }, {
     "type" : "threeWindingsTransformerCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "list6",
     "countryCriterion" : {
       "type" : "SINGLE_COUNTRY",
@@ -129,7 +129,7 @@
     "name" : "listslist2",
     "contingencyLists" : [ {
       "type" : "default",
-      "version" : "1.0",
+      "version" : "1.1",
       "name" : "",
       "contingencies" : [ {
         "id" : "contingency2",
@@ -163,7 +163,7 @@
     } ]
   }, {
     "type" : "tieLineCriterion",
-    "version" : "1.0",
+    "version" : "1.1",
     "name" : "tieLineContingencyList",
     "countryCriterion" : {
       "type" : "TWO_COUNTRY",

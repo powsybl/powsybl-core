@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.gl;
 import com.powsybl.cgmes.model.CgmesNamespace.Cim;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.network.DanglingLineFilter;
+import com.powsybl.iidm.network.BoundaryLineFilter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -116,8 +116,8 @@ public class CgmesGLExporter {
         LinePositionExporter positionExporter = new LinePositionExporter(tripleStore, context, cimModel);
         LOG.info("Exporting Lines Position");
         network.getLineStream().forEach(positionExporter::exportPosition);
-        LOG.info("Exporting Dangling Lines Position");
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
+        LOG.info("Exporting Boundary Lines Position");
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).forEach(positionExporter::exportPosition);
     }
 
 }

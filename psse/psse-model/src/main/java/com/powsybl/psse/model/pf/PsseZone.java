@@ -7,7 +7,21 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultStringFor;
+import static com.powsybl.psse.model.io.Util.stringHeaders;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_IZONE;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_SPACES_12;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONAME;
 
 /**
  *
@@ -15,11 +29,42 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseZone {
 
-    @Parsed(field = {"i", "izone"})
-    private int i;
+    private static final Map<String, PsseFieldDefinition<PsseZone, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES = {STR_I, STR_ZONAME};
+    private static final String[] FIELD_NAMES_35X = {STR_IZONE, STR_ZONAME};
 
-    @Parsed(defaultNullRead = "            ")
-    private String zoname;
+    private int i;
+    private String zoname = defaultStringFor(STR_ZONAME, FIELDS);
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static String[] getFieldNamesString() {
+        return stringHeaders(FIELDS);
+    }
+
+    public static PsseZone fromRecord(CsvRecord rec, String[] headers) {
+        return Util.fromRecord(rec.getFields(), headers, FIELDS, PsseZone::new);
+    }
+
+    public static String[] toRecord(PsseZone psseZone, String[] headers) {
+        return Util.toRecord(psseZone, headers, FIELDS);
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseZone, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseZone, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_I, Integer.class, PsseZone::getI, PsseZone::setI));
+        addField(fields, createNewField(STR_IZONE, Integer.class, PsseZone::getI, PsseZone::setI));
+        addField(fields, createNewField(STR_ZONAME, String.class, PsseZone::getZoname, PsseZone::setZoname, STR_SPACES_12));
+
+        return fields;
+    }
 
     public int getI() {
         return i;

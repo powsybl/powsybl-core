@@ -228,8 +228,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         Optional<Terminal> terminal = areaBoundary.getTerminal();
         Optional<Boundary> boundary = areaBoundary.getBoundary();
         boundary.ifPresent(b -> {
-            checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId());
-            ((DanglingLineBoundaryImplExt) b).getReferrerManager().register(boundaryReferrer);
+            checkBoundaryNetwork(b.getBoundaryLine().getParentNetwork(), "Boundary of BoundaryLine" + b.getBoundaryLine().getId());
+            ((BoundaryLineBoundaryImplExt) b).getReferrerManager().register(boundaryReferrer);
         });
         terminal.ifPresent(t -> {
             checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId());
@@ -254,7 +254,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         }
         for (AreaBoundary areaBoundary : areaBoundaries) {
             areaBoundary.getTerminal().ifPresent(t -> ((TerminalExt) t).getReferrerManager().unregister(terminalReferrer));
-            areaBoundary.getBoundary().ifPresent(b -> ((DanglingLineBoundaryImplExt) b).getReferrerManager().unregister(boundaryReferrer));
+            areaBoundary.getBoundary().ifPresent(b -> ((BoundaryLineBoundaryImplExt) b).getReferrerManager().unregister(boundaryReferrer));
         }
         network.getListeners().notifyAfterRemoval(id);
         removed = true;

@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
@@ -20,6 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_SVC_EQ_VOLTAGE_SET_POINT;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_TERMINAL_SIGN;
 
 /**
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
@@ -129,13 +131,13 @@ public class RegulatingControlMappingForStaticVarCompensators {
         }
         svc.setRegulatingTerminal(mappedRegulatingTerminal.getTerminal()).setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
 
-        svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
+        svc.setProperty(PROPERTY_TERMINAL_SIGN, String.valueOf(mappedRegulatingTerminal.getSign()));
         return true;
     }
 
     private void setDefaultRegulatingControlData(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
         if (!Double.isNaN(rc.defaultTargetVoltage)) {
-            svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(rc.defaultTargetVoltage));
+            svc.setProperty(PROPERTY_SVC_EQ_VOLTAGE_SET_POINT, String.valueOf(rc.defaultTargetVoltage));
         }
     }
 

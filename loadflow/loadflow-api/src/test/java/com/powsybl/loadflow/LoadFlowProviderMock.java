@@ -57,6 +57,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
         ReportNode reportNode = runParameters.getReportNode();
         if (reportNode != null) {
             reportNode.newReportNode()
+                .withStrictMode(false)
                 .withMessageTemplate("testLoadflow")
                 .withUntypedValue("variantId", workingStateId)
                 .add();
@@ -166,5 +167,29 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     @Override
     public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
         return platformConfig.getOptionalModuleConfig("dummy-extension");
+    }
+
+    @Override
+    public boolean checkParameters(LoadFlowRunParameters runParameters) {
+        LoadFlowParameters parameters = runParameters.getLoadFlowParameters();
+        if (!parameters.isUseReactiveLimits()) {
+            runParameters.getReportNode().newReportNode()
+                    .withStrictMode(false)
+                    .withMessageTemplate("testParametersNotSupported")
+                    .withUntypedValue("parameterName", "UseReactiveLimits")
+                    .withUntypedValue("parameterValue", "False")
+                    .add();
+            return false;
+        }
+        if (parameters.getBalanceType() == LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX) {
+            runParameters.getReportNode().newReportNode()
+                    .withStrictMode(false)
+                    .withMessageTemplate("testParametersNotSupported")
+                    .withUntypedValue("parameterName", "BalanceType")
+                    .withUntypedValue("parameterValue", parameters.getBalanceType().toString())
+                    .add();
+            return false;
+        }
+        return true;
     }
 }

@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import com.powsybl.iidm.serde.util.TopologyLevelUtil;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
+
+import static com.powsybl.iidm.serde.PropertiesSerDe.readProperties;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -57,6 +57,7 @@ public final class ConnectableSerDeUtil {
     static final String LIMITS_GROUPS_3 = "operationalLimitsGroups3";
     static final String PROPERTY = "property";
     static final String SELECTED_GROUP_ID = "selectedOperationalLimitsGroupId";
+    static final String ALL_SELECTED_GROUP_IDS = "selectedOperationalLimitsGroupIds";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -259,13 +260,16 @@ public final class ConnectableSerDeUtil {
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
                 boolean fictitious = reader.readBooleanAttribute("fictitious", false);
-                reader.readEndNode();
-                adder.beginTemporaryLimit()
+                LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
+                readProperties(context, tempLimitAdder);
+                tempLimitAdder
                         .setName(name)
                         .setAcceptableDuration(acceptableDuration)
                         .setValue(value)
                         .setFictitious(fictitious)
                         .endTemporaryLimit();
+            } else if (PropertiesSerDe.ROOT_ELEMENT_NAME.equals(elementName)) {
+                PropertiesSerDe.read(adder, context);
             } else {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
@@ -327,12 +331,14 @@ public final class ConnectableSerDeUtil {
             writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
             writer.writeStartNodes();
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
             for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
                 writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
                 writer.writeEndNode();
             }
             writer.writeEndNodes();
@@ -345,12 +351,85 @@ public final class ConnectableSerDeUtil {
         writer.writeStringAttribute(SELECTED_GROUP_ID + suffix, defaultId);
     }
 
+    /**
+     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>branch</code> on the <code>side</code> using the <code>writer</code> for serialization
+     *
+     * @param branch the branch on which to get the limits group
+     * @param side   the side of the branch for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
+     * @param writer to serialize the data
+     */
+    static void writeAllSelectedGroupIds(Branch<?> branch, TwoSides side, TreeDataWriter writer) {
+        writeAllSelectedGroupIds(side.getNum(), branch.getAllSelectedOperationalLimitsGroupIdsOrdered(side), writer);
+    }
+
+    /**
+     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>transformer</code> on the <code>side</code> using the <code>writer</code> for serialization
+     *
+     * @param transformer the {@link ThreeWindingsTransformer} on which to get the limits group
+     * @param side        the side of the transformer for which we want to write all the ids of the selected {@link OperationalLimitsGroup}. Cannot be null
+     * @param writer      to serialize the data
+     */
+    static void writeAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, TreeDataWriter writer) {
+        writeAllSelectedGroupIds(side.getNum(), transformer.getLeg(side).getAllSelectedOperationalLimitsGroupIdsOrdered(), writer);
+    }
+
+    static void writeAllSelectedGroupIds(Integer index, Collection<String> ids, TreeDataWriter writer) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        writer.writeStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix, ids);
+    }
+
+    /**
+     * Write all the ids of the selected {@link OperationalLimitsGroup} of the <code>boundaryLine</code> using the <code>writer</code> for serialization
+     * @param boundaryLine the {@link BoundaryLine} on which to get the limits group
+     * @param writer to serialize the data
+     */
+    static void writeAllSelectedGroupIds(BoundaryLine boundaryLine, TreeDataWriter writer) {
+        writeAllSelectedGroupIds(null, boundaryLine.getAllSelectedOperationalLimitsGroupIdsOrdered(), writer);
+    }
+
     static void readSelectedGroupId(Integer index, Consumer<String> selectedGroupIdSetter, NetworkDeserializerContext context) {
         String suffix = index == null ? "" : String.valueOf(index);
         String selectedGroupId = context.getReader().readStringAttribute(SELECTED_GROUP_ID + suffix);
         if (selectedGroupId != null) {
             context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> selectedGroupIdSetter.accept(selectedGroupId));
         }
+    }
+
+    /**
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added using to the <code>side</code> of the <code>branch</code>
+     *
+     * @param branch  the branch on which to add the selected groups
+     * @param side    the side on which to add the values. Cannot be null
+     * @param context to deserialize the data
+     */
+    static void readAllSelectedGroupIds(Branch<?> branch, TwoSides side, NetworkDeserializerContext context) {
+        readAllSelectedGroupIds(side.getNum(), c -> branch.addSelectedOperationalLimitsGroups(side, c.toArray(String[]::new)), context);
+    }
+
+    /**
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added using to the <code>side</code> of the <code>transformer</code>
+     *
+     * @param transformer the {@link ThreeWindingsTransformer} on which to add the selected groups
+     * @param side        the side on which to add the values. Cannot be null
+     * @param context     to deserialize the data
+     */
+    static void readAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, NetworkDeserializerContext context) {
+        readAllSelectedGroupIds(side.getNum(), c -> transformer.getLeg(side).addSelectedOperationalLimitsGroups(c.toArray(String[]::new)), context);
+    }
+
+    static void readAllSelectedGroupIds(Integer index, Consumer<Collection<String>> consumer, NetworkDeserializerContext context) {
+        String suffix = index == null ? "" : String.valueOf(index);
+        Collection<String> allSelectedGroupIds = Objects.requireNonNullElse(context.getReader().readStringArrayAttribute(ALL_SELECTED_GROUP_IDS + suffix), List.of());
+        context.addEndTask(DeserializationEndTask.Step.AFTER_EXTENSIONS, () -> consumer.accept(allSelectedGroupIds));
+    }
+
+    /**
+     * Read all the ids of the selected {@link OperationalLimitsGroup} to be added on the boundary line
+     * @param boundaryLine the {@link BoundaryLine} on which to add the selected groups
+     * @param context to deserialize the data
+     */
+    static void readAllSelectedGroupIds(BoundaryLine boundaryLine, NetworkDeserializerContext context) {
+        readAllSelectedGroupIds(null, c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)), context);
     }
 
     static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, OperationalLimitsGroup defaultGroup, Collection<OperationalLimitsGroup> groups) {

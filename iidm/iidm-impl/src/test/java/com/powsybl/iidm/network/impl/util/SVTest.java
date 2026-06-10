@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.util.SV;
@@ -25,11 +25,11 @@ class SVTest {
 
     @Test
     void testOlfRealNetwork() {
-        Network network = createNodeBreakerDanglingLineNetwork();
+        Network network = createNodeBreakerBoundaryLineNetwork();
         svOlfDataToNetwork(network);
 
         Line line = network.getLine("Line-2-2");
-        DanglingLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -68,11 +68,11 @@ class SVTest {
 
     @Test
     void testDcOlfRealNetwork() {
-        Network network = createNodeBreakerDanglingLineNetwork();
+        Network network = createNodeBreakerBoundaryLineNetwork();
         svDcOlfDataToNetwork(network);
 
         Line line = network.getLine("Line-2-2");
-        DanglingLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -99,7 +99,7 @@ class SVTest {
 
     private static void svOlfDataToNetwork(Network network) {
         Line line = network.getLine("Line-2-2");
-        DanglingLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -115,7 +115,7 @@ class SVTest {
 
     private static void svDcOlfDataToNetwork(Network network) {
         Line line = network.getLine("Line-2-2");
-        DanglingLine dl = network.getDanglingLine("Dl-3");
+        BoundaryLine dl = network.getBoundaryLine("Dl-3");
         Bus bus1 = network.getBusBreakerView().getBus("S1VL1_0");
         Bus bus2 = network.getBusBreakerView().getBus("S2VL1_0");
 
@@ -129,13 +129,13 @@ class SVTest {
         dl.getTerminal().setP(70.0);
     }
 
-    private static Network createNodeBreakerDanglingLineNetwork() {
-        return createNodeBreakerDanglingLineNetwork(NetworkFactory.findDefault());
+    private static Network createNodeBreakerBoundaryLineNetwork() {
+        return createNodeBreakerBoundaryLineNetwork(NetworkFactory.findDefault());
     }
 
-    private static Network createNodeBreakerDanglingLineNetwork(NetworkFactory networkFactory) {
+    private static Network createNodeBreakerBoundaryLineNetwork(NetworkFactory networkFactory) {
 
-        Network network = networkFactory.createNetwork("twoBusesWithLineAndDanglingLine", "test");
+        Network network = networkFactory.createNetwork("twoBusesWithLineAndBoundaryLine", "test");
         double vn = 225.0;
 
         // First substation
@@ -173,7 +173,7 @@ class SVTest {
         createInternalConnection(s2vl1, 0, 3);
         createLoad(s2vl1, "S2VL1-Load", 45.0, 9.0, 1);
 
-        createDanglingLine(network, "S2VL1", "Dl-3", 70.0, 10.0, "ucteNode", 3);
+        createBoundaryLine(network, "S2VL1", "Dl-3", 70.0, 10.0, "ucteNode", 3);
 
         // Line between both substations
         createLine(network, "S1VL1", "S2VL1", "Line-2-2", 2, 2);
@@ -241,8 +241,8 @@ class SVTest {
             .add();
     }
 
-    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String ucteCode, int node) {
-        network.getVoltageLevel(vlId).newDanglingLine()
+    private static void createBoundaryLine(Network network, String vlId, String id, double p0, double q0, String ucteCode, int node) {
+        network.getVoltageLevel(vlId).newBoundaryLine()
             .setId(id)
             .setR(0.01)
             .setX(2.0)
@@ -259,75 +259,75 @@ class SVTest {
     @Test
     void testWithGeneration() {
         double tol = 0.001;
-        Network network = DanglingLineNetworkFactory.createWithGeneration();
-        DanglingLine danglingLine = network.getDanglingLine("DL");
-        assertTrue(Double.isNaN(danglingLine.getBoundary().getP())); // there is no good solution here.
+        Network network = BoundaryLineNetworkFactory.createWithGeneration();
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
+        assertTrue(Double.isNaN(boundaryLine.getBoundary().getP())); // there is no good solution here.
         // we run an DC load flow and fill state variable
-        danglingLine.getTerminal().setP(-298.937);
-        danglingLine.getTerminal().setQ(Double.NaN);
-        danglingLine.getTerminal().getBusView().getBus().setAngle(0.0);
-        danglingLine.getTerminal().getBusView().getBus().setV(Double.NaN);
-        assertEquals(298.937, danglingLine.getBoundary().getP(), tol);
-        assertEquals(1.712783, danglingLine.getBoundary().getAngle(), tol);
+        boundaryLine.getTerminal().setP(-298.937);
+        boundaryLine.getTerminal().setQ(Double.NaN);
+        boundaryLine.getTerminal().getBusView().getBus().setAngle(0.0);
+        boundaryLine.getTerminal().getBusView().getBus().setV(Double.NaN);
+        assertEquals(298.937, boundaryLine.getBoundary().getP(), tol);
+        assertEquals(1.712783, boundaryLine.getBoundary().getAngle(), tol);
         // we run an AC load flow
-        danglingLine.getTerminal().setP(-298.937);
-        danglingLine.getTerminal().setQ(-7.413);
-        danglingLine.getTerminal().getBusView().getBus().setAngle(0.0);
-        danglingLine.getTerminal().getBusView().getBus().setV(100.0);
-        assertEquals(389.953, danglingLine.getBoundary().getP(), tol);
-        assertEquals(16.314, danglingLine.getBoundary().getQ(), tol);
-        assertEquals(130.087, danglingLine.getBoundary().getV(), tol);
-        assertEquals(0.999, danglingLine.getBoundary().getAngle(), tol);
+        boundaryLine.getTerminal().setP(-298.937);
+        boundaryLine.getTerminal().setQ(-7.413);
+        boundaryLine.getTerminal().getBusView().getBus().setAngle(0.0);
+        boundaryLine.getTerminal().getBusView().getBus().setV(100.0);
+        assertEquals(389.953, boundaryLine.getBoundary().getP(), tol);
+        assertEquals(16.314, boundaryLine.getBoundary().getQ(), tol);
+        assertEquals(130.087, boundaryLine.getBoundary().getV(), tol);
+        assertEquals(0.999, boundaryLine.getBoundary().getAngle(), tol);
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithGeneration() {
+    void testWithZeroImpedanceBoundaryLineWithGeneration() {
         double tol = 0.001;
-        Network network = DanglingLineNetworkFactory.createWithGeneration();
-        DanglingLine danglingLine = network.getDanglingLine("DL");
-        danglingLine.setR(0.0).setX(0.0);
-        danglingLine.getTerminal().setP(-298.937);
-        danglingLine.getTerminal().setQ(-7.413);
-        danglingLine.getTerminal().getBusView().getBus().setAngle(0.0);
-        danglingLine.getTerminal().getBusView().getBus().setV(100.0);
-        assertEquals(298.937, danglingLine.getBoundary().getP(), tol);
-        assertEquals(7.413, danglingLine.getBoundary().getQ(), tol);
-        assertEquals(1726.444, danglingLine.getBoundary().getI(), tol);
-        assertEquals(100.0, danglingLine.getBoundary().getV(), tol);
-        assertEquals(0.0, danglingLine.getBoundary().getAngle(), tol);
+        Network network = BoundaryLineNetworkFactory.createWithGeneration();
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
+        boundaryLine.setR(0.0).setX(0.0);
+        boundaryLine.getTerminal().setP(-298.937);
+        boundaryLine.getTerminal().setQ(-7.413);
+        boundaryLine.getTerminal().getBusView().getBus().setAngle(0.0);
+        boundaryLine.getTerminal().getBusView().getBus().setV(100.0);
+        assertEquals(298.937, boundaryLine.getBoundary().getP(), tol);
+        assertEquals(7.413, boundaryLine.getBoundary().getQ(), tol);
+        assertEquals(1726.444, boundaryLine.getBoundary().getI(), tol);
+        assertEquals(100.0, boundaryLine.getBoundary().getV(), tol);
+        assertEquals(0.0, boundaryLine.getBoundary().getAngle(), tol);
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithoutGeneration() {
+    void testWithZeroImpedanceBoundaryLineWithoutGeneration() {
         double tol = 0.001;
-        Network network = DanglingLineNetworkFactory.create();
-        DanglingLine danglingLine = network.getDanglingLine("DL");
-        danglingLine.setR(0.0).setX(0.0);
-        danglingLine.getTerminal().setP(50.0);
-        danglingLine.getTerminal().setQ(30.0);
-        danglingLine.getTerminal().getBusView().getBus().setAngle(0.0);
-        danglingLine.getTerminal().getBusView().getBus().setV(100.0);
-        assertEquals(-50.0, danglingLine.getBoundary().getP(), tol);
-        assertEquals(-30.0, danglingLine.getBoundary().getQ(), tol);
-        assertEquals(336.650, danglingLine.getBoundary().getI(), tol);
-        assertEquals(100.0, danglingLine.getBoundary().getV(), tol);
-        assertEquals(0.0, danglingLine.getBoundary().getAngle(), tol);
+        Network network = BoundaryLineNetworkFactory.create();
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
+        boundaryLine.setR(0.0).setX(0.0);
+        boundaryLine.getTerminal().setP(50.0);
+        boundaryLine.getTerminal().setQ(30.0);
+        boundaryLine.getTerminal().getBusView().getBus().setAngle(0.0);
+        boundaryLine.getTerminal().getBusView().getBus().setV(100.0);
+        assertEquals(-50.0, boundaryLine.getBoundary().getP(), tol);
+        assertEquals(-30.0, boundaryLine.getBoundary().getQ(), tol);
+        assertEquals(336.650, boundaryLine.getBoundary().getI(), tol);
+        assertEquals(100.0, boundaryLine.getBoundary().getV(), tol);
+        assertEquals(0.0, boundaryLine.getBoundary().getAngle(), tol);
     }
 
     @Test
-    void testWithZeroImpedanceDanglingLineWithoutGenerationWithNaNV() {
+    void testWithZeroImpedanceBoundaryLineWithoutGenerationWithNaNV() {
         double tol = 0.001;
-        Network network = DanglingLineNetworkFactory.create();
-        DanglingLine danglingLine = network.getDanglingLine("DL");
-        danglingLine.setR(0.0).setX(0.0);
-        danglingLine.getTerminal().setP(50.0);
-        danglingLine.getTerminal().setQ(30.0);
-        danglingLine.getTerminal().getBusView().getBus().setAngle(0.5);
-        danglingLine.getTerminal().getBusView().getBus().setV(Double.NaN);
-        assertEquals(-50.0, danglingLine.getBoundary().getP(), tol);
-        assertEquals(-30.0, danglingLine.getBoundary().getQ(), tol);
-        assertEquals(Double.NaN, danglingLine.getBoundary().getI());
-        assertEquals(Double.NaN, danglingLine.getBoundary().getV());
-        assertEquals(Double.NaN, danglingLine.getBoundary().getAngle());
+        Network network = BoundaryLineNetworkFactory.create();
+        BoundaryLine boundaryLine = network.getBoundaryLine("BL");
+        boundaryLine.setR(0.0).setX(0.0);
+        boundaryLine.getTerminal().setP(50.0);
+        boundaryLine.getTerminal().setQ(30.0);
+        boundaryLine.getTerminal().getBusView().getBus().setAngle(0.5);
+        boundaryLine.getTerminal().getBusView().getBus().setV(Double.NaN);
+        assertEquals(-50.0, boundaryLine.getBoundary().getP(), tol);
+        assertEquals(-30.0, boundaryLine.getBoundary().getQ(), tol);
+        assertEquals(Double.NaN, boundaryLine.getBoundary().getI());
+        assertEquals(Double.NaN, boundaryLine.getBoundary().getV());
+        assertEquals(Double.NaN, boundaryLine.getBoundary().getAngle());
     }
 }
