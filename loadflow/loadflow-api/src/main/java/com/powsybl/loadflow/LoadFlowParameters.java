@@ -470,7 +470,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         map.put("balanceType", balanceType);
         map.put("dcUseTransformerRatio", dcUseTransformerRatio);
         map.put("countriesToBalance", countriesToBalance);
-        map.put("computedComponentMode", componentMode);
+        map.put("componentMode", componentMode);
         map.put("hvdcAcEmulation", hvdcAcEmulation);
         map.put("dcPowerFactor", dcPowerFactor);
         map.put("debugDir", debugDir);

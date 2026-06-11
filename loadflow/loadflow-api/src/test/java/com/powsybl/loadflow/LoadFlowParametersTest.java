@@ -445,4 +445,13 @@ class LoadFlowParametersTest {
         assertEquals(LoadFlowParameters.ComponentMode.MAIN_SYNCHRONOUS, LoadFlowParameters.ComponentMode.fromString("MAIN_SYNCHRONOUS"));
         assertThrows(IllegalArgumentException.class, () -> LoadFlowParameters.ComponentMode.fromString("UNKNOWN"), "ComponentMode unknown value");
     }
+
+    @Test
+    void testToString() {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        assertEquals(
+                "{voltageInitMode=UNIFORM_VALUES, transformerVoltageControlOn=false, useReactiveLimits=true, phaseShifterRegulationOn=false, twtSplitShuntAdmittance=false, shuntCompensatorVoltageControlOn=false, readSlackBus=true, writeSlackBus=true, dc=false, distributedSlack=true, balanceType=PROPORTIONAL_TO_GENERATION_P_MAX, dcUseTransformerRatio=true, countriesToBalance=[], componentMode=MAIN_CONNECTED, hvdcAcEmulation=true, dcPowerFactor=1.0}",
+                parameters.toString()
+        );
+    }
 }

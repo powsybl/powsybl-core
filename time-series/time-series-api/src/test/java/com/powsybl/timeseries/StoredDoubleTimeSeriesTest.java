@@ -24,12 +24,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static java.lang.Double.NaN;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -383,6 +379,88 @@ class StoredDoubleTimeSeriesTest {
         assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().getFirst());
         assertEquals(3, ts.getChunks().getFirst().getOffset());
         assertEquals(5, ts.getChunks().getFirst().getLength());
+    }
+
+    @Test
+    void toArrayWhenNoTimeSeriesData() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata);
+        // When
+        double[] timeSeriesArray = timeSeries.toArray();
+        // Then
+        assertArrayEquals(new double[]{NaN, NaN, NaN}, timeSeriesArray, 0d);
+    }
+
+    @Test
+    void toCompactArrayWhenNoTimeSeriesDataShouldReturnEmpty() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(3);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata);
+        // When
+        double[] timeSeriesCompactArray = timeSeries.toCompactArray();
+        // Then
+        assertArrayEquals(new double[]{}, timeSeriesCompactArray, 0d);
+    }
+
+    @Test
+    void testToArray() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        // When
+        List<DoubleTimeSeries> chunks = timeSeries.split(4);
+        double[] timeSeriesArray = timeSeries.toArray();
+        double[] tsArray1 = chunks.get(0).toArray();
+        double[] tsArray2 = chunks.get(1).toArray();
+
+        // Then
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesArray, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, NaN, NaN, NaN, NaN}, tsArray1, 0d);
+        assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, 5d, 6d, 7d, 8d}, tsArray2, 0d);
+    }
+
+    @Test
+    void testToCompactArray() {
+        // Given
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d, 4d, 5d, 6d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        // When
+        List<DoubleTimeSeries> chunks = timeSeries.split(4);
+        double[] timeSeriesCompactArray = timeSeries.toCompactArray();
+        double[] tsCompactArray1 = chunks.get(0).toCompactArray();
+        double[] tsCompactArray2 = chunks.get(1).toCompactArray();
+
+        // Then
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesCompactArray, 0d);
+        assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, tsCompactArray1, 0d);
+        assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, tsCompactArray2, 0d);
+    }
+
+    @Test
+    void testToCompactArrayWhenNaNExistsAtTheMiddle() {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(9);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        DoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        DoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+        assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d, NaN}, timeSeries.toArray());
+        assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
     }
 
 }
