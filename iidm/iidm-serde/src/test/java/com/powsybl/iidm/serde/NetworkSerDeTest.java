@@ -26,6 +26,7 @@ import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -35,7 +36,9 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.Objects;
 
@@ -107,19 +110,25 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testImportOnlyActiveGroups() throws IOException {
-        ExportOptions exportOptions = new ExportOptions();
+    void testImportOnlyActiveGroups() throws URISyntaxException {
         ImportOptions importOptions = new ImportOptions().setOnlySelectedOperationalLimitsGroups(true);
-        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
-        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
-
-        Path transformFile = tmpDir.resolve("data");
-
-        //write network with all groups
-        NetworkSerDe.write(network, exportOptions, transformFile);
         //read only active groups
-        Network onlyActiveGroupsNetwork = NetworkSerDe.validateAndRead(transformFile, importOptions);
-        writeTest(onlyActiveGroupsNetwork, (n, p) -> NetworkSerDe.write(n, exportOptions, p), ComparisonUtils::assertTxtEquals, getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION));
+        Network onlyActiveGroupsNetwork = NetworkSerDe.read(Paths.get(getClass().getResource(getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION)).toURI()), importOptions);
+        Line line1 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), TwoSides.ONE);
+        assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE), TwoSides.TWO);
+        Line line2 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
+        assertAllGroupsOneLineSelected(line2, List.of("DEFAULT"), TwoSides.ONE);
+        assertAllGroupsOneLineSelected(line2, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO), TwoSides.TWO);
+    }
+
+    private void assertAllGroupsOneLineSelected(Line line, List<String> expectedIds, TwoSides side) {
+        assertEquals(expectedIds, line.getAllSelectedOperationalLimitsGroupIdsOrdered(side));
+        int allGroupsSize = switch (side) {
+            case ONE -> line.getOperationalLimitsGroups1().size();
+            case TWO -> line.getOperationalLimitsGroups2().size();
+        };
+        assertEquals(0, allGroupsSize - line.getAllSelectedOperationalLimitsGroups(side).size());
     }
 
     @ParameterizedTest

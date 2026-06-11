@@ -177,7 +177,7 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
                 .stream()
                 .filter(e -> selectedLimitsIds.contains(e.getKey()))
                 .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
