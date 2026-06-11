@@ -450,7 +450,7 @@ class LoadFlowParametersTest {
     void testToString() {
         LoadFlowParameters parameters = new LoadFlowParameters();
         assertEquals(
-                "{voltageInitMode=UNIFORM_VALUES, transformerVoltageControlOn=false, useReactiveLimits=true, phaseShifterRegulationOn=false, twtSplitShuntAdmittance=false, shuntCompensatorVoltageControlOn=false, readSlackBus=true, writeSlackBus=true, dc=false, distributedSlack=true, balanceType=PROPORTIONAL_TO_GENERATION_P_MAX, dcUseTransformerRatio=true, countriesToBalance=[], componentMode=MAIN_CONNECTED, hvdcAcEmulation=true, dcPowerFactor=1.0}",
+                "{voltageInitMode=UNIFORM_VALUES, transformerVoltageControlOn=false, useReactiveLimits=true, phaseShifterRegulationOn=false, twtSplitShuntAdmittance=false, shuntCompensatorVoltageControlOn=false, readSlackBus=true, writeSlackBus=true, dc=false, distributedSlack=true, balanceType=PROPORTIONAL_TO_GENERATION_P_MAX, dcUseTransformerRatio=true, countriesToBalance=[], componentMode=MAIN_CONNECTED, hvdcAcEmulation=true, dcPowerFactor=1.0, debugDir=null}",
                 parameters.toString()
         );
     }
