@@ -126,6 +126,20 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     }
 
     @Test
+    void testTemporaryBranchViolationKeepsNullSubjectName() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+
+        assertTrue(line.getOptionalName().isEmpty());
+
+        checkCurrent(line, TwoSides.TWO, 1201, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .singleElement()
+            .satisfies(violation -> Assertions.assertThat(violation.getSubjectName()).isNull());
+    }
+
+    @Test
     void testSingleTempLimitIncrease() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
