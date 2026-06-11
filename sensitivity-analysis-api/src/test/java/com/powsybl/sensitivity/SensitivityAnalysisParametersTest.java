@@ -139,7 +139,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName(DUMMY_EXTENSION_NAME));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
@@ -157,7 +157,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     void testExtensionFromConfig() {
         SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName(DUMMY_EXTENSION_NAME));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
@@ -262,6 +262,19 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         assertEquals(0.2, parameters.getFlowFlowSensitivityValueThreshold());
     }
 
+    @Test
+    void readJsonVersion12() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.2.json"));
+        assertEquals(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES, parameters.getOperatorStrategiesCalculationMode());
+    }
+
+    @Test
+    void readJsonVersion13() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.3.json"));
+        assertEquals("/tmp/debugDir", parameters.getDebugDir());
+    }
     @Test
     void readJsonVersion10Invalid() {
         assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
