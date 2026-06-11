@@ -1070,7 +1070,7 @@ public class MatpowerExporter implements Exporter {
             List<Context.GenRc> connectedGenRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation && genRc.status == CONNECTED_STATUS).toList();
             List<Context.GenRc> disconnectedGenRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation && genRc.status == DISCONNECTED_STATUS).toList();
             List<Context.GenRc> connectedGenRcsWithRegulationOff = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation && genRc.status == CONNECTED_STATUS).toList();
-            // disconnectedGenRcsWithRegulationOff are ignored as int this version are considered as loads
+            // disconnectedGenRcsWithRegulationOff are ignored as in this version are considered as loads
             if (connectedGenRcsWithRegulationOn.isEmpty()) {
                 connectedGenRcsWithRegulationOff.forEach(genRc -> {
                     MGen mGen = createMGen(model, busNumber, genRc, context);
