@@ -30,6 +30,7 @@ public class SecurityAnalysisParametersSerializer extends StdSerializer<Security
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", SecurityAnalysisParameters.VERSION);
         serializerProvider.defaultSerializeField("increased-violations-parameters", parameters.getIncreasedViolationsParameters(), jsonGenerator);
+        serializerProvider.defaultSerializeField("monitored-element-modification-threshold", parameters.getModifiedMonitoredElementsParameters(), jsonGenerator);
         jsonGenerator.writeBooleanField("intermediate-results-in-operator-strategy", parameters.getIntermediateResultsInOperatorStrategy());
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
