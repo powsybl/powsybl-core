@@ -456,27 +456,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     public Map<String, Object> toMap() {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder()
-                .put("voltageInitMode", voltageInitMode)
-                .put("transformerVoltageControlOn", transformerVoltageControlOn)
-                .put("useReactiveLimits", useReactiveLimits)
-                .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
-                .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
-                .put("shuntCompensatorVoltageControlOn", shuntCompensatorVoltageControlOn)
-                .put("readSlackBus", readSlackBus)
-                .put("writeSlackBus", writeSlackBus)
-                .put("dc", dc)
-                .put("distributedSlack", distributedSlack)
-                .put("balanceType", balanceType)
-                .put("dcUseTransformerRatio", dcUseTransformerRatio)
-                .put("countriesToBalance", countriesToBalance)
-                .put("computedComponentMode", componentMode)
-                .put("hvdcAcEmulation", hvdcAcEmulation)
-                .put("dcPowerFactor", dcPowerFactor);
-        if (debugDir != null) {
-            builder.put("debugDir", debugDir);
-        }
-        return builder.build();
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("voltageInitMode", voltageInitMode);
+        map.put("transformerVoltageControlOn", transformerVoltageControlOn);
+        map.put("useReactiveLimits", useReactiveLimits);
+        map.put("phaseShifterRegulationOn", phaseShifterRegulationOn);
+        map.put("twtSplitShuntAdmittance", twtSplitShuntAdmittance);
+        map.put("shuntCompensatorVoltageControlOn", shuntCompensatorVoltageControlOn);
+        map.put("readSlackBus", readSlackBus);
+        map.put("writeSlackBus", writeSlackBus);
+        map.put("dc", dc);
+        map.put("distributedSlack", distributedSlack);
+        map.put("balanceType", balanceType);
+        map.put("dcUseTransformerRatio", dcUseTransformerRatio);
+        map.put("countriesToBalance", countriesToBalance);
+        map.put("computedComponentMode", componentMode);
+        map.put("hvdcAcEmulation", hvdcAcEmulation);
+        map.put("dcPowerFactor", dcPowerFactor);
+        map.put("debugDir", debugDir);
+        return Collections.unmodifiableMap(map);
     }
 
     /**

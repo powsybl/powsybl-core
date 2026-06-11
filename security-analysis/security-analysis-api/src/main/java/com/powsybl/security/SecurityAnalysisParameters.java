@@ -176,7 +176,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
                 .ifPresent(config -> {
                     parameters.setIntermediateResultsInOperatorStrategy(config.getBooleanProperty("intermediate-results-in-operator-strategy", DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY));
                     parameters.getIncreasedViolationsParameters().load(config);
-                    parameters.setDebugDir(config.getStringProperty("debugDir", DEFAULT_DEBUG_DIR));
+                    config.getOptionalStringProperty("debugDir").ifPresent(parameters::setDebugDir);
                 });
 
         parameters.readExtensions(platformConfig);
