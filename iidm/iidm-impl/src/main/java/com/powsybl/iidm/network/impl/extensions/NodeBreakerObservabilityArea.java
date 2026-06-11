@@ -210,7 +210,7 @@ class NodeBreakerObservabilityArea extends AbstractExtension<VoltageLevel> imple
         return value;
     }
 
-    private void handleUncompleteObservabilityAreaError(String busId, boolean throwException) {
+    private void handleIncompleteObservabilityAreaError(String busId, boolean throwException) {
         LOG.error("Inconsistent observability areas: only part of nodes of bus-view bus {} are defined", busId);
         if (throwException) {
             throw new PowsyblException("Inconsistent observability areas: only part of nodes of bus-view bus " + busId
