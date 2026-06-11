@@ -106,13 +106,9 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     }
 
     public void addSelectedGroupIds(String identifiableId, ThreeSides side, Collection<String> selectedGroupIds) {
-        IdentifiableIdSide key = new IdentifiableIdSide(identifiableId, side);
-        Collection<String> alreadySelectedGroups = selectedOperationalLimitGroupsByIdentifiableId.get(key);
-        if (alreadySelectedGroups == null) {
-            selectedOperationalLimitGroupsByIdentifiableId.put(key, List.copyOf(selectedGroupIds));
-        } else {
-            alreadySelectedGroups.addAll(selectedGroupIds);
-        }
+        selectedOperationalLimitGroupsByIdentifiableId
+            .computeIfAbsent(new IdentifiableIdSide(identifiableId, side), id -> new ArrayList<>())
+            .addAll(selectedGroupIds);
     }
 
     public Collection<String> getSelectedGroupIds(String identifiableId, ThreeSides side) {
