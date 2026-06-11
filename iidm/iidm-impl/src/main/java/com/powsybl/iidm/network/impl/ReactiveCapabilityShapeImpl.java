@@ -14,11 +14,11 @@ import com.powsybl.iidm.network.ReactiveLimitsKind;
 import java.util.Collection;
 
 /**
- * Implementation of ReactiveCapabilityShape Interface
+ * Implementation of ReactiveCapabilityShape interface
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
-public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShape {
+public final class ReactiveCapabilityShapeImpl extends AbstractPropertiesHolder implements ReactiveCapabilityShape {
 
     /**
      * The convex polyhedron
@@ -34,23 +34,25 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
     }
 
     /**
-     * Return the minimum reactive power q for a specific active power p and a specific voltage v
-     * @param p the active power
-     * @return he minimum reactive power q for a specific active power p and a specific voltage v
+     * Return the minimum reactive power q for a specific active power p and a specific voltage u
+     * @param p the active power in MW
+     * @param u the voltage in kV
+     * @return the minimum reactive power q for a specific active power p and a specific voltage u
      */
     @Override
-    public double getMinQ(final double p, final double v) {
-        return polyhedron.getMinQ(p, v);
+    public double getMinQ(final double p, final double u) {
+        return polyhedron.getMinQ(p, u);
     }
 
     /**
-     * Return the maximum reactive power q for a specific active power p and a specific voltage v
-     * @param p the active power
-     * @return the maximum reactive power q for a specific active power p and a specific voltage v
+     * Return the maximum reactive power q for a specific active power p and a specific voltage u
+     * @param p the active power in MW
+     * @param u the voltage in kV
+     * @return the maximum reactive power q for a specific active power p and a specific voltage u
      */
     @Override
-    public double getMaxQ(final double p, final double v) {
-        return polyhedron.getMaxQ(p, v);
+    public double getMaxQ(final double p, final double u) {
+        return polyhedron.getMaxQ(p, u);
     }
 
     /**
@@ -75,7 +77,7 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
 
     /**
      * Constructor
-     * @param polyhedron the reactive capacility shape polyhedron
+     * @param polyhedron the reactive capability shape polyhedron
      */
     private ReactiveCapabilityShapeImpl(final ReactiveCapabilityShapePolyhedron polyhedron) {
         this.polyhedron = polyhedron;
@@ -83,7 +85,7 @@ public final class ReactiveCapabilityShapeImpl implements ReactiveCapabilityShap
 
     /**
      * Builder
-     * @param polyhedron the reactive capacility shape polyhedron
+     * @param polyhedron the reactive capability shape polyhedron
      */
     public static ReactiveCapabilityShapeImpl build(final ReactiveCapabilityShapePolyhedron polyhedron) {
         return new ReactiveCapabilityShapeImpl(polyhedron);
