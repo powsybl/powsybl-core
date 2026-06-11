@@ -18,6 +18,14 @@ With the reactive capability curve limits, the reactive power limitation depends
 The curve is defined as a set of points that associate, to each active power value, a minimum and maximum reactive power value.
 In between the defined points of the curve, the reactive power limits are computed through a linear interpolation.
 
+(reactive-capability-shape)=
+### Reactive capability shape
+With the reactive capability shape limits, the reactive power limitation depends on a 3D (P, Q, V) convex volume.
+The volume is defined by a list of planes provided by the user
+Each plane is described by an equation q + alpha * v + beta * p ≤ or ≥ gamma.
+Additionally, some upper and lower bounds can be defined for each of the P,Q and V variables 
+
+
 ### Examples
 
 This example shows how to use the `MinMaxReactiveLimits` and `ReactiveCapabilityCurve` classes:
@@ -62,6 +70,30 @@ generator.newReactiveCapabilityCurve()
         .setMaxQ(-15)
     .endPoint()
     .add();
+```
+
+This example shows how to create a new `ReactiveCapabilityShape` object:
+```java
+// Define convex PQV region with six bounding planes.
+// Q + 0*U + 0*P ≤ 80     → Q ≤ 80
+ReactiveCapabilityShapePlane p1 = ReactiveCapabilityShapePlane.build(0.0, 0.0).lessOrEqual(80.0);
+// Q + 0*U + 0*P ≥ -60    → Q ≥ -60
+ReactiveCapabilityShapePlane p2 = ReactiveCapabilityShapePlane.build(0.0, 0.0).greaterOrEqual(-60.0);
+// Q + 0*U + 1*P ≤ 120
+ReactiveCapabilityShapePlane p3 = ReactiveCapabilityShapePlane.build(0.0, 1.0).lessOrEqual(120.0);
+// Q + 0*U + 1*P ≥ -50
+ReactiveCapabilityShapePlane p4 = ReactiveCapabilityShapePlane.build(0.0, 1.0).greaterOrEqual(-50.0);
+// Q + 1*U + 0*P ≤ 410
+ReactiveCapabilityShapePlane p5 = ReactiveCapabilityShapePlane.build(1.0, 0.0).lessOrEqual(410.0);
+// Q + 1*U + 0*P ≥ 390    → U ≥ 390
+ReactiveCapabilityShapePlane p6 = ReactiveCapabilityShapePlane.build(1.0, 0.0).greaterOrEqual(390.0);
+
+Generator generator = network.getGenerator("G");
+generator.newReactiveCapabilityShape().setPolyhedron(
+        ReactiveCapabilityShapePolyhedron.build(
+                Arrays.asList(p1, p2, p3, p4, p5, p6)
+        )
+).add();
 ```
 
 (loading-limits)=
