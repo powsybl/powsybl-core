@@ -47,9 +47,7 @@ class UcteRecordWriter {
     private void resizeBuffer(int length) {
         int n = length - buffer.length();
         if (n > 0) {
-            for (int i = 0; i < n; i++) {
-                buffer.append(" ");
-            }
+            buffer.append(" ".repeat(n));
         }
     }
 

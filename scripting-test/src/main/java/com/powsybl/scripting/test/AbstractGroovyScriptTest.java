@@ -11,13 +11,16 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.transform.ThreadInterrupt;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,7 +36,7 @@ public abstract class AbstractGroovyScriptTest {
     protected abstract List<GroovyScriptExtension> getExtensions();
 
     public void doTest() {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+        Map<Class<?>, Object> contextObjects = Map.of(ComputationManager.class, Mockito.mock(ComputationManager.class));
         Binding binding = new Binding();
         StringWriter out = null;
         try {
@@ -41,7 +44,11 @@ public abstract class AbstractGroovyScriptTest {
                 binding.setVariable("out", writer);
 
                 CompilerConfiguration conf = new CompilerConfiguration();
-                getExtensions().forEach(it -> it.load(binding, computationManager));
+
+                // Add a check on thread interruption in every loop (for, while) in the script
+                conf.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class));
+
+                getExtensions().forEach(it -> it.load(binding, contextObjects));
                 GroovyShell shell = new GroovyShell(binding, conf);
                 shell.evaluate(getCode());
                 out = (StringWriter) binding.getProperty("out");

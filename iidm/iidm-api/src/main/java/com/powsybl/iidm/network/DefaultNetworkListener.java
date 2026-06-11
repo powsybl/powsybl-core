@@ -29,11 +29,6 @@ public class DefaultNetworkListener implements NetworkListener {
     }
 
     @Override
-    public void onUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
-        // empty default implementation
-    }
-
-    @Override
     public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         // empty default implementation
     }
@@ -44,7 +39,7 @@ public class DefaultNetworkListener implements NetworkListener {
     }
 
     @Override
-    public void onExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+    public void onExtensionUpdate(Extension<?> extension, String attribute, String variantId, Object oldValue, Object newValue) {
         // empty default implementation
     }
 
@@ -55,6 +50,36 @@ public class DefaultNetworkListener implements NetworkListener {
 
     @Override
     public void onExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onPropertyAdded(Identifiable<?> identifiable, String key, Object newValue) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onPropertyReplaced(Identifiable<?> identifiable, String key, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onPropertyRemoved(Identifiable<?> identifiable, String key, Object oldValue) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onVariantCreated(String sourceVariantId, String targetVariantId) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
+        // empty default implementation
+    }
+
+    @Override
+    public void onVariantRemoved(String variantId) {
         // empty default implementation
     }
 }

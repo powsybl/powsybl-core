@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.security.extensions.CurrentExtension;
 
 import java.io.IOException;
@@ -53,11 +53,11 @@ public class CurrentExtensionSerializer implements ExtensionJsonSerializer<Limit
         double value = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("preContingencyValue")) {
+            if (parser.currentName().equals("preContingencyValue")) {
                 parser.nextToken();
                 value = parser.readValueAs(Double.class);
             } else {
-                throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 

@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
@@ -16,14 +15,21 @@ import com.powsybl.iidm.network.Switch;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class CloseSwitch extends AbstractNetworkModification {
     private final String switchId;
 
-    CloseSwitch(String switchId) {
+    public CloseSwitch(String switchId) {
         this.switchId = Objects.requireNonNull(switchId);
+    }
+
+    @Override
+    public String getName() {
+        return "CloseSwitch";
     }
 
     @Override
@@ -31,8 +37,21 @@ public class CloseSwitch extends AbstractNetworkModification {
                       ComputationManager computationManager, ReportNode reportNode) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
-            throw new PowsyblException("Switch '" + switchId + "' not found");
+            logOrThrow(throwException, "Switch '" + switchId + "' not found");
+        } else {
+            sw.setOpen(false);
         }
-        sw.setOpen(false);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Switch sw = network.getSwitch(switchId);
+        if (sw == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (!sw.isOpen()) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 }

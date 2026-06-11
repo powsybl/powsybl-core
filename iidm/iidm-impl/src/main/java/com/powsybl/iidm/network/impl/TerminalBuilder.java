@@ -7,10 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.TopologyKind;
 
 import java.util.Objects;
 
@@ -24,7 +26,11 @@ class TerminalBuilder {
 
     private final Validable validable;
 
-    private ThreeSides side;
+    private final ThreeSides side;
+
+    private final TerminalNumber terminalNumber;
+
+    private final TopologyKind topologyKind;
 
     private Integer node;
 
@@ -32,10 +38,12 @@ class TerminalBuilder {
 
     private String connectableBus;
 
-    TerminalBuilder(Ref<? extends VariantManagerHolder> network, Validable validable, ThreeSides side) {
+    TerminalBuilder(Ref<? extends VariantManagerHolder> network, TopologyKind topologyKind, Validable validable, ThreeSides side, TerminalNumber terminalNumber) {
         this.network = Objects.requireNonNull(network);
         this.validable = Objects.requireNonNull(validable);
+        this.topologyKind = Objects.requireNonNull(topologyKind);
         this.side = side;
+        this.terminalNumber = terminalNumber;
     }
 
     TerminalBuilder setBus(String bus) {
@@ -60,14 +68,16 @@ class TerminalBuilder {
                     "connection node and connection bus are exclusives");
         }
 
-        if (node == null) {
+        if (topologyKind == TopologyKind.NODE_BREAKER) {
+            if (node == null) {
+                throw new ValidationException(validable, "node is not set");
+            }
+            return new NodeTerminal(network, side, terminalNumber, node);
+        } else {
             if (connectionBus == null) {
                 throw new ValidationException(validable, "connectable bus is not set");
             }
-
-            return new BusTerminal(network, side, connectionBus, bus != null);
-        } else {
-            return new NodeTerminal(network, side, node);
+            return new BusTerminal(network, side, terminalNumber, connectionBus, bus != null);
         }
     }
 

@@ -45,7 +45,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         PropertyCriterion.EquipmentToCheck equipmentToCheck = null;
         PropertyCriterion.SideToCheck sideToCheck = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "type" -> type = CriterionType.valueOf(parser.nextTextValue());
                 case "voltageInterval" -> {
                     parser.nextToken();
@@ -85,14 +85,13 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     parser.nextToken();
                     propertyValues = JsonUtil.readList(deserializationContext, parser, String.class);
                 }
-                case "equipmentToCheck" ->
-                        equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
+                case "equipmentToCheck" -> equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
                 case "sideToCheck" -> sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         if (type == null) {
-            throw new IllegalArgumentException("type of criterion can not be null");
+            throw new IllegalArgumentException("type of criterion cannot be null");
         }
         return switch (type) {
             case PROPERTY -> new PropertyCriterion(propertyKey, propertyValues, equipmentToCheck, sideToCheck);
@@ -103,8 +102,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
             case AT_LEAST_ONE_NOMINAL_VOLTAGE -> new AtLeastOneNominalVoltageCriterion(voltageInterval);
             case SINGLE_NOMINAL_VOLTAGE -> new SingleNominalVoltageCriterion(voltageInterval);
             case TWO_NOMINAL_VOLTAGE -> new TwoNominalVoltageCriterion(voltageInterval1, voltageInterval2);
-            case THREE_NOMINAL_VOLTAGE ->
-                    new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
+            case THREE_NOMINAL_VOLTAGE -> new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
             case REGEX -> new RegexCriterion(regex);
         };
     }

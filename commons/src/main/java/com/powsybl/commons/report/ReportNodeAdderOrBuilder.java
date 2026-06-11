@@ -7,17 +7,49 @@
  */
 package com.powsybl.commons.report;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>> {
 
     /**
-     * Provide the message template to build the {@link ReportNode} with.
-     * @param key             the key identifying uniquely the message template
-     * @param messageTemplate functional log, which may contain references to values using the <code>${key}</code> syntax,
-     *                        the values mentioned being the values of corresponding {@link ReportNode} and the values of any
-     *                        {@link ReportNode} ancestor of the created {@link ReportNode}
+     * Provide the message template provider to build the {@link ReportNode} with. This message template provider will
+     * be used for the created {@link ReportNode} and for all its descendents, unless overridden.
+     * @param messageTemplateProvider the provider which gives a message template from a given key
      * @return a reference to this object
      */
-    T withMessageTemplate(String key, String messageTemplate);
+    T withMessageTemplateProvider(MessageTemplateProvider messageTemplateProvider);
+
+    /**
+     * Provide the resource bundles to use as message template provider to build the {@link ReportNode} with.
+     * All the descendants of the root node will use all the {@link java.util.ResourceBundle} whose base names are
+     * provided as message template provider, unless overridden.
+     * @param bundleBaseNames The base names for the {@link java.util.ResourceBundle} to use
+     * @return a {@link ReportNodeBuilder}
+     */
+    T withResourceBundles(String... bundleBaseNames);
+
+    /**
+     * Provide the mode to use when a key doesn't match a message template in the {@link java.util.ResourceBundle}.
+     * <ul>
+     *     <li>In strict mode, unknown keys are reported as missing.</li>
+     *     <li>In loose mode, unknown keys are displayed as if they were messages. Values replacement is handled.</li>
+     * </ul>
+     * @param strictMode boolean indicating if the mode should be strict (<code>true</code>) or loose (<code>false</code>)
+     * @return a reference to this object
+     */
+    T withStrictMode(boolean strictMode);
+
+    /**
+     * Provide the message template to build the {@link ReportNode} with, through the referred ResourcesBundle and the
+     * key provided. The corresponding functional log may contain references to values using the <code>${key}</code>
+     * syntax, the values mentioned being the values of corresponding {@link ReportNode} and the values of any
+     * {@link ReportNode} ancestor of the created {@link ReportNode}.
+     *
+     * @param key the key identifying the message template in the ResourcesBundle
+     * @return a reference to this object
+     */
+    T withMessageTemplate(String key);
 
     /**
      * Provide one typed string value to build the {@link ReportNode} with.
@@ -122,16 +154,31 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
     T withUntypedValue(String key, boolean value);
 
     /**
-     * Provide the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#REPORT_SEVERITY_KEY} key to build the {@link ReportNode} with.
-     * @param severity the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#REPORT_SEVERITY_KEY} key
+     * Provide the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#SEVERITY_KEY} key to build the {@link ReportNode} with.
+     * @param severity the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#SEVERITY_KEY} key
      * @return a reference to this object
      */
     T withSeverity(TypedValue severity);
 
     /**
-     * Provide the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#REPORT_SEVERITY_KEY} key to build the {@link ReportNode} with.
+     * Provide the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#SEVERITY_KEY} key to build the {@link ReportNode} with.
      * @param severity the {@link String} value
      * @return a reference to this object
      */
     T withSeverity(String severity);
+
+    /**
+     * Indicate that a timestamp should be added to the {@link ReportNode} with the default pattern from the
+     * corresponding {@link TreeContext}, which is defined when building the root {@link ReportNode}.
+     * @return a reference to this object
+     */
+    T withTimestamp();
+
+    /**
+     * Indicate that a timestamp should be added to the {@link ReportNode}, with a pattern overriding the default
+     * pattern from the {@link TreeContext}.
+     * @param timestampPattern the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
+     * @return a reference to this object
+     */
+    T withTimestamp(String timestampPattern);
 }

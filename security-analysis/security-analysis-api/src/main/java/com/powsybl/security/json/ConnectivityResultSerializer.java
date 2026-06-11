@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 public class ConnectivityResultSerializer extends StdSerializer<ConnectivityResult> {
 
-    protected ConnectivityResultSerializer() {
+    public ConnectivityResultSerializer() {
         super(ConnectivityResult.class);
     }
 

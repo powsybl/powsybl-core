@@ -9,6 +9,22 @@ package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PsseCaseIdentification;
+import com.powsybl.psse.model.pf.PsseFacts;
+import com.powsybl.psse.model.pf.PsseFixedShunt;
+import com.powsybl.psse.model.pf.PsseGenerator;
+import com.powsybl.psse.model.pf.PsseLoad;
+import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
+import com.powsybl.psse.model.pf.PsseSwitchedShunt;
+import com.powsybl.psse.model.pf.PsseTransformer;
+import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
+import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
+import com.powsybl.psse.model.pf.PsseVoltageSourceConverter;
+import com.powsybl.psse.model.pf.PsseVoltageSourceConverterDcTransmissionLine;
+import com.powsybl.psse.model.pf.internal.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -33,22 +49,83 @@ public final class PowerFlowDataFactory {
     public static PowerFlowData create(String extension, PsseVersion version) {
         if (extension.equalsIgnoreCase("rawx")) {
             switch (version.major()) {
-                case V35:
+                case V35 -> {
                     return new PowerFlowRawxData35();
-                default:
-                    throw new PsseException("Unsupported version " + version);
+                }
+                default -> throw new PsseException("Unsupported version " + version);
             }
         } else {
-            switch (version.major()) {
-                case V35:
-                    return new PowerFlowRawData35();
-                case V33:
-                    return new PowerFlowRawData33();
-                case V32:
-                    return new PowerFlowRawData32();
-                default:
-                    throw new PsseException("Unsupported version " + version);
-            }
+            return switch (version.major()) {
+                case V35 -> new PowerFlowRawData35();
+                case V33 -> new PowerFlowRawData33();
+                case V32 -> new PowerFlowRawData32();
+            };
         }
+    }
+
+    public static Context createPsseContext(boolean rawFormat) {
+        Context context = new Context();
+        context.setVersion(PsseVersion.fromRevision(35));
+        FileFormat fileFormat = rawFormat ? FileFormat.LEGACY_TEXT : FileFormat.JSON;
+        context.setFileFormat(fileFormat);
+        context.setFieldNames(PowerFlowRecordGroup.CASE_IDENTIFICATION, PsseCaseIdentification.getFieldNames());
+
+        if (fileFormat == FileFormat.LEGACY_TEXT) {
+            context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, PsseSubstationRecord.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, PsseSubstationNode.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, PsseSubstationSwitchingDevice.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, PsseSubstationEquipmentTerminal.getFieldNamesOneBus());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesTwoBuses());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesThreeBuses());
+        } else {
+            context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, PsseSubstationRecord.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, PsseSubstationNodex.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, PsseSubstationSwitchingDevicex.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL, PsseSubstationEquipmentTerminalx.getFieldNamesX());
+        }
+
+        if (fileFormat == FileFormat.LEGACY_TEXT) {
+            context.setFieldNames(PowerFlowRecordGroup.BUS, PsseBus.getFieldNames3335());
+            context.setFieldNames(PowerFlowRecordGroup.LOAD, PsseLoad.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, PsseFixedShunt.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.GENERATOR, PsseGenerator.getFieldNames35());
+        } else {
+            context.setFieldNames(PowerFlowRecordGroup.BUS, PsseBus.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.LOAD, PsseLoad.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, PsseFixedShunt.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.GENERATOR, PsseGenerator.getFieldNamesX());
+        }
+
+        if (fileFormat == FileFormat.LEGACY_TEXT) {
+            context.setFieldNames(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH, PsseNonTransformerBranch.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER, PsseTransformer.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_IMPEDANCES, TransformerImpedances.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_WINDING, TransformerWindingRecord.getFieldNames35());
+        } else {
+            context.setFieldNames(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH, PsseNonTransformerBranch.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER, PsseTransformer.getFieldNamesX());
+        }
+
+        if (fileFormat == FileFormat.LEGACY_TEXT) {
+            context.setFieldNames(PowerFlowRecordGroup.FACTS_CONTROL_DEVICE, PsseFacts.getFieldNames35());
+            context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, PsseTwoTerminalDcTransmissionLine.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER, PsseTwoTerminalDcConverter.getFieldNames35());
+        } else {
+            context.setFieldNames(PowerFlowRecordGroup.FACTS_CONTROL_DEVICE, PsseFacts.getFieldNamesX());
+            context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, PsseTwoTerminalDcTransmissionLine.getFieldNamesX());
+        }
+        if (fileFormat == FileFormat.LEGACY_TEXT) {
+            context.setFieldNames(PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, PsseVoltageSourceConverterDcTransmissionLine.getFieldNames());
+            context.setFieldNames(PowerFlowRecordGroup.INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER, PsseVoltageSourceConverter.getFieldNames35());
+        } else {
+            context.setFieldNames(PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, PsseVoltageSourceConverterDcTransmissionLine.getFieldNamesX());
+        }
+        if (fileFormat == FileFormat.LEGACY_TEXT) {
+            context.setFieldNames(PowerFlowRecordGroup.SWITCHED_SHUNT, PsseSwitchedShunt.getFieldNames35());
+        } else {
+            context.setFieldNames(PowerFlowRecordGroup.SWITCHED_SHUNT, PsseSwitchedShunt.getFieldNamesX());
+        }
+
+        return context;
     }
 }

@@ -23,7 +23,7 @@ public class BigDoubleBuffer {
     private static final int BUFFER_MASK = BUFFER_SIZE_DOUBLES - 1;
     private static final int BUFFER_SIZE_BYTES = BUFFER_SIZE_DOUBLES * Double.BYTES;
     private DoubleBuffer[] buffers;
-    private long size;
+    private final long size;
 
     //To remove if we ever get it from somewhere else
     //package private for tests

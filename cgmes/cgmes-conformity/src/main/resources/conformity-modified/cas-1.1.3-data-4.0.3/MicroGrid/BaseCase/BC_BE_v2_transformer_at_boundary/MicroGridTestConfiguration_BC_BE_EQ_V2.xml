@@ -1427,7 +1427,7 @@
 		<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue"/>
 		<entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tct"/>
 	</cim:OperationalLimitType>
-	<cim:PhaseTapChangerAsymmetrical rdf:ID="_6ebbef67-3061-4236-a6fd-6ccc4595f6c3">
+	<cim:PhaseTapChangerAsymmetrical rdf:ID="_6ebbef67-3061-4236-a6fd-6ccc4595f6c4">
 		<cim:IdentifiedObject.name>BE-TR2_1</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>BE-T_1</entsoe:IdentifiedObject.shortName>
 		<cim:TapChanger.neutralU>400.000000</cim:TapChanger.neutralU>

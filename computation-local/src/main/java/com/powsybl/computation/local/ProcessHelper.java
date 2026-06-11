@@ -17,46 +17,28 @@ import java.util.concurrent.TimeUnit;
  */
 public final class ProcessHelper {
 
-    private static final long DEFAULT_FAST_POLLING = 500_000_000; // 0.5 seconds
-    private static final long BEGINING_NANO = 3_000_000_000L; // 3 seconds
+    public static final int TIMEOUT_EXIT_CODE = 124;
 
     /**
-     * It requests for exit code by {@link java.lang.Process#exitValue()} every half second at the begining of 3 seconds.
-     * Then it will no more request for exit code until 80% of {@code timeoutInSeconds}.
+     * This method blocks the current thread until either:
+     * <ul>
+     *     <li>The process terminates, in which case it returns the exit code from {@link Process#exitValue()}</li>
+     *     <li>The timeout is reached, in which case the process is destroyed and the exit code {@value #TIMEOUT_EXIT_CODE} is returned</li>
+     * </ul>
      * @param process The process to run
-     * @return Returns exit code for the process. Returns 124 if process timeout.
+     * @return Returns exit code for the process, or {@value #TIMEOUT_EXIT_CODE} if the process timeouts.
      * @throws InterruptedException
      * @throws IOException
      */
     static int runWithTimeout(long timeoutInSeconds, Process process) throws InterruptedException, IOException {
         Preconditions.checkArgument(timeoutInSeconds > 0, "negative timeout: %s", timeoutInSeconds);
-        int exitCode;
-        long startTimeNano = System.nanoTime();
-        while (true) {
-            try {
-                exitCode = process.exitValue();
-                closeStream(process);
-                return exitCode;
-            } catch (IllegalThreadStateException ex) {
-                long running = System.nanoTime() - startTimeNano;
-                if (running > TimeUnit.SECONDS.toNanos(timeoutInSeconds)) {
-                    break;
-                }
-                TimeUnit.NANOSECONDS.sleep(smartWait(running, startTimeNano, timeoutInSeconds));
-            }
+        if (process.waitFor(timeoutInSeconds, TimeUnit.SECONDS)) {
+            closeStream(process);
+            return process.exitValue();
         }
         process.destroy();
-        exitCode = 124;
-
         closeStream(process);
-        return exitCode;
-    }
-
-    private static long smartWait(long running, long startTime, long timeout) {
-        if (running < BEGINING_NANO || running > 0.8 * TimeUnit.SECONDS.toNanos(timeout)) {
-            return DEFAULT_FAST_POLLING;
-        }
-        return (long) (TimeUnit.SECONDS.toNanos(timeout) * 0.8) - running;
+        return TIMEOUT_EXIT_CODE;
     }
 
     private static void closeStream(Process process) throws IOException {

@@ -17,38 +17,23 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
-
 /**
  * Execute a security analysis by spawning a specified number of subtasks, each of which
- * will consist to a separate call to {@literal itools security-analysis} through the specified
+ * will consist of a separate call to {@literal itools security-analysis} through the specified
  * {@link ComputationManager}.
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class DistributedSecurityAnalysisExecution implements SecurityAnalysisExecution {
-
-    private final ExternalSecurityAnalysisConfig config;
-    private final int subtaskCount;
+public class DistributedSecurityAnalysisExecution extends AbstractDistributedSecurityAnalysisExecution implements SecurityAnalysisExecution {
 
     public DistributedSecurityAnalysisExecution(ExternalSecurityAnalysisConfig config, int subtaskCount) {
-        this.config = requireNonNull(config);
-        checkArgument(subtaskCount > 0, "Sub-tasks count must be positive.");
-        this.subtaskCount = checkSubtaskCount(subtaskCount);
+        super(config, subtaskCount);
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager,
-                                                             SecurityAnalysisExecutionInput data) {
+    public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_task_", config.isDebug());
         ExecutionHandler<SecurityAnalysisReport> executionHandler = SecurityAnalysisExecutionHandlers.distributed(data, subtaskCount);
         return computationManager.execute(itoolsEnv, executionHandler);
     }
-
-    private static int checkSubtaskCount(int count) {
-        checkArgument(count > 0, "Sub-tasks count must be positive.");
-        return count;
-    }
-
 }

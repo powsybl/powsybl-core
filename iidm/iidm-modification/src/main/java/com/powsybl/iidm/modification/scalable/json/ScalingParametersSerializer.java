@@ -33,6 +33,20 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
         jsonGenerator.writeBooleanField("reconnect", scalingParameters.isReconnect());
         jsonGenerator.writeStringField("priority", scalingParameters.getPriority().name());
 
+        jsonGenerator.writeArrayFieldStart("ignoredInjectionIds");
+        for (String id : scalingParameters.getIgnoredInjectionIds().stream().sorted().toList()) { //sorted alphabetically
+            jsonGenerator.writeString(id);
+        }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeNumberField("loadMinPowerFactor", scalingParameters.getLoadMinPowerFactor());
+        if (scalingParameters.getLoadMinQRate().isPresent()) {
+            jsonGenerator.writeNumberField("loadMinQRate", scalingParameters.getLoadMinQRate().getAsDouble());
+        }
+        if (scalingParameters.getLoadMaxQRate().isPresent()) {
+            jsonGenerator.writeNumberField("loadMaxQRate", scalingParameters.getLoadMaxQRate().getAsDouble());
+        }
+
         jsonGenerator.writeEndObject();
     }
 }

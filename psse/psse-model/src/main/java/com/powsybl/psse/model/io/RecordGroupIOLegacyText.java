@@ -7,9 +7,8 @@
  */
 package com.powsybl.psse.model.io;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
-import com.univocity.parsers.csv.CsvWriter;
-import com.univocity.parsers.csv.CsvWriterSettings;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,20 +55,28 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
 
     @Override
     public T readHead(LegacyTextReader reader, Context context) throws IOException {
-        throw new PsseException("Generic record group can not be read as head record");
+        throw new PsseException("Generic record group cannot be read as head record");
     }
 
     @Override
     public void writeHead(T psseObject, Context context, OutputStream outputStream) {
-        throw new PsseException("Generic record group can not be written as head record");
+        throw new PsseException("Generic record group cannot be written as head record");
     }
 
     protected void write(List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
-        CsvWriterSettings settings = recordGroup.settingsForCsvWriter(headers, quotedFields, context);
-        CsvWriter writer = new CsvWriter(outputStreamWriter, settings);
-        writer.processRecords(objects);
-        writer.flush();
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+            objects.forEach(object -> {
+                try {
+                    outputStreamWriter.write(recordGroup.buildRecord(object, headers, quotedFields, context));
+                } catch (IOException e) {
+                    throw new PowsyblException("Failed to write object record", e);
+                }
+            });
+            outputStreamWriter.flush();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static void writeEmpty(RecordGroupIdentification recordGroup, OutputStream outputStream) {
@@ -95,12 +102,20 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         write(String.format("0 / END OF %s DATA", legacyTextName), outputStream);
     }
 
+    public static void writeComment(String comment, OutputStream outputStream) {
+        write(String.format("  / %s%n", comment), outputStream);
+    }
+
+    public static void writeEndComment(String comment, OutputStream outputStream) {
+        write(String.format("0 / %s%n", comment), outputStream);
+    }
+
     public static void writeQ(OutputStream outputStream) {
         write(String.format("%nQ%n"), outputStream);
     }
 
     public static void write(List<String> ss, OutputStream outputStream) {
-        ss.forEach(s -> write(String.format("%s%n", s), outputStream));
+        ss.forEach(s -> write(s, outputStream));
     }
 
     public static void write(String s, OutputStream outputStream) {

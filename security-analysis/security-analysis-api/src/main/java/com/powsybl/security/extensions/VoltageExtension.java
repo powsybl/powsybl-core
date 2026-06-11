@@ -8,7 +8,7 @@
 package com.powsybl.security.extensions;
 
 import com.powsybl.commons.extensions.AbstractPrecontingencyValueExtension;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 /**
  * Extension to handle pre-contingency voltage value for a voltage limit violation

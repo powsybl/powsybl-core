@@ -45,24 +45,26 @@ abstract class AbstractComplexIdentifiableSerDe<T extends Identifiable<T>, A ext
         String id = readIdentifierAttributes(adder, context);
         readRootElementAttributes(adder, parent, toApply, context);
         readSubElements(id, adder, toApply, context);
-        if (postponeElementCreation()) {
-            context.getEndTasks().add(() -> createElement(adder, toApply));
+        DeserializationEndTask.Step creationStep = getPostponedCreationStep();
+        if (creationStep != null) {
+            context.addEndTask(creationStep, () -> createElement(adder, toApply));
         } else {
             createElement(adder, toApply);
         }
     }
 
     /**
-     * <p>Should the current element's creation be postponed?</p>
+     * <p>Return <code>null</code> if the element should be created immediately after it is read from the serialized network.
+     * Else, return the step ({@link DeserializationEndTask.Step}) when the element should be created.</p>
      * <p>In some specific cases, the element could not be created right after it is read, typically if it references
      * other network elements which may have not been yet created. (It is better to create the element without the said
      * references and to fill them in later, but it is not always possible, or at high cost.)
-     * If this method returns <code>true</code>, the element's creation will be defined as an "end task" and
-     * will be performed after the whole network is read.</p>
-     * @return <code>true</code> if the creation should be postponed, <code>false</code> otherwise.
+     * If this method returns a non-null value, the element's creation will be defined as an "end task" and
+     * will be performed after the network is read (before the extensions creation or at the very end).</p>
+     * @return the wanted {@link DeserializationEndTask.Step} if the creation should be postponed, <code>null</code> otherwise.
      */
-    protected boolean postponeElementCreation() {
-        return false;
+    protected DeserializationEndTask.Step getPostponedCreationStep() {
+        return null;
     }
 
     private static <T extends Identifiable<T>, A extends IdentifiableAdder<T, A>> void createElement(A adder, List<Consumer<T>> toApply) {

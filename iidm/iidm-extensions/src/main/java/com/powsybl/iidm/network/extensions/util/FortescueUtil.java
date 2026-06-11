@@ -7,8 +7,11 @@
  */
 package com.powsybl.iidm.network.extensions.util;
 
+import com.powsybl.math.matrix.ComplexMatrix;
 import com.powsybl.math.matrix.DenseMatrix;
+import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Pair;
 
 /**
@@ -17,9 +20,19 @@ import org.apache.commons.math3.util.Pair;
 public final class FortescueUtil {
 
     public enum SequenceType {
-        POSITIVE,
-        NEGATIVE,
-        ZERO
+        POSITIVE(1),
+        NEGATIVE(2),
+        ZERO(0);
+
+        private final int num;
+
+        SequenceType(int num) {
+            this.num = num;
+        }
+
+        public int getNum() {
+            return num;
+        }
     }
 
     public static DenseMatrix getFortescueMatrix() {
@@ -27,7 +40,7 @@ public final class FortescueUtil {
         // [GA]   [ 1  1  1 ]   [G0]
         // [GB] = [ 1  a²  a] * [G1]
         // [GC]   [ 1  a  a²]   [G2]
-        return getFortescueOrInverseMatrix(false);
+        return createComplexMatrix(false).toRealCartesianMatrix();
     }
 
     public static DenseMatrix getFortescueInverseMatrix() {
@@ -35,58 +48,41 @@ public final class FortescueUtil {
         // [G0]       [ 1  1  1 ]   [GA]
         // [G1] = 1/3 [ 1  a  a²] * [GB]
         // [G2]       [ 1  a² a ]   [GC]
-        return getFortescueOrInverseMatrix(true);
+        return createComplexMatrix(true).toRealCartesianMatrix();
     }
 
-    public static DenseMatrix getFortescueOrInverseMatrix(boolean isInverse) {
-        DenseMatrix mFortescueOrInverse = new DenseMatrix(6, 6);
+    public static ComplexMatrix createComplexMatrix(boolean inverse) {
+        // [G1]   [ 1  1  1 ]   [Gh]
+        // [G2] = [ 1  a²  a] * [Gd]
+        // [G3]   [ 1  a  a²]   [Gi]
 
-        double t = 1;
-        double signA = 1;
-        if (isInverse) {
+        Complex a = new Complex(-0.5, FastMath.sqrt(3.) / 2);
+        Complex a2 = a.multiply(a);
+
+        double t = 1.;
+        Complex c1 = a;
+        Complex c2 = a2;
+        if (inverse) {
             t = 1. / 3.;
-            signA = -1;
+            c1 = a2.multiply(t);
+            c2 = a.multiply(t);
         }
+        Complex unit = new Complex(t, 0);
 
-        //column 1
-        mFortescueOrInverse.add(0, 0, t);
-        mFortescueOrInverse.add(1, 1, t);
+        ComplexMatrix complexMatrix = new ComplexMatrix(3, 3);
+        complexMatrix.set(0, 0, unit);
+        complexMatrix.set(0, 1, unit);
+        complexMatrix.set(0, 2, unit);
 
-        mFortescueOrInverse.add(2, 0, t);
-        mFortescueOrInverse.add(3, 1, t);
+        complexMatrix.set(1, 0, unit);
+        complexMatrix.set(1, 1, c2);
+        complexMatrix.set(1, 2, c1);
 
-        mFortescueOrInverse.add(4, 0, t);
-        mFortescueOrInverse.add(5, 1, t);
+        complexMatrix.set(2, 0, unit);
+        complexMatrix.set(2, 1, c1);
+        complexMatrix.set(2, 2, c2);
 
-        //column 2
-        mFortescueOrInverse.add(0, 2, t);
-        mFortescueOrInverse.add(1, 3, t);
-
-        mFortescueOrInverse.add(2, 2, -t / 2.);
-        mFortescueOrInverse.add(2, 3, signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(3, 2, -signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(3, 3, -t / 2.);
-
-        mFortescueOrInverse.add(4, 2, -t / 2.);
-        mFortescueOrInverse.add(4, 3, -signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(5, 2, signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(5, 3, -t / 2.);
-
-        //column 3
-        mFortescueOrInverse.add(0, 4, t);
-        mFortescueOrInverse.add(1, 5, t);
-
-        mFortescueOrInverse.add(2, 4, -t / 2.);
-        mFortescueOrInverse.add(2, 5, -signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(3, 4, signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(3, 5, -t / 2.);
-
-        mFortescueOrInverse.add(4, 4, -t / 2.);
-        mFortescueOrInverse.add(4, 5, signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(5, 4, -signA * t * Math.sqrt(3.) / 2.);
-        mFortescueOrInverse.add(5, 5, -t / 2.);
-
-        return mFortescueOrInverse;
+        return complexMatrix;
     }
 
     public static Vector2D getCartesianFromPolar(double magnitude, double angle) {

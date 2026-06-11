@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.NetworkReports;
 
 import java.util.Properties;
 
@@ -36,8 +37,6 @@ public class ExporterMockWithReportNode implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
-        reportNode.newReportNode()
-            .withMessageTemplate("export_test", "Export mock")
-            .add();
+        NetworkReports.exportMock(reportNode);
     }
 }

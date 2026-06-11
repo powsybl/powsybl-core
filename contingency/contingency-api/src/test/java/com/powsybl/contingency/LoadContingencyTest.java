@@ -8,7 +8,7 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.tripping.LoadTripping;
@@ -35,7 +35,7 @@ class LoadContingencyTest {
         assertEquals(ContingencyElementType.LOAD, loadContingency.getType());
 
         assertNotNull(loadContingency.toModification());
-        assertTrue(loadContingency.toModification() instanceof LoadTripping);
+        assertInstanceOf(LoadTripping.class, loadContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new LoadContingency("g1"), new LoadContingency("g1"))

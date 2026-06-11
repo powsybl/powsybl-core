@@ -8,10 +8,11 @@
 package com.powsybl.iidm.network.tck.internal;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.tck.AbstractIdenticalLimitsTest;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 
-public abstract class AbstractTransformerTest {
+public abstract class AbstractTransformerTest extends AbstractIdenticalLimitsTest {
 
     protected Network network;
     protected Substation substation;

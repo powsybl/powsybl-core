@@ -53,7 +53,7 @@ public class PilotPointAdderImpl implements PilotPointAdder {
         if (Double.isNaN(targetV)) {
             throw new PowsyblException("Invalid target voltage");
         }
-        parent.setPilotPoint(new PilotPointImpl(busbarSectionsOrBusesIds, targetV));
+        parent.setPilotPoint(new PilotPointImpl(busbarSectionsOrBusesIds, targetV, parent.getParent().getNetwork()));
         return parent;
     }
 }

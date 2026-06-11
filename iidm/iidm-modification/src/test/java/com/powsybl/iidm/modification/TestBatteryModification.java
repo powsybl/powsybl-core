@@ -44,4 +44,10 @@ class TestBatteryModification {
         batteryModification2.apply(network);
         assertEquals(2., battery.getTargetQ());
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new BatteryModification("ID", 10., 10.);
+        assertEquals("BatteryModification", networkModification.getName());
+    }
 }

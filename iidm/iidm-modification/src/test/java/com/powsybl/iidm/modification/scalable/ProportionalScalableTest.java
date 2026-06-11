@@ -9,6 +9,8 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +20,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode.*;
-import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithBoundaryLineAndBattery;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_DISTRIBUTION;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
@@ -42,13 +45,13 @@ class ProportionalScalableTest {
     private Scalable s;
     private Scalable unknownGenerator;
     private Scalable unknownLoad;
-    private Scalable unknownDanglingLine;
+    private Scalable unknownBoundaryLine;
     private Scalable dl1;
 
     @BeforeEach
     void setUp() {
 
-        network = createNetworkwithDanglingLineAndBattery();
+        network = createNetworkwithBoundaryLineAndBattery();
         g1 = Scalable.onGenerator("g1");
         g2 = Scalable.onGenerator("g2");
         g3 = Scalable.onGenerator("g3", -10, 80);
@@ -59,8 +62,8 @@ class ProportionalScalableTest {
         l2 = Scalable.onLoad("l2", 20, 80);
         l3 = Scalable.onLoad("l3", -50, 100);
         unknownLoad = Scalable.onLoad("unknown");
-        unknownDanglingLine = Scalable.onDanglingLine("unknown");
-        dl1 = Scalable.onDanglingLine("dl1", 20, 80);
+        unknownBoundaryLine = Scalable.onBoundaryLine("unknown");
+        dl1 = Scalable.onBoundaryLine("dl1", 20, 80);
 
 //        reset();
     }
@@ -68,14 +71,17 @@ class ProportionalScalableTest {
     private void reset() {
 
         Scalable.stack(g1, g2, g3).reset(network);
-        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownDanglingLine, dl1).reset(network);
+        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownBoundaryLine, dl1).reset(network);
         l3.reset(network);
     }
 
     @Test
     void testOnInjections() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
-        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getBoundaryLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
 
@@ -85,14 +91,14 @@ class ProportionalScalableTest {
         proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0);
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
         scalingReport(reportNode,
-            "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            "loads and boundary lines",
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(100.0 * (1.0 + 100 / 230.0), network.getLoad("l1").getP0(), 1e-5);
         assertEquals(80 * (1.0 + 100 / 230.0), network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(50.0 * (1.0 + 100 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 + 100 / 230.0), network.getBoundaryLine("dl1").getP0(), 1e-5);
         reset();
 
         // Regular distribution
@@ -101,20 +107,23 @@ class ProportionalScalableTest {
         proportionalScalable = Scalable.proportional(injectionsList, UNIFORM_DISTRIBUTION);
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersUniform);
         scalingReport(reportNode,
-            "loads and dangling lines",
-            UNIFORM_DISTRIBUTION,
+            "loads and boundary lines",
+            UNIFORM_DISTRIBUTION.name(),
             scalingParametersUniform.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(100.0 / 3.0, network.getLoad("l1").getP0(), 1e-5);
         assertEquals(100.0 / 3.0, network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(100.0 / 3.0, network.getDanglingLine("dl1").getP0(), 1e-5);
+        assertEquals(100.0 / 3.0, network.getBoundaryLine("dl1").getP0(), 1e-5);
         reset();
     }
 
     @Test
     void testOnGenerator() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -126,7 +135,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -140,7 +149,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_PMAX,
+            PROPORTIONAL_TO_PMAX.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -154,7 +163,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_PMAX_TARGETP,
+            PROPORTIONAL_TO_DIFF_PMAX_TARGETP.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -168,7 +177,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            UNIFORM_DISTRIBUTION,
+            UNIFORM_DISTRIBUTION.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -180,7 +189,10 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsUsedPower() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -193,7 +205,7 @@ class ProportionalScalableTest {
         assertEquals(100.0, variationDone, 1e-5);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(80.0 + 80.0 * 100 / 130.0, network.getGenerator("g1").getTargetP(), 1e-5);
@@ -204,7 +216,10 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsWithTargetPScalingType() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, TARGET_P);
@@ -216,7 +231,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 260.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             260.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -228,7 +243,10 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnLoadsWithTargetPScalingType() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Load> loadList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getLoad("l3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, false, RESPECT_OF_VOLUME_ASKED, true, TARGET_P);
@@ -240,7 +258,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, -500.0, scalingParameters);
         scalingReport(reportNode,
             "loads",
-            PROPORTIONAL_TO_P0,
+            PROPORTIONAL_TO_P0.name(),
             scalingParameters.getScalingType(),
             -500, variationDone);
         assertEquals(-270, variationDone, 1e-5);
@@ -252,7 +270,10 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsVentilationPriority() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_DISTRIBUTION, true, DELTA_P);
@@ -264,7 +285,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 200.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             200.0, variationDone);
         assertEquals(200.0 * 0.7, variationDone, 1e-5);
@@ -292,13 +313,13 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsWithWrongParametersTargetP() {
-        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<BoundaryLine> boundarylineList = Collections.singletonList(network.getBoundaryLine("dl1"));
         List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
         List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
         // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(danglinglineList, PROPORTIONAL_TO_TARGETP));
-        assertEquals("Variable TargetP inconsistent with injection type class com.powsybl.iidm.network.impl.DanglingLineImpl", e0.getMessage());
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(boundarylineList, PROPORTIONAL_TO_TARGETP));
+        assertEquals("Variable TargetP inconsistent with injection type class com.powsybl.iidm.network.impl.BoundaryLineImpl", e0.getMessage());
 
         // Error raised
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> Scalable.proportional(loadList, PROPORTIONAL_TO_TARGETP));
@@ -311,13 +332,13 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsWithWrongParametersMaxP() {
-        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<BoundaryLine> boundarylineList = Collections.singletonList(network.getBoundaryLine("dl1"));
         List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
         List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
         // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(danglinglineList, PROPORTIONAL_TO_PMAX));
-        assertEquals("Variable MaxP inconsistent with injection type class com.powsybl.iidm.network.impl.DanglingLineImpl", e0.getMessage());
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(boundarylineList, PROPORTIONAL_TO_PMAX));
+        assertEquals("Variable MaxP inconsistent with injection type class com.powsybl.iidm.network.impl.BoundaryLineImpl", e0.getMessage());
 
         // Error raised
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> Scalable.proportional(loadList, PROPORTIONAL_TO_PMAX));
@@ -331,13 +352,13 @@ class ProportionalScalableTest {
     @Test
     @Disabled("Error is raised on TargetP before being raised on MinP")
     void testScaleOnGeneratorsWithWrongParametersMinP() {
-        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<BoundaryLine> boundarylineList = Collections.singletonList(network.getBoundaryLine("dl1"));
         List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
         List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
         // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(danglinglineList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));
-        assertEquals("Variable MinP inconsistent with injection type class com.powsybl.iidm.network.impl.DanglingLineImpl", e0.getMessage());
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(boundarylineList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));
+        assertEquals("Variable MinP inconsistent with injection type class com.powsybl.iidm.network.impl.BoundaryLineImpl", e0.getMessage());
 
         // Error raised
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> Scalable.proportional(loadList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));
@@ -369,7 +390,10 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(0.0);
         network.getGenerator("g3").setTargetP(0.0);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -381,7 +405,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_TARGETP,
+            PROPORTIONAL_TO_TARGETP.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -398,7 +422,10 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMinP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMinP());
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -410,7 +437,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
@@ -427,7 +454,10 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMaxP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMaxP());
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -439,7 +469,7 @@ class ProportionalScalableTest {
         variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         scalingReport(reportNode,
             "generators",
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN.name(),
             scalingParameters.getScalingType(),
             100.0, variationDone);
         assertEquals(0.0, variationDone, 1e-5);
@@ -514,8 +544,11 @@ class ProportionalScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUpGenConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
-        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getBoundaryLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
 
@@ -524,8 +557,8 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
-                return -danglingLine.getP0();
+            } else if (injection instanceof BoundaryLine boundaryLine) {
+                return -boundaryLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");
             }
@@ -538,21 +571,24 @@ class ProportionalScalableTest {
         proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, -Double.MAX_VALUE, maxValue);
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
         scalingReport(reportNode,
-            "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            "loads and boundary lines",
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             100.0, variationDone);
         assertEquals(75, variationDone, 1e-5);
         assertEquals(100.0 * (1.0 - 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
         assertEquals(80 * (1.0 - 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(50.0 * (1.0 - 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 - 75 / 230.0), network.getBoundaryLine("dl1").getP0(), 1e-5);
         reset();
     }
 
     @Test
     void testMaxValueBoundsScalingDownLoadConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
-        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getBoundaryLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
 
@@ -561,8 +597,8 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
-                return -danglingLine.getP0();
+            } else if (injection instanceof BoundaryLine boundaryLine) {
+                return -boundaryLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");
             }
@@ -575,21 +611,24 @@ class ProportionalScalableTest {
         proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, -Double.MAX_VALUE, maxValue);
         variationDone = proportionalScalable.scale(network, -100.0, scalingParametersProportional);
         scalingReport(reportNode,
-            "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            "loads and boundary lines",
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             -100.0, variationDone);
         assertEquals(-75, variationDone, 1e-5);
         assertEquals(100.0 * (1.0 - 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
         assertEquals(80 * (1.0 - 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(50.0 * (1.0 - 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 - 75 / 230.0), network.getBoundaryLine("dl1").getP0(), 1e-5);
         reset();
     }
 
     @Test
     void testMinValueBoundsScalingDownGenConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
-        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getBoundaryLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
 
@@ -598,8 +637,8 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
-                return -danglingLine.getP0();
+            } else if (injection instanceof BoundaryLine boundaryLine) {
+                return -boundaryLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");
             }
@@ -612,21 +651,24 @@ class ProportionalScalableTest {
         proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, minValue, Double.MAX_VALUE);
         variationDone = proportionalScalable.scale(network, -100.0, scalingParametersProportional);
         scalingReport(reportNode,
-            "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            "loads and boundary lines",
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             -100.0, variationDone);
         assertEquals(-75, variationDone, 1e-5);
         assertEquals(100.0 * (1.0 + 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
         assertEquals(80 * (1.0 + 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(50.0 * (1.0 + 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 + 75 / 230.0), network.getBoundaryLine("dl1").getP0(), 1e-5);
         reset();
     }
 
     @Test
     void testMinValueBoundsScalingUpLoadConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
-        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getBoundaryLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
 
@@ -635,8 +677,8 @@ class ProportionalScalableTest {
                 return generator.getTargetP();
             } else if (injection instanceof Load load) {
                 return -load.getP0();
-            } else if (injection instanceof DanglingLine danglingLine) {
-                return -danglingLine.getP0();
+            } else if (injection instanceof BoundaryLine boundaryLine) {
+                return -boundaryLine.getP0();
             } else {
                 throw new PowsyblException("Unexpected injection type");
             }
@@ -649,14 +691,131 @@ class ProportionalScalableTest {
         proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0, minValue, Double.MAX_VALUE);
         variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
         scalingReport(reportNode,
-            "loads and dangling lines",
-            PROPORTIONAL_TO_P0,
+            "loads and boundary lines",
+            PROPORTIONAL_TO_P0.name(),
             scalingParametersProportional.getScalingType(),
             100.0, variationDone);
         assertEquals(75, variationDone, 1e-5);
         assertEquals(100.0 * (1.0 + 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
         assertEquals(80 * (1.0 + 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(50.0 * (1.0 + 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 + 75 / 230.0), network.getBoundaryLine("dl1").getP0(), 1e-5);
         reset();
+    }
+
+    @Test
+    void testDisableInjections() {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("scaling")
+                .build();
+        List<Injection<?>> injectionsList = Arrays.asList(
+            network.getGenerator("g1"), network.getGenerator("g2"),
+            network.getLoad("l1"), network.getLoad("l2"),
+            network.getBoundaryLine("dl1"));
+        ProportionalScalable proportionalScalable;
+        double variationDone;
+
+        // Uniform with scalables on l1, g1 and dl1 disabled
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        scalingParametersProportional.setIgnoredInjectionIds(Set.of("l1", "g1", "dl1"));
+        proportionalScalable = Scalable.proportional(injectionsList, UNIFORM_DISTRIBUTION);
+        double volumeAsked = 70.;
+        variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        scalingReport(reportNode,
+            "generators, loads and boundary lines",
+            UNIFORM_DISTRIBUTION.name(),
+            scalingParametersProportional.getScalingType(),
+            volumeAsked, variationDone);
+        assertEquals(volumeAsked, variationDone, 1e-5);
+        assertEquals(100.0, network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(80 - volumeAsked / 2, network.getLoad("l2").getP0(), 1e-5);
+        assertEquals(80.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(50 + volumeAsked / 2, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(50.0, network.getBoundaryLine("dl1").getP0(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testSmallPercentageAndAskingEpsilonMoreThanAvailable() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        load1.setP0(100. - 1e-5);
+        load2.setP0(1e-5);
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(load1, load2), PROPORTIONAL_TO_P0);
+        double volumeAsked = -100. - 0.01; // only -100 can be achieved due to load scalable 0 MW min limit
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+                true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0()); // a perfect 0.
+        assertEquals(0.0, load2.getP0()); // a perfect 0.
+    }
+
+    @Test
+    void testSmallPercentageOnDiscardedScalable() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(100.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId());
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        scalingParametersProportional.setIgnoredInjectionIds(Set.of("l2", "l3"));
+        double volumeAsked = -100.15; // 100 MW should be done by load1 alone and nothing by ignored load2 and load3
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0()); // a perfect 0.
+        assertEquals(100.0, load2.getP0()); // load 2 should not move
+        assertEquals(100.0, load3.getP0()); // load 3 should not move
+    }
+
+    @Test
+    void testSmallPercentageReNormalized() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(100.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId(), 99., Double.MAX_VALUE);
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        double volumeAsked = -100;
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(99.0, load1.getP0(), 1e-5); // at limit
+        assertEquals(50.5, load2.getP0());
+        assertEquals(50.5, load3.getP0());
+    }
+
+    @Test
+    void testSmallPercentageReNormalized2() {
+        Load load1 = network.getLoad("l1");
+        Load load2 = network.getLoad("l2");
+        Load load3 = network.getLoad("l3");
+        load1.setP0(0.);
+        load2.setP0(100.);
+        load3.setP0(100.);
+        Scalable scalable1 = Scalable.onLoad(load1.getId(), 99., Double.MAX_VALUE);
+        Scalable scalable2 = Scalable.onLoad(load2.getId());
+        Scalable scalable3 = Scalable.onLoad(load3.getId());
+        ProportionalScalable proportionalScalable = Scalable.proportional(List.of(100 - 2e-5, 1e-5, 1e-5), List.of(scalable1, scalable2, scalable3));
+        double volumeAsked = -100;
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        double variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        assertEquals(-100., variationDone, 1e-5);
+        assertEquals(0.0, load1.getP0());
+        assertEquals(50., load2.getP0());
+        assertEquals(50., load3.getP0());
     }
 }

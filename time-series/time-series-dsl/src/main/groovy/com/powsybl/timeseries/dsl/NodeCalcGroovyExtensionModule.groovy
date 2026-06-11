@@ -17,40 +17,26 @@ class NodeCalcGroovyExtensionModule {
 
     // restore default comparison behaviour
     static boolean compareToNodeCalc(Object self, Object value, String op) {
-        switch (op) {
-            case ">":
-                return self > value
-            case ">=":
-                return self >= value
-            case "<":
-                return self < value
-            case "<=":
-                return self <= value
-            case "==":
-                return self == value
-            case "!=":
-                return self != value
-            default:
-                throw new PowsyblException("Unexpected operator: " + op)
+        return switch (op) {
+            case ">" -> self > value
+            case ">=" -> self >= value
+            case "<" -> self < value
+            case "<=" -> self <= value
+            case "==" -> self == value
+            case "!=" -> self != value
+            default -> throw new PowsyblException("Unexpected operator: " + op)
         }
     }
 
     private static NodeCalc createComparisonNode(NodeCalc left, NodeCalc right, String op) {
-        switch (op) {
-            case ">":
-                return BinaryOperation.greaterThan(left, right)
-            case ">=":
-                return BinaryOperation.greaterThanOrEqualsTo(left, right)
-            case "<":
-                return BinaryOperation.lessThan(left, right)
-            case "<=":
-                return BinaryOperation.lessThanOrEqualsTo(left, right)
-            case "==":
-                return BinaryOperation.equals(left, right)
-            case "!=":
-                return BinaryOperation.notEquals(left, right)
-            default:
-                throw new PowsyblException("Unexpected operator: " + op)
+        return switch (op) {
+            case ">" -> BinaryOperation.greaterThan(left, right)
+            case ">=" -> BinaryOperation.greaterThanOrEqualsTo(left, right)
+            case "<" -> BinaryOperation.lessThan(left, right)
+            case "<=" -> BinaryOperation.lessThanOrEqualsTo(left, right)
+            case "==" -> BinaryOperation.equals(left, right)
+            case "!=" -> BinaryOperation.notEquals(left, right)
+            default -> throw new PowsyblException("Unexpected operator: " + op)
         }
     }
 

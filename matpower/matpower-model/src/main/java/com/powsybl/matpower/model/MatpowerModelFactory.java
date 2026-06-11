@@ -31,7 +31,7 @@ public final class MatpowerModelFactory {
         return model;
     }
 
-    private static MatpowerModel readModelJsonFromResources(String fileName) {
+    public static MatpowerModel readModelJsonFromResources(String fileName) {
         return readModelJsonFromResources(new ObjectMapper(), fileName);
     }
 

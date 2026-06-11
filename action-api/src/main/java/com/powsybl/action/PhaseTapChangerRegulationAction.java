@@ -10,6 +10,7 @@ package com.powsybl.action;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -30,7 +31,7 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         this.regulationMode = regulationMode;
         this.regulationValue = regulationValue;
         if (!regulating && this.regulationMode != null) {
-            throw new IllegalArgumentException("PhaseTapChangerRegulationAction can not have a regulation mode " +
+            throw new IllegalArgumentException("PhaseTapChangerRegulationAction cannot have a regulation mode " +
                     "if it is not regulating");
         }
     }
@@ -70,5 +71,25 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
 
     public static PhaseTapChangerRegulationAction deactivateRegulation(String id, String transformerId, ThreeSides side) {
         return new PhaseTapChangerRegulationAction(id, transformerId, side, false, null, null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        PhaseTapChangerRegulationAction that = (PhaseTapChangerRegulationAction) o;
+        return regulationMode == that.regulationMode && Objects.equals(regulationValue, that.regulationValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), regulationMode, regulationValue);
     }
 }

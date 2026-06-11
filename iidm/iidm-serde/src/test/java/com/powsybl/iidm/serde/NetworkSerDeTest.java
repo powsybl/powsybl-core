@@ -9,17 +9,26 @@ package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataFormat;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
+import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -27,8 +36,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -51,10 +63,122 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testSkippedExtension() throws IOException {
+    void roundTripTestMultipleSelectedOperationalLimitsGroup() throws IOException {
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(), "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility : in versions older than IIDM 1.16 we only export the last selected limits group
+        // no need to test before 1.12 as OperationalLimitsGroup did not exist before
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml", IidmVersion.V_1_12, IidmVersion.V_1_16);
+    }
+
+    @Test
+    void roundTripTestOperationalLimitsGroupSpecialCharacterName() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        String name = "notANiceName\"";
+        String name2 = "anotherName,,,";
+        line.newOperationalLimitsGroup1(name);
+        line.newOperationalLimitsGroup1(name2);
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, name, name2);
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml", CURRENT_IIDM_VERSION);
+        assertEquals(6, networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getOperationalLimitsGroups1().size());
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
+    }
+
+    @Test
+    void writeMultipleSelectedOperationalLimitsGroupToOlderFormat() throws IOException {
+        testWriteVersionedXmlBetweenVersions(
+            EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(),
+            new ExportOptions(),
+            "eurostag-tutorial-multiple-selected-op-lim-group.xml",
+            IidmVersion.V_1_12,
+            IidmVersion.V_1_15
+        );
+    }
+
+    @Test
+    void checkNoExportOfLowLimits() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+            .newOperationalLimitsGroup1("low limits")
+            .newApparentPowerLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setValue(1000)
+            .setAcceptableDuration(60)
+            .setName("1'")
+            .endTemporaryLimit()
+            .add();
+        String referenceFilename = getVersionedNetworkPath("eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17);
+        assertThrows(NotImplementedException.class, () -> writeXmlTest(network,
+            (n, p) -> NetworkSerDe.write(n, new ExportOptions().setVersion(IidmVersion.V_1_17.toString(".")), p),
+            referenceFilename
+            ));
+        allFormatsRoundTripTest(network, "eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17, new ExportOptions().setForceExportNetworkWithBetaFeatures(true));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
+    void testSkippedExtension(TreeDataFormat format) throws IOException {
+        Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
+        Path file = tmpDir.resolve("data");
+        NetworkSerDe.write(network, new ExportOptions().setFormat(format), file);
+
         // Read file with all extensions included (default ImportOptions)
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
-        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("root")
+                .build();
+        Network networkReadExtensions = NetworkSerDe.read(file,
+                new ImportOptions().setFormat(format), null, NetworkFactory.findDefault(), reportNode1);
+        Load load1 = networkReadExtensions.getLoad("LOAD1");
+        assertNotNull(load1.getExtension(LoadBarExt.class));
+        assertNotNull(load1.getExtension(LoadZipModel.class));
+
+        StringWriter sw1 = new StringWriter();
+        reportNode1.print(sw1);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadBar imported.
+                      Extension loadZipModel imported.
+                """, TestUtil.normalizeLineSeparator(sw1.toString()));
+
+        // Read file with only terminalMockNoSerDe and loadZipModel extensions included
+        ReportNode reportNode2 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("root")
+                .build();
+        ImportOptions notAllExtensions = new ImportOptions()
+                .addIncludedExtension("terminalMockNoSerDe").addIncludedExtension("loadZipModel")
+                .setFormat(format);
+        Network networkSkippedExtensions = NetworkSerDe.read(file,
+                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
+        Load load2 = networkSkippedExtensions.getLoad("LOAD1");
+        assertNull(load2.getExtension(LoadBarExt.class));
+        LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
+        assertNotNull(loadZipModelExt);
+        assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
+
+        StringWriter sw2 = new StringWriter();
+        reportNode2.print(sw2);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadZipModel imported.
+                """, TestUtil.normalizeLineSeparator(sw2.toString()));
+    }
+
+    @Test
+    void testNotFoundExtension() throws IOException {
+        // Read file with all extensions included (default ImportOptions)
+        ReportNode reportNode1 = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("root")
+                .build();
+        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/notFoundExtension.xml"),
                 new ImportOptions(), null, NetworkFactory.findDefault(), reportNode1);
         Load load1 = networkReadExtensions.getLoad("LOAD");
         assertNotNull(load1.getExtension(LoadBarExt.class));
@@ -71,28 +195,6 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                    + Not found extensions
                       Extension terminalMockNoSerDe not found.
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
-
-        // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
-        ImportOptions notAllExtensions = new ImportOptions().addExtension("terminalMockNoSerDe").addExtension("loadZipModel");
-        Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
-                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
-        Load load2 = networkSkippedExtensions.getLoad("LOAD");
-        assertNull(load2.getExtension(LoadBarExt.class));
-        LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
-        assertNotNull(loadZipModelExt);
-        assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
-
-        StringWriter sw2 = new StringWriter();
-        reportNode2.print(sw2);
-        assertEquals("""
-                + Root reportNode
-                   Validation warnings
-                   + Imported extensions
-                      Extension loadZipModel imported.
-                   + Not found extensions
-                      Extension terminalMockNoSerDe not found.
-                """, TestUtil.normalizeLineSeparator(sw2.toString()));
     }
 
     @Test
@@ -116,6 +218,21 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
     }
 
+    @Test
+    void testCopyFormat() {
+        Network network = createEurostagTutorialExample1();
+        Path file1 = tmpDir.resolve("n.xml");
+        NetworkSerDe.write(network, file1);
+        Network network2 = NetworkSerDe.copy(network);
+        Path file2 = tmpDir.resolve("n2.xml");
+        NetworkSerDe.write(network2, file2);
+        assertTxtEquals(file1, file2);
+        Network network3 = NetworkSerDe.copy(network, TreeDataFormat.BIN);
+        Path file3 = tmpDir.resolve("n3.xml");
+        NetworkSerDe.write(network3, file3);
+        assertTxtEquals(file1, file3);
+    }
+
     @AutoService(ExtensionSerDe.class)
     public static class BusbarSectionExtSerDe extends AbstractExtensionSerDe<BusbarSection, BusbarSectionExt> {
 
@@ -126,19 +243,21 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
         @Override
         public void write(BusbarSectionExt busbarSectionExt, SerializerContext context) {
+            // this method is abstract
         }
 
         @Override
         public BusbarSectionExt read(BusbarSection busbarSection, DeserializerContext context) {
             context.getReader().readEndNode();
-            return new BusbarSectionExt(busbarSection);
+            var bbsExt = new BusbarSectionExt(busbarSection);
+            busbarSection.addExtension(BusbarSectionExt.class, bbsExt);
+            return bbsExt;
         }
     }
 
-    private static Network writeAndRead(Network network, ExportOptions options) throws IOException {
+    static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkSerDe.write(network, options, os);
-
             try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
                 return NetworkSerDe.read(is);
             }
@@ -237,7 +356,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         vl1.getBusBreakerView().newBus()
                 .setId(busId)
                 .add();
-        network.getVoltageLevel(voltageLevelId).newDanglingLine()
+        network.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(dlId)
                 .setName(dlId + "_name")
                 .setConnectableBus(busId)
@@ -286,5 +405,136 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             load.addExtension(TerminalMockExt.class, terminalMockExt);
         }
         return network;
+    }
+
+    @Test
+    void emptySourceFormatTest() {
+        Network network = Network.create("id", "");
+        Path xmlFile = tmpDir.resolve("emptySourceFormat.xml");
+        testForAllVersionsSince(IidmVersion.V_1_0, iidmVersion -> {
+            ExportOptions options = new ExportOptions().setVersion(iidmVersion.toString("."));
+            NetworkSerDe.write(network, options, xmlFile);
+            Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+            assertEquals("", readNetwork.getSourceFormat());
+        });
+    }
+
+    @Test
+    void testExportWithFlatten() {
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        Path xmlFile = tmpDir.resolve("flattenedNetwork.xml");
+
+        Network merged = Network.merge("Merged", n1, n2);
+
+        ExportOptions options = new ExportOptions().setFlatten(true);
+        NetworkSerDe.write(merged, options, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
+        assertEquals(0, readNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    void testExportWithoutFlatten() {
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        Path xmlFile = tmpDir.resolve("networkWithSubnetworks.xml");
+
+        Network merged = Network.merge("Merged", n1, n2);
+
+        ExportOptions options = new ExportOptions();
+        NetworkSerDe.write(merged, options, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
+        assertEquals(2, merged.getSubnetworks().size());
+        assertEquals(2, readNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    void testValidateByVersionOnIidm102() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_2/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_2));
+        }
+    }
+
+    @Test
+    void testValidateByVersionOnIidm116() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMismatchedNetworkVersion() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_15))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.15, found namespace http://www.powsybl.org/schema/iidm/1_16");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInvalidNetwork() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Invalid content was found starting with element '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainSlackTerminalExtension() throws IOException {
+        // test extension loading including slackTerminal which is in version 1.5 and require iidm version 1.8, when validate should succeed
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/europeanLvTestFeederRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInSupportedEnumValue() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/gen_enum_not_supported.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_17))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
+                            "'[HYDRO, NUCLEAR, WIND, THERMAL, SOLAR, OTHER]'. It must be a value from the enumeration.");
+        }
+    }
+
+    @Test
+    void testValidateWithCustomExtensionSupplier() throws IOException {
+        ExtensionsSupplier customExtensionsSupplier = () -> DefaultExtensionsSupplier.getInstance().get();
+        assertNotSame(DefaultExtensionsSupplier.getInstance(), customExtensionsSupplier);
+
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16, customExtensionsSupplier));
+        }
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, customExtensionsSupplier));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMissingNamespace() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/network-without-namespace.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.16, found namespace  ");
+        }
+    }
+
+    @Test
+    void testValidateWhenParseMalformedXml() {
+        String xml = "<iidm:network";
+        byte[] bytes = xml.getBytes(StandardCharsets.UTF_8);
+        InputStream is = new ByteArrayInputStream(bytes);
+        assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                .isInstanceOf(UncheckedSaxException.class)
+                .hasMessageContaining("XML document structures must start and end within the same entity");
     }
 }

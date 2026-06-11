@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */

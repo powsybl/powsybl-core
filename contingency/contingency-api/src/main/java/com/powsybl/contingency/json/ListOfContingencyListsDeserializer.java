@@ -12,8 +12,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.contingency.list.ListOfContingencyLists;
+import com.powsybl.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ListOfContingencyLists;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -33,7 +33,7 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
         String name = null;
         List<ContingencyList> contingencyLists = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> deserializationContext.setAttribute("version", parser.nextTextValue());
                 case "name" -> name = parser.nextTextValue();
                 case "type" -> {
@@ -45,7 +45,7 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
                     parser.nextToken();
                     contingencyLists = JsonUtil.readList(deserializationContext, parser, ContingencyList.class);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return new ListOfContingencyLists(name, contingencyLists);

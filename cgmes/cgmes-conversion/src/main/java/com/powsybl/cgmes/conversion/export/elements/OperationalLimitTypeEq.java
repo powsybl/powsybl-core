@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -25,22 +26,22 @@ public final class OperationalLimitTypeEq {
     private static final String PATL = "patl";
     private static final String TATL = "tatl";
 
-    public static void writePatl(String id, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void writePatl(String id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
-        writeKind(PATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
-        if (writeInfiniteDuration) {
+        writeKind(PATL, euNamespace, writer, context);
+        if (context.getCimVersion() == 100) {
             writeInfiniteDuration(true, cimNamespace, writer);
         }
         writer.writeEndElement();
     }
 
-    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace,
-                                 String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, name, cimNamespace, writer, context);
+    public static void writeTatl(String id, int acceptableDuration, String cimNamespace, String euNamespace,
+                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "TATL " + acceptableDuration, cimNamespace, writer, context);
         writeDirection(cimNamespace, writer);
-        writeKind(TATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
-        if (writeInfiniteDuration) {
+        writeKind(TATL, euNamespace, writer, context);
+        if (context.getCimVersion() == 100) {
             writeInfiniteDuration(false, cimNamespace, writer);
         }
         writer.writeStartElement(cimNamespace, "OperationalLimitType.acceptableDuration");
@@ -54,15 +55,35 @@ public final class OperationalLimitTypeEq {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + ABSOLUTEVALUE_LIMITDIRECTION);
     }
 
-    private static void writeKind(String kind, String euNamespace, String limitTypeAttributeName, String limitKindClassName, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeEmptyElement(euNamespace, limitTypeAttributeName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, limitKindClassName, kind));
+    private static void writeKind(String kind, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        writer.writeEmptyElement(euNamespace, getLimitTypeAttributeName(context));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, getLimitKindClassName(context), kind));
     }
 
     private static void writeInfiniteDuration(boolean infiniteDuration, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "OperationalLimitType.isInfiniteDuration");
         writer.writeCharacters(Boolean.toString(infiniteDuration));
         writer.writeEndElement();
+    }
+
+    public static String getLimitTypeAttributeName(CgmesExportContext context) {
+        if (context.getCimVersion() == 14) {
+            throw new PowsyblException("Undefined limit type attribute name for version 14");
+        } else if (context.getCimVersion() == 16) {
+            return "OperationalLimitType.limitType";
+        } else {
+            return "OperationalLimitType.kind";
+        }
+    }
+
+    public static String getLimitKindClassName(CgmesExportContext context) {
+        if (context.getCimVersion() == 14) {
+            throw new PowsyblException("Undefined limit kind class name for version 14");
+        } else if (context.getCimVersion() == 16) {
+            return "LimitTypeKind";
+        } else {
+            return "LimitKind";
+        }
     }
 
     private OperationalLimitTypeEq() {

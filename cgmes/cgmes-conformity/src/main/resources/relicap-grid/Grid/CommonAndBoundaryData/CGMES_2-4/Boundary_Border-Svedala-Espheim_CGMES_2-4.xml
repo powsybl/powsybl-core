@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<!-- Exported from CIMSpy/CIMdesk on 2025-05-19T14:59:01Z. -->
+	<md:FullModel rdf:about="urn:uuid:af6450db-fe15-4caf-94a1-e22f3fced32e">
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.DependentOn rdf:resource="urn:uuid:1b65ada7-39ca-42b8-a278-39c457ed82c3"/>
+		<md:Model.created>2025-02-06T14:18:22Z</md:Model.created>
+		<md:Model.description>BD test data.</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://ninerealms.nr/boundary</md:Model.modelingAuthoritySet>
+		<md:Model.scenarioTime>2022-06-16T23:30:00Z</md:Model.scenarioTime>
+		<md:Model.version>1</md:Model.version>
+	</md:FullModel>
+	<cim:ConnectivityNode rdf:ID="_0a31ada8-2dfc-41c5-a07f-6c2151cea34d">
+		<entsoe:ConnectivityNode.fromEndIsoCode>EH</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Madgar4</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>EH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Leyva1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_c06d67a0-4984-4661-846c-f42a9b29c049"/>
+		<cim:IdentifiedObject.description>BP_EH-SD_DC1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>0a31ada8-2dfc-41c5-a07f-6c2151cea34d</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_EH-SD_DC1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-SD_DC1</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_e8ff8c24-86e7-b248-8c94-78f79a4e4833</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_49831d24-33e9-4233-8424-3f88186a924e">
+		<entsoe:ConnectivityNode.fromEndIsoCode>SD</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Parila1</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>EH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Barigar1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2"/>
+		<cim:IdentifiedObject.description>BP_SD-EH1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>49831d24-33e9-4233-8424-3f88186a924e</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH1</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_da478bfe-fcf6-894c-8c24-22da815efe4f</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_183d126d-2522-4ff2-a8cd-c5016cf09c1b">
+		<entsoe:ConnectivityNode.fromEndIsoCode>SD</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Parila2</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>EH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Barigar2</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3"/>
+		<cim:IdentifiedObject.description>BP_SD-EH2</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>183d126d-2522-4ff2-a8cd-c5016cf09c1b</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH2</entsoe:IdentifiedObject.shortName>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-00001A</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:ConnectivityNode.TopologicalNode>_271c26f2-359e-0347-9016-d8c917d55b15</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_8dd436f0-f8a2-405b-a991-1a2479077ef5">
+		<entsoe:ConnectivityNode.fromEndIsoCode>SD</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Parila3</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>EH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Barigar3</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_78525c97-a5b6-4cbb-8028-1236ca2f4a37"/>
+		<cim:IdentifiedObject.description>BP_SD-EH3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>8dd436f0-f8a2-405b-a991-1a2479077ef5</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH3</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_09ebdc27-b1bd-0647-ac5a-bbc6b39dd9ee</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_89caa531-9769-4e1c-9d37-0af93bfada13">
+		<entsoe:ConnectivityNode.fromEndIsoCode>SD</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Parila4</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Svedala</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>EH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Barigar1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Espheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_ba130a7b-fb46-4c73-a6cf-ec41812a14c0"/>
+		<cim:IdentifiedObject.description>BP_SD-EH_DC1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>89caa531-9769-4e1c-9d37-0af93bfada13</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH_DC1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH_DC1</entsoe:IdentifiedObject.shortName>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-00017X</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<cim:ConnectivityNode.TopologicalNode>_f81c7566-49d0-cf4d-a8f9-789348a94cf2</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:Line rdf:ID="_c06d67a0-4984-4661-846c-f42a9b29c049">
+		<cim:IdentifiedObject.description>Line BP_EH-SD_DC1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>c06d67a0-4984-4661-846c-f42a9b29c049</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_EH-SD_DC1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_EH-SD_DC1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2">
+		<cim:IdentifiedObject.description>Line BP_SD-EH1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3">
+		<cim:IdentifiedObject.description>Line BP_SD-EH2</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH2</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH2</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_78525c97-a5b6-4cbb-8028-1236ca2f4a37">
+		<cim:IdentifiedObject.description>Line BP_SD-EH3</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>78525c97-a5b6-4cbb-8028-1236ca2f4a37</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH3</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH3</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:Line rdf:ID="_ba130a7b-fb46-4c73-a6cf-ec41812a14c0">
+		<cim:IdentifiedObject.description>Line BP_SD-EH_DC1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>ba130a7b-fb46-4c73-a6cf-ec41812a14c0</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_SD-EH_DC1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH_DC1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-BO-GA-10274U</entsoe:IdentifiedObject.energyIdentCodeEic>
+	</cim:Line>
+	<cim:TopologicalNode rdf:ID="_e8ff8c24-86e7-b248-8c94-78f79a4e4833">
+		<cim:IdentifiedObject.name>BP_EH-SD_DC1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_EH-SD_DC1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_EH-SD_DC1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>EH</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>EH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Madgar4</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Leyva1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Espheim</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Svedala</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_c06d67a0-4984-4661-846c-f42a9b29c049</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_da478bfe-fcf6-894c-8c24-22da815efe4f">
+		<cim:IdentifiedObject.name>BP_SD-EH1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_SD-EH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>SD</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>EH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Parila1</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Barigar1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Svedala</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Espheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_271c26f2-359e-0347-9016-d8c917d55b15">
+		<cim:IdentifiedObject.name>BP_SD-EH2</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_SD-EH2</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH2</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>SD</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>EH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Parila2</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Barigar2</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Svedala</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Espheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_09ebdc27-b1bd-0647-ac5a-bbc6b39dd9ee">
+		<cim:IdentifiedObject.name>BP_SD-EH3</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_SD-EH3</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH3</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>SD</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>EH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Parila3</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Barigar3</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Svedala</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Espheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_78525c97-a5b6-4cbb-8028-1236ca2f4a37</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_f81c7566-49d0-cf4d-a8f9-789348a94cf2">
+		<cim:IdentifiedObject.name>BP_SD-EH_DC1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_SD-EH_DC1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_SD-EH_DC1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>SD</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>EH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Parila4</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Barigar1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Svedala</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Espheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_ba130a7b-fb46-4c73-a6cf-ec41812a14c0</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+</rdf:RDF>

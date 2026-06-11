@@ -19,9 +19,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.OptionalDouble;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -30,6 +33,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
 
     private Network network;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -44,13 +48,36 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void test() throws IOException {
-        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    void testTargetPLimits() throws IOException {
+        network.getGenerator("GEN").getExtension(ActivePowerControl.class).setMaxTargetP(800.);
+        network.getBattery("BAT").getExtension(ActivePowerControl.class).setMinTargetP(10.);
+        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlWithLimitRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        Generator gen2 = network2.getGenerator("GEN");
+        assertNotNull(gen2);
+        ActivePowerControl<Generator> activePowerControl1 = gen2.getExtension(ActivePowerControl.class);
+        assertNotNull(activePowerControl1);
+        assertEquals(OptionalDouble.of(800), activePowerControl1.getMaxTargetP());
+        assertTrue(activePowerControl1.getMinTargetP().isEmpty());
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
         ActivePowerControl<Battery> activePowerControl2 = bat2.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl2);
+        assertTrue(activePowerControl2.getMaxTargetP().isEmpty());
+        assertEquals(OptionalDouble.of(10), activePowerControl2.getMinTargetP());
+    }
+
+    @Test
+    void testIidmV12() throws IOException {
+        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlRoundTripRef.xml", IidmVersion.V_1_12);
+
+        Battery bat2 = network2.getBattery("BAT");
+        assertNotNull(bat2);
+        ActivePowerControl<Battery> activePowerControl2 = bat2.getExtension(ActivePowerControl.class);
+        assertNotNull(activePowerControl2);
+        assertTrue(activePowerControl2.getMaxTargetP().isEmpty());
+        assertTrue(activePowerControl2.getMinTargetP().isEmpty());
     }
 
     @Test

@@ -35,7 +35,7 @@ class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
         double inversePhase = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "directMagnitude" -> {
                     parser.nextToken();
                     directMagnitude = parser.readValueAs(Double.class);
@@ -60,7 +60,7 @@ class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
                     parser.nextToken();
                     inversePhase = parser.readValueAs(Double.class);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return new FortescueValue(directMagnitude, zeroMagnitude, inverseMagnitude, directPhase, zeroPhase, inversePhase);

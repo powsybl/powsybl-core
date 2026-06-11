@@ -11,7 +11,8 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
+import com.powsybl.security.SecurityAnalysisParameters.ModifiedMonitoredElementsParameters;
+import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.DummyExtension;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -34,8 +35,8 @@ class SecurityAnalysisParametersTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
-        assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummy-extension"));
+        assertInstanceOf(DummyExtension.class, parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -45,14 +46,14 @@ class SecurityAnalysisParametersTest {
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
-        assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
     void testExtensionFromConfig() {
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummy-extension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
@@ -98,5 +99,26 @@ class SecurityAnalysisParametersTest {
         assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
         assertEquals(4.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
         assertEquals(5.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+    }
+
+    @Test
+    void testMonitored() {
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        ModifiedMonitoredElementsParameters monitored = parameters.getModifiedMonitoredElementsParameters();
+        assertNotNull(monitored);
+        assertEquals(0.0, monitored.getPowerModificationThreshold(), EPS);
+        assertEquals(0.0, monitored.getVoltageModificationProportionalThreshold(), EPS);
+        assertEquals(0.0, monitored.getVoltageModificationAbsoluteThreshold(), EPS);
+        assertEquals(0.0, monitored.getVoltageModificationThreshold(400.0), EPS);
+
+        monitored.setVoltageModificationAbsoluteThreshold(1.0);
+        assertEquals(1.0, monitored.getVoltageModificationThreshold(400.0), EPS);
+
+        monitored.setVoltageModificationProportionalThreshold(0.1);
+        monitored.setVoltageModificationAbsoluteThreshold(0.0);
+        assertEquals(40.0, monitored.getVoltageModificationThreshold(400.0), EPS);
+
+        monitored.setVoltageModificationAbsoluteThreshold(30.0);
+        assertEquals(30.0, monitored.getVoltageModificationThreshold(400.0), EPS);
     }
 }

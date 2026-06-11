@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
@@ -53,6 +54,16 @@ class ThreeWindingsTransformerToBeEstimatedAdderImpl extends AbstractExtensionAd
     }
 
     @Override
+    public ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChangerStatus(ThreeSides side, boolean toBeEstimated) {
+        switch (side) {
+            case ONE -> this.rtc1Status = toBeEstimated;
+            case TWO -> this.rtc2Status = toBeEstimated;
+            case THREE -> this.rtc3Status = toBeEstimated;
+        }
+        return this;
+    }
+
+    @Override
     public ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger1Status(boolean toBeEstimated) {
         this.ptc1Status = toBeEstimated;
         return this;
@@ -67,6 +78,16 @@ class ThreeWindingsTransformerToBeEstimatedAdderImpl extends AbstractExtensionAd
     @Override
     public ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger3Status(boolean toBeEstimated) {
         this.ptc3Status = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChangerStatus(ThreeSides side, boolean toBeEstimated) {
+        switch (side) {
+            case ONE -> this.ptc1Status = toBeEstimated;
+            case TWO -> this.ptc2Status = toBeEstimated;
+            case THREE -> this.ptc3Status = toBeEstimated;
+        }
         return this;
     }
 }

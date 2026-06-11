@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
+        <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NGEN" v="24.500000610351563" angle="2.3259763717651367"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN" p="-605.558349609375" q="-225.2825164794922">
+                <iidm:regulatingTerminal id="NHV1_NHV2_1" side="ONE"/>
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NHV1" v="402.1428451538086" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:danglingLine id="NHV1_XNODE1" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" pairingKey="XNODE1" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
+            <iidm:danglingLine id="NHV1_XNODE2" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" pairingKey="XNODE2" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1" p1="605.558349609375" q1="225.2825164794922" p2="-604.8909301757812" q2="-197.48046875"/>
+    </iidm:substation>
+    <iidm:substation id="P2" country="FR" tso="RTE" geographicalTags="B">
+        <iidm:voltageLevel id="VLHV2" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NHV2" v="389.9526763916016" angle="-3.5063576698303223"/>
+            </iidm:busBreakerTopology>
+            <iidm:danglingLine id="XNODE1_NHV2" p0="0.0" q0="0.0" r="1.5" x="13.0" g="2.0E-6" b="1.93E-4" pairingKey="XNODE1" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
+            <iidm:danglingLine id="XNODE2_NHV2" p0="0.0" q0="0.0" r="1.5" x="13.0" g="2.0E-6" b="1.93E-4" pairingKey="XNODE2" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NLOAD" v="147.57861328125" angle="-9.614486694335938"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD" p="600.0" q="200.0"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2" voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD" voltageLevelId2="VLLOAD" p1="600.8677978515625" q1="274.3769836425781" p2="-600.0" q2="-200.0">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="158.0">
+                <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:tieLine id="NHV1_NHV2_1" danglingLineId1="NHV1_XNODE1" danglingLineId2="XNODE1_NHV2"/>
+    <iidm:tieLine id="NHV1_NHV2_2" danglingLineId1="NHV1_XNODE2" danglingLineId2="XNODE2_NHV2"/>
+</iidm:network>

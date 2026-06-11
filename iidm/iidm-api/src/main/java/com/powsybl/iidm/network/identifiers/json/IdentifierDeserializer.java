@@ -12,14 +12,13 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
-import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.identifiers.*;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -41,11 +40,14 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         String voltageLevelId1 = null;
         String voltageLevelId2 = null;
         String contingencyId = null;
+        String substationOrVoltageLevelId = null;
+        String wildcard = IdWithWildcardsNetworkElementIdentifier.DEFAULT_WILDCARD_CHARACTER;
         String version = JsonUtil.getSourceVersion(deserializationContext, IDENTIFIER_LIST_VERSION);
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
+        Set<IdentifiableType> voltageLevelIdentifiableTypes = Collections.emptySet();
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "type" -> type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextTextValue());
                 case "identifier" -> identifier = parser.nextTextValue();
                 case CONTINGENCY_ID -> {
@@ -54,11 +56,15 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                 }
                 case "identifierList" -> {
                     parser.nextToken();
-                    networkElementIdentifierList = JsonUtil.readList(deserializationContext,
-                            parser, NetworkElementIdentifier.class);
+                    networkElementIdentifierList = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 case "voltageLevelId1" -> voltageLevelId1 = parser.nextTextValue();
                 case "voltageLevelId2" -> voltageLevelId2 = parser.nextTextValue();
+                case "substationOrVoltageLevelId" -> substationOrVoltageLevelId = parser.nextTextValue();
+                case "voltageLevelIdentifiableTypes" -> {
+                    parser.nextToken();
+                    voltageLevelIdentifiableTypes = JsonUtil.readSet(deserializationContext, parser, IdentifiableType.class);
+                }
                 case "order" -> {
                     String orderStr = parser.nextTextValue();
                     if (orderStr.length() != 1) {
@@ -66,17 +72,20 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     }
                     order = orderStr.charAt(0);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                case "wildcard" -> wildcard = parser.nextTextValue();
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         if (type == null) {
-            throw new IllegalArgumentException("type of identifier can not be null");
+            throw new IllegalArgumentException("type of identifier cannot be null");
         }
         return switch (type) {
             case ID_BASED -> new IdBasedNetworkElementIdentifier(identifier, contingencyId);
             case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
-                    new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
+                new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
+            case ID_WITH_WILDCARDS -> new IdWithWildcardsNetworkElementIdentifier(identifier, wildcard, contingencyId);
+            case SUBSTATION_OR_VOLTAGE_LEVEL_EQUIPMENTS -> new SubstationOrVoltageLevelEquipmentsIdentifier(substationOrVoltageLevelId, voltageLevelIdentifiableTypes);
         };
     }
 }

@@ -86,7 +86,8 @@ public final class TerminalFinder {
         List<Predicate<Terminal>> rules = new ArrayList<>();
         rules.add(t -> t.getConnectable() instanceof BusbarSection);
         rules.add(t -> t.getConnectable() instanceof Injection);
-        rules.add(t -> t.getConnectable() instanceof Branch);
+        rules.add(t -> t.getConnectable() instanceof Line);
+        rules.add(t -> t.getConnectable() instanceof TwoWindingsTransformer);
         rules.add(t -> t.getConnectable() instanceof ThreeWindingsTransformer);
         rules.add(t -> t.getConnectable() instanceof HvdcConverterStation);
         rules.add(Objects::nonNull);

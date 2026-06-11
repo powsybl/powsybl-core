@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -359,6 +361,32 @@ class VariantManagerImplTest {
     }
 
     @Test
+    void testOverwriteVariantOrNot() {
+        String variant1 = "v1";
+        String variant2 = "v2";
+        List<String> targetVariants = List.of(variant1, variant2);
+
+        Network network = EurostagTutorialExample1Factory.create();
+        VariantManagerImpl manager = assertInstanceOf(VariantManagerImpl.class, network.getVariantManager());
+
+        Generator generator = network.getGenerator("GEN");
+        assertEquals(607.0, generator.getTargetP(), 0.0);
+
+        // Clone a first variant
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variant1);
+        assertEquals(2, manager.getVariantArraySize());
+
+        // Try to clone two new variants, including one already existing, without overwriting
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, targetVariants, false));
+        assertEquals("Target variants already exist: [v1]", exception.getMessage());
+        assertEquals(2, manager.getVariantArraySize());
+
+        // Clone the two variants, including one already existing, with overwriting
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, targetVariants, true);
+        assertEquals(3, manager.getVariantArraySize());
+    }
+
+    @Test
     void testVariantIndexKept() throws Exception {
         NetworkImpl network = (NetworkImpl) Network.create("testVariantIndexKept", "no-format");
         VariantManager variantManager = new VariantManagerImpl(network);
@@ -401,7 +429,7 @@ class VariantManagerImplTest {
         }).start();
         cdl1.await();
         if (exceptionThrown[0] != null) {
-            throw new IllegalStateException(exceptionThrown[0]);
+            fail(exceptionThrown[0]);
         }
     }
 
@@ -434,5 +462,41 @@ class VariantManagerImplTest {
         variantManager.removeVariant("ClonedVariant2");
         variantManager.allowVariantMultiThreadAccess(false);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
+    }
+
+    @Test
+    void testRetainedPropertyStateful() {
+        Network network = Network.create("test", "test");
+        Substation s = network.newSubstation()
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = s.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        Switch b1 = vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(0)
+                .setNode2(1)
+                .setOpen(false)
+                .setRetained(true)
+                .add();
+
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.allowVariantMultiThreadAccess(true);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "backup");
+
+        assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
+
+        b1.setRetained(false);
+        assertFalse(b1.isRetained());
+        assertEquals(1, Iterables.size(vl.getBusBreakerView().getBuses()));
+
+        variantManager.setWorkingVariant("backup");
+        assertTrue(b1.isRetained());
+        assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 }

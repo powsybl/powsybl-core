@@ -24,7 +24,7 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
             IdentifiableType.HVDC_LINE,
             IdentifiableType.TWO_WINDINGS_TRANSFORMER,
             IdentifiableType.THREE_WINDINGS_TRANSFORMER,
-            IdentifiableType.DANGLING_LINE,
+            IdentifiableType.BOUNDARY_LINE,
             IdentifiableType.GENERATOR,
             IdentifiableType.LOAD,
             IdentifiableType.BATTERY,
@@ -47,12 +47,17 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
 
     @Override
     public Optional<Country> getCountry1() {
-        return getCountry(TwoSides.ONE);
+        return getCountry(ThreeSides.ONE);
     }
 
     @Override
     public Optional<Country> getCountry2() {
-        return getCountry(TwoSides.TWO);
+        return getCountry(ThreeSides.TWO);
+    }
+
+    @Override
+    public Optional<Country> getCountry3() {
+        return getCountry(ThreeSides.THREE);
     }
 
     @Override
@@ -60,16 +65,17 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
         return getCountry1();
     }
 
-    private Optional<Country> getCountry(TwoSides side) {
+    @Override
+    public Optional<Country> getCountry(ThreeSides side) {
         return switch (identifiable.getType()) {
-            case LINE, TIE_LINE -> getCountryFromTerminal(((Branch<?>) identifiable).getTerminal(side));
-            case HVDC_LINE -> getCountryFromTerminal(((HvdcLine) identifiable).getConverterStation(side).getTerminal());
-            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
-                    side != TwoSides.ONE ? Optional.empty() : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
-            case TWO_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? Optional.empty() :
-                ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
-            case THREE_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? Optional.empty() :
-                ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
+            case LINE, TIE_LINE -> side != ThreeSides.THREE ?
+                    getCountryFromTerminal(((Branch<?>) identifiable).getTerminal(side.toTwoSides())) : Optional.empty();
+            case HVDC_LINE -> side != ThreeSides.THREE ?
+                    getCountryFromTerminal(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal()) : Optional.empty();
+            case BOUNDARY_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
+                side != ThreeSides.ONE ? Optional.empty() : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
+            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
             default -> Optional.empty();
         };
     }
@@ -99,19 +105,20 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
         return getNominalVoltage1();
     }
 
-    private Optional<Double> getNominalVoltage(ThreeSides side) {
+    @Override
+    public Optional<Double> getNominalVoltage(ThreeSides side) {
         return switch (identifiable.getType()) {
-            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
-                    side != ThreeSides.ONE ? Optional.empty() :
-                            Optional.of(((Injection<?>) identifiable).getTerminal().getVoltageLevel().getNominalV());
+            case BOUNDARY_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
+                side != ThreeSides.ONE ? Optional.empty() :
+                        Optional.of(((Injection<?>) identifiable).getTerminal().getVoltageLevel().getNominalV());
             case LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER ->
-                    side == ThreeSides.THREE ? Optional.empty() :
-                            Optional.of(((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV());
+                side == ThreeSides.THREE ? Optional.empty() :
+                        Optional.of(((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV());
             case HVDC_LINE ->
-                    side == ThreeSides.THREE ? Optional.empty() :
-                            Optional.of(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV());
+                side == ThreeSides.THREE ? Optional.empty() :
+                        Optional.of(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV());
             case THREE_WINDINGS_TRANSFORMER ->
-                    Optional.of(((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV());
+                Optional.of(((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV());
             default -> Optional.empty();
         };
     }
@@ -123,8 +130,8 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
                     && identifiable.getType() == IdentifiableType.LINE
                 || type == NetworkElementCriterionType.TIE_LINE
                     && identifiable.getType() == IdentifiableType.TIE_LINE
-                || type == NetworkElementCriterionType.DANGLING_LINE
-                    && identifiable.getType() == IdentifiableType.DANGLING_LINE
+                || type == NetworkElementCriterionType.BOUNDARY_LINE
+                    && identifiable.getType() == IdentifiableType.BOUNDARY_LINE
                 || type == NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER
                     && identifiable.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER
                 || type == NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER

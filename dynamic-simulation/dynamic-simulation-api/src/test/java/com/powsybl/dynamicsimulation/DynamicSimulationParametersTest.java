@@ -43,10 +43,10 @@ class DynamicSimulationParametersTest {
         fileSystem.close();
     }
 
-    private static void checkValues(DynamicSimulationParameters parameters, int startTime,
-                             int stopTime) {
+    private static void checkValues(DynamicSimulationParameters parameters, double startTime, double stopTime, String debugDir) {
         assertEquals(parameters.getStartTime(), startTime);
         assertEquals(parameters.getStopTime(), stopTime);
+        assertEquals(parameters.getDebugDir(), debugDir);
     }
 
     @Test
@@ -54,7 +54,8 @@ class DynamicSimulationParametersTest {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DynamicSimulationParameters.load(parameters, platformConfig);
         checkValues(parameters, DynamicSimulationParameters.DEFAULT_START_TIME,
-                DynamicSimulationParameters.DEFAULT_STOP_TIME);
+                DynamicSimulationParameters.DEFAULT_STOP_TIME,
+                DynamicSimulationParameters.DEFAULT_DEBUG_DIR);
     }
 
     @Test
@@ -85,43 +86,48 @@ class DynamicSimulationParametersTest {
 
     @Test
     void testToString() {
-        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 1000);
-        assertEquals("{startTime=0, stopTime=1000}", parameters.toString());
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 40.55);
+        assertEquals("{startTime=0.0, stopTime=40.55, debugDir=null}", parameters.toString());
     }
 
     @Test
     void checkConfig() {
         int startTime = 1;
         int stopTime = 100;
+        String debugDir = "debugDir";
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dynamic-simulation-default-parameters");
         moduleConfig.setStringProperty("startTime", Integer.toString(startTime));
         moduleConfig.setStringProperty("stopTime", Integer.toString(stopTime));
+        moduleConfig.setStringProperty("debugDir", debugDir);
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DynamicSimulationParameters.load(parameters, platformConfig);
-        checkValues(parameters, startTime, stopTime);
+        checkValues(parameters, startTime, stopTime, debugDir);
     }
 
     @Test
     void checkSetters() {
         int startTime = 1;
         int stopTime = 100;
+        String debugDir = "debugDir";
 
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DynamicSimulationParameters.load(parameters, platformConfig);
         parameters.setStartTime(startTime);
         parameters.setStopTime(stopTime);
+        parameters.setDebugDir(debugDir);
 
-        checkValues(parameters, startTime, stopTime);
+        checkValues(parameters, startTime, stopTime, debugDir);
     }
 
     @Test
     void checkClone() {
         int startTime = 1;
         int stopTime = 100;
-        DynamicSimulationParameters parameters = new DynamicSimulationParameters(startTime, stopTime);
+        String debugDir = "debugDir";
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters(startTime, stopTime, debugDir);
         DynamicSimulationParameters parametersCloned = parameters.copy();
-        checkValues(parametersCloned, parameters.getStartTime(), parameters.getStopTime());
+        checkValues(parametersCloned, parameters.getStartTime(), parameters.getStopTime(), parameters.getDebugDir());
     }
 
     @Test
@@ -132,8 +138,8 @@ class DynamicSimulationParametersTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummyExtension"));
+        assertInstanceOf(DummyExtension.class, parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -143,7 +149,7 @@ class DynamicSimulationParametersTest {
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -151,11 +157,11 @@ class DynamicSimulationParametersTest {
         DynamicSimulationParameters parameters = DynamicSimulationParameters.load(platformConfig);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummyExtension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
-    private static class DummyExtension extends AbstractExtension<DynamicSimulationParameters> {
+    private static final class DummyExtension extends AbstractExtension<DynamicSimulationParameters> {
 
         @Override
         public String getName() {

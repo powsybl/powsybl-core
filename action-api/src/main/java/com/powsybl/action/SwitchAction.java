@@ -7,6 +7,10 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.CloseSwitch;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.OpenSwitch;
+
 import java.util.Objects;
 
 /**
@@ -42,5 +46,34 @@ public class SwitchAction extends AbstractAction {
      */
     public boolean isOpen() {
         return open;
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        if (isOpen()) {
+            return new OpenSwitch(getSwitchId());
+        } else {
+            return new CloseSwitch(getSwitchId());
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        SwitchAction that = (SwitchAction) o;
+        return open == that.open && Objects.equals(switchId, that.switchId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), switchId, open);
     }
 }

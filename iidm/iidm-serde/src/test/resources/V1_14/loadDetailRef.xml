@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_14" xmlns:ld="http://www.itesla_project.eu/schema/iidm/ext/load_detail/1_0" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S" country="FR">
+        <iidm:voltageLevel id="VL" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="L" loadType="UNDEFINED" p0="100.0" q0="50.0" bus="B" connectableBus="B"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="L">
+        <ld:detail fixedActivePower="40.0" fixedReactivePower="20.0" variableActivePower="60.0" variableReactivePower="30.0"/>
+    </iidm:extension>
+</iidm:network>

@@ -1,8 +1,8 @@
 {
-  "version" : "1.0",
-  "startTime" : 0,
-  "stopTime" : 1,
+  "version" : "1.1",
+  "startTime" : 0.0,
+  "stopTime" : 10.0,
   "extensions" : {
-    "dummy-extension" : { }
+    "dynamic-simulation-dummy-extension" : { }
   }
 }

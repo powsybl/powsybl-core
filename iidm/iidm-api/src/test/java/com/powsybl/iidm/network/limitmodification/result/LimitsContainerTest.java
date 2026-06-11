@@ -54,7 +54,8 @@ class LimitsContainerTest {
 
     @Test
     void identicalLimitsContainerTest() {
-        LimitsContainer<LoadingLimits> container = new IdenticalLimitsContainer<>(originalLimits);
+        LimitsContainer<LoadingLimits> container = new IdenticalLimitsContainer<>(originalLimits, "ID");
+        assertEquals("ID", container.getOperationalLimitsGroupId());
         assertFalse(container.isDistinct());
         assertEquals(originalLimits, container.getLimits());
         assertEquals(originalLimits, container.getOriginalLimits());
@@ -62,7 +63,7 @@ class LimitsContainerTest {
 
     @Test
     void distinctLimitsContainerTest() {
-        AbstractDistinctLimitsContainer<LoadingLimits, LoadingLimits> container = new AbstractDistinctLimitsContainer<>(changedLimits, originalLimits) {
+        AbstractDistinctLimitsContainer<LoadingLimits, LoadingLimits> container = new AbstractDistinctLimitsContainer<>(changedLimits, originalLimits, "ID") {
             @Override
             public double getOriginalPermanentLimit() {
                 return originalLimits.getPermanentLimit();
@@ -72,13 +73,26 @@ class LimitsContainerTest {
             public Double getOriginalTemporaryLimit(int acceptableDuration) {
                 return originalLimits.getTemporaryLimitValue(acceptableDuration);
             }
+
+            @Override
+            public double getPermanentLimitReduction() {
+                return 0.5;
+            }
+
+            @Override
+            public Double getTemporaryLimitReduction(int acceptableDuration) {
+                return acceptableDuration * 0.001;
+            }
         };
         assertTrue(container.isDistinct());
+        assertEquals("ID", container.getOperationalLimitsGroupId());
         assertEquals(originalLimits, container.getOriginalLimits());
         assertEquals(changedLimits, container.getLimits());
         assertEquals(800., container.getLimits().getPermanentLimit(), 0.01);
         assertEquals(1050., container.getLimits().getTemporaryLimit(300).getValue(), 0.01);
         assertEquals(1000., container.getOriginalPermanentLimit(), 0.01);
         assertEquals(1400., container.getOriginalTemporaryLimit(300), 0.01);
+        assertEquals(0.5, container.getPermanentLimitReduction());
+        assertEquals(0.005, container.getTemporaryLimitReduction(5));
     }
 }

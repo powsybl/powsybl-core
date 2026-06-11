@@ -33,4 +33,11 @@ public interface Extension<T> {
      * @throws com.powsybl.commons.PowsyblException if this extension is already held.
      */
     void setExtendable(T extendable);
+
+    /**
+     * Method called just before the extension is removed from its holder.
+     * Can be used for e.g. resource cleanup.
+     */
+    default void cleanup() {
+    }
 }

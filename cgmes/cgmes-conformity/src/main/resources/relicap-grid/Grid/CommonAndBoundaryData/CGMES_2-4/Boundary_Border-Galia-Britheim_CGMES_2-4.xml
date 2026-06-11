@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:eu="http://iec.ch/TC57/CIM100-European#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<!-- Exported from CIMSpy/CIMdesk on 2025-05-19T14:55:13Z. -->
+	<md:FullModel rdf:about="urn:uuid:7205352b-3af5-4bb1-a008-aba810e8a35d">
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+		<md:Model.DependentOn rdf:resource="urn:uuid:1b65ada7-39ca-42b8-a278-39c457ed82c3"/>
+		<md:Model.created>2025-02-06T14:18:22Z</md:Model.created>
+		<md:Model.description>BD test data.</md:Model.description>
+		<md:Model.modelingAuthoritySet>http://ninerealms.nr/boundary</md:Model.modelingAuthoritySet>
+		<md:Model.scenarioTime>2022-06-16T23:30:00Z</md:Model.scenarioTime>
+		<md:Model.version>1</md:Model.version>
+	</md:FullModel>
+	<cim:ConnectivityNode rdf:ID="_4905819a-7927-4112-8e3b-4e8178b7daa5">
+		<entsoe:ConnectivityNode.fromEndIsoCode>GA</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Alfheim6</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>TSO-Galia</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>BH</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Londgard1</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>TSO-Britheim</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_dbd82264-a684-4b87-946d-a5a02714daa9"/>
+		<cim:IdentifiedObject.description>BP_GA-BH1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>4905819a-7927-4112-8e3b-4e8178b7daa5</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BH1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BH1</entsoe:IdentifiedObject.shortName>
+		<cim:ConnectivityNode.TopologicalNode>_6436d106-4c76-6b46-91c3-0be9788c2416</cim:ConnectivityNode.TopologicalNode>
+	</cim:ConnectivityNode>
+	<cim:Line rdf:ID="_dbd82264-a684-4b87-946d-a5a02714daa9">
+		<cim:IdentifiedObject.description>Line BP_GA-BH1</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.mRID>dbd82264-a684-4b87-946d-a5a02714daa9</cim:IdentifiedObject.mRID>
+		<cim:IdentifiedObject.name>BP_GA-BH1</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BH1</entsoe:IdentifiedObject.shortName>
+		<cim:Line.Region rdf:resource="#_fbcc6679-6da5-4cfd-b50c-8ce23f450c78"/>
+	</cim:Line>
+	<cim:TopologicalNode rdf:ID="_c414b790-7b1e-9545-a3dc-dddff8cc2cd9">
+		<cim:IdentifiedObject.name>BP_GA-BH1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-BH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BH1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim6</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Londgard1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Britheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_dbd82264-a684-4b87-946d-a5a02714daa9</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+	<cim:TopologicalNode rdf:ID="_6436d106-4c76-6b46-91c3-0be9788c2416">
+		<cim:IdentifiedObject.name>BP_GA-BH1</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>BP_GA-BH1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>BP_GA-BH1</entsoe:IdentifiedObject.shortName>
+		<entsoe:TopologicalNode.fromEndIsoCode>GA</entsoe:TopologicalNode.fromEndIsoCode>
+		<entsoe:TopologicalNode.toEndIsoCode>BH</entsoe:TopologicalNode.toEndIsoCode>
+		<entsoe:TopologicalNode.fromEndName>Alfheim6</entsoe:TopologicalNode.fromEndName>
+		<entsoe:TopologicalNode.toEndName>Londgard1</entsoe:TopologicalNode.toEndName>
+		<entsoe:TopologicalNode.fromEndNameTso>TSO-Galia</entsoe:TopologicalNode.fromEndNameTso>
+		<entsoe:TopologicalNode.toEndNameTso>TSO-Britheim</entsoe:TopologicalNode.toEndNameTso>
+		<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+		<cim:TopologicalNode.ConnectivityNodeContainer>_dbd82264-a684-4b87-946d-a5a02714daa9</cim:TopologicalNode.ConnectivityNodeContainer>
+	</cim:TopologicalNode>
+</rdf:RDF>

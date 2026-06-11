@@ -78,7 +78,7 @@ public final class DiscreteMeasurementValidationUtil {
 
     public static void checkValue(Object value, boolean valid) {
         if (value == null && valid) {
-            throw new PowsyblException("A valid discrete measurement can not have an undefined value");
+            throw new PowsyblException("A valid discrete measurement cannot have an undefined value");
         }
     }
 

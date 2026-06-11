@@ -8,6 +8,8 @@
 package com.powsybl.shortcircuit;
 
 /**
+ * Three-phase voltage results on a bus after the short-circuit computation.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class MagnitudeShortCircuitBusResults extends AbstractShortCircuitBusResults {

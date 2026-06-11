@@ -35,6 +35,11 @@ public class DefaultNetworkReducerObserver implements NetworkReducerObserver {
     }
 
     @Override
+    public void tieLineRemoved(TieLine tieLine) {
+        // Nothing to do
+    }
+
+    @Override
     public void transformerReplaced(TwoWindingsTransformer transformer, Injection injection) {
         // Nothing to do
     }

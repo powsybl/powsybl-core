@@ -10,21 +10,24 @@ package com.powsybl.security;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationFilter;
+import com.powsybl.contingency.violations.LimitViolationHelper;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,17 +49,31 @@ class SecurityTest {
     void setUp() {
         formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
 
-        network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+        network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
         // create pre-contingency results, just one violation on line1
-        line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        line1Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.0)
+            .side(TwoSides.ONE)
+            .build();
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
+        line2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(900.0)
+            .reduction(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
         result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
@@ -132,6 +149,34 @@ class SecurityTest {
         assertViolations(violations);
     }
 
+    @Test
+    void checkLimits05() {
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.getCurrentLimits1().ifPresent(l -> l.setPermanentLimit(2000));
+
+        List<LimitViolation> violations = Security.checkLimits(network);
+        assertTrue(getCurrentLimitViolationOnLine1Side1(violations).isEmpty());
+
+        violations = Security.checkLimits(network, 0.5);
+        assertViolation05(violations);
+
+        violations = Security.checkLimits(network, new SimpleLimitsComputer(0.5));
+        assertViolation05(violations);
+    }
+
+    private static Optional<LimitViolation> getCurrentLimitViolationOnLine1Side1(List<LimitViolation> violations) {
+        return violations.stream().filter(l -> EurostagTutorialExample1Factory.NHV1_NHV2_1.equals(l.getSubjectId()) &&
+                l.getSide() == ThreeSides.ONE && l.getLimitType() == LimitViolationType.CURRENT).findFirst();
+    }
+
+    private static void assertViolation05(List<LimitViolation> violations) {
+        Optional<LimitViolation> violation = getCurrentLimitViolationOnLine1Side1(violations);
+        assertTrue(violation.isPresent());
+        assertEquals(0.5, violation.get().getLimitReduction(), 0.001d);
+        assertEquals(2000, violation.get().getLimit(), 0.001d);
+        assertEquals(1192, violation.get().getValue(), 1d);
+    }
+
     private static void assertViolationsForThreeWindingsTransformer(List<LimitViolation> violations) {
         assertEquals(3, violations.size());
         violations.forEach(violation -> {
@@ -203,5 +248,59 @@ class SecurityTest {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
             assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         });
+    }
+
+    private static List<Country> getCountries(Network n, List<LimitViolation> violations) {
+        return violations.stream()
+                .map(v -> LimitViolationHelper.getCountry(v, n))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    @Test
+    void testCountry() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<Country> expectedCountries = Arrays.asList(Country.FR, Country.BE, Country.FR, Country.BE, Country.FR);
+        List<Country> countries = getCountries(network, violations);
+
+        assertEquals(expectedCountries, countries);
+    }
+
+    @Test
+    void emptyCountry() {
+        network.getSubstation("P2").setCountry(null);
+
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<Country> expectedCountries = Arrays.asList(Country.FR, Country.FR, Country.FR);
+        List<Country> countries = getCountries(network, violations);
+
+        assertEquals(expectedCountries, countries);
+    }
+
+    @Test
+    void testNominalVoltages() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<Double> expectedVoltages = Arrays.asList(380.0, 380.0, 380.0, 380.0, 380.0);
+        List<Double> voltages = violations.stream()
+                .map(v -> LimitViolationHelper.getNominalVoltage(v, network))
+                .toList();
+
+        assertEquals(expectedVoltages, voltages);
+    }
+
+    @Test
+    void testVoltageLevelIds() {
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<String> expectedVoltageLevelIds = Arrays.asList("VLHV1", "VLHV2", "VLHV1", "VLHV2", "VLHV1");
+        List<String> voltages = violations.stream()
+                .map(v -> LimitViolationHelper.getVoltageLevelId(v, network))
+                .toList();
+
+        assertEquals(expectedVoltageLevelIds, voltages);
     }
 }

@@ -31,7 +31,7 @@ public interface TopologyVisitor {
 
     void visitShuntCompensator(ShuntCompensator sc);
 
-    void visitDanglingLine(DanglingLine danglingLine);
+    void visitBoundaryLine(BoundaryLine boundaryLine);
 
     void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator);
 
@@ -39,4 +39,6 @@ public interface TopologyVisitor {
     }
 
     void visitGround(Ground connectable);
+
+    void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber);
 }

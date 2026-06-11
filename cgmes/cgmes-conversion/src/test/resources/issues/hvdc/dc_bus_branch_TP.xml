@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:dc_bus_branch_TP">
+    <md:Model.scenarioTime>2021-03-01T23:00:00Z</md:Model.scenarioTime>
+    <md:Model.created>2021-03-02T10:22:58Z</md:Model.created>
+    <md:Model.description>DC bus branch</md:Model.description>
+    <md:Model.version>001</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+    <md:Model.DependentOn rdf:resource="urn:uuid:dc_bus_branch_EQ"/>
+    <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+</md:FullModel>
+<cim:TopologicalNode rdf:ID="_TN_1">
+    <cim:IdentifiedObject.name>Topological Node 1</cim:IdentifiedObject.name>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_1"/>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_225"/>
+</cim:TopologicalNode>
+<cim:TopologicalNode rdf:ID="_TN_2">
+    <cim:IdentifiedObject.name>Topological Node 2</cim:IdentifiedObject.name>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_VL_2"/>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_225"/>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_T_CSC_1_P">
+    <cim:Terminal.TopologicalNode rdf:resource="#_TN_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_VSC_1">
+    <cim:Terminal.TopologicalNode rdf:resource="#_TN_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_CSC_2">
+    <cim:Terminal.TopologicalNode rdf:resource="#_TN_2"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_T_VSC_2">
+    <cim:Terminal.TopologicalNode rdf:resource="#_TN_2"/>
+</cim:Terminal>
+<cim:DCTopologicalNode rdf:ID="_DCTN_1_P">
+    <cim:IdentifiedObject.name>DC topological node 1 P</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_DCCU_1_1"/>
+</cim:DCTopologicalNode>
+<cim:DCTopologicalNode rdf:ID="_DCTN_1_G">
+    <cim:IdentifiedObject.name>DC topological node 1 G</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_DCCU_1_1"/>
+</cim:DCTopologicalNode>
+<cim:DCTopologicalNode rdf:ID="_DCTN_1_N">
+    <cim:IdentifiedObject.name>DC topological node 1 N</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_DCCU_1_2"/>
+</cim:DCTopologicalNode>
+<cim:DCTopologicalNode rdf:ID="_DCTN_2_P">
+    <cim:IdentifiedObject.name>DC topological node 2 P</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_DCCU_2_1"/>
+</cim:DCTopologicalNode>
+<cim:DCTopologicalNode rdf:ID="_DCTN_2_G">
+    <cim:IdentifiedObject.name>DC topological node 2 G</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_DCCU_2_1"/>
+</cim:DCTopologicalNode>
+<cim:DCTopologicalNode rdf:ID="_DCTN_2_N">
+    <cim:IdentifiedObject.name>DC topological node 2 N</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_DCCU_2_2"/>
+</cim:DCTopologicalNode>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_CSC_1_P">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_1_P"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_CSC_1_G">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_1_G"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_VSC_1_G">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_1_G"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_VSC_1_N">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_1_N"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_CSC_2_P">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_2_P"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_CSC_2_G">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_2_G"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_VSC_2_G">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_2_G"/>
+</cim:ACDCConverterDCTerminal>
+<cim:ACDCConverterDCTerminal rdf:about="#_T_VSC_2_N">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_2_N"/>
+</cim:ACDCConverterDCTerminal>
+<cim:DCTerminal rdf:about="#_T_DCL_P_1">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_1_P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:about="#_T_DCL_P_2">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_2_P"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:about="#_T_DCL_N_1">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_1_N"/>
+</cim:DCTerminal>
+<cim:DCTerminal rdf:about="#_T_DCL_N_2">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_DCTN_2_N"/>
+</cim:DCTerminal>
+</rdf:RDF>

@@ -14,6 +14,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -45,29 +48,33 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
         return true;
     }
 
-    protected void convertBranch(double r, double x, double gch, double bch) {
+    protected void convertBranch(double r, double x, double gch, double bch, String originalClass) {
         if (isZeroImpedanceInsideVoltageLevel(r, x)) {
             // Convert to switch
+            boolean normalOpen = false;
             Switch sw;
-            boolean open = !(terminalConnected(1) && terminalConnected(2));
             if (context.nodeBreaker()) {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getNodeBreakerView().newSwitch()
                                 .setKind(SwitchKind.BREAKER)
+                                .setOpen(normalOpen)
                                 .setRetained(true)
                                 .setFictitious(true);
                 identify(adder);
-                connect(adder, open);
+                connectWithOnlyEq(adder);
                 sw = adder.add();
             } else {
                 VoltageLevel.BusBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getBusBreakerView().newSwitch()
+                                .setOpen(normalOpen)
                                 .setFictitious(true);
                 identify(adder);
-                connect(adder, open);
+                connectWithOnlyEq(adder);
                 sw = adder.add();
             }
             addAliasesAndProperties(sw);
+            sw.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
+            sw.setProperty(PROPERTY_NORMAL_OPEN, String.valueOf(normalOpen));
         } else {
             final LineAdder adder = context.network().newLine()
                     .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
@@ -78,10 +85,11 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
                     .setB1(bch / 2)
                     .setB2(bch / 2);
             identify(adder);
-            connect(adder);
+            connectWithOnlyEq(adder);
             final Line l = adder.add();
             addAliasesAndProperties(l);
-            convertedTerminals(l.getTerminal1(), l.getTerminal2());
+            convertedTerminalsWithOnlyEq(l.getTerminal1(), l.getTerminal2());
+            l.setProperty(PROPERTY_CGMES_ORIGINAL_CLASS, originalClass);
         }
     }
 
@@ -99,5 +107,16 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
             }
             return r == 0.0 && x == 0.0;
         }
+    }
+
+    protected static void updateBranch(Line line, Context context) {
+        updateTerminals(line, context, line.getTerminal1(), line.getTerminal2());
+        line.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+        line.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> OperationalLimitConversion.update(operationalLimitsGroup, context));
+    }
+
+    protected static void updateBranch(Switch sw, Context context) {
+        boolean isOpen = isOpenFromAtLeastOneTerminal(sw, context).orElse(getDefaultIsOpen(sw, context));
+        sw.setOpen(isOpen);
     }
 }

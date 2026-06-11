@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <md:FullModel rdf:about="urn:uuid:testSSH">
+        <md:Model.scenarioTime>2023-01-01T00:00:00Z</md:Model.scenarioTime>
+        <md:Model.created>2023-01-01T00:00:00Z</md:Model.created>
+        <md:Model.description>SSH profile for test internal connections created at import</md:Model.description>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0</md:Model.profile>
+        <md:Model.modelingAuthoritySet>http://powsybl.org</md:Model.modelingAuthoritySet>
+        <md:Model.DependentOn rdf:resource="urn:uuid:testEQ" />
+    </md:FullModel>
+    <cim:Terminal rdf:ID="_BBS1_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_BBS2_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_BBS3_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_BBS4_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_BBS5_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load1_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load2_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load3_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load4_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load5_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load6_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load7_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load8_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load9_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load10_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Load11_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_BBS6_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_BBS7_T">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Disconnector_T1">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_Disconnector_T2">
+        <cim:ACDCTerminal.connected>false</cim:ACDCTerminal.connected>
+    </cim:Terminal>
+</rdf:RDF>

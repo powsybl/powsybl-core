@@ -21,15 +21,15 @@ import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURC
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class PreContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PreContingencyResult> {
+public class PreContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PreContingencyResult> {
 
     private static final String CONTEXT_NAME = "PreContingencyResult";
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         LoadFlowResult.ComponentResult.Status status = null;
     }
 
-    PreContingencyResultDeserializer() {
+    public PreContingencyResultDeserializer() {
         super(PreContingencyResult.class);
     }
 
@@ -48,7 +48,7 @@ class PreContingencyResultDeserializer extends AbstractContingencyResultDeserial
             if (found) {
                 return true;
             }
-            if (parser.getCurrentName().equals("status")) {
+            if (parser.currentName().equals("status")) {
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
                         finalVersion, "1.3");
@@ -61,11 +61,11 @@ class PreContingencyResultDeserializer extends AbstractContingencyResultDeserial
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
         }
-        if (commonParsingContext.networkResult != null) {
-            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult, commonParsingContext.networkResult);
-        } else {
-            return new PreContingencyResult(parsingContext.status, commonParsingContext.limitViolationsResult,
-                    commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults);
-        }
+        return new PreContingencyResult(
+                parsingContext.status,
+                commonParsingContext.limitViolationsResult,
+                Objects.requireNonNullElseGet(commonParsingContext.networkResult, () -> new NetworkResult(commonParsingContext.branchResults, commonParsingContext.busResults, commonParsingContext.threeWindingsTransformerResults)),
+                commonParsingContext.distributedActivePower
+        );
     }
 }

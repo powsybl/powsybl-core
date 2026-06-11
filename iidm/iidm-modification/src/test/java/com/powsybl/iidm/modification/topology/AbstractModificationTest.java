@@ -37,6 +37,6 @@ public abstract class AbstractModificationTest extends AbstractSerDeTest {
         reportNode.print(sw);
 
         InputStream refStream = TopologyTestUtils.class.getResourceAsStream(reportsFile);
-        ComparisonUtils.compareTxt(refStream, sw.toString());
+        ComparisonUtils.assertTxtEquals(refStream, sw.toString());
     }
 }

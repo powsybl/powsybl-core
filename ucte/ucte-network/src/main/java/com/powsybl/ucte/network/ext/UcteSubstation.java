@@ -8,13 +8,13 @@
 package com.powsybl.ucte.network.ext;
 
 import com.powsybl.ucte.network.UcteNodeCode;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class UcteSubstation {

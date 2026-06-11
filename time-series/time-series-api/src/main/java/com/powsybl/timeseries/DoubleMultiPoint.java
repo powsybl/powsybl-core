@@ -7,6 +7,8 @@
  */
 package com.powsybl.timeseries;
 
+import java.time.Instant;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -15,6 +17,8 @@ public interface DoubleMultiPoint {
     int getIndex();
 
     long getTime();
+
+    Instant getInstant();
 
     double getValue(int timeSeriesNum);
 }

@@ -25,6 +25,8 @@ import java.util.Objects;
 
 public final class FourSubstationsNodeBreakerFactory {
 
+    public static final String S3VL1 = "S3VL1";
+
     private FourSubstationsNodeBreakerFactory() {
     }
 
@@ -97,7 +99,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setId("S3")
                 .add();
         VoltageLevel s3vl1 = s3.newVoltageLevel()
-                .setId("S3VL1")
+                .setId(S3VL1)
                 .setNominalV(400.0)
                 .setLowVoltageLimit(390.0)
                 .setHighVoltageLimit(440.0)
@@ -159,16 +161,16 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode2(3)
                 .setVoltageLevel2("S1VL2")
                 .add();
-        twt.newCurrentLimits1()
+        twt.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(1031.0)
                 .add();
-        twt.newCurrentLimits2()
+        twt.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(1031.0)
                 .add();
         twt.newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(15)
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulating(false)
                 .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
                 .beginStep().setR(39.78473).setX(29.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
@@ -478,7 +480,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode1(6)
                 .setVoltageLevel1("S2VL1")
                 .setNode2(2)
-                .setVoltageLevel2("S3VL1")
+                .setVoltageLevel2(S3VL1)
                 .add();
         lineS2S3.getTerminal1().setP(109.8893).setQ(190.0229);
         lineS2S3.getTerminal2().setP(-109.8864).setQ(-184.5171);
@@ -537,16 +539,16 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setG2(0.0)
                 .setB2(0.0)
                 .setNode1(8)
-                .setVoltageLevel1("S3VL1")
+                .setVoltageLevel1(S3VL1)
                 .setNode2(6)
                 .setVoltageLevel2("S4VL1")
                 .add();
         lineS3S4.getTerminal1().setP(240.0036).setQ(2.1751);
         lineS3S4.getTerminal2().setP(-240.0).setQ(2.5415);
-        lineS3S4.newCurrentLimits1()
+        lineS3S4.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .add();
-        lineS3S4.newCurrentLimits2()
+        lineS3S4.getOrCreateSelectedOperationalLimitsGroup2().newCurrentLimits()
                 .setPermanentLimit(931.0)
                 .beginTemporaryLimit()
                 .setName("IST")
@@ -607,6 +609,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulating(true)
                 .setVoltageSetpoint(400)
                 .add();
         svc.getTerminal().setQ(-12.5415);

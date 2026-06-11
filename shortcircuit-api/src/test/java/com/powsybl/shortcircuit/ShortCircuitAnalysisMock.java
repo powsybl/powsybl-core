@@ -8,14 +8,17 @@
 package com.powsybl.shortcircuit;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -29,6 +32,14 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(ShortCircuitAnalysisProvider.class)
 public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
+
+    public static final String DOUBLE_PARAMETER_NAME = "parameterDouble";
+    public static final String BOOLEAN_PARAMETER_NAME = "parameterBoolean";
+    public static final String STRING_PARAMETER_NAME = "parameterString";
+
+    public static final List<Parameter> PARAMETERS = List.of(new Parameter(DOUBLE_PARAMETER_NAME, ParameterType.DOUBLE, "a double parameter", 6.4),
+            new Parameter(BOOLEAN_PARAMETER_NAME, ParameterType.BOOLEAN, "a boolean parameter", false),
+            new Parameter(STRING_PARAMETER_NAME, ParameterType.STRING, "a string parameter", "yes", List.of("yes", "no")));
 
     @Override
     public String getName() {
@@ -56,14 +67,22 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              ComputationManager computationManager,
                                                              List<FaultParameters> faultParameters,
                                                              ReportNode reportNode) {
-        reportNode.newReportNode().withMessageTemplate("MockShortCircuit", "Running mock short circuit").add();
+        reportNode.newReportNode()
+                .withMessageTemplate("MockShortCircuit")
+                .add();
         return run(network, faults, parameters, computationManager, faultParameters);
     }
 
     public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
         Fault fault = new BusFault("F1", "VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE);
         MagnitudeFeederResult feederResult = new MagnitudeFeederResult("GEN", 5);
-        LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
+        LimitViolation limitViolation = LimitViolation.builder()
+            .subject("VLGEN")
+            .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
+            .limit(0)
+            .reduction(0)
+            .value(0)
+            .build();
         FortescueFaultResult faultResult = new FortescueFaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),
                 new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
@@ -79,4 +98,13 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
         return Optional.of(new ShortCircuitParametersTest.DummyExtension());
     }
 
+    @Override
+    public List<Parameter> getSpecificParameters() {
+        return PARAMETERS;
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        return platformConfig.getOptionalModuleConfig("dummy-sc-extension");
+    }
 }

@@ -73,4 +73,28 @@ class VscConverterStationModificationTest {
         assertEquals(OptionalDouble.of(1.), modif.getOptionalVoltageSetpoint());
         assertEquals(1., modif.getVoltageSetpoint());
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new VscConverterStationModification("ID", 10., null);
+        assertEquals("VscConverterStationModification", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        NetworkModification modification1 = new VscConverterStationModification("UNKNOWN_ID", 1., 2.);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new VscConverterStationModification("VSC1", 400., 500.);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new VscConverterStationModification("VSC1", 1., 500.);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new VscConverterStationModification("VSC1", 400., 1.);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        NetworkModification modification5 = new VscConverterStationModification("VSC1", null, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+    }
 }

@@ -13,15 +13,14 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.NetworkFactoryMock;
-import com.powsybl.tools.test.AbstractToolTest;
-import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.test.AbstractToolTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -50,8 +49,8 @@ class ConversionToolTest extends AbstractToolTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        Files.copy(getClass().getResourceAsStream("/import-parameters.xml"), fileSystem.getPath("/import-parameters.xml"));
-        Files.copy(getClass().getResourceAsStream("/export-parameters.properties"), fileSystem.getPath("/export-parameters.properties"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/import-parameters.xml")), fileSystem.getPath("/import-parameters.xml"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/export-parameters.properties")), fileSystem.getPath("/export-parameters.properties"));
         createFile("/input.txt", "");
 
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -80,13 +79,13 @@ class ConversionToolTest extends AbstractToolTest {
     }
 
     @Test
-    void testConversion() throws IOException {
+    void testConversion() {
         String[] commandLine = new String[] {
             "convert-network", "--input-file", "/input.txt",
             "--import-parameters", "/import-parameters.xml", "-Iparam1=value1",
             "--output-format", "OUT", "--output-file", "/output.txt",
             "--export-parameters", "/export-parameters.properties", "-Eparam2=value2"
         };
-        assertCommand(commandLine, CommandLineTools.COMMAND_OK_STATUS, "", "");
+        assertCommandSuccessful(commandLine, "");
     }
 }

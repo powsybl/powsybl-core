@@ -8,20 +8,19 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.exceptions.UncheckedClassCastExceptionException;
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public abstract class AbstractMultiVariantIdentifiableExtension<T extends Identifiable<T>> extends AbstractExtension<T> implements MultiVariantObject {
+public abstract class AbstractMultiVariantIdentifiableExtension<T extends Identifiable<T>> extends AbstractIidmExtension<T> implements MultiVariantObject {
 
-    public AbstractMultiVariantIdentifiableExtension(T extendable) {
+    protected AbstractMultiVariantIdentifiableExtension(T extendable) {
         super(extendable);
     }
 
-    protected VariantManagerHolder getVariantManagerHolder() {
+    public VariantManagerHolder getVariantManagerHolder() {
         Network network = getExtendable().getNetwork();
 
         if (network instanceof VariantManagerHolder variantManagerHolder) {

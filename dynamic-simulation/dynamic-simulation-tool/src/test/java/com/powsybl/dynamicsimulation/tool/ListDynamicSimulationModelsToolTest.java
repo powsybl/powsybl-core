@@ -13,7 +13,6 @@ import com.powsybl.tools.test.AbstractToolTest;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,20 +49,20 @@ class ListDynamicSimulationModelsToolTest extends AbstractToolTest {
     }
 
     @Test
-    void testAllModels() throws IOException {
-        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:", "Event models:");
-        assertCommand(new String[]{"list-dynamic-simulation-models"}, 0, expectedOut, "");
+    void testAllModels() {
+        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:", "Event models:" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"list-dynamic-simulation-models"}, expectedOut);
     }
 
     @Test
-    void testDynamicModelsOnly() throws IOException {
-        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:");
-        assertCommand(new String[]{"list-dynamic-simulation-models", "--dynamic-models"}, 0, expectedOut, "");
+    void testDynamicModelsOnly() {
+        String expectedOut = String.join(System.lineSeparator(), "Dynamic models:" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"list-dynamic-simulation-models", "--dynamic-models"}, expectedOut);
     }
 
     @Test
-    void testEventModelsOnly() throws IOException {
-        String expectedOut = String.join(System.lineSeparator(), "Event models:");
-        assertCommand(new String[]{"list-dynamic-simulation-models", "--event-models"}, 0, expectedOut, "");
+    void testEventModelsOnly() {
+        String expectedOut = String.join(System.lineSeparator(), "Event models:" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"list-dynamic-simulation-models", "--event-models"}, expectedOut);
     }
 }

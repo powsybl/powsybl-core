@@ -8,6 +8,9 @@
 package com.powsybl.matpower.model;
 
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.*;
 
@@ -24,10 +27,11 @@ import java.util.Set;
  */
 public final class MatpowerReader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerReader.class);
+
     public static final String MATPOWER_STRUCT_NAME = "mpc";
-    public static final String MATPOWER_SUPPORTED_VERSION = "2";
+    public static final MatpowerFormatVersion MATPOWER_SUPPORTED_VERSION = MatpowerFormatVersion.V2;
     public static final int MATPOWER_BUSES_COLUMNS = 13;
-    public static final int MATPOWER_GENERATORS_COLUMNS = 21;
     public static final int MATPOWER_BRANCHES_COLUMNS = 13;
     public static final int MATPOWER_DCLINES_COLUMNS = 17;
 
@@ -54,8 +58,8 @@ public final class MatpowerReader {
             if (!fieldNames.containsAll(mpcNames)) {
                 throw new IllegalStateException("expected MATPOWER variables not found: " + mpcNames);
             }
-            String version = mpcStruct.get("version").toString().replace("'", "");
-            if (!version.equals(MATPOWER_SUPPORTED_VERSION)) {
+            MatpowerFormatVersion version = MatpowerFormatVersion.fromString(mpcStruct.get("version").toString().replace("'", ""));
+            if (version != MATPOWER_SUPPORTED_VERSION) {
                 throw new IllegalStateException("unsupported MATPOWER version: " + version);
             }
 
@@ -72,14 +76,18 @@ public final class MatpowerReader {
                 dcLines = mpcStruct.getMatrix("dcline");
             }
 
-            checkNumberOfColumns(buses, generators, branches, dcLines);
+            int busColumns = buses.getDimensions()[1];
+            int generatorColumns = generators.getDimensions()[1];
+            int branchColumns = branches.getDimensions()[1];
+            Integer dcLineColumns = dcLines != null ? dcLines.getDimensions()[1] : null;
+            VersionToRead versionToRead = checkNumberOfColumns(busColumns, generatorColumns, branchColumns, dcLineColumns);
 
             model = new MatpowerModel(caseName);
             model.setVersion(version);
             model.setBaseMva(baseMVA);
 
             readBuses(buses, busesNames, model);
-            readGenerators(generators, model);
+            readGenerators(generators, versionToRead.generatorVersion, model);
             readBranches(branches, model);
             readDcLines(dcLines, model);
         }
@@ -87,24 +95,31 @@ public final class MatpowerReader {
         return model;
     }
 
-    private static void checkNumberOfColumns(Matrix buses, Matrix generators, Matrix branches, Matrix dcLines) {
-        if (buses.getDimensions()[1] < MATPOWER_BUSES_COLUMNS
-                || generators.getDimensions()[1] < MATPOWER_GENERATORS_COLUMNS
-                || branches.getDimensions()[1] < MATPOWER_BRANCHES_COLUMNS
-                || dcLines != null && dcLines.getDimensions()[1] < MATPOWER_DCLINES_COLUMNS) {
+    record VersionToRead(MatpowerFormatVersion generatorVersion) {
+    }
 
-            String exceptionMessage;
-            if (dcLines == null) {
-                exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d Received: Buses %d Generators %d Branches %d",
-                        MATPOWER_BUSES_COLUMNS, MATPOWER_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS,
-                        buses.getDimensions()[1], generators.getDimensions()[1], branches.getDimensions()[1]);
-            } else {
-                exceptionMessage = String.format("Unexpected number of columns. Expected: Buses %d Generators %d Branches %d DcLines %d Received: Buses %d Generators %d Branches %d DcLines %d",
-                        MATPOWER_BUSES_COLUMNS, MATPOWER_GENERATORS_COLUMNS, MATPOWER_BRANCHES_COLUMNS, MATPOWER_DCLINES_COLUMNS,
-                        buses.getDimensions()[1], generators.getDimensions()[1], branches.getDimensions()[1], dcLines.getDimensions()[1]);
-            }
-            throw new IllegalStateException(exceptionMessage);
+    static VersionToRead checkNumberOfColumns(int busColumns, int generatorColumns, int branchColumns, Integer dcLineColumns) {
+        if (busColumns < MATPOWER_BUSES_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for buses, expected at least " + MATPOWER_BUSES_COLUMNS + " columns, but got " + busColumns);
         }
+        if (generatorColumns < MatpowerFormatVersion.V1.getGeneratorColumns()) {
+            throw new PowsyblException("Unexpected number of columns for generators, expected at least " + MatpowerFormatVersion.V1.getGeneratorColumns() + " columns, but got " + generatorColumns);
+        }
+        MatpowerFormatVersion generatorVersionToRead;
+        if (generatorColumns < MatpowerFormatVersion.V2.getGeneratorColumns()) {
+            LOGGER.warn("It is not expected in Matpower v2 format to have less than {} columns for generators, reading {} columns instead as for v1 format",
+                    MatpowerFormatVersion.V2.getGeneratorColumns(), MatpowerFormatVersion.V1.getGeneratorColumns());
+            generatorVersionToRead = MatpowerFormatVersion.V1;
+        } else {
+            generatorVersionToRead = MatpowerFormatVersion.V2;
+        }
+        if (branchColumns < MATPOWER_BRANCHES_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for branches, expected at least " + MATPOWER_BRANCHES_COLUMNS + " columns, but got " + branchColumns);
+        }
+        if (dcLineColumns != null && dcLineColumns < MATPOWER_DCLINES_COLUMNS) {
+            throw new PowsyblException("Unexpected number of columns for DC lines, expected at least " + MATPOWER_DCLINES_COLUMNS + " columns, but got " + dcLineColumns);
+        }
+        return new VersionToRead(generatorVersionToRead);
     }
 
     private static void readBuses(Matrix buses, Cell busesNames, MatpowerModel model) {
@@ -132,7 +147,7 @@ public final class MatpowerReader {
         }
     }
 
-    private static void readGenerators(Matrix generators, MatpowerModel model) {
+    private static void readGenerators(Matrix generators, MatpowerFormatVersion generatorVersionToRead, MatpowerModel model) {
         for (int row = 0; row < generators.getDimensions()[0]; row++) {
             MGen gen = new MGen();
             gen.setNumber(generators.getInt(row, 0));
@@ -145,17 +160,19 @@ public final class MatpowerReader {
             gen.setStatus(generators.getInt(row, 7));
             gen.setMaximumRealPowerOutput(generators.getDouble(row, 8));
             gen.setMinimumRealPowerOutput(generators.getDouble(row, 9));
-            gen.setPc1(generators.getDouble(row, 10));
-            gen.setPc2(generators.getDouble(row, 11));
-            gen.setQc1Min(generators.getDouble(row, 12));
-            gen.setQc1Max(generators.getDouble(row, 13));
-            gen.setQc2Min(generators.getDouble(row, 14));
-            gen.setQc2Max(generators.getDouble(row, 15));
-            gen.setRampAgc(generators.getDouble(row, 16));
-            gen.setRampTenMinutes(generators.getDouble(row, 17));
-            gen.setRampThirtyMinutes(generators.getDouble(row, 18));
-            gen.setRampQ(generators.getDouble(row, 19));
-            gen.setApf(generators.getDouble(row, 20));
+            if (generatorVersionToRead == MatpowerFormatVersion.V2) {
+                gen.setPc1(generators.getDouble(row, 10));
+                gen.setPc2(generators.getDouble(row, 11));
+                gen.setQc1Min(generators.getDouble(row, 12));
+                gen.setQc1Max(generators.getDouble(row, 13));
+                gen.setQc2Min(generators.getDouble(row, 14));
+                gen.setQc2Max(generators.getDouble(row, 15));
+                gen.setRampAgc(generators.getDouble(row, 16));
+                gen.setRampTenMinutes(generators.getDouble(row, 17));
+                gen.setRampThirtyMinutes(generators.getDouble(row, 18));
+                gen.setRampQ(generators.getDouble(row, 19));
+                gen.setApf(generators.getDouble(row, 20));
+            }
 
             model.addGenerator(gen);
         }

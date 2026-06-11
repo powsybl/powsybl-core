@@ -57,6 +57,10 @@ public class MapModuleConfig extends AbstractMapModuleConfig {
         properties.put(name, path.toAbsolutePath().toString());
     }
 
+    public void setPathsProperty(String name, List<Path> paths) {
+        properties.put(name, paths.stream().map(path -> path.toAbsolutePath().toString()).toList());
+    }
+
     public <T> void setClassProperty(String name, Class<T> subClass) {
         Objects.requireNonNull(subClass);
         setStringProperty(name, subClass.getName());

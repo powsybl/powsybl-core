@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 public abstract class AbstractBusBreakerTest {
 
-    private static Network createTestNetwork() {
+    protected static Network createTestNetwork() {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S1")

@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
 class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<OverloadManagementSystemAdderImpl>
         implements OverloadManagementSystemAdder {
 
-    abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> implements Validable, TrippingAdder<I> {
+    abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> extends AbstractBasePropertiesHolder implements Validable, TrippingAdder<I> {
         protected String key = null;
         protected String name = null;
         protected double currentLimit = Double.NaN;
@@ -54,8 +54,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         @Override
-        public String getMessageHeader() {
-            return String.format("Overload management system in substation '%s':  - %s:", substation.getId(), getTrippingAttribute());
+        public MessageHeader getMessageHeader() {
+            String type = "Overload management system with " + getTrippingAttribute();
+            return new DefaultMessageHeader(type, substation.getId(), "substation");
         }
 
         protected static String getNotFoundMessage(String type, String id) {
@@ -224,24 +225,30 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     }
 
     private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, String overloadManagementSystemId) {
-        return new OverloadManagementSystemImpl.SwitchTrippingImpl(
+        OverloadManagementSystemImpl.SwitchTrippingImpl tripping = new OverloadManagementSystemImpl.SwitchTrippingImpl(
                 overloadManagementSystemId, adder.key, adder.name,
                 adder.currentLimit, adder.openAction,
                 adder.checkSwitchId());
+        adder.copyPropertiesTo(tripping);
+        return tripping;
     }
 
     private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
-        return new OverloadManagementSystemImpl.BranchTrippingImpl(
+        OverloadManagementSystemImpl.BranchTrippingImpl tripping = new OverloadManagementSystemImpl.BranchTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkBranchId(), adder.side);
+        adder.copyPropertiesTo(tripping);
+        return tripping;
     }
 
     private OverloadManagementSystem.Tripping createTripping(ThreeWindingsTransformerTrippingAdderImpl adder,
                                                              String overloadManagementSystemId) {
-        return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
+        OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl tripping = new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
                 adder.checkThreeWindingsTransformerId(), adder.side);
+        adder.copyPropertiesTo(tripping);
+        return tripping;
     }
 }

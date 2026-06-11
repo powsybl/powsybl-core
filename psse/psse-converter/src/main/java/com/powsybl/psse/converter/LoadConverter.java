@@ -7,16 +7,14 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseLoad;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
+
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_LOAD;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -24,14 +22,16 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
  */
 class LoadConverter extends AbstractConverter {
 
-    LoadConverter(PsseLoad psseLoad, ContainersMapping containerMapping, Network network) {
+    LoadConverter(PsseLoad psseLoad, ContainersMapping containerMapping, Network network, NodeBreakerImport nodeBreakerImport) {
         super(containerMapping, network);
         this.psseLoad = Objects.requireNonNull(psseLoad);
+        this.nodeBreakerImport = Objects.requireNonNull(nodeBreakerImport);
     }
 
     void create() {
-
-        String busId = getBusId(psseLoad.getI());
+        if (!getContainersMapping().isBusDefined(psseLoad.getI())) {
+            return;
+        }
         VoltageLevel voltageLevel = getNetwork()
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseLoad.getI()));
 
@@ -39,8 +39,8 @@ class LoadConverter extends AbstractConverter {
         double q0 = psseLoad.getQl() + psseLoad.getIq() + psseLoad.getYq();
 
         LoadAdder adder = voltageLevel.newLoad()
-            .setId(getLoadId(busId))
-            .setConnectableBus(busId)
+            .setId(getLoadId(psseLoad.getI(), psseLoad.getId()))
+
             .setP0(p0)
             .setQ0(q0);
 
@@ -80,42 +80,54 @@ class LoadConverter extends AbstractConverter {
                     .add();
         }
 
-        adder.setBus(psseLoad.getStatus() == 1 ? busId : null);
+        String equipmentId = getNodeBreakerEquipmentId(PSSE_LOAD, psseLoad.getI(), psseLoad.getId());
+        OptionalInt node = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLoad.getI(), 0, 0, psseLoad.getI(), "I"));
+        if (node.isPresent()) {
+            adder.setNode(node.getAsInt());
+        } else {
+            String busId = getBusId(psseLoad.getI());
+            adder.setConnectableBus(busId);
+            adder.setBus(psseLoad.getStatus() == 1 ? busId : null);
+        }
+
         adder.add();
     }
 
-    private String getLoadId(String busId) {
-        return getLoadId(busId, psseLoad.getId());
+    static void create(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        List<PsseLoad> loads = new ArrayList<>();
+        network.getLoads().forEach(load -> loads.add(createLoad(load, contextExport)));
+        psseModel.addLoads(loads);
+        psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
     }
 
-    private static String getLoadId(String busId, String loadId) {
-        return busId + "-L" + loadId;
+    private static PsseLoad createLoad(Load load, ContextExport contextExport) {
+        PsseLoad psseLoad = createDefaultLoad();
+
+        int busI = getTerminalBusI(load.getTerminal(), contextExport);
+        psseLoad.setI(busI);
+        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), PSSE_LOAD.getTextCode(), busI));
+        psseLoad.setStatus(getStatus(load.getTerminal(), contextExport));
+        psseLoad.setPl(getP(load));
+        psseLoad.setQl(getQ(load));
+        return psseLoad;
     }
 
-    // At the moment we do not consider new loads
-    static void updateLoads(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+    static void update(Network network, PssePowerFlowModel psseModel) {
         psseModel.getLoads().forEach(psseLoad -> {
-            updatePsseModel.addLoads(Collections.singletonList(psseLoad));
-            PsseLoad updatePsseLoad = updatePsseModel.getLoads().get(updatePsseModel.getLoads().size() - 1);
-
-            String loadId = getLoadId(getBusId(updatePsseLoad.getI()), updatePsseLoad.getId());
+            String loadId = getLoadId(psseLoad.getI(), psseLoad.getId());
             Load load = network.getLoad(loadId);
             if (load == null) {
-                updatePsseLoad.setStatus(0);
+                psseLoad.setStatus(0);
             } else {
-                updatePsseLoad.setStatus(getStatus(load));
-                updatePsseLoad.setPl(getP(load));
-                updatePsseLoad.setQl(getQ(load));
+                updateLoad(load, psseLoad);
             }
         });
     }
 
-    private static int getStatus(Load load) {
-        if (load.getTerminal().isConnected()) {
-            return 1;
-        } else {
-            return 0;
-        }
+    private static void updateLoad(Load load, PsseLoad psseLoad) {
+        psseLoad.setStatus(getUpdatedStatus(load.getTerminal()));
+        psseLoad.setPl(getP(load));
+        psseLoad.setQl(getQ(load));
     }
 
     private static double getP(Load load) {
@@ -135,4 +147,5 @@ class LoadConverter extends AbstractConverter {
     }
 
     private final PsseLoad psseLoad;
+    private final NodeBreakerImport nodeBreakerImport;
 }

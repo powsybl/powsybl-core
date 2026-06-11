@@ -69,7 +69,6 @@ public interface VariantManager {
      */
     void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite);
 
-
     /**
      * Create a new variant by cloning an existing one.
      *

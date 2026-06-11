@@ -24,7 +24,7 @@ public final class DeserializerReports {
     public static void importedNetworkReport(ReportNode reportNode, String networkId, String format) {
         if (reportNode != null) {
             reportNode.newReportNode()
-                    .withMessageTemplate("importedNetwork", "Network \"${networkId}\" is imported from ${format} format.")
+                    .withMessageTemplate("core.iidm.serde.importedNetwork")
                     .withUntypedValue("networkId", networkId)
                     .withUntypedValue("format", format)
                     .withSeverity(TypedValue.INFO_SEVERITY)
@@ -37,7 +37,7 @@ public final class DeserializerReports {
         if (reportNode != null) {
             extensionsNameImported.forEach(extensionName ->
                 reportNode.newReportNode()
-                        .withMessageTemplate("importedExtension", "Extension ${extensionName} imported.")
+                        .withMessageTemplate("core.iidm.serde.importedExtension")
                         .withUntypedValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add()
@@ -49,7 +49,7 @@ public final class DeserializerReports {
         if (reportNode != null) {
             extensionsNotFoundName.forEach(extensionName ->
                 reportNode.newReportNode()
-                        .withMessageTemplate("extensionNotFound", "Extension ${extensionName} not found.")
+                        .withMessageTemplate("core.iidm.serde.extensionNotFound")
                         .withUntypedValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add()
@@ -57,4 +57,27 @@ public final class DeserializerReports {
         }
     }
 
+    public static ReportNode doneImportingXiidm(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.serde.xiidmImportDone")
+                .add();
+    }
+
+    public static ReportNode readWarningValidationPart(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.serde.validationWarnings")
+                .add();
+    }
+
+    public static ReportNode importedExtensions(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.serde.importedExtensions")
+                .add();
+    }
+
+    public static ReportNode notFoundExtensions(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("core.iidm.serde.extensionsNotFound")
+                .add();
+    }
 }

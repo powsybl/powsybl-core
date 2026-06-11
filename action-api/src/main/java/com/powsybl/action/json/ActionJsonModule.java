@@ -53,7 +53,9 @@ public class ActionJsonModule extends SimpleModule {
         registerActionBuilderType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationActionBuilder.class, RatioTapChangerRegulationAction.NAME,
                 new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionBuilderBuilderDeserializer());
         registerActionBuilderType(LoadAction.class, LoadActionBuilder.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionBuilderBuilderDeserializer());
-        registerActionBuilderType(DanglingLineAction.class, DanglingLineActionBuilder.class, DanglingLineAction.NAME, new DanglingLineActionSerializer(), new DanglingLineActionBuilderBuilderDeserializer());
+        registerActionBuilderType(PercentChangeLoadAction.class, PercentChangeLoadActionBuilder.class, PercentChangeLoadAction.NAME, new PercentChangeLoadActionSerializer(), new PercentChangeLoadActionBuilderDeserializer());
+        registerActionBuilderType(BoundaryLineAction.class, BoundaryLineActionBuilder.class, BoundaryLineAction.NAME, new BoundaryLineActionSerializer(), new BoundaryLineActionBuilderDeserializer());
+        registerSubtypes(new NamedType(BoundaryLineActionBuilder.class, "DANGLING_LINE")); // For backward compatibility with versions <= 1.2
         registerActionBuilderType(HvdcAction.class, HvdcActionBuilder.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionBuilderDeserializer());
         registerActionBuilderType(GeneratorAction.class, GeneratorActionBuilder.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionBuilderDeserializer());
@@ -63,5 +65,7 @@ public class ActionJsonModule extends SimpleModule {
         registerActionBuilderType(StaticVarCompensatorAction.class, StaticVarCompensatorActionBuilder.class,
             StaticVarCompensatorAction.NAME, new StaticVarCompensatorActionSerializer(),
             new StaticVarCompensatorActionBuilderDeserializer());
+        registerActionBuilderType(AreaInterchangeTargetAction.class, AreaInterchangeTargetActionBuilder.class, AreaInterchangeTargetAction.NAME,
+            new AreaInterchangeTargetActionSerializer(), new AreaInterchangeTargetActionDeserializer());
     }
 }

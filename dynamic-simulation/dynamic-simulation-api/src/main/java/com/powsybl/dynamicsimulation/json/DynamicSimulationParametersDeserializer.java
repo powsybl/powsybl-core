@@ -19,10 +19,15 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 
+import static com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters.getExtensionSerializers;
+
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
 public class DynamicSimulationParametersDeserializer extends StdDeserializer<DynamicSimulationParameters> {
+
+    private static final String CONTEXT_NAME = "DynamicSimulationParameters";
+    private static final String TAG = "Tag: ";
 
     DynamicSimulationParametersDeserializer() {
         super(DynamicSimulationParameters.class);
@@ -35,14 +40,15 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
 
     @Override
     public DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext,
-        DynamicSimulationParameters parameters) throws IOException {
-
+                                                   DynamicSimulationParameters parameters) throws IOException {
+        String version = null;
         List<Extension<DynamicSimulationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
 
                 case "version":
                     parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
 
                 case "startTime":
@@ -55,17 +61,23 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                     parameters.setStopTime(parser.readValueAs(Integer.class));
                     break;
 
+                case "debugDir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonDynamicSimulationParameters.getExtensionSerializers());
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 
-        JsonDynamicSimulationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
 
         return parameters;
     }

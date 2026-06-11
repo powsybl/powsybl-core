@@ -141,4 +141,63 @@ public final class ShuntTestCaseFactory {
                 .add();
         return network;
     }
+
+    public static Network createLocalLinear() {
+        return createLocalShunt(create());
+    }
+
+    public static Network createLocalShunt(Network network) {
+        network.getShuntCompensator(SHUNT)
+                .setRegulatingTerminal(network.getShuntCompensator(SHUNT).getTerminal());
+        return network;
+    }
+
+    public static Network createDisabledRemoteLinear() {
+        return createDisabledShunt(create());
+    }
+
+    public static Network createDisabledLocalLinear() {
+        return createDisabledShunt(createLocalLinear());
+    }
+
+    public static Network createDisabledRemoteNonLinear() {
+        return createDisabledShunt(createNonLinear());
+    }
+
+    public static Network createDisabledLocalNonLinear() {
+        return createDisabledShunt(createLocalNonLinear());
+    }
+
+    public static Network createDisabledShunt(Network network) {
+        network.getShuntCompensator(SHUNT)
+                .setVoltageRegulatorOn(false);
+        return network;
+    }
+
+    private static Network createShuntWithNoTarget(Network network) {
+        network.getShuntCompensator(SHUNT)
+                .setVoltageRegulatorOn(false)
+                .setTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createRemoteLinearNoTarget() {
+        return createShuntWithNoTarget(create());
+    }
+
+    public static Network createRemoteNonLinearNoTarget() {
+        return createShuntWithNoTarget(createNonLinear());
+    }
+
+    public static Network createLocalLinearNoTarget() {
+        return createShuntWithNoTarget(createLocalLinear());
+    }
+
+    public static Network createLocalNonLinearNoTarget() {
+        return createShuntWithNoTarget(createLocalNonLinear());
+    }
+
+    public static Network createLocalNonLinear() {
+        return createLocalShunt(createNonLinear());
+    }
 }

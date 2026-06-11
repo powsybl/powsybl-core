@@ -9,39 +9,37 @@ package com.powsybl.security.tools;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.violations.LimitViolationFilter;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-import com.powsybl.action.Action;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.results.PreContingencyResult;
-import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.tools.Command;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,19 +76,24 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "security-analysis", 14, 1);
-        assertOption(tool.getCommand().getOptions(), "case-file", true, true);
-        assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "limit-types", false, true);
-        assertOption(tool.getCommand().getOptions(), "output-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "output-format", false, true);
-        assertOption(tool.getCommand().getOptions(), "contingencies-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "with-extensions", false, true);
-        assertOption(tool.getCommand().getOptions(), "task-count", false, true);
-        assertOption(tool.getCommand().getOptions(), "task", false, true);
-        assertOption(tool.getCommand().getOptions(), "external", false, false);
-        assertOption(tool.getCommand().getOptions(), "log-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "monitoring-file", false, true);
+        Command command = tool.getCommand();
+        Options options = command.getOptions();
+        assertCommand(command, "security-analysis", 17, 1);
+        assertOption(options, "case-file", true, true);
+        assertOption(options, "parameters-file", false, true);
+        assertOption(options, "limit-types", false, true);
+        assertOption(options, "output-file", false, true);
+        assertOption(options, "output-format", false, true);
+        assertOption(options, "contingencies-file", false, true);
+        assertOption(options, "with-extensions", false, true);
+        assertOption(options, "task-count", false, true);
+        assertOption(options, "task", false, true);
+        assertOption(options, "external", false, false);
+        assertOption(options, "log-file", false, true);
+        assertOption(options, "monitoring-file", false, true);
+        assertOption(options, "strategies-file", false, true);
+        assertOption(options, "actions-file", false, true);
+        assertOption(options, "limit-reductions-file", false, true);
     }
 
     @Test
@@ -129,25 +132,25 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
 
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getViolationTypes()).isEmpty();
         assertThat(input.getResultExtensions()).isEmpty();
         assertThat(input.getContingenciesSource()).isNotPresent();
 
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_TYPES_OPTION, "HIGH_VOLTAGE,CURRENT"));
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getViolationTypes()).containsExactly(LimitViolationType.CURRENT, LimitViolationType.HIGH_VOLTAGE);
 
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.WITH_EXTENSIONS_OPTION, "ext1,ext2"));
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getResultExtensions()).containsExactly("ext1", "ext2");
 
         ToolOptions invalidOptions = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies"));
-        assertThatIllegalArgumentException().isThrownBy(() -> SecurityAnalysisTool.updateInput(invalidOptions, input));
+        assertThatIllegalArgumentException().isThrownBy(() -> tool.updateInput(invalidOptions, input));
 
         Files.write(fileSystem.getPath("contingencies"), "test".getBytes());
         options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies"));
-        SecurityAnalysisTool.updateInput(options, input);
+        tool.updateInput(options, input);
         assertThat(input.getContingenciesSource()).isPresent();
         if (input.getContingenciesSource().isPresent()) {
             assertEquals("test", new String(input.getContingenciesSource().get().read()));
@@ -181,12 +184,16 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    void readNetwork() throws IOException {
-        ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
-                mock(ComputationManager.class), mock(ComputationManager.class));
-
-        CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-        SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+    void readNetwork() {
+        try {
+            ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
+                    mock(ComputationManager.class), mock(ComputationManager.class));
+            CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
+            Network network = SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+            assertNotNull(network);
+        } catch (Exception e) {
+            fail(e);
+        }
     }
 
     @Test
@@ -197,7 +204,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
              PrintStream err = new PrintStream(berr);
              ComputationManager cm = mock(ComputationManager.class)) {
             CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
-                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), Collections.emptySet());
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
@@ -207,7 +214,6 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
             // Check runWithLog execution
             tool.run(cl, context, builderRun,
-                    SecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
             // Check log-file creation
@@ -220,7 +226,6 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
             when(cl.hasOption("log-file")).thenReturn(false);
 
             tool.run(cl, context, builderRun,
-                    SecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
 
@@ -233,12 +238,11 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
                 executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
             try {
                 tool.run(cl, context, builderException,
-                        SecurityAnalysisParameters::new,
                         new ImportersLoaderList(new NetworkImporterMock()),
                         TableFormatterConfig::new);
                 fail();
             } catch (CompletionException exception) {
-                assertTrue(exception.getCause() instanceof ComputationException);
+                assertInstanceOf(ComputationException.class, exception.getCause());
                 assertEquals("outLog", ((ComputationException) exception.getCause()).getOutLogs().get("out"));
                 assertEquals("errLog", ((ComputationException) exception.getCause()).getErrLogs().get("err"));
             }
@@ -255,7 +259,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
              ComputationManager cm = mock(ComputationManager.class)) {
 
             CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
-                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), Collections.emptySet());
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
@@ -264,10 +268,62 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
         }
     }
 
+    @Test
+    void shouldSucceedParseStrategiesFile() throws IOException {
+        //Given
+        byte[] operatorStrategiesBytes;
+        try (InputStream is = getClass().getResourceAsStream("/OperatorStrategyFileTest.json")) {
+            assertNotNull(is);
+            operatorStrategiesBytes = is.readAllBytes();
+        }
+        Files.write(fileSystem.getPath("strategies"), operatorStrategiesBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.STRATEGIES_FILE, "strategies"));
+        //When
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
+        tool.updateInput(options, input);
+        //Then
+        assertThat(input.getOperatorStrategies()).isNotEmpty();
+    }
+
+    @Test
+    void shouldSucceedParseActionsFile() throws IOException {
+        //Given
+        byte[] actionsBytes;
+        try (InputStream is = getClass().getResourceAsStream("/ActionFileTest.json")) {
+            assertNotNull(is);
+            actionsBytes = is.readAllBytes();
+        }
+        Files.write(fileSystem.getPath("actions"), actionsBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.ACTIONS_FILE, "actions"));
+        //When
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
+        tool.updateInput(options, input);
+        //Then
+        assertThat(input.getActions()).isNotEmpty();
+    }
+
+    @Test
+    void shouldSucceedParseLimitReductionsFile() throws IOException {
+        //Given
+        byte[] limitReductionsBytes;
+        try (InputStream is = getClass().getResourceAsStream("/LimitReductionsV1.1.json")) {
+            assertNotNull(is);
+            limitReductionsBytes = is.readAllBytes();
+        }
+        Files.write(fileSystem.getPath("limit-reductions"), limitReductionsBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_REDUCTIONS_FILE, "limit-reductions"));
+        //When
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
+        tool.updateInput(options, input);
+        //Then
+        assertThat(input.getLimitReductions()).isNotEmpty();
+    }
+
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
+
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
             CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
             SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
             when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
@@ -291,8 +347,9 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisExceptionProviderMock implements SecurityAnalysisProvider {
+
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

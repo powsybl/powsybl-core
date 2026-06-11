@@ -8,6 +8,8 @@
 package com.powsybl.shortcircuit;
 
 /**
+ * Results detailed on the three phases of the voltages on a bus.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class FortescueShortCircuitBusResults extends AbstractShortCircuitBusResults {

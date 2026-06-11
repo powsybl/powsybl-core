@@ -43,7 +43,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken();
                     version = parser.getValueAsString();
@@ -54,6 +54,13 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
                             parser,
                             SecurityAnalysisParameters.IncreasedViolationsParameters.class));
+                    break;
+                case "monitored-element-modification-threshold":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: monitoredElementModificationThreshold", version, "1.3");
+                    parser.nextToken();
+                    parameters.setModifiedMonitoredElementsParameters(JsonUtil.readValue(deserializationContext,
+                            parser,
+                            SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class));
                     break;
                 case "load-flow-parameters":
                     parser.nextToken();
@@ -69,7 +76,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

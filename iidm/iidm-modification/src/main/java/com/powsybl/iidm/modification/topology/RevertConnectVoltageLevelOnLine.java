@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +19,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.util.ModificationReports.createdLineReport;
-import static com.powsybl.iidm.modification.util.ModificationReports.noVoltageLevelInCommonReport;
-import static com.powsybl.iidm.modification.util.ModificationReports.notFoundLineReport;
-import static com.powsybl.iidm.modification.util.ModificationReports.removedLineReport;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.mergeLimits;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * This method reverses the action done in the ConnectVoltageLevelOnLine class :
@@ -67,15 +60,19 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         this.lineName = lineName;
     }
 
+    @Override
+    public String getName() {
+        return "RevertConnectVoltageLevelOnLine";
+    }
+
     private static Line checkAndGetLine(Network network, String lineId, ReportNode reportNode, boolean throwException) {
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            LOG.error("Line {} is not found", lineId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Line %s is not found", lineId));
-            }
+            logOrThrow(throwException, String.format("Line %s is not found", lineId));
+            return null;
         }
+
         return line;
     }
 
@@ -109,12 +106,8 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         if (vlIds.size() != 3) {
             noVoltageLevelInCommonReport(reportNode, line1Id, line2Id);
-            LOG.error("Lines {} and {} should have one and only one voltage level in common at their extremities", line1Id, line2Id);
-            if (throwException) {
-                throw new PowsyblException(String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
-            } else {
-                return;
-            }
+            logOrThrow(throwException, String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
+            return;
         }
 
         VoltageLevel commonVl = network.getVoltageLevel(commonVlId);
@@ -122,6 +115,8 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         TwoSides line1Side2 = line1Side1 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
         TwoSides line2Side2 = line2VlId1.equals(commonVlId) ? TwoSides.TWO : TwoSides.ONE;
         TwoSides line2Side1 = line2Side2 == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
+        Terminal terminalVlLine1 = line1.getTerminal(line1Side2);
+        Terminal terminalVlLine2 = line2.getTerminal(line2Side1);
 
         // Set parameters of the new line replacing the two existing lines
         LineAdder lineAdder = createLineAdder(lineId, lineName, line1Side1 == TwoSides.TWO ? line1VlId2 : line1VlId1,
@@ -139,10 +134,13 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         LoadingLimitsBags limitsLine2Side2 = new LoadingLimitsBags(() -> line2.getActivePowerLimits(line2Side2), () -> line2.getApparentPowerLimits(line2Side2), () -> line2.getCurrentLimits(line2Side2));
 
         // Remove the two existing lines
+        // need to clean the node breaker topology first, otherwise if the voltage level is not removed the switches are not removed
+        cleanNodeBreakerTopologyForTerminal(terminalVlLine1, line1Id, reportNode);
         line1.remove();
         removedLineReport(reportNode, line1Id);
         LOG.info("Line {} removed", line1Id);
 
+        cleanNodeBreakerTopologyForTerminal(terminalVlLine2, line2Id, reportNode);
         line2.remove();
         removedLineReport(reportNode, line2Id);
         LOG.info("Line {} removed", line2Id);
@@ -159,6 +157,24 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         // remove voltage level and substation in common, if necessary
         removeVoltageLevelAndSubstation(commonVl, reportNode);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Line line1 = network.getLine(line1Id);
+        Line line2 = network.getLine(line2Id);
+        if (line1 == null || line2 == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            Set<String> vlIds = new HashSet<>();
+            vlIds.add(line1.getTerminal1().getVoltageLevel().getId());
+            vlIds.add(line1.getTerminal2().getVoltageLevel().getId());
+            vlIds.add(line2.getTerminal1().getVoltageLevel().getId());
+            vlIds.add(line2.getTerminal2().getVoltageLevel().getId());
+            impact = vlIds.size() == 3 ? NetworkModificationImpact.HAS_IMPACT_ON_NETWORK : NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
     }
 
     public String getLine1Id() {

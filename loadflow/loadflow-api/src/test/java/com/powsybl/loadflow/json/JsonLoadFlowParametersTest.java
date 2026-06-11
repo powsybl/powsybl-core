@@ -23,10 +23,15 @@ import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +54,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::compareTxt, "/LoadFlowParametersWithExtension.json");
+        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::assertTxtEquals, "/LoadFlowParametersWithExtension.json");
     }
 
     @Test
@@ -68,24 +73,19 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         }
     }
 
-    @Test
-    void readJsonVersion10() {
-        LoadFlowParameters parameters = JsonLoadFlowParameters
-                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion10.json"));
-        assertTrue(parameters.isTwtSplitShuntAdmittance());
+    private static Stream<Arguments> provideArguments() {
+        return Stream.of(
+            Arguments.of("/LoadFlowParametersVersion10.json"),
+            Arguments.of("/LoadFlowParametersVersion11.json"),
+            Arguments.of("/LoadFlowParametersVersion12.json")
+        );
     }
 
-    @Test
-    void readJsonVersion11() {
+    @ParameterizedTest
+    @MethodSource("provideArguments")
+    void readJsonSpecificVersions(String json) {
         LoadFlowParameters parameters = JsonLoadFlowParameters
-                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion11.json"));
-        assertTrue(parameters.isTwtSplitShuntAdmittance());
-    }
-
-    @Test
-    void readJsonVersion12() {
-        LoadFlowParameters parameters = JsonLoadFlowParameters
-                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion12.json"));
+                .read(getClass().getResourceAsStream(json));
         assertTrue(parameters.isTwtSplitShuntAdmittance());
     }
 
@@ -115,7 +115,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         assertEquals(2, parameters.getCountriesToBalance().size());
         assertTrue(parameters.getCountriesToBalance().contains(Country.FR));
         assertTrue(parameters.getCountriesToBalance().contains(Country.KI));
-        assertEquals(LoadFlowParameters.ConnectedComponentMode.MAIN, parameters.getConnectedComponentMode());
+        assertEquals(LoadFlowParameters.ComponentMode.MAIN_CONNECTED, parameters.getComponentMode());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void readJsonVersion17() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion17.json"));
-        assertTrue(parameters.isHvdcAcEmulation());
+        assertFalse(parameters.isHvdcAcEmulation());
     }
 
     @Test
@@ -147,32 +147,48 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readJsonVersion10Exception() {
-        InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json");
-        assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
+    void readJsonVersion110() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion110.json"));
+        assertEquals(LoadFlowParameters.ComponentMode.MAIN_SYNCHRONOUS, parameters.getComponentMode());
     }
 
     @Test
-    void readJsonVersion11Exception() {
-        InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json");
-        assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");
+    void readJsonVersion10Exception() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json")) {
+            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
+        }
     }
 
     @Test
-    void readJsonVersion12Exception() {
-        InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion12Exception.json");
-        assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1");
+    void readJsonVersion11Exception() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json")) {
+            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");
+        }
+    }
+
+    @Test
+    void readJsonVersion12Exception() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion12Exception.json")) {
+            assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1");
+        }
     }
 
     public static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
 
-        public static final double PARAMETER_DOUBLE_DEFAULT_VALUE = 0;
+        public static final double PARAMETER_DOUBLE_DEFAULT_VALUE = 6.4;
+        public static final int PARAMETER_INTEGER_DEFAULT_VALUE = 42;
         public static final boolean PARAMETER_BOOLEAN_DEFAULT_VALUE = false;
-        public static final String PARAMETER_STRING_DEFAULT_VALUE = null;
+        public static final String PARAMETER_STRING_DEFAULT_VALUE = "yes";
+        public static final String PARAMETER_NULLABLE_STRING_DEFAULT_VALUE = null;
+        public static final List<String> PARAMETER_STRING_LIST_DEFAULT_VALUE = null;
 
         private double parameterDouble = PARAMETER_DOUBLE_DEFAULT_VALUE;
+        private int parameterInteger = PARAMETER_INTEGER_DEFAULT_VALUE;
         private boolean parameterBoolean = PARAMETER_BOOLEAN_DEFAULT_VALUE;
         private String parameterString = PARAMETER_STRING_DEFAULT_VALUE;
+        private String parameterNullableString = PARAMETER_NULLABLE_STRING_DEFAULT_VALUE;
+        private List<String> parameterStringList = PARAMETER_STRING_LIST_DEFAULT_VALUE;
 
         public DummyExtension() {
             super();
@@ -182,6 +198,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;
+            this.parameterStringList = another.parameterStringList;
         }
 
         /**
@@ -214,6 +231,30 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
         public void setParameterString(String parameterString) {
             this.parameterString = parameterString;
+        }
+
+        public List<String> getParameterStringList() {
+            return parameterStringList;
+        }
+
+        public void setParameterStringList(List<String> parameterStringList) {
+            this.parameterStringList = parameterStringList;
+        }
+
+        public String getParameterNullableString() {
+            return parameterNullableString;
+        }
+
+        public void setParameterNullableString(String parameterNullableString) {
+            this.parameterNullableString = parameterNullableString;
+        }
+
+        public int getParameterInteger() {
+            return parameterInteger;
+        }
+
+        public void setParameterInteger(int parameterInteger) {
+            this.parameterInteger = parameterInteger;
         }
     }
 
@@ -257,7 +298,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
         @Override
         public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return new DummyExtension();
+            return createMapper().readValue(jsonParser, DummyExtension.class);
         }
 
         @Override

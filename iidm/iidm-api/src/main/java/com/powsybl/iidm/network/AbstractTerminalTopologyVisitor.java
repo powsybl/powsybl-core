@@ -64,8 +64,8 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
-        visitInjection(danglingLine);
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
+        visitInjection(boundaryLine);
     }
 
     @Override
@@ -81,5 +81,10 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     @Override
     public void visitGround(Ground ground) {
         visitInjection(ground);
+    }
+
+    @Override
+    public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+        converter.getTerminal(terminalNumber).ifPresent(this::visitTerminal);
     }
 }

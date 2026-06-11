@@ -21,25 +21,30 @@ import java.util.List;
 
 /**
  * Interface to describe the characteristics of the fault to be simulated.
- * Used for elementary short-circuit analysis only.
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
 public interface Fault {
 
-    // Type of fault (use for downcast & serialize/deserialize)
+    /**
+     * Type of fault (use for downcast & serialize/deserialize).
+     */
     enum Type {
         BUS,
         BRANCH
     }
 
-    // How the fault impedance and resistance are associated.
+    /**
+     * How the fault impedance and resistance are connected to the ground.
+     */
     enum ConnectionType {
         SERIES,
         PARALLEL,
     }
 
-    // What kind of fault is simulated
+    /**
+     * The type of fault being simulated.
+     */
     enum FaultType {
         THREE_PHASE,
         SINGLE_PHASE,
@@ -47,27 +52,50 @@ public interface Fault {
 
     //TODO : add the numbers of the phase for two and single phase
 
-    // The fault id.
+    /**
+     * The ID of the fault.
+     */
     String getId();
 
-    // The equipment or bus id where the fault is simulated.
+    /**
+     * The ID of the equipment or bus associated to this fault.
+     */
     String getElementId();
 
-    // Characteristics of the short circuit to ground.
+    /**
+     * The resistance of the fault to the ground. The default is zero Ohms.
+     */
     double getRToGround();
 
+    /**
+     * The reactance of the fault to the ground. The default is zero Ohms.
+     */
     double getXToGround();
 
+    /**
+     * The type of the element associated to the fault: can be BUS or BRANCH.
+     */
     Type getType();
 
+    /**
+     * How the fault resistance and reactance are connected to the ground. Can be SERIES or PARALLEL.
+     */
     ConnectionType getConnectionType();
 
+    /**
+     * The type of fault occurring on the network element: can be THREE-PHASE or SINGLE-PHASE.
+     */
     FaultType getFaultType();
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
     }
 
+    /**
+     * Writes a list of faults to a JSON file
+     * @param faults the list of faults
+     * @param jsonFile the path to the JSON file
+     */
     static void write(List<Fault> faults, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
             createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, faults);
@@ -76,6 +104,11 @@ public interface Fault {
         }
     }
 
+    /**
+     * Reads a JSON file and creates the associated list of faults
+     * @param jsonFile the path to the existing JSON file
+     * @return a list of faults
+     */
     static List<Fault> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return createObjectMapper().readerForListOf(Fault.class).readValue(is);

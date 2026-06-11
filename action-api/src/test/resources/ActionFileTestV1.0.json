@@ -82,6 +82,12 @@
     "relativeValue" : true,
     "reactivePowerValue" : 5.0
   }, {
+    "type" : "PCT_LOAD_CHANGE",
+    "id" : "id26",
+    "loadId" : "loadId1",
+    "p0PercentChange" : 5.0,
+    "qModificationStrategy" : "CONSTANT_Q"
+  }, {
     "type" : "DANGLING_LINE",
     "id" : "id17",
     "danglingLineId" : "dlId1",
@@ -189,5 +195,14 @@
     "elementId" : "transformerId25",
     "side" : "THREE",
     "open" : true
+  }, {
+    "type" : "AREA_INTERCHANGE_TARGET_ACTION",
+    "id" : "id99",
+    "areaId" : "AreaA",
+    "interchangeTarget" : 101.0
+  }, {
+    "type" : "AREA_INTERCHANGE_TARGET_ACTION",
+    "id" : "idDisabledTarget",
+    "areaId" : "AreaA"
   } ]
 }

@@ -17,13 +17,15 @@ import com.powsybl.ucte.network.UcteNodeCode;
  */
 public interface NamingStrategy {
 
+    void initializeNetwork(Network network);
+
     String getName();
 
     UcteNodeCode getUcteNodeCode(String id);
 
     UcteNodeCode getUcteNodeCode(Bus bus);
 
-    UcteNodeCode getUcteNodeCode(DanglingLine danglingLine);
+    UcteNodeCode getUcteNodeCode(BoundaryLine boundaryLine);
 
     UcteElementId getUcteElementId(String id);
 
@@ -31,5 +33,5 @@ public interface NamingStrategy {
 
     UcteElementId getUcteElementId(Branch branch);
 
-    UcteElementId getUcteElementId(DanglingLine danglingLine);
+    UcteElementId getUcteElementId(BoundaryLine boundaryLine);
 }

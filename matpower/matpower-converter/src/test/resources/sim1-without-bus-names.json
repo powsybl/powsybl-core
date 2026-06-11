@@ -4,7 +4,7 @@
   "version" : "2",
   "buses" : [ {
     "number" : 1,
-    "type" : "PV",
+    "type" : "REF",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -18,7 +18,7 @@
     "minimumVoltageMagnitude" : 0.0
   }, {
     "number" : 2,
-    "type" : "REF",
+    "type" : "PQ",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,

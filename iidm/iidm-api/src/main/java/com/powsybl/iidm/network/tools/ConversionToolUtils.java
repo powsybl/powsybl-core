@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -84,7 +85,7 @@ public final class ConversionToolUtils {
         Properties properties = new Properties();
 
         // Read the parameters file
-        String filename = line.getOptionValue(optionType.getLongOpt(), null);
+        String filename = line.getOptionValue(optionType.getLongOpt(), (Supplier<String>) null);
         if (filename != null) {
             try (InputStream inputStream = Files.newInputStream(context.getFileSystem().getPath(filename))) {
                 if (filename.endsWith(".xml")) {

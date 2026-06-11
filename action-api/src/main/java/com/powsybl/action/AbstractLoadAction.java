@@ -7,13 +7,14 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
 import java.util.OptionalDouble;
 
 /**
  * An action to:
  * <ul>
- *     <li>change the P0 of a load or a dangling line , either by specifying a new absolute value (MW) or a relative change (MW).</li>
- *     <li>change the Q0 of a load or a dangling line, either by specifying a new absolute value (MVar) or a relative change (MVar).</li>
+ *     <li>change the P0 of a load or a boundary line , either by specifying a new absolute value (MW) or a relative change (MW).</li>
+ *     <li>change the Q0 of a load or a boundary line, either by specifying a new absolute value (MVar) or a relative change (MVar).</li>
  * </ul>
  *
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -47,5 +48,25 @@ public abstract class AbstractLoadAction extends AbstractAction {
 
     public OptionalDouble getReactivePowerValue() {
         return reactivePowerValue == null ? OptionalDouble.empty() : OptionalDouble.of(reactivePowerValue);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        AbstractLoadAction that = (AbstractLoadAction) o;
+        return relativeValue == that.relativeValue && Objects.equals(activePowerValue, that.activePowerValue) && Objects.equals(reactivePowerValue, that.reactivePowerValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), relativeValue, activePowerValue, reactivePowerValue);
     }
 }

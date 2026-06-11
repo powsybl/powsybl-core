@@ -14,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -226,7 +225,7 @@ public abstract class AbstractBatteryTest {
         createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
 
         Battery battery = network.getBattery("testMultiVariant");
-        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        List<String> variantsToAdd = List.of("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
         variantManager.setWorkingVariant("s4");

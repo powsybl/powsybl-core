@@ -8,7 +8,7 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.tripping.GeneratorTripping;
@@ -35,7 +35,7 @@ class GeneratorContingencyTest {
         assertEquals(ContingencyElementType.GENERATOR, genContingency.getType());
 
         assertNotNull(genContingency.toModification());
-        assertTrue(genContingency.toModification() instanceof GeneratorTripping);
+        assertInstanceOf(GeneratorTripping.class, genContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new GeneratorContingency("g1"), new GeneratorContingency("g1"))

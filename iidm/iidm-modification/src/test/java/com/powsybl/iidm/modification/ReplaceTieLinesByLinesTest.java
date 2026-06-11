@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -49,14 +51,14 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
     private static Network createBusBreakerNetworkWithAliasesPropertiesExtensions() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
 
-        DanglingLine dl1 = network.getDanglingLine("NHV1_XNODE1");
+        BoundaryLine dl1 = network.getBoundaryLine("NHV1_XNODE1");
         dl1.addAlias("test1");
         dl1.addAlias("test2", "same");
         dl1.setProperty("key1", "value1");
         dl1.setProperty("key2", "value2");
         dl1.setProperty("key3", "value4");
 
-        DanglingLine dl2 = network.getDanglingLine("XNODE1_NHV2");
+        BoundaryLine dl2 = network.getBoundaryLine("XNODE1_NHV2");
         dl2.addAlias("test3");
         dl2.addAlias("test4", "same");
         dl2.setProperty("key1", "value1");
@@ -76,9 +78,9 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
         Substation s2 = network.newSubstation().setId("S2").add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        BoundaryLine dl1 = vl1.newBoundaryLine().setId("DL1").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        BoundaryLine dl2 = vl2.newBoundaryLine().setId("DL2").setNode(0).setP0(0.0).setQ0(0.0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setBoundaryLine1(dl1.getId()).setBoundaryLine2(dl2.getId()).add();
         return network;
     }
 
@@ -87,5 +89,18 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
         public String getName() {
             return "foo";
         }
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ReplaceTieLinesByLines();
+        assertEquals("ReplaceTieLinesByLines", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createDummyNodeBreakerNetwork();
+        ReplaceTieLinesByLines modification = new ReplaceTieLinesByLines();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }
 }

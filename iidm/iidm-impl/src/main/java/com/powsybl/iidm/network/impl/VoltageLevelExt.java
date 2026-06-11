@@ -7,18 +7,27 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.impl.util.Ref;
-
-import java.util.function.Predicate;
+import com.powsybl.commons.ref.Ref;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
+interface VoltageLevelExt extends VoltageLevel, MultiVariantObject, Validable {
 
-    interface NodeBreakerViewExt extends NodeBreakerView {
+    interface NodeBreakerViewExt extends NodeBreakerView, MultiVariantObject {
+
+        /**
+         * Returns true if any node has a non-zero fictitious active power injection.
+         */
+        boolean hasFictitiousP0();
+
+        /**
+         * Returns true if any node has a non-zero fictitious reactive power injection.
+         */
+        boolean hasFictitiousQ0();
 
     }
 
@@ -45,29 +54,7 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
     @Override
     NetworkExt getParentNetwork();
 
-    /**
-     * Attach an equipment to the topology.
-     */
-    void attach(TerminalExt terminal, boolean test);
-
-    /**
-     * Detach an equipment from the topology.
-     */
-    void detach(TerminalExt terminal);
-
-    boolean connect(TerminalExt terminal);
-
-    boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
-
-    boolean disconnect(TerminalExt terminal);
-
-    boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
-
-    default void invalidateCache() {
-        invalidateCache(false);
-    }
-
-    void invalidateCache(boolean exceptBusBreakerView);
+    TopologyModel getTopologyModel();
 
     String getSubnetworkId();
 

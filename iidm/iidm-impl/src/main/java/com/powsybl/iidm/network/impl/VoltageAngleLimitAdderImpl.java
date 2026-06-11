@@ -9,14 +9,14 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 /**
  *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
+class VoltageAngleLimitAdderImpl extends AbstractBasePropertiesHolder implements VoltageAngleLimitAdder, Validable {
 
     private final NetworkImpl network;
     private final String subnetwork;
@@ -85,6 +85,7 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
 
         VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(id, from, to, lowLimit, highLimit, networkRef);
         networkRef.get().getVoltageAngleLimitsIndex().put(id, voltageAngleLimit);
+        this.copyPropertiesTo(voltageAngleLimit);
         return voltageAngleLimit;
     }
 
@@ -94,7 +95,7 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
     }
 
     @Override
-    public String getMessageHeader() {
-        return "VoltageAngleLimit '" + id + "': ";
+    public MessageHeader getMessageHeader() {
+        return new DefaultMessageHeader("VoltageAngleLimit", id);
     }
 }

@@ -11,10 +11,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.criteria.NetworkElementCriterion;
-import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
+import com.powsybl.iidm.criteria.NetworkElementCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +34,20 @@ public abstract class AbstractNetworkElementCriterionDeserializer<T extends Netw
 
     protected static class ParsingContext {
         String name = null;
+        String type = null;
         Criterion countryCriterion = null;
         Criterion nominalVoltageCriterion = null;
+        String version = null;
+    }
+
+    protected ParsingContext fillParsingContext(JsonParser parser, DeserializationContext deserializationContext,
+                                                NetworkElementCriterionType expectedCriterionType, CriterionType countryType,
+                                                CriterionType nominalVoltageType) {
+        AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
+                expectedCriterionType, countryType, nominalVoltageType));
+        checkType(parsingContext, expectedCriterionType);
+        return parsingContext;
     }
 
     protected boolean deserializeAttributes(JsonParser parser, DeserializationContext ctx,
@@ -78,21 +90,26 @@ public abstract class AbstractNetworkElementCriterionDeserializer<T extends Netw
                 return true;
             }
             case "version" -> {
-                parser.nextToken();
+                parsingCtx.version = parser.nextTextValue();
                 return true;
             }
             case "type" -> {
-                String type = parser.nextTextValue();
-                if (!type.equals(expectedType)) {
-                    throw new IllegalStateException(String.format("'type' is expected to be '%s' but encountered value was '%s'",
-                            expectedType, type));
-                }
+                parsingCtx.type = parser.nextTextValue();
                 return true;
             }
             default -> {
                 LOGGER.warn("Ignored element '{}' for criterion of type '{}'", name, expectedType);
                 return false;
             }
+        }
+    }
+
+    protected void checkType(ParsingContext parsingCtx, NetworkElementCriterionType expectedCriterionType) {
+        String expectedType = expectedCriterionType.getName();
+        String type = parsingCtx.type;
+        if (!expectedType.equals(type)) {
+            throw new IllegalStateException(String.format("'type' is expected to be '%s' but encountered value was '%s'",
+                    expectedType, type));
         }
     }
 }

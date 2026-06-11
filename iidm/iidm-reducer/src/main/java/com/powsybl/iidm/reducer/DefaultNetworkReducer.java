@@ -70,6 +70,21 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     @Override
+    protected void reduce(TieLine tieLine) {
+        Terminal terminal1 = tieLine.getTerminal1();
+        Terminal terminal2 = tieLine.getTerminal2();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+
+        // just remove the tie line if one of its voltage levels has to be removed
+        if (!test(vl1) || !test(vl2)) {
+            tieLine.remove();
+        }
+
+        observers.forEach(o -> o.tieLineRemoved(tieLine));
+    }
+
+    @Override
     protected void reduce(TwoWindingsTransformer transformer) {
         Terminal terminal1 = transformer.getTerminal1();
         Terminal terminal2 = transformer.getTerminal2();
@@ -138,8 +153,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void reduce(Line line, VoltageLevel vl, Terminal terminal) {
-        if (options.isWithDanglingLines()) {
-            replaceLineByDanglingLine(line, vl, terminal);
+        if (options.isWithBoundaryLines()) {
+            replaceLineByBoundaryLine(line, vl, terminal);
         } else {
             replaceLineByLoad(line, vl, terminal);
         }
@@ -150,10 +165,10 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.lineReplaced(line, load));
     }
 
-    private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
+    private void replaceLineByBoundaryLine(Line line, VoltageLevel vl, Terminal terminal) {
         TwoSides side = line.getSide(terminal);
 
-        DanglingLineAdder dlAdder = vl.newDanglingLine()
+        BoundaryLineAdder dlAdder = vl.newBoundaryLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
@@ -168,7 +183,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         double q = terminal.getQ();
         line.remove();
 
-        DanglingLine dl = dlAdder.add();
+        BoundaryLine dl = dlAdder.add();
         dl.getTerminal()
                 .setP(p)
                 .setQ(q);

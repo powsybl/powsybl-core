@@ -34,7 +34,7 @@ class BinaryTest extends AbstractIidmSerDeTest {
                 .setVoltageLevel2("vl2").setNode2(0)
                 .setR(0.1).setX(10)
                 .add();
-        l0.newCurrentLimits1().add();
+        l0.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits().add();
         l0.cancelSelectedOperationalLimitsGroup1(); // selected group id is now null on side 1
         l0.newOperationalLimitsGroup2("").newCurrentLimits().add();
         l0.setSelectedOperationalLimitsGroup2(""); // selected group id is now "" on side 2

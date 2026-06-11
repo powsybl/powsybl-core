@@ -19,6 +19,8 @@ import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.LimitType;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -35,6 +37,7 @@ class LimitReductionBuilderTest {
         assertEquals(ContingencyContext.all(), limitReduction.getContingencyContext());
         assertTrue(limitReduction.getNetworkElementCriteria().isEmpty());
         assertTrue(limitReduction.getDurationCriteria().isEmpty());
+        assertTrue(limitReduction.getOperationalLimitsGroupIdsSelection().isEmpty());
     }
 
     @Test
@@ -51,6 +54,8 @@ class LimitReductionBuilderTest {
                 .withNetworkElementCriteria(nec1, nec2) // replace previously defined NetworkElementCriteria
                 .withLimitDurationCriteria(ldc0)
                 .withLimitDurationCriteria(ldc1) // replace previously defined LimitDurationCriterion
+                .withOperationalLimitsGroupIdSelection("incorrect", "also incorrect")
+                .withOperationalLimitsGroupIdSelection("correct", "good", "also good")
                 .build();
         assertEquals(LimitType.CURRENT, limitReduction.getLimitType());
         assertEquals(0.9, limitReduction.getValue(), 0.01);
@@ -64,5 +69,6 @@ class LimitReductionBuilderTest {
         assertEquals(1, limitReduction.getDurationCriteria().size());
         assertEquals(AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType.EQUALITY,
                 ((AbstractTemporaryDurationCriterion) limitReduction.getDurationCriteria().get(0)).getComparisonType());
+        assertEquals(limitReduction.getOperationalLimitsGroupIdsSelection(), List.of("correct", "good", "also good"));
     }
 }

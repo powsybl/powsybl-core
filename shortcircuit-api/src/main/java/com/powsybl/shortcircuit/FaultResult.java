@@ -8,19 +8,24 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 import java.time.Duration;
 import java.util.List;
 
 /**
+ * Interface to describe the result of the short-circuit analysis for a given fault.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public interface FaultResult extends Extendable<FaultResult> {
 
+    /**
+     * The status of the computation.
+     */
     enum Status {
         /**
-         * The computation went ok and no error were returned
+         * The computation went ok and no error was returned
          */
         SUCCESS,
         /**

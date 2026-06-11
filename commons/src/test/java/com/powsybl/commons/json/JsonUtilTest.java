@@ -9,6 +9,7 @@ package com.powsybl.commons.json;
 
 import java.io.IOException;
 
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.BeforeEach;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -72,5 +73,33 @@ class JsonUtilTest {
         JsonUtil.skip(parser);
         assertEquals(JsonToken.VALUE_STRING, parser.currentToken(), "Should have skipped to VALUE_STRING");
         assertNull(parser.nextToken(), "Should return null because the whole json is skipped when on next STRING_VALUE");
+    }
+
+    @Test
+    void testCompareVersions() {
+        assertTrue(JsonUtil.compareVersions("1.9", "1.10") < 0);
+        assertTrue(JsonUtil.compareVersions("2.0", "1.9") > 0);
+
+        assertTrue(JsonUtil.compareVersions("1.10", "1.10.1") < 0);
+        assertTrue(JsonUtil.compareVersions("1.10.2", "1.10") > 0);
+
+        assertEquals(0, JsonUtil.compareVersions("1.10.1", "1.10.1"));
+
+        assertTrue(JsonUtil.compareVersions("A.2", "B.2") < 0);
+        assertTrue(JsonUtil.compareVersions("B.2", "A.2") > 0);
+
+        assertTrue(JsonUtil.compareVersions("3.2", "3.C") < 0);
+        assertTrue(JsonUtil.compareVersions("3.C.2", "3.C") > 0);
+    }
+
+    @Test
+    void testAssertSupportedVersion() {
+        String contextName = "TestContext";
+        String supportedVersion = "1.9";
+        String unsupportedVersion = "1.11";
+        String maxSupportedVersion = "1.10";
+        assertDoesNotThrow(() -> JsonUtil.assertSupportedVersion(contextName, supportedVersion, maxSupportedVersion));
+        String expectedException = String.format("%s. Unsupported version %s. Version should be <= %s %n", contextName, unsupportedVersion, maxSupportedVersion);
+        assertThrows(PowsyblException.class, () -> JsonUtil.assertSupportedVersion(contextName, unsupportedVersion, maxSupportedVersion), expectedException);
     }
 }

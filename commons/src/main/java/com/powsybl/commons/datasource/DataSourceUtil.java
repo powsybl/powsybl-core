@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -35,50 +36,64 @@ public interface DataSourceUtil {
 
     static String getBaseName(String fileName) {
         Objects.requireNonNull(fileName);
-        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
-        return pos == -1 ? fileName : fileName.substring(0, pos);
+        FileInformation fileInformation = new FileInformation(fileName, false);
+        return fileInformation.getBaseName();
     }
 
     static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
+        return createDataSource(directory, basename, null, compressionExtension, observer);
+    }
+
+    static DataSource createDataSource(Path directory, String basename, String dataExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(basename);
 
-        if (compressionExtension == null) {
-            return new FileDataSource(directory, basename, observer);
-        } else {
-            switch (compressionExtension) {
-                case BZIP2:
-                    return new Bzip2FileDataSource(directory, basename, observer);
-                case GZIP:
-                    return new GzFileDataSource(directory, basename, observer);
-                case XZ:
-                    return new XZFileDataSource(directory, basename, observer);
-                case ZIP:
-                    return new ZipFileDataSource(directory, basename, observer);
-                case ZSTD:
-                    return new ZstdFileDataSource(directory, basename, observer);
-                default:
-                    throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
-            }
+        DataSourceBuilder dataSourceBuilder = new DataSourceBuilder()
+            .withDirectory(directory)
+            .withBaseName(basename)
+            .withDataExtension(dataExtension)
+            .withCompressionFormat(compressionFormat)
+            .withObserver(observer);
+
+        // If a zip compression is asked
+        if (compressionFormat == CompressionFormat.ZIP) {
+            dataSourceBuilder.withArchiveFormat(ArchiveFormat.ZIP);
         }
+
+        return dataSourceBuilder.build();
     }
 
-    static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
-        Objects.requireNonNull(directory);
-        Objects.requireNonNull(fileNameOrBaseName);
+    /**
+     * Creates a {@link DataSource} from the given path. Note that the basename of the created {@link DataSource} is
+     * <ul>
+     *     <li>the file name if the path is a directory</li>
+     *     <li>the base name guessed by {@link FileInformation} if the path is not a directory</li>
+     * </ul>
+     */
+    static DataSource createDataSource(Path path, DataSourceObserver observer) {
+        Objects.requireNonNull(path);
 
-        if (fileNameOrBaseName.endsWith(".zst")) {
-            return new ZstdFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
-        } else if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
-        } else if (fileNameOrBaseName.endsWith(".xz")) {
-            return new XZFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
-        } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
-        } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+        DataSourceBuilder dataSourceBuilder = new DataSourceBuilder().withObserver(observer);
+        if (Files.isDirectory(path)) {
+            dataSourceBuilder.withDirectory(path)
+                .withBaseName(path.getFileName().toString()) // note that we use the full directory name here instead of a parsed representation using FileInformation
+                .withAllFiles(true);
         } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+            Path absFile = path.toAbsolutePath();
+            String fileName = absFile.getFileName().toString();
+
+            // Get the file information
+            FileInformation fileInformation = new FileInformation(fileName);
+
+            dataSourceBuilder
+                .withDirectory(absFile.getParent())
+                .withArchiveFileName(fileName)
+                .withBaseName(fileInformation.getBaseName())
+                .withDataExtension(fileInformation.getDataExtension())
+                .withCompressionFormat(fileInformation.getCompressionFormat())
+                .withArchiveFormat(fileInformation.getArchiveFormat());
         }
+
+        return dataSourceBuilder.build();
     }
 }

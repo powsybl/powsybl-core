@@ -47,6 +47,11 @@ public abstract class AbstractOperatingStatusTest {
                 .withStatus(OperatingStatus.Status.PLANNED_OUTAGE)
                 .add();
 
+        BusbarSection bbs = network.getBusbarSection("S1VL1_BBS");
+        bbs.newExtension(OperatingStatusAdder.class)
+                .withStatus(OperatingStatus.Status.FORCED_OUTAGE)
+                .add();
+
         Generator g = network.getGenerator("GH1");
         OperatingStatusAdder operatingStatusAdder = g.newExtension(OperatingStatusAdder.class)
                 .withStatus(OperatingStatus.Status.PLANNED_OUTAGE);

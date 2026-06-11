@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" xmlns:lem="http://www.powsybl.org/schema/iidm/ext/load_element_mock/1_1" id="test" caseDate="2024-09-17T13:36:37.831Z" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="VL1" nominalV="450.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology nodeCount="1"/>
+            <iidm:load id="Load1" loadType="UNDEFINED" p0="10.0" q0="20.0" node="0"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="Load1">
+        <lem:loadEltMock/>
+    </iidm:extension>
+</iidm:network>

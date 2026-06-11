@@ -8,11 +8,24 @@
 package com.powsybl.shortcircuit;
 
 /**
+ * The initial voltage profile to consider for the computation.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public enum InitialVoltageProfileMode {
+    /**
+     * The nominal values of the voltage are used.
+     */
     NOMINAL,
-    CONFIGURED, // Voltage profile given by the user
-    PREVIOUS_VALUE // Voltage profile from the loadflow
+
+    /**
+     * The user gives the voltage profile.
+     */
+    CONFIGURED,
+
+    /**
+     * The voltage profile used is the one calculated by the load flow calculation.
+     */
+    PREVIOUS_VALUE
 
 }

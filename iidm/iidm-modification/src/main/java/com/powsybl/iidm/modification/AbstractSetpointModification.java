@@ -11,11 +11,15 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.VscConverterStation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.OptionalDouble;
+
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 
 /**
  * Simple {@link NetworkModification} for elements that needs to modify
@@ -56,6 +60,23 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
         if (reactivePowerSetpoint != null) {
             setReactivePowerSetpoint(networkElement, reactivePowerSetpoint);
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        T networkElement = getNetworkElement(network, elementId);
+        if (networkElement == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if ((voltageSetpoint == null
+            || networkElement instanceof StaticVarCompensator staticVarCompensator && Math.abs(voltageSetpoint - staticVarCompensator.getVoltageSetpoint()) < EPSILON
+            || networkElement instanceof VscConverterStation vscConverterStation && Math.abs(voltageSetpoint - vscConverterStation.getVoltageSetpoint()) < EPSILON)
+            && (reactivePowerSetpoint == null
+            || networkElement instanceof StaticVarCompensator staticVarCompensator && Math.abs(reactivePowerSetpoint - staticVarCompensator.getReactivePowerSetpoint()) < EPSILON
+            || networkElement instanceof VscConverterStation vscConverterStation && Math.abs(reactivePowerSetpoint - vscConverterStation.getReactivePowerSetpoint()) < EPSILON)) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 
     public abstract String getElementName();

@@ -7,8 +7,12 @@
  */
 package com.powsybl.contingency;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -20,7 +24,8 @@ class EmptyContingencyListProviderTest {
         ContingenciesProviderFactory factory = new EmptyContingencyListProviderFactory();
         ContingenciesProvider provider = factory.create();
 
-        assertTrue(provider instanceof EmptyContingencyListProvider);
+        assertInstanceOf(EmptyContingencyListProvider.class, provider);
         assertEquals(0, provider.getContingencies(null).size());
+        assertEquals(0, provider.getContingencies(null, new HashMap<>()).size());
     }
 }

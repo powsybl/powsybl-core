@@ -51,19 +51,19 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         Double distributedActivePower = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "connectedComponentNum" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.2");
                     parser.nextToken();
                     connectedComponentNum = parser.getValueAsInt();
                 }
                 case "synchronousComponentNum" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
                 }
                 case "componentNum" -> {
-                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
                 }
@@ -102,21 +102,21 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     deserializeSlackBusResults(parser, slackBusResults);
                 }
                 case "slackBusId" -> {
-                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.4");
+                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.4");
                     parser.nextToken();
                     slackBusId = parser.getValueAsString();
                 }
                 case "slackBusActivePowerMismatch" -> {
-                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.4");
+                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.4");
                     parser.nextToken();
                     slackBusActivePowerMismatch = parser.getValueAsDouble();
                 }
                 case "distributedActivePower" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.currentName(), version, "1.3");
                     parser.nextToken();
                     distributedActivePower = parser.getValueAsDouble();
                 }
-                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.getCurrentName());
+                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.currentName());
             }
         }
 
@@ -164,7 +164,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         Double activePowerMismatch = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "id" -> {
                     parser.nextToken();
                     id = parser.getValueAsString();
@@ -173,7 +173,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     parser.nextToken();
                     activePowerMismatch = parser.getValueAsDouble();
                 }
-                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.getCurrentName());
+                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.currentName());
             }
         }
 
@@ -208,7 +208,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         List<LoadFlowResult.ComponentResult> componentResults = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
@@ -226,7 +226,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     parser.nextToken();
                     deserializeComponentResults(parser, componentResults, version);
                 }
-                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.getCurrentName());
+                default -> throw new IllegalStateException(UNEXPECTED_FIELD + parser.currentName());
             }
         }
 

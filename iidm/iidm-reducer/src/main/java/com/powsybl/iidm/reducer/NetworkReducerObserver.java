@@ -22,6 +22,8 @@ public interface NetworkReducerObserver {
 
     void lineRemoved(Line line);
 
+    void tieLineRemoved(TieLine tieLine);
+
     void transformerReplaced(TwoWindingsTransformer transformer, Injection injection);
 
     void transformerRemoved(TwoWindingsTransformer transformer);

@@ -1,6 +1,6 @@
 {
   "type" : "lineCriterion",
-  "version" : "1.0",
+  "version" : "1.1",
   "name" : "list2",
   "countryCriterion" : {
     "type" : "TWO_COUNTRY",

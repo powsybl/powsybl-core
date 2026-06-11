@@ -10,7 +10,7 @@ package com.powsybl.ampl.executor;
 import com.powsybl.ampl.converter.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
@@ -97,7 +97,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     }
 
     private void exportNetworkAsAmpl(Path workingDir) {
-        DataSource networkExportDataSource = new FileDataSource(workingDir, this.model.getNetworkDataPrefix());
+        DataSource networkExportDataSource = new DirectoryDataSource(workingDir, this.model.getNetworkDataPrefix());
         if (parameters.getAmplExportConfig() != null) {
             new AmplExporter().export(network, parameters.getAmplExportConfig(), networkExportDataSource);
         } else {
@@ -180,7 +180,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     @Override
     public AmplResults after(Path workingDir, ExecutionReport report) throws IOException {
         super.after(workingDir.toAbsolutePath(), report);
-        DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
+        DataSource networkAmplResults = new DirectoryDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
                 mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
         Map<String, String> indicators = readIndicators(reader);

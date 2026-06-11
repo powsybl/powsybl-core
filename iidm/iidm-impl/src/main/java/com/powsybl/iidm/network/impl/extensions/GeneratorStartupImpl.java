@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 
 /**
@@ -76,6 +78,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setPlannedOutageRate(double plannedOutageRate) {
+        ValidationUtil.checkRate((Validable) getExtendable(), "GeneratorStartup", plannedOutageRate, "planned outage rate");
         this.plannedOutageRate = plannedOutageRate;
         return this;
     }
@@ -87,6 +90,7 @@ public class GeneratorStartupImpl extends AbstractExtension<Generator> implement
 
     @Override
     public GeneratorStartupImpl setForcedOutageRate(double forcedOutageRate) {
+        ValidationUtil.checkRate((Validable) getExtendable(), "GeneratorStartup", forcedOutageRate, "forced outage rate");
         this.forcedOutageRate = forcedOutageRate;
         return this;
     }

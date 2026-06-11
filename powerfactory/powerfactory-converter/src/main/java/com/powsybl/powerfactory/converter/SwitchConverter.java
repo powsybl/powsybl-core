@@ -34,7 +34,7 @@ class SwitchConverter extends AbstractConverter {
     void createFromElmCoup(DataObject elmCoup) {
         List<NodeRef> nodeRefs = findNodes(elmCoup);
         if (nodeRefs.size() != 2) {
-            LOGGER.warn("ElemCoup discarded as it does not have two ends '{}'", elmCoup);
+            LOGGER.warn("ElemCoup discarded as it does not have two ends {} '{}'", elmCoup.getId(), elmCoup);
             return;
         }
         NodeRef nodeRef1 = nodeRefs.get(0);
@@ -109,18 +109,11 @@ class SwitchConverter extends AbstractConverter {
             SwitchKind switchKind;
 
             if (aUsage.isPresent()) {
-                switch (aUsage.get()) {
-                    case "cbk":
-                    case "swt":
-                        switchKind = SwitchKind.BREAKER;
-                        break;
-                    case "dct":
-                    case "sdc":
-                        switchKind = SwitchKind.DISCONNECTOR;
-                        break;
-                    default:
-                        throw new PowerFactoryException("Unknown switch type: " + aUsage);
-                }
+                switchKind = switch (aUsage.get()) {
+                    case "cbk", "swt" -> SwitchKind.BREAKER;
+                    case "dct", "sdc" -> SwitchKind.DISCONNECTOR;
+                    default -> throw new PowerFactoryException("Unknown switch type: " + aUsage);
+                };
             } else {
                 switchKind = SwitchKind.BREAKER;
             }

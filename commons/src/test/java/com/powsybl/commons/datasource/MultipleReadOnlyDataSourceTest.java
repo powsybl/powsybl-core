@@ -38,6 +38,7 @@ class MultipleReadOnlyDataSourceTest {
         Files.createDirectories(testDir);
         Files.createFile(testDir.resolve("a.txt"));
         Files.createFile(testDir.resolve("b.txt"));
+        Files.createFile(testDir.resolve("b.foo"));
     }
 
     @AfterEach
@@ -47,15 +48,17 @@ class MultipleReadOnlyDataSourceTest {
 
     @Test
     void test() throws IOException {
-        ReadOnlyDataSource dataSource = new MultipleReadOnlyDataSource(new FileDataSource(testDir, "a"),
-                                                                       new FileDataSource(testDir, "b"));
+        ReadOnlyDataSource dataSource = new MultipleReadOnlyDataSource(new DirectoryDataSource(testDir, "a"),
+                                                                       new DirectoryDataSource(testDir, "b", "txt", null));
         assertEquals("a", dataSource.getBaseName());
         assertTrue(dataSource.exists(null, "txt"));
         assertFalse(dataSource.exists(null, "json"));
+        assertTrue(dataSource.exists(null, "foo"));
+        assertTrue(dataSource.isDataExtension("foo"));
         assertTrue(dataSource.exists("a.txt"));
         assertTrue(dataSource.exists("b.txt"));
         assertFalse(dataSource.exists("c.txt"));
-        assertEquals(Set.of("a.txt", "b.txt"), dataSource.listNames(".*"));
+        assertEquals(Set.of("a.txt", "b.txt", "b.foo"), dataSource.listNames(".*"));
         try (var is = dataSource.newInputStream("a.txt")) {
             assertNotNull(is);
         }

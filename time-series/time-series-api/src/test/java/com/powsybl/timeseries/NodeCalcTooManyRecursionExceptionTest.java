@@ -13,6 +13,8 @@ import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -33,7 +35,11 @@ class NodeCalcTooManyRecursionExceptionTest {
         for (int i = 0; i < 10000; i++) {
             node = BinaryOperation.plus(node, new IntegerNodeCalc(0));
         }
-        runAllVisitors(node);
+        try {
+            runAllVisitors(node);
+        } catch (Exception e) {
+            fail(e);
+        }
     }
 
     @Test
@@ -42,6 +48,10 @@ class NodeCalcTooManyRecursionExceptionTest {
         for (int i = 0; i < 10000; i++) {
             node = BinaryOperation.plus(new IntegerNodeCalc(0), node);
         }
-        runAllVisitors(node);
+        try {
+            runAllVisitors(node);
+        } catch (Exception e) {
+            fail(e);
+        }
     }
 }

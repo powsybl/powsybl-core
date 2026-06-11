@@ -21,7 +21,7 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Literals;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.model.vocabulary.XSD;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.rdfxml.RDFXMLWriter;
 
@@ -174,7 +174,7 @@ public class PowsyblWriter extends RDFXMLWriter {
 
             if (isXMLLiteral) {
                 writeAttribute(RDF.NAMESPACE, "parseType", "Literal");
-            } else if (!datatype.equals(XMLSchema.STRING)) {
+            } else if (!datatype.equals(XSD.STRING)) {
                 writeAttribute(RDF.NAMESPACE, "datatype", datatype.toString());
             }
         }

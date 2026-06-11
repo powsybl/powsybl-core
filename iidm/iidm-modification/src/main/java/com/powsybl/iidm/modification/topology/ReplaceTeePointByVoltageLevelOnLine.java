@@ -7,10 +7,9 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.BranchOperationalLimitsGroupsCopy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.slf4j.Logger;
@@ -19,8 +18,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * This method transform the action done in the CreateLineOnLine class into the action done in the ConnectVoltageLevelOnLine class :
@@ -43,13 +43,10 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
+public class ReplaceTeePointByVoltageLevelOnLine extends AbstractLineDisconnectionModification<ReplaceTeePointByVoltageLevelOnLine> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplaceTeePointByVoltageLevelOnLine.class);
 
-    private final String teePointLine1Id;
-    private final String teePointLine2Id;
-    private final String teePointLineToRemoveId;
     private final String bbsOrBusId;
     private final String newLine1Id;
     private final String newLine1Name;
@@ -57,7 +54,6 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     private final String newLine2Name;
 
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
-    private static final String LINE_NOT_FOUND_LOG_MESSAGE = "Line {} is not found";
     private static final String LINE_REMOVED_LOG_MESSAGE = "Line {} removed";
 
     /**
@@ -76,9 +72,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
      */
     ReplaceTeePointByVoltageLevelOnLine(String teePointLine1Id, String teePointLine2Id, String teePointLineToRemoveId, String bbsOrBusId,
                                         String newLine1Id, String newLine1Name, String newLine2Id, String newLine2Name) {
-        this.teePointLine1Id = Objects.requireNonNull(teePointLine1Id);
-        this.teePointLine2Id = Objects.requireNonNull(teePointLine2Id);
-        this.teePointLineToRemoveId = Objects.requireNonNull(teePointLineToRemoveId);
+        super(teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.newLine1Id = Objects.requireNonNull(newLine1Id);
         this.newLine1Name = newLine1Name;
@@ -86,16 +80,21 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         this.newLine2Name = newLine2Name;
     }
 
+    @Override
+    public String getName() {
+        return "ReplaceTeePointByVoltageLevelOnLine";
+    }
+
     public String getTeePointLine1Id() {
-        return teePointLine1Id;
+        return oldLine1Id;
     }
 
     public String getTeePointLine2Id() {
-        return teePointLine2Id;
+        return oldLine2Id;
     }
 
     public String getTeePointLineToRemoveId() {
-        return teePointLineToRemoveId;
+        return lineToRemoveId;
     }
 
     public String getBbsOrBusId() {
@@ -121,31 +120,25 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
-        Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reportNode, throwException);
-        if (tpLine1 == null) {
+        Line tpLine1 = getLineFromNetwork(network, oldLine1Id, reportNode, throwException);
+        Line tpLine2 = getLineFromNetwork(network, oldLine2Id, reportNode, throwException);
+
+        if (tpLine1 == null || tpLine2 == null) {
             return;
         }
 
-        Line tpLine2 = getLineFromNetwork(network, teePointLine2Id, reportNode, throwException);
-        if (tpLine2 == null) {
-            return;
-        }
-
-        Line tpLineToRemove = getLineFromNetwork(network, teePointLineToRemoveId, reportNode, throwException);
+        Line tpLineToRemove = getLineFromNetwork(network, lineToRemoveId, reportNode, throwException);
         if (tpLineToRemove == null) {
             return;
         }
 
         // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
+
         if (teePoint == null) {
-            noTeePointAndOrTappedVoltageLevelReport(reportNode, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
-            LOGGER.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
-            } else {
-                return;
-            }
+            noTeePointAndOrTappedVoltageLevelReport(reportNode, oldLine1Id, oldLine2Id, lineToRemoveId);
+            logOrThrow(throwException, String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", oldLine1Id, oldLine2Id, lineToRemoveId));
+            return;
         }
 
         // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
@@ -169,48 +162,33 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             return;
         }
 
-        // get line tpLine1 limits
-        TwoSides tpLine1Limits1Side = tpLine1OtherVlSide;
-        TwoSides tpLine1Limits2Side = tpLine1OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        LoadingLimitsBags limits1TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
-            () -> tpLine1.getApparentPowerLimits(tpLine1Limits1Side),
-            () -> tpLine1.getCurrentLimits(tpLine1Limits1Side));
-        LoadingLimitsBags limits2TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits2Side),
-            () -> tpLine1.getApparentPowerLimits(tpLine1Limits2Side),
-            () -> tpLine1.getCurrentLimits(tpLine1Limits2Side));
-
-        // get line tpLine2 limits
-        TwoSides tpLine2Limits1Side = tpLine2OtherVlSide == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
-        TwoSides tpLine2Limits2Side = tpLine2OtherVlSide;
-
-        LoadingLimitsBags limits1TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
-            () -> tpLine2.getApparentPowerLimits(tpLine2Limits1Side),
-            () -> tpLine2.getCurrentLimits(tpLine2Limits1Side));
-        LoadingLimitsBags limits2TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits2Side),
-            () -> tpLine2.getApparentPowerLimits(tpLine2Limits2Side),
-            () -> tpLine2.getCurrentLimits(tpLine2Limits2Side));
+        // copy all limits groups
+        BranchOperationalLimitsGroupsCopy groupsCopyOnLine1 = new BranchOperationalLimitsGroupsCopy(tpLine1);
+        BranchOperationalLimitsGroupsCopy groupsCopyOnLine2 = new BranchOperationalLimitsGroupsCopy(tpLine2);
 
         // Remove the three existing lines
         tpLine1.remove();
-        removedLineReport(reportNode, teePointLine1Id);
-        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine1Id);
+        removedLineReport(reportNode, oldLine1Id);
+        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, oldLine1Id);
         tpLine2.remove();
-        removedLineReport(reportNode, teePointLine2Id);
-        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine2Id);
+        removedLineReport(reportNode, oldLine2Id);
+        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, oldLine2Id);
         new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reportNode);
-        removedLineReport(reportNode, teePointLineToRemoveId);
-        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLineToRemoveId);
+        removedLineReport(reportNode, lineToRemoveId);
+        LOGGER.info(LINE_REMOVED_LOG_MESSAGE, lineToRemoveId);
 
         // Create the two new lines
         Line newLine1 = newLine1Adder.add();
-        addLoadingLimits(newLine1, limits1TpLine1, TwoSides.ONE);
-        addLoadingLimits(newLine1, limits2TpLine1, TwoSides.TWO);
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopyOnLine1.applyGroupsToBranch(newLine1, TwoSides.values());
         createdLineReport(reportNode, newLine1Id);
         LOGGER.info("Line {} created", newLine1Id);
 
         Line newLine2 = newLine2Adder.add();
-        addLoadingLimits(newLine2, limits1TpLine2, TwoSides.ONE);
-        addLoadingLimits(newLine2, limits2TpLine2, TwoSides.TWO);
+        //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
+        //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available
+        groupsCopyOnLine2.applyGroupsToBranch(newLine2, TwoSides.values());
         createdLineReport(reportNode, newLine2Id);
         LOGGER.info("Line {} created", newLine2Id);
 
@@ -233,8 +211,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                 .newBus()
                 .setId(namingStrategy.getBusId(newLine2Id))
                 .add();
-            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(newLine1Id, 1), tappedVoltageLevel.getBusBreakerView());
-            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(newLine2Id, 2), tappedVoltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus1.getId(), bus.getId(), namingStrategy.getSwitchId(newLine1Id, 1), namingStrategy.getSwitchName(newLine1Id, 1), tappedVoltageLevel.getBusBreakerView());
+            createBusBreakerSwitch(bus.getId(), bus2.getId(), namingStrategy.getSwitchId(newLine2Id, 2), namingStrategy.getSwitchName(newLine1Id, 2), tappedVoltageLevel.getBusBreakerView());
             newLine1Adder.setBus2(bus1.getId());
             newLine1Adder.setConnectableBus2(bus1.getId());
             newLine2Adder.setBus1(bus2.getId());
@@ -272,31 +250,21 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reportNode, lineId);
-            LOGGER.error(LINE_NOT_FOUND_LOG_MESSAGE, lineId);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
-            }
+            logOrThrow(throwException, String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
+            return null;
         }
         return line;
     }
 
     private boolean errorWhenBusNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
         notFoundBusInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
-        LOGGER.error("Bus {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
-        if (throwException) {
-            throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
-        } else {
-            return false;
-        }
+        logOrThrow(throwException, String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        return false;
     }
 
     private boolean errorWhenBusbarSectionNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
         notFoundBusbarSectionInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
-        LOGGER.error("Busbar section {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
-        if (throwException) {
-            throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
-        } else {
-            return false;
-        }
+        logOrThrow(throwException, String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
+        return false;
     }
 }

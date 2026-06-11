@@ -12,6 +12,8 @@ import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +30,11 @@ class LineConverter extends AbstractConverter {
     }
 
     void create(DataObject elmLne) {
-        List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
+        List<NodeRef> nodeRefs = findNodes(elmLne);
+        if (nodeRefs.size() != 2) {
+            LOGGER.warn("ElemLne discarded as it does not have two ends {} '{}'", elmLne.getId(), elmLne);
+            return;
+        }
         Optional<LineModel> lineModel = LineModel.createFromElmLne(elmLne);
         if (lineModel.isEmpty()) {
             return;
@@ -71,12 +77,11 @@ class LineConverter extends AbstractConverter {
 
     private void createFromElmLneFromElmTow(DataObject elmTow, DataObject elmLne) {
         List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
-        Optional<LineModel> lineModel = LineModel.createFromElmTow(elmTow, elmLne);
+        LineModel lineModel = LineModel.createFromElmTow(elmTow, elmLne);
 
         NodeRef end1 = nodeRefs.get(0);
         NodeRef end2 = nodeRefs.get(1);
-
-        createLine(end1, end2, elmLne.getLocName(), lineModel.get());
+        createLine(end1, end2, elmLne.getLocName(), lineModel);
     }
 
     private static final class LineModel {
@@ -147,8 +152,8 @@ class LineConverter extends AbstractConverter {
             return 0.0;
         }
 
-        private static Optional<LineModel> createFromElmTow(DataObject elmTow, DataObject elmLne) {
-            Float dline = elmLne.getFloatAttributeValue("dline");
+        private static LineModel createFromElmTow(DataObject elmTow, DataObject elmLne) {
+            float dline = elmLne.getFloatAttributeValue("dline");
             DataObject typTow = getTypeTow(elmTow);
 
             double r = typTow.getDoubleMatrixAttributeValue("R_c1").getEntry(0, 0) * dline;
@@ -156,7 +161,7 @@ class LineConverter extends AbstractConverter {
             double g = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("G_c1").getEntry(0, 0) * dline);
             double b = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("B_c1").getEntry(0, 0) * dline);
 
-            return Optional.of(new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5));
+            return new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5);
         }
 
         private static DataObject getTypeTow(DataObject elmTow) {
@@ -165,4 +170,6 @@ class LineConverter extends AbstractConverter {
                 .orElseThrow(() -> new PowerFactoryException("Unexpected elmTow configuration '" + elmTow.getLocName() + "'"));
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineConverter.class);
 }

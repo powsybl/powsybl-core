@@ -8,6 +8,7 @@
 package com.powsybl.iidm.criteria;
 
 import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.ThreeSides;
 
 /**
  * <p>Visitor used to detect if a given {@link NetworkElement} validates criteria.</p>
@@ -16,22 +17,28 @@ import com.powsybl.iidm.criteria.translation.NetworkElement;
 public class NetworkElementVisitor {
 
     private final NetworkElement networkElement;
+    private final ThreeSides side;
 
     public NetworkElementVisitor(NetworkElement networkElement) {
+        this(networkElement, null);
+    }
+
+    public NetworkElementVisitor(NetworkElement networkElement, ThreeSides side) {
         this.networkElement = networkElement;
+        this.side = side;
     }
 
     public boolean visit(AbstractNetworkElementEquipmentCriterion c) {
         return networkElement.isValidFor(c.getNetworkElementCriterionType())
-                && doRespectCriterion(networkElement, c.getCountryCriterion())
-                && doRespectCriterion(networkElement, c.getNominalVoltageCriterion());
+                && doRespectCriterion(c.getCountryCriterion())
+                && doRespectCriterion(c.getNominalVoltageCriterion());
     }
 
     public boolean visit(NetworkElementIdListCriterion c) {
         return c.getNetworkElementIds().contains(networkElement.getId());
     }
 
-    private boolean doRespectCriterion(NetworkElement networkElement, Criterion criterion) {
-        return criterion == null || criterion.filter(networkElement);
+    private boolean doRespectCriterion(Criterion criterion) {
+        return criterion == null || criterion.filter(networkElement, side);
     }
 }

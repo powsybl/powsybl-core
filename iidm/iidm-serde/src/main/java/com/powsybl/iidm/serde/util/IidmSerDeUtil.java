@@ -9,8 +9,8 @@ package com.powsybl.iidm.serde.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.*;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public final class IidmSerDeUtil {
         NOT_NULL_NOT_SUPPORTED("not null and not supported"),
         NOT_DEFAULT_NOT_SUPPORTED("not defined as default and not supported");
 
-        private String message;
+        private final String message;
 
         ErrorMessage(String message) {
             this.message = message;
@@ -270,10 +270,34 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Run a given runnable if the context's IIDM version equals or is more recent than a given minimum IIDM version.
+     */
+    public static void runFromMinimumVersion(IidmVersion minVersion, IidmVersion contextVersion, Runnable runnable) {
+        if (contextVersion.compareTo(minVersion) >= 0) {
+            runnable.run();
+        }
+
+    }
+
+    /**
      * Run a given runnable if the context's IIDM version equals or is older than a given maximum IIDM version.
      */
     public static <C extends AbstractNetworkSerDeContext> void runUntilMaximumVersion(IidmVersion maxVersion, C context, Runnable runnable) {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
+     * Run a given runnable if the context's IIDM versions is equals or is more recent that the minimum version given,
+     * and is equal or older than a given maximum IIDM version
+     * @param minVersion the minimum version from which to run the runnable (included)
+     * @param maxVersion the maximum version until which to run the runnable (included)
+     * @param context the context of the call
+     * @param runnable what we want to execute
+     */
+    public static <C extends AbstractNetworkSerDeContext> void runInBetweenTwoVersions(IidmVersion minVersion, IidmVersion maxVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(maxVersion) <= 0 && context.getVersion().compareTo(minVersion) >= 0) {
             runnable.run();
         }
     }
@@ -378,11 +402,11 @@ public final class IidmSerDeUtil {
     /**
      * Sort temporary limits by their names.
      */
-    public static Iterable<CurrentLimits.TemporaryLimit> sortedTemporaryLimits(Iterable<CurrentLimits.TemporaryLimit> temporaryLimits, ExportOptions exportOptions) {
+    public static Iterable<LoadingLimits.TemporaryLimit> sortedTemporaryLimits(Iterable<LoadingLimits.TemporaryLimit> temporaryLimits, ExportOptions exportOptions) {
         Objects.requireNonNull(temporaryLimits);
         Objects.requireNonNull(exportOptions);
         return exportOptions.isSorted() ? StreamSupport.stream(temporaryLimits.spliterator(), false)
-                                                       .sorted(Comparator.comparing(CurrentLimits.TemporaryLimit::getName))
+                                                       .sorted(Comparator.comparing(LoadingLimits.TemporaryLimit::getName))
                                                        .collect(Collectors.toList())
                                         : temporaryLimits;
     }

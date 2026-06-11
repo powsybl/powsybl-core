@@ -34,7 +34,7 @@ public class ThreeWindingsTransformerResultDeserializer extends StdDeserializer<
         super(ThreeWindingsTransformerResult.class);
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String threeWindingsTransformerId;
 
         double p1 = Double.NaN;

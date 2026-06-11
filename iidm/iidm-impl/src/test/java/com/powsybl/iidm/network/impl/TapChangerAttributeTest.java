@@ -192,7 +192,7 @@ class TapChangerAttributeTest {
             .setTapPosition(1)
             .setLowTapPosition(0)
             .setRegulating(false)
-            .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
             .beginStep()
             .setR(1.0)
             .setX(2.0)

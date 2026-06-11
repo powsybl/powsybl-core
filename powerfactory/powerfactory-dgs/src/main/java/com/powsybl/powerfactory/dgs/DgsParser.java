@@ -7,26 +7,23 @@
  */
 package com.powsybl.powerfactory.dgs;
 
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.powerfactory.model.DataAttributeType;
+import com.powsybl.powerfactory.model.DataObjectRefKey;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -242,7 +239,7 @@ public class DgsParser {
     public void read(Reader reader, DgsHandler handler) {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(handler);
-        try (BufferedReader bufferedReader = new BufferedReader(reader)) {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(BOMInputStream.builder().setReader(reader).get()))) {
             String line;
             ParsingContext context = new ParsingContext();
             while ((line = bufferedReader.readLine()) != null) {
@@ -259,12 +256,10 @@ public class DgsParser {
                         context.general = false;
                         readObjectTableHeader(trimmedLine, handler, context);
                     }
+                } else if (context.general) {
+                    readGeneralTableRow(trimmedLine, handler, context);
                 } else {
-                    if (context.general) {
-                        readGeneralTableRow(trimmedLine, handler, context);
-                    } else {
-                        readObjectTableRow(trimmedLine, handler, context);
-                    }
+                    readObjectTableRow(trimmedLine, handler, context);
                 }
             }
         } catch (IOException e) {
@@ -274,6 +269,9 @@ public class DgsParser {
 
     private static void readGeneralTableRow(String trimmedLine, DgsHandler handler, ParsingContext context) {
         String[] fields = splitConsideringQuotedText(trimmedLine);
+        if (fields.length < 3) {
+            throw new PowsyblException(String.format("Not enough fields in the line: '%s'", trimmedLine));
+        }
         String descr = fields[1];
         String val = fields[2];
         if (descr.equals(VERSION)) {
@@ -416,7 +414,7 @@ public class DgsParser {
                     read(fields, context::parseFloat, handler::onRealValue);
                     break;
                 case OBJECT:
-                    read(fields, Long::parseLong, handler::onObjectValue);
+                    read(fields, DataObjectRefKey::parse, handler::onObjectValue);
                     break;
                 default:
                     throw new PowerFactoryException("Unexpected attribute type:" + attributeType);
@@ -452,8 +450,7 @@ public class DgsParser {
                     readVector(fields, context::parseDouble, handler::onDoubleVectorValue);
                     break;
                 case OBJECT_VECTOR:
-                    // Read object numbers as long integers
-                    readVector(fields, Long::parseLong, handler::onObjectVectorValue);
+                    readVector(fields, DataObjectRefKey::parse, handler::onObjectVectorValue);
                     break;
                 default:
                     throw new PowerFactoryException("Unexpected vector attribute type:" + attributeType);

@@ -17,6 +17,7 @@ public final class SecurityAnalysisToolConstants {
     public static final String LIMIT_TYPES_OPTION = "limit-types";
     public static final String OUTPUT_FILE_OPTION = "output-file";
     public static final String OUTPUT_FORMAT_OPTION = "output-format";
+
     public static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
     public static final String WITH_EXTENSIONS_OPTION = "with-extensions";
     public static final String EXTERNAL = "external";

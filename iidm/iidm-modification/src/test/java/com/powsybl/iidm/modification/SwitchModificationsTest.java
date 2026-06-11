@@ -7,12 +7,14 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -42,11 +44,42 @@ class SwitchModificationsTest {
 
     @Test
     void testInvalidOpenSwitch() {
-        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network));
+        OpenSwitch openSwitch = new OpenSwitch("dummy");
+        assertDoesNotThrow(() -> new OpenSwitch("dummy").apply(network));
+        assertThrows(RuntimeException.class, () -> openSwitch.apply(network, true, ReportNode.NO_OP));
     }
 
     @Test
     void testInvalidCloseSwitch() {
-        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network));
+        CloseSwitch closeSwitch = new CloseSwitch("dummy");
+        assertDoesNotThrow(() -> closeSwitch.apply(network));
+        assertThrows(RuntimeException.class, () -> closeSwitch.apply(network, true, ReportNode.NO_OP));
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new OpenSwitch("ID");
+        assertEquals("OpenSwitch", networkModification.getName());
+
+        networkModification = new CloseSwitch("ID");
+        assertEquals("CloseSwitch", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        CloseSwitch modification = new CloseSwitch("dummy");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+        OpenSwitch modification2 = new OpenSwitch("dummy");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        String switchId = "generator1Breaker1";
+        OpenSwitch open = new OpenSwitch(switchId);
+        CloseSwitch close = new CloseSwitch(switchId);
+
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, close.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, open.hasImpactOnNetwork(network));
+        open.apply(network);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, open.hasImpactOnNetwork(network));
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, close.hasImpactOnNetwork(network));
     }
 }

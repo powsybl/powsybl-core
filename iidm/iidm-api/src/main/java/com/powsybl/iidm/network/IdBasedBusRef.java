@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.Objects;
@@ -23,6 +24,7 @@ import java.util.Optional;
  * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonTypeName(".IdBasedBusRef")
 public class IdBasedBusRef extends AbstractBusRef {
 
     private final String id;

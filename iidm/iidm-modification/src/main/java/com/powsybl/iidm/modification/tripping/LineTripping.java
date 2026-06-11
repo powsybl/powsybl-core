@@ -25,6 +25,11 @@ public class LineTripping extends BranchTripping {
     }
 
     @Override
+    public String getName() {
+        return "LineTripping";
+    }
+
+    @Override
     protected PowsyblException createNotFoundException() {
         return new PowsyblException("Line '" + id + "' not found");
     }

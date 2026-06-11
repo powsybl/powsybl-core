@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.DcBus;
 import com.powsybl.iidm.network.Network;
 
 import java.util.stream.Collectors;
@@ -45,5 +46,15 @@ class Subcomponent implements Component {
     @Override
     public Stream<Bus> getBusStream() {
         return parent.getBusStream().filter(b -> b.getParentNetwork() == subnetwork);
+    }
+
+    @Override
+    public Iterable<DcBus> getDcBuses() {
+        return getDcBusStream().collect(Collectors.toSet());
+    }
+
+    @Override
+    public Stream<DcBus> getDcBusStream() {
+        return parent.getDcBusStream().filter(b -> b.getParentNetwork() == subnetwork);
     }
 }

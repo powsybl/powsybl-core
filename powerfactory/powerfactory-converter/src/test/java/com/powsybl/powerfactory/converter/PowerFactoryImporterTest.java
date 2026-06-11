@@ -7,7 +7,7 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -25,16 +25,19 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
+ * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
  */
 class PowerFactoryImporterTest extends AbstractSerDeTest {
 
@@ -42,8 +45,8 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     void testBase() {
         PowerFactoryImporter importer = new PowerFactoryImporter();
         assertEquals("POWER-FACTORY", importer.getFormat());
-        assertTrue(importer.getParameters().isEmpty());
         assertEquals("PowerFactory to IIDM converter", importer.getComment());
+        assertEquals(List.of("json", "dgs", "properties"), importer.getSupportedExtensions());
     }
 
     @Test
@@ -56,11 +59,11 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(studyCase.isPresent());
 
         PowerFactoryImporter importer = new PowerFactoryImporter();
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "ieee14")));
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "error")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14")));
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "error")));
 
-        importer.copy(new FileDataSource(fileSystem.getPath("/work"), "ieee14"),
-                new FileDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14"),
+                new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 
@@ -73,16 +76,20 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     }
 
     private Network importAndCompareXml(String id, String fileExtension) {
+        return importAndCompareXml(id, fileExtension, null);
+    }
+
+    private Network importAndCompareXml(String id, String fileExtension, Properties parameters) {
         Network network = new PowerFactoryImporter()
                 .importData(new ResourceDataSource(id, new ResourceSet("/", id + fileExtension)),
                         NetworkFactory.findDefault(),
-                        null);
+                        parameters);
 
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
         network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -268,6 +275,49 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     @Test
     void slackIpctrl() {
         assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
+    }
+
+    @Test
+    void mediumVoltageLoad() {
+        assertTrue(importAndCompareXiidm("MediumVoltageLoad"));
+    }
+
+    @Test
+    void externalGrid() {
+        assertTrue(importAndCompareXiidm("ExternalGrid"));
+    }
+
+    @Test
+    void robustnessTest() {
+        assertTrue(importAndCompareXiidm("robustness"));
+    }
+
+    @Test
+    void importWithoutForcingElmTermsAsBusbarSectionsTest() {
+        Properties parameters = new Properties();
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("ElmTermsAsBusbarSections", new ResourceSet("/", "ElmTermsAsBusbarSections.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+        assertFalse(allBusesHaveBusbarSection(network));
+    }
+
+    @Test
+    void importWithForcedElmTermsAsBusbarSectionsTest() {
+        Properties parameters = new Properties();
+        parameters.put(PowerFactoryImporter.FORCE_ALL_ELMTERMS_AS_BUSBARS, "true");
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("ElmTermsAsBusbarSections", new ResourceSet("/", "ElmTermsAsBusbarSections.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+        assertTrue(allBusesHaveBusbarSection(network));
+    }
+
+    private static boolean allBusesHaveBusbarSection(Network network) {
+        return network.getBusView().getBusStream().allMatch(bus ->
+                bus.getConnectedTerminalStream().anyMatch(terminal -> terminal.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION));
     }
 
     private boolean importAndCompareXiidm(String powerfactoryCase) {
@@ -498,6 +548,28 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     @Test
     void threeMibPhaseWinding12() {
         assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding12", 575.835158, 0.09));
+    }
+
+    @Test
+    void simpleAcDcCases() {
+        Properties importParams = new Properties();
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
+
+        importAndCompareXml("MTDC-3-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-4-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants3", ".dgs", importParams);
+        importAndCompareXml("MTDCVscVariants4", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss1", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss2", ".dgs", importParams);
+        importAndCompareXml("MTDCVscLoss3", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
+        importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_no-type", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_TypSwitch", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_ACDC", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {

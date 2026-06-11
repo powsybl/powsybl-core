@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_DISTRIBUTION;
@@ -94,33 +95,14 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     public ProportionalScalable(List<? extends Injection> injections, DistributionMode distributionMode, double minValue, double maxValue) {
+        this(injections, ScalableAdapter::new, distributionMode, minValue, maxValue);
+    }
+
+    protected ProportionalScalable(List<? extends Injection> injections, Function<Injection, Scalable> scalableMapping, DistributionMode distributionMode, double minValue, double maxValue) {
         // Create the scalable for each injection
-        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        List<Scalable> injectionScalables = injections.stream().map(scalableMapping).collect(Collectors.toList());
 
-        // Compute the sum of every individual power
-        double totalDistribution = computeTotalDistribution(injections, distributionMode);
-
-        // In some cases, a regular distribution is equivalent to the nominal distribution :
-        // - PROPORTIONAL_TO_P0 : if no power is currently configured
-        // - PROPORTIONAL_TO_TARGETP : if no power is currently configured
-        // - PROPORTIONAL_TO_DIFF_PMAX_TARGETP : if no power is currently available
-        // - PROPORTIONAL_TO_DIFF_TARGETP_PMIN : if no power is currently used
-        DistributionMode finalDistributionMode;
-        double finalTotalDistribution;
-        if (totalDistribution == 0.0 &&
-            (distributionMode == DistributionMode.PROPORTIONAL_TO_P0
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_TARGETP
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_PMAX_TARGETP
-                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_TARGETP_PMIN)) {
-            finalDistributionMode = DistributionMode.UNIFORM_DISTRIBUTION;
-            finalTotalDistribution = computeTotalDistribution(injections, finalDistributionMode);
-        } else {
-            finalDistributionMode = distributionMode;
-            finalTotalDistribution = totalDistribution;
-        }
-
-        // Compute the percentages for each injection
-        List<Double> percentages = injections.stream().map(injection -> getIndividualDistribution(injection, finalDistributionMode) * 100.0 / finalTotalDistribution).toList();
+        List<Double> percentages = computePercentages(injections, distributionMode);
         checkPercentages(percentages, injectionScalables);
 
         // Create the list of ScalablePercentage
@@ -133,11 +115,38 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         this.maxValue = maxValue;
     }
 
-    private double computeTotalDistribution(List<? extends Injection> injections, DistributionMode distributionMode) {
+    public static List<Double> computePercentages(List<? extends Injection> injections, DistributionMode distributionMode) {
+        // Compute the sum of every individual power
+        double totalDistribution = computeTotalDistribution(injections, distributionMode);
+
+        // In some cases, a regular distribution is equivalent to the nominal distribution :
+        // - PROPORTIONAL_TO_P0 : if no power is currently configured
+        // - PROPORTIONAL_TO_TARGETP : if no power is currently configured
+        // - PROPORTIONAL_TO_DIFF_PMAX_TARGETP : if no power is currently available
+        // - PROPORTIONAL_TO_DIFF_TARGETP_PMIN : if no power is currently used
+        DistributionMode finalDistributionMode;
+        double finalTotalDistribution;
+        if (totalDistribution == 0.0 &&
+                (distributionMode == DistributionMode.PROPORTIONAL_TO_P0
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_TARGETP
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_PMAX_TARGETP
+                        || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_TARGETP_PMIN)) {
+            finalDistributionMode = DistributionMode.UNIFORM_DISTRIBUTION;
+            finalTotalDistribution = computeTotalDistribution(injections, finalDistributionMode);
+        } else {
+            finalDistributionMode = distributionMode;
+            finalTotalDistribution = totalDistribution;
+        }
+
+        // Compute the percentages for each injection
+        return injections.stream().map(injection -> getIndividualDistribution(injection, finalDistributionMode) * 100.0 / finalTotalDistribution).toList();
+    }
+
+    private static double computeTotalDistribution(List<? extends Injection> injections, DistributionMode distributionMode) {
         return injections.stream().mapToDouble(injection -> getIndividualDistribution(injection, distributionMode)).sum();
     }
 
-    private double getIndividualDistribution(Injection<?> injection, DistributionMode distributionMode) {
+    private static double getIndividualDistribution(Injection<?> injection, DistributionMode distributionMode) {
         // Check the injection type
         checkInjectionClass(injection);
 
@@ -152,15 +161,15 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         };
     }
 
-    private void checkInjectionClass(Injection<?> injection) {
+    private static void checkInjectionClass(Injection<?> injection) {
         if (!(injection instanceof Generator
             || injection instanceof Load
-            || injection instanceof DanglingLine)) {
+            || injection instanceof BoundaryLine)) {
             throw new PowsyblException(String.format(GENERIC_SCALABLE_CLASS_ERROR, injection.getClass()));
         }
     }
 
-    private double getTargetP(Injection<?> injection) {
+    private static double getTargetP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getTargetP();
         } else {
@@ -169,18 +178,18 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    private double getP0(Injection<?> injection) {
+    private static double getP0(Injection<?> injection) {
         if (injection instanceof Load load) {
             return load.getP0();
-        } else if (injection instanceof DanglingLine danglingLine) {
-            return danglingLine.getP0();
+        } else if (injection instanceof BoundaryLine boundaryLine) {
+            return boundaryLine.getP0();
         } else {
             throw new PowsyblException(String.format(GENERIC_INCONSISTENCY_ERROR,
                 "P0", injection.getClass()));
         }
     }
 
-    private double getMaxP(Injection<?> injection) {
+    private static double getMaxP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getMaxP();
         } else {
@@ -189,7 +198,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    private double getMinP(Injection<?> injection) {
+    private static double getMinP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getMinP();
         } else {
@@ -198,7 +207,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    Collection<Scalable> getScalables() {
+    protected Collection<Scalable> getScalables() {
         return scalablePercentageList.stream().map(ScalablePercentage::getScalable).toList();
     }
 
@@ -256,9 +265,23 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
             double iterationPercentage = scalablePercentage.getIterationPercentage();
+            if (iterationPercentage == 0.0) {
+                // no need to go further
+                continue;
+            }
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = s.scale(n, askedOnScalable, parameters);
-            if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
+
+            // check if scalable reached limit
+            double scalableMin = s.minimumValue(n, parameters.getScalingConvention());
+            double scalableMax = s.maximumValue(n, parameters.getScalingConvention());
+            double scalableP = s.getSteadyStatePower(n, asked, parameters.getScalingConvention());
+            boolean saturated = asked > 0 ?
+                    Math.abs(scalableMax - scalableP) < EPSILON / 100 :
+                    Math.abs(scalableMin - scalableP) < EPSILON / 100;
+            if (doneOnScalable == 0 || saturated) {
+                // If didn't move now (tested by a perfect zero equality), it won't move in subsequent iterations for sure.
+                // If reached saturation, can exclude right now to avoid earlier another iteration.
                 scalablePercentage.setIterationPercentage(0);
             }
             done += doneOnScalable;

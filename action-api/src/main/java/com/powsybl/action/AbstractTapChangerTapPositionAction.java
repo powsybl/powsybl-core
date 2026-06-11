@@ -9,6 +9,8 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Objects;
+
 /**
  * An action modifying the tap position of a two or three windings transformer
  *
@@ -32,5 +34,25 @@ public abstract class AbstractTapChangerTapPositionAction extends AbstractTapCha
 
     public boolean isRelativeValue() {
         return relativeValue;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        AbstractTapChangerTapPositionAction that = (AbstractTapChangerTapPositionAction) o;
+        return tapPosition == that.tapPosition && relativeValue == that.relativeValue;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), tapPosition, relativeValue);
     }
 }

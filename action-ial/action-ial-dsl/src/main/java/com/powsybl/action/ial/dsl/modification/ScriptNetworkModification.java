@@ -27,6 +27,11 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
         this.script = Objects.requireNonNull(script);
     }
 
+    @Override
+    public String getName() {
+        return "ScriptNetworkModification";
+    }
+
     public Closure<Void> getScript() {
         return script;
     }

@@ -1,0 +1,25 @@
+{#-
+Overrides furo's brand.html to customize links:
+- The logo links to a custom page (set sidebar_logo_href option in html_context)
+- The title links to the subproject's main page
+-#}
+<a class="sidebar-brand{% if logo %} centered{% endif %}" href="{% if sidebar_logo_href %} {{ sidebar_logo_href }} {% else %} {{ pathto(master_doc) }} {% endif %}">
+    {% block brand_content %}
+    {%- if logo_url %}
+    <div class="sidebar-logo-container">
+        <img class="sidebar-logo" src="{{ logo_url }}" alt="Logo"/>
+    </div>
+    {%- endif %}
+    {%- if theme_light_logo and theme_dark_logo %}
+    <div class="sidebar-logo-container">
+        <img class="sidebar-logo only-light" src="{{ pathto('_static/' + theme_light_logo, 1) }}" alt="Light Logo"/>
+        <img class="sidebar-logo only-dark" src="{{ pathto('_static/' + theme_dark_logo, 1) }}" alt="Dark Logo"/>
+    </div>
+    {%- endif %}
+    {% endblock brand_content %}
+</a>
+{% if not theme_sidebar_hide_name %}
+<a class="sidebar-brand{% if logo %} centered{% endif %}" href="{{ pathto(master_doc) }}">
+    <span class="sidebar-brand-text">{{ docstitle if docstitle else project }}</span>
+</a>
+{%- endif %}

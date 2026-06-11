@@ -33,4 +33,24 @@ public abstract class AbstractTapChangerAction extends AbstractAction {
     public Optional<ThreeSides> getSide() {
         return Optional.ofNullable(side);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        AbstractTapChangerAction that = (AbstractTapChangerAction) o;
+        return Objects.equals(transformerId, that.transformerId) && side == that.side;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), transformerId, side);
+    }
 }

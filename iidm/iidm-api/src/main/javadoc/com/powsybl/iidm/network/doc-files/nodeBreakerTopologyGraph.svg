@@ -279,6 +279,12 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        sodipodi:end="7.8009537"
        sodipodi:open="true" />
     <path
+       style="fill:none;stroke:#008000;stroke-width:1.76771069px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 282.00693,866.50005 2.38973,4.03521 23.00718,3.99627"
+       id="path4184"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
+    <path
        sodipodi:type="arc"
        style="opacity:0.2;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="path12632-7"
@@ -465,14 +471,17 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
       <flowRoot
          xml:space="preserve"
          id="flowRoot3966"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"><flowRegion
-           id="flowRegion3968"><rect
+         style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
+           id="flowRegion3968"
+           style="font-family:sans-serif"><rect
              id="rect3970"
              width="50.507626"
              height="47.477169"
              x="86.620583"
-             y="10.34386" /></flowRegion><flowPara
-           id="flowPara3972" /></flowRoot>    </g>
+             y="10.34386"
+             style="font-family:sans-serif" /></flowRegion><flowPara
+           id="flowPara3972"
+           style="font-size:40px;line-height:1.25;font-family:sans-serif"> </flowPara></flowRoot>    </g>
     <g
        transform="matrix(0.27465042,0,0,0.27465042,390.8412,840.01032)"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.2;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -597,6 +606,12 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
            id="path4015" />
       </g>
     </g>
+    <path
+       style="fill:none;stroke:#008000;stroke-width:1.72746754px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 114.92547,874.12835 23.40249,101.14803 43.94393,21.54527"
+       id="path4249"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
     <g
        transform="matrix(0.15537068,0,0,0.15537068,220.28547,865.95054)"
        inkscape:transform-center-x="-3.8731215"
@@ -627,15 +642,18 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
     <flowRoot
        xml:space="preserve"
        id="flowRoot12659-73-5-9-8"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.2;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;opacity:0.2;fill:#000000;fill-opacity:1;stroke:none"
        transform="matrix(0.27465042,0,0,0.27465042,210.5347,907.18333)"><flowRegion
-         id="flowRegion12661-4-6-1-1"><rect
+         id="flowRegion12661-4-6-1-1"
+         style="font-family:sans-serif"><rect
            id="rect12663-08-0-2-8"
            width="114.46467"
            height="45.015987"
            x="30.357143"
-           y="7.8571424" /></flowRegion><flowPara
-         id="flowPara12665-8-59-8-6">BBS2</flowPara></flowRoot>    <g
+           y="7.8571424"
+           style="font-family:sans-serif" /></flowRegion><flowPara
+         id="flowPara12665-8-59-8-6"
+         style="font-size:40px;line-height:1.25;font-family:sans-serif">BBS2</flowPara></flowRoot>    <g
        transform="matrix(0.27465042,0,0,0.27465042,7.2479695,854.152)"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.2;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        id="flowRoot12659-73-5-9-0">
@@ -719,6 +737,12 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        sodipodi:end="7.8009537"
        sodipodi:open="true" />
     <path
+       style="fill:none;stroke:#008000;stroke-width:1.67;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:6.68,3.34;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 279.31362,866.58001 6.10112,53.07569 22.99413,8.22568"
+       id="path4186"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
+    <path
        sodipodi:type="arc"
        style="opacity:0.2;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="path12632-1-7"
@@ -731,6 +755,18 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        sodipodi:start="1.521492"
        sodipodi:end="7.8009537"
        sodipodi:open="true" />
+    <path
+       style="fill:none;stroke:#008000;stroke-width:1.76771069px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 385.59151,866.63584 -61.15353,1.58222 -13.33276,5.34915"
+       id="path4190"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:none;stroke:#008000;stroke-width:1.70000005;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:6.8, 3.4;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 335.38648,934.30005 -8.42456,-53.41932 -16.94904,-5.16378"
+       id="path4196"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
     <path
        sodipodi:type="arc"
        style="opacity:0.2;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -802,15 +838,18 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
     <flowRoot
        xml:space="preserve"
        id="flowRoot3982"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;line-height:0.01%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        transform="translate(0,852.36217)"><flowRegion
-         id="flowRegion3984"><rect
+         id="flowRegion3984"
+         style="font-family:sans-serif"><rect
            id="rect3986"
            width="77.321426"
            height="76.428574"
            x="78.214287"
-           y="25" /></flowRegion><flowPara
-         id="flowPara3988" /></flowRoot>    <path
+           y="25"
+           style="font-family:sans-serif" /></flowRegion><flowPara
+         id="flowPara3988"
+         style="font-size:40px;line-height:1.25;font-family:sans-serif"> </flowPara></flowRoot>    <path
        sodipodi:type="arc"
        style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="path12632-17-8"
@@ -868,14 +907,20 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        sodipodi:end="7.8009537"
        sodipodi:open="true" />
     <g
-       transform="matrix(0.42565617,0,0,0.35977875,274.7025,850.60949)"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;font-family:Sans"
+       transform="matrix(0.42565617,0,0,0.35977875,276.00244,852.03442)"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none"
        id="flowRoot3990-2-76">
       <path
          d="m 82.929687,47.301845 3.515625,-0.46875 c 0.403641,1.992194 1.090489,3.427739 2.060547,4.306641 0.970044,0.878909 2.151684,1.318362 3.544922,1.318359 1.653634,3e-6 3.050117,-0.572913 4.189453,-1.71875 1.139307,-1.145828 1.708968,-2.565097 1.708985,-4.257812 -1.7e-5,-1.614574 -0.52736,-2.945952 -1.582032,-3.994141 -1.054701,-1.048163 -2.395846,-1.572251 -4.023437,-1.572265 -0.664073,1.4e-5 -1.490895,0.130222 -2.480469,0.390625 l 0.390625,-3.085938 c 0.234366,0.02606 0.423168,0.03908 0.566406,0.03906 1.497385,1.6e-5 2.84504,-0.390608 4.042969,-1.171875 1.197902,-0.781232 1.79686,-1.985658 1.796875,-3.613282 -1.5e-5,-1.28904 -0.436213,-2.356747 -1.308594,-3.203125 -0.872409,-0.846328 -1.99871,-1.269505 -3.378906,-1.269531 -1.367197,2.6e-5 -2.506518,0.429713 -3.417969,1.289063 -0.911464,0.859398 -1.497401,2.148459 -1.757812,3.867187 l -3.515625,-0.625 c 0.429685,-2.356747 1.406247,-4.182917 2.929687,-5.478516 1.523432,-1.295544 3.417961,-1.94333 5.683594,-1.943359 1.562488,2.9e-5 3.001289,0.335315 4.316406,1.005859 1.315088,0.6706 2.320947,1.585313 3.017579,2.744141 0.696596,1.158878 1.044904,2.389346 1.044924,3.691406 -2e-5,1.237 -0.332052,2.363301 -0.996096,3.378907 -0.66408,1.015641 -1.647152,1.822932 -2.949219,2.421875 1.692692,0.39064 3.007794,1.201186 3.945315,2.43164 0.93748,1.230481 1.40623,2.770193 1.40625,4.619141 -2e-5,2.500006 -0.91148,4.619144 -2.734378,6.357422 -1.822932,1.738281 -4.127617,2.607421 -6.914062,2.607422 -2.513029,-10e-7 -4.599616,-0.748698 -6.259766,-2.246094 -1.660159,-1.497393 -2.607423,-3.437495 -2.841797,-5.820313 z"
          id="path4278"
          inkscape:connector-curvature="0" />
     </g>
+    <path
+       style="fill:none;stroke:#008000;stroke-width:1.58612072px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 332.60023,934.81915 -3.77589,-2.05132 -17.79473,-3.90477"
+       id="path4194"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
     <path
        sodipodi:type="arc"
        style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -890,11 +935,11 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        sodipodi:end="7.8009537"
        sodipodi:open="true" />
     <g
-       transform="matrix(0.42565617,0,0,0.35977875,257.91437,911.27697)"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;font-family:Sans"
+       transform="matrix(0.42565617,0,0,0.35977875,261.51608,913.24036)"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none"
        id="flowRoot3990-2-1">
       <path
-         d="m 94.179687,54.860439 0,-6.855469 -12.421875,0 0,-3.222656 13.066407,-18.554687 2.871093,0 0,18.554687 3.867188,0 0,3.222656 -3.867188,0 0,6.855469 z m 0,-10.078125 0,-12.910156 -8.964843,12.910156 z"
+         d="M 94.179687,54.860439 V 48.00497 H 81.757812 V 44.782314 L 94.824219,26.227627 h 2.871093 v 18.554687 h 3.867188 v 3.222656 h -3.867188 v 6.855469 z m 0,-10.078125 V 31.872158 l -8.964843,12.910156 z"
          id="path4272"
          inkscape:connector-curvature="0" />
     </g>
@@ -921,6 +966,12 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
          inkscape:connector-curvature="0" />
     </g>
     <path
+       style="fill:none;stroke:#008000;stroke-width:1.83000004;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:7.32, 3.66;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 388.32662,866.2777 -6.60423,47.28543 -70.67537,12.84078"
+       id="path4192"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
+    <path
        sodipodi:type="arc"
        style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="path12632-17-8-5"
@@ -934,14 +985,20 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        sodipodi:end="7.8009537"
        sodipodi:open="true" />
     <g
-       transform="matrix(0.42565617,0,0,0.35977875,354.73724,847.99445)"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;font-family:Sans"
+       transform="matrix(0.42565617,0,0,0.35977875,355.09079,851.96044)"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none"
        id="flowRoot3990-2-4">
       <path
          d="m 101.15234,33.239345 -3.49609,0.273438 C 97.343734,32.132597 96.901026,31.129994 96.328125,30.50497 95.37759,29.502392 94.205716,29.00109 92.8125,29.001064 c -1.119802,2.6e-5 -2.102874,0.312526 -2.949219,0.9375 -1.106778,0.807316 -1.979173,1.9857 -2.617187,3.535156 -0.638026,1.549499 -0.970057,3.756528 -0.996094,6.621094 0.846348,-1.289046 1.881504,-2.246077 3.105469,-2.871094 1.223949,-0.624981 2.5065,-0.937481 3.847656,-0.9375 2.343736,1.9e-5 4.339176,0.862648 5.986328,2.587891 1.647117,1.725275 2.470687,3.95509 2.470707,6.689453 -2e-5,1.796883 -0.38739,3.466803 -1.16211,5.009766 -0.774761,1.542971 -1.839213,2.724611 -3.193363,3.544922 -1.354181,0.820312 -2.890638,1.230468 -4.609375,1.230468 -2.929696,0 -5.319016,-1.077473 -7.167968,-3.232422 -1.848961,-2.154943 -2.773439,-5.706371 -2.773438,-10.654296 -10e-7,-5.533836 1.022133,-9.557269 3.066406,-12.070313 1.783848,-2.187472 4.18619,-3.281221 7.207032,-3.28125 2.25259,2.9e-5 4.098291,0.631539 5.537109,1.894531 1.438787,1.263047 2.301417,3.007837 2.587887,5.234375 z m -14.355465,12.34375 c -6e-6,1.210946 0.257156,2.369799 0.771484,3.476563 0.514316,1.106775 1.233717,1.949873 2.158203,2.529297 0.92447,0.579429 1.894521,0.869143 2.910157,0.86914 1.484362,3e-6 2.760402,-0.598955 3.828125,-1.796875 1.067692,-1.197911 1.601545,-2.825513 1.601562,-4.882812 -1.7e-5,-1.979156 -0.52736,-3.538399 -1.582031,-4.677735 C 95.429673,39.961365 94.10155,39.391705 92.5,39.391689 c -1.588551,1.6e-5 -2.936206,0.569676 -4.042969,1.708984 -1.106777,1.139336 -1.660162,2.633475 -1.660156,4.482422 z"
          id="path4281"
          inkscape:connector-curvature="0" />
     </g>
+    <path
+       style="fill:none;stroke:#008000;stroke-width:1.54075575px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 333.20784,937.50915 -22.18154,42.40962 -37.16159,17.00715"
+       id="path4245"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
     <path
        sodipodi:type="arc"
        style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -956,14 +1013,20 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        sodipodi:end="7.8009537"
        sodipodi:open="true" />
     <g
-       transform="matrix(0.42565617,0,0,0.35977875,303.323,922.31588)"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;font-family:Sans"
+       transform="matrix(0.42565617,0,0,0.35977875,302.38734,920.80699)"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none"
        id="flowRoot3990-2-11">
       <path
-         d="m 83.144531,29.977627 0,-3.378907 18.535159,0 0,2.734375 c -1.822938,1.940128 -3.629577,4.51825 -5.419924,7.734375 -1.790378,3.216161 -3.17384,6.523449 -4.150391,9.921875 -0.703135,2.395839 -1.152353,5.019534 -1.347656,7.871094 l -3.613282,0 c 0.03906,-2.252602 0.481765,-4.973953 1.328125,-8.164062 0.846347,-3.190093 2.060538,-6.266262 3.642579,-9.228516 1.582018,-2.962219 3.264959,-5.458962 5.048828,-7.490234 z"
+         d="M 83.144531,29.977627 V 26.59872 h 18.535159 v 2.734375 c -1.822938,1.940128 -3.629577,4.51825 -5.419924,7.734375 -1.790378,3.216161 -3.17384,6.523449 -4.150391,9.921875 -0.703135,2.395839 -1.152353,5.019534 -1.347656,7.871094 h -3.613282 c 0.03906,-2.252602 0.481765,-4.973953 1.328125,-8.164062 0.846347,-3.190093 2.060538,-6.266262 3.642579,-9.228516 1.582018,-2.962219 3.264959,-5.458962 5.048828,-7.490234 z"
          id="path4269"
          inkscape:connector-curvature="0" />
     </g>
+    <path
+       style="fill:none;stroke:#008000;stroke-width:1.76771069px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 78.121405,822.82366 6.338487,37.55523 27.559158,13.67146"
+       id="path4198"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
     <path
        sodipodi:type="arc"
        style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -1014,44 +1077,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        id="path4182"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:#008000;stroke:#008000;stroke-width:1.76771069px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 282.36048,866.36747 c 24.9992,7.14263 24.9992,7.58905 24.9992,7.58905"
-       id="path4184"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#008000;stroke-width:1.78715563;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:7.14862246, 3.57431122;stroke-dashoffset:0"
-       d="m 281.06362,867.70501 c 26.97025,58.06302 26.97025,58.06302 26.97025,58.06302"
-       id="path4186"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#008000;stroke-width:1.76771069px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#008000;stroke-width:1.76771069;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:7.07084274,3.53542137;stroke-dashoffset:0"
        d="m 387.11681,806.45699 c 0,56.50362 -0.31566,56.50362 -0.31566,56.50362"
        id="path4188"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#008000;stroke-width:1.76771069px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 384.59151,864.85459 C 311.9891,874.0088 311.9891,874.0088 311.9891,874.0088"
-       id="path4190"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#008000;stroke-width:1.77749145;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:7.10996575, 3.55498288;stroke-dashoffset:0"
-       d="m 385.14464,867.16158 c -74.41563,59.55914 -74.09762,59.24233 -74.09762,59.24233"
-       id="path4192"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#008000;stroke-width:1.58612072px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 332.02571,934.86334 c -20.55418,-6.08867 -20.55418,-6.08867 -20.55418,-6.08867"
-       id="path4194"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#008000;stroke-width:1.71722972;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:6.86891874, 3.43445937;stroke-dashoffset:0"
-       d="M 333.35355,933.32778 C 310.4373,875.71693 310.01292,875.71693 310.01292,875.71693"
-       id="path4196"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:#008000;stroke:#008000;stroke-width:1.76771069px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 77.674976,822.5558 c 34.722884,49.24337 34.722884,49.24337 34.722884,49.24337"
-       id="path4198"
        inkscape:connector-curvature="0" />
     <path
        sodipodi:type="arc"
@@ -1098,18 +1126,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
          inkscape:connector-curvature="0" />
     </g>
     <path
-       style="fill:none;stroke:#008000;stroke-width:1.54075575px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 307.68329,929.92545 C 272.84269,996.9151 272.4178,996.9151 272.4178,996.9151"
-       id="path4245"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#008000;stroke-width:1.72746754px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 115.24114,875.64358 C 182.27189,996.8216 182.27189,996.8216 182.27189,996.8216"
-       id="path4249"
-       inkscape:connector-curvature="0" />
-    <path
        style="fill:none;stroke:#ff00ff;stroke-width:1.75369668;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       d="m 309.14533,876.82779 c 0,48.33008 0,48.33008 0,48.33008"
+       d="m 309.55413,871.74416 0.0472,-11.71564 154.11225,-0.42583 -0.19038,82.3556 -154.3265,3.6e-4 -0.0575,-11.40808"
        id="path4257"
        inkscape:connector-curvature="0" />
   </g>

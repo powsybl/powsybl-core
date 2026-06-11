@@ -10,7 +10,10 @@ package com.powsybl.shortcircuit.converter;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.contingency.violations.BusBreakerViolationLocation;
+import com.powsybl.contingency.violations.ViolationLocation;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisResultDeserializer;
 import org.junit.jupiter.api.Test;
@@ -54,7 +57,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void testWriteJson() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithExtension();
-        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-with-extensions-results.json");
+        writeTest(result, this::writeJson, ComparisonUtils::assertTxtEquals, "/shortcircuit-with-extensions-results.json");
     }
 
     @Test
@@ -65,14 +68,20 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
 
     @Test
     void testJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
-        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-results-with-feeder-result.json");
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
+        writeTest(result, this::writeJson, ComparisonUtils::assertTxtEquals, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
     void roundTripJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
+    }
+
+    @Test
+    void roundTripJsonWithOperationalLimitsGroupId() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithOperationalLimitsGroupIdResults();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-operational-limits-group-id-v14.json");
     }
 
     @Test
@@ -98,6 +107,35 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
         assertEquals(2.0, faultResult.getVoltage(), 0);
     }
 
+    @Test
+    void readJsonFaultResultVersion12() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+            .read(getClass().getResourceAsStream("/shortcircuit-results-version12.json"));
+        assertEquals(1, result.getFaultResults().size());
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+        assertEquals(ThreeSides.ONE, faultResult.getFeederResults().getFirst().getSide());
+    }
+
+    @Test
+    void readJsonFaultResultVersion13() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+            .read(getClass().getResourceAsStream("/shortcircuit-results-version13.json"));
+        assertEquals(1, result.getFaultResults().size());
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+        ViolationLocation location = faultResult.getLimitViolations().getFirst().getViolationLocation().orElseThrow();
+        assertEquals(ViolationLocation.Type.BUS_BREAKER, location.getType());
+        BusBreakerViolationLocation locationBusBreaker = (BusBreakerViolationLocation) location;
+        assertEquals(List.of("BBS1"), locationBusBreaker.getBusIds());
+    }
+
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisResultExporters.export(result, path, "CSV", network);
@@ -106,7 +144,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void testWriteCsv() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
-        writeTest(result, this::writeCsv, ComparisonUtils::compareTxt, "/shortcircuit-results.csv");
+        writeTest(result, this::writeCsv, ComparisonUtils::assertTxtEquals, "/shortcircuit-results.csv");
     }
 
     @Test

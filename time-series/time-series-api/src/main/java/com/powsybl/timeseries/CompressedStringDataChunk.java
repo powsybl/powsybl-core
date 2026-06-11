@@ -97,10 +97,51 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         forEachMaterializedValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
     }
 
+    /**
+     * Get an uncompressed point iterator (i.e., there will be {@code uncompressedLength} elements in the iterator).
+     *
+     * @param index the time series index
+     * @return a point iterator
+     */
     @Override
-    public Iterator<StringPoint> iterator(TimeSeriesIndex index) {
+    public Iterator<StringPoint> uncompressedIterator(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
-        return new Iterator<StringPoint>() {
+        return new Iterator<>() {
+
+            private int i = offset;
+            private int step = 0;
+            private int stepLimit = offset + stepLengths[0];
+
+            @Override
+            public boolean hasNext() {
+                return i < offset + uncompressedLength;
+            }
+
+            @Override
+            public StringPoint next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                StringPoint point = new StringPoint(i, index.getInstantAt(i), stepValues[step]);
+                i++;
+                if (i >= stepLimit && step + 1 < stepLengths.length) {
+                    step++;
+                    stepLimit += stepLengths[step];
+                }
+                return point;
+            }
+        };
+    }
+
+    /**
+     * Get an RLE (Run-Length encoding) compressed point iterator.
+     * @param index the time series index
+     * @return a compressed point iterator
+     */
+    @Override
+    public Iterator<StringPoint> compressedIterator(TimeSeriesIndex index) {
+        Objects.requireNonNull(index);
+        return new Iterator<>() {
 
             private int i = offset;
             private int step = 0;
@@ -115,7 +156,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                StringPoint point = new StringPoint(i, index.getTimeAt(i), stepValues[step]);
+                StringPoint point = new StringPoint(i, index.getInstantAt(i), stepValues[step]);
                 i += stepLengths[step];
                 step++;
                 return point;
@@ -123,10 +164,29 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         };
     }
 
+    /**
+     * Get an uncompressed point stream (i.e., there will be {@code uncompressedLength} elements in the stream).
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
     @Override
-    public Stream<StringPoint> stream(TimeSeriesIndex index) {
+    public Stream<StringPoint> uncompressedStream(TimeSeriesIndex index) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-                iterator(index),
+            uncompressedIterator(index),
+            Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
+    }
+
+    /**
+     * Get an RLE (Run-Length encoding) compressed point stream.
+     *
+     * @param index the time series index
+     * @return a point stream
+     */
+    @Override
+    public Stream<StringPoint> compressedStream(TimeSeriesIndex index) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+                compressedIterator(index),
                 Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
     }
 
@@ -144,7 +204,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         }
         int index = offset;
         for (int step = 0; step < stepLengths.length; step++) {
-            if (index + stepLengths[step] > splitIndex) {
+            if (index + stepLengths[step] >= splitIndex) {
                 // first chunk
                 int[] stepLengths1 = new int[step + 1];
                 String[] stepValues1 = new String[stepLengths1.length];
@@ -154,11 +214,15 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
                 CompressedStringDataChunk chunk1 = new CompressedStringDataChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
 
                 // second chunk
-                int[] stepLengths2 = new int[stepLengths.length - step];
+                boolean splitOnBoundary = splitIndex == index + stepLengths[step];
+                int calculatedStep = splitOnBoundary ? step + 1 : step;
+                int[] stepLengths2 = new int[stepLengths.length - calculatedStep];
                 String[] stepValues2 = new String[stepLengths2.length];
-                System.arraycopy(stepLengths, step, stepLengths2, 0, stepLengths2.length);
-                System.arraycopy(stepValues, step, stepValues2, 0, stepValues2.length);
-                stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                System.arraycopy(stepLengths, calculatedStep, stepLengths2, 0, stepLengths2.length);
+                System.arraycopy(stepValues, calculatedStep, stepValues2, 0, stepValues2.length);
+                if (!splitOnBoundary) {
+                    stepLengths2[0] = stepLengths[step] - stepLengths1[step];
+                }
                 CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
 
                 return new Split<>(chunk1, chunk2);
@@ -190,7 +254,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
             //Step lengths
             newStepLengths = new int[stepLengths.length + chunk.getStepLengths().length - 1];
             System.arraycopy(stepLengths, 0, newStepLengths, 0, stepLengths.length);
-            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + newStepLengths[0];
+            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + chunk.getStepLengths()[0];
             System.arraycopy(chunk.getStepLengths(), 1, newStepLengths, stepLengths.length, chunk.getStepLengths().length - 1);
 
             //Step values

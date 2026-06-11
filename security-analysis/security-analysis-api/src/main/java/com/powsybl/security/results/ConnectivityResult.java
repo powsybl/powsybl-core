@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.results;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -23,6 +24,12 @@ public class ConnectivityResult {
     private final double disconnectedGenerationActivePower;
 
     private final Set<String> disconnectedElements;
+
+    private static final ConnectivityResult EMPTY = new ConnectivityResult(0, 0, 0., 0., Collections.emptySet());
+
+    public static ConnectivityResult empty() {
+        return EMPTY;
+    }
 
     public ConnectivityResult(int createdSynchronousComponentCount, int createdConnectedComponentCount, double disconnectedLoadActivePower,
                               double disconnectedGenerationActivePower, Set<String> lostElements) {
