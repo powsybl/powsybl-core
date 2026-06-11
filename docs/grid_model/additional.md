@@ -22,9 +22,9 @@ In between the defined points of the curve, the reactive power limits are comput
 ### Reactive capability shape
 
 ```{note}
-The reactive capability shape is a **beta feature**. It is not yet serialized and is not supported across
-the downstream projects. Exporting a network that contains such limits raises an error unless the
-beta-feature export is explicitly forced (see below).
+The reactive capability shape is a **beta feature**. It is serialized from IIDM version 1.19 onwards
+and is not supported across the downstream projects. Exporting a network that contains such limits to
+an earlier IIDM version raises an error unless the beta-feature export is explicitly forced (see below).
 ```
 
 With the reactive capability shape limits, the reactive power limitation depends on a 3D (P, Q, U) convex volume.

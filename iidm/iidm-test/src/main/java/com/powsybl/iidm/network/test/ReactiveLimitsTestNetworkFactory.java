@@ -38,7 +38,7 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMaxP(20)
                 .setMinP(0)
-                .newVoltageRegulation().withRegulating(true).add()
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .setLocalTargetV(380)
                 .setTargetP(10)
                 .setBus("B")

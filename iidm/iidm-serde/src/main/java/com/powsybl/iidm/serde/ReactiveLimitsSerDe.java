@@ -11,6 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.ReactiveCapabilityShape;
+import com.powsybl.iidm.network.ReactiveCapabilityShapeAdder;
+import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import com.powsybl.iidm.network.util.PropertiesBufferHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
@@ -31,6 +34,7 @@ public class ReactiveLimitsSerDe {
 
     static final ReactiveLimitsSerDe INSTANCE = new ReactiveLimitsSerDe();
 
+    static final String ELEM_REACTIVE_CAPABILITY_SHAPE = "reactiveCapabilityShape";
     static final String ELEM_REACTIVE_CAPABILITY_CURVE = "reactiveCapabilityCurve";
     static final String ELEM_MIN_MAX_REACTIVE_LIMITS = "minMaxReactiveLimits";
     private static final String ATTR_MIN_Q = "minQ";
@@ -38,6 +42,13 @@ public class ReactiveLimitsSerDe {
     private static final String ATTR_P = "p";
     public static final String POINT_ARRAY_ELEMENT_NAME = "points";
     public static final String POINT_ROOT_ELEMENT_NAME = "point";
+    public static final String PLANE_ARRAY_ELEMENT_NAME = "planes";
+    public static final String PLANE_ROOT_ELEMENT_NAME = "plane";
+    public static final String ATTR_COEFF_U = "coeffU";
+    public static final String ATTR_COEFF_P = "coeffP";
+    public static final String ATTR_COEFF_Q = "coeffQ";
+    public static final String ATTR_RHS = "rhs";
+    public static final String ATTR_IS_GREATER_OR_EQUAL = "isGreaterOrEqual";
 
     public void write(ReactiveLimitsHolder holder, NetworkSerializerContext context) {
         switch (holder.getReactiveLimits().getKind()) {
@@ -68,8 +79,11 @@ public class ReactiveLimitsSerDe {
                 break;
 
             case SHAPE:
-                if (!context.getOptions().isForceExportNetworkWithBetaFeatures()) {
-                    throw new NotImplementedException("The network contains reactive capability shape limits, export of this kind of reactive limits is not yet supported. " +
+                if (context.getVersion().compareTo(IidmVersion.V_1_19) >= 0) {
+                    writeReactiveCapabilityShape(holder, context);
+                } else if (!context.getOptions().isForceExportNetworkWithBetaFeatures()) {
+                    throw new NotImplementedException("The network contains reactive capability shape limits, export of this kind of reactive limits is not supported " +
+                        "for IIDM versions older than " + IidmVersion.V_1_19.toString(".") + ". " +
                         "To force the export of the network and ignore those limits, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
                         "or ExportOptions.setForceExportNetworkWithBetaFeatures");
                 }
@@ -78,6 +92,70 @@ public class ReactiveLimitsSerDe {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    private static void writeReactiveCapabilityShape(ReactiveLimitsHolder holder, NetworkSerializerContext context) {
+        ReactiveCapabilityShape shape = holder.getReactiveLimits(ReactiveCapabilityShape.class);
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_SHAPE);
+        context.getWriter().writeStartNodes();
+        PropertiesSerDe.write(shape, context);
+        for (ReactiveCapabilityShapePlane plane : shape.getPlanes()) {
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), PLANE_ROOT_ELEMENT_NAME);
+            context.getWriter().writeDoubleAttribute(ATTR_COEFF_U, plane.getCoeffU());
+            context.getWriter().writeDoubleAttribute(ATTR_COEFF_P, plane.getCoeffP());
+            context.getWriter().writeDoubleAttribute(ATTR_COEFF_Q, plane.getCoeffQ());
+            context.getWriter().writeDoubleAttribute(ATTR_RHS, plane.getRhs());
+            context.getWriter().writeBooleanAttribute(ATTR_IS_GREATER_OR_EQUAL, plane.isGreaterOrEqual());
+            context.getWriter().writeEndNode();
+        }
+        context.getWriter().writeEndNodes();
+        context.getWriter().writeEndNode();
+    }
+
+    public void readReactiveCapabilityShape(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {
+        readReactiveCapabilityShape(context).accept(holder);
+    }
+
+    public <T extends ReactiveLimitsHolder> void readReactiveCapabilityShape(List<Consumer<T>> toApply, NetworkDeserializerContext context) {
+        toApply.add(readReactiveCapabilityShape(context));
+    }
+
+    private <T extends ReactiveLimitsHolder> Consumer<T> readReactiveCapabilityShape(NetworkDeserializerContext context) {
+        PropertiesBufferHolder shapePropertiesBuffer = new PropertiesBufferHolder();
+        List<PlaneData> planeDataList = new ArrayList<>();
+        context.getReader().readChildNodes(elementName ->
+                readReactiveCapabilityShapeElement(elementName, shapePropertiesBuffer, planeDataList, context));
+
+        return reactiveLimitsHolder -> {
+            ReactiveCapabilityShapeAdder shapeAdder = reactiveLimitsHolder.newReactiveCapabilityShape();
+            shapePropertiesBuffer.copyPropertiesTo(shapeAdder);
+            planeDataList.forEach(planeData -> shapeAdder.addPlane(planeData.coeffU(), planeData.coeffP(),
+                    planeData.coeffQ(), planeData.isGreaterOrEqual(), planeData.rhs()));
+            shapeAdder.add();
+        };
+    }
+
+    private void readReactiveCapabilityShapeElement(String elementName,
+                                                    PropertiesBufferHolder shapePropertiesBuffer,
+                                                    List<PlaneData> planeDataList,
+                                                    NetworkDeserializerContext context) {
+        if (elementName.equals(PropertiesSerDe.ROOT_ELEMENT_NAME)) {
+            PropertiesSerDe.read(shapePropertiesBuffer, context);
+        } else if (elementName.equals(PLANE_ROOT_ELEMENT_NAME)) {
+            readReactiveCapabilityShapePlane(planeDataList, context);
+        } else {
+            throw new PowsyblException("Unknown element name '" + elementName + "' in '" + ELEM_REACTIVE_CAPABILITY_SHAPE + "'");
+        }
+    }
+
+    private void readReactiveCapabilityShapePlane(List<PlaneData> planeDataList, NetworkDeserializerContext context) {
+        double coeffU = context.getReader().readDoubleAttribute(ATTR_COEFF_U);
+        double coeffP = context.getReader().readDoubleAttribute(ATTR_COEFF_P);
+        double coeffQ = context.getReader().readDoubleAttribute(ATTR_COEFF_Q);
+        double rhs = context.getReader().readDoubleAttribute(ATTR_RHS);
+        boolean isGreaterOrEqual = context.getReader().readBooleanAttribute(ATTR_IS_GREATER_OR_EQUAL);
+        context.getReader().readEndNode();
+        planeDataList.add(new PlaneData(coeffU, coeffP, coeffQ, isGreaterOrEqual, rhs));
     }
 
     public void readReactiveCapabilityCurve(ReactiveLimitsHolder holder, NetworkDeserializerContext context) {
@@ -160,4 +238,6 @@ public class ReactiveLimitsSerDe {
     }
 
     private record PointData(double p, double minQ, double maxQ, PropertiesBufferHolder pointPropertiesBuffer) { }
+
+    private record PlaneData(double coeffU, double coeffP, double coeffQ, boolean isGreaterOrEqual, double rhs) { }
 }
