@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -22,6 +24,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
     protected final OperationalLimitsGroupImpl group;
+    private final DetectionKind detectionKind;
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
@@ -67,22 +70,53 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     }
 
+    /**
+     * Build a loading limit with {@link DetectionKind#HIGH}, permanent limit is mandatory.
+     * @param owner which group is this limit part of
+     * @param permanentLimit the permanent limit of this loading limit
+     * @param temporaryLimits the temporary limits
+     */
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this(owner, DetectionKind.HIGH, permanentLimit, temporaryLimits);
+    }
+
+    /**
+     * Build a loading limit with {@link DetectionKind#LOW}, there is no permanent limit.
+     * @param owner which group is this limit part of
+     * @param temporaryLimits the temporary limits
+     */
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this(owner, DetectionKind.LOW, Double.NaN, temporaryLimits);
+    }
+
+    private AbstractLoadingLimits(OperationalLimitsGroupImpl owner, DetectionKind detectionKind, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
+        this.detectionKind = Objects.requireNonNull(detectionKind);
+        if (detectionKind == DetectionKind.LOW) {
+            LOGGER.warn("BETA feature, there is no guarantee that a LoadingLimit with DetectionKind.LOW will still exist in the model in the next releases");
+        }
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
     }
 
     @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
+    }
+
+    @Override
     public double getPermanentLimit() {
-        return permanentLimit;
+        return switch (getDetectionKind()) {
+            case HIGH -> permanentLimit;
+            case LOW -> throw new PowsyblException("There is no permanent limit for a detection kind LOW");
+        };
     }
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
         NetworkImpl network = group.getNetwork();
-        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits(),
+        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, detectionKind, getTemporaryLimits(),
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
