@@ -275,6 +275,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
                 .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.3.json"));
         assertEquals("/tmp/debugDir", parameters.getDebugDir());
     }
+
     @Test
     void readJsonVersion10Invalid() {
         assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
