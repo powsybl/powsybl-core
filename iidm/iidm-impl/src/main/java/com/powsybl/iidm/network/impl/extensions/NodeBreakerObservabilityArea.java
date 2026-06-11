@@ -197,7 +197,7 @@ class NodeBreakerObservabilityArea extends AbstractExtension<VoltageLevel> imple
             AreaCharacteristics tmp = nodeBreakerView.observabilityAreas.get(node);
             if (value != null) {
                 if (tmp == null) {
-                    handleUncompleteObservabilityAreaError(busId, throwException);
+                    handleIncompleteObservabilityAreaError(busId, throwException);
                     continue;
                 }
                 if (value != tmp) {
