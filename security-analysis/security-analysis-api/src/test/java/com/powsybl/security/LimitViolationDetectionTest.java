@@ -126,6 +126,20 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     }
 
     @Test
+    void testTemporaryBranchViolationKeepsNullSubjectName() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+
+        assertTrue(line.getOptionalName().isEmpty());
+
+        checkCurrent(line, TwoSides.TWO, 1201, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .singleElement()
+            .satisfies(violation -> Assertions.assertThat(violation.getSubjectName()).isNull());
+    }
+
+    @Test
     void testSingleTempLimitIncrease() {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
@@ -367,6 +381,9 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
 
+        Network lowLimitNetwork = EurostagTutorialExample1Factory.createWithHighAndLowCurrentLimits();
+        Line l2 = lowLimitNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+
         Network network3wt = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
         ThreeWindingsTransformer transformer = network3wt.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
 
@@ -524,7 +541,72 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     400,
                     0
                 )
-            )) // above last temporary of activated_3_1
+            )), // above last temporary of activated_3_1
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 400, List.of()), // under all limits
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 550, List.of(
+                new ExpectedLimitViolation(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    500,
+                    2400
+                )
+            )), // above first temporary of activated_2_2 (LOW limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 650, List.of(
+                new ExpectedLimitViolation(
+                    "40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    500,
+                    2400
+                ),
+                new ExpectedLimitViolation(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
+                    600,
+                    600
+                )
+            )), // above permanent of activated_2_1 (HIGH limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 950, List.of(
+                new ExpectedLimitViolation(
+                    "10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    900,
+                    600
+                ),
+                new ExpectedLimitViolation(
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
+                    600,
+                    600
+                )
+            )), // above second temporary of activated_2_2 (LOW limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 1100, List.of(
+                new ExpectedLimitViolation(
+                    "10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    900,
+                    600
+                ),
+                new ExpectedLimitViolation(
+                    "10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
+                    1000,
+                    0
+                )
+            )), // above first temporary of activated_2_1 (HIGH limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 1210, List.of(
+                new ExpectedLimitViolation(
+                    "5'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    1200,
+                    300
+                ),
+                new ExpectedLimitViolation(
+                    "10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
+                    1000,
+                    0
+                )
+            )) // above last temporary of activated_2_2 (LOW limit)
         );
     }
 

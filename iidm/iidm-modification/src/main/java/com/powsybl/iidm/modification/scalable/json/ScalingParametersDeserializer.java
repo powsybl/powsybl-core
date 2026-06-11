@@ -72,6 +72,21 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
                     parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
                 }
+                case "loadMinPowerFactor" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMinPowerFactor", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMinPowerFactor(parser.getDoubleValue());
+                }
+                case "loadMinQRate" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMinQRate", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMinQRate(parser.getDoubleValue());
+                }
+                case "loadMaxQRate" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: loadMaxQRate", version, "1.3");
+                    parser.nextToken();
+                    parameters.setLoadMaxQRate(parser.getDoubleValue());
+                }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
