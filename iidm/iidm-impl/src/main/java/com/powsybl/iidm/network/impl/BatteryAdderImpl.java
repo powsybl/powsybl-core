@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * {@inheritDoc}
@@ -32,7 +31,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private double maxP = Double.NaN;
 
-    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
+    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -83,8 +82,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
-    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
-        this.voltageRegulationCreator = voltageRegulationCreator;
+    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
     /**
@@ -118,10 +117,10 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
-        VoltageRegulationExt voltageRegulation = voltageRegulationCreator != null ?
-            (VoltageRegulationExt) voltageRegulationCreator.get() : null;
 
-        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, localTargetQ, localTargetV, voltageRegulation, minP, maxP);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, Battery.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+
+        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, localTargetQ, localTargetV, voltageRegulationAttributes, minP, maxP);
         battery.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(battery);
@@ -132,7 +131,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     @Override
     public VoltageRegulationAdder<BatteryAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(Battery.class, this, this, getNetworkRef(), this::setVoltageRegulationCreator);
+        return new VoltageRegulationAdderImpl<>(Battery.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
     }
 
 }

@@ -157,6 +157,10 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         return self();
     }
 
+    public boolean withTerminal2() {
+        return hasTwoAcTerminals();
+    }
+
     protected void preCheck() {
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,

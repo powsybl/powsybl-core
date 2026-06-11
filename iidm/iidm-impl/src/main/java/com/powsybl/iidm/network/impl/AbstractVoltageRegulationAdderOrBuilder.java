@@ -14,25 +14,27 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
-import org.jspecify.annotations.NonNull;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageRegulationAdderOrBuilder<T>> implements VoltageRegulationAdderOrBuilder<T> {
 
+    // Context
     protected final Class<? extends VoltageRegulationHolder<?>> classHolder;
     protected final Validable validable;
     protected final VoltageRegulationHolder<?> holder;
     protected final Ref<NetworkImpl> network;
+    // VoltageRegulation attributes
+    protected RegulationMode mode = null;
+    protected boolean regulating = true;
+    protected Terminal terminal = null;
     protected double targetValue = Double.NaN;
     protected double targetDeadband = Double.NaN;
     protected double slope = Double.NaN;
-    protected Terminal terminal = null;
-    protected RegulationMode mode = null;
-    protected boolean regulating = true;
 
     protected AbstractVoltageRegulationAdderOrBuilder(Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                       Validable validable,
@@ -80,27 +82,30 @@ public abstract class AbstractVoltageRegulationAdderOrBuilder<T extends VoltageR
         return self();
     }
 
-    /**
-     * Validates and creates a new instance of VoltageRegulation
-     */
-    protected @NonNull VoltageRegulationExt checkAndCreateVoltageRegulation() {
+    protected VoltageRegulation.AttributesWithTerminal checkAndGetVoltageRegulationAttributes() {
         // VALIDATION
         if (validable != null) {
-            checkAttributesNotFromVoltageRegulation(validable);
-            // MODE
-            checkRegulationMode(validable);
-            // SLOPE
-            checkSlopeValue(validable);
-            // DEADBAND
-            checkDeadbandValue(validable);
-            // TERMINAL
-            checkTerminal(validable);
-            // TARGET VALUE (check after Terminal and mode)
-            checkTargetValue(validable);
-            //
-            return new VoltageRegulationImpl(validable, holder, classHolder, network, targetValue, targetDeadband, slope, terminal, mode, regulating);
+            checkVoltageRegulationAttributes();
+            return new VoltageRegulation.AttributesWithTerminal(
+                new VoltageRegulation.Attributes(targetValue, targetDeadband, slope, mode, regulating),
+                terminal
+            );
         }
         throw new PowsyblException("VoltageRegulation cannot be validated because its parent is not a Validable class");
+    }
+
+    private void checkVoltageRegulationAttributes() {
+        checkAttributesNotFromVoltageRegulation(validable);
+        // MODE
+        checkRegulationMode(validable);
+        // SLOPE
+        checkSlopeValue(validable);
+        // DEADBAND
+        checkDeadbandValue(validable);
+        // TERMINAL
+        checkTerminal(validable);
+        // TARGET VALUE (check after Terminal and mode)
+        checkTargetValue(validable);
     }
 
     private void checkAttributesNotFromVoltageRegulation(Validable validable) {

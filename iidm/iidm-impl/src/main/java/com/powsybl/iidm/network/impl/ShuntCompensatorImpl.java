@@ -41,11 +41,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          Integer sectionCount, Integer solvedSectionCount,
                          double localTargetV,
-                         VoltageRegulationExt voltageRegulation) {
+                         VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
         super(network, id, name, fictitious);
         this.network = network;
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, ShuntCompensator.class, network, voltageRegulationAttributes);
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.solvedSectionCount = new ArrayList<>(variantArraySize);
@@ -65,9 +64,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensator setLocalTargetV(double targetV) {
-        if (this.isRegulating()) {
-            ValidationUtil.checkLocalTargetQandV(this, targetV, Double.NaN, getVoltageRegulation(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        }
+        ValidationUtil.checkLocalTargetQandV(this, ShuntCompensator.class, targetV, Double.NaN, getVoltageRegulation(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         this.localTargetV.set(getCurrentIndex(), targetV);
         return this;
     }
@@ -363,7 +360,6 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         } else {
             this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
         }
-        this.attachVoltageRegulation();
         return this.voltageRegulation;
     }
 
@@ -371,10 +367,4 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         return network.get().getVariantIndex();
     }
 
-    private void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setHolder(this);
-        });
-    }
 }

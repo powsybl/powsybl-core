@@ -47,7 +47,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
-                  VoltageRegulationExt voltageRegulation,
+                  VoltageRegulation.AttributesWithTerminal attributes,
                   double targetP, double localTargetQ, double localTargetV,
                   double ratedS, boolean isCondenser) {
         super(network, id, name, fictitious);
@@ -55,8 +55,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, Generator.class, network, attributes);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -372,7 +371,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public void removeVoltageRegulation() {
-        ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this, Generator.class, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
@@ -397,7 +396,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         } else {
             this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
         }
-        this.attachVoltageRegulation();
         return this.voltageRegulation;
     }
 
@@ -405,10 +403,4 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         return network.get().getVariantIndex();
     }
 
-    private void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setHolder(this);
-        });
-    }
 }

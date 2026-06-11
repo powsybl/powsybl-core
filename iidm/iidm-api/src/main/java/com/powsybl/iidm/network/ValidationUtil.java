@@ -245,63 +245,83 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkLocalTargetQandV(Validable validable,
-                                                        double localTargetV,
-                                                        double localTargetQ,
-                                                        boolean voltageRegulationMissing,
-                                                        boolean regulating,
-                                                        RegulationMode regulationMode,
-                                                        ActionOnError actionOnError,
-                                                        ReportNode reportNode) {
+    private static ValidationLevel checkLocalTargetQandV(Validable validable,
+                                                         Class<? extends VoltageRegulationHolder<?>> classHolder,
+                                                         double localTargetV,
+                                                         double localTargetQ,
+                                                         boolean voltageRegulationMissing,
+                                                         boolean regulating,
+                                                         boolean withTerminal,
+                                                         RegulationMode regulationMode,
+                                                         ActionOnError actionOnError,
+                                                         ReportNode reportNode) {
+        // LocalTargetQ is optional for StaticVarCompensator
+        // LocalTargetQ doesn't exist for ShuntCompensator
+        // LocalTargetQ doesn't exist for RatioTapChanger
+        boolean ignoreLocalTargetQ = classHolder == StaticVarCompensator.class
+            || classHolder == ShuntCompensator.class
+            || classHolder == RatioTapChanger.class;
+
         String localTargetVName = "localTargetV";
         String localTargetQName = "localTargetQ";
-        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+
         if (voltageRegulationMissing) {
-            if (Double.isNaN(localTargetQ) && !(validable instanceof StaticVarCompensator)) {
+            if (Double.isNaN(localTargetQ) && !ignoreLocalTargetQ) {
                 throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is not set", actionOnError,
                     id -> NetworkReports.invalidLocalTargetQVoltageRegulationUnset(reportNode, id, localTargetQ));
                 return ValidationLevel.EQUIPMENT;
             }
         } else if (!regulating) {
-            if (Double.isNaN(localTargetQ) && !(validable instanceof StaticVarCompensator)) {
+            if (Double.isNaN(localTargetQ) && !ignoreLocalTargetQ) {
                 throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with regulating false", actionOnError,
                     id -> NetworkReports.invalidLocalTargetQRegulatingOff(reportNode, id, localTargetQ));
                 return ValidationLevel.EQUIPMENT;
             }
-        } else if (RegulationMode.VOLTAGE.equals(regulationMode)) {
-            if (Double.isNaN(localTargetV)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
-                    id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
-                return ValidationLevel.EQUIPMENT;
-            }
-            if (localTargetV < 0) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
-                    id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
-                return ValidationLevel.EQUIPMENT;
-            }
-        } else if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
-            if (Double.isNaN(localTargetQ)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset", actionOnError,
-                    id -> NetworkReports.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn(reportNode, id, localTargetV));
-                return ValidationLevel.EQUIPMENT;
+        } else if (!withTerminal) {
+            if (RegulationMode.VOLTAGE.equals(regulationMode)) {
+                if (Double.isNaN(localTargetV)) {
+                    throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
+                        id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
+                    return ValidationLevel.EQUIPMENT;
+                }
+                if (localTargetV < 0) {
+                    throwExceptionOrLogErrorForInvalidValue(validable, localTargetV, localTargetVName, "voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset", actionOnError,
+                        id -> NetworkReports.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(reportNode, id, localTargetV));
+                    return ValidationLevel.EQUIPMENT;
+                }
+            } else if (RegulationMode.REACTIVE_POWER.equals(regulationMode)) {
+                if (Double.isNaN(localTargetQ)) {
+                    throwExceptionOrLogErrorForInvalidValue(validable, localTargetQ, localTargetQName, "voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset", actionOnError,
+                        id -> NetworkReports.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn(reportNode, id, localTargetV));
+                    return ValidationLevel.EQUIPMENT;
+                }
             }
         }
-        return validationLevel;
-    }
 
-    public static ValidationLevel checkLocalTargetQandV(Validable validable, double localTargetV, double localTargetQ, VoltageRegulation voltageRegulation, ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkLocalTargetQandV(validable, localTargetV, localTargetQ, voltageRegulation, checkValidationActionOnError(validationLevel), reportNode);
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     public static ValidationLevel checkLocalTargetQandV(Validable validable,
+                                                        Class<? extends VoltageRegulationHolder<?>> classHolder,
+                                                        double localTargetV,
+                                                        double localTargetQ,
+                                                        VoltageRegulation voltageRegulation,
+                                                        ValidationLevel validationLevel,
+                                                        ReportNode reportNode) {
+        return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, voltageRegulation, checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    public static ValidationLevel checkLocalTargetQandV(Validable validable,
+                                                        Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                         double localTargetV,
                                                         double localTargetQ,
                                                         boolean voltageRegulationMissing,
                                                         boolean regulating,
+                                                        boolean withTerminal,
                                                         RegulationMode regulationMode,
                                                         ValidationLevel validationLevel,
                                                         ReportNode reportNode) {
-        return checkLocalTargetQandV(validable, localTargetV, localTargetQ, voltageRegulationMissing, regulating, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
+        return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, voltageRegulationMissing, regulating, withTerminal, regulationMode, checkValidationActionOnError(validationLevel), reportNode);
     }
 
     /**
@@ -309,15 +329,41 @@ public final class ValidationUtil {
      * Check the validity of localTargetQ value when we are not regulating
      */
     public static ValidationLevel checkLocalTargetQandV(Validable validable,
+                                                        Class<? extends VoltageRegulationHolder<?>> classHolder,
                                                         double localTargetV,
                                                         double localTargetQ,
                                                         VoltageRegulation voltageRegulation,
                                                         ActionOnError actionOnError,
                                                         ReportNode reportNode) {
         if (voltageRegulation == null) {
-            return checkLocalTargetQandV(validable, localTargetV, localTargetQ, true, false, null, actionOnError, reportNode);
+            return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, true, false, false, null, actionOnError, reportNode);
         } else if (!voltageRegulation.isWithTerminal() || !voltageRegulation.isRegulating()) {
-            return checkLocalTargetQandV(validable, localTargetV, localTargetQ, false, voltageRegulation.isRegulating(), voltageRegulation.getMode(), actionOnError, reportNode);
+            return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, false, voltageRegulation.isRegulating(), voltageRegulation.isWithTerminal(), voltageRegulation.getMode(), actionOnError, reportNode);
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    public static ValidationLevel checkLocalTargetQandV(Validable validable,
+                                                        Class<? extends VoltageRegulationHolder<?>> classHolder,
+                                                        double localTargetV,
+                                                        double localTargetQ,
+                                                        VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                                                        ValidationLevel validationLevel,
+                                                        ReportNode reportNode) {
+        return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, voltageRegulationAttributes, checkValidationActionOnError(validationLevel), reportNode);
+    }
+
+    private static ValidationLevel checkLocalTargetQandV(Validable validable,
+                                                        Class<? extends VoltageRegulationHolder<?>> classHolder,
+                                                        double localTargetV,
+                                                        double localTargetQ,
+                                                        VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
+                                                        ActionOnError actionOnError,
+                                                        ReportNode reportNode) {
+        if (voltageRegulationAttributes == null) {
+            return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, true, false, false, null, actionOnError, reportNode);
+        } else if (voltageRegulationAttributes.terminal() == null || !voltageRegulationAttributes.isRegulating()) {
+            return checkLocalTargetQandV(validable, classHolder, localTargetV, localTargetQ, false, voltageRegulationAttributes.isRegulating(), voltageRegulationAttributes.terminal() != null, voltageRegulationAttributes.mode(), actionOnError, reportNode);
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }

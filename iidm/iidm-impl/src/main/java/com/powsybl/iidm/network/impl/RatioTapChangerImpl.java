@@ -26,10 +26,9 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, boolean loadTapChangingCapabilities,
-                        Integer tapPosition, Integer solvedTapPosition, VoltageRegulationExt voltageRegulation) {
+                        Integer tapPosition, Integer solvedTapPosition, VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
         super(parent, lowTapPosition, steps, loadTapChangingCapabilities, tapPosition, solvedTapPosition, "ratio tap changer");
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(parent, this, RatioTapChanger.class, getNetwork().getRef(), voltageRegulationAttributes);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
@@ -338,14 +337,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         } else {
             this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
         }
-        this.attachVoltageRegulation();
         return this.voltageRegulation;
-    }
-
-    private void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(parent);
-            vr.setHolder(this);
-        });
     }
 }

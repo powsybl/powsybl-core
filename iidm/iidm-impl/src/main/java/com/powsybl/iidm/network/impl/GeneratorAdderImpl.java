@@ -10,8 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 
-import java.util.function.Supplier;
-
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
@@ -28,7 +26,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
+    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
 
     private Boolean voltageRegulatorOn;
 
@@ -121,8 +119,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         return this;
     }
 
-    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
-        this.voltageRegulationCreator = voltageRegulationCreator;
+    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
     @Override
@@ -156,17 +154,17 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRatedS(this, ratedS);
         // Backward compatibility : If a generator with old setters is added and voltageRegulation does not exist,
         // the new voltageRegulation will be created from the old attributes.
-        if (voltageRegulationCreator == null && voltageRegulatorOn != null) {
+        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
             createVoltageRegulationBackwardCompatibility(this, targetValue, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
         }
-        VoltageRegulationExt voltageRegulation = voltageRegulationCreator != null ? (VoltageRegulationExt) voltageRegulationCreator.get() : null;
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, localTargetV, localTargetQ, voltageRegulation, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, Generator.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulation,
+                                    voltageRegulationAttributes,
                                     targetP, localTargetQ, localTargetV,
                                     ratedS, isCondenser);
         generator.addTerminal(terminal);
@@ -179,6 +177,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public VoltageRegulationAdder<GeneratorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(Generator.class, this, this, getNetworkRef(), this::setVoltageRegulationCreator);
+        return new VoltageRegulationAdderImpl<>(Generator.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
     }
 }

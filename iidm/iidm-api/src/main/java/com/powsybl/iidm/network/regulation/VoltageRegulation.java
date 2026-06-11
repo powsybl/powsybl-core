@@ -7,7 +7,10 @@
  */
 package com.powsybl.iidm.network.regulation;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VariantManager;
 
 import javax.annotation.Nullable;
 
@@ -18,14 +21,15 @@ public interface VoltageRegulation {
 
     /**
      * The TargetValue for RegulationMode set
+     *
      * @see VariantManager
      */
     double getTargetValue();
 
     /**
      * To set the targetValue. {@link #getTargetValue()}
-     * @return the previous Value
      *
+     * @return the previous Value
      * @see #getTargetValue()
      * @see VariantManager
      */
@@ -33,21 +37,22 @@ public interface VoltageRegulation {
 
     /**
      * <p>
-     *     Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
      * This attribute is necessary only if the tap changer is regulating.
      * </p>
      * <p>
-     *     The targetDeadband is only pertinent for objects with discrete (as opposed to continuous) voltage regulation,
+     * The targetDeadband is only pertinent for objects with discrete (as opposed to continuous) voltage regulation,
      * which is the case for {@link RatioTapChanger} and {@link ShuntCompensator}
      * </p>
+     *
      * @see VariantManager
      */
     double getTargetDeadband();
 
     /**
      * To set the targetDeadBand. {@link #getTargetDeadband()}
-     * @return the previous Value
      *
+     * @return the previous Value
      * @see #getTargetDeadband()
      * @see VariantManager
      */
@@ -57,14 +62,15 @@ public interface VoltageRegulation {
      * The slope attribute is relevant for:
      * {@link RegulationMode#VOLTAGE_PER_REACTIVE_POWER}: it corresponds to the lambda in U0 = U + lambda*Q
      * Not yet supported: {@link RegulationMode#REACTIVE_POWER_PER_ACTIVE_POWER}: it corresponds to the tan(phi) in Q = tan(phi)*P
+     *
      * @see VariantManager
      */
     double getSlope();
 
     /**
      * To set the slope. {@link #getSlope()}
-     * @return the previous Value
      *
+     * @return the previous Value
      * @see #getSlope()
      * @see VariantManager
      */
@@ -100,9 +106,11 @@ public interface VoltageRegulation {
      * Returns {@code null} when no regulationMode is defined for the current variant.
      * This can happen in a multi-variant context, for instance when voltage regulation
      * has been added only in another variant.
+     *
      * @see VariantManager
      */
-    @Nullable RegulationMode getMode();
+    @Nullable
+    RegulationMode getMode();
 
     /**
      * RegulationMode is an enum describing the kinds of regulation. It has the following values:
@@ -112,21 +120,65 @@ public interface VoltageRegulation {
      *     <li>VOLTAGE_PER_REACTIVE_POWER</li>
      *     <li>REACTIVE_POWER_PER_ACTIVE_POWER</li>
      * </ul>
+     *
      * @see VariantManager
      */
-    @Nullable RegulationMode setMode(RegulationMode mode);
+    @Nullable
+    RegulationMode setMode(RegulationMode mode);
 
     /**
      * To know if the object is regulating or not.
      * If false all VoltageRegulation attributes are ignored
+     *
      * @see VariantManager
      */
     boolean isRegulating();
 
     /**
      * To set the regulating boolean
+     *
      * @return the previous Value
      * @see VariantManager
      */
     boolean setRegulating(boolean regulating);
+
+    /**
+     * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
+     */
+    record Attributes(
+        double targetValue,
+        double targetDeadband,
+        double slope,
+        RegulationMode mode,
+        boolean isRegulating
+    ) {
+    }
+
+    /**
+     * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
+     */
+    record AttributesWithTerminal(
+        Attributes attributes,
+        Terminal terminal
+    ) {
+        public double targetValue() {
+            return attributes.targetValue();
+        }
+
+        public double targetDeadband() {
+            return attributes.targetDeadband();
+        }
+
+        public double slope() {
+            return attributes.slope();
+        }
+
+        public RegulationMode mode() {
+            return attributes.mode();
+        }
+
+        public boolean isRegulating() {
+            return attributes.isRegulating();
+        }
+    }
 }

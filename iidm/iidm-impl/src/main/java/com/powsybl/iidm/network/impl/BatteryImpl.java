@@ -38,13 +38,15 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                 double targetP, double localTargetQ, double localTargetV,
-                VoltageRegulationExt voltageRegulation,
+                VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes,
                 double minP, double maxP) {
         super(ref, id, name, fictitious);
+
         this.minP = minP;
         this.maxP = maxP;
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, Battery.class, ref, voltageRegulationAttributes);
+
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -292,7 +294,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public void removeVoltageRegulation() {
-        ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this, Battery.class, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
@@ -317,14 +319,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         } else {
             this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
         }
-        this.attachVoltageRegulation();
         return this.voltageRegulation;
     }
 
-    private void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setHolder(this);
-        });
-    }
 }

@@ -135,12 +135,11 @@ public abstract class AbstractVoltageRegulationTest {
     @Test
     void testGeneratorErrorLocalTargetVMissingTargetValuePresent() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
-            .withTargetValue(240)
-            .add();
+            .withTargetValue(240);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
         assertEquals("Generator 'LocalVoltageTargetV_missing': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
     }
@@ -148,15 +147,13 @@ public abstract class AbstractVoltageRegulationTest {
     @Test
     void testGeneratorErrorTargetValuePresent() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent");
-        generatorAdder
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent")
             .setLocalTargetV(24)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
-                .withTargetValue(240)
-                .add();
+                .withTargetValue(240);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
         assertEquals("Generator 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
     }
@@ -190,13 +187,12 @@ public abstract class AbstractVoltageRegulationTest {
     @Test
     void testGeneratorRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue");
-        generatorAdder.newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTerminal(remoteTerminal)
-            .add();
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue")
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(remoteTerminal);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
         assertEquals("Generator 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", validationException.getMessage());
     }
@@ -395,12 +391,12 @@ public abstract class AbstractVoltageRegulationTest {
         return Stream.of(
             addArgumentSet(regulatingLocalVoltage, true),
             addArgumentSet(regulatingLocalVoltageWithTargetQ, false),
-            addArgumentSet(regulatingRemoteVoltage, false),
-            addArgumentSet(regulatingRemoteVoltageWithLocalTargetV, false),
+            addArgumentSet(regulatingRemoteVoltage, true),
+            addArgumentSet(regulatingRemoteVoltageWithLocalTargetV, true),
             addArgumentSet(regulatingRemoteVoltageWithLocalTargetVAndTargetQ, false),
             addArgumentSet(regulatingRemoteVoltageWithTargetQ, false),
-            addArgumentSet(regulatingRemoteReactiveP, false),
-            addArgumentSet(regulatingRemoteReactivePWithLocalTargetV, false),
+            addArgumentSet(regulatingRemoteReactiveP, true),
+            addArgumentSet(regulatingRemoteReactivePWithLocalTargetV, true),
             addArgumentSet(regulatingRemoteReactivePWithLocalTargetVAndTargetQ, false),
             addArgumentSet(regulatingRemoteReactivePWithTargetQ, false)
         );

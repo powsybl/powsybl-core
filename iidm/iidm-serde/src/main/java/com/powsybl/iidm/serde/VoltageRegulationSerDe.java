@@ -53,7 +53,7 @@ public final class VoltageRegulationSerDe {
 
     public static void readVoltageRegulation(VoltageRegulationHolder<?> holder, NetworkDeserializerContext context, Network network) {
         // Read attributes
-        VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
+        VoltageRegulation.Attributes attributes = getVoltageRegulationAttributes(context);
         // Create new Voltage Regulation
         VoltageRegulationBuilder voltageRegulationBuilder = holder.newVoltageRegulation()
             .withTargetDeadband(attributes.targetDeadband())
@@ -92,7 +92,7 @@ public final class VoltageRegulationSerDe {
         Function<T, Network> networkProvider) {
 
         VoltageRegulationAdder<A> adder = holderAdder.newVoltageRegulation();
-        VoltageRegulationAttributes attributes = getVoltageRegulationAttributes(context);
+        VoltageRegulation.Attributes attributes = getVoltageRegulationAttributes(context);
         AtomicBoolean isWithTerminal = new AtomicBoolean(false);
 
         // Read Sub Elements
@@ -128,7 +128,7 @@ public final class VoltageRegulationSerDe {
     }
 
     private static <A extends VoltageRegulationAdderOrBuilder<A>> A configureAdderOrBuilder(A adderOrBuilder,
-                                                                                               VoltageRegulationAttributes attributes) {
+                                                                                               VoltageRegulation.Attributes attributes) {
         return adderOrBuilder
                 .withTargetValue(attributes.targetValue())
                 .withTargetDeadband(attributes.targetDeadband())
@@ -180,13 +180,13 @@ public final class VoltageRegulationSerDe {
         TerminalRefSerDe.writeTerminalRef(voltageRegulation.getTerminal(), context, TERMINAL);
     }
 
-    private static @NonNull VoltageRegulationAttributes getVoltageRegulationAttributes(NetworkDeserializerContext context) {
+    private static VoltageRegulation.@NonNull Attributes getVoltageRegulationAttributes(NetworkDeserializerContext context) {
         double targetValue = context.getReader().readDoubleAttribute(TARGET_VALUE);
         double targetDeadband = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
         double slope = context.getReader().readDoubleAttribute(SLOPE);
         RegulationMode mode = context.getReader().readEnumAttribute(MODE, RegulationMode.class);
         boolean isRegulating = context.getReader().readBooleanAttribute(REGULATING);
-        return new VoltageRegulationAttributes(targetValue, targetDeadband, slope, mode, isRegulating);
+        return new VoltageRegulation.Attributes(targetValue, targetDeadband, slope, mode, isRegulating);
     }
 
     private static void readSubElements(NetworkDeserializerContext context, Network network, Consumer<Terminal> setTerminal) {

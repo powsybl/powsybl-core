@@ -37,12 +37,11 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     private final TDoubleArrayList localTargetV;
 
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax,
-                             VoltageRegulationExt voltageRegulation, Ref<NetworkImpl> ref, double localTargetQ, double localTargetV) {
+                             VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes, Ref<NetworkImpl> ref, double localTargetQ, double localTargetV) {
         super(ref, id, name, fictitious);
         this.bMin = bMin;
         this.bMax = bMax;
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, StaticVarCompensator.class, ref, voltageRegulationAttributes);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.localTargetQ = new TDoubleArrayList(variantArraySize);
         this.localTargetV = new TDoubleArrayList(variantArraySize);
@@ -121,7 +120,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public StaticVarCompensator setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), targetQ, getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, this.getLocalTargetV(), targetQ, getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -134,7 +133,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     public StaticVarCompensator setLocalTargetV(double targetV) {
         NetworkImpl n = getNetwork();
 
-        ValidationUtil.checkLocalTargetQandV(this, targetV, this.getLocalTargetQ(), getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, targetV, this.getLocalTargetQ(), getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetV.set(variantIndex, targetV);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -278,15 +277,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
         } else {
             this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
         }
-        this.attachVoltageRegulation();
         return this.voltageRegulation;
-    }
-
-    private void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setHolder(this);
-        });
     }
 
 }

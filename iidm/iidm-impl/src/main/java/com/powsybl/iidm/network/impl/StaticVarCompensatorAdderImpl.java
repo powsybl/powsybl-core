@@ -13,8 +13,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.Objects;
-import java.util.function.Supplier;
-
 import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
@@ -34,13 +32,13 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private TerminalExt regulatingTerminal;
 
-    private Double targetQ = Double.NaN;
+    private Double localTargetQ = Double.NaN;
 
-    private Double targetV = Double.NaN;
+    private Double localTargetV = Double.NaN;
 
     private Boolean regulating;
 
-    private Supplier<VoltageRegulation> voltageRegulationCreator = null;
+    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
 
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.voltageLevel = Objects.requireNonNull(vl);
@@ -65,23 +63,23 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     @Override
     public StaticVarCompensatorAdder setLocalTargetQ(double localTargetQ) {
-        this.targetQ = localTargetQ;
+        this.localTargetQ = localTargetQ;
         return this;
     }
 
     @Override
     public double getLocalTargetQ() {
-        return this.targetQ;
+        return this.localTargetQ;
     }
 
     @Override
     public StaticVarCompensatorAdder setLocalTargetV(double localTargetV) {
-        this.targetV = localTargetV;
+        this.localTargetV = localTargetV;
         return this;
     }
 
-    private void setVoltageRegulationCreator(Supplier<VoltageRegulation> voltageRegulationCreator) {
-        this.voltageRegulationCreator = voltageRegulationCreator;
+    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
     }
 
     @Override
@@ -116,7 +114,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     @Override
     public VoltageRegulationAdder<StaticVarCompensatorAdder> newVoltageRegulation() {
-        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, this, getNetworkRef(), this::setVoltageRegulationCreator);
+        return new VoltageRegulationAdderImpl<>(StaticVarCompensator.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
     }
 
     @Override
@@ -130,16 +128,17 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         if (regulationMode == null) {
             regulationMode = RegulationMode.VOLTAGE;
         }
-        if (voltageRegulationCreator == null && regulating != null) {
+        if (voltageRegulationAttributes == null && regulating != null) {
             createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
         }
-        VoltageRegulationExt voltageRegulation = voltageRegulationCreator != null ? (VoltageRegulationExt) voltageRegulationCreator.get() : null;
 
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageRegulation, getNetworkRef(), targetQ, targetV);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+
+        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageRegulationAttributes, getNetworkRef(), localTargetQ, localTargetV);
         svc.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(svc);

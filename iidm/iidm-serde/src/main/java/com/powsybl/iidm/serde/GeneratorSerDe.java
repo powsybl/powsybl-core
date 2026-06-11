@@ -128,9 +128,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
 
-        double p = context.getReader().readDoubleAttribute("p");
-        double q = context.getReader().readDoubleAttribute("q");
-        toApply.add(generator -> generator.getTerminal().setP(p).setQ(q));
+        readPQ(toApply, context.getReader());
         toApply.add(generator -> {
             double targetValueDouble = Double.isNaN(targetV) ? equivalentLocalTargetV.get() : targetV;
             Runnable actionOnRemoteTerminal;

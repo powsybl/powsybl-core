@@ -385,7 +385,7 @@ public abstract class AbstractShuntCompensatorTest {
         voltageRegulation.setRegulating(false);
         shuntCompensator.setLocalTargetV(Double.NaN);
         validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setRegulating(true));
-        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV", validationException.getMessage());
+        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
 
         shuntCompensator.setLocalTargetV(400);
         assertEquals(400, shuntCompensator.getRegulatingTargetV());

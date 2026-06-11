@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,15 +97,14 @@ public abstract class AbstractGeneratorTest {
 
     @Test
     public void undefinedVoltageRegulationMode() {
-        GeneratorAdder adder = voltageLevel.newGenerator()
+        VoltageRegulationAdder<GeneratorAdder> adder = voltageLevel.newGenerator()
                 .setId("GEN")
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
                 .setNode(1)
                 .newVoltageRegulation()
-                    .withTargetValue(20)
-                    .add();
+                    .withTargetValue(20);
         ValidationException e = assertThrows(ValidationException.class, adder::add);
         assertEquals("Generator 'GEN': Undefined value for voltageRegulation.regulationMode", e.getMessage());
     }

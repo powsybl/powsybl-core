@@ -8,8 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
@@ -40,13 +38,8 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
 
     @Override
     public VoltageRegulation build() {
-        VoltageRegulationExt voltageRegulation = checkAndCreateVoltageRegulation();
-        voltageRegulation = this.voltageRegulationSetter.apply(voltageRegulation);
-        if (!holder.isRemoteRegulating()
-            && (!ShuntCompensator.class.equals(classHolder) || holder.isRegulating())
-            && !RatioTapChanger.class.equals(classHolder)) {
-            ValidationUtil.checkLocalTargetQandV(validable, holder.getLocalTargetV(), holder.getLocalTargetQ(), voltageRegulation, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        }
-        return voltageRegulation;
+        VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = checkAndGetVoltageRegulationAttributes();
+        ValidationUtil.checkLocalTargetQandV(validable, classHolder, holder.getLocalTargetV(), holder.getLocalTargetQ(), voltageRegulationAttributes, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        return this.voltageRegulationSetter.apply(VoltageRegulationImpl.createVoltageRegulation(validable, holder, classHolder, network, voltageRegulationAttributes));
     }
 }
