@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.math.graph.TraverseResult;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -217,22 +218,24 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         if (busbarSectionPosition == null) {
             throw new PowsyblException("No busbar section Position found on busbar" + busbarSection.getId() + ", the busbar section has not been created");
         }
-        List<SwitchKind> switchKindsBetweenExistingSectionsOnBusBar = new ArrayList<>();
+        Pair<List<SwitchKind>, List<SwitchKind>> switchKindsBetweenExistingSectionsOnBusBarPerSide = Pair.of(new ArrayList<>(), new ArrayList<>());
         if (switchKind1 != null) {
-            switchKindsBetweenExistingSectionsOnBusBar.add(switchKind1);
+            switchKindsBetweenExistingSectionsOnBusBarPerSide.getLeft().add(switchKind1);
         }
         if (switchKind2 != null) {
-            switchKindsBetweenExistingSectionsOnBusBar.add(switchKind2);
+            switchKindsBetweenExistingSectionsOnBusBarPerSide.getRight().add(switchKind2);
         }
         GetSwitchesBetweenBusBarTraverser getSwitchesBetweenBusBarTraverser = new GetSwitchesBetweenBusBarTraverser(busbarSection);
         busbarSection.getTerminal().traverse(getSwitchesBetweenBusBarTraverser);
-        getSwitchesBetweenBusBarTraverser.getSwitchesBetweenBusBarSections().forEach(switchesBetweenBusBarSection ->
-                switchKindsBetweenExistingSectionsOnBusBar.add(getSwitchKind(switchesBetweenBusBarSection)));
+        getSwitchesBetweenBusBarTraverser.getSwitchesBetweenBusBarSections().getRight().forEach(switchesBetweenBusBarSection ->
+                switchKindsBetweenExistingSectionsOnBusBarPerSide.getRight().add(getSwitchKind(switchesBetweenBusBarSection)));
+        getSwitchesBetweenBusBarTraverser.getSwitchesBetweenBusBarSections().getLeft().forEach(switchesBetweenBusBarSection ->
+                switchKindsBetweenExistingSectionsOnBusBarPerSide.getLeft().add(getSwitchKind(switchesBetweenBusBarSection)));
         if (nextSectionIndex == -1) {
             // Insert the busbar section before the first section or after the last
 
             // Create a new busbar section
-            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionsOnBusBar);
+            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionsOnBusBarPerSide);
 
             // Create new switches between busbarSection and newBusbarSection
             createSwitchesBetweenBusbarSections(voltageLevel, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1, switchOpen1);
@@ -257,7 +260,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             switchesEncountered.forEach(s -> voltageLevel.getNodeBreakerView().removeSwitch(s.getId()));
 
             // Create a new busbar section
-            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionsOnBusBar);
+            BusbarSection newBusbarSection = createBusbarSection(voltageLevel, namingStrategy, busbarSectionPosition, switchKindsBetweenExistingSectionsOnBusBarPerSide);
 
             // Create new switches between busbarSection and newBusbarSection
             createSwitchesBetweenBusbarSections(voltageLevel, busbarSection, newBusbarSection, namingStrategy, switchKind1, switchFictitious1, switchOpen1);
@@ -366,7 +369,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
     private BusbarSection createBusbarSection(VoltageLevel vl,
                                               NamingStrategy namingStrategy,
                                               BusbarSectionPosition busbarSectionPosition,
-                                              List<SwitchKind> switchKinds) {
+                                              Pair<List<SwitchKind>, List<SwitchKind>> switchKinds) {
         int busbarSectionNode = vl.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int sectionNum = isCreateTheBusbarSectionsAfterTheReferenceBusbarSection() ? busbarSectionPosition.getSectionIndex() + 1 : busbarSectionPosition.getSectionIndex() - 1;
         int busbarNum = busbarSectionPosition.getBusbarIndex();

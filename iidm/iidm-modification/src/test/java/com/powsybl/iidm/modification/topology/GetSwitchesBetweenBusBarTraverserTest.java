@@ -154,31 +154,56 @@ class GetSwitchesBetweenBusBarTraverserTest {
         BusbarSection busbarSection = network.getBusbarSection("BBS1");
         GetSwitchesBetweenBusBarTraverser traverser = new GetSwitchesBetweenBusBarTraverser(busbarSection);
         busbarSection.getTerminal().traverse(traverser);
-        List<List<String>> switchIdsBbs1 = traverser.getSwitchesBetweenBusBarSections().stream().map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList())).toList();
-        assertEquals(2, switchIdsBbs1.size());
-        assertEquals(3, switchIdsBbs1.get(0).size());
-        assertEquals(3, switchIdsBbs1.get(1).size());
-        assertTrue(switchIdsBbs1.containsAll(List.of(List.of("BBS1_DISCONNECTOR", "BBS1_BBS2_BREAKER", "BBS21_DISCONNECTOR"),
-                List.of("BBS23_DISCONNECTOR", "BBS2_BBS3_BREAKER", "BBS3_DISCONNECTOR"))));
+        List<List<Switch>> leftSwitchIdsBbs1 = traverser.getSwitchesBetweenBusBarSections()
+                .getLeft();
+        List<List<String>> rightSwitchIdsBbs1 = traverser.getSwitchesBetweenBusBarSections()
+                .getRight()
+                .stream()
+                .map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList()))
+                .toList();
+        assertTrue(leftSwitchIdsBbs1.isEmpty());
+        assertEquals(2, rightSwitchIdsBbs1.size());
+        assertEquals(3, rightSwitchIdsBbs1.get(0).size());
+        assertEquals(3, rightSwitchIdsBbs1.get(1).size());
+        assertEquals(List.of(List.of("BBS1_DISCONNECTOR", "BBS1_BBS2_BREAKER", "BBS21_DISCONNECTOR"),
+                List.of("BBS23_DISCONNECTOR", "BBS2_BBS3_BREAKER", "BBS3_DISCONNECTOR")), rightSwitchIdsBbs1);
 
         BusbarSection busbarSection2 = network.getBusbarSection("BBS2");
         GetSwitchesBetweenBusBarTraverser traverser2 = new GetSwitchesBetweenBusBarTraverser(busbarSection2);
         busbarSection2.getTerminal().traverse(traverser2);
-        List<List<String>> switchIdsBbs2 = traverser2.getSwitchesBetweenBusBarSections().stream().map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList())).toList();
-        assertEquals(2, switchIdsBbs2.size());
-        assertEquals(3, switchIdsBbs2.get(0).size());
-        assertEquals(3, switchIdsBbs2.get(1).size());
-        assertTrue(switchIdsBbs1.getFirst().containsAll(switchIdsBbs2.getFirst()));
-        assertTrue(switchIdsBbs1.get(1).containsAll(switchIdsBbs2.get(1)));
+        List<List<String>> leftSwitchIdsBbs2 = traverser2.getSwitchesBetweenBusBarSections()
+                .getLeft()
+                .stream()
+                .map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList()))
+                .toList();
+        List<List<String>> rightSwitchIdsBbs2 = traverser2.getSwitchesBetweenBusBarSections()
+                .getRight()
+                .stream()
+                .map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList()))
+                .toList();
+        assertEquals(1, leftSwitchIdsBbs2.size());
+        assertEquals(3, leftSwitchIdsBbs2.getFirst().size());
+        assertEquals(1, rightSwitchIdsBbs2.size());
+        assertEquals(3, rightSwitchIdsBbs2.getFirst().size());
+        assertEquals(List.of(List.of("BBS21_DISCONNECTOR", "BBS1_BBS2_BREAKER", "BBS1_DISCONNECTOR")), leftSwitchIdsBbs2);
+        assertEquals(List.of(List.of("BBS23_DISCONNECTOR", "BBS2_BBS3_BREAKER", "BBS3_DISCONNECTOR")), rightSwitchIdsBbs2);
 
-        BusbarSection busbarSection3 = network.getBusbarSection("BBS4");
+        BusbarSection busbarSection3 = network.getBusbarSection("BBS6");
         GetSwitchesBetweenBusBarTraverser traverser3 = new GetSwitchesBetweenBusBarTraverser(busbarSection3);
         busbarSection3.getTerminal().traverse(traverser3);
-        List<List<String>> switchIdsBbs3 = traverser3.getSwitchesBetweenBusBarSections().stream().map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList())).toList();
-        assertEquals(2, switchIdsBbs3.size());
-        assertEquals(3, switchIdsBbs3.get(0).size());
-        assertEquals(3, switchIdsBbs3.get(1).size());
-        assertTrue(switchIdsBbs3.containsAll(List.of(List.of("BBS4_DISCONNECTOR", "BBS4_BBS5_BREAKER", "BBS54_DISCONNECTOR"),
-                List.of("BBS56_DISCONNECTOR", "BBS5_BBS6_BREAKER", "BBS6_DISCONNECTOR"))));
+        List<List<String>> leftSwitchIdsBbs3 = traverser3.getSwitchesBetweenBusBarSections()
+                .getLeft()
+                .stream()
+                .map(switchList -> switchList.stream().map(Switch::getId).collect(Collectors.toList()))
+                .toList();
+        List<List<Switch>> rightSwitchIdsBbs3 = traverser3.getSwitchesBetweenBusBarSections()
+                .getRight();
+        assertTrue(rightSwitchIdsBbs3.isEmpty());
+        assertEquals(2, leftSwitchIdsBbs3.size());
+        assertEquals(3, leftSwitchIdsBbs3.get(0).size());
+        assertEquals(3, leftSwitchIdsBbs3.get(1).size());
+        assertEquals(List.of(List.of("BBS6_DISCONNECTOR", "BBS5_BBS6_BREAKER", "BBS56_DISCONNECTOR"),
+                List.of("BBS54_DISCONNECTOR", "BBS4_BBS5_BREAKER", "BBS4_DISCONNECTOR")), leftSwitchIdsBbs3);
+
     }
 }

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
@@ -49,6 +50,8 @@ public interface NamingStrategy {
     String getBusbarId(String baseId, int id1Num, int id2Num);
 
     String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num);
+
+    String getBusbarId(String baseId, Pair<List<SwitchKind>, List<SwitchKind>> switchKindList, int id1Num, int id2Num);
 
     String getBusId(String baseId);
 

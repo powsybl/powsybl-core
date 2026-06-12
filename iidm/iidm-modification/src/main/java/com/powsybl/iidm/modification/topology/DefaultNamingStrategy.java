@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.*;
 import com.google.auto.service.AutoService;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
@@ -88,6 +89,11 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public final String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num) {
+        return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num;
+    }
+
+    @Override
+    public String getBusbarId(String baseId, Pair<List<SwitchKind>, List<SwitchKind>> switchKindList, int id1Num, int id2Num) {
         return baseId + SEPARATOR + id1Num + SEPARATOR + id2Num;
     }
 
