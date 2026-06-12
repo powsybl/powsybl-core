@@ -14,10 +14,10 @@ The Scalable API in PowSyBl Core provides a flexible, composable framework for m
 - **Stack** scalable: StackScalable applies its children in order. The first child receives the full asked, the next receives the remaining unsatisfied power, and so on.
 - **Up-Down** scalable: Combines two scalables, one scalable for upward scaling, a second scalable for downward scaling 
 
-Above scalables can be composed at will. One can for example create:
+Above scalables can be composed and nested at will. One can for example create:
 - A Proportional scalable as a list of loads and associated weights
-- A Stack scalable as a list of generators and associated weights
-- A Stack scalable as a list of Proportional scalables to be applied in order
+- A Stack scalable as an ordered list of generators
+- A Stack scalable as an ordered list of Proportional scalables
 - An Up-Down scalable using a Stack scalable to be used for upward scaling and a Generator scalable for downward scaling.
 - etc...
 
@@ -81,7 +81,7 @@ Prevents Q from deviating too much from its initial value by enforcing that:
 
 Default is `null` meaning that no minimum Q rate limit is applied. Must be less than or equal to `1.0`.
 
-`loadMinQRate` is applied after [`loadMinPowerFactor`](#loadMinPowerFactor),
+`loadMinQRate` is applied after [`loadMinPowerFactor`](#loadminpowerfactor),
 ensuring that reactive power does not change excessively even when power factor limits have already been enforced.
 
 #### loadMaxQRate
@@ -94,7 +94,7 @@ Prevents Q from deviating too much from its initial value by enforcing that:
 
 Default is `null` meaning that no maximum Q rate limit is applied. Must be greater than or equal to `1.0`.
 
-`loadMaxQRate` is applied after [`loadMinPowerFactor`](#loadMinPowerFactor),
+`loadMaxQRate` is applied after [`loadMinPowerFactor`](#loadminpowerfactor),
 ensuring that reactive power does not change excessively even when power factor limits have already been enforced.
 
 ## Topology modifications
