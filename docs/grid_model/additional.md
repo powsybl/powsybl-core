@@ -75,7 +75,13 @@ They may be set for [lines](./network_subnetwork.md#line), [boundary lines](./ne
 [tie lines](./network_subnetwork.md#tie-line) (via their boundary lines), [two-winding transformers](./network_subnetwork.md#two-winding-transformer)
 and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
 
-Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
+### High loading limits
+
+```{note}
+High loading limits is the only kind of limit that is currently serialized and fully supported by downstream projects.
+```
+
+High loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
 The permanent limit sets the current, active power or apparent power absolute value under which the equipment can safely
 be operated for any duration.
 The temporary limits can be used to define higher current, active power or apparent power limitations corresponding
@@ -84,7 +90,7 @@ A temporary limit thus has an **acceptable duration**.
 
 The component on which the current limits are applied can safely remain
 between the preceding limit (it could be another temporary limit or a permanent limit) and this limit for a duration up to the acceptable duration.
-Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all loading limits):
+Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all high loading limits):
 
 ![Loading limits model](img/current-limits.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits.svg){width="50%" align=center class="only-dark"}
@@ -92,6 +98,27 @@ Please look at this scheme to fully understand the modeling (the following examp
 Note that, following this modeling, in general, the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero.
 If temporary limits are modeled, the permanent limit becomes mandatory.
 If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
+
+### Low loading limits
+
+```{note}
+Currently, this model is in BETA and only available in the IIDM representation. There is no import or export of this kind of limit with any
+exchange format.
+The model is subject to change and support for downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.) may vary.
+Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
+
+If you're unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html)
+```
+
+Low loading limits are defined by one or more temporary limits. Contrary to high loading limits, low loading limits
+do not have a permanent limit.
+
+The component on which the current limits are applied can safely remain
+at a given level for a duration up to the acceptable duration of the limit directly below the given level.
+Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all low loading limits):
+
+![Loading limits model](img/current-limits-low.svg){width="50%" align=center class="only-light"}
+![Loading limits model](img/dark_mode/current-limits-low.svg){width="50%" align=center class="only-dark"}
 
 (limit-group-collection)=
 ### Limit group collection
