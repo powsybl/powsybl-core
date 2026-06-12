@@ -27,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractSecondaryVoltageControlTest {
 
-    public Network network;
+    private Network network;
 
-    public SecondaryVoltageControl control;
+    private SecondaryVoltageControl control;
 
     @BeforeEach
     public void setUp() {
@@ -202,5 +202,11 @@ public abstract class AbstractSecondaryVoltageControlTest {
 
         assertEquals(List.of("NLOAD_NEW_ID"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
         assertEquals("GEN_NEW_ID", z1.getControlUnits().get(0).getId());
+        assertEquals(2, z1.getControlUnits().size());
+
+        network.getGenerator("GEN_NEW_ID").remove();
+
+        assertEquals("GEN2", z1.getControlUnits().get(0).getId());
+        assertEquals(1, z1.getControlUnits().size());
     }
 }
