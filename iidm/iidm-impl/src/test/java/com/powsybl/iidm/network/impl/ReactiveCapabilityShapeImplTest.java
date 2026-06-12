@@ -9,8 +9,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveCapabilityShape;
+import com.powsybl.iidm.network.ReactiveCapabilityShapeAdder;
 import com.powsybl.iidm.network.ReactiveCapabilityShapePlane;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.Relationship;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
@@ -159,6 +164,67 @@ class ReactiveCapabilityShapeImplTest {
         // If P = 130, contrainte wrong => Q + 130 ≤ 120 -> Q ≤ -10.
         double q = poly.getOptimalQ(130.0, GoalType.MAXIMIZE, null);
         assertEquals(-10.0, q, DELTA);
+    }
+
+    @Test
+    void testProperties() {
+        // Test that ReactiveCapabilityShape supports properties
+        assertFalse(shape.hasProperty());
+
+        String key = "testKey";
+        String value = "testValue";
+        String oldValue = shape.setProperty(key, value);
+        assertNull(oldValue);
+        assertTrue(shape.hasProperty());
+        assertTrue(shape.hasProperty(key));
+        assertEquals(value, shape.getProperty(key));
+        assertEquals(value, shape.getProperty(key, "default"));
+
+        // Test updating property
+        String newValue = "newValue";
+        oldValue = shape.setProperty(key, newValue);
+        assertEquals(value, oldValue);
+        assertEquals(newValue, shape.getProperty(key));
+
+        // Test removing property
+        assertTrue(shape.removeProperty(key));
+        assertFalse(shape.hasProperty());
+        assertFalse(shape.hasProperty(key));
+        assertNull(shape.getProperty(key));
+        assertEquals("default", shape.getProperty(key, "default"));
+    }
+
+    @Test
+    void testAdderProperties() {
+        // Test that ReactiveCapabilityShapeAdder supports properties
+        Network network = FictitiousSwitchFactory.create();
+        Generator generator = network.getGenerator("CB");
+
+        ReactiveCapabilityShapeAdder adder = generator.newReactiveCapabilityShape();
+
+        // Test adder properties
+        assertFalse(adder.hasProperty());
+
+        String key = "testKey";
+        String value = "testValue";
+        String oldValue = adder.setProperty(key, value);
+        assertNull(oldValue);
+        assertTrue(adder.hasProperty());
+        assertTrue(adder.hasProperty(key));
+        assertEquals(value, adder.getProperty(key));
+        assertEquals(value, adder.getProperty(key, "default"));
+
+        // Test updating property
+        String newValue = "newValue";
+        oldValue = adder.setProperty(key, newValue);
+        assertEquals(value, oldValue);
+        assertEquals(newValue, adder.getProperty(key));
+
+        // Test that properties are copied to the created shape
+        adder.addPlane(0.0, 0.0, 1.0, false, 100.0);
+        ReactiveCapabilityShape shape = adder.add();
+        assertTrue(shape.hasProperty(key));
+        assertEquals(newValue, shape.getProperty(key));
     }
 
 }

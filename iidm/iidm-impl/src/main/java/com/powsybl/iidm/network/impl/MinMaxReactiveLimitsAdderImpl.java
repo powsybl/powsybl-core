@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.ValidationException;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> implements MinMaxReactiveLimitsAdder {
+class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> extends AbstractPropertiesHolder implements MinMaxReactiveLimitsAdder {
 
     private final O owner;
 
@@ -52,6 +52,7 @@ class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> i
             throw new ValidationException(owner, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
         }
         MinMaxReactiveLimitsImpl limits = new MinMaxReactiveLimitsImpl(minQ, maxQ);
+        this.copyPropertiesTo(limits);
         owner.setReactiveLimits(limits);
         return limits;
     }

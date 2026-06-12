@@ -15,7 +15,7 @@ import java.util.ArrayList;
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at rte-france.com>}
  */
-class ReactiveCapabilityShapeAdderImpl<O extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityShapeAdder {
+class ReactiveCapabilityShapeAdderImpl<O extends ReactiveLimitsOwner & Validable> extends AbstractPropertiesHolder implements ReactiveCapabilityShapeAdder {
 
     private final O owner;
 
@@ -36,6 +36,7 @@ class ReactiveCapabilityShapeAdderImpl<O extends ReactiveLimitsOwner & Validable
             throw new ValidationException(owner, "a reactive capability shape should not have an empty polyhedron");
         }
         ReactiveCapabilityShapeImpl shape = ReactiveCapabilityShapeImpl.build(polyhedron);
+        this.copyPropertiesTo(shape);
         owner.setReactiveLimits(shape);
         return shape;
     }

@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,5 +165,121 @@ public abstract class AbstractReactiveCapabilityCurveTest {
             assertEquals(copiedPoint.getMaxQ(), pastedPoint.get().getMaxQ());
         });
 
+    }
+
+    @Test
+    public void testProperties() {
+        ReactiveCapabilityCurve curve = generator.newReactiveCapabilityCurve()
+                .beginPoint()
+                    .setP(1.0)
+                    .setMinQ(1.0)
+                    .setMaxQ(5.0)
+                .endPoint()
+                .beginPoint()
+                    .setP(2.0)
+                    .setMinQ(2.0)
+                    .setMaxQ(10.0)
+                .endPoint()
+                .add();
+
+        // Test that ReactiveCapabilityCurve supports properties
+        assertFalse(curve.hasProperty());
+
+        String key = "testKey";
+        String value = "testValue";
+        String oldValue = curve.setProperty(key, value);
+        assertNull(oldValue);
+        assertTrue(curve.hasProperty());
+        assertTrue(curve.hasProperty(key));
+        assertEquals(value, curve.getProperty(key));
+        assertEquals(value, curve.getProperty(key, "default"));
+
+        // Test updating property
+        String newValue = "newValue";
+        oldValue = curve.setProperty(key, newValue);
+        assertEquals(value, oldValue);
+        assertEquals(newValue, curve.getProperty(key));
+
+        // Test removing property
+        assertTrue(curve.removeProperty(key));
+        assertFalse(curve.hasProperty());
+        assertFalse(curve.hasProperty(key));
+        assertNull(curve.getProperty(key));
+        assertEquals("default", curve.getProperty(key, "default"));
+    }
+
+    @Test
+    public void testPointProperties() {
+        ReactiveCapabilityCurve curve = generator.newReactiveCapabilityCurve()
+                .beginPoint()
+                    .setP(1.0)
+                    .setMinQ(1.0)
+                    .setMaxQ(5.0)
+                .endPoint()
+                .beginPoint()
+                    .setP(2.0)
+                    .setMinQ(2.0)
+                    .setMaxQ(10.0)
+                .endPoint()
+                .add();
+
+        // Test that ReactiveCapabilityCurve.Point supports properties
+        ReactiveCapabilityCurve.Point point = curve.getPoints().iterator().next();
+        assertFalse(point.hasProperty());
+
+        String key = "testKey";
+        String value = "testValue";
+        String oldValue = point.setProperty(key, value);
+        assertNull(oldValue);
+        assertTrue(point.hasProperty());
+        assertTrue(point.hasProperty(key));
+        assertEquals(value, point.getProperty(key));
+        assertEquals(value, point.getProperty(key, "default"));
+
+        // Test updating property
+        String newValue = "newValue";
+        oldValue = point.setProperty(key, newValue);
+        assertEquals(value, oldValue);
+        assertEquals(newValue, point.getProperty(key));
+
+        // Test removing property
+        assertTrue(point.removeProperty(key));
+        assertFalse(point.hasProperty());
+        assertFalse(point.hasProperty(key));
+        assertNull(point.getProperty(key));
+        assertEquals("default", point.getProperty(key, "default"));
+    }
+
+    @Test
+    public void testAdderProperties() {
+        // Test that ReactiveCapabilityCurveAdder supports properties
+        ReactiveCapabilityCurveAdder adder = generator.newReactiveCapabilityCurve()
+                .beginPoint()
+                    .setP(1.0)
+                    .setMinQ(1.0)
+                    .setMaxQ(5.0)
+                .endPoint()
+                .beginPoint()
+                    .setP(2.0)
+                    .setMinQ(2.0)
+                    .setMaxQ(10.0)
+                .endPoint();
+
+        // Test adder properties
+        assertFalse(adder.hasProperty());
+
+        String key = "testKey";
+        String value = "testValue";
+        String oldValue = adder.setProperty(key, value);
+        assertNull(oldValue);
+        assertTrue(adder.hasProperty());
+        assertTrue(adder.hasProperty(key));
+        assertEquals(value, adder.getProperty(key));
+        assertEquals(value, adder.getProperty(key, "default"));
+
+        // Test that properties are copied to the created curve
+        ReactiveCapabilityCurve curve = adder.add();
+        assertTrue(curve.hasProperty(key));
+        assertEquals(value, curve.getProperty(key));
     }
 }

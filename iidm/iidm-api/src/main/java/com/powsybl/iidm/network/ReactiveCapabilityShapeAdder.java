@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
-public interface ReactiveCapabilityShapeAdder {
+public interface ReactiveCapabilityShapeAdder extends PropertiesHolder {
 
     /**
      * Add the reactive capability shape to the element
