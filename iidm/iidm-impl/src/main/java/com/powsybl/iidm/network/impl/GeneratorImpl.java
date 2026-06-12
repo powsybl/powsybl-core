@@ -230,6 +230,15 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         ValidationUtil.checkDoublePositive(this, targetV, "targetV");
         int variantIndex = n.getVariantIndex();
         double oldValueTargetV = this.localTargetV.set(variantIndex, targetV);
+        if (voltageRegulation != null) {
+            if (isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+                getVoltageRegulation().setTargetValue(targetV);
+            } else {
+                setLocalTargetV(targetV);
+            }
+        } else {
+            setLocalTargetV(targetV);
+        }
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetV", variantId, oldValueTargetV, targetV);
         return this;
