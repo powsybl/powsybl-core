@@ -50,6 +50,18 @@ and `BRANCH_CURRENT_1/2/3` will be filtered from the analysis results.
 
 The default value is `0.0`.
 
+(param-sensi-operator-strategies-calculation-mode)=
+### operator-strategies-calculation-mode
+
+The `operator-strategies-calculation-mode` represents the calculation mode used for operator strategies sensitivities.
+
+The possible values are:
+- `NONE`: deactivate calculation of operator strategies sensitivities and only calculate N and N-K sensitivities
+- `ALL_CONTINGENCIES`: calculate operator strategies for all contingencies in addition to N, N-K sensitivities
+- `ONLY_OPERATOR_STRATEGIES`: only calculate operator strategies sensitivities and skip N and N-K sensitivities
+
+The default value is `NONE`.
+
 (param-sensi-debug-dir)=
 ### debug-dir
 This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
