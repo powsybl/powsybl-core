@@ -7,6 +7,8 @@
  */
 package com.powsybl.security.limitreduction.result;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import com.powsybl.iidm.network.util.UnsupportedPropertiesHolder;
@@ -21,6 +23,7 @@ import java.util.TreeMap;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractReducedLoadingLimits extends UnsupportedPropertiesHolder implements LoadingLimits {
+    private final DetectionKind detectionKind;
     private final double permanentLimit;
     private final double originalPermanentLimit;
     private final double permanentLimitReduction;
@@ -78,6 +81,15 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
 
     protected AbstractReducedLoadingLimits(double permanentLimit, double originalPermanentLimit,
                                            double permanentLimitReduction) {
+        this(DetectionKind.HIGH, permanentLimit, originalPermanentLimit, permanentLimitReduction);
+    }
+
+    protected AbstractReducedLoadingLimits() {
+        this(DetectionKind.LOW, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    private AbstractReducedLoadingLimits(DetectionKind detectionKind, double permanentLimit, double originalPermanentLimit, double permanentLimitReduction) {
+        this.detectionKind = detectionKind;
         this.permanentLimit = permanentLimit;
         this.originalPermanentLimit = originalPermanentLimit;
         this.permanentLimitReduction = permanentLimitReduction;
@@ -90,16 +102,28 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
     }
 
     @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
+    }
+
+    @Override
     public double getPermanentLimit() {
-        return permanentLimit;
+        return getValueOrThrowDetectionKind(permanentLimit);
     }
 
     public double getOriginalPermanentLimit() {
-        return originalPermanentLimit;
+        return getValueOrThrowDetectionKind(originalPermanentLimit);
     }
 
     public double getPermanentLimitReduction() {
-        return permanentLimitReduction;
+        return getValueOrThrowDetectionKind(permanentLimitReduction);
+    }
+
+    private double getValueOrThrowDetectionKind(double value) {
+        return switch (getDetectionKind()) {
+            case HIGH -> value;
+            case LOW -> throw new PowsyblException("There is no permanent limit for a detection kind LOW");
+        };
     }
 
     @Override

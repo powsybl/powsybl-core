@@ -7,7 +7,6 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,7 +117,7 @@ class NodeConverter extends AbstractConverter {
                 int outOfService = connectedObj.findIntAttributeValue("outserv").orElse(0);
                 int referenceNode = createNodeSwitchAndInternalConnection(vl, node, staCubic, connectedObj.getDataClassName().equals("ElmCoup"),
                     connectedObj.getLocName(), outOfService == 1);
-                mapConnectedObjToNode(vl, referenceNode, busIndexIn, connectedObj);
+                mapConnectedObj(vl, referenceNode, busIndexIn, staCubic, connectedObj);
             }
         }
     }
@@ -153,11 +152,6 @@ class NodeConverter extends AbstractConverter {
         }
 
         return referenceNode;
-    }
-
-    private void mapConnectedObjToNode(VoltageLevel vl, int node, int busIndexIn, DataObject connectedObj) {
-        getImportContext().objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
-            .add(new NodeRef(vl.getId(), node, busIndexIn));
     }
 
     private static final class NodeModel {

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.AbstractBasePropertiesHolder;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import org.junit.jupiter.api.Test;
@@ -116,6 +117,7 @@ class LoadingLimitsUtilTest {
         private final String ownerId;
         private final List<TemporaryLimitToCreate> temporaryLimitToCreateList;
         private double permanentLimit;
+        private DetectionKind detectionKind;
 
         public LimitsAdder(String ownerId, double permanentLimit, List<TemporaryLimitToCreate> temporaryLimitToCreateList) {
             this.ownerId = ownerId;
@@ -130,6 +132,13 @@ class LoadingLimitsUtilTest {
         @Override
         public A setPermanentLimit(double limit) {
             this.permanentLimit = limit;
+            this.detectionKind = DetectionKind.HIGH;
+            return (A) this;
+        }
+
+        @Override
+        public A setDetectionKind(DetectionKind detectionKind) {
+            this.detectionKind = detectionKind;
             return (A) this;
         }
 
@@ -141,6 +150,11 @@ class LoadingLimitsUtilTest {
         @Override
         public double getPermanentLimit() {
             return this.permanentLimit;
+        }
+
+        @Override
+        public DetectionKind getDetectionKind() {
+            return detectionKind;
         }
 
         @Override

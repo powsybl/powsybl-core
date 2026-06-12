@@ -151,6 +151,14 @@ Using this will result in a smaller serialized file.
 
 By default, this is set to `false`, all groups are exported.
 
+**iidm.export.xml.force-export-network-with-beta-features**<br>
+The `iidm.export.xml.force-export-network-with-beta-features` property is an optional property that defines the behavior of the IIDM exporter when exporting a network containing beta features that do not have a serialization support yet.
+There are two possible behaviors:
+- `false`, if the exporter encounters a beta element that cannot be serialized, the export will immediately stop and throw an error.
+- `true`, the export will skip beta elements that cannot be serialized. Be aware that this might result in an unreadable network.
+
+By default, this is set to `false`.
+
 ### Removed properties
 
 **iidm.export.xml.export-mode**<br>

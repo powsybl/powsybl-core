@@ -320,6 +320,46 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
                 bus.getConnectedTerminalStream().anyMatch(terminal -> terminal.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION));
     }
 
+    @Test
+    void twoWindingsTransformerVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerVoltageControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerReactivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerReactivePowerControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerActivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerActivePowerControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerVoltageControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerReactivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerReactivePowerControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerActivePowerControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerActivePowerControl"));
+    }
+
+    @Test
+    void twoWindingsTransformerSharedVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("TwoWindingsTransformerSharedVoltageControl"));
+    }
+
+    @Test
+    void threeWindingsTransformerSharedVoltageControlTest() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerSharedVoltageControl"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
@@ -514,7 +554,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         BranchData t2wtData41 = new BranchData(t2wt41, 0.0, false, true);
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
-        // The case does not have the reactive of the generator. We set it manually
+        // The case does not have the reactive power of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
@@ -567,6 +607,9 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         importAndCompareXml("MTDC-2-VSC-ACDC-links", ".dgs", importParams);
         importAndCompareXml("MTDC-2-VSC", ".dgs", importParams);
         importAndCompareXml("MTDC-ElmGndswt", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_no-type", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_TypSwitch", ".dgs", importParams);
+        importAndCompareXml("MTDC-ElmCoup_ACDC", ".dgs", importParams);
     }
 
     private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {
@@ -607,7 +650,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         BranchData t2wtData57 = new BranchData(t2wt57, 0.0, false, true);
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
-        // The case does not have the reactive of the generator. We set it manually
+        // The case does not have the reactive power of the generator. We set it manually
         generator2.setTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(ThreeSides.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
