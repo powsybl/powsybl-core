@@ -36,8 +36,8 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
 
     private String connectableBus2;
 
-    protected double minP = Double.NEGATIVE_INFINITY;
-    protected double maxP = Double.POSITIVE_INFINITY;
+    protected double minP = -Double.MAX_VALUE;
+    protected double maxP = Double.MAX_VALUE;
     protected double idleLoss = 0.;
     protected double switchingLoss = 0.;
     protected double resistiveLoss = 0.;

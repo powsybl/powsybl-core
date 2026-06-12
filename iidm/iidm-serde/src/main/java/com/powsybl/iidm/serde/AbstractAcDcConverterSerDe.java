@@ -38,10 +38,10 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         context.getWriter().writeEnumAttribute("controlMode", converter.getControlMode());
         context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
         context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
-        if (converter.getMinP() != Double.NEGATIVE_INFINITY) {
+        if (converter.getMinP() != -Double.MAX_VALUE) {
             throw new PowsyblException(getRootElementName() + " '" + converter.getId() + "': minP serialization is not yet supported");
         }
-        if (converter.getMaxP() != Double.POSITIVE_INFINITY) {
+        if (converter.getMaxP() != Double.MAX_VALUE) {
             throw new PowsyblException(getRootElementName() + " '" + converter.getId() + "': maxP serialization is not yet supported");
         }
 

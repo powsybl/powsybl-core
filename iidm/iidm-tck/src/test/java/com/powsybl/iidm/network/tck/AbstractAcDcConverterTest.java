@@ -899,8 +899,8 @@ public abstract class AbstractAcDcConverterTest {
     }
 
     private void checkMinMaxPDefaults(AcDcConverter<?> converter) {
-        assertEquals(Double.NEGATIVE_INFINITY, converter.getMinP());
-        assertEquals(Double.POSITIVE_INFINITY, converter.getMaxP());
+        assertEquals(-Double.MAX_VALUE, converter.getMinP());
+        assertEquals(Double.MAX_VALUE, converter.getMaxP());
     }
 
     private void checkMinMaxPSetter(AcDcConverter<?> converter) {
