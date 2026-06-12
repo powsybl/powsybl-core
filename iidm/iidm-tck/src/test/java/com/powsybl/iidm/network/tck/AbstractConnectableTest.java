@@ -320,9 +320,9 @@ public abstract class AbstractConnectableTest {
 
         // disconnect the already fully disconnected line 1
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("reportTest")
-                .build();
+            .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("reportTest")
+            .build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line1.disconnect());
         network.getReportNodeContext().popReportNode();
@@ -373,9 +373,9 @@ public abstract class AbstractConnectableTest {
 
         // connect the already fully connected line 2
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("reportTest")
-                .build();
+            .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("reportTest")
+            .build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line2.connect());
         network.getReportNodeContext().popReportNode();
@@ -467,32 +467,28 @@ public abstract class AbstractConnectableTest {
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("VscFr");
 
         // Check vsc is fully connected
-        assertTrue(vsc.getTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal2().isConnected());
+        assertConverterStatus(true, vsc);
 
         // Disconnect vsc, which should return true
         assertTrue(vsc.disconnect());
-        assertFalse(vsc.getTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal1().isConnected()); // DC side is not modified
-        assertTrue(vsc.getDcTerminal2().isConnected());
+        assertConverterStatus(false, vsc);
 
         // Disconnect vsc again, which should return False
         assertFalse(vsc.disconnect());
-        assertFalse(vsc.getTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal2().isConnected());
+        assertConverterStatus(false, vsc);
 
         // Connect vsc, which should return true
         assertTrue(vsc.connect());
-        assertTrue(vsc.getTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal2().isConnected());
+        assertConverterStatus(true, vsc);
 
         // Connect vsc again, which should return False
         assertFalse(vsc.connect());
-        assertTrue(vsc.getTerminal1().isConnected());
-        assertTrue(vsc.getDcTerminal1().isConnected());
+        assertConverterStatus(true, vsc);
+    }
+
+    private void assertConverterStatus(boolean expectedAcStatus, VoltageSourceConverter vsc) {
+        assertEquals(expectedAcStatus, vsc.getTerminal1().isConnected());
+        assertTrue(vsc.getDcTerminal1().isConnected()); // DC side is not modified
         assertTrue(vsc.getDcTerminal2().isConnected());
     }
 }

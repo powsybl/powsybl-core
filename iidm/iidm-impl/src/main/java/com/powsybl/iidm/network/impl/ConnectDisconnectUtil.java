@@ -44,8 +44,8 @@ public final class ConnectDisconnectUtil {
         boolean isAlreadyConnected = true;
         boolean isNowConnected = true;
 
-        // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+        // Initialisation of a list to close in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForConnection = new HashSet<>();
 
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
@@ -60,7 +60,7 @@ public final class ConnectDisconnectUtil {
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal.getVoltageLevel().getTopologyKind() == NODE_BREAKER) {
                 NodeBreakerTopologyModel topologyModel = (NodeBreakerTopologyModel) ((VoltageLevelImpl) terminal.getVoltageLevel()).getTopologyModel();
-                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+                isNowConnected = topologyModel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForConnection);
             }
             // If it's a bus-breaker terminal, there is nothing to do
 
@@ -84,8 +84,8 @@ public final class ConnectDisconnectUtil {
             }
         }
 
-        // Disconnect all switches on node-breaker terminals
-        switchForDisconnection.forEach(sw -> sw.setOpen(false));
+        // Connect all switches on node-breaker terminals
+        switchForConnection.forEach(sw -> sw.setOpen(false));
         return isNowConnected;
     }
 
