@@ -11,12 +11,14 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -348,12 +350,19 @@ public final class IidmSerDeUtil {
     public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
         Objects.requireNonNull(identifiables);
         Objects.requireNonNull(exportOptions);
-        Comparator<Identifiable> comparator = exportOptions.isSorted()
-                ? Comparator.comparing(Identifiable::getId)
-                : Comparator.comparing(Identifiable::getSortIndex);
-        return StreamSupport.stream(identifiables.spliterator(), false)
-                .sorted(comparator)
-                .collect(Collectors.toList());
+
+        List<T> listIdentifiables = StreamSupport.stream(identifiables.spliterator(), false).collect(Collectors.toList());
+        if (listIdentifiables.isEmpty()) {
+            return listIdentifiables;
+        }
+        Network n = listIdentifiables.getFirst().getNetwork();
+
+        if (exportOptions.isSorted() || n.getIdentifiableNaturalOrderComparator().isPresent()) {
+            listIdentifiables.sort(exportOptions.isSorted()
+                    ? Comparator.comparing(Identifiable::getId)
+                    : n.getIdentifiableNaturalOrderComparator().get());
+        }
+        return listIdentifiables;
     }
 
     /**
