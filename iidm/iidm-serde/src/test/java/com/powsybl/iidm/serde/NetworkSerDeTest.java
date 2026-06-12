@@ -128,6 +128,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
             case TWO -> line.getOperationalLimitsGroups2().size();
         };
         assertEquals(0, allGroupsSize - line.getAllSelectedOperationalLimitsGroups(side).size());
+    }
+
+    @Test
     void checkNoExportOfLowLimits() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
