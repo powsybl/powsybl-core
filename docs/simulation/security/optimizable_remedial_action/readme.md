@@ -19,9 +19,17 @@ We want to standardize this interface.
 
 # Examples
 
+We will provide examples in two ways:
+- inspired by real optimizable operator strategies
+- to justify some design choices
+
+## Trying to use real optimizable operator strategies with this model
+
+## Design choices
+
 In the next section, we will provide examples that justify our design choices.
 
-## Application delay
+### Application delay
 
 The application delay allows simulating chronologically ordered events.
 
@@ -35,6 +43,9 @@ In fact, thresholds vary depending on the time after the contingency.
 We might also have a limited range of possible set points due to the physical constraints of the system.  
 Furthermore, some range actions might take some time to be applied.  
 This delay can be a response time or an operator application time, for example.
+
+### Ranges
+
 
 # Known model limitations
 
@@ -56,7 +67,7 @@ extension-based design.
 - (P1) Choose how to extend our model across multiple repositories?
 - (P1) Redispatching needs saturation and merit order. How to manage non-linearities?
 - (P2) How to add GLSK support?
-- (P3) Check which UML formats readthedocs supports (puml, mermaid ?
+- (P3) Check which UML formats readthedocs supports (puml, mermaid ?, ...)
 - Finish writing doc
 - expliciter is Relative 
 
@@ -77,7 +88,7 @@ It will have a step value of 1 and a non-relative range of 0-33.
 If you want to optimize around the current position, you will need to set a relative range of -10 to 10 for example.
 
 Now, let's consider a set of coupled PSTs.
-The idea is that those PSTs must be on the same position at all time.
+The idea is that those PSTs must be in the same position at all times.
 This is possible with `rangeActionsAndKeys` of 1 for each range action `PhaseTapChangerTapPositionRangeAction`.
 
 It is possible to optimize without forcing integer values.
