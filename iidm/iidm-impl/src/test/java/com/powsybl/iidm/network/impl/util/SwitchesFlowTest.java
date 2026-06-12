@@ -7,11 +7,11 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import java.time.ZonedDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.EnergySource;
