@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.util.ModificationLogs;
@@ -157,6 +158,10 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         if (createPositionExtensionForNewLine && topologyKind == TopologyKind.NODE_BREAKER) {
             if (positionForNewLine == null) {
                 createPositionExtensionForNewLine(reportNode, line, twoSides, "core.iidm.modification.voltageConnectedOnLineMissingPosition");
+                return;
+            }
+            if (TopologyModificationUtils.getFeederPositions(voltageLevel).contains(positionForNewLine)) {
+                positionOrderAlreadyTakenReport(reportNode, positionForNewLine, TypedValue.WARN_SEVERITY);
                 return;
             }
             ConnectablePositionAdder<?> positionAdder = line.newExtension(ConnectablePositionAdder.class);
