@@ -59,6 +59,7 @@ public final class ConnectableSerDeUtil {
     static final String PROPERTY = "property";
     static final String SELECTED_GROUP_ID = "selectedOperationalLimitsGroupId";
     static final String ALL_SELECTED_GROUP_IDS = "selectedOperationalLimitsGroupIds";
+    static final String DETECTION_KIND = "detectionKind";
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -329,30 +330,63 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (limits != null) {
-            if (limits.getDetectionKind() == DetectionKind.LOW) {
-                if (!exportOptions.isForceExportNetworkWithBetaFeatures()) {
-                    throw new NotImplementedException("The network contains low limits, export of this kind of limit is not yet supported. " +
-                        "To force the export of the network and ignore those limits, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
-                        "or ExportOptions.setForceExportNetworkWithBetaFeatures");
-                }
-            } else if (!Double.isNaN(limits.getPermanentLimit()) || !limits.getTemporaryLimits().isEmpty()) {
-                writer.writeStartNode(nsUri, type + indexToString(index));
-                writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
-                writer.writeStartNodes();
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
-                for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                    writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                    writer.writeStringAttribute("name", tl.getName());
-                    writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
-                    writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
-                    writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
-                    writer.writeEndNode();
+            throwBetaLowLimit(limits, exportOptions);
+
+            if (!limits.getTemporaryLimits().isEmpty()) {
+                if (writeLowHighLimitAttributes(index, limits, writer, nsUri, exportOptions, type)) {
+                    writer.writeStartNodes();
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
+                    for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
+                        writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
+                        writer.writeStringAttribute("name", tl.getName());
+                        writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
+                        writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
+                        writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
+                        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
+                        writer.writeEndNode();
+                    }
                 }
                 writer.writeEndNodes();
                 writer.writeEndNode();
             }
         }
+    }
+
+    private static <L extends LoadingLimits> boolean writeLowHighLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
+        Boolean[] canContinueWriting = {true};
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
+            if (!Double.isNaN(limits.getPermanentLimit())) {
+                writer.writeStartNode(nsUri, type + indexToString(index));
+                writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+            } else {
+                canContinueWriting[0] = false;
+            }
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, exportOptions.getVersion(), () -> {
+            if (limits.getDetectionKind() == DetectionKind.HIGH) {
+                if (!Double.isNaN(limits.getPermanentLimit())) {
+                    writer.writeStartNode(nsUri, type + indexToString(index));
+                    writer.writeStringAttribute(DETECTION_KIND, "HIGH");
+                    writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+                } else {
+                    canContinueWriting[0] = false;
+                }
+            } else {
+                writer.writeStartNode(nsUri, type + indexToString(index));
+                writer.writeStringAttribute(DETECTION_KIND, "LOW");
+            }
+        });
+        return canContinueWriting[0];
+    }
+
+    private static <L extends LoadingLimits> void throwBetaLowLimit(L limits, ExportOptions exportOptions) {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
+            if (limits.getDetectionKind() == DetectionKind.LOW && !exportOptions.isForceExportNetworkWithBetaFeatures()) {
+                throw new NotImplementedException("The network contains low limits, export of this kind of limit is not yet supported. " +
+                    "To force the export of the network and ignore those limits, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
+                    "or ExportOptions.setForceExportNetworkWithBetaFeatures");
+            }
+        });
     }
 
     static void writeSelectedGroupId(Integer index, String defaultId, TreeDataWriter writer) {
