@@ -79,7 +79,7 @@ sensitivity-analysis-default-parameters:
   voltage-voltage-sensitivity-value-threshold: 0.1
   angle-flow-sensitivity-value-threshold: 0.1
   sensitivity-operator-strategies-calculation-mode: ONLY_OPERATOR_STRATEGIES
-  debugDir: /tmp/debugDir
+  debug-dir: /tmp/debugDir
 ```
 
 **XML configuration:**
@@ -90,6 +90,6 @@ sensitivity-analysis-default-parameters:
   <voltage-voltage-sensitivity-value-threshold>0.1</voltage-voltage-sensitivity-value-threshold>
   <angle-flow-sensitivity-value-threshold>0.1</angle-flow-sensitivity-value-threshold>
   <sensitivity-operator-strategies-calculation-mode>ONLY_OPERATOR_STRATEGIES</sensitivity-operator-strategies-calculation-mode>
-  <debugDir>/tmp/debugDir</debugDir>
+  <debug-dir>/tmp/debugDir</debug-dir>
 </sensitivity-analysis-default-parameters>
 ```

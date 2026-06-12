@@ -246,7 +246,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
             moduleConfig.setStringProperty("voltage-voltage-sensitivity-value-threshold", "0.3");
             moduleConfig.setStringProperty("angle-flow-sensitivity-value-threshold", "0.4");
             moduleConfig.setStringProperty("sensitivity-operator-strategies-calculation-mode", "ONLY_OPERATOR_STRATEGIES");
-            moduleConfig.setStringProperty("debugDir", debugDir);
+            moduleConfig.setStringProperty("debug-dir", debugDir);
 
             SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load(platformConfig);
             assertEquals(0.1, parameters.getFlowFlowSensitivityValueThreshold(), EPS);
