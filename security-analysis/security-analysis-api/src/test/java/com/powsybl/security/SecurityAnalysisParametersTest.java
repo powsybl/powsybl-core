@@ -69,7 +69,7 @@ class SecurityAnalysisParametersTest {
             moduleConfig.setStringProperty("increased-low-voltage-violations-absolute-threshold", "20");
             moduleConfig.setStringProperty("increased-high-voltage-violations-absolute-threshold", "25");
             moduleConfig.setStringProperty("intermediate-results-in-operator-strategy", "true");
-            moduleConfig.setStringProperty("debugDir", debugDir);
+            moduleConfig.setStringProperty("debug-dir", debugDir);
 
             SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(platformConfig);
             assertEquals(0.3, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);

@@ -24,5 +24,5 @@
   "flow-voltage-sensitivity-value-threshold" : 0.0,
   "angle-flow-sensitivity-value-threshold" : 0.0,
   "operator-strategies-calculation-mode" : "ONLY_OPERATOR_STRATEGIES",
-  "debugDir" : "/tmp/debugDir"
+  "debug-dir" : "/tmp/debugDir"
 }

@@ -51,7 +51,7 @@ and `BRANCH_CURRENT_1/2/3` will be filtered from the analysis results.
 The default value is `0.0`.
 
 (param-sensi-debug-dir)=
-### debugDir
+### debug-dir
 This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 The default value is `null`.

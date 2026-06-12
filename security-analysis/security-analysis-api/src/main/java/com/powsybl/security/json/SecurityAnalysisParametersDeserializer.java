@@ -72,7 +72,7 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     parser.nextToken();
                     parameters.setIntermediateResultsInOperatorStrategy(parser.getValueAsBoolean());
                     break;
-                case "debugDir":
+                case "debug-dir":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.3");
                     parser.nextToken();
                     parameters.setDebugDir(parser.readValueAs(String.class));

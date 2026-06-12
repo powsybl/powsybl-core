@@ -13,7 +13,7 @@
     "voltage-modification-absolute-threshold" : 10.0
   },
   "intermediate-results-in-operator-strategy" : true,
-  "debugDir" : "/tmp/debugDir",
+  "debug-dir" : "/tmp/debugDir",
   "load-flow-parameters" : {
     "version" : "1.11",
     "voltageInitMode" : "UNIFORM_VALUES",

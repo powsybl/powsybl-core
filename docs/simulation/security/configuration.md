@@ -94,7 +94,7 @@ limit-violation-default-filter:
 ```
 
 (param-secu-debug-dir)=
-### debugDir
+### debug-dir
 This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
 The default value is `null`.
@@ -110,7 +110,7 @@ security-analysis-default-parameters:
   increased-high-voltage-violations-proportional-threshold: 0.1
   increased-low-voltage-violations-absolute-threshold: 0.1
   increased-high-voltage-violations-absolute-threshold: 0.1
-  debugDir: /tmp/debugDir
+  debug-dir: /tmp/debugDir
 ```
 
 **XML configuration:**
@@ -122,6 +122,6 @@ security-analysis-default-parameters:
   <increased-high-voltage-violations-proportional-threshold>0.1</increased-high-voltage-violations-proportional-threshold>
   <increased-low-voltage-violations-absolute-threshold>0.1</increased-low-voltage-violations-absolute-threshold>
   <increased-high-voltage-violations-absolute-threshold>0.1</increased-high-voltage-violations-absolute-threshold>
-  <debugDir>/tmp/debugDir</debugDir>
+  <debug-dir>/tmp/debugDir</debug-dir>
 </security-analysis-default-parameters>
 ```
