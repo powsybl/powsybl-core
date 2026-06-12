@@ -14,6 +14,7 @@ import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
@@ -23,7 +24,9 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityValue> values = new ArrayList<>();
 
-    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new HashMap<>();
+    private final Map<SensitivityState, SensitivityAnalysisResult.SensitivityStateStatus> stateStatuses = new LinkedHashMap<>();
+
+    private boolean computationComplete;
 
     public SensitivityResultModelWriter(List<Contingency> contingencies, List<OperatorStrategy> operatorStrategies) {
         this.contingencies = Objects.requireNonNull(contingencies);
@@ -38,15 +41,30 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
         return new ArrayList<>(stateStatuses.values());
     }
 
+    public boolean isComputationComplete() {
+        return computationComplete;
+    }
+
     @Override
     public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
         values.add(new SensitivityValue(factorIndex, contingencyIndex, operatorStrategyIndex, value, functionReference));
     }
 
     @Override
-    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
-        SensitivityState state = new SensitivityState(contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
-                                                      operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
-        stateStatuses.put(state, new SensitivityAnalysisResult.SensitivityStateStatus(state, status));
+    public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status,
+                                 SensitivityAnalysisResult.LoadFlowStatus loadFlowStatus, int numCC, int numCS) {
+        SensitivityState state = new SensitivityState(
+                contingencyIndex != -1 ? contingencies.get(contingencyIndex).getId() : null,
+                operatorStrategyIndex != -1 ? operatorStrategies.get(operatorStrategyIndex).getId() : null);
+        SensitivityAnalysisResult.SensitivityStateStatus stateStatus = stateStatuses.computeIfAbsent(
+                state, k -> new SensitivityAnalysisResult.SensitivityStateStatus(k, status));
+        if (loadFlowStatus != null) {
+            stateStatus.addComponentLoadFlowStatus(loadFlowStatus, numCC, numCS);
+        }
+    }
+
+    @Override
+    public void computationComplete() {
+        computationComplete = true;
     }
 }

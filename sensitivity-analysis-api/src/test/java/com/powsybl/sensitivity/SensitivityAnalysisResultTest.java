@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -300,7 +301,7 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, stateStatuses, contingencyIds, operatorStrategyIds, values);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.1.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.2.json");
     }
 
     @Test
@@ -309,10 +310,11 @@ class SensitivityAnalysisResultTest extends AbstractSerDeTest {
         try (InputStream is10 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.json")) {
             // check that we can still read 1.0
             SensitivityAnalysisResult result = objectMapper.readValue(is10, SensitivityAnalysisResult.class);
-            // and when we write to the 1.1 version, we get the expected result
-            String json11 = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
-            try (InputStream is11 = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.1.json")) {
-                assertEquals(new String(Objects.requireNonNull(is11).readAllBytes(), StandardCharsets.UTF_8), json11);
+            // and when we write to the current version, we get the expected result
+            String currentJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(result);
+            try (InputStream isCurrent = getClass().getResourceAsStream("/SensitivityAnalysisResultRefV1.2.json")) {
+                String expected = new String(Objects.requireNonNull(isCurrent).readAllBytes(), StandardCharsets.UTF_8);
+                assertEquals(TestUtil.normalizeLineSeparator(expected), TestUtil.normalizeLineSeparator(currentJson));
             }
         }
     }

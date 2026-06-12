@@ -42,7 +42,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "version":
-                    parser.nextToken(); // skip
+                    parser.nextToken();
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
                     break;
@@ -86,8 +86,8 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             }
         }
 
-        if (version == null || !version.equals("1.0") && !version.equals("1.1")) {
-            throw new IllegalStateException("Only version 1.0 and 1.1 are supported.");
+        if (version == null || !version.equals("1.0") && !version.equals("1.1") && !version.equals("1.2")) {
+            throw new IllegalStateException("Only versions 1.0, 1.1 and 1.2 are supported.");
         }
         if ("1.0".equals(version)) {
             // In 1.0 the contingency IDs and the mapping contingency index -> ID were directly taken from 'contingencyStatus' list.

@@ -18,5 +18,6 @@
     "status" : "SUCCESS"
   } ],
   "contingencyIds" : [ "NHV1_NHV2_2" ],
-  "operatorStrategyIds" : [ "Open NHV1_NHV2_2" ]
+  "operatorStrategyIds" : [ "Open NHV1_NHV2_2" ],
+  "computationComplete" : false
 }
