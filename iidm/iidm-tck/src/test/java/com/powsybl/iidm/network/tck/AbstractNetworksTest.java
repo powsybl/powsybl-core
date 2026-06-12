@@ -13,11 +13,14 @@ import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.Networks;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -119,5 +122,33 @@ public abstract class AbstractNetworksTest {
 
         Networks.applySolvedValues(network);
         assertEquals(-dl.getTerminal().getQ(), dl.getGeneration().getTargetQ());
+    }
+
+    @Test
+    public void getSingleConnectableReducibleVoltageLevelsBusBreaker() {
+        Network network = EurostagTutorialExample1Factory.createReducibleVoltageLevelNetworkBusBreaker();
+        Assertions.assertThat(Networks.getReducibleTransformerDataStream(network))
+            .extracting(
+                d -> d.transformer().getId(),
+                d -> d.toBeReplacedGenerators().stream().map(Generator::getId).sorted().toList()
+            ).containsExactlyInAnyOrder(
+                new Tuple("T1_1_BF", List.of("B1GEN1")),
+                new Tuple("T2_1_BF", List.of("B2GEN1", "B2GEN2")),
+                new Tuple("T3_1_BF", List.of("B3GEN1"))
+            );
+    }
+
+    @Test
+    public void getSingleConnectableReducibleVoltageLevelsNodeBreaker() {
+        Network network = EurostagTutorialExample1Factory.createReducibleVoltageLevelNetworkNodeBreaker();
+        Assertions.assertThat(Networks.getReducibleTransformerDataStream(network))
+            .extracting(
+                d -> d.transformer().getId(),
+                d -> d.toBeReplacedGenerators().stream().map(Generator::getId).sorted().toList()
+            ).containsExactlyInAnyOrder(
+                new Tuple("TBB1BF1", List.of("G1")),
+                new Tuple("TBB2BF2", List.of("G21", "G22")),
+                new Tuple("TBB3BF3", List.of("G3"))
+            );
     }
 }

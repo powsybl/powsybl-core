@@ -8,10 +8,12 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.HorizontalAlignment;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
@@ -25,6 +27,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -474,5 +478,200 @@ public final class Networks {
         network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::applySolvedValues);
         network.getThreeWindingsTransformerStream().forEach(ThreeWindingsTransformer::applySolvedValues);
         network.getShuntCompensatorStream().forEach(ShuntCompensator::applySolvedValues);
+    }
+
+    /**
+     * Get all the elements of the <code>network</code> that can be reduced into an equivalent generator. The conditions for a reduction are
+     * decided for each voltage level, with the following criteria:
+     * <ul>
+     *     <li>the voltage level must contain only reducible elements, which are {@link Generator}, {@link Load}, {@link TwoWindingsTransformer} and {@link BusbarSection}</li>
+     *     <li>all breakers in the voltage level must be closed (to prevent issue where a part of the voltage level is incorrectly reduced)</li>
+     *     <li>a given set of reducible elements must be linked to the voltage level above through a single two-winding transformer. There can be multiple transformer per voltage level</li>
+     *     <li>there must be at least one generator per set of reducible elements for the reduction</li>
+     * </ul>
+     * @param network the network on which we want to get all the sets of reducible elements and their corresponding two winding transformer
+     * @return a stream of {@link ReducibleTransformerData}, containing the information necessary for a reduction
+     */
+    public static Stream<ReducibleTransformerData> getReducibleTransformerDataStream(Network network) {
+        return getReducibleTransformerDataStream(network.getVoltageLevelStream());
+    }
+
+    /**
+     * Get all the elements of the <code>substation</code> that can be reduced into an equivalent generator. The conditions for a reduction are
+     * decided for each voltage level, with the following criteria:
+     * <ul>
+     *     <li>the voltage level must contain only reducible elements, which are {@link Generator}, {@link Load}, {@link TwoWindingsTransformer} and {@link BusbarSection}</li>
+     *     <li>all breakers in the voltage level must be closed (to prevent issue where a part of the voltage level is incorrectly reduced)</li>
+     *     <li>a given set of reducible elements must be linked to the voltage level above through a single two-winding transformer. There can be multiple transformer per voltage level</li>
+     *     <li>there must be at least one generator per set of reducible elements for the reduction</li>
+     * </ul>
+     * @param substation the substation on which we want to get all the sets of reducible elements and their corresponding two winding transformer
+     * @return a stream of {@link ReducibleTransformerData}, containing the information necessary for a reduction
+     */
+    public static Stream<ReducibleTransformerData> getReducibleTransformerDataStream(Substation substation) {
+        return getReducibleTransformerDataStream(substation.getVoltageLevelStream());
+    }
+
+    /**
+     * Filter the voltage levels to only keep the ones that are valid, according to the description of {@link #getReducibleTransformerDataStream(Substation)} and {@link #getReducibleTransformerDataStream(Network)}
+     * Then use a traverser to ensure each set of element contains at least one generator and corresponds to a single transformer
+     * @param voltageLevelStream the voltage levels on which to perform the filtering and traversing
+     * @return a stream of {@link ReducibleTransformerData} containing the information used for the reduction, one for each set of elements
+     */
+    private static Stream<ReducibleTransformerData> getReducibleTransformerDataStream(Stream<VoltageLevel> voltageLevelStream) {
+        return voltageLevelStream
+           .filter(v -> StreamSupport.stream(v.getConnectables().spliterator(), false).allMatch(c -> isReducibleElement(c.getType())))
+           .filter(v -> StreamSupport.stream(v.getSwitches().spliterator(), false).noneMatch(s -> s.getKind() == SwitchKind.BREAKER && s.isOpen()))
+           .flatMap(v -> {
+               RefObj<Boolean> isValid = new RefObj<>(true);
+               Stream<ReducibleTransformerData> dataStream = traverseVlTopology(isValid, v);
+               return Boolean.TRUE.equals(isValid.get()) ? dataStream : null;
+           })
+            .filter(Objects::nonNull);
+    }
+
+    /**
+     * Traverse the topology starting from each two winding transformer, to check if all the sets of reducible elements are valid (ie
+     * only one two-winding transformer per set of reducible element, at least one generator per set of reducible element).
+     * @param isValid used to signify to the calling process if the voltage level is valid for reduction with regard to topology
+     * @param vl the voltage level on which to perform the checks
+     * @return a stream of {@link ReducibleTransformerData} containing the information used for the reduction, one for each set of elements
+     */
+    private static Stream<ReducibleTransformerData> traverseVlTopology(RefObj<Boolean> isValid, VoltageLevel vl) {
+        return vl.getTwoWindingsTransformerStream()
+            .map(t -> {
+                //check before starting traversal if another part of that voltage level is already not reducible (in which case the entire vl is not reducible)
+                if (Boolean.FALSE.equals(isValid.get())) {
+                    return null;
+                }
+                TwoSides vlSide = getTransformerVoltageLevelSide(t, vl);
+                List<Generator> toBeDeletedGenerators = switch (vl.getTopologyKind()) {
+                    case BUS_BREAKER -> getGeneratorsFromBusBreakerTopology(vl, t.getTerminal(vlSide), t.getId(), isValid);
+                    case NODE_BREAKER -> getGeneratorsFromNodeBreakerTopology(vl, t.getTerminal(vlSide), t.getId(), isValid);
+                    default -> throw new PowsyblException("Unknown topology kind: " + vl.getTopologyKind());
+                };
+                if (Boolean.TRUE.equals(isValid.get()) && !toBeDeletedGenerators.isEmpty()) {
+                    return new ReducibleTransformerData(t, vlSide, toBeDeletedGenerators);
+                } else {
+                    //set false for the case where the topology is valid (a single 2WT for the connected buses) but there are no generators
+                    isValid.set(false);
+                    return null;
+                }
+            });
+    }
+
+    /**
+     * @return the list of generators that can be accessed by a traverser starting from the given terminal
+     */
+    private static List<Generator> getGeneratorsFromBusBreakerTopology(VoltageLevel vl, Terminal startingTerminal, String startingTransformerId, RefObj<Boolean> isValid) {
+        List<Generator> toBeDeletedGenerators = new ArrayList<>();
+        Bus startingBus = startingTerminal.getBusBreakerView().getBus();
+        traverseBus(startingBus, toBeDeletedGenerators, startingTransformerId, isValid);
+        vl.getBusBreakerView().traverse(startingBus, (bus1, sw, bus2) -> traverseBus(bus2, toBeDeletedGenerators, startingTransformerId, isValid));
+        return toBeDeletedGenerators;
+    }
+
+    /**
+     * @return the list of generators that can be accessed by a traverser starting from the given terminal
+     */
+    private static List<Generator> getGeneratorsFromNodeBreakerTopology(VoltageLevel vl, Terminal startingTerminal, String startingTransformerId, RefObj<Boolean> isValid) {
+        List<Generator> toBeDeletedGenerators = new ArrayList<>();
+        int startingNode = startingTerminal.getNodeBreakerView().getNode();
+        traverseNode(vl, null, startingNode, toBeDeletedGenerators, startingTransformerId, isValid);
+        vl.getNodeBreakerView().traverse(startingNode, (node1, sw, node2) -> traverseNode(vl, sw, node2, toBeDeletedGenerators, startingTransformerId, isValid));
+        return toBeDeletedGenerators;
+    }
+
+    /**
+     * Handle bus traversal, collecting generators along the way. Stops if the set of elements is detected as invalid for reduction.
+     * @param bus the bus whose elements we are currently looking at.
+     * @param toBeDeletedGenerators the list of generators that would be removed from the network by a reduction.
+     * @param startingTransformerId the ID of the transformer we started the traversal from. Used to identify if another transformer is encountered during the traversal.
+     * @param isValid the set of elements is valid for reduction
+     * @return an {@link TraverseResult} depending on the elements of the bus
+     */
+    private static TraverseResult traverseBus(Bus bus, List<Generator> toBeDeletedGenerators, String startingTransformerId, RefObj<Boolean> isValid) {
+        if (bus == null) {
+            return TraverseResult.TERMINATE_TRAVERSER;
+        }
+        TraverseResult result = TraverseResult.CONTINUE;
+        for (Terminal terminal : bus.getConnectedTerminals()) {
+            Connectable<?> connectable = terminal.getConnectable();
+            result = switch (connectable.getType()) {
+                case IdentifiableType.GENERATOR -> handleGenerator(connectable, toBeDeletedGenerators);
+                case IdentifiableType.TWO_WINDINGS_TRANSFORMER -> handleTwoWindingTransformer(connectable, startingTransformerId, isValid);
+                default -> TraverseResult.CONTINUE;
+            };
+            if (result == TraverseResult.TERMINATE_TRAVERSER) {
+                return result;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Handle node traversal, collecting generators along the way. Stops if the set of elements is detected as invalid for reduction.
+     * @param vl the voltage level of this node
+     * @param sw the next switch to traverse (if it exists)
+     * @param node the node we are currently looking at.
+     * @param toBeDeletedGenerators the list of generators that would be removed from the network by a reduction.
+     * @param startingTransformerId the ID of the transformer we started the traversal from. Used to identify if another transformer is encountered during the traversal.
+     * @param isValid the set of elements is valid for reduction
+     * @return an {@link TraverseResult} depending on the elements of the bus
+     */
+    private static TraverseResult traverseNode(VoltageLevel vl, Switch sw, int node, List<Generator> toBeDeletedGenerators, String startingTransformerId, RefObj<Boolean> isValid) {
+        if (node < 0) {
+            return TraverseResult.TERMINATE_TRAVERSER;
+        }
+        if (sw != null && sw.isOpen()) {
+            //the filter already made sure there are no open breaker, that means this is an open disconnector, do not go that way
+            return TraverseResult.TERMINATE_PATH;
+        }
+        Connectable<?> connectable = vl.getNodeBreakerView().getTerminal(node).getConnectable();
+        return switch (connectable.getType()) {
+            case IdentifiableType.GENERATOR -> handleGenerator(connectable, toBeDeletedGenerators);
+            case IdentifiableType.TWO_WINDINGS_TRANSFORMER -> handleTwoWindingTransformer(connectable, startingTransformerId, isValid);
+            default -> TraverseResult.CONTINUE;
+        };
+    }
+
+    private static TraverseResult handleGenerator(Connectable<?> connectable, List<Generator> toBeDeletedGenerators) {
+        toBeDeletedGenerators.add((Generator) connectable);
+        return TraverseResult.CONTINUE;
+    }
+
+    private static TraverseResult handleTwoWindingTransformer(Connectable<?> connectable, String startingTransformerId, RefObj<Boolean> isValid) {
+        if (!connectable.getId().equals(startingTransformerId)) {
+            isValid.set(false);
+            return TraverseResult.TERMINATE_TRAVERSER;
+        } else {
+            return TraverseResult.CONTINUE;
+        }
+    }
+
+    /**
+     * The voltage elements on the <code>reducibleSide</code> of the <code>transformer</code> and that transformer can be
+     * reduced into a single generator equivalent to the active / reactive power on the terminal of the side opposite to <code>reducibleSide</code>.
+     * If this reduction is performed, the <code>toBeReplacedGenerators</code> will be removed.
+     * @param transformer
+     * @param reducibleSide
+     */
+    public record ReducibleTransformerData(TwoWindingsTransformer transformer, TwoSides reducibleSide, List<Generator> toBeReplacedGenerators) { }
+
+    /**
+     * Which elements are acceptable in a voltage level for reduction.
+     */
+    private static boolean isReducibleElement(IdentifiableType type) {
+        return type == IdentifiableType.TWO_WINDINGS_TRANSFORMER
+            || type == IdentifiableType.GENERATOR
+            || type == IdentifiableType.LOAD
+            || type == IdentifiableType.BUSBAR_SECTION;
+    }
+
+    /**
+     * Get the side of that transformer which is on the side of the given voltage level.
+     */
+    private static TwoSides getTransformerVoltageLevelSide(TwoWindingsTransformer transformer, VoltageLevel voltageLevel) {
+        return transformer.getTerminal(TwoSides.ONE).getVoltageLevel().getId().equals(voltageLevel.getId()) ? TwoSides.ONE : TwoSides.TWO;
     }
 }

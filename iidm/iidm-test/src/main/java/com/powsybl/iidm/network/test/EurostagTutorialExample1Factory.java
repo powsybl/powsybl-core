@@ -1497,4 +1497,254 @@ public final class EurostagTutorialExample1Factory {
         gen.setTargetV(Double.NaN);
         return network;
     }
+
+    public static Network createReducibleVoltageLevelNetworkBusBreaker() {
+        Network network = NetworkFactory.findDefault().createNetwork("sim1", "test");
+        Substation p1 = network.newSubstation().setId("P1").add();
+        VoltageLevel vlFlow = p1.newVoltageLevel()
+            .setId("VLFLOW")
+            .setNominalV(400)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        vlFlow.getBusBreakerView().newBus().setId("BF").add();
+
+        VoltageLevel vlGen = p1.newVoltageLevel()
+            .setId("VLGEN")
+            .setNominalV(20)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+
+        String bus11Id = "Bus_1_1";
+        String bus12Id = "Bus_1_2";
+        vlGen.getBusBreakerView().newBus().setId(bus11Id).add();
+        vlGen.getBusBreakerView().newBus().setId(bus12Id).add();
+        createBusGenerator(vlGen, "B1GEN1", bus12Id);
+        createBusSwitch(vlGen, "B1B2SW1", bus11Id, bus12Id);
+        createBusLoad(vlGen, "B1L1", bus11Id);
+        createBusTransformer(p1, "T1_1_BF", "BF", bus11Id);
+
+        String bus21Id = "Bus_2_1";
+        String bus22Id = "Bus_2_2";
+        vlGen.getBusBreakerView().newBus().setId(bus21Id).add();
+        vlGen.getBusBreakerView().newBus().setId(bus22Id).add();
+        createBusGenerator(vlGen, "B2GEN1", bus22Id);
+        createBusGenerator(vlGen, "B2GEN2", bus21Id);
+        createBusSwitch(vlGen, "B1B2SW2", bus21Id, bus22Id);
+        createBusLoad(vlGen, "B2L1", bus21Id);
+        createBusTransformer(p1, "T2_1_BF", "BF", bus21Id);
+
+        String bus31Id = "Bus_3_1";
+        vlGen.getBusBreakerView().newBus().setId(bus31Id).add();
+        createBusGenerator(vlGen, "B3GEN1", bus31Id);
+        createBusTransformer(p1, "T3_1_BF", "BF", bus31Id);
+
+        VoltageLevel vlInvalid = p1.newVoltageLevel()
+            .setId("VLINV")
+            .setNominalV(20)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+
+        String bus41Id = "Bus_4_1";
+        String bus42Id = "Bus_4_2";
+        String bus43Id = "Bus_4_3";
+        vlInvalid.getBusBreakerView().newBus().setId(bus41Id).add();
+        vlInvalid.getBusBreakerView().newBus().setId(bus42Id).add();
+        vlInvalid.getBusBreakerView().newBus().setId(bus43Id).add();
+        createBusGenerator(vlInvalid, "B4GEN1", bus42Id);
+        createBusGenerator(vlInvalid, "B4GEN2", bus43Id);
+        createBusSwitch(vlInvalid, "B1B2SW4", bus41Id, bus42Id);
+        createBusSwitch(vlInvalid, "B2B3SW1", bus42Id, bus43Id);
+        createBusLoad(vlInvalid, "B4L1", bus41Id);
+        createBusTransformer(p1, "T4_1_BF", "BF", bus41Id);
+        createBusTransformer(p1, "T4_3_BF", "BF", bus43Id);
+
+        String bus51Id = "Bus_5_1";
+        vlInvalid.getBusBreakerView().newBus().setId(bus51Id).add();
+        createBusGenerator(vlInvalid, "B5GEN1", bus51Id);
+        createBusTransformer(p1, "T5_1_BF", "BF", bus51Id);
+
+        return network;
+    }
+
+    private static void createBusTransformer(Substation substation, String transformerId, String bus1Id, String bus2Id) {
+        substation.newTwoWindingsTransformer()
+            .setConnectableBus1(bus1Id)
+            .setBus1(bus1Id)
+            .setConnectableBus2(bus2Id)
+            .setBus2(bus2Id)
+            .setRatedU1(400)
+            .setRatedU2(20)
+            .setId(transformerId)
+            .setR(0.1)
+            .setX(0.1)
+            .add();
+    }
+
+    private static void createBusLoad(VoltageLevel vl, String loadId, String busId) {
+        vl.newLoad()
+            .setId(loadId)
+            .setP0(-10)
+            .setQ0(15)
+            .setBus(busId)
+            .setConnectableBus(busId)
+            .add();
+    }
+
+    private static void createBusSwitch(VoltageLevel vl, String switchId, String bus1Id, String bus2Id) {
+        vl.getBusBreakerView().newSwitch()
+            .setId(switchId)
+            .setOpen(false)
+            .setBus1(bus1Id)
+            .setBus2(bus2Id)
+            .add();
+    }
+
+    private static void createBusGenerator(VoltageLevel vl, String generatorId, String busId) {
+        vl.newGenerator()
+            .setId(generatorId)
+            .setBus(busId)
+            .setConnectableBus(busId)
+            .setMinP(100)
+            .setMaxP(900)
+            .setTargetP(750)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(20)
+            .add();
+    }
+
+    public static Network createReducibleVoltageLevelNetworkNodeBreaker() {
+        Network network = NetworkFactory.findDefault().createNetwork("sim1", "test");
+        Substation p1 = network.newSubstation().setId("P1").add();
+        VoltageLevel vlFlow = p1.newVoltageLevel()
+            .setId("VLFLOW")
+            .setNominalV(400)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+
+        String busbar01Id = "Busbar_01";
+        String busbar02Id = "Busbar_02";
+        String busbar03Id = "Busbar_03";
+        String busbar04Id = "Busbar_04";
+        String busbar05Id = "Busbar_05";
+        String busbar06Id = "Busbar_06";
+        VoltageLevel.NodeBreakerView vlFlowNodeView = vlFlow.getNodeBreakerView();
+        vlFlowNodeView.newBusbarSection().setId(busbar01Id).setNode(0).add();
+        vlFlowNodeView.newBusbarSection().setId(busbar02Id).setNode(1).add();
+        vlFlowNodeView.newBusbarSection().setId(busbar03Id).setNode(2).add();
+        vlFlowNodeView.newBusbarSection().setId(busbar04Id).setNode(20).add();
+        vlFlowNodeView.newBusbarSection().setId(busbar05Id).setNode(21).add();
+        vlFlowNodeView.newBusbarSection().setId(busbar06Id).setNode(22).add();
+
+        vlFlowNodeView.newDisconnector().setId("DF12").setNode1(0).setNode2(1).setOpen(true).add();
+        vlFlowNodeView.newDisconnector().setId("DF23").setNode1(1).setNode2(2).setOpen(true).add();
+        vlFlowNodeView.newDisconnector().setId("DF34").setNode1(2).setNode2(20).setOpen(true).add();
+        vlFlowNodeView.newDisconnector().setId("DF45").setNode1(20).setNode2(21).setOpen(true).add();
+        vlFlowNodeView.newDisconnector().setId("DF56").setNode1(21).setNode2(22).setOpen(true).add();
+
+        VoltageLevel vlGen = p1.newVoltageLevel()
+            .setId("VLGEN")
+            .setNominalV(20)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+
+        String busbar11Id = "Busbar_11";
+        String busbar12Id = "Busbar_12";
+        String busbar13Id = "Busbar_13";
+
+        VoltageLevel.NodeBreakerView vlGenNodeView = vlGen.getNodeBreakerView();
+
+        vlGenNodeView.newBusbarSection().setId(busbar11Id).setNode(4).add();
+        vlGenNodeView.newBusbarSection().setId(busbar12Id).setNode(5).add();
+        vlGenNodeView.newBusbarSection().setId(busbar13Id).setNode(6).add();
+
+        vlGenNodeView.newDisconnector().setNode1(4).setNode2(5).setId("D12").setOpen(true).add();
+        vlGenNodeView.newDisconnector().setNode1(5).setNode2(6).setId("D23").setOpen(true).add();
+
+        //create a load on the busbar with a disconnector and a generator behind a breaker
+        createNodeLoad(vlGen, "L1", 7);
+        vlGenNodeView.newDisconnector().setId("DL1").setNode1(4).setNode2(7).setOpen(false).add();
+        createNodeGenerator(vlGen, "G1", 8);
+        vlGenNodeView.newBreaker().setId("BRG1").setNode1(4).setNode2(8).setOpen(false).setRetained(true).add();
+        createNodeTransformer(p1, "TBB1BF1", 4, vlGen, 0, vlFlow, 13, 14);
+
+        //create a load on the busbar with a disconnector, a generator behind a breaker and a generator on the busbar (with disconnector)
+        createNodeLoad(vlGen, "L2", 9);
+        vlGenNodeView.newDisconnector().setId("DL2").setNode1(5).setNode2(9).setOpen(false).add();
+        createNodeGenerator(vlGen, "G21", 10);
+        vlGenNodeView.newBreaker().setId("BRG2").setNode1(5).setNode2(10).setOpen(false).setRetained(true).add();
+        createNodeTransformer(p1, "TBB2BF2", 5, vlGen, 1, vlFlow, 15, 16);
+        createNodeGenerator(vlGen, "G22", 11);
+        vlGenNodeView.newDisconnector().setId("DG1").setNode1(5).setNode2(11).setOpen(false).add();
+
+        // create a generator directly on the third busbar
+        createNodeGenerator(vlGen, "G3", 12);
+        vlGenNodeView.newInternalConnection().setNode1(6).setNode2(12).add();
+        createNodeTransformer(p1, "TBB3BF3", 6, vlGen, 2, vlFlow, 17, 18);
+
+        VoltageLevel vlInvalid = p1.newVoltageLevel()
+            .setId("VLINV")
+            .setNominalV(20)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .add();
+
+        VoltageLevel.NodeBreakerView vlInvNodeView = vlInvalid.getNodeBreakerView();
+        vlInvNodeView.newBusbarSection().setId("Busbar_20").setNode(30).add();
+        vlInvNodeView.newBusbarSection().setId("Busbar_21").setNode(35).add();
+        createNodeGenerator(vlInvalid, "G41", 32);
+        vlInvNodeView.newBreaker().setId("BRG41").setNode1(30).setNode2(32).setOpen(false).setRetained(true).add();
+        createNodeLoad(vlInvalid, "L4", 31);
+        vlInvNodeView.newDisconnector().setId("DL4").setNode1(31).setNode2(30).setOpen(false).add();
+        createNodeTransformer(p1, "TBB20BF4", 30, vlInvalid, 20, vlFlow, 33, 34);
+        vlInvNodeView.newBreaker().setId("BRBB20BB21").setNode1(30).setNode2(35).setOpen(false).setRetained(true).add();
+        createNodeGenerator(vlInvalid, "G42", 36);
+        vlInvNodeView.newInternalConnection().setNode1(36).setNode2(35).add();
+        createNodeTransformer(p1, "TBB21BF5", 35, vlInvalid, 21, vlFlow, 37, 38);
+
+        // create a generator directly on the busbar
+        vlInvNodeView.newBusbarSection().setId("Busbar_30").setNode(40).add();
+        vlInvNodeView.newDisconnector().setId("D2130").setNode1(35).setNode2(40).setOpen(true).add();
+        createNodeGenerator(vlInvalid, "G5", 41);
+        vlInvNodeView.newInternalConnection().setNode1(40).setNode2(41).add();
+        createNodeTransformer(p1, "TBB30BF6", 40, vlInvalid, 22, vlFlow, 42, 43);
+
+        return network;
+    }
+
+    private static void createNodeLoad(VoltageLevel vl, String loadId, int node) {
+        vl.newLoad()
+            .setId(loadId)
+            .setP0(-10)
+            .setQ0(15)
+            .setNode(node)
+            .add();
+    }
+
+    private static void createNodeGenerator(VoltageLevel vl, String generatorId, int node) {
+        vl.newGenerator()
+            .setId(generatorId)
+            .setNode(node)
+            .setMinP(100)
+            .setMaxP(900)
+            .setTargetP(750)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(20)
+            .add();
+    }
+
+    private static void createNodeTransformer(Substation substation, String transformerId, int node1, VoltageLevel vl1, int node2, VoltageLevel vl2, int disconnectorNode1, int disconnectorNode2) {
+        vl1.getNodeBreakerView().newDisconnector().setNode1(node1).setNode2(disconnectorNode1).setOpen(false).setId(transformerId + vl1.getId()).add();
+        vl2.getNodeBreakerView().newDisconnector().setNode1(node2).setNode2(disconnectorNode2).setOpen(false).setId(transformerId + vl2.getId()).add();
+        substation.newTwoWindingsTransformer()
+            .setNode1(disconnectorNode1)
+            .setVoltageLevel1(vl1.getId())
+            .setNode2(disconnectorNode2)
+            .setVoltageLevel2(vl2.getId())
+            .setRatedU1(400)
+            .setRatedU2(20)
+            .setId(transformerId)
+            .setR(0.1)
+            .setX(0.1)
+            .add();
+    }
+
 }
