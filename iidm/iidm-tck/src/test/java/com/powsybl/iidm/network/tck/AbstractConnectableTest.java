@@ -467,26 +467,26 @@ public abstract class AbstractConnectableTest {
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("VscFr");
 
         // Check vsc is fully connected
-        assertConverterStatus(true, vsc);
+        assertConverterConnectionStatus(true, vsc);
 
         // Disconnect vsc, which should return true
         assertTrue(vsc.disconnect());
-        assertConverterStatus(false, vsc);
+        assertConverterConnectionStatus(false, vsc);
 
         // Disconnect vsc again, which should return False
         assertFalse(vsc.disconnect());
-        assertConverterStatus(false, vsc);
+        assertConverterConnectionStatus(false, vsc);
 
         // Connect vsc, which should return true
         assertTrue(vsc.connect());
-        assertConverterStatus(true, vsc);
+        assertConverterConnectionStatus(true, vsc);
 
         // Connect vsc again, which should return False
         assertFalse(vsc.connect());
-        assertConverterStatus(true, vsc);
+        assertConverterConnectionStatus(true, vsc);
     }
 
-    private void assertConverterStatus(boolean expectedAcStatus, VoltageSourceConverter vsc) {
+    private void assertConverterConnectionStatus(boolean expectedAcStatus, VoltageSourceConverter vsc) {
         assertEquals(expectedAcStatus, vsc.getTerminal1().isConnected());
         assertTrue(vsc.getDcTerminal1().isConnected()); // DC side is not modified
         assertTrue(vsc.getDcTerminal2().isConnected());

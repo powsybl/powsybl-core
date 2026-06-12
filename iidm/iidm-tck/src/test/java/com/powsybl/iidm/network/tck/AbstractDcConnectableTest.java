@@ -24,36 +24,36 @@ public abstract class AbstractDcConnectableTest {
         DcLine dcLine = network.getDcLine("dcLinePos");
 
         // Check dcLine is fully connected
-        assertDcLineStatus(true, dcLine);
+        assertDcLineConnectionStatus(true, dcLine);
 
         // Disconnect dcLine, which should return true
         assertTrue(dcLine.disconnectDc());
-        assertDcLineStatus(false, dcLine);
+        assertDcLineConnectionStatus(false, dcLine);
 
         // Disconnect dcLine again, which should return false
         assertFalse(dcLine.disconnectDc());
-        assertDcLineStatus(false, dcLine);
+        assertDcLineConnectionStatus(false, dcLine);
 
         // Connect dcLine, which should return true
         assertTrue(dcLine.connectDc());
-        assertDcLineStatus(true, dcLine);
+        assertDcLineConnectionStatus(true, dcLine);
 
         // Connect dcLine again, which should return false
         assertFalse(dcLine.connectDc());
-        assertDcLineStatus(true, dcLine);
+        assertDcLineConnectionStatus(true, dcLine);
 
         // Partially disconnect DC side, connectDc should return true
         dcLine.getDcTerminal1().setConnected(false);
         assertTrue(dcLine.connectDc());
-        assertDcLineStatus(true, dcLine);
+        assertDcLineConnectionStatus(true, dcLine);
 
         // Partially disconnect DC side, disconnectDc should return true
         dcLine.getDcTerminal1().setConnected(false);
         assertTrue(dcLine.disconnectDc());
-        assertDcLineStatus(false, dcLine);
+        assertDcLineConnectionStatus(false, dcLine);
     }
 
-    private void assertDcLineStatus(boolean expectedStatus, DcLine dcLine) {
+    private void assertDcLineConnectionStatus(boolean expectedStatus, DcLine dcLine) {
         assertEquals(expectedStatus, dcLine.getDcTerminal1().isConnected());
         assertEquals(expectedStatus, dcLine.getDcTerminal2().isConnected());
     }
@@ -64,36 +64,36 @@ public abstract class AbstractDcConnectableTest {
         VoltageSourceConverter vsc = network.getVoltageSourceConverter("VscFr");
 
         // Check vsc is fully connected
-        assertConverterStatus(true, vsc);
+        assertConverterConnectionStatus(true, vsc);
 
         // Disconnect vsc, which should return true
         assertTrue(vsc.disconnectDc());
-        assertConverterStatus(false, vsc);
+        assertConverterConnectionStatus(false, vsc);
 
         // Disconnect vsc again, which should return False
         assertFalse(vsc.disconnectDc());
-        assertConverterStatus(false, vsc);
+        assertConverterConnectionStatus(false, vsc);
 
         // Connect vsc, which should return true
         assertTrue(vsc.connectDc());
-        assertConverterStatus(true, vsc);
+        assertConverterConnectionStatus(true, vsc);
 
         // Connect vsc again, which should return False
         assertFalse(vsc.connectDc());
-        assertConverterStatus(true, vsc);
+        assertConverterConnectionStatus(true, vsc);
 
         // Partially disconnect DC side, connectDc should return true
         vsc.getDcTerminal1().setConnected(false);
         assertTrue(vsc.connectDc());
-        assertConverterStatus(true, vsc);
+        assertConverterConnectionStatus(true, vsc);
 
         // Partially disconnect DC side, disconnectDc should return true
         vsc.getDcTerminal1().setConnected(false);
         assertTrue(vsc.disconnectDc());
-        assertConverterStatus(false, vsc);
+        assertConverterConnectionStatus(false, vsc);
     }
 
-    private void assertConverterStatus(boolean expectedDcStatus, VoltageSourceConverter vsc) {
+    private void assertConverterConnectionStatus(boolean expectedDcStatus, VoltageSourceConverter vsc) {
         assertTrue(vsc.getTerminal1().isConnected()); // AC side is not modified
         assertEquals(expectedDcStatus, vsc.getDcTerminal1().isConnected());
         assertEquals(expectedDcStatus, vsc.getDcTerminal2().isConnected());
