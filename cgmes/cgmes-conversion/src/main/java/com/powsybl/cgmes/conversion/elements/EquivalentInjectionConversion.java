@@ -13,6 +13,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -129,10 +131,25 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         boolean defaultRegulatingOn = getDefaultRegulatingOn(generator, context);
         boolean regulatingOn = findRegulatingOn(cgmesData, CgmesNames.REGULATION_STATUS, defaultRegulatingOn, DefaultValueUse.NOT_DEFINED);
 
+        double targetQ = getTargetQ(updatedPowerFlow, generator, context);
         generator.setTargetP(getTargetP(updatedPowerFlow, generator, context))
-                .setTargetQ(getTargetQ(updatedPowerFlow, generator, context))
-                .setTargetV(targetV)
-                .setVoltageRegulatorOn(regulatingOn && regulationCapability && isValidTargetV(targetV));
+                .setLocalTargetQ(targetQ)
+                .setLocalTargetV(targetV);
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        if (regulatingOn) {
+            if (voltageRegulation == null) {
+                generator.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(regulationCapability && isValidTargetV(targetV))
+                    .build();
+            } else {
+                voltageRegulation.setRegulating(true);
+            }
+        } else {
+            if (voltageRegulation != null) {
+                voltageRegulation.setRegulating(false);
+            }
+        }
     }
 
     private static double getTargetP(PowerFlow updatedPowerFlow, Generator generator, Context context) {
@@ -148,15 +165,15 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     private static double getDefaultTargetQ(Generator generator, Context context) {
-        return getDefaultValue(null, generator.getTargetQ(), 0.0, 0.0, context);
+        return getDefaultValue(null, generator.getRegulatingTargetQ(), 0.0, 0.0, context);
     }
 
     private static double getDefaultTargetV(Generator generator, Context context) {
-        return getDefaultValue(null, generator.getTargetV(), Double.NaN, Double.NaN, context);
+        return getDefaultValue(null, generator.getLocalTargetV(), Double.NaN, Double.NaN, context);
     }
 
     private static boolean getDefaultRegulatingOn(Generator generator, Context context) {
-        return getDefaultValue(false, generator.isVoltageRegulatorOn(), false, false, context);
+        return getDefaultValue(false, generator.isRegulatingWithMode(RegulationMode.VOLTAGE), false, false, context);
     }
 
     public static void update(BoundaryLine boundaryLine, boolean isConnectedOnBoundarySide, Context context) {

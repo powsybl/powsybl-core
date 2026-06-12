@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
@@ -66,8 +67,8 @@ public abstract class AbstractSlackTerminalTest {
             .setTargetP(100)
             .setMinP(0)
             .setMaxP(110)
-            .setTargetV(380)
-            .setVoltageRegulatorOn(true)
+            .setLocalTargetV(380)
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
             .add();
 
         network.newLine()

@@ -7,10 +7,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
+
+import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -25,6 +26,12 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     private double voltageSetpoint = Double.NaN;
 
     private TerminalExt regulatingTerminal;
+
+    private double localTargetQ = Double.NaN;
+
+    private double localTargetV = Double.NaN;
+
+    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -60,32 +67,56 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     }
 
     @Override
+    public VscConverterStationAdder setLocalTargetV(double localTargetV) {
+        this.localTargetV = localTargetV;
+        return this;
+    }
+
+    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
+    }
+
+    @Override
+    public VscConverterStationAdder setLocalTargetQ(double localTargetQ) {
+        this.localTargetQ = localTargetQ;
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ;
+    }
+
+    @Override
+    public VoltageRegulationAdder<VscConverterStationAdder> newVoltageRegulation() {
+        return new VoltageRegulationAdderImpl<>(VscConverterStation.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
+    }
+
+    @Override
     public VscConverterStationImpl add() {
         NetworkImpl network = getNetwork();
-        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null && voltageRegulationAttributes == null) {
             voltageRegulatorOn = false;
+            reactivePowerSetpoint = localTargetQ;
         }
+        if (voltageRegulationAttributes == null && voltageRegulatorOn != null) {
+            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, regulatingTerminal);
+        }
+
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, VscConverterStation.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetworkRef(),
-                voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, regulatingTerminal);
+            localTargetQ, localTargetV, voltageRegulationAttributes);
         converterStation.addTerminal(terminal);
         getVoltageLevel().getTopologyModel().attach(terminal, false);
         network.getIndex().checkAndAdd(converterStation);
         network.getListeners().notifyCreation(converterStation);
         return converterStation;
-    }
-
-    @Override
-    protected void validate() {
-        super.validate();
-        NetworkImpl network = getNetwork();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
-                reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 
 }

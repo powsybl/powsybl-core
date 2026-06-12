@@ -279,6 +279,20 @@ public interface Terminal {
         }
     }
 
+    static Terminal getTerminal(Network network, String id, ThreeSides side, TerminalNumber number) {
+        Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
+        }
+        if (side != null && number != null) {
+            throw new PowsyblException("Terminal reference specifies both terminal side and terminal number: '" + id + "'");
+        }
+        if (number != null) {
+            return getTerminal(identifiable, number);
+        }
+        return getTerminal(identifiable, side != null ? side : ThreeSides.ONE);
+    }
+
     ThreeSides getSide();
 
     TerminalNumber getTerminalNumber();

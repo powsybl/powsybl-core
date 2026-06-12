@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 import java.util.Objects;
@@ -110,8 +112,10 @@ public final class HvdcTestNetwork {
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setLossFactor(1.1f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
+                .setLocalTargetV(405.0)
                 .add();
         cs1.getTerminal()
                 .setP(100.0)
@@ -134,9 +138,11 @@ public final class HvdcTestNetwork {
                 .setName("Converter2")
                 .setNode(2)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(123)
-                .setVoltageRegulatorOn(false)
-                .setRegulatingTerminal(cs1.getTerminal())
+                .newVoltageRegulation()
+                    .withTargetValue(123)
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .withTerminal(cs1.getTerminal())
+                    .add()
                 .add();
         cs2.newMinMaxReactiveLimits()
                 .setMinQ(0.0)

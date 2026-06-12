@@ -10,6 +10,7 @@ package com.powsybl.psse.converter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
@@ -800,11 +801,13 @@ class TransformerConverter extends AbstractConverter {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
         }
-        rtc.setTargetV(targetV)
-                .setTargetDeadband(targetDeadBand)
-                .setRegulationTerminal(regulatingTerminal)
-                .setLoadTapChangingCapabilities(regulating)
-                .setRegulating(regulating);
+        rtc.setLoadTapChangingCapabilities(regulating);
+        rtc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(targetV)
+            .withTargetDeadband(targetDeadBand)
+            .withTerminal(regulatingTerminal)
+            .build();
 
         return regulating;
     }

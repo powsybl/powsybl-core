@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 import java.util.Objects;
@@ -62,7 +64,7 @@ public final class ScadaNetworkFactory {
                 .setMaxQ(200)
                 .add();
         Generator generator = vl.newGenerator()
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .setId("generator")
                 .setBus(busId)
                 .setMinP(0.0)
@@ -116,7 +118,7 @@ public final class ScadaNetworkFactory {
         vl2.newShuntCompensator()
                 .setId("shunt")
                 .setBus(bus2Id)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .newLinearModel()
                 .setBPerSection(10.0)
                 .setMaximumSectionCount(1)
@@ -127,6 +129,7 @@ public final class ScadaNetworkFactory {
                 .setBmin(1.1)
                 .setBmax(3.2)
                 .setBus(bus2Id)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
                 .add();
         VoltageLevel vl3 = sub.newVoltageLevel()
                 .setId("vl3")
@@ -169,7 +172,6 @@ public final class ScadaNetworkFactory {
                 .setVoltageLevel(vl3.getId())
                 .add().add();
         t3wt.getLeg1().newRatioTapChanger()
-                .setRegulating(true)
                 .beginStep()
                 .setRho(1.0)
                 .setR(1.0)
@@ -203,7 +205,6 @@ public final class ScadaNetworkFactory {
                 .setVoltageLevel2(vl2.getId())
                 .add();
         t2wt.newRatioTapChanger()
-                .setRegulating(true)
                 .beginStep()
                 .setRho(1.0)
                 .setR(1.0)
@@ -227,7 +228,9 @@ public final class ScadaNetworkFactory {
                 .setId("vcs")
                 .setBus(bus2Id)
                 .setLossFactor(80f)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         network.newHvdcLine()
                 .setNominalV(400.0)

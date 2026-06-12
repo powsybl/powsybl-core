@@ -14,6 +14,7 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.Test;
@@ -159,9 +160,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(200.0, generator1.getMinP(), 0.0);
         assertEquals(900.0, generator1.getMaxP(), 0.0);
         assertSame(EnergySource.NUCLEAR, generator1.getEnergySource());
-        assertTrue(generator1.isVoltageRegulatorOn());
+        assertTrue(generator1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(900.0, generator1.getTargetP(), 0.0);
-        assertEquals(380.0, generator1.getTargetV(), 0.0);
+        assertEquals(380.0, generator1.getLocalTargetV(), 0.0);
         ReactiveCapabilityCurve rcc1 = generator1.getReactiveLimits(ReactiveCapabilityCurve.class);
         assertEquals(2, rcc1.getPointCount());
         assertEquals(500.0, rcc1.getMaxQ(500), 0.0);
@@ -309,10 +310,11 @@ public abstract class AbstractNetworkTest {
         assertEquals(-9999.99, generator1.getMinP(), 0.0);
         assertEquals(9999.99, generator1.getMaxP(), 0.0);
         assertSame(EnergySource.OTHER, generator1.getEnergySource());
-        assertTrue(generator1.isVoltageRegulatorOn());
+        assertTrue(generator1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(607.0, generator1.getTargetP(), 0.0);
-        assertEquals(24.5, generator1.getTargetV(), 0.0);
-        assertEquals(301.0, generator1.getTargetQ(), 0.0);
+        assertEquals(Double.NaN, generator1.getVoltageRegulation().getTargetValue(), 0.0);
+        assertEquals(24.5, generator1.getLocalTargetV(), 0.0);
+        assertEquals(301.0, generator1.getLocalTargetQ(), 0.0);
         assertEquals(bus1.getId(), generator1.getTerminal().getBusBreakerView().getBus().getId());
 
         // Substation B
@@ -338,7 +340,7 @@ public abstract class AbstractNetworkTest {
         assertNotNull(battery1);
         assertEquals("BAT", battery1.getId());
         assertEquals(9999.99, battery1.getTargetP(), 0.0);
-        assertEquals(9999.99, battery1.getTargetQ(), 0.0);
+        assertEquals(9999.99, battery1.getLocalTargetQ(), 0.0);
         assertEquals(-9999.99, battery1.getMinP(), 0.0);
         assertEquals(9999.99, battery1.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery1.getTerminal().getBusBreakerView().getBus().getId());
@@ -347,7 +349,7 @@ public abstract class AbstractNetworkTest {
         assertNotNull(battery2);
         assertEquals("BAT2", battery2.getId());
         assertEquals(100, battery2.getTargetP(), 0.0);
-        assertEquals(200, battery2.getTargetQ(), 0.0);
+        assertEquals(200, battery2.getLocalTargetQ(), 0.0);
         assertEquals(-200, battery2.getMinP(), 0.0);
         assertEquals(200, battery2.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery2.getTerminal().getBusBreakerView().getBus().getId());

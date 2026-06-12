@@ -9,6 +9,9 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,8 +50,8 @@ public abstract class AbstractBatteryTest {
         battery.setTargetP(targetP);
         assertEquals(targetP, battery.getTargetP(), 0.0);
         double targetQ = 12.0;
-        battery.setTargetQ(targetQ);
-        assertEquals(targetQ, battery.getTargetQ(), 0.0);
+        battery.setLocalTargetQ(targetQ);
+        assertEquals(targetQ, battery.getLocalTargetQ(), 0.0);
         double minP = 10.0;
         battery.setMinP(minP);
         assertEquals(minP, battery.getMinP(), 0.0);
@@ -111,7 +114,7 @@ public abstract class AbstractBatteryTest {
                 .setMaxP(20.0)
                 .setMinP(10.0)
                 .setTargetP(15.0)
-                .setTargetQ(10.0)
+                .setLocalTargetQ(10.0)
                 .setBus("NBAT")
                 .add();
         Battery battery = network.getBattery(BAT_ID);
@@ -120,7 +123,7 @@ public abstract class AbstractBatteryTest {
         assertEquals(20.0, battery.getMaxP(), 0.0);
         assertEquals(10.0, battery.getMinP(), 0.0);
         assertEquals(15.0, battery.getTargetP(), 0.0);
-        assertEquals(10.0, battery.getTargetQ(), 0.0);
+        assertEquals(10.0, battery.getLocalTargetQ(), 0.0);
     }
 
     @Test
@@ -231,10 +234,10 @@ public abstract class AbstractBatteryTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(11.0, battery.getTargetP(), 0.0);
-        assertEquals(12.0, battery.getTargetQ(), 0.0);
+        assertEquals(12.0, battery.getLocalTargetQ(), 0.0);
         // change values in s4
         battery.setTargetP(11.1);
-        battery.setTargetQ(12.2);
+        battery.setLocalTargetQ(12.2);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -243,12 +246,12 @@ public abstract class AbstractBatteryTest {
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(11.1, battery.getTargetP(), 0.0);
-        assertEquals(12.2, battery.getTargetQ(), 0.0);
+        assertEquals(12.2, battery.getLocalTargetQ(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(11.0, battery.getTargetP(), 0.0);
-        assertEquals(12.0, battery.getTargetQ(), 0.0);
+        assertEquals(12.0, battery.getLocalTargetQ(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
@@ -265,10 +268,127 @@ public abstract class AbstractBatteryTest {
         voltageLevel.newBattery()
                 .setId(id)
                 .setTargetP(targetP)
-                .setTargetQ(targetQ)
+                .setLocalTargetQ(targetQ)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setBus("NBAT")
                 .add();
+    }
+
+    @Test
+    void regulationTest() {
+        // GIVEN
+        // WHEN
+        RegulationMode regulationMode = RegulationMode.VOLTAGE;
+        double targetValue = 230.0;
+        boolean regulating = true;
+        Terminal terminal = voltageLevel.getBusBreakerView().getBus("NBAT").getConnectedTerminalStream().findFirst().orElse(null);
+        double slope = 4.0;
+        voltageLevel.newBattery()
+            .setId("BAT12987")
+            .setBus("NBAT")
+            .setConnectableBus("NBAT")
+            .setMinP(-999.0)
+            .setMaxP(999.0)
+            .setTargetP(100.0)
+            .setLocalTargetQ(50.0)
+            .newVoltageRegulation()
+                .withMode(regulationMode)
+                .withTargetValue(targetValue)
+                .withRegulating(regulating)
+                .withTerminal(terminal)
+                .withSlope(slope)
+                .add()
+            .add();
+        // THEN
+        Battery battery = network.getBattery("BAT12987");
+        assertNotNull(battery);
+        assertNotNull(battery.getVoltageRegulation());
+        assertEquals(regulationMode, battery.getVoltageRegulation().getMode());
+        assertEquals(targetValue, battery.getVoltageRegulation().getTargetValue());
+        assertEquals(regulating, battery.getVoltageRegulation().isRegulating());
+        assertEquals(terminal, battery.getVoltageRegulation().getTerminal());
+        assertEquals(slope, battery.getVoltageRegulation().getSlope());
+    }
+
+    @Test
+    void testNewVoltageRegulationInMultiVariants() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
+
+        Battery battery = network.getBattery("testMultiVariant");
+        battery.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(123)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        VoltageRegulation voltageRegulation = battery.newVoltageRegulation().withSlope(1).withRegulating(false).build();
+        // THEN
+        assertNotNull(voltageRegulation);
+        assertEquals(voltageRegulation, battery.getVoltageRegulation());
+        // Variant1
+        assertNull(voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(1, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(123, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    void testRemoveVoltageRegulationInMultiVariant() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
+
+        Battery battery = network.getBattery("testMultiVariant");
+        battery.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        battery.removeVoltageRegulation();
+        // THEN
+        // Variant1
+        assertNull(battery.getVoltageRegulation());
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNull(battery.getVoltageRegulation());
+    }
+
+    @Test
+    void testNewVoltageRegulationInMonoVariant() {
+        // GIVEN
+        createBattery("testMonoVariant", 11.0, 12, 10, 20.0);
+
+        Battery battery = network.getBattery("testMonoVariant");
+        battery.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        VoltageRegulationBuilder voltageRegulationBuilder = battery.newVoltageRegulation().withRegulating(false);
+        // WHEN
+        VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
+        // THEN
+        assertNotNull(voltageRegulation);
     }
 }

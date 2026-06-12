@@ -36,10 +36,10 @@ public abstract class AbstractMultiVariantNetworkTest {
         manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, SECOND_VARIANT);
         manager.setWorkingVariant(SECOND_VARIANT);
         final Generator generator = network.getGenerator("GEN");
-        generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn());
+        generator.getVoltageRegulation().setRegulating(false);
+        assertFalse(generator.getVoltageRegulation().isRegulating());
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.getVoltageRegulation().isRegulating());
     }
 
     @Test
@@ -53,10 +53,10 @@ public abstract class AbstractMultiVariantNetworkTest {
         final Generator generator = network.getGenerator("GEN");
 
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        generator.setVoltageRegulatorOn(true);
+        generator.getVoltageRegulation().setRegulating(true);
 
         manager.setWorkingVariant(SECOND_VARIANT);
-        generator.setVoltageRegulatorOn(false);
+        generator.getVoltageRegulation().setRegulating(false);
 
         final boolean[] voltageRegulatorOnInitialVariant = new boolean[1];
         final boolean[] voltageRegulatorOnSecondVariant = new boolean[1];
@@ -67,14 +67,14 @@ public abstract class AbstractMultiVariantNetworkTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnInitialVariant[0] = generator.getVoltageRegulation().isRegulating();
                 return null;
             },
             () -> {
                 manager.setWorkingVariant(SECOND_VARIANT);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnSecondVariant[0] = generator.getVoltageRegulation().isRegulating();
                 return null;
             })
         );

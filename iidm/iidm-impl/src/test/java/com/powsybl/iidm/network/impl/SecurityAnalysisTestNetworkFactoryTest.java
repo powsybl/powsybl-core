@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 
@@ -92,8 +93,9 @@ class SecurityAnalysisTestNetworkFactoryTest {
         assertEquals(EnergySource.OTHER, generator.getEnergySource());
         assertEquals(0, generator.getMinP(), threshold);
         assertEquals(150, generator.getMaxP(), threshold);
-        assertTrue(generator.isVoltageRegulatorOn());
-        assertEquals(400, generator.getTargetV(), threshold);
+        assertTrue(generator.getVoltageRegulation().isRegulating());
+        assertEquals(RegulationMode.VOLTAGE, generator.getVoltageRegulation().getMode());
+        assertEquals(400, generator.getLocalTargetV(), threshold);
         assertEquals(100, generator.getTargetP(), threshold);
     }
 

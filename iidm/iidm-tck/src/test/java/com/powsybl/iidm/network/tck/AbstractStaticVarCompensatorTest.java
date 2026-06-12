@@ -7,7 +7,11 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,8 +44,11 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertSame(svc, vl2.getStaticVarCompensators().iterator().next());
         assertEquals(0.0002, svc.getBmin(), 0.0);
         assertEquals(0.0008, svc.getBmax(), 0.0);
-        assertSame(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
-        assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
+        assertSame(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertEquals(390.0, svc.getRegulatingTargetV(), 0.0);
+        assertEquals(390.0, svc.getLocalTargetV(), 0.0);
+        assertEquals(Double.NaN, svc.getLocalTargetQ());
+        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue());
     }
 
     @Test
@@ -74,28 +81,31 @@ public abstract class AbstractStaticVarCompensatorTest {
     @Test
     public void changeRegulationModeErrorTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
-        try {
-            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        svc.setLocalTargetQ(Double.NaN);
+        svc.setLocalTargetV(390.0);
+        VoltageRegulationBuilder voltageRegulationBuilder = svc.newVoltageRegulation().withMode(RegulationMode.REACTIVE_POWER);
+        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationBuilder::build);
+        assertEquals("Static var compensator 'SVC2': invalid value (NaN) for localTargetQ (voltageRegulation is set with REACTIVE_POWER mode and regulating true and the terminal is unset)", validationException.getMessage());
     }
 
     @Test
     public void changeRegulationModeSuccessTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
-        svc.setReactivePowerSetpoint(200.0);
-        svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
-        assertEquals(200.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertSame(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
+        svc.setLocalTargetQ(200.0);
+        svc.getVoltageRegulation().setRegulating(false);
+        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
+        assertEquals(200.0, svc.getRegulatingTargetQ(), 0.0);
+        assertSame(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertFalse(svc.isRegulating());
     }
 
     @Test
     public void changeVoltageSetpointTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
-        svc.setVoltageSetpoint(391.0);
-        assertEquals(391.0, svc.getVoltageSetpoint(), 0.0);
+        svc.setLocalTargetV(391.0);
+        assertEquals(391.0, svc.getRegulatingTargetV(), 0.0);
+        assertEquals(391.0, svc.getLocalTargetV(), 0.0);
+        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
     }
 
     @Test
@@ -104,49 +114,50 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());
 
         Terminal loadTerminal = network.getLoad("L2").getTerminal();
-        svc.setRegulatingTerminal(loadTerminal);
+        svc.getVoltageRegulation().setTerminal(loadTerminal, 200);
         assertEquals(loadTerminal, svc.getRegulatingTerminal());
 
-        svc.setRegulatingTerminal(null);
+        svc.getVoltageRegulation().removeTerminal();
         assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());
 
-        StaticVarCompensator svc3 = createSvc("SVC3", null, StaticVarCompensator.RegulationMode.VOLTAGE);
+        StaticVarCompensator svc3 = createSvc("SVC3", null, RegulationMode.VOLTAGE);
         assertEquals(svc3.getTerminal(), svc3.getRegulatingTerminal());
 
         svc3.remove();
-        StaticVarCompensator svc4 = createSvc("SVC4", loadTerminal, StaticVarCompensator.RegulationMode.VOLTAGE);
+        StaticVarCompensator svc4 = createSvc("SVC4", loadTerminal, RegulationMode.VOLTAGE);
         assertEquals(loadTerminal, svc4.getRegulatingTerminal());
 
         network.getLoad("L2").remove();
         assertEquals(svc4.getTerminal(), svc4.getRegulatingTerminal());
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc4.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, svc4.getVoltageRegulation().getMode());
 
         Terminal lineTerminal = network.getLine("L1").getTerminal2();
-        StaticVarCompensator svc5 = createSvc("SVC5", lineTerminal, StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        StaticVarCompensator svc5 = createSvc("SVC5", lineTerminal, RegulationMode.REACTIVE_POWER);
         assertEquals(lineTerminal, svc5.getRegulatingTerminal());
-        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc5.getRegulationMode());
+        assertEquals(RegulationMode.REACTIVE_POWER, svc5.getVoltageRegulation().getMode());
         lineTerminal.getConnectable().remove();
         assertEquals(svc5.getTerminal(), svc5.getRegulatingTerminal());
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc5.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, svc5.getVoltageRegulation().getMode());
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createSvc("testMultiVariant", null, StaticVarCompensator.RegulationMode.VOLTAGE);
+        createSvc("testMultiVariant", null, RegulationMode.VOLTAGE);
         StaticVarCompensator svc = network.getStaticVarCompensator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(1.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
-        assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
+        assertEquals(1.0, svc.getLocalTargetQ(), 0.0);
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertEquals(390.0, svc.getRegulatingTargetV(), 0.0);
+        assertEquals(390.0, svc.getLocalTargetV(), 0.0);
         // change values in s4
-        svc.setReactivePowerSetpoint(3.0);
-        svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
-        svc.setVoltageSetpoint(440.0);
+        svc.setLocalTargetQ(3.0);
+        svc.setLocalTargetV(44.0);
+        svc.getVoltageRegulation().setRegulating(false);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -154,28 +165,113 @@ public abstract class AbstractStaticVarCompensatorTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(3.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
-        assertEquals(440.0, svc.getVoltageSetpoint(), 0.0);
+        assertEquals(3.0, svc.getLocalTargetQ(), 0.0);
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertFalse(svc.isRegulating());
+        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
+        assertEquals(3.0, svc.getRegulatingTargetQ(), 0.0);
+        assertEquals(3.0, svc.getLocalTargetQ(), 0.0);
+        assertEquals(44.0, svc.getLocalTargetV(), 0.0);
 
         // recheck initial variant value
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        svc.getVoltageRegulation().setRegulating(true);
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(1.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
-        assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
+        assertEquals(1.0, svc.getLocalTargetQ(), 0.0);
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertTrue(svc.isRegulating());
+        assertEquals(Double.NaN, svc.getVoltageRegulation().getTargetValue(), 0.0);
+        assertEquals(390.0, svc.getLocalTargetV(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            svc.getReactivePowerSetpoint();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        PowsyblException exception = assertThrows(PowsyblException.class, svc::getLocalTargetQ);
+        assertEquals("Variant index not set", exception.getMessage());
     }
 
-    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, StaticVarCompensator.RegulationMode regulationMode) {
+    @Test
+    public void testNewVoltageRegulationInMultiVariants() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createSvc("testMultiVariant", null, RegulationMode.VOLTAGE);
+
+        StaticVarCompensator svc = network.getStaticVarCompensator("testMultiVariant");
+        svc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(123)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        VoltageRegulation voltageRegulation = svc.newVoltageRegulation().withSlope(1).withRegulating(false).build();
+        // THEN
+        assertNotNull(voltageRegulation);
+        assertEquals(voltageRegulation, svc.getVoltageRegulation());
+        // Variant1
+        assertNull(voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(1, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(123, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    public void testRemoveVoltageRegulationInMultiVariant() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createSvc("testMultiVariant", null, RegulationMode.VOLTAGE);
+
+        StaticVarCompensator svc = network.getStaticVarCompensator("testMultiVariant");
+        svc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        svc.removeVoltageRegulation();
+        // THEN
+        // Variant1
+        assertNull(svc.getVoltageRegulation());
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNull(svc.getVoltageRegulation());
+    }
+
+    @Test
+    public void testNewVoltageRegulationInMonoVariant() {
+        // GIVEN
+        createSvc("testMonoVariant", null, RegulationMode.VOLTAGE);
+
+        StaticVarCompensator svc = network.getStaticVarCompensator("testMonoVariant");
+        svc.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .build();
+        VoltageRegulationBuilder voltageRegulationBuilder = svc.newVoltageRegulation().withRegulating(false);
+        // WHEN
+        VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
+        // THEN
+        assertNotNull(voltageRegulation);
+    }
+
+    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, RegulationMode regulationMode) {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
         return vl2.newStaticVarCompensator()
                 .setId(id)
@@ -183,11 +279,13 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(regulationMode)
-                .setRegulating(true)
-                .setVoltageSetpoint(390.0)
-                .setReactivePowerSetpoint(1.0)
-                .setRegulatingTerminal(regulatingTerminal)
+                .newVoltageRegulation()
+                    .withMode(regulationMode)
+                    .withTargetValue(regulatingTerminal != null ? 123 : Double.NaN)
+                    .withTerminal(regulatingTerminal)
+                    .add()
+                .setLocalTargetV(390.0)
+                .setLocalTargetQ(1.0)
                 .add();
     }
 }

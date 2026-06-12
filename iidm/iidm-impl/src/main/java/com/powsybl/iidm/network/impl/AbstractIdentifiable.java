@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.PropertiesContainer;
 
 import java.util.*;
 

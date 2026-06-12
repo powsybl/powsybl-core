@@ -10,12 +10,12 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public abstract class AbstractBusBreakerTest {
 
@@ -51,8 +51,10 @@ public abstract class AbstractBusBreakerTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
         vl1.newLoad()
                 .setId("LD1")
@@ -84,8 +86,10 @@ public abstract class AbstractBusBreakerTest {
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(400.0)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .add();
 
         network.newLine()
@@ -146,8 +150,7 @@ public abstract class AbstractBusBreakerTest {
                                                     .setName("vsc")
                                                     .setBus("bus1")
                                                     .setLossFactor(0.011f)
-                                                    .setVoltageRegulatorOn(false)
-                                                    .setReactivePowerSetpoint(1.0)
+                                                    .setLocalTargetQ(1.0)
                                                     .setConnectableBus("bus1")
                                                 .add();
         assertEquals(HvdcConverterStation.HvdcType.LCC, lccConverterStation.getHvdcType());

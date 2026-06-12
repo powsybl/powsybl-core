@@ -30,9 +30,14 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.removed.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.extensions.removed.VoltageRegulationExtension;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 import com.powsybl.iidm.serde.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
+import com.powsybl.iidm.serde.extensions.RemoteReactivePowerControlSerDe;
+import com.powsybl.iidm.serde.extensions.VoltageRegulationSerDe;
 import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
@@ -388,8 +393,8 @@ public final class NetworkSerDe {
     }
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
-        TreeDataWriter writer = context.getWriter();
         ExtensionSerDe extensionSerDe = getExtensionSerializer(context.getOptions(), extension, extensionsSupplier);
+        TreeDataWriter writer = context.getWriter();
         if (extensionSerDe == null) {
             throw new IllegalStateException("Extension Serializer of " + extension.getName() + " should not be null");
         }
@@ -435,11 +440,13 @@ public final class NetworkSerDe {
 
     private static void writeExtensions(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         context.getWriter().writeStartNodes();
+        Map<String, Set<Extension<? extends Identifiable<?>>>> removedExtensions = getRemovedExtension(n, context.getOptions(), extensionsSupplier);
         for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n.getIdentifiables(), context.getOptions())) {
             if (ignoreEquipmentAtExport(identifiable, context) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
                 continue;
             }
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+            Collection<? extends Extension<? extends Identifiable<?>>> identifiableExtensions = concatExtensionsAndRemovedExtensions(identifiable, removedExtensions);
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiableExtensions.stream()
                     .filter(e -> {
                         ExtensionSerDe extensionSerDe = getExtensionSerializer(context.getOptions(), e, extensionsSupplier);
                         return isExtensionIncluded(extensionSerDe, context.getOptions())
@@ -538,6 +545,52 @@ public final class NetworkSerDe {
         }
     }
 
+    private static Map<String, Set<Extension<? extends Identifiable<?>>>> getRemovedExtension(Network n, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
+        Map<String, Set<Extension<? extends Identifiable<?>>>> mapMsa = new HashMap<>();
+        var extensionsWithProvider = extensionsSupplier.get().getProviders();
+        var version = options.getVersion();
+        if (version.compareTo(IidmVersion.V_1_17) < 0) {
+            if (extensionsWithProvider.stream()
+                .anyMatch(VoltageRegulationSerDe.class::isInstance)) {
+                buildRemovedVoltageRegulationExtension(n, mapMsa);
+            }
+            if (extensionsWithProvider.stream()
+                .anyMatch(RemoteReactivePowerControlSerDe.class::isInstance)) {
+                n.getGeneratorStream()
+                    .filter(g -> g.getVoltageRegulation() != null
+                        && g.getVoltageRegulation().getTerminal() != null
+                        && g.isWithMode(RegulationMode.REACTIVE_POWER))
+                    .forEach(g -> {
+                        mapMsa.putIfAbsent(g.getId(), new HashSet<>());
+                        //
+                        RemoteReactivePowerControl removedExtension = new RemoteReactivePowerControl(g,
+                            g.getVoltageRegulation().getTargetValue(),
+                            g.getVoltageRegulation().getTerminal(),
+                            g.getVoltageRegulation().isRegulating());
+                        //
+                        mapMsa.get(g.getId()).add(removedExtension);
+                    });
+            }
+        }
+        return mapMsa;
+    }
+
+    private static void buildRemovedVoltageRegulationExtension(Network n, Map<String, Set<Extension<? extends Identifiable<?>>>> mapMsa) {
+        n.getBatteryStream()
+            .filter(b -> b.getVoltageRegulation() != null)
+            .forEach(b -> {
+                mapMsa.putIfAbsent(b.getId(), new HashSet<>());
+                //
+                double targetV = b.getVoltageRegulation().getTerminal() != null ? b.getVoltageRegulation().getTargetValue() : b.getLocalTargetV();
+                VoltageRegulationExtension removedExtension = new VoltageRegulationExtension(b,
+                    b.getVoltageRegulation().getTerminal(),
+                    b.isRegulatingWithMode(RegulationMode.VOLTAGE),
+                    targetV);
+                //
+                mapMsa.get(b.getId()).add(removedExtension);
+            });
+    }
+
     private static JsonWriter createJsonWriter(OutputStream os, ExportOptions options, ExtensionsSupplier extensionsSupplier) {
         try {
             return new JsonWriter(os, options.isIndent(), options.getVersion().toString("."), createSingleNameToArrayNameMap(options, extensionsSupplier));
@@ -585,13 +638,21 @@ public final class NetworkSerDe {
         if (options.withNoExtension()) {
             return Collections.emptySet();
         }
+        Map<String, Set<Extension<? extends Identifiable<?>>>> phantomSerializers = getRemovedExtension(n, options, extensionsSupplier);
 
         IidmVersion networkVersion = options.getVersion();
-        return n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
+        return n.getIdentifiables().stream().flatMap(identifiable -> concatExtensionsAndRemovedExtensions(identifiable, phantomSerializers)
                         .stream()
                         .map(extension -> (ExtensionSerDe<?, ?>) getExtensionSerializer(options, extension, extensionsSupplier))
                         .filter(exs -> canTheExtensionBeWritten(exs, networkVersion, options)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private static Collection<? extends Extension<? extends Identifiable<?>>> concatExtensionsAndRemovedExtensions(Identifiable<?> identifiable, Map<String, Set<Extension<? extends Identifiable<?>>>> removedExtensions) {
+        if (removedExtensions.containsKey(identifiable.getId())) {
+            return Stream.concat(identifiable.getExtensions().stream(), removedExtensions.get(identifiable.getId()).stream()).toList();
+        }
+        return identifiable.getExtensions();
     }
 
     private static void writeBaseNetwork(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {

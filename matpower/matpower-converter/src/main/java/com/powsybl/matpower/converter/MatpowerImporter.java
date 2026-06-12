@@ -18,6 +18,7 @@ import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.matpower.model.*;
 import org.apache.commons.math3.complex.Complex;
@@ -192,15 +193,21 @@ public class MatpowerImporter implements Importer {
         for (MGen mGen : model.getGeneratorsByBusNum(mBus.getNumber())) {
             String busId = getId(BUS_PREFIX, mGen.getNumber());
             String genId = getId(GENERATOR_PREFIX, mGen.getNumber());
+            boolean voltageRegulatorOn = mGen.getVoltageMagnitudeSetpoint() != 0;
+            double targetQ = mGen.getReactivePowerOutput();
+            double targetV = mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV();
             Generator generator = voltageLevel.newGenerator()
                     .setId(genId)
                     .setEnsureIdUnicity(true)
                     .setConnectableBus(busId)
                     .setBus(isInService(mGen) ? busId : null)
-                    .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
+                    .setLocalTargetV(targetV)
                     .setTargetP(mGen.getRealPowerOutput())
-                    .setTargetQ(mGen.getReactivePowerOutput())
-                    .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
+                    .setLocalTargetQ(targetQ)
+                    .newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE)
+                        .withRegulating(voltageRegulatorOn)
+                        .add()
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
                     .setRatedS(mGen.getTotalMbase() != 0 ? mGen.getTotalMbase() : Double.NaN)
@@ -294,7 +301,6 @@ public class MatpowerImporter implements Importer {
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setVoltageRegulatorOn(false)
                     .setSectionCount(1);
             adder.newLinearModel()
                     .setGPerSection(mBus.getShuntConductance() / context.getBaseMva() / zb)
@@ -487,16 +493,20 @@ public class MatpowerImporter implements Importer {
                     .setId(csId1)
                     .setBus(connectedBus1Id)
                     .setConnectableBus(bus1Id)
-                    .setVoltageRegulatorOn(true)
-                    .setVoltageSetpoint(mDcLine.getVf() * voltageLevel1.getNominalV())
+                    .setLocalTargetV(mDcLine.getVf() * voltageLevel1.getNominalV())
+                    .newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE)
+                        .add()
                     .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), mDcLine.getLoss0())) // To guarantee the round-trip
                     .add();
             VscConverterStation vsc2 = voltageLevel2.newVscConverterStation()
                     .setId(csId2)
                     .setBus(connectedBus2Id)
                     .setConnectableBus(bus2Id)
-                    .setVoltageRegulatorOn(true)
-                    .setVoltageSetpoint(mDcLine.getVt() * voltageLevel2.getNominalV())
+                    .setLocalTargetV(mDcLine.getVt() * voltageLevel2.getNominalV())
+                    .newVoltageRegulation()
+                        .withMode(RegulationMode.VOLTAGE)
+                        .add()
                     .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), mDcLine.getLoss0(), losses - mDcLine.getLoss0()))
                     .add();
             network.newHvdcLine()

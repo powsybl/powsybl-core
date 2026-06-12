@@ -26,10 +26,9 @@
         "energySource" : "OTHER",
         "minP" : -9999.99,
         "maxP" : 9999.99,
-        "voltageRegulatorOn" : true,
         "targetP" : 607.0,
-        "targetV" : 24.5,
-        "targetQ" : 301.0,
+        "localTargetV" : 24.5,
+        "localTargetQ" : 301.0,
         "bus" : "NGEN",
         "connectableBus" : "NGEN",
         "p" : -605.558349609375,
@@ -37,6 +36,10 @@
         "minMaxReactiveLimits" : {
           "minQ" : -9999.99,
           "maxQ" : 9999.99
+        },
+        "voltageRegulation" : {
+          "mode" : "VOLTAGE",
+          "regulating" : true
         }
       } ]
     }, {
@@ -127,17 +130,9 @@
       "p2" : -600.0,
       "q2" : -200.0,
       "ratioTapChanger" : {
-        "regulating" : true,
         "lowTapPosition" : 0,
         "tapPosition" : 1,
-        "targetDeadband" : 0.0,
         "loadTapChangingCapabilities" : true,
-        "regulationMode" : "VOLTAGE",
-        "regulationValue" : 158.0,
-        "terminalRef" : {
-          "id" : "NHV2_NLOAD",
-          "side" : "TWO"
-        },
         "steps" : [ {
           "r" : 0.0,
           "x" : 0.0,
@@ -156,7 +151,17 @@
           "g" : 0.0,
           "b" : 0.0,
           "rho" : 1.150766642808914
-        } ]
+        } ],
+        "voltageRegulation" : {
+          "targetValue" : 158.0,
+          "targetDeadband" : 0.0,
+          "mode" : "VOLTAGE",
+          "regulating" : true,
+          "terminalRef" : {
+            "id" : "NHV2_NLOAD",
+            "side" : "TWO"
+          }
+        }
       }
     } ]
   } ],

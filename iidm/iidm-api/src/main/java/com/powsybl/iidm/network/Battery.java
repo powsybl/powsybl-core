@@ -7,6 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+
 /**
  * A battery system.
  *
@@ -93,7 +96,7 @@ package com.powsybl.iidm.network;
  * @see MinMaxReactiveLimits
  * @see ReactiveCapabilityCurve
  */
-public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
+public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, VoltageRegulationHolder<Battery> {
 
     /**
      * Get the target active power in MW.
@@ -113,14 +116,18 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
      * Get the target reactive power in MVar.
      * <p>Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     double getTargetQ();
 
     /**
      * Set the target reactive power in MVar.
      * <p>Depends on the working variant.
      * @see VariantManager
+     * @deprecated use {@link #setLocalTargetQ(double)} instead
      */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     Battery setTargetQ(double targetQ);
 
     /**
@@ -154,10 +161,24 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     }
 
     default void setTargetPToP() {
-        this.setTargetP(-this.getTerminal().getP());
+        double p = this.getTerminal().getP();
+        if (!Double.isNaN(p)) {
+            this.setTargetP(-p);
+        }
     }
 
     default void setTargetQToQ() {
-        this.setTargetQ(-this.getTerminal().getQ());
+        // If remote reactive power regulation is enabled, the target value is updated
+        if (this.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) && isRemoteRegulating()) {
+            double remoteQ = getVoltageRegulation().getTerminal().getQ();
+            if (!Double.isNaN(remoteQ)) {
+                getVoltageRegulation().setTargetValue(-remoteQ);
+            }
+        }
+        double q = this.getTerminal().getQ();
+        if (!Double.isNaN(q)) {
+            // In any cases we set the localTargetQ
+            this.setLocalTargetQ(-this.getTerminal().getQ());
+        }
     }
 }

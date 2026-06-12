@@ -10,7 +10,9 @@ package com.powsybl.psse.converter;
 import java.util.*;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseFacts;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -50,8 +52,10 @@ class FactsDeviceConverter extends AbstractConverter {
         StaticVarCompensatorAdder adder = voltageLevel.newStaticVarCompensator()
                 .setId(getFactsDeviceId(psseFactsDevice.getName()))
                 .setName(psseFactsDevice.getName())
-                .setRegulating(false)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                .newVoltageRegulation()
+                    .withRegulating(false)
+                    .withMode(RegulationMode.REACTIVE_POWER)
+                    .add()
                 .setBmin(-bMax)
                 .setBmax(bMax);
 
@@ -81,23 +85,14 @@ class FactsDeviceConverter extends AbstractConverter {
             return;
         }
 
-        double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
+        double vNom = regulatingTerminal.getVoltageLevel().getNominalV();
         double targetQ = psseFactsDevice.getQdes();
-        double targetV = psseFactsDevice.getVset() * vnom;
-        boolean isRegulating = false;
-        StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
-        if (Double.isFinite(targetV) && targetV > 0.0) {
-            regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
-            isRegulating = true;
-        } else if (Double.isFinite(targetQ)) {
-            isRegulating = true;
-        }
+        double targetV = psseFactsDevice.getVset() * vNom;
+        boolean isRegulating = Double.isFinite(targetV) && targetV > 0.0;
+        staticVarCompensator.setLocalTargetQ(targetQ);
+        boolean isLocalTerminal = regulatingTerminal.getConnectable().equals(staticVarCompensator);
 
-        staticVarCompensator.setVoltageSetpoint(targetV)
-                .setReactivePowerSetpoint(targetQ)
-                .setRegulatingTerminal(regulatingTerminal)
-                .setRegulationMode(regulationMode)
-                .setRegulating(isRegulating);
+        VoltageRegulationUtils.buildVoltageRegulation(staticVarCompensator, isLocalTerminal, targetV, regulatingTerminal, isRegulating);
     }
 
     private static Terminal defineRegulatingTerminal(PsseFacts psseFactsDevice, Network network, StaticVarCompensator staticVarCompensator, PsseVersion version, NodeBreakerImport nodeBreakerImport) {
@@ -196,11 +191,11 @@ class FactsDeviceConverter extends AbstractConverter {
     }
 
     private static OptionalDouble findTargetQ(StaticVarCompensator staticVarCompensator) {
-        return Double.isFinite(staticVarCompensator.getReactivePowerSetpoint()) ? OptionalDouble.of(staticVarCompensator.getReactivePowerSetpoint()) : OptionalDouble.empty();
+        return Double.isFinite(staticVarCompensator.getRegulatingTargetQ()) ? OptionalDouble.of(staticVarCompensator.getRegulatingTargetQ()) : OptionalDouble.empty();
     }
 
     private static OptionalDouble findTargetV(StaticVarCompensator staticVarCompensator) {
-        return staticVarCompensator.getRegulatingTerminal() != null ? OptionalDouble.of(staticVarCompensator.getVoltageSetpoint() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()) : OptionalDouble.empty();
+        return staticVarCompensator.getRegulatingTerminal() != null ? OptionalDouble.of(staticVarCompensator.getRegulatingTargetV() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()) : OptionalDouble.empty();
     }
 
     private static boolean isStatCom(PsseFacts psseFactsDevice) {

@@ -341,10 +341,9 @@
         "energySource" : "HYDRO",
         "minP" : 0.0,
         "maxP" : 70.0,
-        "voltageRegulatorOn" : false,
         "targetP" : 0.0,
-        "targetV" : 0.0,
-        "targetQ" : 0.0,
+        "localTargetV" : 0.0,
+        "localTargetQ" : 0.0,
         "node" : 12,
         "reactiveCapabilityCurve" : {
           "points" : [ {
@@ -362,10 +361,9 @@
         "energySource" : "HYDRO",
         "minP" : 0.0,
         "maxP" : 80.0,
-        "voltageRegulatorOn" : false,
         "targetP" : 0.0,
-        "targetV" : 0.0,
-        "targetQ" : 0.0,
+        "localTargetV" : 0.0,
+        "localTargetQ" : 0.0,
         "node" : 14,
         "reactiveCapabilityCurve" : {
           "points" : [ {
@@ -383,10 +381,9 @@
         "energySource" : "HYDRO",
         "minP" : 0.0,
         "maxP" : 35.0,
-        "voltageRegulatorOn" : true,
         "targetP" : 21.789589,
-        "targetV" : 236.44736,
-        "targetQ" : -20.701546,
+        "localTargetV" : 236.44736,
+        "localTargetQ" : -20.701546,
         "node" : 16,
         "p" : -21.789589,
         "q" : 20.693394,
@@ -400,6 +397,10 @@
             "minQ" : -21.725,
             "maxQ" : 6.3500004
           } ]
+        },
+        "voltageRegulation" : {
+          "mode" : "VOLTAGE",
+          "regulating" : true
         }
       } ],
       "loads" : [ {

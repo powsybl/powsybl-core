@@ -9,6 +9,7 @@ package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
@@ -224,15 +225,12 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
         // Always with internal connection
         int nodeR = voltageLevelR.getNodeBreakerView().getMaximumNodeIndex() + 1;
         createInternalConnection(voltageLevelR, nodeRefR.node, nodeR);
-
         VscConverterStationAdder adderR = voltageLevelR.newVscConverterStation()
             .setEnsureIdUnicity(true)
             .setId(configuration.vsc0.getLocName())
             .setNode(nodeR)
-            .setLossFactor((float) vscModelR.lossFactor)
-            .setVoltageSetpoint(vscModelR.voltageSetpoint)
-            .setReactivePowerSetpoint(vscModelR.reactivePowerSetpoint)
-            .setVoltageRegulatorOn(vscModelR.voltageRegulatorOn);
+            .setLossFactor((float) vscModelR.lossFactor);
+        addVoltageRegulation(adderR, vscModelR);
         VscConverterStation cR = adderR.add();
 
         NodeRef nodeRefI = getNodeFromElmTerm(configuration.elmTermAc1);
@@ -246,10 +244,8 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
             .setEnsureIdUnicity(true)
             .setId(configuration.vsc1.getLocName())
             .setNode(nodeI)
-            .setLossFactor((float) vscModelI.lossFactor)
-            .setVoltageSetpoint(vscModelI.voltageSetpoint)
-            .setReactivePowerSetpoint(vscModelI.reactivePowerSetpoint)
-            .setVoltageRegulatorOn(vscModelI.voltageRegulatorOn);
+            .setLossFactor((float) vscModelI.lossFactor);
+        addVoltageRegulation(adderI, vscModelI);
         VscConverterStation cI = adderI.add();
 
         HvdcLineAdder adder = getNetwork().newHvdcLine()
@@ -262,6 +258,19 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
             .setConverterStationId1(cR.getId())
             .setConverterStationId2(cI.getId());
         adder.add();
+    }
+
+    private static void addVoltageRegulation(VscConverterStationAdder adderR, VscModel vscModelR) {
+        boolean voltageRegulatorOn = vscModelR.voltageRegulatorOn;
+        double targetV = vscModelR.voltageSetpoint;
+        double targetQ = vscModelR.reactivePowerSetpoint;
+        if (voltageRegulatorOn) {
+            adderR.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .add();
+        }
+        adderR.setLocalTargetQ(targetQ)
+            .setLocalTargetV(targetV);
     }
 
     private static final class DcLineModel {

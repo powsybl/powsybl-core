@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,8 +83,10 @@ class ComponentsTest {
                 .setMinP(-500)
                 .setMaxP(500)
                 .setTargetP(150)
-                .setTargetV(405)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(405)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setBus(bus1.getId())
                 .setConnectableBus(bus1.getId())
                 .add();
@@ -105,8 +108,10 @@ class ComponentsTest {
                 .setMinP(-500)
                 .setMaxP(500)
                 .setTargetP(50)
-                .setTargetV(405.0d)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(405.0d)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setBus(bus2.getId())
                 .setConnectableBus(bus2.getId())
                 .add();

@@ -1,0 +1,75 @@
+/**
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.iidm.network.regulation;
+
+import com.powsybl.iidm.network.*;
+
+import java.util.Set;
+
+/**
+ * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
+ */
+public enum RegulationMode {
+    VOLTAGE(1),
+    REACTIVE_POWER(2),
+    VOLTAGE_PER_REACTIVE_POWER(3);
+    // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+
+    private final int index;
+
+    RegulationMode(int index) {
+        this.index = index;
+    }
+
+    public static RegulationMode fromIndex(int index) {
+        for (RegulationMode mode : RegulationMode.values()) {
+            if (mode.index == index) {
+                return mode;
+            }
+        }
+        throw new IllegalArgumentException("Unknown index: " + index);
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public static Integer getIndex(RegulationMode mode) {
+        return mode == null ? null : mode.index;
+    }
+
+    public static Set<RegulationMode> getAllowedRegulationModes(boolean isRemoteRegulating, Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+        return isRemoteRegulating ? getRemoteAllowedRegulationModes(voltageRegulationHolder) : getLocalAllowedRegulationModes(voltageRegulationHolder);
+    }
+
+    private static Set<RegulationMode> getRemoteAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+        return switch (voltageRegulationHolder) {
+            case Class<?> c when c == Battery.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE, REACTIVE_POWER); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+            case Class<?> c when c == RatioTapChanger.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
+            case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE, REACTIVE_POWER);
+            default -> throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
+        };
+    }
+
+    private static Set<RegulationMode> getLocalAllowedRegulationModes(Class<? extends VoltageRegulationHolder<?>> voltageRegulationHolder) {
+        return switch (voltageRegulationHolder) {
+            case Class<?> c when c == Battery.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == Generator.class -> Set.of(VOLTAGE); // REACTIVE_POWER_PER_ACTIVE_POWER not yet supported
+            case Class<?> c when c == RatioTapChanger.class -> Set.of();
+            case Class<?> c when c == ShuntCompensator.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == StaticVarCompensator.class -> Set.of(VOLTAGE, REACTIVE_POWER, VOLTAGE_PER_REACTIVE_POWER);
+            case Class<?> c when c == VscConverterStation.class -> Set.of(VOLTAGE);
+            case Class<?> c when c == VoltageSourceConverter.class -> Set.of(VOLTAGE);
+            default -> throw new IllegalArgumentException(voltageRegulationHolder.getSimpleName() + " class cannot be used with VoltageRegulation");
+        };
+    }
+}

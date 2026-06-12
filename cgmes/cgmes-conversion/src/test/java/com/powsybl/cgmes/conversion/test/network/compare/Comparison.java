@@ -15,6 +15,8 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -347,14 +349,30 @@ public class Comparison {
                 expected.getSectionCount(),
                 actual.getSectionCount());
         compare("voltageRegulationOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
-        compare("targetV",
-                expected.getTargetV(),
-                actual.getTargetV());
-        compare("targetDeadband",
-                expected.getTargetDeadband(),
-                actual.getTargetDeadband());
+                expected.isRegulatingWithMode(RegulationMode.VOLTAGE),
+                actual.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        if (expected.getVoltageRegulation() != null) {
+            compare("voltageRegulation.targetValue",
+                expected.getVoltageRegulation().getTargetValue(),
+                actual.getVoltageRegulation().getTargetValue());
+            compare("voltageRegulation.targetDeadband",
+                expected.getVoltageRegulation().getTargetDeadband(),
+                actual.getVoltageRegulation().getTargetDeadband());
+            compare("voltageRegulation.terminal",
+                expected.getVoltageRegulation().getTerminal().getConnectable().getId(),
+                actual.getVoltageRegulation().getTerminal().getConnectable().getId());
+            compare("voltageRegulation.isRegulating",
+                expected.getVoltageRegulation().isRegulating(),
+                actual.getVoltageRegulation().isRegulating());
+        } else {
+            compare("voltageRegulation", null, actual.getVoltageRegulation());
+        }
+        compare("localTargetV",
+            expected.getLocalTargetV(),
+            actual.getLocalTargetV());
+        compare("localTargetQ",
+            expected.getLocalTargetQ(),
+            actual.getLocalTargetQ());
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());
@@ -414,15 +432,21 @@ public class Comparison {
         compare("Bmax",
                 expected.getBmax(),
                 actual.getBmax());
+        compare("localTargetV",
+                expected.getLocalTargetV(),
+                actual.getLocalTargetV());
+        compare("localTargetQ",
+                expected.getLocalTargetQ(),
+                actual.getLocalTargetQ());
         compare("voltageSetpoint",
-                expected.getVoltageSetpoint(),
-                actual.getVoltageSetpoint());
+                expected.getRegulatingTargetV(),
+                actual.getRegulatingTargetV());
         compare("reactivePowerSetpoint",
-                expected.getReactivePowerSetpoint(),
-                actual.getReactivePowerSetpoint());
+                expected.getRegulatingTargetQ(),
+                actual.getRegulatingTargetQ());
         compare("regulationMode",
-                expected.getRegulationMode(),
-                actual.getRegulationMode());
+                expected.getVoltageRegulation().getMode(),
+                actual.getVoltageRegulation().getMode());
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());
@@ -454,11 +478,14 @@ public class Comparison {
         compare("maxP", expected.getMaxP(), actual.getMaxP());
         compareGeneratorReactiveLimits(expected.getReactiveLimits(), actual.getReactiveLimits());
         compare("targetP", expected.getTargetP(), actual.getTargetP());
-        compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
-        compare("targetV", expected.getTargetV(), actual.getTargetV());
-        compare("isVoltageRegulatorOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
+        compare("localTargetQ", expected.getLocalTargetQ(), actual.getLocalTargetQ());
+        if (expected.getVoltageRegulation() != null) {
+            compare("VoltageRegulation.mode", expected.getVoltageRegulation().getMode(), actual.getVoltageRegulation().getMode());
+            compare("VoltageRegulation.regulating", expected.getVoltageRegulation().isRegulating(), actual.getVoltageRegulation().isRegulating());
+            compare("VoltageRegulation.targetValue", expected.getVoltageRegulation().getTargetValue(), actual.getVoltageRegulation().getTargetValue());
+        } else {
+            compare("voltageRegulation", null, actual.getVoltageRegulation());
+        }
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {
@@ -731,7 +758,16 @@ public class Comparison {
         compare("ratioTapChanger.hasLoadTapChangingCapabilities",
                 expected.hasLoadTapChangingCapabilities(),
                 actual.hasLoadTapChangingCapabilities());
-        compare("ratioTapChanger.targetV", expected.getTargetV(), actual.getTargetV());
+        compare("ratioTapChanger.regulatingTargetV", expected.getRegulatingTargetV(), actual.getRegulatingTargetV());
+        VoltageRegulation expectedVoltageRegulation = expected.getVoltageRegulation();
+        VoltageRegulation actualVoltageRegulation = actual.getVoltageRegulation();
+        if (expectedVoltageRegulation != null) {
+            compare("ratioTapChanger.voltageRegulation.targetValue", expectedVoltageRegulation.getTargetValue(), actualVoltageRegulation.getTargetValue());
+            compare("ratioTapChanger.voltageRegulation.mode", expectedVoltageRegulation.getMode(), actualVoltageRegulation.getMode());
+            compare("ratioTapChanger.voltageRegulation.regulating", expectedVoltageRegulation.isRegulating(), actualVoltageRegulation.isRegulating());
+            compare("ratioTapChanger.voltageRegulation.slope", expectedVoltageRegulation.getSlope(), actualVoltageRegulation.getSlope());
+            compare("ratioTapChanger.voltageRegulation.targetDeadband", expectedVoltageRegulation.getTargetDeadband(), actualVoltageRegulation.getTargetDeadband());
+        }
     }
 
     private void comparePhaseTapChanger(
@@ -741,6 +777,9 @@ public class Comparison {
         if (expected == null) {
             return;
         }
+        compare("phaseTapChanger.targetDeadband",
+            expected.getTargetDeadband(),
+            actual.getTargetDeadband());
         compare("phaseTapChanger.regulationMode",
                 expected.getRegulationMode(),
                 actual.getRegulationMode());
@@ -772,9 +811,6 @@ public class Comparison {
             compare("tapChanger.tapPosition",
                     expected.getTapPosition(),
                     actual.getTapPosition());
-            compare("tapChanger.targetDeadband",
-                    expected.getTargetDeadband(),
-                    actual.getTargetDeadband());
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
             for (int k = expected.getLowTapPosition(); k <= expected.getHighTapPosition(); k++) {

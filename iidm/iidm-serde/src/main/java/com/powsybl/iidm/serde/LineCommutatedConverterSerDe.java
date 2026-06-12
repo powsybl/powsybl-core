@@ -9,6 +9,9 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -37,15 +40,12 @@ public class LineCommutatedConverterSerDe extends AbstractAcDcConverterSerDe<Lin
     }
 
     @Override
-    protected LineCommutatedConverter readRootElementAttributes(final LineCommutatedConverterAdder adder, final VoltageLevel parent, final NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(final LineCommutatedConverterAdder adder, final VoltageLevel parent, final List<Consumer<LineCommutatedConverter>> toApply, final NetworkDeserializerContext context) {
         super.readRootElementCommonAttributes(adder, parent, context);
         LineCommutatedConverter.ReactiveModel reactiveModel = context.getReader().readEnumAttribute("reactiveModel", LineCommutatedConverter.ReactiveModel.class);
         double powerFactor = context.getReader().readDoubleAttribute("powerFactor");
-        LineCommutatedConverter lcc = adder
-                .setReactiveModel(reactiveModel)
-                .setPowerFactor(powerFactor)
-                .add();
-        super.readRootElementPqiAttributes(lcc, context);
-        return lcc;
+        adder.setReactiveModel(reactiveModel)
+            .setPowerFactor(powerFactor);
+        super.readRootElementPqiAttributes(toApply, adder, context);
     }
 }

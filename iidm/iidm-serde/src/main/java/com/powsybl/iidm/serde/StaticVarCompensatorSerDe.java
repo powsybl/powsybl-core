@@ -10,14 +10,20 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
+public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
 
     static final StaticVarCompensatorSerDe INSTANCE = new StaticVarCompensatorSerDe();
 
@@ -27,6 +33,8 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
     private static final String REGULATING_TERMINAL = "regulatingTerminal";
     private static final String REGULATION_MODE = "regulationMode";
     private static final String REGULATING = "regulating";
+    private static final String LOCAL_TARGET_V = "localTargetV";
+    private static final String LOCAL_TARGET_Q = "localTargetQ";
 
     @Override
     protected String getRootElementName() {
@@ -43,30 +51,60 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        context.getWriter().writeDoubleAttribute(voltageSetpointName[0], svc.getVoltageSetpoint());
-        context.getWriter().writeDoubleAttribute(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint());
+        writeVoltageSetpoint(svc, context, voltageSetpointName[0]);
+        writeReactivePowerSetpoint(svc, context, reactivePowerSetpointName[0]);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, svc.getLocalTargetQ()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, svc.getLocalTargetV()));
 
         // If SVC is not regulating in versions < 1.14, then its regulation mode should be exported as OFF (as it means that it has been imported with a "OFF" or null regulation mode)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
-            if (svc.isRegulating()) {
-                context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getRegulationMode());
+            if (svc.isRegulatingWithMode(RegulationMode.VOLTAGE) || svc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, SvcRegulationMode.from(svc.getVoltageRegulation().getMode()));
             } else {
                 context.getWriter().writeEnumAttribute(REGULATION_MODE, RegulationModeSerDe.OFF);
             }
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
-            context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getRegulationMode());
-            context.getWriter().writeBooleanAttribute(REGULATING, svc.isRegulating());
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_14, IidmVersion.V_1_16, context, () -> {
+            if (svc.getVoltageRegulation() != null) {
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getVoltageRegulation().getMode());
+                context.getWriter().writeBooleanAttribute(REGULATING, svc.getVoltageRegulation().isRegulating());
+            } else {
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, RegulationMode.VOLTAGE); // Previous default mode in the SVC adder
+                context.getWriter().writeBooleanAttribute(REGULATING, false);
+            }
         });
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
     }
 
+    private static void writeVoltageSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String voltageSetpointName) {
+        double voltageSetpoint;
+        if (svc.isWithMode(RegulationMode.VOLTAGE) && svc.isRemoteRegulating()) {
+            voltageSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
+        } else {
+            voltageSetpoint = svc.getLocalTargetV();
+        }
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(voltageSetpointName, voltageSetpoint));
+    }
+
+    private static void writeReactivePowerSetpoint(StaticVarCompensator svc, NetworkSerializerContext context, String reactivePowerSetpointName) {
+        double reactivePowerSetpoint;
+        if (svc.isWithMode(RegulationMode.REACTIVE_POWER) && svc.isRemoteRegulating()) {
+            reactivePowerSetpoint = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getTargetValue() : Double.NaN;
+        } else {
+            reactivePowerSetpoint = svc.getLocalTargetQ();
+        }
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(reactivePowerSetpointName, reactivePowerSetpoint));
+    }
+
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkSerializerContext context) {
-        IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(svc != svc.getRegulatingTerminal().getConnectable(),
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
+            IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(svc != svc.getRegulatingTerminal().getConnectable(),
                 ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
-                IidmVersion.V_1_1, context, () -> TerminalRefSerDe.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+                IidmVersion.V_1_1, context, () -> TerminalRefSerDe.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL)));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
+            () -> VoltageRegulationSerDe.writeVoltageRegulation(svc.getVoltageRegulation(), context));
     }
 
     @Override
@@ -83,21 +121,21 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
         REACTIVE_POWER,
         OFF;
 
-        static StaticVarCompensator.RegulationMode convertToRegulationMode(RegulationModeSerDe regulationModeSerDe) {
+        static RegulationMode convertToRegulationMode(RegulationModeSerDe regulationModeSerDe) {
             switch (regulationModeSerDe) {
                 case VOLTAGE, OFF -> {
-                    return StaticVarCompensator.RegulationMode.VOLTAGE;
+                    return RegulationMode.VOLTAGE;
                 }
                 case REACTIVE_POWER -> {
-                    return StaticVarCompensator.RegulationMode.REACTIVE_POWER;
+                    return RegulationMode.REACTIVE_POWER;
                 }
             }
-            return StaticVarCompensator.RegulationMode.VOLTAGE;
+            return RegulationMode.VOLTAGE;
         }
     }
 
     @Override
-    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(StaticVarCompensatorAdder adder, VoltageLevel voltageLevel, List<Consumer<StaticVarCompensator>> toApply, NetworkDeserializerContext context) {
         double bMin = context.getReader().readDoubleAttribute("bMin");
         double bMax = context.getReader().readDoubleAttribute("bMax");
 
@@ -107,41 +145,106 @@ public class StaticVarCompensatorSerDe extends AbstractSimpleIdentifiableSerDe<S
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        double voltageSetpoint = context.getReader().readDoubleAttribute(voltageSetpointName[0]);
-        double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]);
+        AtomicReference<Double> voltageSetpoint = new AtomicReference<>(Double.NaN);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> voltageSetpoint.set(context.getReader().readDoubleAttribute(voltageSetpointName[0])));
+        AtomicReference<Double> reactivePowerSetpoint = new AtomicReference<>(Double.NaN);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute(reactivePowerSetpointName[0])));
 
         adder.setBmin(bMin)
-                .setBmax(bMax)
-                .setVoltageSetpoint(voltageSetpoint)
-                .setReactivePowerSetpoint(reactivePowerSetpoint);
+                .setBmax(bMax);
 
+        AtomicReference<RegulationMode> regulationModeRef = new AtomicReference<>();
+        AtomicBoolean regulatingRef = new AtomicBoolean(false);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
             RegulationModeSerDe regulationModeSerDe = context.getReader().readEnumAttribute(REGULATION_MODE, RegulationModeSerDe.class);
             if (regulationModeSerDe != null) {
-                adder.setRegulationMode(RegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
-                adder.setRegulating(!RegulationModeSerDe.OFF.equals(regulationModeSerDe));
+                regulationModeRef.set(RegulationModeSerDe.convertToRegulationMode(regulationModeSerDe));
+                regulatingRef.set(!RegulationModeSerDe.OFF.equals(regulationModeSerDe));
             }
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
-            adder.setRegulationMode(context.getReader().readEnumAttribute(REGULATION_MODE, StaticVarCompensator.RegulationMode.class));
-            adder.setRegulating(context.getReader().readBooleanAttribute(REGULATING, false));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_14, IidmVersion.V_1_16, context, () -> {
+            regulationModeRef.set(context.getReader().readEnumAttribute(REGULATION_MODE, RegulationMode.class));
+            regulatingRef.set(context.getReader().readBooleanAttribute(REGULATING, false));
+        });
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
+            adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V, Double.NaN));
+        });
+        AtomicReference<Double> targetValueDoubleToUseInVoltageRegulationIfRemote = new AtomicReference<>(Double.NaN);
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
+            if (regulationModeRef.get() == null) {
+                if (!Double.isNaN(voltageSetpoint.get())) {
+                    regulationModeRef.set(RegulationMode.VOLTAGE);
+                } else if (!Double.isNaN(reactivePowerSetpoint.get())) {
+                    regulationModeRef.set(RegulationMode.REACTIVE_POWER);
+                } else {
+                    regulationModeRef.set(RegulationMode.VOLTAGE);
+                }
+            }
+            adder.setLocalTargetV(voltageSetpoint.get());
+            adder.setLocalTargetQ(reactivePowerSetpoint.get());
+            if (RegulationMode.VOLTAGE.equals(regulationModeRef.get())) {
+                boolean regulating = regulatingRef.get();
+                adder.newVoltageRegulation()
+                    .withMode(regulationModeRef.get())
+                    .withRegulating(regulating)
+                    .add();
+                targetValueDoubleToUseInVoltageRegulationIfRemote.set(voltageSetpoint.get());
+            } else {
+                targetValueDoubleToUseInVoltageRegulationIfRemote.set(reactivePowerSetpoint.get());
+            }
         });
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
-        StaticVarCompensator svc = adder.add();
-        readPQ(null, svc.getTerminal(), context.getReader());
-        return svc;
+        double p = context.getReader().readDoubleAttribute("p");
+        double q = context.getReader().readDoubleAttribute("q");
+        toApply.add(svc -> svc.getTerminal().setP(p).setQ(q));
+        toApply.add(svc -> {
+            Runnable actionOnTerminalRemote;
+            if (RegulationMode.REACTIVE_POWER.equals(regulationModeRef.get())) {
+                actionOnTerminalRemote = () -> svc.setLocalTargetQ(Double.NaN);
+            } else {
+                actionOnTerminalRemote = () -> svc.setLocalTargetV(Double.NaN);
+            }
+            context.addExtraProperties(svc, new NetworkDeserializerContext.ExtraPropertiesData(targetValueDoubleToUseInVoltageRegulationIfRemote.get(), actionOnTerminalRemote));
+        });
     }
 
     @Override
-    protected void readSubElements(StaticVarCompensator svc, NetworkDeserializerContext context) {
+    protected void readSubElements(String id, StaticVarCompensatorAdder adder, List<Consumer<StaticVarCompensator>> toApply, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
-            if (elementName.equals(REGULATING_TERMINAL)) {
-                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
-                TerminalRefSerDe.readTerminalRef(context, svc.getNetwork(), svc::setRegulatingTerminal);
-            } else {
-                readSubElement(elementName, svc, context);
+            switch (elementName) {
+                case REGULATING_TERMINAL -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_1, context);
+                    VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                }
+                case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
+                default -> readSubElement(elementName, id, toApply, context);
             }
         });
+    }
+
+    private enum SvcRegulationMode {
+        VOLTAGE(RegulationMode.VOLTAGE),
+        REACTIVE_POWER(RegulationMode.REACTIVE_POWER);
+        private final RegulationMode regulationMode;
+
+        SvcRegulationMode(RegulationMode regulationMode) {
+            this.regulationMode = regulationMode;
+        }
+
+        static SvcRegulationMode from(RegulationMode regulationMode) {
+            if (regulationMode == null) {
+                return null;
+            }
+            for (SvcRegulationMode value : values()) {
+                if (value.regulationMode == regulationMode) {
+                    return value;
+                }
+            }
+            throw new IllegalArgumentException(
+                "None SvcRegulationMode for the RegulationMode : " + regulationMode);
+        }
     }
 }

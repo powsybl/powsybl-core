@@ -8,11 +8,14 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageSourceConverter;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
@@ -25,26 +28,25 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final TDoubleArrayList reactivePowerSetpoint;
+    private final TDoubleArrayList localTargetQ;
 
-    private final TDoubleArrayList voltageSetpoint;
+    private final TDoubleArrayList localTargetV;
 
-    private final RegulatingPoint regulatingPoint;
+    private VoltageRegulationExt voltageRegulation;
 
     VoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
                                double idleLoss, double switchingLoss, double resistiveLoss,
                                TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
-                               boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
+                               double localTargetQ, double localTargetV, VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
         super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
-        this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
-        this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
-        this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
+        this.localTargetQ = new TDoubleArrayList(variantArraySize);
+        this.localTargetV = new TDoubleArrayList(variantArraySize);
+        this.localTargetQ.fill(0, variantArraySize, localTargetQ);
+        this.localTargetV.fill(0, variantArraySize, localTargetV);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-        regulatingPoint = new RegulatingPoint(id, () -> null, variantArraySize, voltageRegulatorOn, true);
-        regulatingPoint.setRegulatingTerminal(pccTerminal);
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VoltageSourceConverter.class, ref, voltageRegulationAttributes);
     }
 
     @Override
@@ -55,67 +57,67 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public VoltageSourceConverter setPccTerminal(Terminal pccTerminal) {
         super.setPccTerminal(pccTerminal);
-        regulatingPoint.setRegulatingTerminal((TerminalExt) pccTerminal);
         return this;
     }
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, VOLTAGE_REGULATOR_ON_ATTRIBUTE);
-        return regulatingPoint.isRegulating(getNetwork().getVariantIndex());
+        return isWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override
     public VoltageSourceConverterImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_REGULATOR_ON_ATTRIBUTE);
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex),
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        boolean oldValue = this.regulatingPoint.isRegulating(variantIndex);
-        this.regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate(VOLTAGE_REGULATOR_ON_ATTRIBUTE, variantId, oldValue, voltageRegulatorOn);
+        getOptionalVoltageRegulation().ifPresent(regulation -> {
+            boolean oldValue = regulation.setRegulating(voltageRegulatorOn);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate(VOLTAGE_REGULATOR_ON_ATTRIBUTE, variantId, oldValue, voltageRegulatorOn);
+        });
         return this;
     }
 
     @Override
     public double getVoltageSetpoint() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, VOLTAGE_SETPOINT_ATTRIBUTE);
-        return this.voltageSetpoint.get(getNetwork().getVariantIndex());
+        return this.getRegulatingTargetV();
     }
 
     @Override
     public VoltageSourceConverterImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, VOLTAGE_SETPOINT_ATTRIBUTE);
-        NetworkImpl n = getNetwork();
-        int variantIndex = n.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex),
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
+        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        double oldValue;
+        if (voltageRegulation != null
+            && isRemoteRegulating()
+            && isWithMode(RegulationMode.VOLTAGE)) {
+            oldValue = voltageRegulation.getTargetValue();
+            voltageRegulation.setTargetValue(voltageSetpoint);
+        } else {
+            oldValue = getLocalTargetV();
+            setLocalTargetV(voltageSetpoint);
+        }
         notifyUpdate(VOLTAGE_SETPOINT_ATTRIBUTE, variantId, oldValue, voltageSetpoint);
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT_ATTRIBUTE);
-        return this.reactivePowerSetpoint.get(getNetwork().getVariantIndex());
+        return this.getRegulatingTargetQ();
     }
 
     @Override
     public VoltageSourceConverterImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, REACTIVE_POWER_SETPOINT_ATTRIBUTE);
-        NetworkImpl n = getNetwork();
-        int variantIndex = n.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint,
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
+        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        double oldValue;
+        if (voltageRegulation != null
+            && isRemoteRegulating()
+            && isWithMode(RegulationMode.REACTIVE_POWER)) {
+            oldValue = voltageRegulation.getTargetValue();
+            voltageRegulation.setTargetValue(reactivePowerSetpoint);
+        } else {
+            oldValue = getLocalTargetQ();
+            setLocalTargetQ(reactivePowerSetpoint);
+        }
         notifyUpdate(REACTIVE_POWER_SETPOINT_ATTRIBUTE, variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
@@ -148,41 +150,122 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-
-        reactivePowerSetpoint.ensureCapacity(reactivePowerSetpoint.size() + number);
-        reactivePowerSetpoint.fill(initVariantArraySize, initVariantArraySize + number, reactivePowerSetpoint.get(sourceIndex));
-
-        voltageSetpoint.ensureCapacity(voltageSetpoint.size() + number);
-        voltageSetpoint.fill(initVariantArraySize, initVariantArraySize + number, voltageSetpoint.get(sourceIndex));
-        regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        localTargetQ.ensureCapacity(localTargetQ.size() + number);
+        localTargetQ.fill(initVariantArraySize, initVariantArraySize + number, localTargetQ.get(sourceIndex));
+        localTargetV.ensureCapacity(localTargetV.size() + number);
+        localTargetV.fill(initVariantArraySize, initVariantArraySize + number, localTargetV.get(sourceIndex));
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        reactivePowerSetpoint.remove(reactivePowerSetpoint.size() - number, number);
-        voltageSetpoint.remove(voltageSetpoint.size() - number, number);
-        regulatingPoint.reduceVariantArraySize(number);
+        localTargetQ.remove(localTargetQ.size() - number, number);
+        localTargetV.remove(localTargetV.size() - number, number);
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.deleteVariantArrayElement(number));
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));
-            voltageSetpoint.set(index, voltageSetpoint.get(sourceIndex));
+            localTargetQ.set(index, localTargetQ.get(sourceIndex));
+            localTargetV.set(index, localTargetV.get(sourceIndex));
         }
-        regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
+        this.getOptionalVoltageRegulation().ifPresent(vr -> vr.allocateVariantArrayElement(indexes, sourceIndex));
     }
 
     @Override
     public void remove() {
-        regulatingPoint.remove();
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         super.remove();
     }
 
     @Override
     protected VoltageSourceConverter self() {
         return this;
+    }
+
+    @Override
+    public VoltageRegulationBuilder newVoltageRegulation() {
+        return new VoltageRegulationBuilderImpl(VoltageSourceConverter.class, this, this, getNetwork().getRef(), this::setVoltageRegulation);
+    }
+
+    @Override
+    public VoltageRegulation getVoltageRegulation() {
+        return this.voltageRegulation;
+    }
+
+    private Optional<VoltageRegulationExt> getOptionalVoltageRegulation() {
+        return Optional.ofNullable(this.voltageRegulation);
+    }
+
+    @Override
+    public void removeVoltageRegulation() {
+        ValidationUtil.checkLocalTargetQandV(this, VoltageSourceConverter.class, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
+        this.voltageRegulation = null;
+    }
+
+    @Override
+    public Terminal getTerminal() {
+        return getPccTerminal();
+    }
+
+    @Override
+    public double getLocalTargetV() {
+        return this.localTargetV.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public VoltageSourceConverter setLocalTargetV(double targetV) {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkDoublePositive(this, targetV, "localTargetV");
+        int variantIndex = n.getVariantIndex();
+        double oldValue = this.localTargetV.set(variantIndex, targetV);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("localTargetV", variantId, oldValue, targetV);
+        return this;
+    }
+
+    @Override
+    public VoltageSourceConverter setLocalTargetQ(double targetV) {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkDoublePositive(this, targetV, "localTargetQ");
+        int variantIndex = n.getVariantIndex();
+        double oldValue = this.localTargetQ.set(variantIndex, targetV);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("localTargetQ", variantId, oldValue, targetV);
+        return this;
+    }
+
+    @Override
+    public double getLocalTargetQ() {
+        return this.localTargetQ.get(getNetwork().getVariantIndex());
+    }
+
+    /**
+     * Creates or updates the voltage regulation associated with this battery.
+     * <p>
+     * If a voltage regulation already exists, only the current variant attributes are updated from the
+     * provided voltage regulation, while keeping the existing instance.
+     * </p>
+     * <p>
+     * This method must remain private to ensure voltage regulation lifecycle operations are done through
+     * the public API and to avoid sharing a voltage regulation instance between equipments.
+     * </p>
+     *
+     * @param voltageRegulation the voltage regulation to attach or use as source attributes
+     * @return the voltage regulation associated with this equipment
+     */
+    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = voltageRegulation;
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
+        }
+        return this.voltageRegulation;
     }
 }

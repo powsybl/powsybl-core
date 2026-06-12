@@ -20,6 +20,7 @@ public final class NetworkReports {
 
     private static final String BOUNDARY_LINE_ID_1 = "boundaryLineId1";
     private static final String BOUNDARY_LINE_ID_2 = "boundaryLineId2";
+    private static final String LOCAL_TARGET_Q = "localTargetQ";
 
     private NetworkReports() {
     }
@@ -151,6 +152,64 @@ public final class NetworkReports {
                 .add();
     }
 
+    public static void invalidVoltageRegulationTargetValueUndefined(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValueUndefined")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationTargetValueInvalid(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTargetValueInvalid")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationDeadband(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationDeadband")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationSlope(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationSlope")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationTerminal(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationTerminal")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationMode(ReportNode reportNode, String id) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationMode")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidVoltageRegulationModeAllowed(ReportNode reportNode, String id, String currentMode, String allowedModes) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidVoltageRegulationModeAllowed")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withUntypedValue("currentMode", currentMode)
+            .withUntypedValue("allowedModes", allowedModes)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void invalidP0(ReportNode reportNode, String id) {
         reportNode.newReportNode()
                 .withMessageTemplate("core.iidm.network.invalidP0")
@@ -250,13 +309,40 @@ public final class NetworkReports {
                 .add();
     }
 
-    public static void reactivePowerSetpointInvalidVoltageRegulatorOff(ReportNode reportNode, String id, double reactivePowerSetpoint) {
+    public static void invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn(ReportNode reportNode, String id, double localTargetV) {
         reportNode.newReportNode()
-                .withMessageTemplate("core.iidm.network.reactivePowerSetpointInvalidVoltageRegulatorOff")
-                .withTypedValue("id", id, TypedValue.ID)
-                .withTypedValue("reactivePowerSetpoint", reactivePowerSetpoint, TypedValue.REACTIVE_POWER)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetVLocalVoltageRegulationVoltageRegulatingOn")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue("localTargetV", localTargetV, TypedValue.VOLTAGE)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQLocalVoltageRegulationReactivePowerRegulatingOn")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQVoltageRegulationUnset(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQVoltageRegulationUnset")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
+    public static void invalidLocalTargetQRegulatingOff(ReportNode reportNode, String id, double localTargetQ) {
+        reportNode.newReportNode()
+            .withMessageTemplate("core.iidm.network.invalidLocalTargetQRegulatingOff")
+            .withTypedValue("id", id, TypedValue.ID)
+            .withTypedValue(LOCAL_TARGET_Q, localTargetQ, TypedValue.REACTIVE_POWER)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
     }
 
     public static void rtcRegulationCannotBeEnabledWithoutLoadTapChanging(ReportNode reportNode, String id) {

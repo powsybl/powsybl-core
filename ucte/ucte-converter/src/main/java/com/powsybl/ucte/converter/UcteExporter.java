@@ -19,6 +19,7 @@ import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
@@ -257,15 +258,15 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getTargetP())) {
                 activePowerGeneration += generator.getTargetP();
             }
-            if (!Double.isNaN(generator.getTargetQ())) {
-                reactivePowerGeneration += generator.getTargetQ();
+            if (!Double.isNaN(generator.getLocalTargetQ())) {
+                reactivePowerGeneration += generator.getLocalTargetQ();
             }
-            if (!Double.isNaN(generator.getTargetV())) {
+            if (!Double.isNaN(generator.getLocalTargetV())) {
                 // FIXME(mathbagu): what if not all the generators have the same targetV?
                 // Should we use bus.getV() instead?
-                voltageReference = generator.getTargetV();
+                voltageReference = generator.getLocalTargetV();
             }
-            if (generator.isVoltageRegulatorOn()) {
+            if (generator.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
             minP = generator.getMinP();
@@ -710,8 +711,8 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
                 twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
                 Double.NaN);
-        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
-            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
+        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV())) {
+            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV());
         }
         return uctePhaseRegulation;
     }

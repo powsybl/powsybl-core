@@ -20,6 +20,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
@@ -381,10 +382,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                     .setConnectableBus(busId)
                     .setMinP(-9999.99)
                     .setMaxP(9999.99)
-                    .setVoltageRegulatorOn(true)
-                    .setTargetV(24.5)
+                    .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                    .setLocalTargetV(24.5)
                     .setTargetP(607.0)
-                    .setTargetQ(301.0)
+                    .setLocalTargetQ(301.0)
                     .add();
             generator.newMinMaxReactiveLimits()
                     .setMinQ(-9999.99)

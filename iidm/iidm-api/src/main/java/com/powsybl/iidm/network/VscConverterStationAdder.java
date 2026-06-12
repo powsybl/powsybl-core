@@ -7,20 +7,39 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolderAdder;
+
 /**
  * VSC converter station builder and adder.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscConverterStation, VscConverterStationAdder> {
+public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscConverterStation, VscConverterStationAdder>,
+        VoltageRegulationHolderAdder<VscConverterStationAdder> {
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VscConverterStationAdder setVoltageSetpoint(double voltageSetpoint);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
+    /**
+     * @deprecated use {@link #newVoltageRegulation()} instead
+     */
+    @Deprecated(forRemoval = true, since = "7.3.0")
     default VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         return this;
     }

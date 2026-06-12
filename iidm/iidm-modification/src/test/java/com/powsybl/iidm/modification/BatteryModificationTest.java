@@ -30,7 +30,7 @@ class BatteryModificationTest {
         network = BatteryNetworkFactory.create();
         assertTrue(network.getBatteryCount() > 0);
         battery = network.getBatteries().iterator().next();
-        battery.setTargetQ(0);
+        battery.setLocalTargetQ(0);
     }
 
     @Test
@@ -41,9 +41,9 @@ class BatteryModificationTest {
         assertEquals(1., battery.getTargetP());
 
         BatteryModification batteryModification2 = new BatteryModification(battery.getId(), null, 2.0);
-        assertEquals(0, battery.getTargetQ());
+        assertEquals(0, battery.getLocalTargetQ());
         batteryModification2.apply(network);
-        assertEquals(2., battery.getTargetQ());
+        assertEquals(2., battery.getLocalTargetQ());
 
         BatteryModification batteryModification3 = new BatteryModification("BAT_NOT_EXISTING", null, 2.0);
         assertDoesNotThrow(() -> batteryModification3.apply(network, false, ReportNode.NO_OP));

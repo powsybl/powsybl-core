@@ -5,8 +5,9 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="G1" name="G1" energySource="OTHER" minP="0.0" maxP="2000.0" voltageRegulatorOn="true" targetP="800.0" targetV="400.0" bus="B1" connectableBus="B1">
+            <iidm:generator id="G1" name="G1" energySource="OTHER" minP="0.0" maxP="2000.0" targetP="800.0" localTargetV="400.0" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="-20.0" maxQ="25.0"/>
+                <iidm:voltageRegulation mode="VOLTAGE" regulating="true"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

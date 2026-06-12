@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+
 import java.time.ZonedDateTime;
 
 import java.util.Objects;
@@ -47,8 +49,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setMinP(0.0)
                 .setMaxP(140)
                 .setTargetP(7.2)
-                .setTargetV(135)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(135)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
 
         VoltageLevel vl2 = substation.newVoltageLevel()
@@ -149,11 +151,13 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endStep()
                 .setTapPosition(2)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(33.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(load33.getTerminal())
+                .newVoltageRegulation()
+                    .withRegulating(true)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(33.0)
+                    .withTargetDeadband(0)
+                    .withTerminal(load33.getTerminal())
+                    .add()
                 .add();
 
         twt.getLeg3().newRatioTapChanger()
@@ -180,10 +184,12 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endStep()
                 .setTapPosition(0)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(false)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(11.0)
-                .setRegulationTerminal(load11.getTerminal())
+                .newVoltageRegulation()
+                    .withRegulating(false)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(11.0)
+                    .withTerminal(load11.getTerminal())
+                    .add()
                 .add();
 
         return network;
@@ -226,8 +232,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setMinP(0.0)
                 .setMaxP(140)
                 .setTargetP(7.2)
-                .setTargetV(135)
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetV(135)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
                 .add();
 
         VoltageLevel vl2 = substation.newVoltageLevel()
@@ -350,11 +356,13 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endStep()
                 .setTapPosition(2)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(33.0)
-                .setTargetDeadband(0)
-                .setRegulationTerminal(load33.getTerminal())
+                .newVoltageRegulation()
+                    .withRegulating(true)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(33.0)
+                    .withTargetDeadband(0)
+                    .withTerminal(load33.getTerminal())
+                    .add()
                 .add();
 
         twt.getLeg1().newRatioTapChanger()
@@ -381,10 +389,12 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .endStep()
                 .setTapPosition(0)
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(false)
-                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
-                .setRegulationValue(11.0)
-                .setRegulationTerminal(load11.getTerminal())
+                .newVoltageRegulation()
+                    .withRegulating(false)
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withTargetValue(11.0)
+                    .withTerminal(load11.getTerminal())
+                    .add()
                 .add();
 
         return network;

@@ -45,4 +45,6 @@ public interface AcDcConverterAdder<T extends AcDcConverter<T> & Connectable<T> 
     A setTargetP(double targetP);
 
     A setTargetVdc(double targetVdc);
+
+    boolean withTerminal2();
 }

@@ -15,6 +15,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -185,14 +186,21 @@ class UcteExporterTest extends AbstractSerDeTest {
             bus.setV(bus.getVoltageLevel().getNominalV() * 1.4);
         }
         for (Generator gen : network.getGenerators()) {
-            if (gen.isVoltageRegulatorOn()) {
-                gen.setTargetV(gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4);
+            if (gen.isRegulatingWithMode(RegulationMode.VOLTAGE)) {
+                double targetV = gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4;
+                if (gen.isRemoteRegulating()) {
+                    gen.getVoltageRegulation().setTargetValue(targetV);
+                } else {
+                    gen.setLocalTargetV(targetV);
+                }
             }
         }
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             RatioTapChanger rtc = twt.getRatioTapChanger();
             if (rtc != null && rtc.isRegulating()) {
-                rtc.setTargetV(rtc.getRegulationTerminal().getVoltageLevel().getNominalV() * 1.4);
+                double targetV = rtc.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4;
+                // Always with a Terminal
+                rtc.getVoltageRegulation().setTargetValue(targetV);
             }
         }
         testExporter(network, "/invalidVoltageReference.uct");

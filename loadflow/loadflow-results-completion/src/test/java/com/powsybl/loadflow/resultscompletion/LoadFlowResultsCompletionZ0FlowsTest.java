@@ -11,6 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import com.powsybl.loadflow.validation.ValidationConfig;
@@ -424,47 +425,52 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
+                .setLocalTargetV(115.0)
                 .setTargetP(0.490536)
-                .setTargetQ(-16.774788)
+                .setLocalTargetQ(-16.774788)
                 .add();
         g.getTerminal().setP(-0.490536).setQ(16.774788);
         g = vl.newGenerator()
                 .setId("G2")
                 .setConnectableBus("B2")
                 .setBus("B2")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
+                .setLocalTargetV(115.0)
                 .setTargetP(15.488468)
-                .setTargetQ(0.613118)
+                .setLocalTargetQ(0.613118)
                 .add();
         g.getTerminal().setP(-15.488468).setQ(-0.613118);
         g = vl.newGenerator()
                 .setId("G5")
                 .setConnectableBus("B5")
                 .setBus("B5")
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .add()
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
+                .setLocalTargetV(115.0)
                 .setTargetP(60.486267)
-                .setTargetQ(-110.743699)
+                .setLocalTargetQ(-110.743699)
                 .add();
         g.getTerminal().setP(-60.486267).setQ(110.743699);
         g = vl.newGenerator()
                 .setId("G3.2")
                 .setConnectableBus("B3.2")
                 .setBus("B3.2")
-                .setVoltageRegulatorOn(false)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setTargetP(30.0)
-                .setTargetQ(-18.0)
+                .setLocalTargetQ(-18)
                 .add();
         g.getTerminal().setP(-30.0).setQ(18.0);
         vl.newShuntCompensator()
@@ -472,7 +478,6 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setConnectableBus("B3.1")
                 .setBus("B3.1")
                 .setSectionCount(1)
-                .setVoltageRegulatorOn(false)
                 .newLinearModel()
                     .setBPerSection(25.0 / Math.pow(vbase, 2))
                     .setMaximumSectionCount(1)
@@ -483,7 +488,6 @@ class LoadFlowResultsCompletionZ0FlowsTest {
                 .setConnectableBus("B3.4")
                 .setBus("B3.4")
                 .setSectionCount(1)
-                .setVoltageRegulatorOn(false)
                 .newLinearModel()
                     .setBPerSection(5.00 / Math.pow(vbase, 2))
                     .setMaximumSectionCount(1)
@@ -502,15 +506,15 @@ class LoadFlowResultsCompletionZ0FlowsTest {
 
         network.getGenerator("G1")
                 .setTargetP(1.180568)
-                .setTargetQ(18.060835);
+                .setLocalTargetQ(18.060835);
         network.getGenerator("G1").getTerminal().setP(-1.180568).setQ(-18.060835);
         network.getGenerator("G2")
                 .setTargetP(16.128860)
-                .setTargetQ(-4.462291);
+                .setLocalTargetQ(-4.462291);
         network.getGenerator("G2").getTerminal().setP(-16.128860).setQ(4.462291);
         network.getGenerator("G5")
                 .setTargetP(61.123773)
-                .setTargetQ(-134.882226);
+                .setLocalTargetQ(-134.882226);
         network.getGenerator("G5").getTerminal().setP(-61.123773).setQ(134.882226);
         network.getLine("L1-2")
                 .getTerminal2().getBusBreakerView().getBus()

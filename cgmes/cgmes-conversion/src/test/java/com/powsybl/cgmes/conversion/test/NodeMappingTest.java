@@ -123,10 +123,9 @@ class NodeMappingTest extends AbstractSerDeTest {
                 .setId("GEN")
                 .setNode(4)
                 .setTargetP(3.0)
-                .setTargetQ(0.0)
                 .setMinP(0.0)
                 .setMaxP(3.0)
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(0.0)
                 .add();
 
         return network;

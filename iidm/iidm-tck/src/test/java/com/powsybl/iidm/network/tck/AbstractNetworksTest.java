@@ -75,8 +75,8 @@ public abstract class AbstractNetworksTest {
         assertNotEquals(load.getTerminal().getP(), load.getP0());
         assertNotEquals(load.getTerminal().getQ(), load.getQ0());
         assertNotEquals(-generator.getTerminal().getP(), generator.getTargetP());
-        assertNotEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
-        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
+        assertNotEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
+        assertNotEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
 
         Networks.applySolvedValues(network);
         assertEquals(shuntCompensator.getSolvedSectionCount(), shuntCompensator.getSectionCount());
@@ -85,8 +85,8 @@ public abstract class AbstractNetworksTest {
         assertEquals(load.getTerminal().getP(), load.getP0());
         assertEquals(load.getTerminal().getQ(), load.getQ0());
         assertEquals(-generator.getTerminal().getP(), generator.getTargetP());
-        assertEquals(-generator.getTerminal().getQ(), generator.getTargetQ());
-        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getTargetV());
+        assertEquals(-generator.getTerminal().getQ(), generator.getLocalTargetQ());
+        assertEquals(generator.getTerminal().getBusBreakerView().getBus().getV(), generator.getLocalTargetV());
     }
 
     @Test
@@ -94,11 +94,11 @@ public abstract class AbstractNetworksTest {
         Network network = BatteryNetworkFactory.create();
         Battery battery = network.getBattery("BAT");
         assertNotEquals(battery.getTerminal().getP(), battery.getTargetP());
-        assertNotEquals(battery.getTerminal().getQ(), battery.getTargetQ());
+        assertNotEquals(battery.getTerminal().getQ(), battery.getLocalTargetQ());
 
         Networks.applySolvedValues(network);
         assertEquals(-battery.getTerminal().getP(), battery.getTargetP());
-        assertEquals(-battery.getTerminal().getQ(), battery.getTargetQ());
+        assertEquals(-battery.getTerminal().getQ(), battery.getLocalTargetQ());
     }
 
     @Test

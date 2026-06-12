@@ -10,6 +10,8 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import java.time.ZonedDateTime;
+
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -49,8 +51,8 @@ class NodeBreakerInternalConnectionsTest extends AbstractIidmSerDeTest {
                 .setMinP(0)
                 .setMaxP(100)
                 .setTargetP(10)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(400)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).add()
+                .setLocalTargetV(400)
                 .add();
         n1.newInternalConnection().setNode1(0).setNode2(1).add();
         n1.newSwitch().setId("br1").setNode1(1).setNode2(2).setKind(SwitchKind.BREAKER).add();
