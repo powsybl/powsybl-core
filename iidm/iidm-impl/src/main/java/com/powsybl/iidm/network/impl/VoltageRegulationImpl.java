@@ -11,7 +11,6 @@ import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
@@ -34,8 +33,8 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     private static final Logger LOG = LoggerFactory.getLogger(VoltageRegulationImpl.class);
 
     // Context
-    private Validable validable;
-    private VoltageRegulationHolder<?> holder;
+    private final Validable validable;
+    private final VoltageRegulationHolder<?> holder;
     private final Class<? extends VoltageRegulationHolder<?>> classHolder;
     private final Ref<NetworkImpl> network;
     // Attributes
@@ -182,9 +181,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public @Nullable RegulationMode setMode(RegulationMode mode) {
-        // TODO MSA replace checkVoltageRegulation by something with the new mode ()
         ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), isWithTerminal(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulation(validable, this, isRegulating(), network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        // In any case we will check the voltageRegulation object with the new regulationMode value
+        AttributesWithTerminal newAttributes = getAttributes().withMode(mode);
+        ValidationUtil.checkVoltageRegulation(validable, newAttributes, isRegulating(), network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return setModeOnCurrentVariant(mode);
     }
 
@@ -192,11 +192,10 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         RegulationMode oldMode = getMode();
         if (mode == null) {
             regulationMode.set(getCurrentVariantIndex(), UNDEFINED_REGULATION_MODE);
-            return oldMode;
         } else {
             regulationMode.set(getCurrentVariantIndex(), mode.getIndex());
-            return oldMode;
         }
+        return oldMode;
     }
 
     @Override
@@ -210,26 +209,13 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public boolean setRegulating(boolean regulating) {
-        // Local case we check localTargetV and localTargetQ
-        if (!isWithTerminal()) {
-            // ShuntCompensator regulating only on the Voltage
-            if (classHolder == ShuntCompensator.class) {
-                if (regulating) {
-//                    ValidationUtil.checkNotNanValue(validable, this.holder.getLocalTargetV(), "localTargetV", null);
-//                    ValidationUtil.checkDoublePositive(validable, this.holder.getLocalTargetV(), "localTargetV");
-                }
-                // RatioTapChanger ignore localTarget V and Q in any case
-                // StaticVarCompensator ignore localTarget V and Q when regulating false
-            } else if (classHolder != RatioTapChanger.class
-                && (classHolder != StaticVarCompensator.class || regulating)) {
-            }
-        }
         ValidationUtil.checkLocalTargetQandV(validable, classHolder, this.holder.getLocalTargetV(), this.holder.getLocalTargetQ(), false, regulating, isWithTerminal(), getMode(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         if (holder instanceof RatioTapChanger ratioTapChanger) {
             ValidationUtil.checkRTCLoadTapChangingCapabilities(validable, ratioTapChanger.hasLoadTapChangingCapabilities(), regulating, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         }
-        // In any case we will check the voltageRegulation object
-        ValidationUtil.checkVoltageRegulation(validable, this, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        // In any case we will check the voltageRegulation object with the new regulating value
+        AttributesWithTerminal newAttributes = this.getAttributes().withRegulating(regulating);
+        ValidationUtil.checkVoltageRegulation(validable, newAttributes, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return setRegulatingOnCurrentVariant(regulating);
     }
 

@@ -142,6 +142,19 @@ public interface VoltageRegulation {
      */
     boolean setRegulating(boolean regulating);
 
+    default AttributesWithTerminal getAttributes() {
+        return new AttributesWithTerminal(
+            new Attributes(
+                getTargetValue(),
+                getTargetDeadband(),
+                getSlope(),
+                getMode(),
+                isRegulating()
+            ),
+            getTerminal()
+        );
+    }
+
     /**
      * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
      */
@@ -179,6 +192,32 @@ public interface VoltageRegulation {
 
         public boolean isRegulating() {
             return attributes.isRegulating();
+        }
+
+        public AttributesWithTerminal withMode(RegulationMode newMode) {
+            return new VoltageRegulation.AttributesWithTerminal(
+                new Attributes(
+                    targetValue(),
+                    targetDeadband(),
+                    slope(),
+                    newMode,
+                    isRegulating()
+                ),
+                terminal()
+            );
+        }
+
+        public AttributesWithTerminal withRegulating(boolean regulating) {
+            return new VoltageRegulation.AttributesWithTerminal(
+                new Attributes(
+                    targetValue(),
+                    targetDeadband(),
+                    slope(),
+                    mode(),
+                    regulating
+                ),
+                terminal()
+            );
         }
     }
 }
