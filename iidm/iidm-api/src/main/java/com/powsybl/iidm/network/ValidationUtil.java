@@ -716,40 +716,45 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+    public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
                                                      ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkLoadingLimits(validable, permanentLimit, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
+        return checkLoadingLimits(validable, permanentLimit, detectionKind, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+    private static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
                                                       ActionOnError actionOnError, ReportNode reportNode) {
-        ValidationLevel validationLevel = ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits, actionOnError, reportNode);
+        ValidationLevel validationLevel = ValidationUtil.checkPermanentLimit(validable, permanentLimit, detectionKind, temporaryLimits, actionOnError, reportNode);
         ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits);
         return validationLevel;
     }
 
-    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
                                                       ValidationLevel validationLevel, ReportNode reportNode) {
-        return checkPermanentLimit(validable, permanentLimit, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
+        return checkPermanentLimit(validable, permanentLimit, detectionKind, temporaryLimits, checkValidationActionOnError(validationLevel), reportNode);
     }
 
-    private static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+    private static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, DetectionKind detectionKind, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
                                                        ActionOnError actionOnError, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty()) {
-            throwExceptionOrLogError(validable, "permanent limit must be defined if temporary limits are present", actionOnError,
+        if (detectionKind == DetectionKind.HIGH) {
+            if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty()) {
+                throwExceptionOrLogError(validable, "permanent limit must be defined if temporary limits are present", actionOnError,
                     id -> NetworkReports.temporaryLimitsButPermanentLimitUndefined(reportNode, id));
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
+            }
+            if (permanentLimit < 0) {
+                // because it is forbidden for SSH and EQ validation levels.
+                throw new ValidationException(validable, "permanent limit must be >= 0");
+            }
+            if (permanentLimit == 0) {
+                // log if zero
+                LOGGER.info("{}permanent limit is set to 0", validable.getMessageHeader());
+            }
+        } else {
+            if (!Double.isNaN(permanentLimit)) {
+                throw new ValidationException(validable, "permanent limit cannot be set if DetectionKind is LOW");
+            }
         }
-        if (permanentLimit < 0) {
-            // because it is forbidden for SSH and EQ validation levels.
-            throw new ValidationException(validable, "permanent limit must be >= 0");
-        }
-        if (permanentLimit == 0) {
-            // log if zero
-            LOGGER.info("{}permanent limit is set to 0", validable.getMessageHeader());
-        }
-
         return validationLevel;
     }
 
@@ -956,7 +961,8 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkLoadingLimits(Validable validable, LoadingLimits limits, ValidationLevel validationLevel,
                                                       ActionOnError actionOnError, ReportNode reportNode) {
-        return ValidationLevel.min(validationLevel, checkLoadingLimits(validable, limits.getPermanentLimit(), limits.getTemporaryLimits(), actionOnError, reportNode));
+        return ValidationLevel.min(validationLevel, checkLoadingLimits(validable, limits.getPermanentLimit(),
+            limits.getDetectionKind(), limits.getTemporaryLimits(), actionOnError, reportNode));
     }
 
     public static ValidationLevel validate(Collection<Identifiable<?>> identifiables, boolean allChecks,

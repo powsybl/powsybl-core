@@ -13,6 +13,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.IdBasedBusRef;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyLevel;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -195,6 +199,20 @@ public class SensitivityFactor {
             default:
                 throw new PowsyblException("Unexpected field: " + fieldName);
         }
+    }
+
+    public static String resolveBusId(String functionId, SensitivityFunctionType functionType, Network network) {
+        if (functionType == SensitivityFunctionType.BUS_VOLTAGE) {
+            Bus bus = network.getBusView().getBus(functionId);
+            if (bus != null) {
+                return bus.getId();
+            } else {
+                Bus busRef = new IdBasedBusRef(functionId).resolve(network, TopologyLevel.BUS_BRANCH)
+                        .orElseThrow(() -> new PowsyblException("The bus ref for '" + functionId + "' cannot be resolved."));
+                return busRef.getId();
+            }
+        }
+        return functionId;
     }
 
     public static List<SensitivityFactor> createMatrix(SensitivityFunctionType functionType, Collection<String> functionIds,

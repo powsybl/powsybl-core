@@ -350,6 +350,7 @@ public class Conversion {
             nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
             nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
         }
+        setNetworkTimes(updateContext);
 
         // Switches are updated first because the subsequent update of the terminals
         // is configurable and, if activated, may modify their state.
