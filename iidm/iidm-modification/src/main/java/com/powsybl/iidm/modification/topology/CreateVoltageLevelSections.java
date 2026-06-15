@@ -219,11 +219,11 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
             throw new PowsyblException("No busbar section Position found on busbar" + busbarSection.getId() + ", the busbar section has not been created");
         }
         Pair<List<SwitchKind>, List<SwitchKind>> switchKindsBetweenExistingSectionsOnBusBarPerSide = Pair.of(new ArrayList<>(), new ArrayList<>());
-        if (switchKind1 != null) {
-            switchKindsBetweenExistingSectionsOnBusBarPerSide.getLeft().add(switchKind1);
+        if (leftSwitchKind != null) {
+            switchKindsBetweenExistingSectionsOnBusBarPerSide.getLeft().add(leftSwitchKind);
         }
-        if (switchKind2 != null) {
-            switchKindsBetweenExistingSectionsOnBusBarPerSide.getRight().add(switchKind2);
+        if (rightSwitchKind != null) {
+            switchKindsBetweenExistingSectionsOnBusBarPerSide.getRight().add(rightSwitchKind);
         }
         GetSwitchesBetweenBusBarTraverser getSwitchesBetweenBusBarTraverser = new GetSwitchesBetweenBusBarTraverser(busbarSection);
         busbarSection.getTerminal().traverse(getSwitchesBetweenBusBarTraverser);
