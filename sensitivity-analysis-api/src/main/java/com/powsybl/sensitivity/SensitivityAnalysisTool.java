@@ -228,7 +228,7 @@ public class SensitivityAnalysisTool implements Tool {
             }
         }
 
-        SensitivityFactorJsonReader factorsReader = new SensitivityFactorJsonReader(factorsFile);
+        SensitivityFactorJsonReader factorsReader = new SensitivityFactorJsonReader(factorsFile, network);
 
         context.getOutputStream().println("Running analysis...");
         Stopwatch stopwatch = Stopwatch.createStarted();
