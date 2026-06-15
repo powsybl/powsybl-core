@@ -17,8 +17,8 @@ import java.util.Objects;
  */
 public final class BatteryNetworkFactory {
 
-    private static final String VLGEN = "VLGEN";
-    private static final String VLBAT = "VLBAT";
+    public static final String VLGEN = "VLGEN";
+    public static final String VLBAT = "VLBAT";
 
     private BatteryNetworkFactory() {
     }
