@@ -282,7 +282,8 @@ public final class LimitViolationUtils {
             }
         }
         return previousTemporaryLimit != null ?
-            createOverload(previousTemporaryLimit, previousTemporaryLimit.getValue(), previousTemporaryLimit.getName(), limitsContainer, false, previousTemporaryLimit.getAcceptableDuration(), limitReductionValue)
+            createOverload(previousTemporaryLimit, previousTemporaryLimit.getValue(), previousTemporaryLimit.getName(),
+                limitsContainer, false, previousTemporaryLimit.getAcceptableDuration(), limitReductionValue)
             : null;
     }
 
