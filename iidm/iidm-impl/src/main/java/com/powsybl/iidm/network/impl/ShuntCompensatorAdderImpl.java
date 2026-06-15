@@ -244,11 +244,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
         if (this.voltageRegulationAttributes == null) {
             boolean isWithTerminal = regulatingTerminal != null;
-            if (voltageRegulatorOn) {
+            if (voltageRegulatorOn || !Double.isNaN(targetDeadband)) {
                 this.newVoltageRegulation().withMode(RegulationMode.VOLTAGE)
                     .withTargetValue(isWithTerminal ? targetV : Double.NaN)
                     .withTargetDeadband(targetDeadband)
                     .withTerminal(regulatingTerminal)
+                    .withRegulating(voltageRegulatorOn)
                     .add();
                 if (!isWithTerminal) {
                     localTargetV = targetV;

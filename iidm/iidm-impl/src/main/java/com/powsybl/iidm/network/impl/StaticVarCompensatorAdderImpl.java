@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.Objects;
-import static com.powsybl.iidm.network.util.VoltageRegulationUtils.createVoltageRegulationBackwardCompatibility;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -125,11 +124,29 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && regulating == null) {
             regulating = false;
         }
-        if (regulationMode == null) {
-            regulationMode = RegulationMode.VOLTAGE;
-        }
         if (voltageRegulationAttributes == null && regulating != null) {
-            createVoltageRegulationBackwardCompatibility(this, voltageSetpoint, reactivePowerSetpoint, regulating, regulatingTerminal);
+            if (regulationMode == null) {
+                regulationMode = RegulationMode.VOLTAGE;
+            }
+            double targetValue = Double.NaN;
+            if (regulatingTerminal != null) {
+                if (regulationMode == RegulationMode.VOLTAGE) {
+                    targetValue = voltageSetpoint;
+                    localTargetQ = reactivePowerSetpoint;
+                } else {
+                    targetValue = reactivePowerSetpoint;
+                    localTargetV = voltageSetpoint;
+                }
+            } else {
+                localTargetV = voltageSetpoint;
+                localTargetQ = reactivePowerSetpoint;
+            }
+            newVoltageRegulation()
+                .withMode(regulationMode)
+                .withTargetValue(targetValue)
+                .withTerminal(regulatingTerminal)
+                .withRegulating(regulating)
+                .add();
         }
 
         TerminalExt terminal = checkAndGetTerminal();

@@ -57,19 +57,23 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return isWithMode(RegulationMode.VOLTAGE);
+        return isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            boolean oldValue = regulation.setRegulating(voltageRegulatorOn);
-            String variantId = n.getVariantManager().getVariantId(variantIndex);
-            n.invalidateValidationLevel();
-            notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
-        });
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        boolean oldValue = isRegulating();
+        if (voltageRegulation != null) {
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            oldValue = voltageRegulation.setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
+        }
+        n.invalidateValidationLevel();
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 

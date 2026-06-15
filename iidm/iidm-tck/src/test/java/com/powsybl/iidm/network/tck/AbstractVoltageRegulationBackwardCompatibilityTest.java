@@ -150,8 +150,8 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
     @Test
     void testGeneratorLocalVoltageRegulation() {
         // GIVEN
-        int remoteTargetV = 220;
-        int localTargetV = 110;
+        int targetV = 220;
+        int equivalentLocalTargetV = 110;
         int targetQ = 10;
 
         GeneratorAdder adder = voltageLevel.newGenerator()
@@ -161,14 +161,14 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
             .setTargetP(20)
             .setMaxP(100)
             .setVoltageRegulatorOn(true)
-            .setTargetV(remoteTargetV, localTargetV)
+            .setTargetV(targetV, equivalentLocalTargetV)
             .setTargetQ(targetQ);
         // WHEN
         Generator generator = adder.add();
         // THEN
         assertNotNull(generator);
         VoltageRegulationAttributesToCheck expectedAttributes = new VoltageRegulationAttributesToCheck(
-            localTargetV,
+            targetV,
             targetQ,
             Double.NaN,
             Double.NaN,
@@ -182,10 +182,10 @@ public abstract class AbstractVoltageRegulationBackwardCompatibilityTest {
         assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
         assertNull(generator.getVoltageRegulation().getTerminal());
 
-        assertEquals(localTargetV, generator.getLocalTargetV());
+        assertEquals(targetV, generator.getLocalTargetV());
         assertEquals(Double.NaN, generator.getEquivalentLocalTargetV());
-        assertEquals(localTargetV, generator.getTargetV());
-        assertEquals(localTargetV, generator.getRegulatingTargetV());
+        assertEquals(targetV, generator.getTargetV());
+        assertEquals(targetV, generator.getRegulatingTargetV());
         assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
 
         assertEquals(targetQ, generator.getLocalTargetQ());

@@ -62,7 +62,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return isWithMode(RegulationMode.VOLTAGE);
+        return isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override

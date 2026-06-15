@@ -182,17 +182,20 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public @Nullable RegulationMode setMode(RegulationMode mode) {
+        // TODO MSA replace checkVoltageRegulation by something with the new mode ()
         ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), isWithTerminal(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         ValidationUtil.checkVoltageRegulation(validable, this, isRegulating(), network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         return setModeOnCurrentVariant(mode);
     }
 
     private @Nullable RegulationMode setModeOnCurrentVariant(RegulationMode mode) {
+        RegulationMode oldMode = getMode();
         if (mode == null) {
             regulationMode.set(getCurrentVariantIndex(), UNDEFINED_REGULATION_MODE);
-            return null;
+            return oldMode;
         } else {
-            return RegulationMode.fromIndex(regulationMode.set(getCurrentVariantIndex(), mode.getIndex()));
+            regulationMode.set(getCurrentVariantIndex(), mode.getIndex());
+            return oldMode;
         }
     }
 

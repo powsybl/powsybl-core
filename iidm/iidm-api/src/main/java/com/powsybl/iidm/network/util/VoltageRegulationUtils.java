@@ -40,8 +40,11 @@ public final class VoltageRegulationUtils {
                 vrAdder.withTargetValue(targetValue)
                     .withTerminal(terminal);
             }
-            if (withTargetValue || terminal == null) {
+            if (terminal == null) {
+                adder.setLocalTargetV(targetValue);
+            } else if (withTargetValue) {
                 adder.setLocalTargetV(localTargetV);
+
             }
             vrAdder.add();
             adder.setLocalTargetQ(targetQ);

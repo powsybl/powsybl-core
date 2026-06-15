@@ -106,14 +106,20 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            if (isWithMode(RegulationMode.VOLTAGE)) {
-                double oldValue = regulation.getTargetValue();
-                regulation.setTargetValue(voltageSetpoint);
-                String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-                notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        double oldValueTargetV = getLocalTargetV();
+        if (voltageRegulation != null) {
+            if (isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+                getVoltageRegulation().setTargetValue(voltageSetpoint);
+            } else {
+                setLocalTargetV(voltageSetpoint);
             }
-        });
+        } else {
+            setLocalTargetV(voltageSetpoint);
+        }
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("voltageSetpoint", variantId, oldValueTargetV, voltageSetpoint);
         return this;
     }
 
@@ -149,14 +155,20 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            if (isWithMode(RegulationMode.REACTIVE_POWER)) {
-                double oldValue = regulation.getTargetValue();
-                regulation.setTargetValue(reactivePowerSetpoint);
-                String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-                notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        double oldValueTargetQ = getLocalTargetV();
+        if (voltageRegulation != null) {
+            if (isRemoteRegulating() && isWithMode(RegulationMode.REACTIVE_POWER)) {
+                getVoltageRegulation().setTargetValue(reactivePowerSetpoint);
+            } else {
+                setLocalTargetQ(reactivePowerSetpoint);
             }
-        });
+        } else {
+            setLocalTargetQ(reactivePowerSetpoint);
+        }
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("reactivePowerSetpoint", variantId, oldValueTargetQ, reactivePowerSetpoint);
         return this;
     }
 
@@ -168,7 +180,11 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
         RegulationMode oldValue = getOptionalVoltageRegulation().map(VoltageRegulation::getMode).orElse(null);
-        newVoltageRegulation().withMode(regulationMode).build();
+        if (voltageRegulation != null) {
+            voltageRegulation.setMode(regulationMode);
+        } else {
+            newVoltageRegulation().withRegulating(false).withMode(regulationMode).build();
+        }
         String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
         notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
         return this;
@@ -176,13 +192,17 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            Terminal oldValue = regulation.getTerminal();
-            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
-            regulation.setTerminal(regulatingTerminal, targetValue);
-            String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
-            notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
-        });
+        Terminal oldValue;
+        double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : getRegulatingTargetQ();
+        if (voltageRegulation != null) {
+            oldValue = voltageRegulation.getTerminal();
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            oldValue = null;
+            newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
+        }
+        String variantId = getNetwork().getVariantManager().getVariantId(getNetwork().getVariantIndex());
+        notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
         return this;
     }
 
