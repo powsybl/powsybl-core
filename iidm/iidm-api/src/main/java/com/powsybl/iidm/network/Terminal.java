@@ -54,7 +54,7 @@ public interface Terminal {
         Bus getBus();
 
         /**
-         * Get a bus that can be used to connected the terminal in the
+         * Get a bus that can be used to connect the terminal in the
          * bus/breaker topology.
          */
         Bus getConnectableBus();
