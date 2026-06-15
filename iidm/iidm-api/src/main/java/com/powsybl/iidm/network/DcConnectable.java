@@ -27,9 +27,9 @@ public interface DcConnectable<I extends DcConnectable<I>> extends Identifiable<
     void remove();
 
     /**
-     * Removes P and I obtained by a computation on each DC terminal of the connectable.
+     * Removes all loadflow output values of this DC connectable (e.g., P and I on DC terminals).
      */
-    default void unsetDcSolvedValues() {
+    default void unsetSolvedValues() {
         getDcTerminals().forEach(DcTerminal::unsetSolvedValues);
     }
 }

@@ -483,6 +483,6 @@ public final class Networks {
         network.getBusView().getBusStream().forEach(Bus::unsetSolvedValues);
         network.getConnectableStream().forEach(Connectable::unsetSolvedValues);
         network.getDcBusStream().forEach(bus -> bus.setV(Double.NaN));
-        network.getDcConnectableStream().forEach(DcConnectable::unsetDcSolvedValues);
+        network.getDcConnectableStream().forEach(DcConnectable::unsetSolvedValues);
     }
 }

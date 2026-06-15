@@ -138,17 +138,22 @@ public abstract class AbstractNetworksTest {
 
     @Test
     public void unsetDcSolvedValues() {
-        Network network = DcDetailedNetworkFactory.createSimple4NodesDcLinesSwitchLine();
+        Network network = DcDetailedNetworkFactory.createLccMonopoleGroundReturn();
 
         DcLine line = network.getDcLine("dcLine1");
         line.getDcTerminal1().setP(10);
         line.getDcTerminal1().setI(20);
-        network.getDcBus("n1_dcBus").setV(100);
+        LineCommutatedConverter lcc = network.getLineCommutatedConverter("LccFr");
+        lcc.getDcTerminal1().setP(30);
+        lcc.getTerminal1().setP(40);
+        network.getDcBus("dcNodeFrPos_dcBus").setV(100);
 
         Networks.unsetSolvedValues(network);
         assertEquals(Double.NaN, line.getDcTerminal1().getP());
         assertEquals(Double.NaN, line.getDcTerminal1().getI());
-        assertEquals(Double.NaN, network.getDcBus("n1_dcBus").getV());
+        assertEquals(Double.NaN, lcc.getDcTerminal1().getP());
+        assertEquals(Double.NaN, lcc.getTerminal1().getP());
+        assertEquals(Double.NaN, network.getDcBus("dcNodeFrPos_dcBus").getV());
     }
 
 }
