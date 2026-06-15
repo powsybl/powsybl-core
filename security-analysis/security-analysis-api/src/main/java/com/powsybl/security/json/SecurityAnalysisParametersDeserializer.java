@@ -55,6 +55,13 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                             parser,
                             SecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
+                case "monitored-element-modification-threshold":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: monitoredElementModificationThreshold", version, "1.3");
+                    parser.nextToken();
+                    parameters.setModifiedMonitoredElementsParameters(JsonUtil.readValue(deserializationContext,
+                            parser,
+                            SecurityAnalysisParameters.ModifiedMonitoredElementsParameters.class));
+                    break;
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
