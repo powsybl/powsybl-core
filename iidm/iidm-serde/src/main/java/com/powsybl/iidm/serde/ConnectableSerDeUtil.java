@@ -422,14 +422,16 @@ public final class ConnectableSerDeUtil {
      * @param context to deserialize the data
      */
     static void readAllSelectedGroupIds(Branch<?> branch, TwoSides side, NetworkDeserializerContext context) {
+        Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
+            side.getNum(),
+            c -> branch.addSelectedOperationalLimitsGroups(side, c.toArray(String[]::new)),
+            context
+        );
         context.addSelectedGroupIds(
             branch.getId(),
             side.toThreeSides(),
-            readAndGetAllSelectedGroupIds(
-                side.getNum(),
-                c -> branch.addSelectedOperationalLimitsGroups(side, c.toArray(String[]::new)),
-                context
-            ));
+            selectedIds
+        );
     }
 
     /**
@@ -440,14 +442,16 @@ public final class ConnectableSerDeUtil {
      * @param context     to deserialize the data
      */
     static void readAllSelectedGroupIds(ThreeWindingsTransformer transformer, ThreeSides side, NetworkDeserializerContext context) {
+        Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
+            side.getNum(),
+            c -> transformer.getLeg(side).addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
+            context
+        );
         context.addSelectedGroupIds(
             transformer.getId(),
             side,
-            readAndGetAllSelectedGroupIds(
-                side.getNum(),
-                c -> transformer.getLeg(side).addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
-                context
-            ));
+            selectedIds
+        );
     }
 
     static Collection<String> readAndGetAllSelectedGroupIds(Integer index, Consumer<Collection<String>> consumer, NetworkDeserializerContext context) {
@@ -463,14 +467,16 @@ public final class ConnectableSerDeUtil {
      * @param context to deserialize the data
      */
     static void readAllSelectedGroupIds(BoundaryLine boundaryLine, NetworkDeserializerContext context) {
+        Collection<String> selectedIds = readAndGetAllSelectedGroupIds(
+            null,
+            c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
+            context
+        );
         context.addSelectedGroupIds(
             boundaryLine.getId(),
             ThreeSides.ONE,
-            readAndGetAllSelectedGroupIds(
-                null,
-                c -> boundaryLine.addSelectedOperationalLimitsGroups(c.toArray(String[]::new)),
-                context
-            ));
+            selectedIds
+        );
     }
 
     static void writeLimits(NetworkSerializerContext context, Integer index, String rootName, OperationalLimitsGroup defaultGroup, Collection<OperationalLimitsGroup> groups) {
