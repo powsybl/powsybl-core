@@ -558,7 +558,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     2400
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
                     600,
                     600
@@ -572,7 +572,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     600
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
                     600,
                     600
