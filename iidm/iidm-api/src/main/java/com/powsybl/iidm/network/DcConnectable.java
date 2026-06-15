@@ -37,4 +37,11 @@ public interface DcConnectable<I extends DcConnectable<I>> extends Identifiable<
      * @return true if the disconnection by this operation succeeded, false otherwise (the DC connectable was already disconnected)
      */
     boolean disconnectDc();
+
+    /**
+     * Removes all loadflow output values of this DC connectable (e.g., P and I on DC terminals).
+     */
+    default void unsetSolvedValues() {
+        getDcTerminals().forEach(DcTerminal::unsetSolvedValues);
+    }
 }
