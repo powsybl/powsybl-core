@@ -21,6 +21,20 @@ public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> 
         super(group, permanentLimit, permanentLimitName, temporaryLimits);
     }
 
+    /**
+     * Create a {@link CurrentLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#HIGH}.
+     */
+    CurrentLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, temporaryLimits);
+    }
+
+    /**
+     * Create a {@link CurrentLimits} with no permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}.
+     */
+    CurrentLimitsImpl(OperationalLimitsGroupImpl group, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, temporaryLimits);
+    }
+
     @Override
     public void remove() {
         group.removeCurrentLimits();

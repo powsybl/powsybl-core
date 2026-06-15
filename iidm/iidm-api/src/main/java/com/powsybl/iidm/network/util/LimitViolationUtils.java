@@ -211,6 +211,13 @@ public final class LimitViolationUtils {
      * Note that in the second case, if we crossed all temporary limits defined by the user, then this will consider another limit above, at the maximum <code>i</code> possible, with an acceptable duration of 0.
      */
     private static OverloadImpl getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
+        return switch (limitsContainer.getOriginalLimits().getDetectionKind()) {
+            case HIGH -> getOverloadHigh(limitsContainer, i, limitReductionValue);
+            case LOW -> getOverloadLow(limitsContainer, i, limitReductionValue);
+        };
+    }
+
+    private static OverloadImpl getOverloadHigh(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
             return null;
@@ -237,6 +244,22 @@ public final class LimitViolationUtils {
         return null;
     }
 
+    private static OverloadImpl getOverloadLow(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
+        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
+        LoadingLimits.TemporaryLimit previousTemporaryLimit = null;
+        //iterate on ascending values until i is not above a temporary limit
+        for (LoadingLimits.TemporaryLimit tl : temporaryLimits) {
+            if (i >= tl.getValue() * limitReductionValue) {
+                previousTemporaryLimit = tl;
+            } else {
+                break;
+            }
+        }
+        return previousTemporaryLimit != null ?
+            createOverload(previousTemporaryLimit, previousTemporaryLimit.getValue(), previousTemporaryLimit.getName(), limitsContainer, false, previousTemporaryLimit.getAcceptableDuration(), limitReductionValue)
+            : null;
+    }
+
     /**
      * Gets the overload corresponding to the temporary limit that is directly above the value of <code>i</code> in the limits contained in <code>limitsContainer</code>
      * @param limitsContainer a container with the limits (permanent and temporary)
@@ -257,11 +280,15 @@ public final class LimitViolationUtils {
         return checkPermanentLimitIfAny(limitsContainer, i, 1);
     }
 
+    /**
+     * Return a permanent limit violation if there is one. This should only be called on limits that have a permanent limit, ie
+     * high loading limits (but not low loading limits)
+     */
     private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
+        String opGroupId = limitsContainer.getOperationalLimitsGroupId();
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         String permanentLimitName = limitsContainer.getLimits().getPermanentLimitName();
         double originalPermanentLimit = limitsContainer.getOriginalLimits().getPermanentLimit();
-        String opGroupId = limitsContainer.getOperationalLimitsGroupId();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
             return new PermanentLimitCheckResult(false, Double.NaN, permanentLimitName, limitReductionValue, opGroupId);
         }
@@ -301,7 +328,7 @@ public final class LimitViolationUtils {
 
     private static boolean checkPermanentLimitIdentifiable(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, double i, LimitType type) {
         for (LimitsContainer<LoadingLimits> limit : getAllLimits(identifiable, side, type, LimitsComputer.NO_MODIFICATIONS)) {
-            if (checkPermanentLimitIfAny(limit, i, limitReductionValue).isOverload()) {
+            if (limit.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH && checkPermanentLimitIfAny(limit, i, limitReductionValue).isOverload()) {
                 return true;
             }
         }
@@ -318,6 +345,7 @@ public final class LimitViolationUtils {
 
     private static PermanentLimitCheckResult checkPermanentLimitIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
         return getLimits(identifiable, side, type, computer)
+            .filter(l -> l.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH)
             .map(l -> checkPermanentLimitIfAny(l, i))
             .orElse(new PermanentLimitCheckResult(false, Double.NaN, "", 1.0, ""));
     }
