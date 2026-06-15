@@ -1298,8 +1298,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             Class<? extends Identifiable> clazz = entry.getKey();
             Collection<String> objs = entry.getValue();
             if (!objs.isEmpty()) {
+                String thisNetworkId = this.getId();
+                String otherNetworkId = otherNetwork.getId();
                 throw new PowsyblException("The following object(s) of type "
-                        + clazz.getSimpleName() + " exist(s) in both networks: "
+                        + clazz.getSimpleName() + " exist(s) in networks [" + thisNetworkId + "] and [" + otherNetworkId + "] : "
                         + objs);
             }
         }
