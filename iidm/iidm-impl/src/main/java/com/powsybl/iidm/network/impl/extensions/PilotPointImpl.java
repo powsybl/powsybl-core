@@ -13,23 +13,26 @@ import com.powsybl.iidm.network.impl.NetworkImpl;
 import com.powsybl.iidm.network.impl.VariantManagerHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class PilotPointImpl implements PilotPoint {
 
-    private List<String> busbarSectionsOrBusesIds;
+    private final List<String> busbarSectionsOrBusesIds;
 
     private final TDoubleArrayList targetV;
 
     private ControlZoneImpl controlZone;
 
     PilotPointImpl(List<String> busbarSectionsOrBusesIds, double targetV, VariantManagerHolder variantManagerHolder) {
-        this.busbarSectionsOrBusesIds = Objects.requireNonNull(busbarSectionsOrBusesIds);
+        this.busbarSectionsOrBusesIds = new ArrayList<>(Objects.requireNonNull(busbarSectionsOrBusesIds));
         int variantArraySize = variantManagerHolder.getVariantManager().getVariantArraySize();
         this.targetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
@@ -53,8 +56,12 @@ class PilotPointImpl implements PilotPoint {
         return Collections.unmodifiableList(busbarSectionsOrBusesIds);
     }
 
-    public void setBusbarSectionsOrBusesIds(List<String> newBusbarSectionsOrBusesIds) {
-        busbarSectionsOrBusesIds = newBusbarSectionsOrBusesIds;
+    protected void updateBusbarSectionsOrBusesIds(UnaryOperator<String> updater) {
+        busbarSectionsOrBusesIds.replaceAll(updater);
+    }
+
+    protected void removeBusbarSectionsOrBusesIdIf(Predicate<String> predicate) {
+        busbarSectionsOrBusesIds.removeIf(predicate);
     }
 
     @Override

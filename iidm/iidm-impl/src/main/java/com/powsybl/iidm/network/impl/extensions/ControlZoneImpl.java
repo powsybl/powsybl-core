@@ -11,10 +11,9 @@ import com.powsybl.iidm.network.extensions.ControlUnit;
 import com.powsybl.iidm.network.extensions.ControlZone;
 import com.powsybl.iidm.network.extensions.PilotPoint;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -32,7 +31,7 @@ class ControlZoneImpl implements ControlZone {
     ControlZoneImpl(String name, PilotPoint pilotPoint, List<ControlUnit> controlUnits) {
         this.name = Objects.requireNonNull(name);
         this.pilotPoint = Objects.requireNonNull(pilotPoint);
-        this.controlUnits = Objects.requireNonNull(controlUnits);
+        this.controlUnits = new ArrayList<>(Objects.requireNonNull(controlUnits));
     }
 
     void setSecondaryVoltageControl(SecondaryVoltageControlImpl secondaryVoltageControl) {
@@ -58,8 +57,12 @@ class ControlZoneImpl implements ControlZone {
         return Collections.unmodifiableList(controlUnits);
     }
 
-    public void setControlUnits(List<ControlUnit> newControlUnits) {
-        controlUnits = newControlUnits;
+    protected void removeControlUnitIf(Predicate<ControlUnit> removePredicate) {
+        controlUnits.removeIf(removePredicate);
+    }
+
+    protected void updateControlUnit(UnaryOperator<ControlUnit> updater) {
+        controlUnits.replaceAll(updater);
     }
 
     @Override

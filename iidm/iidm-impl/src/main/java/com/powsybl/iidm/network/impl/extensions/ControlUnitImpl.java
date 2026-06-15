@@ -42,7 +42,7 @@ class ControlUnitImpl implements ControlUnit {
         return controlZone.getSecondaryVoltageControl().getVariantManagerHolder().getVariantIndex();
     }
 
-    public void setId(String newId) {
+    protected void setId(String newId) {
         id = Objects.requireNonNull(newId);
     }
 

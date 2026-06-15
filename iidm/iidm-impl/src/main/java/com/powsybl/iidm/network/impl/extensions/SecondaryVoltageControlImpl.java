@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.ControlUnit;
+import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.extensions.ControlZone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
@@ -20,14 +20,41 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class SecondaryVoltageControlImpl extends AbstractMultiVariantIdentifiableExtension<Network> implements SecondaryVoltageControl, DefaultNetworkListener {
+public class SecondaryVoltageControlImpl extends AbstractMultiVariantIdentifiableExtension<Network> implements SecondaryVoltageControl {
 
     private final List<ControlZone> controlZones;
+
+    private final NetworkListener networkListener;
 
     SecondaryVoltageControlImpl(Network network, List<ControlZone> controlZones) {
         super(network);
         this.controlZones = Objects.requireNonNull(controlZones);
-        network.addListener(this);
+        networkListener = new DefaultNetworkListener() {
+            @Override
+            public void afterRemoval(String identifiable) {
+                for (var zone : controlZones) {
+                    ((ControlZoneImpl) zone).removeControlUnitIf(e -> e.getId().equals(identifiable));
+                    ((PilotPointImpl) zone.getPilotPoint()).removeBusbarSectionsOrBusesIdIf(e -> e.equals(identifiable));
+                }
+            }
+
+            @Override
+            public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+                if ("id".equals(attribute)) {
+                    // Propagate the id update to control unit and pilot point
+                    for (var zone : controlZones) {
+                        ((ControlZoneImpl) zone).updateControlUnit(unit -> {
+                            if (unit.getId().equals(oldValue)) {
+                                ((ControlUnitImpl) unit).setId((String) newValue);
+                            }
+                            return unit;
+                        });
+                        ((PilotPointImpl) zone.getPilotPoint()).updateBusbarSectionsOrBusesIds(e -> e.equals(oldValue) ? (String) newValue : e);
+                    }
+                }
+            }
+        };
+        network.addListener(networkListener);
     }
 
     @Override
@@ -64,38 +91,6 @@ public class SecondaryVoltageControlImpl extends AbstractMultiVariantIdentifiabl
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (ControlZone controlZone : controlZones) {
             ((ControlZoneImpl) controlZone).allocateVariantArrayElement(indexes, sourceIndex);
-        }
-    }
-
-    @Override
-    public void afterRemoval(String identifiable) {
-        for (var zone : controlZones) {
-            if (zone.getControlUnit(identifiable).isPresent()) {
-                List<ControlUnit> units = new ArrayList<>(zone.getControlUnits())
-                        .stream().filter(e -> !e.getId().equals(identifiable)).toList();
-                ((ControlZoneImpl) zone).setControlUnits(units);
-            }
-            if (zone.getPilotPoint().getBusbarSectionsOrBusesIds().contains(identifiable)) {
-                List<String> ids = new ArrayList<>(zone.getPilotPoint().getBusbarSectionsOrBusesIds())
-                        .stream().filter(e -> !e.equals(identifiable)).toList();
-                ((PilotPointImpl) zone.getPilotPoint()).setBusbarSectionsOrBusesIds(ids);
-            }
-        }
-    }
-
-    @Override
-    public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
-        if ("id".equals(attribute)) {
-            // Propagate the id update to control unit and pilot point
-            for (var zone : controlZones) {
-                zone.getControlUnit((String) oldValue).
-                        ifPresent(unit -> ((ControlUnitImpl) unit).setId((String) newValue));
-                if (zone.getPilotPoint().getBusbarSectionsOrBusesIds().contains(oldValue)) {
-                    List<String> ids = new ArrayList<>(zone.getPilotPoint().getBusbarSectionsOrBusesIds())
-                            .stream().map(e -> e.equals(oldValue) ? (String) newValue : e).toList();
-                    ((PilotPointImpl) zone.getPilotPoint()).setBusbarSectionsOrBusesIds(ids);
-                }
-            }
         }
     }
 }
