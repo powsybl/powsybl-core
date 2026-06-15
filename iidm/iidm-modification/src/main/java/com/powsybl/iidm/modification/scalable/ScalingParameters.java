@@ -266,6 +266,7 @@ public class ScalingParameters {
         ScalingParameters scalingParameters = new ScalingParameters();
         platformConfig.getOptionalModuleConfig("scaling-default-parameters").ifPresent(config -> {
             scalingParameters.setScalingConvention(config.getEnumProperty("scalingConvention", Scalable.ScalingConvention.class, DEFAULT_SCALING_CONVENTION));
+            scalingParameters.setScalingType(config.getEnumProperty("scalingType", ScalingParameters.ScalingType.class, DEFAULT_SCALING_TYPE));
             scalingParameters.setConstantPowerFactor(config.getBooleanProperty("constantPowerFactor", DEFAULT_CONSTANT_POWER_FACTOR));
             scalingParameters.setReconnect(config.getBooleanProperty("reconnect", DEFAULT_RECONNECT));
             scalingParameters.setPriority(config.getEnumProperty("priority", ScalingParameters.Priority.class, DEFAULT_PRIORITY));
