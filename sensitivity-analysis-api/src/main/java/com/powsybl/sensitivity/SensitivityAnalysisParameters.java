@@ -22,13 +22,18 @@ import java.util.Objects;
  */
 public class SensitivityAnalysisParameters extends AbstractExtendable<SensitivityAnalysisParameters> {
 
-    public static final String VERSION = "1.2";
+    // VERSION = 1.0
+    // VERSION = 1.1 flowFlowSensitivityValueThreshold, voltageVoltageSensitivityValueThreshold, flowVoltageSensitivityValueThreshold, angleFlowSensitivityValueThreshold
+    // VERSION = 1.2 operatorStrategiesCalculationMode
+    // VERSION = 1.3 debugDir
+    public static final String VERSION = "1.3";
 
     static final double FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final double VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final double FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final double ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final SensitivityOperatorStrategiesCalculationMode SENSITIVITY_OPERATOR_STRATEGY_CALCULATION_MODE_DEFAULT_VALUE = SensitivityOperatorStrategiesCalculationMode.NONE;
+    static final String DEFAULT_DEBUG_DIR = null;
 
     private double flowFlowSensitivityValueThreshold = FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
     private double voltageVoltageSensitivityValueThreshold = VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
@@ -38,6 +43,7 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
     private SensitivityOperatorStrategiesCalculationMode operatorStrategiesCalculationMode = SENSITIVITY_OPERATOR_STRATEGY_CALCULATION_MODE_DEFAULT_VALUE;
+    private String debugDir = DEFAULT_DEBUG_DIR;
 
     /**
      * Load parameters from platform default config.
@@ -151,6 +157,15 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
 
     public SensitivityAnalysisParameters setOperatorStrategiesCalculationMode(SensitivityOperatorStrategiesCalculationMode operatorStrategiesCalculationMode) {
         this.operatorStrategiesCalculationMode = Objects.requireNonNull(operatorStrategiesCalculationMode);
+        return this;
+    }
+
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    public SensitivityAnalysisParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
         return this;
     }
 }

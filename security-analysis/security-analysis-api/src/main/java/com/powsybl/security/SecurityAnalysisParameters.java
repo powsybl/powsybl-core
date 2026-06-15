@@ -30,7 +30,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     // VERSION = 1.0
     // VERSION = 1.1 IncreasedViolationsParameters adding.
     // VERSION = 1.2 intermediateResultsInOperatorStrategy
-    // VERSION = 1.3 ModifiedMonitoredElementsParameters
+    // VERSION = 1.3 ModifiedMonitoredElementsParameters, debugDir
     public static final String VERSION = "1.3";
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
@@ -38,8 +38,10 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     private ModifiedMonitoredElementsParameters modifiedMonitoredElementsParameters = new ModifiedMonitoredElementsParameters();
 
     static final boolean DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY = false;
+    static final String DEFAULT_DEBUG_DIR = null;
 
     private boolean intermediateResultsInOperatorStrategy = DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY;
+    private String debugDir = DEFAULT_DEBUG_DIR;
 
     public static class IncreasedViolationsParameters {
 
@@ -265,6 +267,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
                     parameters.setIntermediateResultsInOperatorStrategy(config.getBooleanProperty("intermediate-results-in-operator-strategy", DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY));
                     parameters.getIncreasedViolationsParameters().load(config);
                     parameters.getModifiedMonitoredElementsParameters().load(config);
+                    config.getOptionalStringProperty("debug-dir").ifPresent(parameters::setDebugDir);
                 });
 
         parameters.readExtensions(platformConfig);
@@ -315,6 +318,15 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     public SecurityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
+        return this;
+    }
+
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    public SecurityAnalysisParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
         return this;
     }
 
