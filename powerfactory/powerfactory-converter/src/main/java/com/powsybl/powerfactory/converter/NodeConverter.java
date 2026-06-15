@@ -177,7 +177,7 @@ class NodeConverter extends AbstractConverter {
         float gpsLatitude = elmObj.findFloatAttributeValue("GPSlat").orElse(Float.NaN);
         float gpsLongitude = elmObj.findFloatAttributeValue("GPSlon").orElse(Float.NaN);
 
-        if (Double.isFinite(gpsLatitude) && Double.isFinite(gpsLongitude)) {
+        if (Float.isFinite(gpsLatitude) && Float.isFinite(gpsLongitude)) {
             Coordinate coordinates = new Coordinate(gpsLatitude, gpsLongitude);
             AtomicInteger substationsWithNewData = new AtomicInteger();
             AtomicInteger substationsWithUpdatedData = new AtomicInteger();
