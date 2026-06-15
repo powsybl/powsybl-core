@@ -40,20 +40,42 @@ security-analysis:
 ### Violations increase thresholds
 The user can provide parameters to define which violations must be raised after a contingency, if the violation was already present in the pre-contingency state (`IncreasedViolationsParameters`).
 
-**flow-proportional-threshold**<br>
+(param-secu-flow-proportional-threshold)=
+#### flow-proportional-threshold
 After a contingency, only flow violations (either current, active power or apparent power violations) that have increased in proportion by more than a threshold value, compared to the pre-contingency state, are listed in the limit violations. The other ones are filtered. The threshold value is unitless and should be positive. This method gets the flow violation proportional threshold. The default value is 0.1, meaning that only violations that have increased by more than 10% appear in the limit violations.
 
-**low-voltage-proportional-threshold**<br>
+(param-secu-low-voltage-proportional-threshold)=
+#### low-voltage-proportional-threshold
 After a contingency, only low-voltage violations that have increased by more than the proportional threshold compared to the pre-contingency state, are listed in the limit violations, the other ones are filtered. This method gets the low-voltage violation proportional threshold (unitless, should be positive). The default value is 0.0, meaning that only violations that have increased by more than 0.0 % appear in the limit violations (note that for low-voltage violation, it means that the voltage in the post-contingency state is lower than the voltage in the pre-contingency state).
 
-**low-voltage-absolute-threshold**<br>
+(param-secu-low-voltage-absolute-threshold)=
+#### low-voltage-absolute-threshold
 After a contingency, only low-voltage violations that have increased by more than an absolute threshold compared to the pre-contingency state, are listed in the limit violations, the other ones are filtered. This method gets the low-voltage violation absolute threshold (in kV, should be positive). The default value is 0.0, meaning that only violations that have increased by more than 0.0 kV appear in the limit violations (note that for low-voltage violation, it means that the voltage in the post-contingency state is lower than the voltage in the pre-contingency state).
 
-**high-voltage-proportional-threshold**<br>
+(param-secu-high-voltage-proportional-threshold)=
+#### high-voltage-proportional-threshold
 Same as before but for high-voltage violations.
 
-**high-voltage-absolute-threshold**<br>
+(param-secu-high-voltage-absolute-threshold)=
+#### high-voltage-absolute-threshold
 Same as before but for high-voltage violations.
+
+(monitoring-modification-thresholds)=
+### Monitoring modification thresholds
+When monitoring elements both before and after contingencies, it is possible to define thresholds that limit the number of element states stored in the post-contingency state.
+
+#### Thresholds on power
+**power-modification-threshold**<br>
+After a contingency, all the monitored branches and 3 windings transformers whose power has not changed by more than the threshold (in percentage) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
+
+#### Thresholds on voltage
+These two following parameters are not exclusive. When both are defined, the threshold in kV that will be used will be the minimum between the value of the absolute parameter and the result of the proportional parameter applied to the pre-contingency value.
+
+**voltage-modification-proportional-threshold**<br>
+After a contingency, all the monitored buses whose voltage has not changed by more than the threshold (in percentage) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
+
+**voltage-modification-absolute-threshold**<br>
+After a contingency, all the monitored buses whose voltage has not changed by more than the threshold (in kV) compared to pre-contingency state are filtered from the post-contingency results. It is set at 0 by default, so it doesn't filter anything.
 
 (violation-filtering)=
 ### Violations filtering
@@ -70,4 +92,3 @@ limit-violation-default-filter:
         - LOW_VOLTAGE
         - HIGH_VOLTAGE
 ```
-

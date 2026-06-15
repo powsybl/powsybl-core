@@ -1,11 +1,16 @@
 {
-  "version" : "1.2",
+  "version" : "1.3",
   "increased-violations-parameters" : {
     "flow-proportional-threshold" : 0.1,
     "low-voltage-proportional-threshold" : 0.0,
     "low-voltage-absolute-threshold" : 0.0,
     "high-voltage-proportional-threshold" : 0.0,
     "high-voltage-absolute-threshold" : 0.0
+  },
+  "monitored-element-modification-threshold" : {
+    "power-modification-threshold" : 0.0,
+    "voltage-modification-proportional-threshold" : 0.0,
+    "voltage-modification-absolute-threshold" : 0.0
   },
   "intermediate-results-in-operator-strategy" : false,
   "load-flow-parameters" : {

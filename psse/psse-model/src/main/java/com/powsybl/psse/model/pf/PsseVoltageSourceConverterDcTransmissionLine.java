@@ -7,12 +7,26 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.lang.reflect.Field;
-
 import com.powsybl.psse.model.PsseVersioned;
-import com.univocity.parsers.annotations.HeaderTransformer;
-import com.univocity.parsers.annotations.Nested;
-import com.univocity.parsers.annotations.Parsed;
+import com.powsybl.psse.model.io.PsseFieldDefinition;
+import com.powsybl.psse.model.io.Util;
+import de.siegmar.fastcsv.reader.CsvRecord;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.powsybl.psse.model.io.Util.addField;
+import static com.powsybl.psse.model.io.Util.addSuffixToHeaders;
+import static com.powsybl.psse.model.io.Util.checkForUnexpectedHeader;
+import static com.powsybl.psse.model.io.Util.concatStringArrays;
+import static com.powsybl.psse.model.io.Util.createNewField;
+import static com.powsybl.psse.model.io.Util.defaultIntegerFor;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_MDC;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_NAME;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_RDC;
 
 /**
  *
@@ -21,6 +35,56 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned {
 
+    private static final Map<String, PsseFieldDefinition<PsseVoltageSourceConverterDcTransmissionLine, ?>> FIELDS = createFields();
+    private static final String[] FIELD_NAMES_SPECIFIC = {STR_NAME, STR_MDC, STR_RDC};
+    private static final String[] FIELD_NAMES = concatStringArrays(FIELD_NAMES_SPECIFIC, PsseOwnership.getFieldNames());
+    private static final String[] FIELD_NAMES_35X = concatStringArrays(FIELD_NAMES,
+        addSuffixToHeaders(PsseVoltageSourceConverter.getFieldNames35(), "1"),
+        addSuffixToHeaders(PsseVoltageSourceConverter.getFieldNames35(), "2"));
+
+    private String name;
+    private int mdc = defaultIntegerFor(STR_MDC, FIELDS);
+    private double rdc;
+    private PsseOwnership ownership;
+    private PsseVoltageSourceConverter converter1 = new PsseVoltageSourceConverter();
+    private PsseVoltageSourceConverter converter2 = new PsseVoltageSourceConverter();
+
+    public static String[] getFieldNames() {
+        return FIELD_NAMES;
+    }
+
+    public static String[] getFieldNamesX() {
+        return FIELD_NAMES_35X;
+    }
+
+    public static PsseVoltageSourceConverterDcTransmissionLine fromRecord(CsvRecord rec, String[] headers) {
+        PsseVoltageSourceConverterDcTransmissionLine transmissionLine = Util.fromRecord(rec.getFields(), headers, FIELDS, PsseVoltageSourceConverterDcTransmissionLine::new);
+        transmissionLine.setOwnership(PsseOwnership.fromRecord(rec, headers));
+        transmissionLine.setConverter1(PsseVoltageSourceConverter.fromRecord(rec, headers, "1"));
+        transmissionLine.setConverter2(PsseVoltageSourceConverter.fromRecord(rec, headers, "2"));
+        return transmissionLine;
+    }
+
+    public static String[] toRecord(PsseVoltageSourceConverterDcTransmissionLine transmissionLine, String[] headers) {
+        Set<String> unexpectedHeaders = new HashSet<>(List.of(headers));
+        String[] recordValues = Util.toRecord(transmissionLine, headers, FIELDS, unexpectedHeaders);
+        PsseOwnership.toRecord(transmissionLine.getOwnership(), headers, recordValues, unexpectedHeaders);
+        PsseVoltageSourceConverter.toRecord(transmissionLine.getConverter1(), headers, recordValues, unexpectedHeaders, "1");
+        PsseVoltageSourceConverter.toRecord(transmissionLine.getConverter2(), headers, recordValues, unexpectedHeaders, "2");
+        checkForUnexpectedHeader(unexpectedHeaders);
+        return recordValues;
+    }
+
+    private static Map<String, PsseFieldDefinition<PsseVoltageSourceConverterDcTransmissionLine, ?>> createFields() {
+        Map<String, PsseFieldDefinition<PsseVoltageSourceConverterDcTransmissionLine, ?>> fields = new HashMap<>();
+
+        addField(fields, createNewField(STR_NAME, String.class, PsseVoltageSourceConverterDcTransmissionLine::getName, PsseVoltageSourceConverterDcTransmissionLine::setName));
+        addField(fields, createNewField(STR_MDC, Integer.class, PsseVoltageSourceConverterDcTransmissionLine::getMdc, PsseVoltageSourceConverterDcTransmissionLine::setMdc, 1));
+        addField(fields, createNewField(STR_RDC, Double.class, PsseVoltageSourceConverterDcTransmissionLine::getRdc, PsseVoltageSourceConverterDcTransmissionLine::setRdc));
+
+        return fields;
+    }
+
     @Override
     public void setModel(PssePowerFlowModel model) {
         super.setModel(model);
@@ -28,24 +92,6 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         converter1.setModel(model);
         converter2.setModel(model);
     }
-
-    @Parsed
-    private String name;
-
-    @Parsed
-    private int mdc = 1;
-
-    @Parsed
-    private double rdc;
-
-    @Nested
-    private PsseOwnership ownership;
-
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "1")
-    private PsseVoltageSourceConverter converter1;
-
-    @Nested(headerTransformer = ConverterHeaderTransformer.class, args = "2")
-    private PsseVoltageSourceConverter converter2;
 
     public String getName() {
         return name;
@@ -104,18 +150,5 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         copy.converter1 = this.converter1.copy();
         copy.converter2 = this.converter2.copy();
         return copy;
-    }
-
-    public static class ConverterHeaderTransformer extends HeaderTransformer {
-        private final String converterChar;
-
-        public ConverterHeaderTransformer(String... args) {
-            converterChar = args[0];
-        }
-
-        @Override
-        public String transformName(Field field, String name) {
-            return name + converterChar;
-        }
     }
 }

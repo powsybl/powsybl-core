@@ -20,6 +20,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -763,8 +764,13 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         assertImpactOfConnectDisconnect(network,
             connectionConnectable, NetworkModificationImpact.NO_IMPACT_ON_NETWORK,
             disconnectionConnectable, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
-        // Only one side connected
+        // Both sides still connected since default disconnect does not operate fictitious breakers
         line.getTerminal1().disconnect();
+        assertImpactOfConnectDisconnect(network,
+            connectionConnectable, NetworkModificationImpact.NO_IMPACT_ON_NETWORK,
+            disconnectionConnectable, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        // Only one side connected
+        line.getTerminal1().disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
         assertImpactOfConnectDisconnect(network,
             connectionConnectable, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
             disconnectionConnectable, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
