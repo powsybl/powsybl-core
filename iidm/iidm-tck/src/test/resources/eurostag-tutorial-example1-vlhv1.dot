@@ -1,4 +1,4 @@
-strict digraph G {
+digraph G {
   compound=true;
   0 [ label="BUS\lNHV1" shape="ellipse" style="filled" fillcolor="#7AF385" ];
   1 [ label="LINE\lNHV1_NHV2_1" shape="ellipse" style="filled" fillcolor="#7AF385" ];

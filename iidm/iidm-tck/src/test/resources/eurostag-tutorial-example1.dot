@@ -1,4 +1,4 @@
-strict digraph G {
+digraph G {
   label=sim1;
   compound=true;
   0 [ label="VLGEN_0" shape="ellipse" style="filled" fontsize="10" fillcolor="#7AF385" tooltip="load=0MW&#13;&#10;max generation=10000MW&#13;&#10;cc=0" ];

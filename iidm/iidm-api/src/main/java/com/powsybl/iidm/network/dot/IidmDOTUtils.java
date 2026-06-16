@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.dot;
 
 import com.powsybl.commons.util.Colors;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedPseudograph;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.DefaultAttribute;
 import org.jgrapht.nio.dot.DOTExporter;
@@ -55,7 +55,7 @@ public final class IidmDOTUtils {
                                    EdgeExporter edgeExporter,
                                    Map<String, Attribute> graphAttributes) {
         // Initialize the JgraphT graph and the attributes, nodes and edges map
-        Graph<String, DefaultEdge> jGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        Graph<String, DefaultEdge> jGraph = new DirectedPseudograph<>(DefaultEdge.class);
         Map<String, Map<String, Attribute>> vertexAttributes = new HashMap<>();
         Map<DefaultEdge, Map<String, Attribute>> edgeAttributes = new HashMap<>();
         Map<String, DOTSubgraph<String, DefaultEdge>> subgraphs = new HashMap<>();

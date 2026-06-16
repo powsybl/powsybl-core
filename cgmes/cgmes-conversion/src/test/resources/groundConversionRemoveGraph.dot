@@ -1,4 +1,4 @@
-strict digraph G {
+digraph G {
   compound=true;
   0 [ label="0\lBUSBAR_SECTION\lAX\lEF" shape="ellipse" style="filled" fillcolor="#7AF385" ];
   5 [ label="5\lGENERATOR\lZX\lZY" shape="ellipse" style="filled" fillcolor="#7AF385" ];
