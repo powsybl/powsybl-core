@@ -75,6 +75,7 @@ public class BinReader extends AbstractTreeDataReader {
 
     private void readNamesDictionary() {
         int nbEntries = in.readUnsignedShort();
+        // index 0 is reserved for the end node
         names = new String[nbEntries + 1];
         types = new byte[nbEntries + 1];
         for (int i = 0; i < nbEntries; i++) {
@@ -84,29 +85,41 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     private void peekNextEntry() {
-        if (in.isEndOfStream()) {
-            nextNameIdx = END_NODE;
-            return;
-        }
-        nextNameIdx = in.readUnsignedShort();
-        if (nextNameIdx != END_NODE) {
+        nextNameIdx = readNameIndex();
+        if (nextNameIdx != END_NODE && nextNameIdx != END_OF_FILE) {
+            if (nextNameIdx >= names.length) {
+                throw new PowsyblException("Corrupted binary file: invalid index " + nextNameIdx
+                        + " (max " + (names.length - 1) + ")");
+            }
             nextType = types[nextNameIdx];
         }
     }
 
+    private int readNameIndex() {
+        if (in.isEndOfStream()) {
+            return END_OF_FILE;
+        }
+        return in.readUnsignedShort();
+    }
+
     private boolean isAttrAbsent(String name) {
+        if (nextNameIdx == END_OF_FILE) {
+            throw new PowsyblException("Unexpected end of file");
+        }
         if (nextNameIdx == END_NODE || nextType == TYPE_OBJECT) {
             return true;
         }
-        String entryName = names[nextNameIdx];
-        if (entryName == null) {
-            throw new PowsyblException("Cannot read attribute: unknown name index " + nextNameIdx);
-        }
-        return !name.equals(entryName);
+        return !name.equals(names[nextNameIdx]);
     }
 
     private void skipRemainingAttributes() {
-        while (nextNameIdx != END_NODE && nextType != TYPE_OBJECT) {
+        while (nextNameIdx != END_NODE) {
+            if (nextNameIdx == END_OF_FILE) {
+                throw new PowsyblException("Corrupted binary file: unexpected end of file while skipping attributes");
+            }
+            if (nextType == TYPE_OBJECT) {
+                return;
+            }
             skipTypedValue(nextType);
             peekNextEntry();
         }
@@ -144,6 +157,24 @@ public class BinReader extends AbstractTreeDataReader {
         for (int i = 0; i < count; i++) {
             skipString();
         }
+    }
+
+    private List<Integer> readIntArrayRaw() {
+        int count = in.readUnsignedShort();
+        List<Integer> list = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            list.add(in.readInt());
+        }
+        return list;
+    }
+
+    private List<String> readStringArrayRaw() {
+        int count = in.readUnsignedShort();
+        List<String> list = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            list.add(readString());
+        }
+        return list;
     }
 
     private String readString() {
@@ -262,7 +293,11 @@ public class BinReader extends AbstractTreeDataReader {
         int ordinal = in.readUnsignedShort();
         peekNextEntry();
         T[] constants = clazz.getEnumConstants();
-        return ordinal < constants.length ? constants[ordinal] : defaultValue;
+        if (ordinal >= constants.length) {
+            throw new PowsyblException("Invalid enum ordinal for " + clazz.getSimpleName() + ": "
+                    + ordinal + " (max " + (constants.length - 1) + ")");
+        }
+        return constants[ordinal];
     }
 
     @Override
@@ -282,11 +317,7 @@ public class BinReader extends AbstractTreeDataReader {
         if (isAttrAbsent(name)) {
             return Collections.emptyList();
         }
-        int count = in.readUnsignedShort();
-        List<Integer> val = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            val.add(in.readInt());
-        }
+        List<Integer> val = readIntArrayRaw();
         peekNextEntry();
         return val;
     }
@@ -296,28 +327,24 @@ public class BinReader extends AbstractTreeDataReader {
         if (isAttrAbsent(name)) {
             return Collections.emptyList();
         }
-        int count = in.readUnsignedShort();
-        List<String> val = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            val.add(readString());
-        }
+        List<String> val = readStringArrayRaw();
         peekNextEntry();
         return val;
     }
 
     @Override
     public void skipNode() {
+        skipRemainingAttributes();
         readChildNodes(nodeName -> skipNode());
     }
 
     @Override
     public void readChildNodes(ChildNodeReader childNodeReader) {
-        skipRemainingAttributes();
+        if (nextNameIdx != END_NODE && nextType != TYPE_OBJECT) {
+            throw new PowsyblException("Binary parsing: expected child node but got attribute " + names[nextNameIdx]);
+        }
         while (nextNameIdx != END_NODE) {
             String nodeName = names[nextNameIdx];
-            if (nodeName == null) {
-                throw new PowsyblException("Cannot read child node: unknown name index " + nextNameIdx);
-            }
             peekNextEntry();
             childNodeReader.onStartNode(nodeName);
         }
@@ -326,7 +353,6 @@ public class BinReader extends AbstractTreeDataReader {
 
     @Override
     public void readEndNode() {
-        skipRemainingAttributes();
         if (nextNameIdx != END_NODE) {
             throw new PowsyblException("Binary parsing: expected end node but got name index " + nextNameIdx);
         }

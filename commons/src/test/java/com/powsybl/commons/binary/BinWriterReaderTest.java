@@ -25,7 +25,7 @@ class BinWriterReaderTest {
     private static final byte[] MAGIC = {0x54, 0x45, 0x53, 0x54}; // "TEST"
     private static final String ROOT_VERSION = "1.0";
 
-    /** Writes a single root node, closes the writer, returns an initialised reader. */
+    /** Write a single root node, close the writer, return an initialised reader. */
     private BinReader roundTrip(WriterAction action) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (BinWriter writer = new BinWriter(Channels.newChannel(baos), MAGIC, ROOT_VERSION)) {
@@ -79,14 +79,16 @@ class BinWriterReaderTest {
 
     @Test
     void testAbsentAttributesReturnDefault() {
-        // writer skips "b": reader should return default and not consume the stream
+        // Writer writes only "a" and "c", skipping "b" (optional/default value)
         BinReader reader = roundTrip(writer -> {
             writer.writeIntAttribute("a", 1);
             writer.writeStringAttribute("c", "hello");
         });
 
         assertEquals(1, reader.readIntAttribute("a"));
+        // "b" was not written: next attr is "c", name mismatch → default returned, stream not consumed
         assertNull(reader.readStringAttribute("b"));
+        // "c" is still available
         assertEquals("hello", reader.readStringAttribute("c"));
 
         reader.readEndNode();
@@ -126,6 +128,22 @@ class BinWriterReaderTest {
     }
 
     @Test
+    void testAbsentValuesAreSkipped() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeDoubleAttribute("d", Double.NaN);
+            writer.writeDoubleAttribute("d2", 5.0, 5.0);
+            writer.writeFloatAttribute("f", Float.NaN);
+            writer.writeIntAttribute("i", 7, 7);
+            writer.writeBooleanAttribute("b", true, true);
+            writer.writeEnumAttribute("e", (Thread.State) null);
+            writer.writeIntAttribute("real", 1);
+        });
+        assertEquals(1, reader.readIntAttribute("real"));
+        reader.readEndNode();
+        reader.close();
+    }
+
+    @Test
     void testOptionalTypesRoundTrip() {
         BinReader reader = roundTrip(writer -> {
             writer.writeOptionalDoubleAttribute("d", 3.14);
@@ -150,8 +168,22 @@ class BinWriterReaderTest {
     }
 
     @Test
-    void testSkipRemainingAttributes() {
+    void testReadEndNodeWithRemainingAttributesThrows() {
         BinReader reader = roundTrip(writer -> {
+            writer.writeIntAttribute("a", 1);
+            writer.writeDoubleAttribute("b", 2.0);
+        });
+
+        assertEquals(1, reader.readIntAttribute("a"));
+        // Remaining attribute "b" not read → readEndNode must throw
+        assertThrows(PowsyblException.class, reader::readEndNode);
+        reader.close();
+    }
+
+    @Test
+    void testSkipNodeSkipsAllAttributeTypes() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeStartNode(null, "child");
             writer.writeIntAttribute("a", 1);
             writer.writeDoubleAttribute("b", 2.0);
             writer.writeFloatAttribute("c", 3.0f);
@@ -159,11 +191,20 @@ class BinWriterReaderTest {
             writer.writeStringAttribute("e", "skip");
             writer.writeEnumAttribute("f", Thread.State.RUNNABLE);
             writer.writeIntArrayAttribute("g", List.of(1, 2));
-            writer.writeStringArrayAttribute("h", List.of("x"));
+            writer.writeStringArrayAttribute("h", List.of("x", "y"));
+            writer.writeEndNode();
+            writer.writeStartNode(null, "sibling");
+            writer.writeIntAttribute("z", 99);
+            writer.writeEndNode();
         });
 
-        assertEquals(1, reader.readIntAttribute("a"));
-        reader.readEndNode();
+        List<String> visited = new ArrayList<>();
+        reader.readChildNodes(nodeName -> {
+            visited.add(nodeName);
+            reader.skipNode();
+        });
+        // reaching "sibling" proves every attribute type in "child" was skipped with the exact byte count
+        assertEquals(List.of("child", "sibling"), visited);
         reader.close();
     }
 
@@ -181,7 +222,7 @@ class BinWriterReaderTest {
         List<String> visited = new ArrayList<>();
         reader.readChildNodes(nodeName -> {
             visited.add(nodeName);
-            reader.readEndNode();
+            reader.skipNode();
         });
         assertEquals(List.of("child1", "child2"), visited);
         reader.close();
