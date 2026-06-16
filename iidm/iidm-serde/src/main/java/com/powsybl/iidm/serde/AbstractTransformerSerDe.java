@@ -312,14 +312,18 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static boolean readTapChangerAttributes(TapChangerAdder<?, ?, ?, ?, ?, ?> adder, NetworkDeserializerContext context) {
         boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
-        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION, 0);
+        int[] lowTapPosition = new int[1];
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
+                lowTapPosition[0] = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () ->
+                lowTapPosition[0] = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION, 0));
         OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_14, context, () -> {
             OptionalInt solvedTapPosition = context.getReader().readOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION);
             solvedTapPosition.ifPresent(adder::setSolvedTapPosition);
         });
         double targetDeadband = readTargetDeadband(context, regulating);
-        adder.setLowTapPosition(lowTapPosition)
+        adder.setLowTapPosition(lowTapPosition[0])
                 .setTargetDeadband(targetDeadband)
                 .setRegulating(regulating);
         tapPosition.ifPresent(adder::setTapPosition);
@@ -335,12 +339,21 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     private static double[] readCommonDoubleAttributesForAdder(NetworkDeserializerContext context) {
-        double r = context.getReader().readDoubleAttribute("r", 0.0);
-        double x = context.getReader().readDoubleAttribute("x", 0.0);
-        double g = context.getReader().readDoubleAttribute("g", 0.0);
-        double b = context.getReader().readDoubleAttribute("b", 0.0);
+        double[] rxgb = new double[4];
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
+            rxgb[0] = context.getReader().readDoubleAttribute("r");
+            rxgb[1] = context.getReader().readDoubleAttribute("x");
+            rxgb[2] = context.getReader().readDoubleAttribute("g");
+            rxgb[3] = context.getReader().readDoubleAttribute("b");
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            rxgb[0] = context.getReader().readDoubleAttribute("r", 0.0);
+            rxgb[1] = context.getReader().readDoubleAttribute("x", 0.0);
+            rxgb[2] = context.getReader().readDoubleAttribute("g", 0.0);
+            rxgb[3] = context.getReader().readDoubleAttribute("b", 0.0);
+        });
         double rho = context.getReader().readDoubleAttribute("rho");
-        return new double[] {r, x, g, b, rho};
+        return new double[] {rxgb[0], rxgb[1], rxgb[2], rxgb[3], rho};
     }
 
     private static void readStepsWithAlpha(NetworkDeserializerContext context, PhaseTapChangerAdder.StepAdder adder) {

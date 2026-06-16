@@ -78,10 +78,23 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
     protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkDeserializerContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double g1 = context.getReader().readDoubleAttribute("g1", 0.0);
-        double b1 = context.getReader().readDoubleAttribute("b1", 0.0);
-        double g2 = context.getReader().readDoubleAttribute("g2", 0.0);
-        double b2 = context.getReader().readDoubleAttribute("b2", 0.0);
+        double[] gb = new double[4];
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
+            gb[0] = context.getReader().readDoubleAttribute("g1");
+            gb[1] = context.getReader().readDoubleAttribute("b1");
+            gb[2] = context.getReader().readDoubleAttribute("g2");
+            gb[3] = context.getReader().readDoubleAttribute("b2");
+        });
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+            gb[0] = context.getReader().readDoubleAttribute("g1", 0.0);
+            gb[1] = context.getReader().readDoubleAttribute("b1", 0.0);
+            gb[2] = context.getReader().readDoubleAttribute("g2", 0.0);
+            gb[3] = context.getReader().readDoubleAttribute("b2", 0.0);
+        });
+        double g1 = gb[0];
+        double b1 = gb[1];
+        double g2 = gb[2];
+        double b2 = gb[3];
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)
