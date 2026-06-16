@@ -693,8 +693,8 @@ public abstract class AbstractNodeBreakerTest {
             }
 
             @Override
-            public void visitDanglingLine(DanglingLine danglingLine) {
-                visitedConnected.add(danglingLine);
+            public void visitBoundaryLine(BoundaryLine boundaryLine) {
+                visitedConnected.add(boundaryLine);
             }
 
             @Override
@@ -767,8 +767,8 @@ public abstract class AbstractNodeBreakerTest {
             }
 
             @Override
-            public void visitDanglingLine(DanglingLine danglingLine) {
-                visitedConnectables.add(danglingLine);
+            public void visitBoundaryLine(BoundaryLine boundaryLine) {
+                visitedConnectables.add(boundaryLine);
             }
 
             @Override
