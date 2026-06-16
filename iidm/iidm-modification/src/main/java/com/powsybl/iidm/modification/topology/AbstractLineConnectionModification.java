@@ -15,9 +15,12 @@ import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import org.apache.commons.lang3.Range;
 
 import java.util.Objects;
+import java.util.Optional;
 
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getPositionRange;
 import static com.powsybl.iidm.modification.util.ModificationLogs.logOrThrow;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
@@ -38,10 +41,9 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     protected double positionPercent;
 
     protected VoltageLevel voltageLevel;
-    protected boolean createPositionExtensionForNewLine;
 
     protected AbstractLineConnectionModification(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                                       String line2Id, String line2Name, Line line, boolean createPositionExtensionForNewLine) {
+                                                 String line2Id, String line2Name, Line line) {
         this.positionPercent = positionPercent;
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.line1Id = Objects.requireNonNull(line1Id);
@@ -49,7 +51,6 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         this.line2Id = Objects.requireNonNull(line2Id);
         this.line2Name = line2Name;
         this.line = Objects.requireNonNull(line);
-        this.createPositionExtensionForNewLine = createPositionExtensionForNewLine;
     }
 
     public M setLine1Id(String line1Id) {
@@ -151,29 +152,36 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
 
     protected void createConnectablePositionExtensionForNewLine(Line line, TwoSides twoSides, Integer positionForNewLine, ReportNode reportNode) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
-        if (!createPositionExtensionForNewLine && positionForNewLine != null) {
-            createPositionExtensionForNewLine(reportNode, line, twoSides, "core.iidm.modification.voltageConnectedOnLinePositionNotUse");
+        if (positionForNewLine == null) {
             return;
         }
-        if (createPositionExtensionForNewLine && topologyKind == TopologyKind.NODE_BREAKER) {
-            if (positionForNewLine == null) {
-                createPositionExtensionForNewLine(reportNode, line, twoSides, "core.iidm.modification.voltageConnectedOnLineMissingPosition");
-                return;
-            }
-            if (TopologyModificationUtils.getFeederPositions(voltageLevel).contains(positionForNewLine)) {
-                positionOrderAlreadyTakenReport(reportNode, positionForNewLine, TypedValue.WARN_SEVERITY);
-                return;
-            }
-            ConnectablePositionAdder<?> positionAdder = line.newExtension(ConnectablePositionAdder.class);
-            ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
-                case ONE -> positionAdder.newFeeder1();
-                case TWO -> positionAdder.newFeeder2();
-            };
-            feederAdder.withDirection(ConnectablePosition.Direction.UNDEFINED)
-                    .withOrder(positionForNewLine)
-                    .withName(line.getId())
-                    .add();
-            positionAdder.add();
+        if (topologyKind == TopologyKind.BUS_BREAKER) {
+            createPositionExtensionForNewLine(reportNode, line, twoSides, "core.iidm.modification.voltageConnectedOnLinePositionWrongTopology");
+            return;
         }
+        Optional<Range<Integer>> rangeOpt = getPositionRange(voltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId));
+        if (rangeOpt.isEmpty()) {
+            positionNoSlotLeftByAdjacentBbsReport(reportNode, bbsOrBusId, TypedValue.WARN_SEVERITY);
+            return;
+        }
+        if (positionForNewLine < 0) {
+            positionOrderTooLowReport(reportNode, 0, positionForNewLine, TypedValue.WARN_SEVERITY);
+            return;
+        }
+        if (TopologyModificationUtils.getFeederPositions(voltageLevel).contains(positionForNewLine)) {
+            positionOrderAlreadyTakenReport(reportNode, positionForNewLine, TypedValue.WARN_SEVERITY);
+            return;
+        }
+
+        ConnectablePositionAdder<?> positionAdder = line.newExtension(ConnectablePositionAdder.class);
+        ConnectablePositionAdder.FeederAdder<?> feederAdder = switch (twoSides) {
+            case ONE -> positionAdder.newFeeder1();
+            case TWO -> positionAdder.newFeeder2();
+        };
+        feederAdder.withDirection(ConnectablePosition.Direction.UNDEFINED)
+                .withOrder(positionForNewLine)
+                .withName(line.getId())
+                .add();
+        positionAdder.add();
     }
 }

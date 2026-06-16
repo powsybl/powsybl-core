@@ -262,7 +262,6 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
-                .withCreatePositionExtensionForNewLine(true)
                 .withPositionForNewLine1(5)
                 .withPositionForNewLine2(10)
                 .build();

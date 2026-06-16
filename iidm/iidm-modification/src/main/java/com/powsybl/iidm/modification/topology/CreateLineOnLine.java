@@ -67,9 +67,6 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
-     * @param createPositionExtensionForNewLine           Automatically creates connectable position extension for the line between
-     *                                                    the fictitious voltage level and the voltage level voltageLevelId on the side of which the line is
-     *                                                    connected to voltageLevelId.
      * @param positionForNewLine       The order position for the new line connection if createPositionExtensionForNewLine is set to true, or null.
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
@@ -77,8 +74,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                      boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                      String line1Id, String line1Name, String line2Id, String line2Name,
-                     Line line, LineAdder lineAdder, boolean createPositionExtensionForNewLine, Integer positionForNewLine) {
-        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line, createPositionExtensionForNewLine);
+                     Line line, LineAdder lineAdder, Integer positionForNewLine) {
+        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
         this.createFictSubstation = createFictSubstation;

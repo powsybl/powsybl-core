@@ -39,7 +39,7 @@ public class CreateLineOnLineBuilder {
     public CreateLineOnLine build() {
         return new CreateLineOnLine(positionPercent, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
-                line1Id, line1Name, line2Id, line2Name, line, lineAdder, createPositionExtensionForNewLine, positionForNewLine);
+                line1Id, line1Name, line2Id, line2Name, line, lineAdder, positionForNewLine);
     }
 
     public CreateLineOnLineBuilder withPositionPercent(double positionPercent) {
