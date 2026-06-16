@@ -127,6 +127,22 @@ class BinWriterReaderTest {
     }
 
     @Test
+    void testAbsentValuesAreSkipped() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeDoubleAttribute("d", Double.NaN);
+            writer.writeDoubleAttribute("d2", 5.0, 5.0);
+            writer.writeFloatAttribute("f", Float.NaN);
+            writer.writeIntAttribute("i", 7, 7);
+            writer.writeBooleanAttribute("b", true, true);
+            writer.writeEnumAttribute("e", (Thread.State) null);
+            writer.writeIntAttribute("real", 1);
+        });
+        assertEquals(1, reader.readIntAttribute("real"));
+        reader.readEndNode();
+        reader.close();
+    }
+
+    @Test
     void testOptionalTypesRoundTrip() {
         BinReader reader = roundTrip(writer -> {
             writer.writeOptionalDoubleAttribute("d", 3.14);
@@ -160,6 +176,34 @@ class BinWriterReaderTest {
         assertEquals(1, reader.readIntAttribute("a"));
         // Remaining attribute "b" not read → readEndNode must throw
         assertThrows(PowsyblException.class, reader::readEndNode);
+        reader.close();
+    }
+
+    @Test
+    void testSkipNodeSkipsAllAttributeTypes() {
+        BinReader reader = roundTrip(writer -> {
+            writer.writeStartNode(null, "child");
+            writer.writeIntAttribute("a", 1);
+            writer.writeDoubleAttribute("b", 2.0);
+            writer.writeFloatAttribute("c", 3.0f);
+            writer.writeBooleanAttribute("d", true);
+            writer.writeStringAttribute("e", "skip");
+            writer.writeEnumAttribute("f", Thread.State.RUNNABLE);
+            writer.writeIntArrayAttribute("g", List.of(1, 2));
+            writer.writeStringArrayAttribute("h", List.of("x", "y"));
+            writer.writeEndNode();
+            writer.writeStartNode(null, "sibling");
+            writer.writeIntAttribute("z", 99);
+            writer.writeEndNode();
+        });
+
+        List<String> visited = new ArrayList<>();
+        reader.readChildNodes(nodeName -> {
+            visited.add(nodeName);
+            reader.skipNode();
+        });
+        // reaching "sibling" proves every attribute type in "child" was skipped with the exact byte count
+        assertEquals(List.of("child", "sibling"), visited);
         reader.close();
     }
 
