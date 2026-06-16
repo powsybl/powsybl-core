@@ -145,6 +145,12 @@ There are two possible behaviors:
 
 By default, this behavior is set as `THROW_EXCEPTION`
 
+**iidm.export.xml.only-selected-operational-limits-groups**<br>
+The `iidm.export.xml.only-selected-operational-limits-groups` property is an optional property that allows for each equipment to export only the selected operational limits groups.
+Using this will result in a smaller serialized file.
+
+By default, this is set to `false`, all groups are exported.
+
 **iidm.export.xml.force-export-network-with-beta-features**<br>
 The `iidm.export.xml.force-export-network-with-beta-features` property is an optional property that defines the behavior of the IIDM exporter when exporting a network containing beta features that do not have a serialization support yet.
 There are two possible behaviors:
