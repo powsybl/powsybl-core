@@ -21,7 +21,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable, MultiVariantObject {
+abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable, MultiVariantObject {
 
     protected String id;
 
@@ -220,7 +220,6 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
         return properties.getPropertyNames();
     }
 
-    @Override
     public long getSortIndex() {
         return sortIndex;
     }

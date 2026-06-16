@@ -7,10 +7,13 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,6 +29,16 @@ class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,
                 "/twtOrdering.xiidm");
+    }
+
+    @Test
+    void testRoundTripSorted() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setSorted(true);
+        roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrderingId.xiidm");
     }
 
     @Test

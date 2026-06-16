@@ -127,10 +127,5 @@ class RegexCriterionTest {
         public <E extends Extension<MaliciousIdentifiable>> Collection<E> getExtensions() {
             return Collections.emptyList();
         }
-
-        @Override
-        public long getSortIndex() {
-            return 1L;
-        }
     }
 }

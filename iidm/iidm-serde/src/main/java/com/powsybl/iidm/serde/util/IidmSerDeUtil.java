@@ -345,7 +345,9 @@ public final class IidmSerDeUtil {
     }
 
     /**
-     * Sort identifiables by their ids.
+     * Sort identifiables by their ids if given export option is activated,
+     * otherwise, by their natural order if the network defines one.
+     * In all other cases, do not change the identifiables order.
      */
     public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
         Objects.requireNonNull(identifiables);
@@ -357,10 +359,10 @@ public final class IidmSerDeUtil {
         }
         Network n = listIdentifiables.getFirst().getNetwork();
 
-        if (exportOptions.isSorted() || n.getIdentifiableNaturalOrderComparator().isPresent()) {
-            listIdentifiables.sort(exportOptions.isSorted()
-                    ? Comparator.comparing(Identifiable::getId)
-                    : n.getIdentifiableNaturalOrderComparator().get());
+        if (exportOptions.isSorted()) {
+            listIdentifiables.sort(Comparator.comparing(Identifiable::getId));
+        } else if (n.getIdentifiableNaturalOrderComparator().isPresent()) {
+            listIdentifiables.sort(n.getIdentifiableNaturalOrderComparator().get());
         }
         return listIdentifiables;
     }
