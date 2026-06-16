@@ -69,12 +69,13 @@ load-flow-default-parameters:
     dcUseTransformerRatio: true
     dcPowerFactor: 1.0
     hvdcAcEmulation: true
+    debugDir: /tmp/debugDir
 ```
 
 The parameters may also be overridden with a JSON file, in which case the configuration will look like:
 ```json
 {
-  "version": "1.10",
+  "version": "1.11",
   "dc": false,
   "voltageInitMode": "UNIFORM_VALUES",
   "distributedSlack": true,
@@ -90,7 +91,8 @@ The parameters may also be overridden with a JSON file, in which case the config
   "twtSplitShuntAdmittance": false,
   "dcUseTransformerRatio": true,
   "dcPowerFactor": 1.0,
-  "hvdcAcEmulation": true
+  "hvdcAcEmulation": true,
+  "debugDir": "/tmp/debugDir"
 }
 ```
 ```{warning}
@@ -209,6 +211,12 @@ The default value is `1.0`.
 The `hvdcAcEmulation` property is an optional property that defines whether AC emulation for HVDC should be simulated in the load flow or not (HVDC that are in AC emulation mode should have the hvdc-angle-droop-active-power-control extension).
 
 The default value is `true`.
+
+(param-lf-debug-dir)=
+### debugDir
+This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
+
+The default value is `null`.
 
 ## Implementation specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
