@@ -75,10 +75,10 @@ class BusTerminal extends AbstractTerminal {
             // Assert that the new bus exists
             topologyModel.getBus(busId, true);
 
-            topologyModel.detach(BusTerminal.this);
+            topologyModel.detachInCurrentVariant(BusTerminal.this);
             int variantIndex = getVariantManagerHolder().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
-            topologyModel.attach(BusTerminal.this, false);
+            topologyModel.attachInCurrentVariant(BusTerminal.this, false);
             String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
             getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }

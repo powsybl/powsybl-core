@@ -1165,6 +1165,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
+    public void attachInCurrentVariant(TerminalExt terminal, boolean test) {
+        throw NodeBreakerTopologyModel.createNotSupportedNodeBreakerTopologyException();
+    }
+
+    @Override
     public void attach(TerminalExt terminal, boolean test) {
         checkTerminal(terminal);
         if (test) {
@@ -1179,6 +1184,11 @@ class NodeBreakerTopologyModel extends AbstractTopologyModel {
         graph.setVertexObject(node, (NodeTerminal) terminal);
 
         getNetwork().getVariantManager().forEachVariant(NodeBreakerTopologyModel.this::invalidateCache);
+    }
+
+    @Override
+    public void detachInCurrentVariant(TerminalExt terminal) {
+        throw NodeBreakerTopologyModel.createNotSupportedNodeBreakerTopologyException();
     }
 
     @Override
