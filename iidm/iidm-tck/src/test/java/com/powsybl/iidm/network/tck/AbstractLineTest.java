@@ -425,10 +425,10 @@ public abstract class AbstractLineTest {
     @Test
     public void testChangesNotification() {
         // Changes listener
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), anyString(), any(), any());
 
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);
