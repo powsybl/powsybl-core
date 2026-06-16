@@ -7,8 +7,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.*;
-import org.apache.commons.lang3.tuple.Pair;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.List;
 
@@ -51,7 +53,7 @@ public interface NamingStrategy {
 
     String getBusbarId(String baseId, List<SwitchKind> switchKindList, int id1Num, int id2Num);
 
-    String getBusbarId(String baseId, Pair<List<SwitchKind>, List<SwitchKind>> switchKindList, int id1Num, int id2Num);
+    String getBusbarId(String baseId, List<SwitchKind> leftSwitchesBetweenBusbar, List<SwitchKind> rightSwitchesBetweenBusbar, int id1Num, int id2Num);
 
     String getBusId(String baseId);
 

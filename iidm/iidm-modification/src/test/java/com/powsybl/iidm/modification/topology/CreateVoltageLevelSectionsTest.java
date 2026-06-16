@@ -12,7 +12,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -364,22 +363,22 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
         }
 
         @Override
-        public String getBusbarId(String baseId, Pair<List<SwitchKind>, List<SwitchKind>> switchKindList, int id1Num, int id2Num) {
+        public String getBusbarId(String baseId, List<SwitchKind> leftSwitchesBetweenBusbar, List<SwitchKind> rightSwitchesBetweenBusbar, int id1Num, int id2Num) {
             String busbarId = "";
-            if (switchKindList.getLeft().contains(SwitchKind.BREAKER)) {
+            if (leftSwitchesBetweenBusbar.contains(SwitchKind.BREAKER)) {
                 busbarId += baseId + SEPARATOR + id1Num + "_BREAKER";
-            } else if (switchKindList.getLeft().contains(SwitchKind.LOAD_BREAK_SWITCH)) {
+            } else if (leftSwitchesBetweenBusbar.contains(SwitchKind.LOAD_BREAK_SWITCH)) {
                 busbarId += baseId + SEPARATOR + id1Num + "_LOAD_BREAKER";
-            } else if (!switchKindList.getLeft().isEmpty()) {
+            } else if (!leftSwitchesBetweenBusbar.isEmpty()) {
                 busbarId += baseId + SEPARATOR + id1Num + "_DISCONNECTOR";
             } else {
                 busbarId += baseId + SEPARATOR + id1Num;
             }
-            if (switchKindList.getRight().contains(SwitchKind.BREAKER)) {
+            if (rightSwitchesBetweenBusbar.contains(SwitchKind.BREAKER)) {
                 busbarId += SEPARATOR + id2Num + "_BREAKER";
-            } else if (switchKindList.getRight().contains(SwitchKind.LOAD_BREAK_SWITCH)) {
+            } else if (rightSwitchesBetweenBusbar.contains(SwitchKind.LOAD_BREAK_SWITCH)) {
                 busbarId += baseId + SEPARATOR + id2Num + "_LOAD_BREAKER";
-            } else if (!switchKindList.getRight().isEmpty()) {
+            } else if (!rightSwitchesBetweenBusbar.isEmpty()) {
                 busbarId += baseId + SEPARATOR + id2Num + "_DISCONNECTOR";
             } else {
                 busbarId += baseId + SEPARATOR;

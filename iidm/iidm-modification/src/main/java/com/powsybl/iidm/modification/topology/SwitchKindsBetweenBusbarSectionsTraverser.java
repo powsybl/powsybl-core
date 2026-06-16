@@ -10,21 +10,30 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.math.graph.TraverseResult;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
+ *
+ * Traverse the network to find the switch kinds between all busbar sections of a busbar.
+ * if there are several switches between two busbar sections, they are merged into a single switch kind.
+ * if it contains a breaker, it is considered as a breaker.
+ * if it contains a load breaker switch but no breaker, it is considered as a breaker.
+ * elsewhere, it is considered as a disconnector.
+ *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class SwitchesBetweenBusbarSectionsTraverser implements Terminal.TopologyTraverser {
+public class SwitchKindsBetweenBusbarSectionsTraverser implements Terminal.TopologyTraverser {
 
-    private final Pair<List<List<Switch>>, List<List<Switch>>> switchesBetweenBusBarSections = Pair.of(new ArrayList<>(), new ArrayList<>());
+    private final List<SwitchKind> leftSwitchesBetweenBusbar = new ArrayList<>();
+    private final List<SwitchKind> rightSwitchesBetweenBusbar = new ArrayList<>();
     private final List<Switch> currentSwitches = new ArrayList<>();
     private final BusbarSection initialBusbarSection;
     private final BusbarSectionPosition initialBusbarSectionPosition;
 
-    public SwitchesBetweenBusbarSectionsTraverser(BusbarSection initialBusbarSection) {
+    public SwitchKindsBetweenBusbarSectionsTraverser(BusbarSection initialBusbarSection) {
         this.initialBusbarSection = Objects.requireNonNull(initialBusbarSection);
         this.initialBusbarSectionPosition = Objects.requireNonNull(initialBusbarSection.getExtension(BusbarSectionPosition.class));
     }
@@ -51,11 +60,11 @@ public class SwitchesBetweenBusbarSectionsTraverser implements Terminal.Topology
         return TraverseResult.TERMINATE_PATH;
     }
 
-    private void addCurrentSwitches( BusbarSectionPosition currentBusbarSectionPosition) {
-        List<List<Switch>> targetSide = currentBusbarSectionPosition.getSectionIndex() > initialBusbarSectionPosition.getSectionIndex()
-                ? switchesBetweenBusBarSections.getRight()
-                : switchesBetweenBusBarSections.getLeft();
-        targetSide.add(new ArrayList<>(currentSwitches));
+    private void addCurrentSwitches(BusbarSectionPosition currentBusbarSectionPosition) {
+        List<SwitchKind> targetSide = currentBusbarSectionPosition.getSectionIndex() > initialBusbarSectionPosition.getSectionIndex()
+                ? rightSwitchesBetweenBusbar
+                : leftSwitchesBetweenBusbar;
+        targetSide.add(getSwitchKind(currentSwitches));
     }
 
     @Override
@@ -64,7 +73,21 @@ public class SwitchesBetweenBusbarSectionsTraverser implements Terminal.Topology
         return TraverseResult.CONTINUE;
     }
 
-    public Pair<List<List<Switch>>, List<List<Switch>>> getSwitchesBetweenBusBarSections() {
-        return switchesBetweenBusBarSections;
+    public List<SwitchKind> getLeftSwitchesBetweenBusbar() {
+        return leftSwitchesBetweenBusbar;
+    }
+
+    public List<SwitchKind> getRightSwitchesBetweenBusbar() {
+        return rightSwitchesBetweenBusbar;
+    }
+
+    private SwitchKind getSwitchKind(List<Switch> switchList) {
+        if (switchList == null || switchList.isEmpty()) {
+            return null;
+        }
+        if (switchList.stream().anyMatch(sw -> sw.getKind().equals(SwitchKind.BREAKER) || sw.getKind().equals(SwitchKind.LOAD_BREAK_SWITCH))) {
+            return SwitchKind.BREAKER;
+        }
+        return SwitchKind.DISCONNECTOR;
     }
 }
