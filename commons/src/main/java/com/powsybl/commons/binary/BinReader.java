@@ -119,7 +119,13 @@ public class BinReader extends AbstractTreeDataReader {
 
     private void skipRemainingAttributes() {
         try {
-            while (nextNameIdx != END_NODE && nextNameIdx != END_OF_FILE && nextType != TYPE_OBJECT) {
+            while (nextNameIdx != END_NODE) {
+                if (nextNameIdx == END_OF_FILE) {
+                    throw new PowsyblException("Corrupted binary file: unexpected end of file while skipping attributes");
+                }
+                if (nextType == TYPE_OBJECT) {
+                    return;
+                }
                 skipTypedValue(nextType);
                 peekNextEntry();
             }
