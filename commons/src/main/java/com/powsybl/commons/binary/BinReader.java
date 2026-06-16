@@ -91,16 +91,22 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     private void peekNextEntry() throws IOException {
-        try {
-            nextNameIdx = dis.readUnsignedShort();
-            if (nextNameIdx != END_NODE) {
-                nextType = types[nextNameIdx];
-            }
-        } catch (EOFException e) {
+        int b1 = dis.read();
+        if (b1 < 0) {
             nextNameIdx = END_OF_FILE;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new PowsyblException("Corrupted binary file: invalid index " + nextNameIdx
-                    + " (max " + (names.length - 1) + ")");
+            return;
+        }
+        int b2 = dis.read();
+        if (b2 < 0) {
+            throw new PowsyblException("Corrupted binary file: truncated name index");
+        }
+        nextNameIdx = (b1 << 8) | b2;
+        if (nextNameIdx != END_NODE) {
+            if (nextNameIdx >= names.length) {
+                throw new PowsyblException("Corrupted binary file: invalid index " + nextNameIdx
+                        + " (max " + (names.length - 1) + ")");
+            }
+            nextType = types[nextNameIdx];
         }
     }
 
