@@ -159,19 +159,19 @@ public final class ConnectDisconnectUtil {
     static boolean connectAllDcTerminals(Identifiable<?> identifiable, List<? extends DcTerminal> dcTerminals, ReportNode reportNode) {
 
         // Booleans
-        boolean isAlreadyConnected = true;
+        boolean isAlreadyFullyConnected = true;
 
         // Check if the element is already connected
         for (DcTerminal dcTerminal : dcTerminals) {
             if (dcTerminal.isConnected()) {
                 NetworkReports.alreadyConnectedIdentifiableDcTerminal(reportNode, identifiable.getId());
             } else {
-                isAlreadyConnected = false;
+                isAlreadyFullyConnected = false;
             }
         }
 
         // Exit if the connectable is already fully connected
-        if (isAlreadyConnected) {
+        if (isAlreadyFullyConnected) {
             return false;
         }
 
@@ -196,7 +196,7 @@ public final class ConnectDisconnectUtil {
     static boolean disconnectAllDcTerminals(Identifiable<?> identifiable, List<? extends DcTerminal> dcTerminals, ReportNode reportNode) {
 
         // Booleans
-        boolean isAlreadyDisconnected = true;
+        boolean isAlreadyFullyDisconnected = true;
 
         // Check if the element is already disconnected
         for (DcTerminal dcTerminal : dcTerminals) {
@@ -204,12 +204,12 @@ public final class ConnectDisconnectUtil {
                 NetworkReports.alreadyDisconnectedIdentifiableDcTerminal(reportNode, identifiable.getId());
             } else {
                 // The DC terminal is connected
-                isAlreadyDisconnected = false;
+                isAlreadyFullyDisconnected = false;
             }
         }
 
         // Exit if the connectable is already fully disconnected
-        if (isAlreadyDisconnected) {
+        if (isAlreadyFullyDisconnected) {
             return false;
         }
 
