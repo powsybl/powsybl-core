@@ -117,12 +117,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public TieLine setR(double r) {
-        throw new PowsyblException("Cannot update TieLine resistance");
+        throw new UnsupportedOperationException("Cannot update TieLine resistance: it is computed from its boundary lines.");
     }
 
     @Override
     public TieLine setX(double x) {
-        throw new PowsyblException("Cannot update TieLine reactance");
+        throw new UnsupportedOperationException("Cannot update TieLine reactance: it is computed from its boundary lines.");
     }
 
     @Override

@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import java.time.ZonedDateTime;
@@ -72,10 +71,10 @@ class TieLineTest {
         // Not possible to update the TieLine resistance and reactance
         assertEquals(0.0569, tieLine.getR(), tolerance);
         assertEquals(0.1769, tieLine.getX(), tolerance);
-        PowsyblException exceptionX = assertThrows(PowsyblException.class, () -> tieLine.setX(1.0));
-        assertEquals("Cannot update TieLine reactance", exceptionX.getMessage());
-        PowsyblException exceptionR = assertThrows(PowsyblException.class, () -> tieLine.setR(1.0));
-        assertEquals("Cannot update TieLine resistance", exceptionR.getMessage());
+        UnsupportedOperationException exceptionX = assertThrows(UnsupportedOperationException.class, () -> tieLine.setX(1.0));
+        assertEquals("Cannot update TieLine reactance: it is computed from its boundary lines.", exceptionX.getMessage());
+        UnsupportedOperationException exceptionR = assertThrows(UnsupportedOperationException.class, () -> tieLine.setR(1.0));
+        assertEquals("Cannot update TieLine resistance: it is computed from its boundary lines.", exceptionR.getMessage());
         assertEquals(0.0569, tieLine.getR(), tolerance);
         assertEquals(0.1769, tieLine.getX(), tolerance);
     }
