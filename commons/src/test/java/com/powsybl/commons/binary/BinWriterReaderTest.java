@@ -151,23 +151,15 @@ class BinWriterReaderTest {
     }
 
     @Test
-    void testSkipRemainingAttributes() {
-        // Writes attrs of every type, reads only the first one.
-        // readEndNode must skip the remaining ones → exercises skipRemainingAttributes + all skipTypedValue branches.
+    void testReadEndNodeWithRemainingAttributesThrows() {
         BinReader reader = roundTrip(writer -> {
             writer.writeIntAttribute("a", 1);
             writer.writeDoubleAttribute("b", 2.0);
-            writer.writeFloatAttribute("c", 3.0f);
-            writer.writeBooleanAttribute("d", true);
-            writer.writeStringAttribute("e", "skip");
-            writer.writeEnumAttribute("f", Thread.State.RUNNABLE);
-            writer.writeIntArrayAttribute("g", List.of(1, 2));
-            writer.writeStringArrayAttribute("h", List.of("x"));
         });
 
         assertEquals(1, reader.readIntAttribute("a"));
-        // All remaining attrs skipped by readEndNode
-        reader.readEndNode();
+        // Remaining attribute "b" not read → readEndNode must throw
+        assertThrows(PowsyblException.class, reader::readEndNode);
         reader.close();
     }
 
@@ -185,7 +177,7 @@ class BinWriterReaderTest {
         List<String> visited = new ArrayList<>();
         reader.readChildNodes(nodeName -> {
             visited.add(nodeName);
-            reader.readEndNode();
+            reader.skipNode();
         });
         assertEquals(List.of("child1", "child2"), visited);
         reader.close();
