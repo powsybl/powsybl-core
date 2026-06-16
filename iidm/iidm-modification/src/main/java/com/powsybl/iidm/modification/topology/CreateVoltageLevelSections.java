@@ -207,7 +207,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
         BusbarSectionPosition busbarSectionPosition = busbarSection.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
-            throw new PowsyblException("No BusbarSectionPosition extension found on busbar section" + busbarSection.getId() + ", the busbar section has not been created");
+            throw new PowsyblException("No BusbarSectionPosition extension found on busbar section " + busbarSection.getId() + ", the busbar section has not been created");
         }
         List<SwitchKind> leftSwitchesBetweenBusbar = new ArrayList<>();
         List<SwitchKind> rightSwitchesBetweenBusbar = new ArrayList<>();

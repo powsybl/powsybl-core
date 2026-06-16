@@ -85,8 +85,11 @@ public class SwitchKindsBetweenBusbarSectionsTraverser implements Terminal.Topol
         if (switchList == null || switchList.isEmpty()) {
             return null;
         }
-        if (switchList.stream().anyMatch(sw -> sw.getKind().equals(SwitchKind.BREAKER) || sw.getKind().equals(SwitchKind.LOAD_BREAK_SWITCH))) {
+        if (switchList.stream().anyMatch(sw -> sw.getKind().equals(SwitchKind.BREAKER))) {
             return SwitchKind.BREAKER;
+        }
+        if (switchList.stream().anyMatch(sw -> sw.getKind().equals(SwitchKind.LOAD_BREAK_SWITCH))) {
+            return SwitchKind.LOAD_BREAK_SWITCH;
         }
         return SwitchKind.DISCONNECTOR;
     }
