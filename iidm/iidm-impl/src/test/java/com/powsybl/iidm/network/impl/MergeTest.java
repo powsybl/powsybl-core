@@ -39,7 +39,7 @@ class MergeTest {
             Network.merge("full", network1, network2, network3);
         });
         // Assert that the message contains the identifiers of networks where duplicates are found
-        assertTrue(x.toString().contains("exist(s) in networks [full] and [fictitious]"));
+        assertTrue(x.toString().contains("exist(s) in networks 'full' and 'fictitious'"));
     }
 
     @Test
