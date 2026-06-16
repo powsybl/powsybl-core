@@ -177,7 +177,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         switch (elementName) {
             case LIMITS_GROUP -> {
                 IidmSerDeUtil.assertMinimumVersion(getRootElementName(), LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(dl, dl.getId(), ThreeSides.ONE, LIMITS_GROUP, context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(bl, bl.getId(), ThreeSides.ONE, LIMITS_GROUP, context));
             }
             case ACTIVE_POWER_LIMITS -> {
                 IidmSerDeUtil.assertMinimumVersion(getRootElementName(), ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
