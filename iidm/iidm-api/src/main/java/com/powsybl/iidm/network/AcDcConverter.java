@@ -251,4 +251,10 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
      * Get the Converter droop curve;
      */
     DroopCurve getDroopCurve();
+
+    @Override
+    default void unsetSolvedValues() {
+        Connectable.super.unsetSolvedValues();
+        DcConnectable.super.unsetSolvedValues();
+    }
 }

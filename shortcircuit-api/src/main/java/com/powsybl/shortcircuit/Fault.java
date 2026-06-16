@@ -48,6 +48,7 @@ public interface Fault {
     enum FaultType {
         THREE_PHASE,
         SINGLE_PHASE,
+        LINE_TO_LINE
     }
 
     //TODO : add the numbers of the phase for two and single phase
