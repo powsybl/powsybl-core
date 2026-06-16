@@ -67,7 +67,8 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
                     config.getOptionalDoubleProperty("flow-voltage-sensitivity-value-threshold").ifPresent(parameters::setFlowVoltageSensitivityValueThreshold);
                     config.getOptionalDoubleProperty("voltage-voltage-sensitivity-value-threshold").ifPresent(parameters::setVoltageVoltageSensitivityValueThreshold);
                     config.getOptionalDoubleProperty("angle-flow-sensitivity-value-threshold").ifPresent(parameters::setAngleFlowSensitivityValueThreshold);
-                    config.getOptionalEnumProperty("sensitivity-operator-strategies-calculation-mode", SensitivityOperatorStrategiesCalculationMode.class).ifPresent(parameters::setOperatorStrategiesCalculationMode);
+                    config.getOptionalEnumProperty("sensitivity-operator-strategies-calculation-mode", SensitivityOperatorStrategiesCalculationMode.class)
+                        .ifPresent(parameters::setOperatorStrategiesCalculationMode);
                     config.getOptionalStringProperty("debug-dir").ifPresent(parameters::setDebugDir);
                 });
 

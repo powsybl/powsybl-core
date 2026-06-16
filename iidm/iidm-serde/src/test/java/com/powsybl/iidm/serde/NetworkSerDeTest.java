@@ -33,8 +33,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -104,8 +104,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         twt.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
         n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
         //network with some inactive groups, export only active
-        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
-        assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION,
+            new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO),
+            networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
     }
 
     @Test
@@ -168,7 +170,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testImportOnlyActiveGroups() throws URISyntaxException {
         ImportOptions importOptions = new ImportOptions().setOnlySelectedOperationalLimitsGroups(true);
         //read only active groups
-        Network onlyActiveGroupsNetwork = NetworkSerDe.read(Paths.get(getClass().getResource(getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION)).toURI()), importOptions);
+        Network onlyActiveGroupsNetwork = NetworkSerDe.read(Paths.get(getClass().getResource(getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml",
+            CURRENT_IIDM_VERSION)).toURI()), importOptions);
         Line line1 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), TwoSides.ONE);
         assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE), TwoSides.TWO);
