@@ -12,6 +12,7 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
@@ -36,6 +37,7 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private ValidationLevel networkValidationLevel;
 
     private Set<String> ignoredEquipments = new HashSet<>();
+    private final Map<IdentifiableIdSide, Collection<String>> selectedOperationalLimitGroupsByIdentifiableId = new HashMap<>();
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
@@ -103,8 +105,26 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         return ignoredEquipments.contains(equipment);
     }
 
+    public void addSelectedGroupIds(String identifiableId, ThreeSides side, Collection<String> selectedGroupIds) {
+        selectedOperationalLimitGroupsByIdentifiableId
+            .computeIfAbsent(new IdentifiableIdSide(identifiableId, side), id -> new ArrayList<>())
+            .addAll(selectedGroupIds);
+    }
+
+    public Collection<String> getSelectedGroupIds(String identifiableId, ThreeSides side) {
+        IdentifiableIdSide key = new IdentifiableIdSide(identifiableId, side);
+        Collection<String> selectedGroupIds = selectedOperationalLimitGroupsByIdentifiableId.get(key);
+        if (selectedGroupIds != null) {
+            return selectedGroupIds;
+        } else {
+            throw new NoSuchElementException("No identifiable of ID " + identifiableId + " has had its selected groups stored when deserializing the network");
+        }
+    }
+
     public String deanonymizeFromMinimumVersion(String val, IidmVersion version) {
         return getVersion().compareTo(version) >= 0 ? getAnonymizer().deanonymizeString(val) : val;
     }
+
+    private record IdentifiableIdSide(String identifiableId, ThreeSides side) { }
 
 }
