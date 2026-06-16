@@ -216,7 +216,7 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
 
         BusbarSectionPosition busbarSectionPosition = busbarSection.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
-            throw new PowsyblException("No busbar section Position found on busbar" + busbarSection.getId() + ", the busbar section has not been created");
+            throw new PowsyblException("No BusbarSectionPosition extension found on busbar section" + busbarSection.getId() + ", the busbar section has not been created");
         }
         Pair<List<SwitchKind>, List<SwitchKind>> switchKindsBetweenExistingSectionsOnBusBarPerSide = Pair.of(new ArrayList<>(), new ArrayList<>());
         if (leftSwitchKind != null) {
@@ -225,11 +225,11 @@ public class CreateVoltageLevelSections extends AbstractNetworkModification {
         if (rightSwitchKind != null) {
             switchKindsBetweenExistingSectionsOnBusBarPerSide.getRight().add(rightSwitchKind);
         }
-        GetSwitchesBetweenBusBarTraverser getSwitchesBetweenBusBarTraverser = new GetSwitchesBetweenBusBarTraverser(busbarSection);
-        busbarSection.getTerminal().traverse(getSwitchesBetweenBusBarTraverser);
-        getSwitchesBetweenBusBarTraverser.getSwitchesBetweenBusBarSections().getRight().forEach(switchesBetweenBusBarSection ->
+        SwitchesBetweenBusbarSectionsTraverser switchesBetweenBusbarSectionsTraverser = new SwitchesBetweenBusbarSectionsTraverser(busbarSection);
+        busbarSection.getTerminal().traverse(switchesBetweenBusbarSectionsTraverser);
+        switchesBetweenBusbarSectionsTraverser.getSwitchesBetweenBusBarSections().getRight().forEach(switchesBetweenBusBarSection ->
                 switchKindsBetweenExistingSectionsOnBusBarPerSide.getRight().add(getSwitchKind(switchesBetweenBusBarSection)));
-        getSwitchesBetweenBusBarTraverser.getSwitchesBetweenBusBarSections().getLeft().forEach(switchesBetweenBusBarSection ->
+        switchesBetweenBusbarSectionsTraverser.getSwitchesBetweenBusBarSections().getLeft().forEach(switchesBetweenBusBarSection ->
                 switchKindsBetweenExistingSectionsOnBusBarPerSide.getLeft().add(getSwitchKind(switchesBetweenBusBarSection)));
         if (nextSectionIndex == -1) {
             // Insert the busbar section before the first section or after the last

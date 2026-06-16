@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-class GetSwitchesBetweenBusBarTraverserTest {
+class SwitchesBetweenBusbarSectionsTraverserTest {
 
     /*
     vl1 :
@@ -152,7 +152,7 @@ class GetSwitchesBetweenBusBarTraverserTest {
     void test() {
         Network network = createNetwork();
         BusbarSection busbarSection = network.getBusbarSection("BBS1");
-        GetSwitchesBetweenBusBarTraverser traverser = new GetSwitchesBetweenBusBarTraverser(busbarSection);
+        SwitchesBetweenBusbarSectionsTraverser traverser = new SwitchesBetweenBusbarSectionsTraverser(busbarSection);
         busbarSection.getTerminal().traverse(traverser);
         List<List<Switch>> leftSwitchIdsBbs1 = traverser.getSwitchesBetweenBusBarSections()
                 .getLeft();
@@ -169,7 +169,7 @@ class GetSwitchesBetweenBusBarTraverserTest {
                 List.of("BBS23_DISCONNECTOR", "BBS2_BBS3_BREAKER", "BBS3_DISCONNECTOR")), rightSwitchIdsBbs1);
 
         BusbarSection busbarSection2 = network.getBusbarSection("BBS2");
-        GetSwitchesBetweenBusBarTraverser traverser2 = new GetSwitchesBetweenBusBarTraverser(busbarSection2);
+        SwitchesBetweenBusbarSectionsTraverser traverser2 = new SwitchesBetweenBusbarSectionsTraverser(busbarSection2);
         busbarSection2.getTerminal().traverse(traverser2);
         List<List<String>> leftSwitchIdsBbs2 = traverser2.getSwitchesBetweenBusBarSections()
                 .getLeft()
@@ -189,7 +189,7 @@ class GetSwitchesBetweenBusBarTraverserTest {
         assertEquals(List.of(List.of("BBS23_DISCONNECTOR", "BBS2_BBS3_BREAKER", "BBS3_DISCONNECTOR")), rightSwitchIdsBbs2);
 
         BusbarSection busbarSection3 = network.getBusbarSection("BBS6");
-        GetSwitchesBetweenBusBarTraverser traverser3 = new GetSwitchesBetweenBusBarTraverser(busbarSection3);
+        SwitchesBetweenBusbarSectionsTraverser traverser3 = new SwitchesBetweenBusbarSectionsTraverser(busbarSection3);
         busbarSection3.getTerminal().traverse(traverser3);
         List<List<String>> leftSwitchIdsBbs3 = traverser3.getSwitchesBetweenBusBarSections()
                 .getLeft()

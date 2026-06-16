@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2026, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -17,16 +17,16 @@ import java.util.*;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class GetSwitchesBetweenBusBarTraverser implements Terminal.TopologyTraverser {
+public class SwitchesBetweenBusbarSectionsTraverser implements Terminal.TopologyTraverser {
 
     private final Pair<List<List<Switch>>, List<List<Switch>>> switchesBetweenBusBarSections = Pair.of(new ArrayList<>(), new ArrayList<>());
     private final List<Switch> currentSwitches = new ArrayList<>();
     private final BusbarSection initialBusbarSection;
     private final BusbarSectionPosition initialBusbarSectionPosition;
 
-    public GetSwitchesBetweenBusBarTraverser(BusbarSection initialBusbarSection) {
+    public SwitchesBetweenBusbarSectionsTraverser(BusbarSection initialBusbarSection) {
         this.initialBusbarSection = Objects.requireNonNull(initialBusbarSection);
-        this.initialBusbarSectionPosition = initialBusbarSection.getExtension(BusbarSectionPosition.class);
+        this.initialBusbarSectionPosition = Objects.requireNonNull(initialBusbarSection.getExtension(BusbarSectionPosition.class));
     }
 
     @Override
