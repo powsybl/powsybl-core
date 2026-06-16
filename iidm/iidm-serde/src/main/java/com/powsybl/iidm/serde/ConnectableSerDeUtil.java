@@ -63,6 +63,18 @@ public final class ConnectableSerDeUtil {
         return index != null ? index.toString() : "";
     }
 
+    public static void writeDoubleAttribute(String name, double value, NetworkSerializerContext context) {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(name, value));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(name, value, 0.0));
+    }
+
+    public static double readDoubleAttribute(String name, NetworkDeserializerContext context) {
+        double[] value = new double[1];
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> value[0] = context.getReader().readDoubleAttribute(name));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> value[0] = context.getReader().readDoubleAttribute(name, 0.0));
+        return value[0];
+    }
+
     public static void writeNodeOrBus(Integer index, Terminal t, NetworkSerializerContext context) {
         if (index != null) {
             context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));

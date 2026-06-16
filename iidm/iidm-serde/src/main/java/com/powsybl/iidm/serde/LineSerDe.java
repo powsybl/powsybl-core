@@ -35,18 +35,10 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
     protected void writeRootElementAttributes(Line l, Network n, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r", l.getR());
         context.getWriter().writeDoubleAttribute("x", l.getX());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            context.getWriter().writeDoubleAttribute("g1", l.getG1());
-            context.getWriter().writeDoubleAttribute("b1", l.getB1());
-            context.getWriter().writeDoubleAttribute("g2", l.getG2());
-            context.getWriter().writeDoubleAttribute("b2", l.getB2());
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            context.getWriter().writeDoubleAttribute("g1", l.getG1(), 0.0);
-            context.getWriter().writeDoubleAttribute("b1", l.getB1(), 0.0);
-            context.getWriter().writeDoubleAttribute("g2", l.getG2(), 0.0);
-            context.getWriter().writeDoubleAttribute("b2", l.getB2(), 0.0);
-        });
+        writeDoubleAttribute("g1", l.getG1(), context);
+        writeDoubleAttribute("b1", l.getB1(), context);
+        writeDoubleAttribute("g2", l.getG2(), context);
+        writeDoubleAttribute("b2", l.getB2(), context);
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
         writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
@@ -78,23 +70,10 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
     protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkDeserializerContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double[] gb = new double[4];
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            gb[0] = context.getReader().readDoubleAttribute("g1");
-            gb[1] = context.getReader().readDoubleAttribute("b1");
-            gb[2] = context.getReader().readDoubleAttribute("g2");
-            gb[3] = context.getReader().readDoubleAttribute("b2");
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            gb[0] = context.getReader().readDoubleAttribute("g1", 0.0);
-            gb[1] = context.getReader().readDoubleAttribute("b1", 0.0);
-            gb[2] = context.getReader().readDoubleAttribute("g2", 0.0);
-            gb[3] = context.getReader().readDoubleAttribute("b2", 0.0);
-        });
-        double g1 = gb[0];
-        double b1 = gb[1];
-        double g2 = gb[2];
-        double b2 = gb[3];
+        double g1 = readDoubleAttribute("g1", context);
+        double b1 = readDoubleAttribute("b1", context);
+        double g2 = readDoubleAttribute("g2", context);
+        double b2 = readDoubleAttribute("b2", context);
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)

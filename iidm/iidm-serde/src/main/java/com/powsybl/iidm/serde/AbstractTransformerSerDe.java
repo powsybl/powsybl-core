@@ -46,18 +46,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static TreeDataWriter writeCommonTapChangerAttributes(TapChangerStep<?> tcs, NetworkSerializerContext context) {
         TreeDataWriter writer = context.getWriter();
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            writer.writeDoubleAttribute("r", tcs.getR());
-            writer.writeDoubleAttribute("x", tcs.getX());
-            writer.writeDoubleAttribute("g", tcs.getG());
-            writer.writeDoubleAttribute("b", tcs.getB());
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            writer.writeDoubleAttribute("r", tcs.getR(), 0.0);
-            writer.writeDoubleAttribute("x", tcs.getX(), 0.0);
-            writer.writeDoubleAttribute("g", tcs.getG(), 0.0);
-            writer.writeDoubleAttribute("b", tcs.getB(), 0.0);
-        });
+        ConnectableSerDeUtil.writeDoubleAttribute("r", tcs.getR(), context);
+        ConnectableSerDeUtil.writeDoubleAttribute("x", tcs.getX(), context);
+        ConnectableSerDeUtil.writeDoubleAttribute("g", tcs.getG(), context);
+        ConnectableSerDeUtil.writeDoubleAttribute("b", tcs.getB(), context);
         writer.writeDoubleAttribute("rho", tcs.getRho());
         return writer;
     }
@@ -339,21 +331,12 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     private static double[] readCommonDoubleAttributesForAdder(NetworkDeserializerContext context) {
-        double[] rxgb = new double[4];
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            rxgb[0] = context.getReader().readDoubleAttribute("r");
-            rxgb[1] = context.getReader().readDoubleAttribute("x");
-            rxgb[2] = context.getReader().readDoubleAttribute("g");
-            rxgb[3] = context.getReader().readDoubleAttribute("b");
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            rxgb[0] = context.getReader().readDoubleAttribute("r", 0.0);
-            rxgb[1] = context.getReader().readDoubleAttribute("x", 0.0);
-            rxgb[2] = context.getReader().readDoubleAttribute("g", 0.0);
-            rxgb[3] = context.getReader().readDoubleAttribute("b", 0.0);
-        });
+        double r = ConnectableSerDeUtil.readDoubleAttribute("r", context);
+        double x = ConnectableSerDeUtil.readDoubleAttribute("x", context);
+        double g = ConnectableSerDeUtil.readDoubleAttribute("g", context);
+        double b = ConnectableSerDeUtil.readDoubleAttribute("b", context);
         double rho = context.getReader().readDoubleAttribute("rho");
-        return new double[] {rxgb[0], rxgb[1], rxgb[2], rxgb[3], rho};
+        return new double[] {r, x, g, b, rho};
     }
 
     private static void readStepsWithAlpha(NetworkDeserializerContext context, PhaseTapChangerAdder.StepAdder adder) {

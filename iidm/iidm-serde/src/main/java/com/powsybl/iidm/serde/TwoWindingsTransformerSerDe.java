@@ -36,14 +36,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r", twt.getR());
         context.getWriter().writeDoubleAttribute("x", twt.getX());
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            context.getWriter().writeDoubleAttribute("g", twt.getG());
-            context.getWriter().writeDoubleAttribute("b", twt.getB());
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            context.getWriter().writeDoubleAttribute("g", twt.getG(), 0.0);
-            context.getWriter().writeDoubleAttribute("b", twt.getB(), 0.0);
-        });
+        writeDoubleAttribute("g", twt.getG(), context);
+        writeDoubleAttribute("b", twt.getB(), context);
         context.getWriter().writeDoubleAttribute("ratedU1", twt.getRatedU1());
         context.getWriter().writeDoubleAttribute("ratedU2", twt.getRatedU2());
         writeRatedS("ratedS", twt.getRatedS(), context);
@@ -86,17 +80,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Substation s, NetworkDeserializerContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double[] gb = new double[2];
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            gb[0] = context.getReader().readDoubleAttribute("g");
-            gb[1] = context.getReader().readDoubleAttribute("b");
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            gb[0] = context.getReader().readDoubleAttribute("g", 0.0);
-            gb[1] = context.getReader().readDoubleAttribute("b", 0.0);
-        });
-        double g = gb[0];
-        double b = gb[1];
+        double g = readDoubleAttribute("g", context);
+        double b = readDoubleAttribute("b", context);
         double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
         double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
         adder.setR(r)
