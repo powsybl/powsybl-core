@@ -649,6 +649,80 @@ public abstract class AbstractNodeBreakerTest {
         Bus bus = vl.getBusView().getBus("VL_0");
         assertNotNull(bus);
 
+        // Verify visitConnectedEquipments includes all equipments
+        List<Connectable<?>> visitedConnected = new ArrayList<>();
+        bus.visitConnectedEquipments(new TopologyVisitor() {
+            @Override
+            public void visitBusbarSection(BusbarSection section) {
+                visitedConnected.add(section);
+            }
+
+            @Override
+            public void visitLoad(Load load) {
+                visitedConnected.add(load);
+            }
+
+            @Override
+            public void visitGenerator(Generator generator) {
+                visitedConnected.add(generator);
+            }
+
+            @Override
+            public void visitLine(Line line, TwoSides side) {
+                visitedConnected.add(line);
+            }
+
+            @Override
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
+                visitedConnected.add(transformer);
+            }
+
+            @Override
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
+                visitedConnected.add(transformer);
+            }
+
+            @Override
+            public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+                visitedConnected.add(converterStation);
+            }
+
+            @Override
+            public void visitShuntCompensator(ShuntCompensator compensator) {
+                visitedConnected.add(compensator);
+            }
+
+            @Override
+            public void visitDanglingLine(DanglingLine danglingLine) {
+                visitedConnected.add(danglingLine);
+            }
+
+            @Override
+            public void visitStaticVarCompensator(StaticVarCompensator compensator) {
+                visitedConnected.add(compensator);
+            }
+
+            @Override
+            public void visitGround(Ground ground) {
+                visitedConnected.add(ground);
+            }
+
+            @Override
+            public void visitBattery(Battery battery) {
+                visitedConnected.add(battery);
+            }
+
+            @Override
+            public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
+                visitedConnected.add(converter);
+            }
+        });
+        assertEquals(2, bus.getConnectedTerminalCount());
+        assertEquals(2, visitedConnected.size(), "Should visit 2 equipments: BBS and L1");
+        assertTrue(visitedConnected.stream().anyMatch(c -> "BBS".equals(c.getId())));
+        assertTrue(visitedConnected.stream().anyMatch(c -> "L1".equals(c.getId())));
+        assertFalse(visitedConnected.stream().anyMatch(c -> "G1".equals(c.getId())));
+
         // Verify visitConnectedOrConnectableEquipments includes all equipments
         List<Connectable<?>> visitedConnectables = new ArrayList<>();
         bus.visitConnectedOrConnectableEquipments(new TopologyVisitor() {
