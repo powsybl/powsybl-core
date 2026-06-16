@@ -22,7 +22,7 @@ public interface NetworkListener {
         // empty default implementation
     }
 
-    default void afterRemoval(String identifiable) {
+    default void afterRemoval(String id) {
         // empty default implementation
     }
 
