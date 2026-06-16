@@ -31,33 +31,31 @@ public class SwitchesBetweenBusbarSectionsTraverser implements Terminal.Topology
 
     @Override
     public TraverseResult traverse(Terminal terminal, boolean connected) {
-        if (terminal.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION) {
-            BusbarSection currentBusbarSection = (BusbarSection) terminal.getConnectable();
-            BusbarSectionPosition currentBusbarSectionPosition = currentBusbarSection.getExtension(BusbarSectionPosition.class);
-            if (currentBusbarSectionPosition != null) {
-                if (currentBusbarSectionPosition.getBusbarIndex() != initialBusbarSectionPosition.getBusbarIndex()) {
-                    currentSwitches.clear();
-                    return TraverseResult.TERMINATE_PATH;
-                } else {
-                    if (!currentBusbarSection.getId().equals(initialBusbarSection.getId())) {
-                        if (currentBusbarSectionPosition.getSectionIndex() > initialBusbarSectionPosition.getSectionIndex()) {
-                            switchesBetweenBusBarSections.getRight().add(new ArrayList<>(currentSwitches));
-                        } else {
-                            switchesBetweenBusBarSections.getLeft().add(new ArrayList<>(currentSwitches));
-                        }
-
-                    }
-                    currentSwitches.clear();
-                    return TraverseResult.CONTINUE;
-                }
-            } else {
-                currentSwitches.clear();
-                return TraverseResult.TERMINATE_PATH;
-            }
-        } else {
-            currentSwitches.clear();
-            return TraverseResult.TERMINATE_PATH;
+        if (terminal.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION) {
+            return clearAndTerminatePath();
         }
+        BusbarSection currentBusbarSection = (BusbarSection) terminal.getConnectable();
+        BusbarSectionPosition currentBusbarSectionPosition = currentBusbarSection.getExtension(BusbarSectionPosition.class);
+        if (currentBusbarSectionPosition == null || currentBusbarSectionPosition.getBusbarIndex() != initialBusbarSectionPosition.getBusbarIndex()) {
+            return clearAndTerminatePath();
+        }
+        if (!currentBusbarSection.getId().equals(initialBusbarSection.getId())) {
+            addCurrentSwitches(currentBusbarSectionPosition);
+        }
+        currentSwitches.clear();
+        return TraverseResult.CONTINUE;
+    }
+
+    private TraverseResult clearAndTerminatePath() {
+        currentSwitches.clear();
+        return TraverseResult.TERMINATE_PATH;
+    }
+
+    private void addCurrentSwitches( BusbarSectionPosition currentBusbarSectionPosition) {
+        List<List<Switch>> targetSide = currentBusbarSectionPosition.getSectionIndex() > initialBusbarSectionPosition.getSectionIndex()
+                ? switchesBetweenBusBarSections.getRight()
+                : switchesBetweenBusBarSections.getLeft();
+        targetSide.add(new ArrayList<>(currentSwitches));
     }
 
     @Override
