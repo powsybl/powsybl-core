@@ -1350,8 +1350,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             boundaryLinePairs.add(l);
 
             if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename boundary lines
-                ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                dl1.setId(l.dl1Id + "_1");
+                dl2.setId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
             } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
