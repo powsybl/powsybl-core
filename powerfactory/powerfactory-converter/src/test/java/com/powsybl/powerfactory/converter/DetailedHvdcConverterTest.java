@@ -1,0 +1,399 @@
+/**
+ * Copyright (c) 2026, SuperGrid Institute (https://www.supergrid-institute.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+package com.powsybl.powerfactory.converter;
+
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.network.*;
+import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
+ */
+class DetailedHvdcConverterTest {
+    // test tolerance for double values.
+    // Only makes sense for values that are neither too big nor too small.
+    // This is twice machine epsilon for single precision
+    static final double ABSOLUTE_DELTA = 1.2e-7;
+    static final double RELATIVE_DELTA = 1.2e-7;
+
+    @Test
+    void testCreate1() {
+        // 2 VSCs directly connected by their DC. No DC line or AC network.
+        Network network = importDgs("MTDC-2-VSC");
+
+        VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("HVDC Converter 1");
+        VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("HVDC Converter 2");
+
+        final double nominalDcV = 320.0;
+        assertEquals(2, network.getVoltageSourceConverterCount());
+        assertEquals(0, network.getDcGroundCount());
+        assertEquals(2, network.getDcNodeCount());
+        assertTrue(Double.isNaN(vsc1.getTargetVdc()));
+        final double vDcSetPointPu = 1.01;
+        final double targetDcV2 = nominalDcV * vDcSetPointPu;
+        assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
+        assertEquals(-600.0, vsc1.getTargetP());
+        assertEquals(-0.0, vsc2.getTargetP());
+        assertEquals(-0.0, vsc1.getReactivePowerSetpoint());
+        assertEquals(-100.0, vsc2.getReactivePowerSetpoint());
+        assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
+        final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
+        assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
+        assertEquals(0.0, vsc1.getResistiveLoss());
+        assertEquals(0.0, vsc2.getResistiveLoss());
+        assertEquals(0.0, vsc1.getSwitchingLoss());
+        assertEquals(0.0, vsc2.getSwitchingLoss());
+
+        for (DcNode node : network.getDcNodes()) {
+            assertEquals(nominalDcV, node.getNominalV());
+        }
+
+    }
+
+    @Test
+    void testCreate2() {
+        // 2 VSCs connected by DC lines.
+        // VSC 'HVDC Converter 2' is also connected to a dangling AC line.
+        // This tests that there is no confusion between AC and DC lines.
+        Network network = importDgs("MTDC-2-VSC-ACDC-links");
+
+        VoltageSourceConverter vsc1 = network.getVoltageSourceConverter("HVDC Converter 1");
+        VoltageSourceConverter vsc2 = network.getVoltageSourceConverter("HVDC Converter 2");
+
+        final double nominalDcV = 320.0;
+        assertEquals(2, network.getVoltageSourceConverterCount());
+        assertEquals(0, network.getDcGroundCount());
+        assertEquals(4, network.getDcNodeCount());
+        assertEquals(2, network.getDcLineCount());
+        assertTrue(Double.isNaN(vsc1.getTargetVdc()));
+        final double vDcSetPointPu = 1.01;
+        final double targetDcV2 = nominalDcV * vDcSetPointPu;
+        assertEquals(targetDcV2, vsc2.getTargetVdc(), RELATIVE_DELTA * targetDcV2);
+        assertEquals(-600.0, vsc1.getTargetP(), ABSOLUTE_DELTA);
+        assertEquals(-0.0, vsc2.getTargetP());
+        assertEquals(-0.0, vsc1.getReactivePowerSetpoint());
+        assertEquals(-100.0, vsc2.getReactivePowerSetpoint(), ABSOLUTE_DELTA);
+        assertEquals(10.0, vsc1.getIdleLoss()); // unit change from kW to MW
+        final double idleLoss2 = 10.0 * vDcSetPointPu * vDcSetPointPu;
+        assertEquals(idleLoss2, vsc2.getIdleLoss(), RELATIVE_DELTA * idleLoss2); // unit change from kW to MW
+        assertEquals(0.0, vsc1.getResistiveLoss());
+        assertEquals(0.0, vsc2.getResistiveLoss());
+        assertEquals(0.0, vsc1.getSwitchingLoss());
+        assertEquals(0.0, vsc2.getSwitchingLoss());
+
+        for (DcNode node : network.getDcNodes()) {
+            assertEquals(nominalDcV, node.getNominalV(), ABSOLUTE_DELTA);
+        }
+
+        final double resistanceDcLine = 50.0 * 0.1;
+
+        for (DcLine line : network.getDcLines()) {
+            assertEquals(resistanceDcLine, line.getR(), ABSOLUTE_DELTA);
+        }
+
+        DcLine dcLine1 = network.getDcLine("DC-Line_pos");
+        assertSame(dcLine1.getDcTerminal1().getDcNode(), vsc1.getDcTerminal1().getDcNode());
+        assertSame(dcLine1.getDcTerminal2().getDcNode(), vsc2.getDcTerminal1().getDcNode());
+
+    }
+
+    @Test
+    void testCreate3() {
+        // 3 VSCs connected by DC lines in a triangle configuration.
+        Network network = importDgs("MTDC-3-VSC-ACDC-links");
+
+        assertEquals(6, network.getDcNodeCount());
+        assertEquals(3, network.getVoltageSourceConverterCount());
+        assertEquals(3, network.getDcLineCount());
+        assertEquals(0, network.getDcGroundCount());
+
+        DcLine dcLine21 = network.getDcLine("DC line 0 31-32");
+        DcLine dcLine22 = network.getDcLine("DC line - 32-33");
+        DcLine dcLine23 = network.getDcLine("DC line + 31-33");
+
+        assertNotNull(dcLine21);
+        assertNotNull(dcLine22);
+        assertNotNull(dcLine23);
+
+        assertNotSame(dcLine21, dcLine22);
+        assertNotSame(dcLine22, dcLine23);
+        assertNotSame(dcLine23, dcLine21);
+
+    }
+
+    @Test
+    void testCreate4() {
+        // Test with 2 pairs of VSCs + DC lines connected by an AC line.
+        // The purpose of the test is to check that 2 DC subnetworks are indeed created.
+        // Each pair of VSCs have distinct nominal DC voltage level. We then count
+        // the number of DC voltage levels to verify there are 2 DC subnetworks.
+        Network network = importDgs("MTDC-4-VSC-ACDC-links");
+
+        assertEquals(8, network.getDcNodeCount());
+        assertEquals(4, network.getVoltageSourceConverterCount());
+        assertEquals(4, network.getDcLineCount());
+        assertEquals(0, network.getDcGroundCount());
+        assertEquals(1, network.getLineCount());
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(2, network.getDcNodeStream().map(DcNode::getNominalV).distinct().count());
+    }
+
+    @Test
+    void testVsc1() {
+        // check i_acdc = 3
+        Network network = importDgs("MTDCVscVariants1");
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
+
+        assertEquals(AcDcConverter.ControlMode.V_DC, vsc.getControlMode());
+        assertFalse(vsc.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(vsc.getVoltageSetpoint()));
+        assertEquals(420.0, vsc.getTargetVdc(), RELATIVE_DELTA * 420.0);
+    }
+
+    @Test
+    void testVsc2() {
+        // check i_acdc = 4
+        Network network = importDgs("MTDCVscVariants2");
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
+
+        assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
+        assertTrue(vsc.isVoltageRegulatorOn());
+        assertEquals(-1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
+        double acVoltageSetPoint = 0.8 * 300.;
+        assertEquals(acVoltageSetPoint, vsc.getVoltageSetpoint(), RELATIVE_DELTA * acVoltageSetPoint);
+
+        // while we are there, check that some values are indeed unspecified
+        assertTrue(Double.isNaN(vsc.getReactivePowerSetpoint()));
+        assertEquals(0.0, vsc.getIdleLoss());
+        assertTrue(Double.isNaN(vsc.getTargetVdc()));
+        assertEquals(0.0, vsc.getSwitchingLoss());
+        assertEquals(0.0, vsc.getResistiveLoss());
+    }
+
+    @Test
+    void testVsc3() {
+        // check i_acdc = 5
+        Network network = importDgs("MTDCVscVariants3");
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
+
+        assertEquals(AcDcConverter.ControlMode.P_PCC, vsc.getControlMode());
+        assertFalse(vsc.isVoltageRegulatorOn());
+        assertEquals(-1234., vsc.getTargetP(), RELATIVE_DELTA * 1234.);
+        assertEquals(-4321., vsc.getReactivePowerSetpoint(), RELATIVE_DELTA * 4321.);
+
+        // while we are there, check that some values are indeed unspecified
+        assertTrue(Double.isNaN(vsc.getVoltageSetpoint()));
+        assertEquals(0.0, vsc.getIdleLoss());
+        assertTrue(Double.isNaN(vsc.getTargetVdc()));
+        assertEquals(0.0, vsc.getSwitchingLoss());
+        assertEquals(0.0, vsc.getResistiveLoss());
+    }
+
+    @Test
+    void testVsc4() {
+        // check i_acdc = 6
+        Network network = importDgs("MTDCVscVariants4");
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
+
+        assertEquals(AcDcConverter.ControlMode.V_DC, vsc.getControlMode());
+        assertTrue(vsc.isVoltageRegulatorOn());
+        double acVoltageSetPoint = 1.2 * 300.;
+        assertEquals(acVoltageSetPoint, vsc.getVoltageSetpoint(), RELATIVE_DELTA * acVoltageSetPoint);
+        double dcVoltageSetPoint = 0.8 * 525.;
+        assertEquals(dcVoltageSetPoint, vsc.getTargetVdc(), RELATIVE_DELTA * dcVoltageSetPoint);
+
+        // while we are there, check that some values are indeed unspecified
+        assertTrue(Double.isNaN(vsc.getTargetP()));
+        assertTrue(Double.isNaN(vsc.getReactivePowerSetpoint()));
+        assertEquals(0.0, vsc.getIdleLoss());
+        assertEquals(0.0, vsc.getSwitchingLoss());
+        assertEquals(0.0, vsc.getResistiveLoss());
+    }
+
+    @Test
+    void testVsc5() {
+        // check i_acdc = 0 end in error
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDCVscVariants5"));
+        assertEquals("Unsupported value 0 for VSC 6.", e.getMessage());
+    }
+
+    @Test
+    void testVscLoss1() {
+        // check value of idle loss when DC voltage is controlled
+        Network network = importDgs("MTDCVscLoss1");
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
+
+        double idleLoss = 1.234 / 1000 * 0.8 * 0.8;
+        assertEquals(idleLoss, vsc.getIdleLoss(), RELATIVE_DELTA * idleLoss);
+    }
+
+    @Test
+    void testVscLoss2() {
+        // check value of idle loss when DC voltage is _not_ controlled
+        Network network = importDgs("MTDCVscLoss2");
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
+
+        double idleLoss = 1.234 / 1000; // convert from kW to MW.
+        assertEquals(idleLoss, vsc.getIdleLoss(), RELATIVE_DELTA * idleLoss);
+    }
+
+    @Test
+    void testVscLoss3() {
+        // check values of switching loss and resistive loss
+        Network network = importDgs("MTDCVscLoss3");
+        VoltageSourceConverter vsc = network.getVoltageSourceConverter("HVDC Converter 1");
+
+        double switchingLoss = 1.234 / 1000; // MW / A (as opposed to kW / A in PowerFactory)
+        double resistiveLoss = 4.321; // Ohm
+        assertEquals(switchingLoss, vsc.getSwitchingLoss(), RELATIVE_DELTA * switchingLoss);
+        assertEquals(resistiveLoss, vsc.getResistiveLoss(), RELATIVE_DELTA * resistiveLoss);
+    }
+
+    @Test
+    void testVscDanglingTerminal() {
+        // Check that we get an error in case of dangling DC terminal (i.e. there is a node referenced by StaCubic but
+        // not in the list of terminals.
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDCVscDanglingTerminal"));
+        assertEquals("Detected unsupported terminal count (2) for object ElmVsc 6.", e.getMessage());
+    }
+
+    @Test
+    void testGround() {
+        Network network = importDgs("MTDC-ElmGndswt");
+
+        assertEquals(3, network.getDcGroundCount());
+
+        DcGround ground25 = network.getDcGround("Grounding Switch grounded");
+
+        assertNotNull(ground25);
+        assertEquals(0.0, ground25.getR());
+        assertEquals("Node_dc_r_ground 5", ground25.getDcTerminal().getDcNode().getId());
+
+        DcGround ground26 = network.getDcGround("Grounding Switch not grounded not off");
+        assertNull(ground26);
+
+        DcGround ground27 = network.getDcGround("Grounding Switch off");
+        assertNull(ground27);
+
+        DcGround ground28 = network.getDcGround("Grounding not grounded");
+        assertNotNull(ground28);
+        assertEquals(0.0, ground28.getR());
+        assertEquals("Node_dc_r_ground 8", ground28.getDcTerminal().getDcNode().getId());
+
+        DcGround ground29 = network.getDcGround("Grounding Switch default values");
+        assertNotNull(ground29);
+        assertEquals(0.0, ground29.getR());
+        assertEquals("Node_dc_r_ground 9", ground29.getDcTerminal().getDcNode().getId());
+    }
+
+    @Test
+    void testElmCoupNoTyp() {
+        // Check basic import of ElmCoup in DGS files.
+        // This is without TypSwitch therefore without resistance.
+        Network network = importDgs("MTDC-ElmCoup_no-type");
+
+        DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector with default state");
+        DcSwitch dcSwitch23 = network.getDcSwitch("Closed DC Disconnector");
+        DcSwitch dcSwitch24 = network.getDcSwitch("Open DC Disconnector");
+        DcSwitch dcSwitch25 = network.getDcSwitch("DC Breaker");
+        DcSwitch dcSwitch26 = network.getDcSwitch("DC Disconnector with default aUsage");
+
+        assertNotNull(dcSwitch22);
+        assertNotNull(dcSwitch23);
+        assertNotNull(dcSwitch24);
+        assertNotNull(dcSwitch25);
+        assertNotNull(dcSwitch26);
+        assertEquals(5, network.getDcSwitchCount());
+
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch22.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch23.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch24.getKind()); // aUsage = "dct"
+        assertEquals(DcSwitchKind.BREAKER, dcSwitch25.getKind()); // aUsage = "cbk"
+        assertEquals(DcSwitchKind.DISCONNECTOR, dcSwitch26.getKind()); // aUsage unspecified
+
+        assertFalse(dcSwitch22.isOpen()); // on_off unspecified
+        assertFalse(dcSwitch23.isOpen()); // on_off = 1
+        assertTrue(dcSwitch24.isOpen()); // on_off = 0
+        assertFalse(dcSwitch25.isOpen()); // on_off unspecified
+        assertFalse(dcSwitch26.isOpen()); // on_off unspecified
+
+        // no TypSwitch, default resistance value is zero
+        assertEquals(0.0, dcSwitch22.getR());
+        assertEquals(0.0, dcSwitch23.getR());
+        assertEquals(0.0, dcSwitch24.getR());
+        assertEquals(0.0, dcSwitch25.getR());
+        assertEquals(0.0, dcSwitch26.getR());
+    }
+
+    @Test
+    void testElmCoupTypSwitch() {
+        // Check import of resistance with TypSwitch
+        Network network = importDgs("MTDC-ElmCoup_TypSwitch");
+
+        DcSwitch dcSwitch22 = network.getDcSwitch("DC Disconnector without type");
+        DcSwitch dcSwitch23 = network.getDcSwitch("DC Disconnector with type no R");
+        DcSwitch dcSwitch24 = network.getDcSwitch("DC Disconnector with type and R");
+
+        assertNotNull(dcSwitch22);
+        assertNotNull(dcSwitch23);
+        assertNotNull(dcSwitch24);
+
+        assertEquals(3, network.getDcSwitchCount());
+
+        assertEquals(0.0, dcSwitch22.getR()); // no TypSwitch
+        assertEquals(0.0, dcSwitch23.getR()); // TypSwitch with unspecified resistance
+        assertEquals(0.01, dcSwitch24.getR(), RELATIVE_DELTA * 0.01); // TypSwitch with R_on = 0.01
+    }
+
+    @Test
+    void testElmCoupAcDc() {
+        // Check that AC and DC ElmCoup don't interfere.
+        Network network = importDgs("MTDC-ElmCoup_ACDC");
+
+        DcSwitch dcSwitch21 = network.getDcSwitch("DC Disconnector");
+        DcSwitch dcSwitch22 = network.getDcSwitch("AC Disconnector");
+
+        assertNotNull(dcSwitch21);
+        assertNull(dcSwitch22);
+        // cannot check for presence because the default name is used.
+        assertEquals(1, network.getSwitchCount());
+        assertEquals(1, network.getDcSwitchCount());
+    }
+
+    @Test
+    void testElmCoupBad() {
+        // Check that an ElmCoup with an incorrect number of DC terminals raises an exception:
+        // either connected to a single DC terminal, or connected to more than 2 DC terminals.
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad"));
+        assertEquals("ElmCoup 21 is connected to 1 DC terminals, expected exactly 2.", e.getMessage());
+
+        PowerFactoryException e2 = assertThrows(PowerFactoryException.class, () -> importDgs("MTDC-ElmCoup_bad-4T"));
+        assertEquals("ElmCoup 21 is connected to 4 DC terminals, expected exactly 2.", e2.getMessage());
+    }
+
+    private Network importDgs(String id) {
+
+        Properties importParams = new Properties();
+        importParams.put(PowerFactoryImporter.HVDC_IMPORT_MT, true);
+        final String fileName = id + ".dgs";
+        PowerFactoryImporter importer = new PowerFactoryImporter();
+        ResourceSet resourceSet = new ResourceSet("/", fileName);
+        ResourceDataSource dataSource = new ResourceDataSource(id, resourceSet);
+
+        return importer.importData(dataSource, NetworkFactory.findDefault(), importParams);
+    }
+
+}

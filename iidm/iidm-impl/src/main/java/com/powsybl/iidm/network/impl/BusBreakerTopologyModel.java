@@ -203,7 +203,7 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
                     case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION,
-                         DANGLING_LINE, LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR,
+                         BOUNDARY_LINE, LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR,
                          LINE_COMMUTATED_CONVERTER, VOLTAGE_SOURCE_CONVERTER -> feederCount++;
                     case GROUND -> {
                         // Do nothing
@@ -365,9 +365,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
     @Override
     public void invalidateCache(boolean exceptBusBreakerView) {
+        // Invalidation on the current variant only
         calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();
         getNetwork().getBusBreakerView().invalidateCache();
+        // Invalidation on all the variants (no variants support for these managers)
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getSynchronousComponentsManager().invalidate();
     }
@@ -389,6 +391,12 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     private final VoltageLevelExt.NodeBreakerViewExt nodeBreakerView = new VoltageLevelExt.NodeBreakerViewExt() {
+
+        @Override
+        public boolean hasFictitiousP0() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
         @Override
         public double getFictitiousP0(int node) {
             throw createNotSupportedBusBreakerTopologyException();
@@ -396,6 +404,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public VoltageLevel.NodeBreakerView setFictitiousP0(int node, double p0) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public boolean hasFictitiousQ0() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -571,6 +584,26 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         @Override
         public void traverse(int[] node, TopologyTraverser traverser) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void reduceVariantArraySize(int number) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void deleteVariantArrayElement(int index) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
             throw createNotSupportedBusBreakerTopologyException();
         }
     };
@@ -856,7 +889,16 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
+    public void attachInCurrentVariant(final TerminalExt terminal, boolean test) {
+        attach(terminal, test, false);
+    }
+
+    @Override
     public void attach(final TerminalExt terminal, boolean test) {
+        attach(terminal, test, true);
+    }
+
+    private void attach(final TerminalExt terminal, boolean test, boolean allVariants) {
         checkTerminal(terminal);
         if (test) {
             return;
@@ -869,16 +911,30 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         final ConfiguredBus connectableBus = getBus(connectableBusId, true);
 
-        getNetwork().getVariantManager().forEachVariant(() -> {
+        Runnable task = () -> {
             connectableBus.addTerminal((BusTerminal) terminal);
-
             // invalidate connected components
             invalidateCache();
-        });
+        };
+
+        if (allVariants) {
+            getNetwork().getVariantManager().forEachVariant(task);
+        } else {
+            task.run();
+        }
+    }
+
+    @Override
+    public void detachInCurrentVariant(final TerminalExt terminal) {
+        detach(terminal, false);
     }
 
     @Override
     public void detach(final TerminalExt terminal) {
+        detach(terminal, true);
+    }
+
+    private void detach(final TerminalExt terminal, boolean allVariants) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalArgumentException("Incorrect terminal type");
         }
@@ -887,15 +943,21 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         String connectableBusId = ((BusTerminal) terminal).getConnectableBusId();
 
         final ConfiguredBus connectableBus = getBus(connectableBusId, true);
-
-        getNetwork().getVariantManager().forEachVariant(() -> {
+        Runnable task = () -> {
             connectableBus.removeTerminal((BusTerminal) terminal);
             ((BusTerminal) terminal).unsetConnectableBusId();
-
             invalidateCache();
-        });
-        // remove the link terminal -> voltage level
-        terminal.setVoltageLevel(null);
+        };
+
+        if (allVariants) {
+            getNetwork().getVariantManager().forEachVariant(task);
+            // remove the link terminal -> voltage level
+            terminal.setVoltageLevel(null);
+        } else {
+            task.run();
+            // The voltage level of the terminal is never set to null in this case
+            // (even when the terminal is no more referenced by any variant).
+        }
     }
 
     boolean connect(TerminalExt terminal) {

@@ -1,9 +1,14 @@
 # Configuration
 
+The `dynamic-simulation` module is used to configure the execution of the [dynamic-simulation](../../user/itools/dynamic-simulation.md) command and simulation.
+
 ## Implementation
 If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file with the `default-impl-name` property.
 Each implementation is identified by its name, that may be unique in the classpath:
 - Use "Dynawo" to use powsybl-dynawo implementation
+
+The `com.powsybl.dynamicsimulation.DynamicSimulationParameters` class provides the generic parameters for all `com.powsybl.dynamicsimulation.DynamicSimulation`
+implementations. Specific parameters should be provided as an extension of the `DynamicSimulationParameters` class.
 
 **YAML configuration:**
 ```yaml
@@ -42,20 +47,27 @@ The parameters may also be overridden with a JSON file, in which case the config
 }
 ```
 
+```{warning}
+The "version" field of a JSON parameters file must be located at the top of the file.
+```
+
 ### Optional properties
 
-**startTime**<br>
+(param-dy-start-time)=
+#### startTime
 `startTime` defines when the simulation begins, in seconds. The default value of this property is `0`.
 
-**stopTime**<br>
+(param-dy-stop-time)=
+#### stopTime
 `stopTime` defines when the simulation stops, in seconds. The default value of this property is `1`.
 
-**debugDir**<br>
+(param-dy-debug-dir)=
+#### debugDir
 This property specifies the directory path where debug files will be dumped. If `null`, no file will be dumped.
 
-### Specific parameters
+### Implementation specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
-- [Dynawo](inv:powsybldynawo:*:*#dynamic_simulation/configuration)
+- [Dynawo](inv:powsybldynawo:*:*#dynamic_simulation/configuration) and its default parameters.
 
 ### Examples
 

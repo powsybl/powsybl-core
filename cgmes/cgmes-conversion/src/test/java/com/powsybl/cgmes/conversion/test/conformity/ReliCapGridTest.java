@@ -8,10 +8,17 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import com.powsybl.cgmes.conformity.ReliCapGridCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.elements.SwitchConversion;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -22,10 +29,26 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ReliCapGridTest {
 
+    private Properties importParams;
+
+    @BeforeEach
+    void setUp() {
+        importParams = new Properties();
+        importParams.put(CgmesImport.SILENCE_FREQUENT_ISSUES_WARNINGS, "true"); // for coverage of this option
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger(SwitchConversion.class).setLevel(Level.DEBUG); // for coverage of boundary switch debug log
+    }
+
+    @AfterEach
+    void restoreLogger() {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger(SwitchConversion.class).setLevel(null);
+    }
+
     @Test
     void igmBelgoviaTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.belgovia().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(2, network.getSubstationCount());
@@ -34,7 +57,7 @@ class ReliCapGridTest {
     @Test
     void igmBritheimTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.britheim().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(2, network.getSubstationCount());
@@ -43,7 +66,7 @@ class ReliCapGridTest {
     @Test
     void igmEspheimTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.espheim().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(104, network.getSubstationCount());
@@ -52,7 +75,7 @@ class ReliCapGridTest {
     @Test
     void igmGaliaTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.galia().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(1, network.getSubstationCount());
@@ -61,7 +84,7 @@ class ReliCapGridTest {
     @Test
     void igmNordheimTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.nordheim().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(1, network.getSubstationCount());
@@ -70,7 +93,7 @@ class ReliCapGridTest {
     @Test
     void igmSvedalaTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.svedala().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(56, network.getSubstationCount());
@@ -79,7 +102,7 @@ class ReliCapGridTest {
     @Test
     void igmHvdcEspheimSvedalaTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.hvdcEspheimSvedala().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(1, network.getSubstationCount());
@@ -88,7 +111,7 @@ class ReliCapGridTest {
     @Test
     void igmHvdcNordheimGaliaTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.hvdcNordheimGalia().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(1, network.getSubstationCount());
@@ -97,7 +120,7 @@ class ReliCapGridTest {
     @Test
     void cgmNineRealmsTest() {
         ReadOnlyDataSource ds = ReliCapGridCatalog.nineRealms().dataSource();
-        Network network = Network.read(ds, new Properties());
+        Network network = Network.read(ds, importParams);
 
         assertNotNull(network);
         assertEquals(8, network.getSubnetworks().size());

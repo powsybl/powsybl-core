@@ -7,8 +7,11 @@
  */
 package com.powsybl.security.limitreduction.result;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DetectionKind;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.util.LoadingLimitsUtil;
+import com.powsybl.iidm.network.util.UnsupportedPropertiesHolder;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -19,45 +22,74 @@ import java.util.TreeMap;
  * reduced limits without altering the real limits of the network element.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
+public abstract class AbstractReducedLoadingLimits extends UnsupportedPropertiesHolder implements LoadingLimits {
+    private final DetectionKind detectionKind;
     private final double permanentLimit;
     private final double originalPermanentLimit;
     private final double permanentLimitReduction;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
-    public record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
-                                 double originalValue, double limitReduction) implements TemporaryLimit {
+    public static final class ReducedTemporaryLimit extends UnsupportedPropertiesHolder implements TemporaryLimit {
+        // 1. Fields
+        private final String name;
+        private final double value;
+        private final int acceptableDuration;
+        private final boolean fictitious;
+        private final double originalValue;
+        private final double limitReduction;
+
+        // 2. Canonical Constructor (to initialize all fields)
+        public ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
+                                     double originalValue, double limitReduction) {
+            this.name = name;
+            this.value = value;
+            this.acceptableDuration = acceptableDuration;
+            this.fictitious = fictitious;
+            this.originalValue = originalValue;
+            this.limitReduction = limitReduction;
+        }
+
+        // 3. Accessor Methods (Getters)
         @Override
         public String getName() {
-            return name();
+            return name;
         }
 
         @Override
         public double getValue() {
-            return value();
+            return value;
         }
 
         @Override
         public int getAcceptableDuration() {
-            return acceptableDuration();
+            return acceptableDuration;
         }
 
         @Override
         public boolean isFictitious() {
-            return fictitious();
+            return fictitious;
         }
 
         public double getOriginalValue() {
-            return originalValue();
+            return originalValue;
         }
 
         public double getLimitReduction() {
-            return limitReduction();
+            return limitReduction;
         }
     }
 
     protected AbstractReducedLoadingLimits(double permanentLimit, double originalPermanentLimit,
                                            double permanentLimitReduction) {
+        this(DetectionKind.HIGH, permanentLimit, originalPermanentLimit, permanentLimitReduction);
+    }
+
+    protected AbstractReducedLoadingLimits() {
+        this(DetectionKind.LOW, Double.NaN, Double.NaN, Double.NaN);
+    }
+
+    private AbstractReducedLoadingLimits(DetectionKind detectionKind, double permanentLimit, double originalPermanentLimit, double permanentLimitReduction) {
+        this.detectionKind = detectionKind;
         this.permanentLimit = permanentLimit;
         this.originalPermanentLimit = originalPermanentLimit;
         this.permanentLimitReduction = permanentLimitReduction;
@@ -70,16 +102,28 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
     }
 
     @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
+    }
+
+    @Override
     public double getPermanentLimit() {
-        return permanentLimit;
+        return getValueOrThrowDetectionKind(permanentLimit);
     }
 
     public double getOriginalPermanentLimit() {
-        return originalPermanentLimit;
+        return getValueOrThrowDetectionKind(originalPermanentLimit);
     }
 
     public double getPermanentLimitReduction() {
-        return permanentLimitReduction;
+        return getValueOrThrowDetectionKind(permanentLimitReduction);
+    }
+
+    private double getValueOrThrowDetectionKind(double value) {
+        return switch (getDetectionKind()) {
+            case HIGH -> value;
+            case LOW -> throw new PowsyblException("There is no permanent limit for a detection kind LOW");
+        };
     }
 
     @Override

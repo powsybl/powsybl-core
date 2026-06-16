@@ -117,16 +117,16 @@ public interface Area extends Identifiable<Area> {
     Area removeAreaBoundary(Terminal terminal);
 
     /**
-     * If exists, remove the area boundary associated with the provided DanglingLine's Boundary.
-     * The DanglingLine and its Boundary are not removed from the network, but are not part of the Area anymore.
-     * @param boundary DanglingLine's boundary
+     * If exists, remove the area boundary associated with the provided BoundaryLine's Boundary.
+     * The BoundaryLine and its Boundary are not removed from the network, but are not part of the Area anymore.
+     * @param boundary BoundaryLine's boundary
      */
     Area removeAreaBoundary(Boundary boundary);
 
     /**
-     * If found, returns the area boundary associated with the provided DanglingLine's Boundary.
+     * If found, returns the area boundary associated with the provided BoundaryLine's Boundary.
      * Otherwise, null is returned.
-     * @param boundary DanglingLine's boundary
+     * @param boundary BoundaryLine's boundary
      */
     AreaBoundary getAreaBoundary(Boundary boundary);
 

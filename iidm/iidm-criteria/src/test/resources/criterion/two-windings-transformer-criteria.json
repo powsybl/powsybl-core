@@ -1,6 +1,6 @@
 [ {
   "type" : "twoWindingsTransformerCriterion",
-  "version" : "1.0",
+  "version" : "1.1",
   "name" : "criterion2",
   "countryCriterion" : {
     "type" : "SINGLE_COUNTRY",
@@ -23,5 +23,5 @@
   }
 }, {
   "type" : "twoWindingsTransformerCriterion",
-  "version" : "1.0"
+  "version" : "1.1"
 } ]

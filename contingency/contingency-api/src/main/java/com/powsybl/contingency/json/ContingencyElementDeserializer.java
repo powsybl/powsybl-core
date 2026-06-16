@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
+import com.powsybl.contingency.list.ContingencyList;
 
 import java.io.IOException;
 
@@ -42,6 +43,10 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
+        String version = (String) ctx.getAttribute(ContingencyListDeserializer.VERSION);
+        if (version == null) {  // assuming current version...
+            version = ContingencyList.VERSION;
+        }
 
         if (type != null) {
             return switch (type) {
@@ -51,7 +56,14 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case SHUNT_COMPENSATOR -> new ShuntCompensatorContingency(id);
                 case HVDC_LINE -> new HvdcLineContingency(id, voltageLevelId);
                 case BUSBAR_SECTION -> new BusbarSectionContingency(id);
-                case DANGLING_LINE -> new DanglingLineContingency(id);
+                case DANGLING_LINE -> {
+                    JsonUtil.assertSupportedVersion("contingency type", version, "1.0");
+                    yield new BoundaryLineContingency(id);
+                }
+                case BOUNDARY_LINE -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion("contingency type", String.valueOf(ContingencyElementType.BOUNDARY_LINE), version, "1.1");
+                    yield new BoundaryLineContingency(id);
+                }
                 case LINE -> new LineContingency(id, voltageLevelId);
                 case TWO_WINDINGS_TRANSFORMER -> new TwoWindingsTransformerContingency(id, voltageLevelId);
                 case THREE_WINDINGS_TRANSFORMER -> new ThreeWindingsTransformerContingency(id);

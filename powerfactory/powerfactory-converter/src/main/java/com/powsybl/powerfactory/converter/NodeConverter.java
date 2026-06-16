@@ -7,7 +7,6 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,7 +40,7 @@ class NodeConverter extends AbstractConverter {
      *
      * An iidm node is created by each elmTerm and by each staSwitch connected to an element.
      */
-    void createAndMapConnectedObjs(DataObject elmTerm) {
+    void createAndMapConnectedObjs(DataObject elmTerm, boolean forceAllElmTermsAsBusbars) {
         VoltageLevel vl = findVoltageLevel(elmTerm);
 
         // Create the node defined by elmTerm
@@ -49,7 +48,7 @@ class NodeConverter extends AbstractConverter {
 
         getImportContext().elmTermIdToNode.putIfAbsent(elmTerm.getId(), new NodeRef(vl.getId(), node, 0));
 
-        NodeModel nodeModel = NodeModel.create(vl, elmTerm);
+        NodeModel nodeModel = NodeModel.create(vl, elmTerm, forceAllElmTermsAsBusbars);
         createBusbarSectionIfNodeHasBeenDefinedAsSuch(vl, node, nodeModel);
 
         // Create additional nodes associated to switches (staSwitch) included in cubicles
@@ -118,7 +117,7 @@ class NodeConverter extends AbstractConverter {
                 int outOfService = connectedObj.findIntAttributeValue("outserv").orElse(0);
                 int referenceNode = createNodeSwitchAndInternalConnection(vl, node, staCubic, connectedObj.getDataClassName().equals("ElmCoup"),
                     connectedObj.getLocName(), outOfService == 1);
-                mapConnectedObjToNode(vl, referenceNode, busIndexIn, connectedObj);
+                mapConnectedObj(vl, referenceNode, busIndexIn, staCubic, connectedObj);
             }
         }
     }
@@ -155,11 +154,6 @@ class NodeConverter extends AbstractConverter {
         return referenceNode;
     }
 
-    private void mapConnectedObjToNode(VoltageLevel vl, int node, int busIndexIn, DataObject connectedObj) {
-        getImportContext().objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
-            .add(new NodeRef(vl.getId(), node, busIndexIn));
-    }
-
     private static final class NodeModel {
         private final boolean isBusbarSection;
         private final String busbarId;
@@ -170,11 +164,11 @@ class NodeConverter extends AbstractConverter {
         }
 
         // Usage:0=Busbar:1=Junction Node:2=Internal Node
-        private static NodeModel create(VoltageLevel vl, DataObject elmTerm) {
+        private static NodeModel create(VoltageLevel vl, DataObject elmTerm, boolean forceAllElmTermsAsBusbars) {
             int iUsage = elmTerm.getIntAttributeValue("iUsage");
             String busbarId = vl.getId() + "_" + elmTerm.getLocName();
 
-            return new NodeModel(iUsage == 0, busbarId);
+            return new NodeModel(iUsage == 0 || forceAllElmTermsAsBusbars, busbarId);
         }
     }
 }

@@ -87,7 +87,7 @@ public final class Networks {
 
         addBuses(network, balanceMainCC, balanceOtherCC);
         addLoads(network, balanceMainCC, balanceOtherCC);
-        addDanglingLines(network, balanceMainCC, balanceOtherCC);
+        addBoundaryLines(network, balanceMainCC, balanceOtherCC);
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
@@ -127,8 +127,8 @@ public final class Networks {
         }
     }
 
-    private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private static void addBoundaryLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+        for (BoundaryLine dl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
                 if (view.getBus().isInMainConnectedComponent()) {
@@ -454,17 +454,15 @@ public final class Networks {
     /**
      * This method replaces the "input" values used for load flow calculation by their solved values returned by the
      * load flow calculation. This includes the tap position of tap changers, the section count of shunt compensators,
-     * the active and reactive power flow on generators, batteries, loads and on the generation part of a dangling line
-     * and the voltage on generators and dangling lines.
+     * the active and reactive power flow on generators, batteries, loads and on the generation part of a boundary line
+     * and the voltage on generators and boundary lines.
      */
     public static void applySolvedValues(Network network) {
-        network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::applySolvedValues);
-        network.getThreeWindingsTransformerStream().forEach(ThreeWindingsTransformer::applySolvedValues);
-        network.getShuntCompensatorStream().forEach(ShuntCompensator::applySolvedValues);
+        applySolvedTapPositionAndSolvedSectionCount(network);
         network.getGeneratorStream().forEach(Generator::applySolvedValues);
         network.getBatteryStream().forEach(Battery::applySolvedValues);
         network.getLoadStream().forEach(Load::applySolvedValues);
-        network.getDanglingLineStream().forEach(DanglingLine::applySolvedValues);
+        network.getBoundaryLineStream().forEach(BoundaryLine::applySolvedValues);
     }
 
     /**
@@ -474,5 +472,17 @@ public final class Networks {
         network.getTwoWindingsTransformerStream().forEach(TwoWindingsTransformer::applySolvedValues);
         network.getThreeWindingsTransformerStream().forEach(ThreeWindingsTransformer::applySolvedValues);
         network.getShuntCompensatorStream().forEach(ShuntCompensator::applySolvedValues);
+    }
+
+    /**
+     * This method replaces all the solved values in the network with NaN values. It includes all terminals P and Q (for AC)
+     * or I (for DC), buses voltage magnitude (and angle for AC), solved shunt/compensator section count, and tap
+     * changers tap position.
+     */
+    public static void unsetSolvedValues(Network network) {
+        network.getBusView().getBusStream().forEach(Bus::unsetSolvedValues);
+        network.getConnectableStream().forEach(Connectable::unsetSolvedValues);
+        network.getDcBusStream().forEach(bus -> bus.setV(Double.NaN));
+        network.getDcConnectableStream().forEach(DcConnectable::unsetSolvedValues);
     }
 }

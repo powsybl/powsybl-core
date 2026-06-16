@@ -51,12 +51,18 @@ public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplie
 
     @Override
     protected OriginalLimitsGetter<Identifiable<?>, LoadingLimits> getOriginalLimitsGetter() {
-        return LimitViolationUtils::getLoadingLimits;
+        return (identifiable, limitType, side) -> {
+            HashMap<String, LoadingLimits> limitsByGroupId = new HashMap<>();
+            LimitViolationUtils.getAllSelectedLimitsGroups(identifiable, side)
+                .forEach(group ->
+                    group.getLoadingLimits(limitType).ifPresent(l -> limitsByGroupId.put(group.getId(), l)));
+            return limitsByGroupId;
+        };
     }
 
     @Override
     protected AbstractLimitsReducerCreator<LoadingLimits, AbstractLimitsReducer<LoadingLimits>> getLimitsReducerCreator() {
-        return (id, originalLimits) -> new DefaultLimitsReducer(originalLimits);
+        return (networkElementId, limitsGroupId, originalLimits) -> new DefaultLimitsReducer(originalLimits, limitsGroupId);
     }
 
     @Override

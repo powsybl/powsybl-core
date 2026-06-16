@@ -13,7 +13,7 @@ Every extension is considered as serializable unless explicitly specified as non
 
 (active-power-control-extension)=
 ## Active power control
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#generic-parameters) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#optional-properties) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
 |----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
@@ -179,7 +179,20 @@ This extension enables to replace the operational limits of a DC line in AC emul
 (generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
 
-<span style="color: red">TODO</span>
+This extension enables to store the entso-e category code of a given generator, which represents a combination of fuel and type.
+For instance category 26 is for hydro run-of-river generating units. It is mainly used in TYNDP works.
+This extension is attached to a [generator](network_subnetwork.md#generator).
+
+| Attribute | Type | Unit | Required | Default value | Description          |
+|-----------|------|------|----------|---------------|----------------------|
+| code      | int  | -    | yes      | -             | The entso-e category |
+
+Here is how to add a generator entsoe-e category extension to a generator:
+```java
+generator.newExtension(GeneratorEntsoeCategoryAdder.class)
+    .withCode(4)
+    .add();
+```
 
 (generator-startup)=
 ## Generator startup
@@ -213,6 +226,7 @@ generator.newExtension(GeneratorStartupAdder.class)
 This extension models the generator data used for short-circuit calculations. Depending on the type of short-circuit study to be
 performed, either the transient or the sub-transient reactance should be filled. The reactance of the step-up transformer should be
 filled if the generator has a transformer that is not directly modeled in the network.
+This extension should be used in addition to the [GeneratorFortescue extension](#generator-fortescue) for asymmetrical short-circuit calculations.
 
 | Attribute              | Type   | Unit | Required | Default value | Description                                     |
 |------------------------|--------|------|----------|---------------|-------------------------------------------------|
@@ -277,6 +291,85 @@ bus.newExtension(IdentifiableShortCircuitAdder.class)
 ```
 The code is similar for every identifiable.
 
+(generator-fortescue)=
+## Generator Fortescue
+
+This extension models the homopolar generator data to be used for asymmetrical short-circuit calculations.
+
+| Attribute  | Type    | Unit | Required | Default value | Description                                                                     |
+|------------|---------|------|----------|---------------|---------------------------------------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the generator                                   |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the generator                                    |
+| rn         | double  | Ω    | no       | -             | The negative-sequence resistance of the generator                               |
+| xn         | double  | Ω    | no       | -             | The negative-sequence reactance of the generator                                |
+| grounded   | boolean | -    | no       | false         | Indicates if the generator is earthed                                           |
+| groundingR | double  | Ω    | no       | 0             | If the generator is earthed, the resistance part of the impedance to the ground |
+| groundingX | double  | Ω    | no       | 0             | If the generator is earthed, the reactance part of the impedance to the ground  |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(line-fortescue)=
+## Line Fortescue
+
+This extension models the homopolar line data to be used for asymmetrical short-circuit calculations.
+
+| Attribute  | Type    | Unit | Required | Default value | Description                                  |
+|------------|---------|------|----------|---------------|----------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line     |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line      |
+| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open |
+| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open |
+| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(two-winding-transformer-fortescue)=
+## Two-winding Transformer Fortescue
+
+This extension models the homopolar two-winding transformer data to be used for asymmetrical short-circuit calculations.
+
+| Attribute       | Type                  | Unit | Required | Default value                    | Description                                                                                            |
+|-----------------|-----------------------|------|----------|----------------------------------|--------------------------------------------------------------------------------------------------------|
+| rz              | double                | Ω    | no       | -                                | The zero-sequence resistance of the two-winding transformer                                            |
+| xz              | double                | Ω    | no       | -                                | The zero-sequence reactance of the two-winding transformer                                             |
+| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               | 
+| connectionType1 | WindingConnectionType | -    | no       | WindingConnectionType.DELTA      | The connection type of the winding 1                                                                   | 
+| connectionType2 | WindingConnectionType | -    | no       | WindingConnectionType.Y_GROUNDED | The connection type of the winding 2                                                                   | 
+| groundingR1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the reactance part of the impedance to the ground  | 
+| groundingR2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX2     | double                | Ω    | no       | 0                                | If the winding on side 2 is connected to the earth, the reactance part of the impedance to the ground  | 
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+
+(three-winding-transformer-fortescue)=
+## Three-winding Transformer Fortescue
+
+This extension models the homopolar three-winding transformer data to be used for asymmetrical short-circuit calculations.
+The data is described by leg.
+
+The attributes of the extension are structured as follows:
+
+| Attribute     | Type         | Unit | Required | Default value | Description                                             |
+|---------------|--------------|------|----------|---------------|---------------------------------------------------------|
+| leg1 | LegFortescue | -    | no       | -             | The data on the leg 1 of the three-winding transformer  |
+| leg2 | LegFortescue | -    | no       | -             | The data on the leg 2 of the three-winding transformer  |
+| leg3 | LegFortescue | -    | no       | -             | The data on the leg 3 of the three-winding transformer  | 
+
+With LegFortescue being defined as follows:
+
+| Attribute      | Type                  | Unit | Required | Default value                                                                                                | Description                                                                              |
+|----------------|-----------------------|------|----------|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| rz             | double                | Ω    | no       | -                                                                                                            | The zero-sequence resistance of the leg                                                  |
+| xz             | double                | Ω    | no       | -                                                                                                            | The zero-sequence reactance of the leg                                                   |
+| freeFluxes     | boolean               | -    | no       | true                                                                                                         | If set to true, then the magnetizing impedance is considered as infinite                 | 
+| connectionType | WindingConnectionType | -    | no       | WindingConnectionType.DELTA for the first and the third leg, WindingConnectionType.Y_GROUNDED for the second | The connection type of the leg                                                           |
+| groundingR     | double                | Ω    | no       | 0                                                                                                            | If the leg is connected to the earth, the resistance part of the impedance to the ground | 
+| groundingX     | double                | Ω    | no       | 0                                                                                                            | If the leg is connected to the earth, the reactance part of the impedance to the ground  | 
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
 (injection-observability-extension)=
 ## Injection observability
 
@@ -335,11 +428,9 @@ A balanced load is described by its active power setpoint $P0$ and its reactive 
 This extension is used to describe the power asymmetry for each ABC phase. In the three-phase representation, the complex power injected at a bus $i$ is constant for each phase and represented by three complex values:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=S_{A}=P_{A}+j.Q_{A} \\
 S_{Bi_{Load}}=S_{B}=P_{B}+j.Q_{B} \\
 S_{Ci_{Load}}=S_{C}=P_{C}+j.Q_{C} \\
-\end{align}
 $$
 
 But for a balanced load flow, the constant power load $P$ and $Q$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three-phase representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
@@ -359,31 +450,25 @@ $$ 0 = -S_{1i_{Load}} +\sum_{j=\delta(i)}^{} S_{1ij} $$
 We must take into account that many loads are still balanced and information related to balanced loads is sufficient. The extension proposes a delta approach where unbalances are expressed in the extension. Supposing that:
 
 $$
-\begin{align}
 \Delta P_{Ai_{Load}}, \Delta Q_{Ai_{Load}},
 \Delta P_{Bi_{Load}}, \Delta Q_{Bi_{Load}},
 \Delta P_{Ci_{Load}}, \Delta Q_{Ci_{Load}}
-\end{align}
 $$
 
 are provided in input through the extension. The three-phase power values used as inputs of an unbalanced load flow calculation are:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=(P_{Load}+\Delta P_{Ai_{Load}})+j.(Q_{Load}+\Delta Q_{Ai_{Load}}) \\
 S_{Bi_{Load}}=(P_{Load}+\Delta P_{Bi_{Load}})+j.(Q_{Load}+\Delta Q_{Bi_{Load}}) \\
 S_{Ci_{Load}}=(P_{Load}+\Delta P_{Ci_{Load}})+j.(Q_{Load}+\Delta Q_{Ci_{Load}}) \\
-\end{align}
 $$
 
 As a consequence, if no extension provided for the load, the unbalanced load flow will use in input:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=P_{Load}+j.Q_{Load} \\
 S_{Bi_{Load}}=P_{Load}+j.Q_{Load} \\
 S_{Ci_{Load}}=P_{Load}+j.Q_{Load} \\
-\end{align}
 $$
 
 | Attribute | Type   | Unit | Required | Default value | Description                                                                                                                                                                      |
@@ -459,7 +544,7 @@ The Measurement class characteristics are the following:
 ## Operating status
 
 This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
-three-winding transformers, HVDC line and a dangling line. The status could be:
+three-winding transformers, HVDC line and a boundary line. The status could be:
 - `IN_OPERATION`: equipment in service.
 - `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
 - `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
@@ -530,9 +615,9 @@ This extension is used for generators with a remote reactive control.
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
 of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
 Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
-[`isReadSlackBus`](../simulation/loadflow/configuration.md#generic-parameters). Use this extension after a computation to attach
+[`readSlackBus`](../simulation/loadflow/configuration.md#optional-properties). Use this extension after a computation to attach
 to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
-default load flow parameter [`isWriteSlackBus`](../simulation/loadflow/configuration.md#generic-parameters).
+default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#optional-properties).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 

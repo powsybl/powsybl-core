@@ -177,4 +177,14 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     default Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
         throw new UnsupportedOperationException("Not implemented");
     }
+
+    /**
+     * Verifies if the LoadFlowParameters' values are supported by the provider.<br>
+     * Reports the unsupported parameters with the run parameters' report node.
+     * @param runParameters runner parameters
+     * @return <code>true</code> if the parameters are supported, <code>false</code> otherwise
+     */
+    default boolean checkParameters(LoadFlowRunParameters runParameters) {
+        return true;
+    }
 }

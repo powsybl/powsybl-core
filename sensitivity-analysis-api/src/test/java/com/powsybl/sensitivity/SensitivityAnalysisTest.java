@@ -13,6 +13,7 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.strategy.OperatorStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -53,7 +54,8 @@ class SensitivityAnalysisTest {
                 ContingencyContext.none());
         factorReader = handler -> handler.onFactor(factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(), factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
         contingencies = Collections.emptyList();
-        resultWriter = new SensitivityResultModelWriter(contingencies);
+        List<OperatorStrategy> operatorStrategies = Collections.emptyList();
+        resultWriter = new SensitivityResultModelWriter(contingencies, operatorStrategies);
         variableSets = Collections.emptyList();
         parameters = Mockito.mock(SensitivityAnalysisParameters.class);
     }

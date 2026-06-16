@@ -217,4 +217,35 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
             .build();
         assertEquals("ConnectVoltageLevelOnLine", networkModification.getName());
     }
+
+    @Test
+    void testWithLimits() throws IOException {
+        Network network = createNbNetworkWithBusbarSection();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportAttachVoltageLevelOnLineNbTest")
+                .build();
+        Line line = network.getLine("CJ");
+        line.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        line.setSelectedOperationalLimitsGroup1("group1");
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .build();
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
+        writeXmlTest(network, "/fictitious-line-split-vl-with-limits.xml");
+    }
 }

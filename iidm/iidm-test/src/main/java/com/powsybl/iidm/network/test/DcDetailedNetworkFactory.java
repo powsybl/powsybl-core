@@ -71,11 +71,11 @@ public final class DcDetailedNetworkFactory {
     }
 
     /**
-     * Creates a simple one bus AC (sub)network with dangling lines.
+     * Creates a simple one bus AC (sub)network with boundary lines.
      * <br/>
      * Example with FR and one xNode where FR exports 200 MW:
      * <pre>
-     *     var net = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.FR, Map.of("xNode1", 200.));
+     *     var net = createSimpleAcNetworkWithBoundaryLines(networkFactory, Country.FR, Map.of("xNode1", 200.));
      * </pre>
      *
      * <pre>
@@ -88,7 +88,7 @@ public final class DcDetailedNetworkFactory {
      *  P0 = 2000 MW - 200 MW = 1800 MW
      * </pre>
      */
-    private static Network createSimpleAcNetworkWithDanglingLines(NetworkFactory networkFactory, Country country, Map<String, Double> xNodes) {
+    private static Network createSimpleAcNetworkWithBoundaryLines(NetworkFactory networkFactory, Country country, Map<String, Double> xNodes) {
         Objects.requireNonNull(networkFactory);
         Network network = networkFactory.createNetwork(country.name(), "test");
         Substation s = network.newSubstation()
@@ -123,7 +123,7 @@ public final class DcDetailedNetworkFactory {
                 .add();
         new TreeMap<>(xNodes).forEach((xNode, v) -> {
             load.setP0(load.getP0() - v);
-            vl.newDanglingLine()
+            vl.newBoundaryLine()
                     .setId("DLAC-" + country.name() + "-" + xNode)
                     .setBus(b.getId())
                     .setR(0.3)
@@ -162,7 +162,7 @@ public final class DcDetailedNetworkFactory {
         Bus bDc400 = vldc400.getBusBreakerView().newBus()
                 .setId(getBusId(country, xNode, SUFFIX_400))
                 .add();
-        vldc400.newDanglingLine()
+        vldc400.newBoundaryLine()
                 .setId("DLDC-" + country.name() + "-" + xNode)
                 .setBus(bDc400.getId())
                 .setR(0.3)
@@ -301,8 +301,8 @@ public final class DcDetailedNetworkFactory {
         Objects.requireNonNull(dcNetworkId);
 
         Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
-        Network fr = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.FR, Map.of(X_NODE_DC_1_FR, 200.));
-        Network gb = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.GB, Map.of(X_NODE_DC_1_GB, -200.));
+        Network fr = createSimpleAcNetworkWithBoundaryLines(networkFactory, Country.FR, Map.of(X_NODE_DC_1_FR, 200.));
+        Network gb = createSimpleAcNetworkWithBoundaryLines(networkFactory, Country.GB, Map.of(X_NODE_DC_1_GB, -200.));
         addDcAcElements(dcNetwork, Country.FR, X_NODE_DC_1_FR, -200., Mode.TWO_T2WT);
         addDcAcElements(dcNetwork, Country.GB, X_NODE_DC_1_GB, 200., Mode.T3WT);
 
@@ -598,8 +598,8 @@ public final class DcDetailedNetworkFactory {
         Objects.requireNonNull(dcNetworkId);
 
         Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
-        Network fr = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.FR, Map.of(X_NODE_DC_1_FR, 200., X_NODE_DC_2_FR, 200.));
-        Network gb = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.GB, Map.of(X_NODE_DC_1_GB, -200., X_NODE_DC_2_GB, -200.));
+        Network fr = createSimpleAcNetworkWithBoundaryLines(networkFactory, Country.FR, Map.of(X_NODE_DC_1_FR, 200., X_NODE_DC_2_FR, 200.));
+        Network gb = createSimpleAcNetworkWithBoundaryLines(networkFactory, Country.GB, Map.of(X_NODE_DC_1_GB, -200., X_NODE_DC_2_GB, -200.));
         addDcAcElements(dcNetwork, Country.FR, X_NODE_DC_1_FR, -200., Mode.TWO_T2WT);
         addDcAcElements(dcNetwork, Country.FR, X_NODE_DC_2_FR, -200., Mode.TWO_T2WT);
         addDcAcElements(dcNetwork, Country.GB, X_NODE_DC_1_GB, 200., Mode.T3WT);
@@ -742,8 +742,8 @@ public final class DcDetailedNetworkFactory {
         Objects.requireNonNull(dcNetworkId);
 
         Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
-        Network fr = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.FR, Map.of(X_NODE_DC_1_FR, 200.));
-        Network gb = createSimpleAcNetworkWithDanglingLines(networkFactory, Country.GB, Map.of(X_NODE_DC_1_GB, -200.));
+        Network fr = createSimpleAcNetworkWithBoundaryLines(networkFactory, Country.FR, Map.of(X_NODE_DC_1_FR, 200.));
+        Network gb = createSimpleAcNetworkWithBoundaryLines(networkFactory, Country.GB, Map.of(X_NODE_DC_1_GB, -200.));
         addDcAcElements(dcNetwork, Country.FR, X_NODE_DC_1_FR, -200., Mode.ONE_T2WT);
         addDcAcElements(dcNetwork, Country.GB, X_NODE_DC_1_GB, 200., Mode.ONE_T2WT);
 
@@ -840,4 +840,95 @@ public final class DcDetailedNetworkFactory {
                 .add();
         return network;
     }
+
+    /**
+     * Factory for DC grid with 2 nodes connected by a DC switch.
+     * @return DC network.
+     */
+    public static Network createSimple2NodesDcSwitch() {
+        return createSimple2NodesDcSwitch(NetworkFactory.findDefault(), "Simple2NodesDcSwitch");
+    }
+
+    public static Network createSimple2NodesDcSwitch(NetworkFactory networkFactory, String dcNetworkId) {
+        Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
+        dcNetwork.newDcNode()
+                .setId("dcNode1")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcNode()
+                .setId("dcNode2")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcSwitch()
+                .setId("dcSwitch")
+                .setR(0.125)
+                .setDcNode1("dcNode1")
+                .setDcNode2("dcNode2")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setOpen(false)
+                .add();
+
+        return dcNetwork;
+    }
+
+    /**
+     * Factory for DC grid with 4 nodes: n1-n2 connected by a DcLine, n2-n3 by a DcSwitch, n3-n4 by a DcLine.
+     * <pre>
+     *  (n1) --[dcLine1]-- (n2) --[dcSwitch]-- (n3) --[dcLine2]-- (n4)
+     * </pre>
+     * @return DC network.
+     */
+    public static Network createSimple4NodesDcLinesSwitchLine() {
+        return createSimple4NodesDcLinesSwitchLine(NetworkFactory.findDefault(), "Simple4NodesDcLinesSwitchLine");
+    }
+
+    public static Network createSimple4NodesDcLinesSwitchLine(NetworkFactory networkFactory, String dcNetworkId) {
+        Network dcNetwork = networkFactory.createNetwork(dcNetworkId, "test");
+        dcNetwork.newDcNode()
+                .setId("n1")
+                .setNominalV(500.)
+                .add();
+        dcNetwork.newDcNode()
+                .setId("n2")
+                .setNominalV(500.)
+                .add();
+        dcNetwork.newDcNode()
+                .setId("n3")
+                .setNominalV(500.)
+                .add();
+        dcNetwork.newDcNode()
+                .setId("n4")
+                .setNominalV(500.)
+                .add();
+
+        dcNetwork.newDcLine()
+                .setId(DC_LINE1)
+                .setDcNode1("n1")
+                .setConnected1(true)
+                .setDcNode2("n2")
+                .setConnected2(true)
+                .setR(5.0)
+                .add();
+        dcNetwork.newDcSwitch()
+                .setId("dcSwitch")
+                .setR(0.1)
+                .setDcNode1("n2")
+                .setDcNode2("n3")
+                .setKind(DcSwitchKind.DISCONNECTOR)
+                .setOpen(false)
+                .add();
+        dcNetwork.newDcLine()
+                .setId(DC_LINE2)
+                .setDcNode1("n3")
+                .setConnected1(true)
+                .setDcNode2("n4")
+                .setConnected2(true)
+                .setR(5.0)
+                .add();
+
+        return dcNetwork;
+    }
+
 }

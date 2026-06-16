@@ -48,8 +48,8 @@
       Updating STATIC_VAR_COMPENSATOR.
       Updating SHUNT_COMPENSATOR.
       Updating HVDC_LINE.
-      Updating DANGLING_LINE.
-      Fixing issues with dangling lines.
+      Updating BOUNDARY_LINE.
+      Fixing issues with boundary lines.
       Updating VOLTAGE_LEVEL.
       Updating GROUND.
       Updating AREA.

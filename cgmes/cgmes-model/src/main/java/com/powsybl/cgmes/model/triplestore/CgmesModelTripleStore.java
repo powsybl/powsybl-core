@@ -55,6 +55,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public void close() {
+        this.tripleStore.close();
+    }
+
+    @Override
     public void setQueryCatalog(String queryCatalogName) {
         this.invalidateCaches();
         this.queryCatalog = queryCatalogFor(this.cimVersion, queryCatalogName);

@@ -20,17 +20,19 @@ import static java.lang.Integer.MAX_VALUE;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
+abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends AbstractBasePropertiesHolder implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     protected final Validable validable;
     private final String ownerId;
 
     protected double permanentLimit = Double.NaN;
+    protected DetectionKind detectionKind = DetectionKind.HIGH;
+    protected final String operationalGroupId;
 
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
-    public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
+    public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> extends AbstractBasePropertiesHolder implements TemporaryLimitAdder<B> {
 
         private String name;
 
@@ -73,24 +75,32 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
 
         @Override
+        public TemporaryLimitAdder<B> addProperty(String property, String value) {
+            setProperty(property, value);
+            return this;
+        }
+
+        @Override
         public B endTemporaryLimit() {
             if (Double.isNaN(value)) {
-                throw new ValidationException(validable, "temporary limit value is not set");
+                throw new ValidationException(validable, "temporary limit value is not set for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             if (value < 0) {
-                throw new ValidationException(validable, "temporary limit value must be >= 0");
+                throw new ValidationException(validable, "temporary limit value must be >= 0 for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             if (value == 0) {
                 LOGGER.info("{}temporary limit value is set to 0", validable.getMessageHeader());
             }
             if (acceptableDuration == null) {
-                throw new ValidationException(validable, "acceptable duration is not set");
+                throw new ValidationException(validable, "acceptable duration is not set for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             if (acceptableDuration < 0) {
-                throw new ValidationException(validable, "acceptable duration must be >= 0");
+                throw new ValidationException(validable, "acceptable duration must be >= 0 for '" + name + "' within limit set '" + operationalGroupId + "'");
             }
             checkAndGetUniqueName();
-            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
+            AbstractLoadingLimits.TemporaryLimitImpl temporaryLimit = new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious);
+            copyPropertiesTo(temporaryLimit);
+            temporaryLimits.put(acceptableDuration, temporaryLimit);
             return (B) AbstractLoadingLimitsAdder.this;
         }
 
@@ -114,14 +124,21 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
     }
 
-    AbstractLoadingLimitsAdder(Validable validable, String ownerId) {
+    AbstractLoadingLimitsAdder(Validable validable, String ownerId, String operationalGroupId) {
         this.validable = Objects.requireNonNull(validable);
         this.ownerId = ownerId;
+        this.operationalGroupId = operationalGroupId;
     }
 
     @Override
     public A setPermanentLimit(double permanentLimit) {
         this.permanentLimit = permanentLimit;
+        return (A) this;
+    }
+
+    @Override
+    public A setDetectionKind(DetectionKind detectionKind) {
+        this.detectionKind = detectionKind;
         return (A) this;
     }
 
@@ -133,6 +150,11 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     @Override
     public double getPermanentLimit() {
         return permanentLimit;
+    }
+
+    @Override
+    public DetectionKind getDetectionKind() {
+        return detectionKind;
     }
 
     @Override
@@ -150,7 +172,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected ValidationLevel checkLoadingLimits(ValidationLevel validationLevel, ReportNode reportNode) {
-        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), validationLevel, reportNode);
+        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, detectionKind, temporaryLimits.values(), validationLevel, reportNode);
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {

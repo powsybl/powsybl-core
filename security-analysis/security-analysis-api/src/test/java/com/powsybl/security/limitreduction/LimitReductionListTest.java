@@ -35,6 +35,8 @@ class LimitReductionListTest {
     private static NetworkElementCriterion networkElementCriterion4;
     private static NetworkElementCriterion networkElementCriterion5;
     private static ContingencyContext contingencyContext1;
+    private static String operationalLimitsGroupId1;
+    private static String operationalLimitsGroupId2;
 
     @BeforeAll
     static void init() {
@@ -49,11 +51,16 @@ class LimitReductionListTest {
                 null));
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
+
+        operationalLimitsGroupId1 = "default";
+        operationalLimitsGroupId2 = "activated";
+
         limitReduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
                 .withContingencyContext(contingencyContext1)
                 .withNetworkElementCriteria(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4, networkElementCriterion5)
                 .withLimitDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion())
+            .withOperationalLimitsGroupIdSelection(operationalLimitsGroupId1, operationalLimitsGroupId2)
                 .build();
         limitReduction2 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8, true);
     }
@@ -105,6 +112,13 @@ class LimitReductionListTest {
     }
 
     @Test
+    void operationalLimitsGroupIdSelection() {
+        assertEquals(List.of(operationalLimitsGroupId1, operationalLimitsGroupId2), limitReduction1.getOperationalLimitsGroupIdsSelection());
+        assertTrue(limitReduction2.getOperationalLimitsGroupIdsSelection().isEmpty());
+
+    }
+
+    @Test
     void unsupportedLimitType() {
         Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.VOLTAGE, 0.9));
         assertEquals("VOLTAGE is not a supported limit type for limit reduction", e.getMessage());
@@ -112,11 +126,8 @@ class LimitReductionListTest {
 
     @Test
     void unsupportedLimitReductionValues() {
-        String expectedMessage = "Limit reduction value should be in [0;1]";
+        String expectedMessage = "Limit reduction value should be equal or greater than 0";
         Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, -0.5, true));
-        assertEquals(expectedMessage, e.getMessage());
-
-        e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, 1.3));
         assertEquals(expectedMessage, e.getMessage());
     }
 }
