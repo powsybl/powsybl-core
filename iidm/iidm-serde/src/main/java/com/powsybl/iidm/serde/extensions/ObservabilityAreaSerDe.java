@@ -132,11 +132,11 @@ public class ObservabilityAreaSerDe extends AbstractExtensionSerDe<VoltageLevel,
     public ObservabilityArea read(VoltageLevel voltageLevel, DeserializerContext xmlReaderContext) {
         ObservabilityAreaAdder adder = voltageLevel.newExtension(ObservabilityAreaAdder.class);
         xmlReaderContext.getReader().readBooleanAttribute("consistentWithTopology");
-        xmlReaderContext.getReader().readChildNodes(elemntName -> {
-            if (elemntName.equals(BUS_ROOT_ELEMENT_NAME)) {
+        xmlReaderContext.getReader().readChildNodes(elementName -> {
+            if (elementName.equals(BUS_ROOT_ELEMENT_NAME)) {
                 setObservabilityArea(voltageLevel.getTopologyKind(), adder, xmlReaderContext);
             } else {
-                throw new AssertionError("Unexpected element: " + elemntName);
+                throw new AssertionError("Unexpected element: " + elementName);
             }
         });
         return adder.add();
