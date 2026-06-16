@@ -91,17 +91,9 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     private void peekNextEntry() throws IOException {
-        int b1 = dis.read();
-        if (b1 < 0) {
-            nextNameIdx = END_OF_FILE;
-            return;
-        }
-        int b2 = dis.read();
-        if (b2 < 0) {
-            throw new PowsyblException("Corrupted binary file: truncated name index");
-        }
-        nextNameIdx = (b1 << 8) | b2;
-        if (nextNameIdx != END_NODE) {
+
+        nextNameIdx = readNameIndex();
+        if (nextNameIdx != END_NODE && nextNameIdx != END_OF_FILE) {
             if (nextNameIdx >= names.length) {
                 throw new PowsyblException("Corrupted binary file: invalid index " + nextNameIdx
                         + " (max " + (names.length - 1) + ")");
@@ -110,8 +102,25 @@ public class BinReader extends AbstractTreeDataReader {
         }
     }
 
+    private int readNameIndex() throws IOException {
+        int b1 = dis.read();
+        if (b1 < 0) {
+            return END_OF_FILE;
+        }
+        int b2 = dis.read();
+        if (b2 < 0) {
+            throw new PowsyblException("Corrupted binary file: truncated name index");
+        }
+        return (b1 << 8) | b2;
+    }
+
     private boolean isAttrAbsent(String name) {
-        if (nextNameIdx == END_NODE || nextNameIdx == END_OF_FILE || nextType == TYPE_OBJECT) {
+
+        if (nextNameIdx == END_OF_FILE) {
+            throw new PowsyblException("Unexpected end of file");
+        }
+
+        if (nextNameIdx == END_NODE || nextType == TYPE_OBJECT) {
             return true;
         }
         return !name.equals(names[nextNameIdx]);
@@ -351,7 +360,13 @@ public class BinReader extends AbstractTreeDataReader {
             int ordinal = dis.readUnsignedShort();
             peekNextEntry();
             T[] constants = clazz.getEnumConstants();
-            return ordinal < constants.length ? constants[ordinal] : defaultValue;
+
+            if (ordinal >= constants.length) {
+                throw new PowsyblException("Invalid enum ordinal for " + clazz.getSimpleName() + ": "
+                        + ordinal + " (max " + (constants.length - 1) + ")");
+            }
+
+            return constants[ordinal];
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
