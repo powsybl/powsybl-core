@@ -100,25 +100,21 @@ class SwitchKindsBetweenBusbarSectionsTraverserTest {
         createSwitch(s1vl1, "BBS4_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 12, 19);
         createSwitch(s1vl1, "BBS2_BBS4_COUPLER", SwitchKind.BREAKER, false, 18, 19);
 
-        // create switchs between bar 1 and 2
+        // create switches between bar 1 and 2
         createSwitch(s1vl1, "BBS1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
         createSwitch(s1vl1, "BBS21_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 3, 2);
         createSwitch(s1vl1, "BBS1_BBS2_BREAKER", SwitchKind.BREAKER, false, 1, 2);
 
-        // create switchs between bar 2 and 3
-        createSwitch(s1vl1, "BBS23_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 3, 4);
-        createSwitch(s1vl1, "BBS3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 6, 5);
-        createSwitch(s1vl1, "BBS2_BBS3_BREAKER", SwitchKind.BREAKER, false, 4, 5);
+        // create switches between bar 2 and 3
+        createSwitch(s1vl1, "BBS23_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 3, 6);
 
-        // create switchs between bar 4 and 5
+        // create switches between bar 4 and 5
         createSwitch(s1vl1, "BBS4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 9, 10);
         createSwitch(s1vl1, "BBS54_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 12, 11);
         createSwitch(s1vl1, "BBS4_BBS5_BREAKER", SwitchKind.BREAKER, false, 10, 11);
 
-        // create switchs between bar 5 and 6
-        createSwitch(s1vl1, "BBS56_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 12, 13);
-        createSwitch(s1vl1, "BBS6_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 15, 14);
-        createSwitch(s1vl1, "BBS5_BBS6_BREAKER", SwitchKind.BREAKER, false, 13, 14);
+        // create switches between bar 5 and 6
+        createSwitch(s1vl1, "BBS56_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 12, 15);
 
         // Connect a load on BBS1
         createSwitch(s1vl1, "BBS1_LD1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 20);
@@ -157,7 +153,7 @@ class SwitchKindsBetweenBusbarSectionsTraverserTest {
         List<SwitchKind> rightSwitchKindsBbs1 = traverser.getRightSwitchesBetweenBusbar();
         assertTrue(leftSwitchKindBbs1.isEmpty());
         assertEquals(2, rightSwitchKindsBbs1.size());
-        assertEquals(List.of(SwitchKind.BREAKER, SwitchKind.BREAKER), rightSwitchKindsBbs1);
+        assertEquals(List.of(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR), rightSwitchKindsBbs1);
 
         BusbarSection busbarSection2 = network.getBusbarSection("BBS2");
         SwitchKindsBetweenBusbarSectionsTraverser traverser2 = new SwitchKindsBetweenBusbarSectionsTraverser(busbarSection2);
@@ -167,7 +163,7 @@ class SwitchKindsBetweenBusbarSectionsTraverserTest {
         assertEquals(1, leftSwitchKindBbs2.size());
         assertEquals(1, rightSwitchKindsBbs2.size());
         assertEquals(List.of(SwitchKind.BREAKER), leftSwitchKindBbs2);
-        assertEquals(List.of(SwitchKind.BREAKER), rightSwitchKindsBbs2);
+        assertEquals(List.of(SwitchKind.DISCONNECTOR), rightSwitchKindsBbs2);
 
         BusbarSection busbarSection3 = network.getBusbarSection("BBS6");
         SwitchKindsBetweenBusbarSectionsTraverser traverser3 = new SwitchKindsBetweenBusbarSectionsTraverser(busbarSection3);
@@ -176,7 +172,7 @@ class SwitchKindsBetweenBusbarSectionsTraverserTest {
         List<SwitchKind> rightSwitchKindsBbs3 = traverser3.getRightSwitchesBetweenBusbar();
         assertTrue(rightSwitchKindsBbs3.isEmpty());
         assertEquals(2, leftSwitchKindBbs3.size());
-        assertEquals(List.of(SwitchKind.BREAKER, SwitchKind.BREAKER), leftSwitchKindBbs3);
+        assertEquals(List.of(SwitchKind.DISCONNECTOR, SwitchKind.BREAKER), leftSwitchKindBbs3);
 
     }
 }
