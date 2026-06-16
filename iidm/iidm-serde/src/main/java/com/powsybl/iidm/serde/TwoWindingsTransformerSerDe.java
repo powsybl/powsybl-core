@@ -71,8 +71,10 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
         if (ptc != null) {
             writePhaseTapChanger(PHASE_TAP_CHANGER, ptc, context);
         }
-        writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup1().orElse(null), twt.getOperationalLimitsGroups1());
-        writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup2().orElse(null), twt.getOperationalLimitsGroups2());
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup1().orElse(null),
+            context.getOptions().isOnlySelectedOperationalLimitsGroups() ? twt.getAllSelectedOperationalLimitsGroups(TwoSides.ONE) : twt.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, twt.getSelectedOperationalLimitsGroup2().orElse(null),
+            context.getOptions().isOnlySelectedOperationalLimitsGroups() ? twt.getAllSelectedOperationalLimitsGroups(TwoSides.TWO) : twt.getOperationalLimitsGroups2());
     }
 
     @Override
