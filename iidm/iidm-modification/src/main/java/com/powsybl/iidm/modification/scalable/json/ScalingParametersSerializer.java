@@ -29,6 +29,7 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
 
         jsonGenerator.writeStringField("version", ScalingParameters.VERSION);
         jsonGenerator.writeStringField("scalingConvention", scalingParameters.getScalingConvention().name());
+        jsonGenerator.writeStringField("scalingType", scalingParameters.getScalingType().name());
         jsonGenerator.writeBooleanField("constantPowerFactor", scalingParameters.isConstantPowerFactor());
         jsonGenerator.writeBooleanField("reconnect", scalingParameters.isReconnect());
         jsonGenerator.writeStringField("priority", scalingParameters.getPriority().name());
@@ -38,6 +39,14 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
             jsonGenerator.writeString(id);
         }
         jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeNumberField("loadMinPowerFactor", scalingParameters.getLoadMinPowerFactor());
+        if (scalingParameters.getLoadMinQRate().isPresent()) {
+            jsonGenerator.writeNumberField("loadMinQRate", scalingParameters.getLoadMinQRate().getAsDouble());
+        }
+        if (scalingParameters.getLoadMaxQRate().isPresent()) {
+            jsonGenerator.writeNumberField("loadMaxQRate", scalingParameters.getLoadMaxQRate().getAsDouble());
+        }
 
         jsonGenerator.writeEndObject();
     }
