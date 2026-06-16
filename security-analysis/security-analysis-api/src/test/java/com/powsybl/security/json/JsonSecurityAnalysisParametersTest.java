@@ -33,6 +33,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
         parameters.getModifiedMonitoredElementsParameters().setVoltageModificationAbsoluteThreshold(10.0);
         parameters.getModifiedMonitoredElementsParameters().setPowerModificationThreshold(1.0);
         parameters.setIntermediateResultsInOperatorStrategy(true);
+        parameters.setDebugDir("/tmp/debugDir");
         roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.3.json");
     }
 
@@ -52,7 +53,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void readExtension() throws IOException {
+    void readExtension() {
         SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters.read(getClass().getResourceAsStream("/SecurityAnalysisParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -102,6 +103,13 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
                 .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.2.json"));
         assertEquals(0.2, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), 0.0001);
         assertTrue(parameters.getIntermediateResultsInOperatorStrategy());
+    }
+
+    @Test
+    void readJsonVersion13() {
+        SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.3.json"));
+        assertEquals("/tmp/debugDir", parameters.getDebugDir());
     }
 
     @Test

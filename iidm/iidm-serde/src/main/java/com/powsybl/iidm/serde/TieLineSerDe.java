@@ -81,8 +81,10 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_9, context, () -> {
-            writeLimits(context, 1, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup1().orElse(null), tl.getOperationalLimitsGroups1());
-            writeLimits(context, 2, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup2().orElse(null), tl.getOperationalLimitsGroups2());
+            writeLimits(context, 1, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup1().orElse(null),
+                context.getOptions().isOnlySelectedOperationalLimitsGroups() ? tl.getAllSelectedOperationalLimitsGroups(TwoSides.ONE) : tl.getOperationalLimitsGroups1());
+            writeLimits(context, 2, ROOT_ELEMENT_NAME, tl.getSelectedOperationalLimitsGroup2().orElse(null),
+                context.getOptions().isOnlySelectedOperationalLimitsGroups() ? tl.getAllSelectedOperationalLimitsGroups(TwoSides.TWO) : tl.getOperationalLimitsGroups2());
         });
     }
 
@@ -181,7 +183,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             case LIMITS_GROUP_1 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
                 IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context,
-                    () -> readLoadingLimitsGroups(tl.getBoundaryLine1(), LIMITS_GROUP_1, context));
+                    () -> readLoadingLimitsGroups(tl.getBoundaryLine1(), tl.getBoundaryLine1().getId(), ThreeSides.ONE, LIMITS_GROUP_1, context));
             }
             case ACTIVE_POWER_LIMITS_1 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
@@ -202,7 +204,7 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
             case LIMITS_GROUP_2 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
                 IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context,
-                    () -> readLoadingLimitsGroups(tl.getBoundaryLine2(), LIMITS_GROUP_2, context));
+                    () -> readLoadingLimitsGroups(tl.getBoundaryLine2(), tl.getBoundaryLine2().getId(), ThreeSides.ONE, LIMITS_GROUP_2, context)); //use side one since side is relative to the boundary line, not the tie line
             }
             case ACTIVE_POWER_LIMITS_2 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);

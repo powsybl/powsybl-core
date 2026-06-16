@@ -155,6 +155,13 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void readJsonVersion111() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion111.json"));
+        assertEquals("/tmp/debugDir", parameters.getDebugDir());
+    }
+
+    @Test
     void readJsonVersion10Exception() throws IOException {
         try (InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json")) {
             PowsyblException exception = assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));

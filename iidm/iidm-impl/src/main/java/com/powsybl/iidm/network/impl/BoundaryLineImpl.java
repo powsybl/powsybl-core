@@ -497,7 +497,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
         return operationalLimitsGroups.getAllSelectedOperationalLimitsGroups();
     }
 

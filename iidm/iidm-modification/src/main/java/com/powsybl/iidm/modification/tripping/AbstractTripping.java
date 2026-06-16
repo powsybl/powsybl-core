@@ -73,7 +73,7 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
 
             traverse(network, switchesToOpen, terminalsToDisconnect);
             traverseDc(network, dcSwitchesToOpen, dcTerminalsToDisconnect);
-            if (switchesToOpen.isEmpty() && terminalsToDisconnect.isEmpty() && dcTerminalsToDisconnect.isEmpty()) {
+            if (switchesToOpen.isEmpty() && terminalsToDisconnect.isEmpty() && dcTerminalsToDisconnect.isEmpty() && dcSwitchesToOpen.isEmpty()) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }

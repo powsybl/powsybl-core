@@ -55,8 +55,10 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
 
     @Override
     protected void writeSubElements(Line l, Network n, NetworkSerializerContext context) {
-        writeLimits(context, 1, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup1().orElse(null), l.getOperationalLimitsGroups1());
-        writeLimits(context, 2, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup2().orElse(null), l.getOperationalLimitsGroups2());
+        writeLimits(context, 1, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup1().orElse(null),
+            context.getOptions().isOnlySelectedOperationalLimitsGroups() ? l.getAllSelectedOperationalLimitsGroups(TwoSides.ONE) : l.getOperationalLimitsGroups1());
+        writeLimits(context, 2, ROOT_ELEMENT_NAME, l.getSelectedOperationalLimitsGroup2().orElse(null),
+            context.getOptions().isOnlySelectedOperationalLimitsGroups() ? l.getAllSelectedOperationalLimitsGroups(TwoSides.TWO) : l.getOperationalLimitsGroups2());
     }
 
     @Override
@@ -102,7 +104,7 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
         switch (elementName) {
             case LIMITS_GROUP_1 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(l::newOperationalLimitsGroup1, LIMITS_GROUP_1, context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(l, TwoSides.ONE, LIMITS_GROUP_1, context));
             }
             case ACTIVE_POWER_LIMITS_1 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
@@ -115,7 +117,7 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
             case "currentLimits1" -> readCurrentLimits(l.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits(), context);
             case LIMITS_GROUP_2 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUPS + "2", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(l::newOperationalLimitsGroup2, LIMITS_GROUP_2, context));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(l, TwoSides.TWO, LIMITS_GROUP_2, context));
             }
             case ACTIVE_POWER_LIMITS_2 -> {
                 IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);

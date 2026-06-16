@@ -27,6 +27,18 @@ public interface DcConnectable<I extends DcConnectable<I>> extends Identifiable<
     void remove();
 
     /**
+     * Try to connect the DC connectable
+     * @return true if the connection by this operation succeeded, false otherwise (the DC connectable was already connected)
+     */
+    boolean connectDc();
+
+    /**
+     * Try to disconnect the DC connectable
+     * @return true if the disconnection by this operation succeeded, false otherwise (the DC connectable was already disconnected)
+     */
+    boolean disconnectDc();
+
+    /**
      * Removes all loadflow output values of this DC connectable (e.g., P and I on DC terminals).
      */
     default void unsetSolvedValues() {

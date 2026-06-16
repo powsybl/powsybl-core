@@ -71,10 +71,10 @@ public interface FlowsLimitsHolder {
     Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup();
 
     /**
-     * Get all the selected {@link OperationalLimitsGroup}
-     * @return a collection containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
+     * Get all the selected {@link OperationalLimitsGroup}. The list's order must be stable when elements are added or deleted.
+     * @return a list containing all selected {@link OperationalLimitsGroup} (might be empty if there is none selected)
      */
-    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups();
+    List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups();
 
     /**
      * <p>Create a new {@link OperationalLimitsGroup} with the given ID.</p>

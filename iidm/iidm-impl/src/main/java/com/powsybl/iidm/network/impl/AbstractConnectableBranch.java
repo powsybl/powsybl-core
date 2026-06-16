@@ -88,7 +88,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
         return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroups();
     }
 

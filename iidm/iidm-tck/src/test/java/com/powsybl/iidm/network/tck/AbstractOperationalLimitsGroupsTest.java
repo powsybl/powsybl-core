@@ -558,7 +558,7 @@ public abstract class AbstractOperationalLimitsGroupsTest {
     }
 
     @Test
-    public void operationalLimitsGroupOrdering() {
+    public void operationalLimitsGroupIdsOrdering() {
         Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
         line.cancelSelectedOperationalLimitsGroup1();
@@ -578,6 +578,24 @@ public abstract class AbstractOperationalLimitsGroupsTest {
             "DEFAULT"
         );
         assertEquals(expectedOrderedIds.size(), orderedGroupIds.size());
+    }
+
+    @Test
+    public void getOperationalLimitsGroupsOrdering() {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        assertArrayEquals(new String[]{"DEFAULT", "activated_1_1", "activated_1_2"},
+                line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).stream().map(OperationalLimitsGroup::getId).toArray());
+        // Act
+        line.deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        // Assert
+        assertArrayEquals(new String[]{"DEFAULT", "activated_1_2"},
+                line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).stream().map(OperationalLimitsGroup::getId).toArray());
+        // Act
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.NOT_ACTIVATED);
+        // Assert
+        assertArrayEquals(new String[]{"DEFAULT", "activated_1_2", "not_activated"},
+                line.getAllSelectedOperationalLimitsGroups(TwoSides.ONE).stream().map(OperationalLimitsGroup::getId).toArray());
     }
 
     private <L extends LoadingLimits> void assertLimits(Collection<L> actualLimits, Tuple... expectedLimitValues) {
