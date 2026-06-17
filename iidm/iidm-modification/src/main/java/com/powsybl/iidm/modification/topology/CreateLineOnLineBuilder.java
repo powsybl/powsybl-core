@@ -33,7 +33,6 @@ public class CreateLineOnLineBuilder {
     private String line1Name = null;
     private String line2Id = null;
     private String line2Name = null;
-    private boolean createPositionExtensionForNewLine = false;
     private Integer positionForNewLine = null;
 
     public CreateLineOnLine build() {
@@ -116,11 +115,6 @@ public class CreateLineOnLineBuilder {
 
     public CreateLineOnLineBuilder withLineAdder(LineAdder lineAdder) {
         this.lineAdder = lineAdder;
-        return this;
-    }
-
-    public CreateLineOnLineBuilder withCreatePositionExtensionForNewLine(boolean createPositionExtensionForNewLine) {
-        this.createPositionExtensionForNewLine = createPositionExtensionForNewLine;
         return this;
     }
 

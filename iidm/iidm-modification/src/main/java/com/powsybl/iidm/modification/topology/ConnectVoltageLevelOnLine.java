@@ -49,8 +49,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
-     * @param positionForNewLine1 The order position for the new line connection at side 1 if createPositionExtensionForNewLine is set to true, or null.
-     * @param positionForNewLine2 The order position for the new line connection at side 2 if createPositionExtensionForNewLine is set to true, or null.
+     * @param positionForNewLine1 The order position for the new line connection at side 1 if the ConnectablePosition should be created, or null.
+     * @param positionForNewLine2 The order position for the new line connection at side 2 if the ConnectablePosition should be created, or null.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
                               String line2Id, String line2Name, Line line,
@@ -134,8 +134,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
         // add line positions,
         // add position of line 1 on side two because it is connected to the attached voltage level
         // add position of line 2 on side one because it is connected to the attached voltage level
-        createConnectablePositionExtensionForNewLine(line1, TwoSides.TWO, positionForNewLine1, reportNode);
-        createConnectablePositionExtensionForNewLine(line2, TwoSides.ONE, positionForNewLine2, reportNode);
+        createConnectablePositionExtensionForNewLine(line1, TwoSides.TWO, positionForNewLine1, reportNode, throwException);
+        createConnectablePositionExtensionForNewLine(line2, TwoSides.ONE, positionForNewLine2, reportNode, throwException);
 
         //Cannot use LoadingLimitsUtil.copyOperationalLimits(copiedBranch, branch) since the copiedBranch and the branch we copy to do not exist at the same time
         //And we need to delete the previous branch to create the two new branches otherwise the nodes will not be available

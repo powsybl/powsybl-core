@@ -150,7 +150,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
     }
 
-    protected void createConnectablePositionExtensionForNewLine(Line line, TwoSides twoSides, Integer positionForNewLine, ReportNode reportNode) {
+    protected void createConnectablePositionExtensionForNewLine(Line line, TwoSides twoSides, Integer positionForNewLine, ReportNode reportNode, boolean throwException) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (positionForNewLine == null) {
             return;
@@ -164,8 +164,18 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
             positionNoSlotLeftByAdjacentBbsReport(reportNode, bbsOrBusId, TypedValue.WARN_SEVERITY);
             return;
         }
+        Range<Integer> range = rangeOpt.get();
+        if (positionForNewLine < range.getMinimum()) {
+            positionOrderTooLowReport(reportNode, range.getMinimum(), positionForNewLine, TypedValue.WARN_SEVERITY);
+            return;
+        }
+        if (positionForNewLine > range.getMaximum()) {
+            positionOrderTooHighReport(reportNode, range.getMaximum(), positionForNewLine, TypedValue.WARN_SEVERITY);
+            return;
+        }
         if (positionForNewLine < 0) {
-            positionOrderTooLowReport(reportNode, 0, positionForNewLine, TypedValue.WARN_SEVERITY);
+            unexpectedNegativePositionOrder(reportNode, positionForNewLine, voltageLevel.getId());
+            logOrThrow(throwException, "Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionForNewLine);
             return;
         }
         if (TopologyModificationUtils.getFeederPositions(voltageLevel).contains(positionForNewLine)) {

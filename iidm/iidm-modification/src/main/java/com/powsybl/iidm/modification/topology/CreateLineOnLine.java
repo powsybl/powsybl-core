@@ -67,7 +67,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
-     * @param positionForNewLine       The order position for the new line connection if createPositionExtensionForNewLine is set to true, or null.
+     * @param positionForNewLine       The order position for the new line connection if the ConnectablePosition should be created, or null.
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
@@ -241,7 +241,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         Line newLine = lineAdder.add();
 
         // create line position for the new line on the side two which is connected to the existing voltage level
-        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, reportNode);
+        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, reportNode, throwException);
 
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);

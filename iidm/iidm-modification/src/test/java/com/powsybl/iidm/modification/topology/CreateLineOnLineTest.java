@@ -39,7 +39,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .build();
     }
 
-    private NetworkModification createModification(Network network, Integer positionForNewLine, boolean createExtensionPosition) {
+    private NetworkModification createModification(Network network, Integer positionForNewLine) {
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         return new CreateLineOnLineBuilder()
@@ -56,7 +56,6 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withLine1Name("FICT1LName")
                 .withLine2Id("FICT2L")
                 .withLine2Name("FICT2LName")
-                .withCreatePositionExtensionForNewLine(createExtensionPosition)
                 .withPositionForNewLine(positionForNewLine)
                 .build();
     }
@@ -329,7 +328,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withBusbarIndex(1)
                 .withSectionIndex(1)
                 .add();
-        NetworkModification modification = createModification(network, 5, true);
+        NetworkModification modification = createModification(network, 5);
         modification.apply(network);
         Line lineTest = network.getLine("testLine");
         assertNotNull(lineTest);
@@ -363,7 +362,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .withBusbarIndex(1)
                 .withSectionIndex(1)
                 .add();
-        NetworkModification modification = createModification(network, 2, true);
+        NetworkModification modification = createModification(network, 2);
         ReportNode reportNode = createReportNode();
         modification.apply(network, reportNode);
         testReportNode(reportNode, "/reportNode/create-line-on-line-with-position-already-taken.txt");
