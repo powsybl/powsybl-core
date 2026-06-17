@@ -13,14 +13,10 @@
     },
     "shortCircuitPower" : 0.1,
     "timeConstant" : "PT1S",
-    "feederResult" : [ {
-      "connectableId" : "connectableId",
-      "currentMagnitude" : 1.0,
-      "side" : "ONE"
-    } ],
     "currentMagnitude" : 1.0,
     "limitViolations" : [ {
       "subjectId" : "id",
+      "operationalLimitsGroupId" : "activated_limits_group",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
       "limit" : 2000.0,
       "limitReduction" : 1.0,
