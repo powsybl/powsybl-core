@@ -31,7 +31,7 @@ public class LineCouplingsSerDe extends AbstractVersionableNetworkExtensionSerDe
 
     public enum Version implements SerDeVersion<Version> {
         V_1_0("/xsd/lineCouplings_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/line_couplings/1_0",
-                new VersionNumbers(1, 0), IidmVersion.V_1_13, null);
+                new VersionNumbers(1, 0), IidmVersion.V_1_17, null);
 
         private final VersionInfo versionInfo;
 

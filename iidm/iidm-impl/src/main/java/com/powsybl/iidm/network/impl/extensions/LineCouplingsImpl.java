@@ -22,7 +22,7 @@ import java.util.*;
  */
 public class LineCouplingsImpl extends AbstractExtension<Network> implements LineCouplings {
 
-    private final List<MutualCoupling> mutualCouplings = new ArrayList<>();
+    private final LinkedList<MutualCoupling> mutualCouplings = new LinkedList<>();
 
     @Override
     public List<MutualCoupling> getMutualCouplings() {

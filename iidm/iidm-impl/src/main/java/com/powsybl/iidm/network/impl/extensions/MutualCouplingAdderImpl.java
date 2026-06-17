@@ -29,8 +29,8 @@ public class MutualCouplingAdderImpl implements MutualCouplingAdder {
     private double r;
     private double x;
 
-    private LineSegment line1Segment = new LineSegment(0, 1);
-    private LineSegment line2Segment = new LineSegment(0, 1);
+    private LineSegment line1Segment = LineSegment.FULL_LINE;
+    private LineSegment line2Segment = LineSegment.FULL_LINE;
 
     MutualCouplingAdderImpl(LineCouplings mutualCouplings) {
         this.mutualCouplings = Objects.requireNonNull(mutualCouplings);
@@ -86,6 +86,12 @@ public class MutualCouplingAdderImpl implements MutualCouplingAdder {
         }
         if (line1.equals(line2)) {
             throw new PowsyblException("Lines must be different.");
+        }
+        if (Double.isNaN(r)) {
+            throw new PowsyblException("r must be defined.");
+        }
+        if (Double.isNaN(x)) {
+            throw new PowsyblException("x must be defined.");
         }
     }
 }

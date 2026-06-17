@@ -49,8 +49,8 @@ class LineCouplingsXmlTest extends AbstractIidmSerDeTest {
         assertEquals(0.5, mutualCoupling.getR());
         assertEquals(1, mutualCoupling.getX());
 
-        assertEquals(new LineSegment(0, 1), mutualCoupling.getLine1Segment());
-        assertEquals(new LineSegment(0, 1), mutualCoupling.getLine2Segment());
+        assertEquals(LineSegment.FULL_LINE, mutualCoupling.getLine1Segment());
+        assertEquals(LineSegment.FULL_LINE, mutualCoupling.getLine2Segment());
     }
 
     @Test

@@ -46,8 +46,8 @@ public abstract class AbstractLineCouplingsTest {
         assertEquals("NHV1_NHV2_2", mutualCoupling.getLine2().getId());
         assertEquals(0.5, mutualCoupling.getR());
         assertEquals(1.0, mutualCoupling.getX());
-        assertEquals(new LineSegment(0, 1), mutualCoupling.getLine1Segment());
-        assertEquals(new LineSegment(0, 1), mutualCoupling.getLine2Segment());
+        assertEquals(LineSegment.FULL_LINE, mutualCoupling.getLine1Segment());
+        assertEquals(LineSegment.FULL_LINE, mutualCoupling.getLine2Segment());
     }
 
     @Test
@@ -199,8 +199,8 @@ public abstract class AbstractLineCouplingsTest {
 
         assertEquals(0.1, mc.getR());
         assertEquals(0.2, mc.getX());
-        assertEquals(new LineSegment(0, 1), mc.getLine1Segment());
-        assertEquals(new LineSegment(0, 1), mc.getLine2Segment());
+        assertEquals(LineSegment.FULL_LINE, mc.getLine1Segment());
+        assertEquals(LineSegment.FULL_LINE, mc.getLine2Segment());
 
         mc.setR(0.5);
         mc.setX(1.2);
@@ -220,5 +220,23 @@ public abstract class AbstractLineCouplingsTest {
 
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> new LineSegment(-0.5, 1.1));
         assertEquals("Invalid line segment: start: -0.5, end: 1.1.", exception2.getMessage());
+    }
+
+    @Test
+    void testInvalidRAndX() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Line l1 = network.getLine("NHV1_NHV2_1");
+        Line l2 = network.getLine("NHV1_NHV2_2");
+        network.newExtension(LineCouplingsAdder.class).add();
+        LineCouplings lc = network.getExtension(LineCouplings.class);
+        // R is NaN
+        MutualCouplingAdder mutualCouplingAdder = lc.newMutualCoupling().withLine1(l1).withLine2(l2).withR(Double.NaN).withX(0.1);
+        PowsyblException exception = assertThrows(PowsyblException.class, mutualCouplingAdder::add);
+        assertEquals("r must be defined.", exception.getMessage());
+
+        // X is NaN
+        mutualCouplingAdder = lc.newMutualCoupling().withLine1(l1).withLine2(l2).withR(0.1).withX(Double.NaN);
+        exception = assertThrows(PowsyblException.class, mutualCouplingAdder::add);
+        assertEquals("x must be defined.", exception.getMessage());
     }
 }
