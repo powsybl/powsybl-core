@@ -127,6 +127,7 @@ public abstract class AbstractFortescueExtensionTest {
         fortescue.setRz(0.11d);
         fortescue.setXz(2.03d);
         fortescue.setFreeFluxes(false);
+        fortescue.setXm(0.5d);
         fortescue.setConnectionType1(WindingConnectionType.Y);
         fortescue.setConnectionType2(WindingConnectionType.Y_GROUNDED);
         fortescue.setGroundingR1(0.03d);
@@ -137,6 +138,7 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(0.11d, fortescue.getRz());
         assertEquals(2.03d, fortescue.getXz());
         assertFalse(fortescue.isFreeFluxes());
+        assertEquals(0.5d, fortescue.getXm());
         assertSame(WindingConnectionType.Y, fortescue.getConnectionType1());
         assertSame(WindingConnectionType.Y_GROUNDED, fortescue.getConnectionType2());
         assertEquals(0.03d, fortescue.getGroundingR1());
