@@ -179,7 +179,20 @@ This extension enables to replace the operational limits of a DC line in AC emul
 (generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
 
-<span style="color: red">TODO</span>
+This extension enables to store the entso-e category code of a given generator, which represents a combination of fuel and type.
+For instance category 26 is for hydro run-of-river generating units. It is mainly used in TYNDP works.
+This extension is attached to a [generator](network_subnetwork.md#generator).
+
+| Attribute | Type | Unit | Required | Default value | Description          |
+|-----------|------|------|----------|---------------|----------------------|
+| code      | int  | -    | yes      | -             | The entso-e category |
+
+Here is how to add a generator entsoe-e category extension to a generator:
+```java
+generator.newExtension(GeneratorEntsoeCategoryAdder.class)
+    .withCode(4)
+    .add();
+```
 
 (generator-startup)=
 ## Generator startup
@@ -299,14 +312,57 @@ This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 ## Line Fortescue
 
 This extension models the homopolar line data to be used for asymmetrical short-circuit calculations.
+Side 1 and side 2 correspond respectively to terminal1 and terminal2 of the line.
 
-| Attribute  | Type    | Unit | Required | Default value | Description                                  |
-|------------|---------|------|----------|---------------|----------------------------------------------|
-| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line     |
-| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line      |
-| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open |
-| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open |
-| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open |
+| Attribute  | Type    | Unit | Required | Default value | Description                                         |
+|------------|---------|------|----------|---------------|-----------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line            |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line             |
+| g1z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 1 |
+| b1z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 1 |
+| g2z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 2 |
+| b2z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 2 |
+| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open        |
+| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open        |
+| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open        |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(line-couplings-extension)=
+## Line Couplings
+
+This extension models the mutual coupling between two lines. It is attached to the `Network` object and contains a list of mutual couplings.
+
+The attributes of a `MutualCoupling` are:
+
+| Attribute    | Type        | Unit | Required | Default value | Description                                                   |
+|--------------|-------------|------|----------|---------------|---------------------------------------------------------------|
+| line1        | Line        | -    | yes      | -             | The first coupled line                                        |
+| line2        | Line        | -    | yes      | -             | The second coupled line                                       |
+| r            | double      | Ω    | yes      | -             | The mutual coupling resistance                                |
+| x            | double      | Ω    | yes      | -             | The mutual coupling reactance                                 |
+| line1Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the first line (0 to 1)  |
+| line2Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the second line (0 to 1) |
+
+The position of the mutual coupling is expressed as a ratio between 0 and 1, through a `LineSegment` object.
+A `LineSegment` has a start and an end position, with the constraint that: 0 ≤ start ≤ end ≤ 1
+Mutual coupling is symmetric: a coupling between line1 and line2 is equivalent to a coupling between line2 and line1.
+Mutual couplings are considered symmetric. Therefore, the extension cannot contain both (line1, line2) and (line2, line1).
+
+Example of code to add a mutual coupling:
+
+```java
+Line line1 = network.getLine("L1");
+Line line2 = network.getLine("L2");
+network.newExtension(LineCouplingsAdder.class).add();
+network.getExtension(LineCouplings.class)
+    .newMutualCoupling()
+    .withLine1(line1)
+    .withLine2(line2)
+    .withR(0.1)
+    .withX(0.4)
+    .add();
+```
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
@@ -319,7 +375,8 @@ This extension models the homopolar two-winding transformer data to be used for 
 |-----------------|-----------------------|------|----------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | rz              | double                | Ω    | no       | -                                | The zero-sequence resistance of the two-winding transformer                                            |
 | xz              | double                | Ω    | no       | -                                | The zero-sequence reactance of the two-winding transformer                                             |
-| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               | 
+| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               |
+| xm              | double                | Ω    | no       | Double.NaN                       | If the fluxes are not free, the magnetizing impedance of the two-winding transformer                   |
 | connectionType1 | WindingConnectionType | -    | no       | WindingConnectionType.DELTA      | The connection type of the winding 1                                                                   | 
 | connectionType2 | WindingConnectionType | -    | no       | WindingConnectionType.Y_GROUNDED | The connection type of the winding 2                                                                   | 
 | groundingR1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the resistance part of the impedance to the ground | 
@@ -378,6 +435,33 @@ This extension contains the sub-object `ObservabilityQuality`.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(observability-area-extension)=
+## Observability Area
+
+This extension represents the observability status of some sub-elements in a voltage level. An observability status
+could be defined by bus, by a set of buses or by a set of nodes. It is defined after a state estimation computation.
+
+It has several getters to retrieve the observability status of the sub-elements. This status is defined by an object
+called **AreaCharacteristics**. You can access to **AreaCharacteristics** by terminal, by bus ID (in bus-breaker or bus view) or by node number (in node-breaker view).
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+### Object AreaCharacteristics
+
+| Attribute             | Type                | Unit | Required | Default value | Description                                                  |
+|-----------------------|---------------------|------|----------|---------------|--------------------------------------------------------------|
+| status                | ObservabilityStatus | -    | yes      | -             | Observability status (OBSERVABLE, NON_OBSERVABLE, BORDER)    |
+| areaNumber            | int                 | -    | yes      | -             | Associated number representing this area                     |
+| terminals             | Set<Terminal>       | -    | yes      | -             | Associated terminals in the area                             |
+| nodeBreakerData.nodes | Set<Integer>        | -    | no       | -             | Associated nodes in the area (for node-breaker view)         |
+| busBreakerData.busIds | Set<String>         | -    | no       | -             | Associated buses in the area (for bus-breaker and bus views) |
+
+### Usage warnings
+
+As it associates an observability status with a topological element (a bus or a node), it deeply relies on the topology during the state estimation computation. Therefore, any topological change could lead to either outdated results (wrong status) or hanging areas (defined on nodes that don't exist in the voltage level).
+
+To mitigate issues related to the second point, a helper method (ObservabilityArea.isConsistentWithTopology()) is defined to check if all the elements that define observability areas are still present in the network. But nothing prevents the user from using outdated observability statuses due to topological changes. So, it's their responsibility to invalidate observability areas when it is necessary.
+
 (line-position-extension)=
 ## Line Position
 
@@ -415,11 +499,9 @@ A balanced load is described by its active power setpoint $P0$ and its reactive 
 This extension is used to describe the power asymmetry for each ABC phase. In the three-phase representation, the complex power injected at a bus $i$ is constant for each phase and represented by three complex values:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=S_{A}=P_{A}+j.Q_{A} \\
 S_{Bi_{Load}}=S_{B}=P_{B}+j.Q_{B} \\
 S_{Ci_{Load}}=S_{C}=P_{C}+j.Q_{C} \\
-\end{align}
 $$
 
 But for a balanced load flow, the constant power load $P$ and $Q$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three-phase representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
@@ -439,31 +521,25 @@ $$ 0 = -S_{1i_{Load}} +\sum_{j=\delta(i)}^{} S_{1ij} $$
 We must take into account that many loads are still balanced and information related to balanced loads is sufficient. The extension proposes a delta approach where unbalances are expressed in the extension. Supposing that:
 
 $$
-\begin{align}
 \Delta P_{Ai_{Load}}, \Delta Q_{Ai_{Load}},
 \Delta P_{Bi_{Load}}, \Delta Q_{Bi_{Load}},
 \Delta P_{Ci_{Load}}, \Delta Q_{Ci_{Load}}
-\end{align}
 $$
 
 are provided in input through the extension. The three-phase power values used as inputs of an unbalanced load flow calculation are:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=(P_{Load}+\Delta P_{Ai_{Load}})+j.(Q_{Load}+\Delta Q_{Ai_{Load}}) \\
 S_{Bi_{Load}}=(P_{Load}+\Delta P_{Bi_{Load}})+j.(Q_{Load}+\Delta Q_{Bi_{Load}}) \\
 S_{Ci_{Load}}=(P_{Load}+\Delta P_{Ci_{Load}})+j.(Q_{Load}+\Delta Q_{Ci_{Load}}) \\
-\end{align}
 $$
 
 As a consequence, if no extension provided for the load, the unbalanced load flow will use in input:
 
 $$
-\begin{align}
 S_{Ai_{Load}}=P_{Load}+j.Q_{Load} \\
 S_{Bi_{Load}}=P_{Load}+j.Q_{Load} \\
 S_{Ci_{Load}}=P_{Load}+j.Q_{Load} \\
-\end{align}
 $$
 
 | Attribute | Type   | Unit | Required | Default value | Description                                                                                                                                                                      |
@@ -539,7 +615,7 @@ The Measurement class characteristics are the following:
 ## Operating status
 
 This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
-three-winding transformers, HVDC line and a dangling line. The status could be:
+three-winding transformers, HVDC line and a boundary line. The status could be:
 - `IN_OPERATION`: equipment in service.
 - `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
 - `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.

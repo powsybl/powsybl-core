@@ -7,14 +7,14 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_NORMAL_OPEN;
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -123,8 +123,8 @@ class SwitchUpdateTest {
 
     private static void assertEq(Switch sw) {
         assertNotNull(sw);
-        assertNotNull(sw.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS));
-        assertNotNull(sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.NORMAL_OPEN));
+        assertNotNull(sw.getProperty(PROPERTY_CGMES_ORIGINAL_CLASS));
+        assertNotNull(sw.getProperty(PROPERTY_NORMAL_OPEN));
     }
 
     private static void assertSsh(Switch sw, boolean isOpen) {

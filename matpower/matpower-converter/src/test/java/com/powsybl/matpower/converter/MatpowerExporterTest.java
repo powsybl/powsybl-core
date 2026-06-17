@@ -21,7 +21,7 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -39,6 +39,8 @@ import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
 import java.util.Locale;
 import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -240,9 +242,9 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testDanglingLineWithGeneration() throws IOException {
-        var network = DanglingLineNetworkFactory.createWithGeneration();
-        exportToMatAndCompareTo(network, "/dangling-line-generation.json");
+    void testBoundaryLineWithGeneration() throws IOException {
+        var network = BoundaryLineNetworkFactory.createWithGeneration();
+        exportToMatAndCompareTo(network, "/boundary-line-generation.json");
     }
 
     @Test
@@ -356,5 +358,72 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         network.newHvdcLine().setId("HVDCLINE-12-31").setConverterStationId1("VSC-12").setConverterStationId2("VSC-31").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
 
         return network;
+    }
+
+    @Test
+    void testStatus() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // add new disconnected equipment
+        VoltageLevel vlGen = network.getVoltageLevel("VLGEN");
+        assertNotNull(vlGen);
+
+        vlGen.newGenerator()
+                .setId("DisconnectedGen1")
+                .setConnectableBus("NGEN")
+                .setMaxP(250.0)
+                .setMinP(0.0)
+                .setTargetP(20.0)
+                .setTargetQ(0.0)
+                .setTargetV(vlGen.getNominalV())
+                .setVoltageRegulatorOn(true)
+                .add();
+        vlGen.newGenerator()
+                .setId("DisconnectedGen2")
+                .setConnectableBus("NGEN")
+                .setMaxP(200.0)
+                .setMinP(0.0)
+                .setTargetP(30.0)
+                .setTargetQ(0.0)
+                .setTargetV(vlGen.getNominalV())
+                .setVoltageRegulatorOn(false)
+                .add();
+
+        network.newLine().setId("DisconnectedLine").setR(0.0).setX(1.0).setConnectableBus1("NHV1").setBus2("NHV2").add();
+
+        VoltageLevel vlHv1 = network.getVoltageLevel("VLHV1");
+        assertNotNull(vlHv1);
+
+        vlHv1.getSubstation().orElseThrow().newTwoWindingsTransformer()
+                .setId("DisconnectedTwoWindingsTransformer")
+                .setR(0.0).setX(1.0)
+                .setRatedU1(vlHv1.getNominalV())
+                .setRatedU2(vlGen.getNominalV())
+                .setConnectableBus1("NHV1")
+                .setConnectableBus2("NGEN")
+                .add();
+        vlHv1.getSubstation().orElseThrow().newThreeWindingsTransformer()
+                .setId("DisconnectedThreeWindingsTransformer")
+                .setRatedU0(vlHv1.getNominalV())
+                .newLeg1()
+                .setR(0.0).setX(1.0)
+                .setRatedU(vlHv1.getNominalV())
+                .setBus("NHV1")
+                .add()
+                .newLeg2()
+                .setR(0.0).setX(2.0)
+                .setRatedU(vlGen.getNominalV())
+                .setConnectableBus("NGEN")
+                .add()
+                .newLeg3()
+                .setR(0.0).setX(2.0)
+                .setRatedU(vlGen.getNominalV())
+                .setConnectableBus("NGEN")
+                .add()
+                .add();
+
+        Properties parameters = new Properties();
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
+        exportToMatAndCompareTo(network, "/sim1-with-disconnected-equipment.json");
     }
 }

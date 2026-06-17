@@ -7,15 +7,13 @@
  */
 package com.powsybl.security.limitreduction;
 
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.AbstractLimitsComputerWithCache;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.limitreduction.computation.SimpleLimitsReducer;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -33,8 +31,12 @@ public class SimpleLimitsComputer extends AbstractLimitsComputerWithCache<Identi
     }
 
     @Override
-    protected Optional<LimitsContainer<LoadingLimits>> computeUncachedLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
-        Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
-        return limits.map(limits1 -> new SimpleLimitsReducer(limits1, limitReduction).getLimits());
+    protected Collection<LimitsContainer<LoadingLimits>> computeUncachedLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+        Collection<OperationalLimitsGroup> groups = LimitViolationUtils.getAllSelectedLimitsGroups(identifiable, side);
+        return groups.stream()
+                .map(group -> group.getLoadingLimits(limitType)
+                        .map(limits -> new SimpleLimitsReducer(limits, group.getId(), limitReduction).getLimits()))
+                .<LimitsContainer<LoadingLimits>>mapMulti(Optional::ifPresent)
+                .toList();
     }
 }

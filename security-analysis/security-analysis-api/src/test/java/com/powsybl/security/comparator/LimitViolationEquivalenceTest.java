@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 /**
  *
@@ -26,30 +26,158 @@ class LimitViolationEquivalenceTest {
     void equivalent() {
         LimitViolationEquivalence violationEquivalence = new LimitViolationEquivalence(0.1);
 
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        LimitViolation violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
 
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        LimitViolation violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
+
         assertTrue(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, TwoSides.ONE);
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.09)
+            .side(TwoSides.ONE)
+            .build();
         assertTrue(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1101.0, TwoSides.ONE);
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1101)
+            .side(TwoSides.ONE)
+            .build();
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.TWO);
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.TWO)
+            .build();
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.ACTIVE_POWER)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.TWO);
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.APPARENT_POWER)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.TWO)
+            .build();
+        assertFalse(violationEquivalence.equivalent(violation1, violation2));
+
+        violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId("group_1")
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
+
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId("group_1")
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
+        assertTrue(violationEquivalence.equivalent(violation1, violation2));
+
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId("group_1")
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.09)
+            .side(TwoSides.ONE)
+            .build();
+        assertTrue(violationEquivalence.equivalent(violation1, violation2));
+
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId("group_2")
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
+        assertFalse(violationEquivalence.equivalent(violation1, violation2));
+
+        violation1 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId(null)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.09)
+            .side(TwoSides.ONE)
+            .build();
+
+        violation2 = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .operationalLimitsGroupId("group_1")
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.09)
+            .side(TwoSides.ONE)
+            .build();
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
     }
 

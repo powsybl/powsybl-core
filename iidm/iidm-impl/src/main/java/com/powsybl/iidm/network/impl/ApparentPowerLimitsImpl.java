@@ -16,12 +16,23 @@ import java.util.TreeMap;
  */
 class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsImpl> implements ApparentPowerLimits {
 
+    /**
+     * Create an {@link ApparentPowerLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#HIGH}.
+     */
     ApparentPowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         super(group, permanentLimit, temporaryLimits);
+    }
+
+    /**
+     * Create an {@link ApparentPowerLimits} with no permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}.
+     */
+    ApparentPowerLimitsImpl(OperationalLimitsGroupImpl group, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, temporaryLimits);
     }
 
     @Override
     public void remove() {
         group.removeApparentPowerLimits();
     }
+
 }

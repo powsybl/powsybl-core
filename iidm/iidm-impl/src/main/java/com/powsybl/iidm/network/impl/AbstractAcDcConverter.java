@@ -149,6 +149,24 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
     }
 
     @Override
+    public boolean connectDc() {
+        return ConnectDisconnectUtil.connectAllDcTerminals(
+            this,
+            getDcTerminals(),
+            getNetwork().getReportNodeContext().getReportNode()
+        );
+    }
+
+    @Override
+    public boolean disconnectDc() {
+        return ConnectDisconnectUtil.disconnectAllDcTerminals(
+            this,
+            getDcTerminals(),
+            getNetwork().getReportNodeContext().getReportNode()
+        );
+    }
+
+    @Override
     public double getIdleLoss() {
         ValidationUtil.checkAccessOfRemovedEquipment(this.id, this.removed, IDLE_LOSS);
         return this.idleLoss;
@@ -219,7 +237,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, CONTROL_MODE);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, controlMode, getTargetP(), getTargetVdc(),
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = pccRegulatingPoint.setRegulationMode(variantIndex, controlMode.ordinal());
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -239,7 +257,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_P);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, getControlMode(), targetP, getTargetVdc(),
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetP.set(variantIndex, targetP);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -259,7 +277,7 @@ abstract class AbstractAcDcConverter<I extends AcDcConverter<I>> extends Abstrac
         ValidationUtil.checkModifyOfRemovedEquipment(this.id, this.removed, TARGET_VDC);
         NetworkImpl n = getNetwork();
         ValidationUtil.checkAcDcConverterControl(this, getControlMode(), getTargetP(), targetVdc,
-                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+            n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.targetVdc.set(variantIndex, targetVdc);
         String variantId = n.getVariantManager().getVariantId(variantIndex);

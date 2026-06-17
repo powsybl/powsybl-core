@@ -19,7 +19,7 @@ import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
-import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithDanglingLine;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithBoundaryLine;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +39,7 @@ class ScalableTest {
     private Scalable s;
     private Scalable unknownGenerator;
     private Scalable unknownLoad;
-    private Scalable unknownDanglingLine;
+    private Scalable unknownBoundaryLine;
     private Scalable dl1;
 
     private ScalingConvention convention;
@@ -58,8 +58,8 @@ class ScalableTest {
         l2 = Scalable.onLoad("l1", 20, 80);
         l3 = Scalable.onLoad("l1", -50, 100);
         unknownLoad = Scalable.onLoad("unknown");
-        unknownDanglingLine = Scalable.onDanglingLine("unknown");
-        dl1 = Scalable.onDanglingLine("dl1", 20, 80);
+        unknownBoundaryLine = Scalable.onBoundaryLine("unknown");
+        dl1 = Scalable.onBoundaryLine("dl1", 20, 80);
 
         reset();
     }
@@ -67,7 +67,7 @@ class ScalableTest {
     private void reset() {
 
         Scalable.stack(g1, g2, g3).reset(network);
-        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownDanglingLine, dl1).reset(network);
+        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownBoundaryLine, dl1).reset(network);
         l3.reset(network);
     }
 
@@ -330,7 +330,7 @@ class ScalableTest {
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 0.0);
 
-        scalable = Scalable.stack(s, unknownGenerator, unknownLoad, unknownDanglingLine);
+        scalable = Scalable.stack(s, unknownGenerator, unknownLoad, unknownBoundaryLine);
         done = scalable.scale(network, 150.0);
         assertEquals(0.0, done, 0.0);
 
@@ -375,7 +375,7 @@ class ScalableTest {
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 0.0);
 
-        scalable = Scalable.stack(s, unknownGenerator, unknownLoad, unknownDanglingLine);
+        scalable = Scalable.stack(s, unknownGenerator, unknownLoad, unknownBoundaryLine);
         done = scalable.scale(network, -150.0, parameters);
         assertEquals(0.0, done, 0.0);
 
@@ -589,11 +589,11 @@ class ScalableTest {
         done = loadAdapter.scale(network, 50.0);
         assertEquals(50.0, done, 0.0);
 
-        Network network2 = createNetworkWithDanglingLine();
+        Network network2 = createNetworkWithBoundaryLine();
         Scalable boundaryLineAdapter = Scalable.scalable("dl2", 0, 100);
         assertEquals(-100.0, boundaryLineAdapter.minimumValue(network2), 0.0);
         assertEquals(0.0, boundaryLineAdapter.maximumValue(network2), 0.0);
-        network2.getDanglingLine("dl2").setP0(50);
+        network2.getBoundaryLine("dl2").setP0(50);
 
         done = boundaryLineAdapter.scale(network2, 50.0);
         assertEquals(50.0, done, 0.0);

@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.measurements;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -19,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.getOperationalLimitPropertyName;
 import static com.powsybl.iidm.network.extensions.Measurement.Type.*;
 
 /**
@@ -65,7 +65,7 @@ public final class CgmesAnalogPostProcessor {
                 LOG.warn("Ignored {} {}: associated voltage level {} not found", measurementType, id, voltageLevelId);
                 return;
             }
-            voltageLevel.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Analog_" + measurementType, id);
+            voltageLevel.setProperty(getOperationalLimitPropertyName(measurementType), id);
         } else {
             LOG.warn("Ignored {} {}: attached power system resource {} not found", measurementType, id, powerSystemResourceId);
         }
@@ -96,7 +96,7 @@ public final class CgmesAnalogPostProcessor {
             Measurement measurement = adder.add();
             measurement.putProperty("cgmesType", measurementType);
         } else {
-            identifiable.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Analog_" + measurementType, id);
+            identifiable.setProperty(getOperationalLimitPropertyName(measurementType), id);
         }
         // TODO get value of measurement
     }

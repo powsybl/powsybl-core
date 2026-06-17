@@ -132,8 +132,8 @@ abstract class AbstractComponentsManager<C extends Component> {
                 addToAdjacencyList(bus1, bus2, busId2num, adjacencyList);
             }
             for (TieLine tl : getNetwork().getTieLines()) {
-                Bus bus1 = tl.getDanglingLine1().getTerminal().getBusView().getBus();
-                Bus bus2 = tl.getDanglingLine2().getTerminal().getBusView().getBus();
+                Bus bus1 = tl.getBoundaryLine1().getTerminal().getBusView().getBus();
+                Bus bus2 = tl.getBoundaryLine2().getTerminal().getBusView().getBus();
                 addToAdjacencyList(bus1, bus2, busId2num, adjacencyList);
             }
             for (TwoWindingsTransformer transfo : getNetwork().getTwoWindingsTransformers()) {
@@ -167,6 +167,15 @@ abstract class AbstractComponentsManager<C extends Component> {
                 DcBus dcBus1 = acDcConverter.getDcTerminal1().getDcBus();
                 DcBus dcBus2 = acDcConverter.getDcTerminal2().getDcBus();
                 addToAdjacencyList(dcBus1, dcBus2, busId2num, adjacencyList);
+            }
+            for (DcSwitch dcSwitch : getNetwork().getDcSwitches()) {
+                if (!dcSwitch.isOpen()) {
+                    DcBus dcBus1 = dcSwitch.getDcNode1().getDcBus();
+                    DcBus dcBus2 = dcSwitch.getDcNode2().getDcBus();
+                    if (dcBus1 != dcBus2) {
+                        addToAdjacencyList(dcBus1, dcBus2, busId2num, adjacencyList);
+                    }
+                }
             }
         }
     }

@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
@@ -20,8 +21,11 @@ import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.serde.extensions.util.DefaultExtensionsSupplier;
+import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -31,10 +35,15 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.Objects;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -56,8 +65,154 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
+    @Test
+    void roundTripTestMultipleSelectedOperationalLimitsGroup() throws IOException {
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(), "eurostag-tutorial-multiple-selected-op-lim-group.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility : in versions older than IIDM 1.16 we only export the last selected limits group
+        // no need to test before 1.12 as OperationalLimitsGroup did not exist before
+        allFormatsRoundTripFromVersionedXmlFromMinToMaxVersionTest("eurostag-tutorial-multiple-selected-op-lim-group.xml", IidmVersion.V_1_12, IidmVersion.V_1_16);
+    }
+
+    @Test
+    void roundTripTestOperationalLimitsGroupSpecialCharacterName() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        String name = "notANiceName\"";
+        String name2 = "anotherName,,,";
+        line.newOperationalLimitsGroup1(name);
+        line.newOperationalLimitsGroup1(name2);
+        line.addSelectedOperationalLimitsGroups(TwoSides.ONE, name, name2);
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-multiple-selected-op-lim-group_special_character_name.xml", CURRENT_IIDM_VERSION);
+        assertEquals(6, networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getOperationalLimitsGroups1().size());
+        assertEquals(line.getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIdsOrdered(TwoSides.ONE));
+    }
+
+    @Test
+    void writeMultipleSelectedOperationalLimitsGroupToOlderFormat() throws IOException {
+        testWriteVersionedXmlBetweenVersions(
+            EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits(),
+            new ExportOptions(),
+            "eurostag-tutorial-multiple-selected-op-lim-group.xml",
+            IidmVersion.V_1_12,
+            IidmVersion.V_1_15
+        );
+    }
+
+    @Test
+    void roundTripTestExportOnlyActiveGroups() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        TwoWindingsTransformer twt = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
+        twt.newOperationalLimitsGroup2(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).newApparentPowerLimits().setPermanentLimit(150).add();
+        twt.newOperationalLimitsGroup2("not activated");
+        twt.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
+        n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        //network with some inactive groups, export only active
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
+    }
+
+    @Test
+    void roundTripTestExportOnlyActiveGroupsThreeWindingTransformer() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWith3wTransformer();
+        n.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        ThreeWindingsTransformer twt = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
+        twt.getLeg1().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE).newCurrentLimits()
+            .setPermanentLimit(100)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(40 * 60)
+            .setValue(500)
+            .endTemporaryLimit()
+            .add();
+        twt.getLeg1().newOperationalLimitsGroup("not activated").newActivePowerLimits().setPermanentLimit(10).add();
+        twt.getLeg1().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+
+        twt.getLeg2().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).newApparentPowerLimits().setPermanentLimit(75).add();
+        twt.getLeg2().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO).newApparentPowerLimits().setPermanentLimit(80).add();
+        twt.getLeg2().newOperationalLimitsGroup("not activated").newApparentPowerLimits().setPermanentLimit(100).add();
+        twt.getLeg2().newOperationalLimitsGroup("not activated 2").newApparentPowerLimits().setPermanentLimit(110).add();
+        twt.getLeg2().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO);
+
+        twt.getLeg3().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE).newActivePowerLimits()
+            .setPermanentLimit(150)
+            .beginTemporaryLimit()
+            .setName("30'")
+            .setAcceptableDuration(30 * 60)
+            .setValue(400)
+            .endTemporaryLimit()
+            .add();
+        twt.getLeg3().newOperationalLimitsGroup("not activated");
+        twt.getLeg3().newOperationalLimitsGroup("not activated 2");
+        twt.getLeg3().newOperationalLimitsGroup("not activated 3").newCurrentLimits().setPermanentLimit(500).add();
+        twt.getLeg3().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
+
+        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-three-winding.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+    }
+
+    @Test
+    void roundTripTestExportOnlyActiveGroupsBoundaryLine() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithTieLine();
+        BoundaryLine bl1 = n.getBoundaryLine(EurostagTutorialExample1Factory.BOUNDARY_LINE_XNODE1_1);
+        bl1.newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE).newCurrentLimits().setPermanentLimit(175).add();
+        bl1.newOperationalLimitsGroup("not activated").newActivePowerLimits().setPermanentLimit(145).add();
+        bl1.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+
+        BoundaryLine bl2 = n.getBoundaryLine(EurostagTutorialExample1Factory.BOUNDARY_LINE_XNODE1_2);
+        bl2.newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE).newApparentPowerLimits().setPermanentLimit(135).add();
+        bl2.newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO).newCurrentLimits().setPermanentLimit(500).add();
+        bl2.newOperationalLimitsGroup("not activated");
+        bl2.newOperationalLimitsGroup("not activated 2");
+        bl2.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO);
+
+        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-boundary-line.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+    }
+
+    @Test
+    void testImportOnlyActiveGroups() throws URISyntaxException {
+        ImportOptions importOptions = new ImportOptions().setOnlySelectedOperationalLimitsGroups(true);
+        //read only active groups
+        Network onlyActiveGroupsNetwork = NetworkSerDe.read(Paths.get(getClass().getResource(getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION)).toURI()), importOptions);
+        Line line1 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), TwoSides.ONE);
+        assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE), TwoSides.TWO);
+        Line line2 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
+        assertAllGroupsOneLineSelected(line2, List.of("DEFAULT"), TwoSides.ONE);
+        assertAllGroupsOneLineSelected(line2, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO), TwoSides.TWO);
+    }
+
+    private void assertAllGroupsOneLineSelected(Line line, List<String> expectedIds, TwoSides side) {
+        assertEquals(expectedIds, line.getAllSelectedOperationalLimitsGroupIdsOrdered(side));
+        int allGroupsSize = switch (side) {
+            case ONE -> line.getOperationalLimitsGroups1().size();
+            case TWO -> line.getOperationalLimitsGroups2().size();
+        };
+        assertEquals(0, allGroupsSize - line.getAllSelectedOperationalLimitsGroups(side).size());
+    }
+
+    @Test
+    void checkNoExportOfLowLimits() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
+            .newOperationalLimitsGroup1("low limits")
+            .newApparentPowerLimits()
+            .setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setValue(1000)
+            .setAcceptableDuration(60)
+            .setName("1'")
+            .endTemporaryLimit()
+            .add();
+        String referenceFilename = getVersionedNetworkPath("eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17);
+        assertThrows(NotImplementedException.class, () -> writeXmlTest(network,
+            (n, p) -> NetworkSerDe.write(n, new ExportOptions().setVersion(IidmVersion.V_1_17.toString(".")), p),
+            referenceFilename
+            ));
+        allFormatsRoundTripTest(network, "eurostag-tutorial-multiple-selected-op-lim-group-force_low_limit.xml", IidmVersion.V_1_17, new ExportOptions().setForceExportNetworkWithBetaFeatures(true));
+    }
+
     @ParameterizedTest
-    @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
+    @EnumSource(TreeDataFormat.class)
     void testSkippedExtension(TreeDataFormat format) throws IOException {
         Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
         Path file = tmpDir.resolve("data");
@@ -194,10 +349,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         }
     }
 
-    private static Network writeAndRead(Network network, ExportOptions options) throws IOException {
+    static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkSerDe.write(network, options, os);
-
             try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
                 return NetworkSerDe.read(is);
             }
@@ -296,7 +450,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         vl1.getBusBreakerView().newBus()
                 .setId(busId)
                 .add();
-        network.getVoltageLevel(voltageLevelId).newDanglingLine()
+        network.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(dlId)
                 .setName(dlId + "_name")
                 .setConnectableBus(busId)
@@ -387,5 +541,94 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
         assertEquals(2, merged.getSubnetworks().size());
         assertEquals(2, readNetwork.getSubnetworks().size());
+    }
+
+    @Test
+    void testValidateByVersionOnIidm102() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_2/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_2));
+        }
+    }
+
+    @Test
+    void testValidateByVersionOnIidm116() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMismatchedNetworkVersion() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_15))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.15, found namespace http://www.powsybl.org/schema/iidm/1_16");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInvalidNetwork() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntOldTagName.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Invalid content was found starting with element '{\"http://www.powsybl.org/schema/iidm/1_16\":shunt}'");
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainSlackTerminalExtension() throws IOException {
+        // test extension loading including slackTerminal which is in version 1.5 and require iidm version 1.8, when validate should succeed
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/europeanLvTestFeederRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenNetworkContainTerminalMockExtension() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/eurostag-tutorial-example1-with-terminalMock-ext.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenInSupportedEnumValue() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/gen_enum_not_supported.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_17))
+                    .isInstanceOf(com.powsybl.commons.exceptions.UncheckedSaxException.class)
+                    .hasMessageContaining("Value 'TEST' is not facet-valid with respect to enumeration " +
+                            "'[HYDRO, NUCLEAR, WIND, THERMAL, SOLAR, OTHER]'. It must be a value from the enumeration.");
+        }
+    }
+
+    @Test
+    void testValidateWithCustomExtensionSupplier() throws IOException {
+        ExtensionsSupplier customExtensionsSupplier = () -> DefaultExtensionsSupplier.getInstance().get();
+        assertNotSame(DefaultExtensionsSupplier.getInstance(), customExtensionsSupplier);
+
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16, customExtensionsSupplier));
+        }
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/V1_16/shuntRoundTripRef.xml"))) {
+            assertDoesNotThrow(() -> NetworkSerDe.validate(is, customExtensionsSupplier));
+        }
+    }
+
+    @Test
+    void testValidateByVersionWhenMissingNamespace() throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/network-without-namespace.xml"))) {
+            assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                    .isInstanceOf(PowsyblException.class)
+                    .hasMessageContaining("Namespace mismatch: expected validation version 1.16, found namespace  ");
+        }
+    }
+
+    @Test
+    void testValidateWhenParseMalformedXml() {
+        String xml = "<iidm:network";
+        byte[] bytes = xml.getBytes(StandardCharsets.UTF_8);
+        InputStream is = new ByteArrayInputStream(bytes);
+        assertThatThrownBy(() -> NetworkSerDe.validate(is, IidmVersion.V_1_16))
+                .isInstanceOf(UncheckedSaxException.class)
+                .hasMessageContaining("XML document structures must start and end within the same entity");
     }
 }

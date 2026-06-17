@@ -402,42 +402,42 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // PST with no regulation mode but regulating true => set to CURRENT_LIMITER mode
             network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "none");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "none");
 
             // PST local with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "10", "200", "M");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "10", "200", "M");
 
             // PST local with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "none");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "none");
 
             // PST remote with CURRENT_LIMITER
             network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "0", "0", "none");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "0", "0", "none");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "0", "0", "none");
 
             // PST remote with ACTIVE_POWER_CONTROL
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "true", "10", "200", "M");
             network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+            testTcTccWithAttribute(ssh, "_PS1_PTC_1_RC", "true", "false", "10", "200", "M");
         }
     }
 
@@ -460,68 +460,68 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // RTC local with VOLTAGE
             network = EurostagTutorialExample1Factory.create();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "158", "k");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "158", "k");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "158", "k");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "158", "k");
 
             // RTC local with REACTIVE_POWER
             network = EurostagTutorialExample1Factory.createWithReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "100", "M");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "100", "M");
 
             // RTC remote with VOLTAGE
             network = EurostagTutorialExample1Factory.createRemoteVoltageTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "158", "k");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "158", "k");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "158", "k");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "158", "k");
 
             // RTC remote with REACTIVE_POWER
             network = EurostagTutorialExample1Factory.createRemoteReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "true", "0", "100", "M");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_1_RC", "true", "false", "0", "100", "M");
 
             // 3w without control
             network = EurostagTutorialExample1Factory.createWith3wWithoutControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "", "", "", "", "");
+            testTcTccWithoutAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "", "", "", "", "");
 
             // 3w with local voltage control
             network = EurostagTutorialExample1Factory.createWith3wWithVoltageControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "158", "k");
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "true", "0", "158", "k");
 
             // 3w with local reactive control
             network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "true", "0", "100", "M");
             network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "false", "0", "100", "M");
 
             // 3w with remote voltage
             network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "158", "k");
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "true", "0", "158", "k");
             network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "158", "k");
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "false", "0", "158", "k");
 
             // 3w with remote reactive
             network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "true", "0", "100", "M");
             network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "100", "M");
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_1_RC", "true", "false", "0", "100", "M");
         }
     }
 
