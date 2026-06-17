@@ -21,7 +21,7 @@ import com.powsybl.commons.PowsyblException;
  */
 public record LineSegment(double start, double end) {
 
-    public static LineSegment FULL_LINE = new LineSegment(0, 1);
+    public static final LineSegment FULL_LINE = new LineSegment(0, 1);
 
     /**
      * Constructs a LineSegment using the specified start and end positions.

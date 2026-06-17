@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class LineCouplingsImpl extends AbstractExtension<Network> implements LineCouplings {
 
-    private final LinkedList<MutualCoupling> mutualCouplings = new LinkedList<>();
+    private final List<MutualCoupling> mutualCouplings = new LinkedList<>();
     private NetworkListener listener;
 
     @Override
