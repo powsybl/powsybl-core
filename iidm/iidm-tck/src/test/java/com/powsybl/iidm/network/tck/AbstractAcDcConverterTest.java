@@ -975,6 +975,7 @@ public abstract class AbstractAcDcConverterTest {
         network.addListener(minPListener);
         converter.setMinP(-100.0);
         assertTrue(minPListener.updated);
+        network.removeListener(minPListener);
 
         var maxPListener = new DefaultNetworkListener() {
             boolean updated = false;
@@ -992,6 +993,7 @@ public abstract class AbstractAcDcConverterTest {
         network.addListener(maxPListener);
         converter.setMaxP(2000.0);
         assertTrue(maxPListener.updated);
+        network.removeListener(minPListener);
     }
 
     // ---- minP / maxP test methods ----

@@ -113,7 +113,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">MW</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">no</td>
- *             <td style="border: 1px solid black"> -inf MW</td>
+ *             <td style="border: 1px solid black"> -Double.MAX_VALUE MW</td>
  *             <td style="border: 1px solid black">Minimum operating active power at point of common coupling, load sign convention</td>
  *         </tr>
  *         <tr>
@@ -121,7 +121,7 @@ import java.util.Optional;
  *             <td style="border: 1px solid black">MW</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">no</td>
- *             <td style="border: 1px solid black"> +inf MW</td>
+ *             <td style="border: 1px solid black"> +Double.MAX_VALUE MW</td>
  *             <td style="border: 1px solid black">Maximum operating active power at point of common coupling, load sign convention</td>
  *         </tr>
  *     </tbody>
@@ -190,28 +190,28 @@ public interface AcDcConverter<I extends AcDcConverter<I>> extends Connectable<I
 
     /**
      * Get the minimal active power in MW.
-     * Defaults to {@link Double#NEGATIVE_INFINITY} if not set.
+     * Defaults to -{@link Double#MAX_VALUE} if not set.
      */
     double getMinP();
 
     /**
      * Set the minimal active power in MW.
-     * <p><b>Note:</b> XML serialization is not yet supported for non-default values.
-     * Setting a value other than {@link Double#NEGATIVE_INFINITY} will cause
+     * <p><b>Note:</b> IIDM serialization is not yet supported for non-default values.
+     * Setting a value other than -{@link Double#MAX_VALUE} will cause
      * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
      */
     I setMinP(double minP);
 
     /**
      * Get the maximal active power in MW.
-     * Defaults to {@link Double#POSITIVE_INFINITY} if not set.
+     * Defaults to {@link Double#MAX_VALUE} if not set.
      */
     double getMaxP();
 
     /**
      * Set the maximal active power in MW.
-     * <p><b>Note:</b> XML serialization is not yet supported for non-default values.
-     * Setting a value other than {@link Double#POSITIVE_INFINITY} will cause
+     * <p><b>Note:</b> IIDM serialization is not yet supported for non-default values.
+     * Setting a value other than {@link Double#MAX_VALUE} will cause
      * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
      */
     I setMaxP(double maxP);

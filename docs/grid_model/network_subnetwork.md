@@ -1010,8 +1010,7 @@ $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's 
 `MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
 same load sign convention as `TargetP`.
 
-`MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, `MinP` defaults to $-\infty$ and
-`MaxP` defaults to $+\infty$, meaning no operational limit is enforced.
+`MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
 
 `MinP` and `MaxP` are not serializable as of today. Trying to serialize AC-DC converters with non-default values of `MinP` or `MaxP` will raise an error.
 
