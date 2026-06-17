@@ -80,7 +80,7 @@ public class LineCouplingsImpl extends AbstractExtension<Network> implements Lin
         unsubscribeListener();
         super.setExtendable(network);
 
-        listener = new DefaultNetworkListener() {
+        listener = new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable<?> identifiable) {
                 if (identifiable instanceof Line line) {
