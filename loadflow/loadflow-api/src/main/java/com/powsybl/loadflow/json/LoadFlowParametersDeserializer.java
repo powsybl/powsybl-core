@@ -185,6 +185,12 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
 
+                case "debugDir":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.11");
+                    parser.nextToken();
+                    parameters.setDebugDir(parser.readValueAs(String.class));
+                    break;
+
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
