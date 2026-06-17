@@ -261,14 +261,14 @@
             <cp:feeder2 name="line1" order="10" direction="TOP"/>
         </cp:position>
     </iidm:extension>
-    <iidm:extension id="newBoundaryLine">
-        <cp:position>
-            <cp:feeder name="newBoundaryLine" order="81" direction="BOTTOM"/>
-        </cp:position>
-    </iidm:extension>
     <iidm:extension id="newBattery">
         <cp:position>
             <cp:feeder name="newBattery" order="71" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="newBoundaryLine">
+        <cp:position>
+            <cp:feeder name="newBoundaryLine" order="81" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="newShuntCompensator">
