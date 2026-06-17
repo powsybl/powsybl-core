@@ -24,46 +24,18 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     }
 
     /**
-     * The not-split zero-sequence resistance of the two-winding transformer.
+     * The zero-sequence resistance of the two-winding transformer.
      */
     double getRz();
 
     void setRz(double rz);
 
     /**
-     * The not-split zero-sequence reactance of the two-winding transformer.
+     * The zero-sequence reactance of the two-winding transformer.
      */
     double getXz();
 
     void setXz(double xz);
-
-    /**
-     * The zero-sequence resistance of side 1 of the two-winding transformer.
-     */
-    double getRz1();
-
-    void setRz1(double rz1);
-
-    /**
-     * The zero-sequence reactance of side 1 of the two-winding transformer.
-     */
-    double getXz1();
-
-    void setXz1(double xz1);
-
-    /**
-     * The zero-sequence resistance of side 2 of the two-winding transformer.
-     */
-    double getRz2();
-
-    void setRz2(double rz2);
-
-    /**
-     * The zero-sequence reactance of side 2 of the two-winding transformer.
-     */
-    double getXz2();
-
-    void setXz2(double xz2);
 
     /**
      * Free fluxes set to true means that the magnetizing impedance Zm is infinite, i.e. fluxes are free.
@@ -73,11 +45,11 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     void setFreeFluxes(boolean freeFluxes);
 
     /**
-     * The zero-sequence magnetizing reactance of the two-winding transformer, if not considered as infinite.
+     * The magnetizing reactance of the two-winding transformer, if not considered as infinite.
      */
-    double getXmz();
+    double getXm();
 
-    void setXmz(double xmz);
+    void setXm(double xm);
 
     /**
      * Get the winding connection type of transformer side 1, see {@link WindingConnectionType}).

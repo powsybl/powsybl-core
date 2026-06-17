@@ -68,18 +68,16 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
     }
 
     @Test
-    void testXmlSerializerWithMagnetizingReactanceAndSplitImpedance() throws IOException {
+    void testXmlSerializerWithMagnetizingReactance() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(ZonedDateTime.parse("2016-12-07T11:18:52.881+01:00"));
         var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
         assertNotNull(twt);
         TwoWindingsTransformerFortescue fortescue = twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
-            .withRz1(0.1d)
-            .withXz1(2d)
-            .withRz2(0.15d)
-            .withXz2(2.5d)
+            .withRz(0.1d)
+            .withXz(2d)
             .withFreeFluxes(false)
-            .withXmz(0.5d)
+            .withXm(0.5d)
             .withConnectionType1(WindingConnectionType.Y_GROUNDED)
             .withConnectionType2(WindingConnectionType.DELTA)
             .withGroundingR1(0.02d)
@@ -96,7 +94,7 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
         assertNotNull(fortescue2);
 
         assertEquals(fortescue.isFreeFluxes(), fortescue2.isFreeFluxes());
-        assertEquals(fortescue.getXmz(), fortescue2.getXmz());
+        assertEquals(fortescue.getXm(), fortescue2.getXm());
     }
 
     @Test
@@ -109,7 +107,7 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
             .withRz(0.1d)
             .withXz(2d)
             .withFreeFluxes(false)
-            .withXmz(0.5d)
+            .withXm(0.5d)
             .withConnectionType1(WindingConnectionType.Y_GROUNDED)
             .withConnectionType2(WindingConnectionType.DELTA)
             .withGroundingR1(0.02d)
@@ -129,6 +127,6 @@ class TwoWindingsTransformerFortescueXmlSerDeTest extends AbstractIidmSerDeTest 
         assertNotNull(fortescue2);
 
         assertEquals(fortescue.isFreeFluxes(), fortescue2.isFreeFluxes());
-        assertTrue(Double.isNaN(fortescue2.getXmz()));
+        assertTrue(Double.isNaN(fortescue2.getXm()));
     }
 }

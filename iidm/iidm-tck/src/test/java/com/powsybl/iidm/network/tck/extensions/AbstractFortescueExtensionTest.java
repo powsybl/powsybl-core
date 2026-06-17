@@ -111,7 +111,7 @@ public abstract class AbstractFortescueExtensionTest {
         fortescue.setRz(0.11d);
         fortescue.setXz(2.03d);
         fortescue.setFreeFluxes(false);
-        fortescue.setXmz(0.5d);
+        fortescue.setXm(0.5d);
         fortescue.setConnectionType1(WindingConnectionType.Y);
         fortescue.setConnectionType2(WindingConnectionType.Y_GROUNDED);
         fortescue.setGroundingR1(0.03d);
@@ -122,46 +122,13 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(0.11d, fortescue.getRz());
         assertEquals(2.03d, fortescue.getXz());
         assertFalse(fortescue.isFreeFluxes());
-        assertEquals(0.5d, fortescue.getXmz());
+        assertEquals(0.5d, fortescue.getXm());
         assertSame(WindingConnectionType.Y, fortescue.getConnectionType1());
         assertSame(WindingConnectionType.Y_GROUNDED, fortescue.getConnectionType2());
         assertEquals(0.03d, fortescue.getGroundingR1());
         assertEquals(0.33d, fortescue.getGroundingX1());
         assertEquals(0.045d, fortescue.getGroundingR2());
         assertEquals(0.0001d, fortescue.getGroundingX2());
-    }
-
-    @Test
-    public void testTwoWindingsTransformerWithSplitImpedance() {
-        var network = EurostagTutorialExample1Factory.create();
-        var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
-        TwoWindingsTransformerFortescue fortescue = twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
-            .withRz1(0.1d)
-            .withXz1(2d)
-            .withRz2(0.15d)
-            .withXz2(2.5d)
-            .withFreeFluxes(true)
-            .withConnectionType1(WindingConnectionType.Y_GROUNDED)
-            .withConnectionType2(WindingConnectionType.DELTA)
-            .withGroundingR1(0.02d)
-            .withGroundingX1(0.3d)
-            .withGroundingR2(0.04d)
-            .withGroundingX2(0.95d)
-            .add();
-        assertEquals(0.1d, fortescue.getRz1());
-        assertEquals(2d, fortescue.getXz1());
-        assertEquals(0.15d, fortescue.getRz2());
-        assertEquals(2.5d, fortescue.getXz2());
-
-        fortescue.setRz1(0.11d);
-        fortescue.setXz1(2.03d);
-        fortescue.setRz2(0.16d);
-        fortescue.setXz2(2.6d);
-
-        assertEquals(0.11d, fortescue.getRz1());
-        assertEquals(2.03d, fortescue.getXz1());
-        assertEquals(0.16d, fortescue.getRz2());
-        assertEquals(2.6d, fortescue.getXz2());
     }
 
     @Test
