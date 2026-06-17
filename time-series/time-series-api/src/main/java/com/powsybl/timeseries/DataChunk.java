@@ -10,8 +10,8 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -219,15 +219,15 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
         private int offset = -1;
         private final List<DoubleDataChunk> doubleChunks;
         private final List<StringDataChunk> stringChunks;
-        private TDoubleArrayList doubleValues;
+        private DoubleArrayList doubleValues;
         private List<String> stringValues;
-        private TIntArrayList stepLengths;
+        private IntArrayList stepLengths;
         private int uncompressedLength = -1;
         private boolean valuesOrLengthArray = false;
 
         void addDoubleValue(double value) {
             if (doubleValues == null) {
-                doubleValues = new TDoubleArrayList();
+                doubleValues = new DoubleArrayList();
             }
             doubleValues.add(value);
         }
@@ -250,7 +250,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             }
             case "uncompressedLength" -> context.uncompressedLength = parser.nextIntValue(-1);
             case "stepLengths" -> {
-                context.stepLengths = new TIntArrayList();
+                context.stepLengths = new IntArrayList();
                 context.valuesOrLengthArray = true;
             }
             case "values", "stepValues" -> context.valuesOrLengthArray = true;
@@ -262,7 +262,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
 
     static void addUncompressedChunk(JsonParsingContext context) {
         if (context.doubleValues != null && context.stringValues == null) {
-            context.doubleChunks.add(new UncompressedDoubleDataChunk(context.offset, context.doubleValues.toArray()));
+            context.doubleChunks.add(new UncompressedDoubleDataChunk(context.offset, context.doubleValues.toDoubleArray()));
         } else if (context.stringValues != null && context.doubleValues == null) {
             context.stringChunks.add(new UncompressedStringDataChunk(context.offset, context.stringValues.toArray(new String[0])));
         } else if (context.stringValues != null) {
@@ -275,14 +275,14 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     static void addCompressedChunk(JsonParsingContext context) {
         if (context.doubleValues != null && context.stringValues == null) {
             context.doubleChunks.add(new CompressedDoubleDataChunk(context.offset, context.uncompressedLength,
-                    context.doubleValues.toArray(), context.stepLengths.toArray()));
+                    context.doubleValues.toDoubleArray(), context.stepLengths.toIntArray()));
             context.doubleValues = null;
             context.stepLengths = null;
             context.uncompressedLength = -1;
         } else if (context.stringValues != null && context.doubleValues == null) {
             context.stringChunks.add(new CompressedStringDataChunk(context.offset, context.uncompressedLength,
                     context.stringValues.toArray(new String[0]),
-                    context.stepLengths.toArray()));
+                    context.stepLengths.toIntArray()));
             context.stringValues = null;
             context.stepLengths = null;
             context.uncompressedLength = -1;

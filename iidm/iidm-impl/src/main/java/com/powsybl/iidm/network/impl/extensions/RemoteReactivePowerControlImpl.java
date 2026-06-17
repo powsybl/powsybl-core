@@ -8,14 +8,14 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedBooleanArrayList;
+import com.powsybl.commons.util.fastutil.ExtendedDoubleArrayList;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import com.powsybl.iidm.network.impl.TerminalExt;
-import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,22 +28,18 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteReactivePowerControlImpl.class);
 
-    private final TDoubleArrayList targetQ;
+    private final ExtendedDoubleArrayList targetQ;
 
     private Terminal regulatingTerminal;
 
-    private final TBooleanArrayList enabled;
+    private final ExtendedBooleanArrayList enabled;
 
     public RemoteReactivePowerControlImpl(Generator generator, double targetQ, Terminal regulatingTerminal, boolean enabled) {
         super(generator);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.targetQ = new TDoubleArrayList();
+        this.targetQ = new ExtendedDoubleArrayList(variantArraySize, targetQ);
         this.regulatingTerminal = Objects.requireNonNull(regulatingTerminal);
-        this.enabled = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.targetQ.add(targetQ);
-            this.enabled.add(enabled);
-        }
+        this.enabled = new ExtendedBooleanArrayList(variantArraySize, enabled);
         if (regulatingTerminal.getVoltageLevel().getParentNetwork() != getExtendable().getParentNetwork()) {
             throw new PowsyblException("Regulating terminal is not in the right Network ("
                     + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
@@ -54,7 +50,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     @Override
     public double getTargetQ() {
-        return targetQ.get(getVariantIndex());
+        return targetQ.getDouble(getVariantIndex());
     }
 
     @Override
@@ -94,23 +90,19 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     @Override
     public boolean isEnabled() {
-        return enabled.get(getVariantIndex());
+        return enabled.getBoolean(getVariantIndex());
     }
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        enabled.ensureCapacity(enabled.size() + number);
-        targetQ.ensureCapacity(targetQ.size() + number);
-        for (int i = 0; i < number; ++i) {
-            enabled.add(enabled.get(sourceIndex));
-            targetQ.add(targetQ.get(sourceIndex));
-        }
+        targetQ.growAndFill(number, targetQ.getDouble(sourceIndex));
+        enabled.growAndFill(number, enabled.getBoolean(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        enabled.remove(enabled.size() - number, number);
-        targetQ.remove(targetQ.size() - number, number);
+        enabled.removeElements(number);
+        targetQ.removeElements(number);
     }
 
     @Override
@@ -121,8 +113,8 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
-            targetQ.set(index, targetQ.get(sourceIndex));
-            enabled.set(index, enabled.get(sourceIndex));
+            targetQ.set(index, targetQ.getDouble(sourceIndex));
+            enabled.set(index, enabled.getBoolean(sourceIndex));
         }
     }
 

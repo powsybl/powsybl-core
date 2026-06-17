@@ -7,8 +7,8 @@
  */
 package com.powsybl.timeseries;
 
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class BiList<E> {
 
     private final List<E> list = new ArrayList<>();
 
-    private final TObjectIntMap<E> reverse = new TObjectIntHashMap<>();
+    private final Object2IntMap<E> reverse = new Object2IntOpenHashMap<>();
 
     private final Lock lock = new ReentrantLock();
 
@@ -69,7 +69,7 @@ public class BiList<E> {
             if (!reverse.containsKey(e)) {
                 return -1;
             }
-            return reverse.get(e);
+            return reverse.getInt(e);
         } finally {
             lock.unlock();
         }
