@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -73,7 +73,7 @@ class LoadDetailXmlTest extends AbstractIidmSerDeTest {
         LoadDetail detail = network.getLoad("L").getExtension(LoadDetail.class);
         assertNotNull(detail);
 
-        Network network2 = allFormatsRoundTripTest(network, "loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         Load load2 = network2.getLoad("L");
         assertNotNull(load2);
@@ -97,7 +97,7 @@ class LoadDetailXmlTest extends AbstractIidmSerDeTest {
         NetworkSerDe.validate(tmp);
 
         try (InputStream is = Files.newInputStream(tmp)) {
-            assertXmlEquals(getVersionedNetworkAsStream("loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION), is);
+            assertTxtEquals(getVersionedNetworkAsStream("loadDetailRef.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION), is);
         }
     }
 }

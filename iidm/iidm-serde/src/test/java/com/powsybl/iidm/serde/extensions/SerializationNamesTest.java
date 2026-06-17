@@ -58,7 +58,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
     @Test
     void realExtensionNameRoundTripTest() throws IOException {
         // Use the default extension version => also the default serialization name
-        allFormatsRoundTripTest(getNetwork(), "/extensionName_1_2.xml", new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")));
+        allFormatsRoundTripTxtTest(getNetwork(), "/extensionName_1_2.xml", new ExportOptions().setVersion(IidmVersion.V_1_1.toString(".")));
     }
 
     @Test
@@ -67,7 +67,7 @@ class SerializationNamesTest extends AbstractIidmSerDeTest {
         ExportOptions exportOptions = new ExportOptions()
                 .setVersion(IidmVersion.V_1_0.toString("."))
                 .addExtensionVersion("loadMock", "0.1");
-        allFormatsRoundTripTest(getNetwork(), "/extensionName_0_1.xml", exportOptions);
+        allFormatsRoundTripTxtTest(getNetwork(), "/extensionName_0_1.xml", exportOptions);
     }
 
     @Test

@@ -27,7 +27,7 @@ class BoundaryLineXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
-        allFormatsRoundTripAllVersionedXmlTest("boundaryLine.xml");
+        allFormatsRoundTripAllVersionedTxtTest("boundaryLine.xml");
     }
 
     @Test
@@ -35,10 +35,10 @@ class BoundaryLineXmlTest extends AbstractIidmSerDeTest {
         Network network = BoundaryLineNetworkFactory.createWithGeneration();
         network.setCaseDate(ZonedDateTime.parse("2020-07-16T10:08:48.321+02:00"));
         network.getBoundaryLine("BL").setProperty("test", "test");
-        allFormatsRoundTripTest(network, "boundaryLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "boundaryLineWithGeneration.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
         // backward compatibility checks from version 1.3
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("boundaryLineWithGeneration.xml", IidmVersion.V_1_3);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("boundaryLineWithGeneration.xml", IidmVersion.V_1_3);
 
         // check it fails for all versions < 1.3
         testForAllPreviousVersions(IidmVersion.V_1_3, version -> {

@@ -24,12 +24,12 @@ class TerminalRefTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTerminalRefTest() throws IOException {
-        allFormatsRoundTripAllVersionedXmlTest("terminalRef.xiidm");
+        allFormatsRoundTripAllVersionedTxtTest("terminalRef.xiidm");
     }
 
     @Test
     void roundTripRegulatingTerminalTest() throws IOException {
-        allFormatsRoundTripAllVersionedXmlTest("regulatingTerminal.xml");
+        allFormatsRoundTripAllVersionedTxtTest("regulatingTerminal.xml");
     }
 
     @Test

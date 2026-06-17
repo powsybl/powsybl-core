@@ -51,7 +51,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
     void testTargetPLimits() throws IOException {
         network.getGenerator("GEN").getExtension(ActivePowerControl.class).setMaxTargetP(800.);
         network.getBattery("BAT").getExtension(ActivePowerControl.class).setMinTargetP(10.);
-        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlWithLimitRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/activePowerControlWithLimitRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);
@@ -70,7 +70,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testIidmV12() throws IOException {
-        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlRoundTripRef.xml", IidmVersion.V_1_12);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/activePowerControlRoundTripRef.xml", IidmVersion.V_1_12);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
@@ -82,7 +82,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testIidmV10() throws IOException {
-        Network network2 = allFormatsRoundTripTest(network, "/batteryNetworkWithActivePowerControlRoundTripRef.xml", IidmVersion.V_1_0);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/batteryNetworkWithActivePowerControlRoundTripRef.xml", IidmVersion.V_1_0);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);

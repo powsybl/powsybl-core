@@ -27,10 +27,10 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
         Network network = createBaseNetwork();
 
         // Test for the current version
-        allFormatsRoundTripTest(network, "/dcLineRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTxtTest(network, "/dcLineRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility - checks from version 1.15
-        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/dcLineRoundTripRef.xml", IidmVersion.V_1_15);
+        allFormatsRoundTripFromVersionedTxtFromMinToCurrentVersionTest("/dcLineRoundTripRef.xml", IidmVersion.V_1_15);
     }
 
     @Test
@@ -42,7 +42,7 @@ class DcLineSerDeTest extends AbstractIidmSerDeTest {
 
         // check it doesn't fail for version 1.14 if IidmVersionIncompatibilityBehavior is to log error
         var options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
-        testWriteVersionedXml(network, options, "dcLineNotSupported.xml", IidmVersion.V_1_14);
+        testWriteVersionedTxt(network, options, "dcLineNotSupported.xml", IidmVersion.V_1_14);
     }
 
     private static Network createBaseNetwork() {

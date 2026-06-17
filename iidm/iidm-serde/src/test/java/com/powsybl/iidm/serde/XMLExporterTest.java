@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.AbstractTreeDataExporter.*;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Chamseddine BENHAMED  {@literal <chamseddine.benhamed at rte-france.com>}
  */
-
 class XMLExporterTest extends AbstractIidmSerDeTest {
     private static final String NODE_BREAKER_FILE = "/testNetworkNodeBreaker.xiidm";
     private FileSystem fileSystem;
@@ -48,7 +47,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            assertXmlEquals(refFileIs.get(), is);
+            assertTxtEquals(refFileIs.get(), is);
         }
     }
 

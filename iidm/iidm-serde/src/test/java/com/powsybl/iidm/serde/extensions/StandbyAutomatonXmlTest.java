@@ -39,7 +39,7 @@ class StandbyAutomatonXmlTest extends AbstractIidmSerDeTest {
                 .add();
         StandbyAutomaton standbyAutomaton = svc.getExtension(StandbyAutomaton.class);
 
-        Network network2 = allFormatsRoundTripTest(network, "/standbyAutomatonRoundTripRef.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/standbyAutomatonRoundTripRef.xml");
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");
         StandbyAutomaton standbyAutomaton2 = svc2.getExtension(StandbyAutomaton.class);

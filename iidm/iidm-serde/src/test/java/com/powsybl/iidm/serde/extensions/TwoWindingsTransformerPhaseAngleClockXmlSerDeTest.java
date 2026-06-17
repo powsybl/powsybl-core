@@ -35,7 +35,7 @@ class TwoWindingsTransformerPhaseAngleClockXmlSerDeTest extends AbstractIidmSerD
 
         transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(3).add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/twoWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_VERSION);
+        Network network2 = allFormatsRoundTripTxtTest(network, "/twoWindingsTransformerPhaseAngleClock.xml", CURRENT_IIDM_VERSION);
 
         TwoWindingsTransformerPhaseAngleClock pacXml = network2.getTwoWindingsTransformer("NHV2_NLOAD")
             .getExtension(TwoWindingsTransformerPhaseAngleClock.class);

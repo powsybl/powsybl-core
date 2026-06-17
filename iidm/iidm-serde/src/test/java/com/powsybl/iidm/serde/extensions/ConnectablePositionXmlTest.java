@@ -112,7 +112,7 @@ class ConnectablePositionXmlTest extends AbstractIidmSerDeTest {
                 .add()
                 .add();
 
-        Network network2 = allFormatsRoundTripTest(network, "/connectablePositionRef_V1_1.xml");
+        Network network2 = allFormatsRoundTripTxtTest(network, "/connectablePositionRef_V1_1.xml");
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator);
@@ -144,7 +144,7 @@ class ConnectablePositionXmlTest extends AbstractIidmSerDeTest {
         assertEquals(linePosition2.getFeeder1().getOrder(), linePosition2.getFeeder2().getOrder());
 
         // test v 1.0
-        allFormatsRoundTripTest(network, "/connectablePositionRef_V1_0.xml",
+        allFormatsRoundTripTxtTest(network, "/connectablePositionRef_V1_0.xml",
                 new ExportOptions()
                         .addExtensionVersion(ConnectablePosition.NAME, "1.0")
                         .setVersion(IidmVersion.V_1_13.toString(".")));
