@@ -377,11 +377,11 @@ class CreateVoltageLevelSectionsTest extends AbstractModificationTest {
             if (rightSwitchesBetweenBusbar.contains(SwitchKind.BREAKER)) {
                 busbarId += SEPARATOR + id2Num + "_BREAKER";
             } else if (rightSwitchesBetweenBusbar.contains(SwitchKind.LOAD_BREAK_SWITCH)) {
-                busbarId += baseId + SEPARATOR + id2Num + "_LOAD_BREAKER";
+                busbarId += SEPARATOR + id2Num + "_LOAD_BREAKER";
             } else if (!rightSwitchesBetweenBusbar.isEmpty()) {
-                busbarId += baseId + SEPARATOR + id2Num + "_DISCONNECTOR";
+                busbarId += SEPARATOR + id2Num + "_DISCONNECTOR";
             } else {
-                busbarId += baseId + SEPARATOR;
+                busbarId += SEPARATOR + id2Num;
             }
             return busbarId;
         }

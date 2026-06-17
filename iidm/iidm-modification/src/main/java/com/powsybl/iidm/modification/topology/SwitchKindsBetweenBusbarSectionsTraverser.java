@@ -64,7 +64,10 @@ public class SwitchKindsBetweenBusbarSectionsTraverser implements Terminal.Topol
         List<SwitchKind> targetSide = currentBusbarSectionPosition.getSectionIndex() > initialBusbarSectionPosition.getSectionIndex()
                 ? rightSwitchesBetweenBusbar
                 : leftSwitchesBetweenBusbar;
-        targetSide.add(getSwitchKind(currentSwitches));
+        SwitchKind switchKind = getSwitchKind(currentSwitches);
+        if (switchKind != null) {
+            targetSide.add(switchKind);
+        }
     }
 
     @Override
