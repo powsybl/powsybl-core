@@ -20,7 +20,7 @@ import java.util.Objects;
  * Traverse the network to find the switch kinds between all busbar sections of a busbar.
  * if there are several switches between two busbar sections, they are merged into a single switch kind.
  * if it contains a breaker, it is considered as a breaker.
- * if it contains a load breaker switch but no breaker, it is considered as a breaker.
+ * if it contains a load breaker switch but no breaker, it is considered as a load breaker switch.
  * elsewhere, it is considered as a disconnector.
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
