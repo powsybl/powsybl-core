@@ -339,7 +339,7 @@ public abstract class AbstractSubnetworksCreationTest {
     @Test
     public void testListeners() {
         MutableBoolean listenerCalled = new MutableBoolean(false);
-        NetworkListener listener = new DefaultNetworkListener() {
+        NetworkListener listener = new NetworkListener() {
             @Override
             public void onCreation(Identifiable identifiable) {
                 listenerCalled.setTrue();

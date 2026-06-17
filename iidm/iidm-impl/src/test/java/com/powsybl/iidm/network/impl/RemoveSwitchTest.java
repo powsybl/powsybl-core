@@ -55,7 +55,7 @@ class RemoveSwitchTest {
         // and invoke fail() outside the listener
 
         boolean[] nodesVerified = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 nodesVerified[0] = checkNodes((Switch) identifiable);
@@ -78,7 +78,7 @@ class RemoveSwitchTest {
         Boolean[] nodesVerified = new Boolean[1];
         // Explicitly consider we have not been able to check any switch
         nodesVerified[0] = null;
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 if (identifiable instanceof Switch) {
@@ -99,7 +99,7 @@ class RemoveSwitchTest {
         Switch sw = network.getSwitch("voltageLevel1Breaker1");
         checkBuses(sw);
         boolean[] busesVerified = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 busesVerified[0] = checkBuses((Switch) identifiable);
@@ -117,7 +117,7 @@ class RemoveSwitchTest {
         Switch sw = network.getSwitch("voltageLevel1Breaker1");
         checkBuses(sw);
         Boolean[] busesVerified = new Boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable identifiable) {
                 if (identifiable instanceof Switch) {

@@ -186,11 +186,11 @@ public abstract class AbstractNetworkTest {
         assertEquals(0, busCalc.getConnectedComponent().getNum());
 
         // Changes listener
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyAdded(any(), anyString(), any());
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onPropertyReplaced(any(), anyString(),
                 any(), any());
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
 
         // Identifiable properties
         String key = "keyTest";

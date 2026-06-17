@@ -156,7 +156,7 @@ public abstract class AbstractTapChangerTest {
         }
 
         // Changes listener
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
         // Changes will raise notifications
