@@ -57,7 +57,7 @@ public abstract class AbstractMergeNetworkTest {
         addSubstation(n1, "P1");
         addSubstation(n2, "P1");
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
-        assertEquals("The following duplicated object(s) of type SubstationImpl were found when trying to merge network 'n2': [P1]", e.getMessage());
+        assertEquals("The following object(s) of type SubstationImpl already exist in merged network when trying to merge network 'n2': [P1]", e.getMessage());
     }
 
     @Test
@@ -434,7 +434,7 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         addCommonBoundaryLines("dl", null, "dl", "code");
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n0, n1, n2));
-        assertTrue(e.getMessage().contains("The following duplicated object(s) of type BoundaryLineImpl were found when trying to merge network 'n2': [dl]"));
+        assertEquals("The following object(s) of type BoundaryLineImpl already exist in merged network when trying to merge network 'n2': [dl]", e.getMessage());
     }
 
     @Test
@@ -616,7 +616,7 @@ public abstract class AbstractMergeNetworkTest {
 
         // Merge should fail, because area "bza" is present in both network but with different attribute values
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
-        assertEquals("The following duplicated object(s) of type AreaImpl were found when trying to merge network 'n2': [bza]", e.getMessage());
+        assertEquals("The following object(s) of type AreaImpl already exist in merged network when trying to merge network 'n2': [bza]", e.getMessage());
     }
 
     @Test
