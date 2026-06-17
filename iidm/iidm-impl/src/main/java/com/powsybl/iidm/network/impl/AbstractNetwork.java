@@ -81,7 +81,7 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     }
 
     @Override
-    public Optional<Comparator> getIdentifiableNaturalOrderComparator() {
+    public Optional<Comparator<Identifiable>> getIdentifiableNaturalOrderComparator() {
         return Optional.of(Comparator.comparing(i -> ((AbstractIdentifiable) i).getSortIndex()));
     }
 

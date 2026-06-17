@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -373,31 +372,50 @@ public final class IidmSerDeUtil {
      * otherwise, by their natural order if the network defines one.
      * In all other cases, do not change the identifiables order.
      */
-    public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
+    public static <T extends Identifiable> Iterable<T> sorted(Network network, Iterable<T> identifiables, ExportOptions exportOptions) {
         Objects.requireNonNull(identifiables);
         Objects.requireNonNull(exportOptions);
 
-        List<T> listIdentifiables = StreamSupport.stream(identifiables.spliterator(), false).collect(Collectors.toList());
-        if (listIdentifiables.isEmpty()) {
-            return listIdentifiables;
+        if (!exportOptions.isSorted() && network.getIdentifiableNaturalOrderComparator().isEmpty()) {
+            return identifiables;
         }
-        Network n = listIdentifiables.getFirst().getNetwork();
 
-        if (exportOptions.isSorted()) {
-            listIdentifiables.sort(Comparator.comparing(Identifiable::getId));
-        } else if (n.getIdentifiableNaturalOrderComparator().isPresent()) {
-            listIdentifiables.sort(n.getIdentifiableNaturalOrderComparator().get());
-        }
-        return listIdentifiables;
+        Comparator<Identifiable> comparator = exportOptions.isSorted()
+            ? Comparator.comparing(Identifiable::getId)
+            : network.getIdentifiableNaturalOrderComparator().get();
+
+        return StreamSupport.stream(identifiables.spliterator(), false)
+                .sorted(comparator)
+                .collect(Collectors.toList());
     }
 
     /**
-     * Sort identifiables by their ids.
+     * Sort identifiables by their ids if given export option is activated,
+     * otherwise, by their natural order if the network defines one.
+     * In all other cases, do not change the identifiables order.
      */
-    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions) {
+    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions, Network network) {
+        return sorted(network, stream, exportOptions);
+    }
+
+    /**
+     * Sort identifiables by their ids if given export option is activated,
+     * otherwise, by their natural order if the network defines one.
+     * In all other cases, do not change the identifiables order.
+     */
+    public static <T extends Identifiable<T>> Stream<T> sorted(Network network, Stream<T> stream, ExportOptions exportOptions) {
         Objects.requireNonNull(stream);
         Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? stream.sorted(Comparator.comparing(Identifiable::getId)) : stream;
+
+        if (!exportOptions.isSorted() && network.getIdentifiableNaturalOrderComparator().isEmpty()) {
+            return stream;
+        }
+
+        Comparator<Identifiable> comparator = exportOptions.isSorted()
+                ? Comparator.comparing(Identifiable::getId)
+                : network.getIdentifiableNaturalOrderComparator().get();
+
+        return stream.sorted(comparator);
     }
 
     /**

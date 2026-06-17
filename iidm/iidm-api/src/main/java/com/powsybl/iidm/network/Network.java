@@ -1776,7 +1776,7 @@ public interface Network extends Container<Network> {
     /**
      * Return a comparator to sort element in the natural order
      */
-    default Optional<Comparator> getIdentifiableNaturalOrderComparator() {
+    default Optional<Comparator<Identifiable>> getIdentifiableNaturalOrderComparator() {
         return Optional.empty();
     }
 
