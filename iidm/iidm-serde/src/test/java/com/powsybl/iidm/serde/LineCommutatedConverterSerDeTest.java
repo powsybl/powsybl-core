@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -28,6 +29,13 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
         Network network = createNetworkWithNonDefaultMinP();
         Path filename = tmpDir.resolve("fail");
         assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, filename));
+    }
+
+    @Test
+    void testMinPWithForceExport() {
+        Network network = createNetworkWithNonDefaultMinP();
+        Path filename = tmpDir.resolve("lcc-minP-force-export");
+        assertDoesNotThrow(() -> NetworkSerDe.write(network, new ExportOptions().setForceExportNetworkWithBetaFeatures(true), filename));
     }
 
     @Test
