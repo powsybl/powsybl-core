@@ -16,10 +16,10 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -650,82 +650,8 @@ public abstract class AbstractNodeBreakerTest {
         assertNotNull(bus);
 
         // Verify visitConnectedEquipments includes all equipments
-        List<Connectable<?>> visitedConnected = new ArrayList<>();
-        bus.visitConnectedEquipments(new TopologyVisitor() {
-            @Override
-            public void visitBusbarSection(BusbarSection section) {
-                visitedConnected.add(section);
-            }
-
-            @Override
-            public void visitLoad(Load load) {
-                visitedConnected.add(load);
-            }
-
-            @Override
-            public void visitGenerator(Generator generator) {
-                visitedConnected.add(generator);
-            }
-
-            @Override
-            public void visitLine(Line line, TwoSides side) {
-                visitedConnected.add(line);
-            }
-
-            @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
-                visitedConnected.add(transformer);
-            }
-
-            @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
-                visitedConnected.add(transformer);
-            }
-
-            @Override
-            public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
-                visitedConnected.add(converterStation);
-            }
-
-            @Override
-            public void visitShuntCompensator(ShuntCompensator compensator) {
-                visitedConnected.add(compensator);
-            }
-
-            @Override
-            public void visitBoundaryLine(BoundaryLine boundaryLine) {
-                visitedConnected.add(boundaryLine);
-            }
-
-            @Override
-            public void visitStaticVarCompensator(StaticVarCompensator compensator) {
-                visitedConnected.add(compensator);
-            }
-
-            @Override
-            public void visitGround(Ground ground) {
-                visitedConnected.add(ground);
-            }
-
-            @Override
-            public void visitBattery(Battery battery) {
-                visitedConnected.add(battery);
-            }
-
-            @Override
-            public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
-                visitedConnected.add(converter);
-            }
-        });
-        assertEquals(2, bus.getConnectedTerminalCount());
-        assertEquals(2, visitedConnected.size(), "Should visit 2 equipments: BBS and L1");
-        assertTrue(visitedConnected.stream().anyMatch(c -> "BBS".equals(c.getId())));
-        assertTrue(visitedConnected.stream().anyMatch(c -> "L1".equals(c.getId())));
-        assertFalse(visitedConnected.stream().anyMatch(c -> "G1".equals(c.getId())));
-
-        // Verify visitConnectedOrConnectableEquipments includes all equipments
         List<Connectable<?>> visitedConnectables = new ArrayList<>();
-        bus.visitConnectedOrConnectableEquipments(new TopologyVisitor() {
+        TopologyVisitor visitor = new TopologyVisitor() {
             @Override
             public void visitBusbarSection(BusbarSection section) {
                 visitedConnectables.add(section);
@@ -790,7 +716,17 @@ public abstract class AbstractNodeBreakerTest {
             public void visitAcDcConverter(AcDcConverter<?> converter, TerminalNumber terminalNumber) {
                 visitedConnectables.add(converter);
             }
-        });
+        };
+        bus.visitConnectedEquipments(visitor);
+        assertEquals(2, bus.getConnectedTerminalCount());
+        assertEquals(2, visitedConnectables.size(), "Should visit 2 equipments: BBS and L1");
+        assertTrue(visitedConnectables.stream().anyMatch(c -> "BBS".equals(c.getId())));
+        assertTrue(visitedConnectables.stream().anyMatch(c -> "L1".equals(c.getId())));
+        assertFalse(visitedConnectables.stream().anyMatch(c -> "G1".equals(c.getId())));
+
+        // Verify visitConnectedOrConnectableEquipments includes all equipments
+        visitedConnectables.clear();
+        bus.visitConnectedOrConnectableEquipments(visitor);
         assertEquals(2, bus.getConnectedTerminalCount());
         assertEquals(3, visitedConnectables.size(), "Should visit 3 equipments: BBS, L1, and G1");
         assertTrue(visitedConnectables.stream().anyMatch(c -> "BBS".equals(c.getId())));
