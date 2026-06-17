@@ -30,14 +30,18 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     // VERSION = 1.0
     // VERSION = 1.1 IncreasedViolationsParameters adding.
     // VERSION = 1.2 intermediateResultsInOperatorStrategy
-    public static final String VERSION = "1.2";
+    // VERSION = 1.3 ModifiedMonitoredElementsParameters, debugDir
+    public static final String VERSION = "1.3";
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
     private IncreasedViolationsParameters increasedViolationsParameters = new IncreasedViolationsParameters();
+    private ModifiedMonitoredElementsParameters modifiedMonitoredElementsParameters = new ModifiedMonitoredElementsParameters();
 
     static final boolean DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY = false;
+    static final String DEFAULT_DEBUG_DIR = null;
 
     private boolean intermediateResultsInOperatorStrategy = DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY;
+    private String debugDir = DEFAULT_DEBUG_DIR;
 
     public static class IncreasedViolationsParameters {
 
@@ -153,6 +157,95 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         }
     }
 
+    public static class ModifiedMonitoredElementsParameters {
+        private static final double DEFAULT_POWER_MODIFICATION_THRESHOLD = 0.0; // in percentage
+        private static final double DEFAULT_VOLTAGE_MODIFICATION_PROPORTIONAL_THRESHOLD = 0.0; // in percentage
+        private static final double DEFAULT_VOLTAGE_MODIFICATION_ABSOLUTE_THRESHOLD = 0.0; // in kV
+
+        @JsonProperty("power-modification-threshold")
+        private double powerModificationThreshold = DEFAULT_POWER_MODIFICATION_THRESHOLD;
+        @JsonProperty("voltage-modification-proportional-threshold")
+        private double voltageModificationProportionalThreshold = DEFAULT_VOLTAGE_MODIFICATION_PROPORTIONAL_THRESHOLD;
+        @JsonProperty("voltage-modification-absolute-threshold")
+        private double voltageModificationAbsoluteThreshold = DEFAULT_VOLTAGE_MODIFICATION_ABSOLUTE_THRESHOLD;
+
+        public ModifiedMonitoredElementsParameters(double powerModificationThreshold, double voltageModificationProportionalThreshold,
+                                                   double voltageModificationAbsoluteThreshold) {
+            this.powerModificationThreshold = powerModificationThreshold;
+            this.voltageModificationProportionalThreshold = voltageModificationProportionalThreshold;
+            this.voltageModificationAbsoluteThreshold = voltageModificationAbsoluteThreshold;
+        }
+
+        public ModifiedMonitoredElementsParameters() {
+        }
+
+        /**
+         * If a branch is monitored in N and N-1 state, a result will only be added for it after a contingency if the power on the line
+         * is modified of at least the proportional threshold (without unit) compared to the pre-contingency state.
+         * The default value is 0.0, meaning that no branch is filtered in the post-contingency results.
+         */
+        public double getPowerModificationThreshold() {
+            return powerModificationThreshold;
+        }
+
+        public ModifiedMonitoredElementsParameters setPowerModificationThreshold(double powerModificationThreshold) {
+            this.powerModificationThreshold = powerModificationThreshold;
+            return this;
+        }
+
+        /**
+         * If a bus is monitored in N and N-1 state, a result will only be added for it after a contingency if its voltage
+         * is modified of at least the proportional threshold (without unit) compared to the pre-contingency state.
+         * The default value is 0.0, meaning that no bus is filtered in the post-contingency results.
+         */
+        public double getVoltageModificationProportionalThreshold() {
+            return voltageModificationProportionalThreshold;
+        }
+
+        public ModifiedMonitoredElementsParameters setVoltageModificationProportionalThreshold(double voltageModificationProportionalThreshold) {
+            this.voltageModificationProportionalThreshold = voltageModificationProportionalThreshold;
+            return this;
+        }
+
+        /**
+         * If a bus is monitored in N and N-1 state, a result will only be added for it after a contingency if its voltage
+         * is modified of at least the absolute threshold (in kV) compared to the pre-contingency state.
+         * The default value is 0.0, meaning that no bus is filtered in the post-contingency results.
+         */
+        public double getVoltageModificationAbsoluteThreshold() {
+            return voltageModificationAbsoluteThreshold;
+        }
+
+        public ModifiedMonitoredElementsParameters setVoltageModificationAbsoluteThreshold(double voltageModificationAbsoluteThreshold) {
+            this.voltageModificationAbsoluteThreshold = voltageModificationAbsoluteThreshold;
+            return this;
+        }
+
+        public void load(ModuleConfig config) {
+            setPowerModificationThreshold(config.getDoubleProperty("power-modification-threshold", DEFAULT_POWER_MODIFICATION_THRESHOLD))
+                    .setVoltageModificationProportionalThreshold(config.getDoubleProperty("voltage-modification-proportional-threshold", DEFAULT_VOLTAGE_MODIFICATION_PROPORTIONAL_THRESHOLD))
+                    .setVoltageModificationAbsoluteThreshold(config.getDoubleProperty("voltage-modification-absolute-threshold", DEFAULT_VOLTAGE_MODIFICATION_ABSOLUTE_THRESHOLD));
+        }
+
+        /**
+         * Returns the voltage modification threshold for a given pre-contingency voltage.
+         * If absolute threshold is not 0, it is returned. Otherwise, proportional threshold is used.
+         * If both thresholds are set, the minimum of the two is returned.
+         *
+         * @param preContingencyVoltage the voltage for which to calculate the threshold
+         * @return the voltage modification threshold
+         */
+        public double getVoltageModificationThreshold(double preContingencyVoltage) {
+            if (voltageModificationAbsoluteThreshold == 0.0) {
+                return voltageModificationProportionalThreshold * preContingencyVoltage;
+            } else if (voltageModificationProportionalThreshold == 0.0) {
+                return voltageModificationAbsoluteThreshold;
+            } else {
+                return Math.min(voltageModificationAbsoluteThreshold, voltageModificationProportionalThreshold * preContingencyVoltage);
+            }
+        }
+    }
+
     /**
      * Load parameters from platform default config.
      */
@@ -173,6 +266,8 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
                 .ifPresent(config -> {
                     parameters.setIntermediateResultsInOperatorStrategy(config.getBooleanProperty("intermediate-results-in-operator-strategy", DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY));
                     parameters.getIncreasedViolationsParameters().load(config);
+                    parameters.getModifiedMonitoredElementsParameters().load(config);
+                    config.getOptionalStringProperty("debug-dir").ifPresent(parameters::setDebugDir);
                 });
 
         parameters.readExtensions(platformConfig);
@@ -195,6 +290,15 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         return this;
     }
 
+    public ModifiedMonitoredElementsParameters getModifiedMonitoredElementsParameters() {
+        return modifiedMonitoredElementsParameters;
+    }
+
+    public SecurityAnalysisParameters setModifiedMonitoredElementsParameters(ModifiedMonitoredElementsParameters modifiedMonitoredElementsParameters) {
+        this.modifiedMonitoredElementsParameters = Objects.requireNonNull(modifiedMonitoredElementsParameters);
+        return this;
+    }
+
     public void write(Path parametersPath) {
         JsonSecurityAnalysisParameters.write(this, parametersPath);
     }
@@ -214,6 +318,15 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     public SecurityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
+        return this;
+    }
+
+    public String getDebugDir() {
+        return debugDir;
+    }
+
+    public SecurityAnalysisParameters setDebugDir(String debugDir) {
+        this.debugDir = debugDir;
         return this;
     }
 

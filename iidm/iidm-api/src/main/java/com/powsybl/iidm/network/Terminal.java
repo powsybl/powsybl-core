@@ -55,7 +55,7 @@ public interface Terminal {
         Bus getBus();
 
         /**
-         * Get a bus that can be used to connected the terminal in the
+         * Get a bus that can be used to connect the terminal in the
          * bus/breaker topology.
          */
         Bus getConnectableBus();
@@ -149,6 +149,13 @@ public interface Terminal {
      * @see VariantManager
      */
     double getI();
+
+    /**
+     * Removes P and Q values of this terminal.
+     */
+    default void unsetSolvedValues() {
+        this.setP(Double.NaN).setQ(Double.NaN);
+    }
 
     /**
      * Try to connect the terminal.<br/>

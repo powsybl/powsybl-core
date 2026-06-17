@@ -943,7 +943,7 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or V_DC_DROOP               |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or P_PCC_DROOP              |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
 | $DroopCurve$    |          | Droop curve for droop control mode                                    |

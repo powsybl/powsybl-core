@@ -281,14 +281,6 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         this.generation = generation != null ? generation.attach(this) : null;
     }
 
-    @Override
-    void replaceId(String newId) {
-        NetworkIndex.checkId(newId);
-        network.get().getIndex().remove(this);
-        id = newId;
-        network.get().getIndex().checkAndAdd(this);
-    }
-
     void setTieLine(TieLineImpl tieLine) {
         this.tieLine = tieLine;
     }
@@ -497,7 +489,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups() {
         return operationalLimitsGroups.getAllSelectedOperationalLimitsGroups();
     }
 
