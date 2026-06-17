@@ -202,7 +202,15 @@ public final class TopologyModificationUtils {
         String vlId = voltageLevel.getId();
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
-            voltageLevelRemovingEquipmentsLeftReport(reportNode, vlId);
+            boolean noMoreBranch = voltageLevel.getConnectableStream().noneMatch(c -> switch (c.getType()) {
+                case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION -> true;
+                default -> false;
+            });
+            if (noMoreBranch) {
+                voltageLevelNotRemovedWithNoBranch(reportNode, vlId);
+            } else {
+                voltageLevelNotRemovedWithRemainingBranches(reportNode, vlId);
+            }
             LOGGER.warn("Voltage level {} still contains equipments and it is not removed.", vlId);
             return;
         }
