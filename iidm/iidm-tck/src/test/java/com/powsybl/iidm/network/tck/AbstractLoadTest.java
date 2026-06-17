@@ -62,7 +62,7 @@ public abstract class AbstractLoadTest {
     @Test
     public void testChangesNotification() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
 
@@ -149,7 +149,7 @@ public abstract class AbstractLoadTest {
     @Test
     public void testSetterGetterInMultiVariants() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Set observer changes
         network.addListener(mockedListener);
 
@@ -300,7 +300,7 @@ public abstract class AbstractLoadTest {
 
     @Test
     public void setNameTest() {
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         network.addListener(mockedListener);
         Load load = network.getLoad("CE");
         assertNotNull(load);

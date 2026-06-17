@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.VariantManager;
@@ -66,12 +65,12 @@ public abstract class AbstractManipulationsOnVariantsTest {
 
     @Test
     public void baseTests() {
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(NetworkListener.class);
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantCreated(any(), anyString());
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantOverwritten(any(), any());
         doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantRemoved(any());
 
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);
