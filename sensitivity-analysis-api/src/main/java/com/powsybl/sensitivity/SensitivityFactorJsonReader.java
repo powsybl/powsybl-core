@@ -10,6 +10,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -22,9 +23,11 @@ import java.util.Objects;
 public class SensitivityFactorJsonReader implements SensitivityFactorReader {
 
     private final Path jsonFile;
+    private final Network network;
 
-    public SensitivityFactorJsonReader(Path jsonFile) {
+    public SensitivityFactorJsonReader(Path jsonFile, Network network) {
         this.jsonFile = Objects.requireNonNull(jsonFile);
+        this.network = Objects.requireNonNull(network);
     }
 
     @Override
@@ -39,7 +42,8 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
                     if (token == JsonToken.FIELD_NAME) {
                         SensitivityFactor.parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
-                        handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                        String functionId = SensitivityFactor.resolveBusId(context.functionId, context.functionType, network);
+                        handler.onFactor(context.functionType, functionId, context.variableType, context.variableId, context.variableSet,
                                 ContingencyContext.create(context.contingencyId, context.contingencyContextType));
                         context.reset();
                     } else if (token == JsonToken.END_ARRAY) {

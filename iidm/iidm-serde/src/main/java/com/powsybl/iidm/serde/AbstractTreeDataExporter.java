@@ -95,6 +95,11 @@ import static com.powsybl.iidm.serde.ExtensionOptionsUtil.getAndCheckExtensionsT
  *         <td>if true automation systems are exported</td>
  *         <td>true or false</td>
  *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.force-export-network-with-beta-features</td>
+ *         <td>if true, export network with not serializable beta element by ignoring those elements</td>
+ *         <td>true or false</td>
+ *     </tr>
  * </table>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -122,6 +127,8 @@ public abstract class AbstractTreeDataExporter implements Exporter {
     public static final String VOLTAGE_LEVELS_NODE_BREAKER = "iidm.export.xml.topology-level.voltage-levels.node-breaker";
     public static final String VOLTAGE_LEVELS_BUS_BREAKER = "iidm.export.xml.topology-level.voltage-levels.bus-breaker";
     public static final String VOLTAGE_LEVELS_BUS_BRANCH = "iidm.export.xml.topology-level.voltage-levels.bus-branch";
+    public static final String ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS = "iidm.export.xml.only-selected-operational-limits-groups";
+    public static final String FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES = "iidm.export.xml.force-export-network-with-beta-features";
 
     private static final String THROW_EXCEPTION = "THROW_EXCEPTION";
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
@@ -154,11 +161,17 @@ public abstract class AbstractTreeDataExporter implements Exporter {
             "Apply Bus/Breaker topology level at export for listed voltage levels", List.of());
     private static final Parameter VOLTAGE_LEVELS_BUSBRANCH_PARAMETER = new Parameter(VOLTAGE_LEVELS_BUS_BRANCH, ParameterType.STRING_LIST,
             "Apply Bus/Branch topology level at export for listed voltage levels", List.of());
+    private static final Parameter ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER = new Parameter(ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS,
+        ParameterType.BOOLEAN, "For each equipment, export only the selected operational limits groups if this is true",
+        false);
+    private static final Parameter FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES_PARAMETER = new Parameter(FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES, ParameterType.BOOLEAN,
+                        "Force the export of a network containing elements in a beta state, skipping the serialization of beta elements when the serialization does not exist.", false);
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_INCLUDED_LIST_PARAMETER,
             EXTENSIONS_EXCLUDED_LIST_PARAMETER, SORTED_PARAMETER, VERSION_PARAMETER, WITH_AUTOMATION_SYSTEMS_PARAMETER,
-            VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, FLATTEN_PARAMETER);
+            VOLTAGE_LEVELS_NODEBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBREAKER_PARAMETER, VOLTAGE_LEVELS_BUSBRANCH_PARAMETER, FLATTEN_PARAMETER,
+            ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES_PARAMETER);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     protected AbstractTreeDataExporter(PlatformConfig platformConfig) {
@@ -256,7 +269,9 @@ public abstract class AbstractTreeDataExporter implements Exporter {
                 .setFormat(getTreeDataFormat())
                 .setBusBranchVoltageLevelIncompatibilityBehavior(ExportOptions.BusBranchVoltageLevelIncompatibilityBehavior.valueOf(
                         Parameter.readString(getFormat(), parameters, BUS_BRANCH_VOLTAGE_LEVEL_INCOMPATIBILITY_BEHAVIOR_PARAMETER, defaultValueConfig)))
-                .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig));
+                .setWithAutomationSystems(Parameter.readBoolean(getFormat(), parameters, WITH_AUTOMATION_SYSTEMS_PARAMETER, defaultValueConfig))
+                .setOnlySelectedOperationalLimitsGroups(Parameter.readBoolean(getFormat(), parameters, ONLY_SELECTED_OPERATIONAL_LIMITS_GROUPS_PARAMETER, defaultValueConfig))
+                .setForceExportNetworkWithBetaFeatures(Parameter.readBoolean(getFormat(), parameters, FORCE_EXPORT_NETWORK_WITH_BETA_FEATURES_PARAMETER, defaultValueConfig));
         boolean someExtensionsShouldBeIncluded = getAndCheckExtensionsToInclude(parameters, options, getFormat(), defaultValueConfig, EXTENSIONS_INCLUDED_LIST_PARAMETER, EXTENSIONS_EXCLUDED_LIST_PARAMETER, true);
         if (someExtensionsShouldBeIncluded) {
             addExtensionsVersions(parameters, options);
