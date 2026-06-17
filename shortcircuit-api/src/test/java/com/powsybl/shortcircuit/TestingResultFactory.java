@@ -128,8 +128,8 @@ public final class TestingResultFactory {
     }
 
     public static ShortCircuitAnalysisResult createResultWithTwoFaultResults() {
-        Fault fault1 = new BusFault("id1", "busId", 0.0, 0.0);
-        Fault fault2 = new BusFault("id2", "busId2", 0.0, 0.0);
+        Fault fault1 = new BusFault("id1", "busId", Fault.FaultType.LINE_TO_LINE_WITH_EARTH_CONNECTION);
+        Fault fault2 = new BusFault("id2", "busId2");
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;

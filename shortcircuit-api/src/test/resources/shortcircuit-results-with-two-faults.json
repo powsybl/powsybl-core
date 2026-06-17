@@ -1,5 +1,5 @@
 {
-  "version" : "1.4",
+  "version" : "1.5",
   "faultResults" : [ {
     "status" : "SUCCESS",
     "fault" : {
@@ -9,7 +9,7 @@
       "r" : 0.0,
       "x" : 0.0,
       "connection" : "SERIES",
-      "faultType" : "THREE_PHASE"
+      "faultType" : "LINE_TO_LINE_WITH_EARTH_CONNECTION"
     },
     "shortCircuitPower" : 1.0,
     "current" : {
