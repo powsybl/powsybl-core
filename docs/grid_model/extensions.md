@@ -312,14 +312,19 @@ This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 ## Line Fortescue
 
 This extension models the homopolar line data to be used for asymmetrical short-circuit calculations.
+Side 1 and side 2 correspond respectively to terminal1 and terminal2 of the line.
 
-| Attribute  | Type    | Unit | Required | Default value | Description                                  |
-|------------|---------|------|----------|---------------|----------------------------------------------|
-| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line     |
-| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line      |
-| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open |
-| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open |
-| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open |
+| Attribute  | Type    | Unit | Required | Default value | Description                                         |
+|------------|---------|------|----------|---------------|-----------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line            |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line             |
+| g1z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 1 |
+| b1z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 1 |
+| g2z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 2 |
+| b2z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 2 |
+| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open        |
+| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open        |
+| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open        |
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
