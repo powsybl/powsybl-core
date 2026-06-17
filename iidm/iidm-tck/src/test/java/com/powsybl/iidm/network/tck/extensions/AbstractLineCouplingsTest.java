@@ -239,4 +239,59 @@ public abstract class AbstractLineCouplingsTest {
         exception = assertThrows(PowsyblException.class, mutualCouplingAdder::add);
         assertEquals("x must be defined.", exception.getMessage());
     }
+
+    @Test
+    void testListener() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Line l1 = network.getLine("NHV1_NHV2_1");
+        Line l2 = network.getLine("NHV1_NHV2_2");
+        Line l1Copy = network.newLine(l1)
+                .setId("NHV1_NHV2_1_COPY")
+                .setBus1(EurostagTutorialExample1Factory.NHV1)
+                .setConnectableBus1(EurostagTutorialExample1Factory.NHV1)
+                .setBus2(EurostagTutorialExample1Factory.NHV2)
+                .setConnectableBus2(EurostagTutorialExample1Factory.NHV2)
+                .add();
+        Line l2Copy = network.newLine(l2)
+                .setId("NHV1_NHV2_2_COPY")
+                .setBus1(EurostagTutorialExample1Factory.NHV1)
+                .setConnectableBus1(EurostagTutorialExample1Factory.NHV1)
+                .setBus2(EurostagTutorialExample1Factory.NHV2)
+                .setConnectableBus2(EurostagTutorialExample1Factory.NHV2)
+                .add();
+
+        network.newExtension(LineCouplingsAdder.class).add();
+        LineCouplings lc = network.getExtension(LineCouplings.class);
+        lc.newMutualCoupling()
+                .withLine1(l1)
+                .withLine2(l2)
+                .withR(0.1)
+                .withX(0.2)
+                .add();
+        lc.newMutualCoupling()
+                .withLine1(l1Copy)
+                .withLine2(l2)
+                .withR(0.1)
+                .withX(0.2)
+                .add();
+        lc.newMutualCoupling()
+                .withLine1(l1)
+                .withLine2(l2Copy)
+                .withR(0.1)
+                .withX(0.2)
+                .add();
+        lc.newMutualCoupling()
+                .withLine1(l2)
+                .withLine2(l2Copy)
+                .withR(0.1)
+                .withX(0.2)
+                .add();
+        assertEquals(4, lc.getMutualCouplings().size());
+
+        l1Copy.remove();
+        assertEquals(3, lc.getMutualCouplings().size());
+
+        l2Copy.remove();
+        assertEquals(1, lc.getMutualCouplings().size());
+    }
 }

@@ -9,8 +9,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LineCouplings;
 import com.powsybl.iidm.network.extensions.MutualCoupling;
 import com.powsybl.iidm.network.extensions.MutualCouplingAdder;
@@ -23,6 +22,7 @@ import java.util.*;
 public class LineCouplingsImpl extends AbstractExtension<Network> implements LineCouplings {
 
     private final LinkedList<MutualCoupling> mutualCouplings = new LinkedList<>();
+    private NetworkListener listener;
 
     @Override
     public List<MutualCoupling> getMutualCouplings() {
@@ -72,5 +72,33 @@ public class LineCouplingsImpl extends AbstractExtension<Network> implements Lin
     private boolean matches(MutualCoupling mutualCoupling, Line line1, Line line2) {
         return mutualCoupling.getLine1() == line1 && mutualCoupling.getLine2() == line2
             || mutualCoupling.getLine1() == line2 && mutualCoupling.getLine2() == line1;
+    }
+
+    @Override
+    public void setExtendable(Network network) {
+        // Clean potential previous subscription
+        unsubscribeListener();
+        super.setExtendable(network);
+
+        listener = new DefaultNetworkListener() {
+            @Override
+            public void beforeRemoval(Identifiable<?> identifiable) {
+                if (identifiable instanceof Line line) {
+                    mutualCouplings.removeIf(mc -> mc.getLine1() == line || mc.getLine2() == line);
+                }
+            }
+        };
+        network.addListener(listener);
+    }
+
+    @Override
+    public void cleanup() {
+        unsubscribeListener();
+    }
+
+    private void unsubscribeListener() {
+        if (this.getExtendable() != null && listener != null) {
+            this.getExtendable().removeListener(listener);
+        }
     }
 }
