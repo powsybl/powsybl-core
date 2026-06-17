@@ -204,4 +204,11 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-multiple-feeder-results.json");
     }
+
+    @Test
+    void roundtripTestWithTwoFaultTypes() throws IOException {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithTwoFaultResults(Fault.FaultType.LINE_TO_LINE, Fault.FaultType.LINE_TO_LINE_WITH_EARTH_CONNECTION);
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-fault-types.json");
+    }
+
 }

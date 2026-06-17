@@ -9,7 +9,7 @@
       "r" : 0.0,
       "x" : 0.0,
       "connection" : "SERIES",
-      "faultType" : "THREE_PHASE"
+      "faultType" : "LINE_TO_LINE"
     },
     "shortCircuitPower" : 1.0,
     "current" : {
@@ -45,7 +45,7 @@
       "r" : 0.0,
       "x" : 0.0,
       "connection" : "SERIES",
-      "faultType" : "THREE_PHASE"
+      "faultType" : "LINE_TO_LINE_WITH_EARTH_CONNECTION"
     },
     "shortCircuitPower" : 1.0,
     "currentMagnitude" : 10.0
