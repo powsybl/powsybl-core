@@ -10,27 +10,53 @@ package com.powsybl.iidm.network.identifiers.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.identifiers.*;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.IdWithWildcardsNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
+import com.powsybl.iidm.network.identifiers.SubstationOrVoltageLevelEquipmentsIdentifier;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdentifier> {
+public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdentifier> implements ResolvableDeserializer {
     private static final String CONTEXT_NAME = "Identifier";
     private static final String CONTINGENCY_ID = "contingencyId";
 
     public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
+    private JsonDeserializer<Object> typeDeserializer;
+    private JsonDeserializer<Object> identifierListDeserializer;
+    private JsonDeserializer<Object> identifiableTypeSetDeserializer;
+
     public IdentifierDeserializer() {
         super(NetworkElementIdentifier.class);
+    }
+
+    @Override
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
+        this.typeDeserializer = ctxt.findContextualValueDeserializer(ctxt.constructType(NetworkElementIdentifier.IdentifierType.class), null);
+
+        JavaType listType = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, NetworkElementIdentifier.class);
+        this.identifierListDeserializer = ctxt.findContextualValueDeserializer(listType, null);
+
+        JavaType setType = ctxt.getTypeFactory().constructCollectionType(HashSet.class, IdentifiableType.class);
+        this.identifiableTypeSetDeserializer = ctxt.findContextualValueDeserializer(setType, null);
     }
 
     @Override
@@ -48,7 +74,12 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "type" -> type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextTextValue());
+                case "type" -> {
+                    parser.nextToken();
+                    type = typeDeserializer != null ?
+                        (NetworkElementIdentifier.IdentifierType) typeDeserializer.deserialize(parser, deserializationContext) :
+                        NetworkElementIdentifier.IdentifierType.valueOf(parser.getText());
+                }
                 case "identifier" -> identifier = parser.nextTextValue();
                 case CONTINGENCY_ID -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, CONTINGENCY_ID, version, "1.2");
@@ -56,14 +87,18 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                 }
                 case "identifierList" -> {
                     parser.nextToken();
-                    networkElementIdentifierList = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                    networkElementIdentifierList = identifierListDeserializer != null ?
+                        (List<NetworkElementIdentifier>) identifierListDeserializer.deserialize(parser, deserializationContext) :
+                        JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 case "voltageLevelId1" -> voltageLevelId1 = parser.nextTextValue();
                 case "voltageLevelId2" -> voltageLevelId2 = parser.nextTextValue();
                 case "substationOrVoltageLevelId" -> substationOrVoltageLevelId = parser.nextTextValue();
                 case "voltageLevelIdentifiableTypes" -> {
                     parser.nextToken();
-                    voltageLevelIdentifiableTypes = JsonUtil.readSet(deserializationContext, parser, IdentifiableType.class);
+                    voltageLevelIdentifiableTypes = identifiableTypeSetDeserializer != null ?
+                        (Set<IdentifiableType>) identifiableTypeSetDeserializer.deserialize(parser, deserializationContext) :
+                        JsonUtil.readSet(deserializationContext, parser, IdentifiableType.class);
                 }
                 case "order" -> {
                     String orderStr = parser.nextTextValue();

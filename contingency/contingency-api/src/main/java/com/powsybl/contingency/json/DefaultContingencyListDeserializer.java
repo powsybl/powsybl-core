@@ -10,23 +10,42 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> {
+public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> implements ContextualDeserializer {
+
+    private final JsonDeserializer<Object> contingenciesDeserializer;
 
     public DefaultContingencyListDeserializer() {
+        this(null);
+    }
+
+    public DefaultContingencyListDeserializer(JsonDeserializer<?> contingenciesDeserializer) {
         super(DefaultContingencyList.class);
+        this.contingenciesDeserializer = (JsonDeserializer<Object>) contingenciesDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        JavaType type = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, Contingency.class);
+        return new DefaultContingencyListDeserializer(ctxt.findContextualValueDeserializer(type, property));
     }
 
     public DefaultContingencyList deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
@@ -44,7 +63,9 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
                 }
                 case "contingencies" -> {
                     parser.nextToken();
-                    contingencies = JsonUtil.readList(ctx, parser, Contingency.class);
+                    contingencies = contingenciesDeserializer != null ?
+                        (List<Contingency>) contingenciesDeserializer.deserialize(parser, ctx) :
+                        JsonUtil.readList(ctx, parser, Contingency.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
