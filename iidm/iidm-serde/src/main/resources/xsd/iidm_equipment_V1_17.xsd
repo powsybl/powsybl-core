@@ -411,8 +411,8 @@
                 <xs:attribute name="q0" use="optional" type="xs:double"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
-                <xs:attribute name="g" use="required" type="xs:double"/>
-                <xs:attribute name="b" use="required" type="xs:double"/>
+                <xs:attribute name="g" use="optional" default="0" type="xs:double"/>
+                <xs:attribute name="b" use="optional" default="0" type="xs:double"/>
                 <xs:attribute name="generationMinP" use="optional" type="xs:double"/>
                 <xs:attribute name="generationMaxP" use="optional" type="xs:double"/>
                 <xs:attribute name="generationVoltageRegulationOn" use="optional" type="xs:boolean"/>
