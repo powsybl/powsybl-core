@@ -100,6 +100,23 @@ class ReactiveCapabilityShapeLimitsTest {
     }
 
     @Test
+    void testVoltageBoundConstrainsOptimalQ() {
+        // Planes: Q ≤ U (delta=1, alpha=-1) and Q ≥ -1000, with U bounded to [10, 20].
+        // No P or Q bounds are set, so the voltage bound is the only thing capping max Q.
+        List<ReactiveCapabilityShapePlane> envelopeConstraints = Arrays.asList(
+            ReactiveCapabilityShapePlaneImpl.build(-1.0, 0.0).lessOrEqual(0.0),      // Q - U ≤ 0  → Q ≤ U
+            ReactiveCapabilityShapePlaneImpl.build(0.0, 0.0).greaterOrEqual(-1000.0) // Q ≥ -1000
+        );
+        ReactiveCapabilityShapePolyhedron operatingEnvelope = ReactiveCapabilityShapePolyhedron.build(envelopeConstraints)
+                .withVoltageBounds(10.0, 20.0);
+
+        // Since Q ≤ U and U ≤ 20, the maximum reactive power is 20 for any feasible active power.
+        // If the voltage bound were applied to the wrong LP variable, U would be unbounded above
+        // (and P over-constrained), making this solve unbounded/infeasible instead.
+        assertEquals(20.0, operatingEnvelope.getMaxQ(5.0), EPSILON_PRECISION);
+    }
+
+    @Test
     void testGeneratorReactivePlaneToString() {
         // Generator PQV upper limit: Q + 0.002*U - 0.300*P ≤ 200
         ReactiveCapabilityShapePlane plane = ReactiveCapabilityShapePlaneImpl.build(0.002, -0.3).lessOrEqual(200.0);

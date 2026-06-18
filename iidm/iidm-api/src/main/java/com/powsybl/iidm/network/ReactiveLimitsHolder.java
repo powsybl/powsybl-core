@@ -52,12 +52,4 @@ public interface ReactiveLimitsHolder {
         return adder;
     }
 
-    default double getMinP() {
-        return Double.NaN;
-    }
-
-    default double getMaxP() {
-        return Double.NaN;
-    }
-
 }

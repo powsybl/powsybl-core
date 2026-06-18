@@ -22,6 +22,14 @@ import static org.apache.commons.math3.util.Precision.EPSILON;
  * U = Voltage (KV)
  * </pre>
  *
+ * <p>The affine expression ({@code alpha}, {@code beta}, {@code delta}) is fixed at construction time
+ * through {@link #build}, while the inequality direction and the {@code gamma} right-hand side are set
+ * afterwards through {@link #lessOrEqual(double)} / {@link #greaterOrEqual(double)}. This split keeps the
+ * geometric coefficients of the plane independent from its relational orientation, which mirrors the way
+ * the half-space is later assembled into a {@code LinearConstraint}. Users of the public API never deal
+ * with this two-step construction: {@code ReactiveCapabilityShapeAdder.addPlane(...)} takes the
+ * coefficients, the inequality direction and {@code gamma} in a single call.</p>
+ *
  * @author Fabrice Buscaylet {@literal <fabrice.buscaylet at artelys.com>}
  */
 public final class ReactiveCapabilityShapePlaneImpl implements ReactiveCapabilityShapePlane {

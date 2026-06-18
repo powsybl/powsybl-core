@@ -34,11 +34,13 @@ public final class ReactiveCapabilityShapePolyhedron {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityShapePolyhedron.class);
     /**
-     * Variables indexes
+     * Variable indexes in the linear program decision vector.
+     * The vector is ordered (Q, U, P) to match the plane coefficient arrays
+     * {@code {delta (Q), alpha (U), beta (P)}} used everywhere in this class.
      */
     private static final int IDX_Q = 0;
-    private static final int IDX_P = 1;
-    private static final int IDX_U = 2;
+    private static final int IDX_U = 1;
+    private static final int IDX_P = 2;
     /**
      * The convex polyhedron hyperplanes
      */
