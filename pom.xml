@@ -154,7 +154,7 @@
         <xz.version>1.12</xz.version>
         <zstdjni.version>1.5.7-10</zstdjni.version>
 
-        <powsyblmathnative.version>1.4.0</powsyblmathnative.version>
+        <powsyblmathnative.version>1.5.0</powsyblmathnative.version>
 
         <!-- Other variables -->
         <enable-dynamic-agent-loading.argLine/>
