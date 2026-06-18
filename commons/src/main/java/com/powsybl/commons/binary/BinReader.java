@@ -230,7 +230,9 @@ public class BinReader extends AbstractTreeDataReader {
         if (isAttrAbsent(name)) {
             return defaultValue;
         }
-        return readStringAttribute(name);
+        String val = readString();
+        peekNextEntry();
+        return val;
     }
 
     @Override
