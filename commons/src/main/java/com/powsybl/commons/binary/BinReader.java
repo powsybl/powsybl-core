@@ -12,12 +12,9 @@ import com.powsybl.commons.io.AbstractTreeDataReader;
 import com.powsybl.commons.io.TreeDataHeader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import static com.powsybl.commons.binary.BinUtil.*;
@@ -37,13 +34,9 @@ public class BinReader extends AbstractTreeDataReader {
     private int nextNameIdx = END_NODE;
     private byte nextType;
 
-    public BinReader(ReadableByteChannel channel, byte[] binaryMagicNumber) {
+    public BinReader(InputStream inputStream, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
-        this.in = new BufferedChannelReader(Objects.requireNonNull(channel));
-    }
-
-    public BinReader(Path path, byte[] binaryMagicNumber) throws IOException {
-        this(Files.newByteChannel(Objects.requireNonNull(path), StandardOpenOption.READ), binaryMagicNumber);
+        this.in = new BufferedChannelReader(Objects.requireNonNull(inputStream));
     }
 
     @Override

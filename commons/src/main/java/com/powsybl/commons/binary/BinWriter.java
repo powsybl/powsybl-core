@@ -11,12 +11,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import static com.powsybl.commons.binary.BinUtil.*;
@@ -38,16 +37,10 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     private record TypedName(String name, byte type) { }
 
-    public BinWriter(WritableByteChannel channel, byte[] binaryMagicNumber, String rootVersion) {
-        this.channel = Objects.requireNonNull(channel);
+    public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
+        this.channel = Channels.newChannel(Objects.requireNonNull(outputStream));
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
         this.rootVersion = Objects.requireNonNull(rootVersion);
-    }
-
-    public BinWriter(Path path, byte[] binaryMagicNumber, String rootVersion) throws IOException {
-        this(Files.newByteChannel(Objects.requireNonNull(path),
-                StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
-            binaryMagicNumber, rootVersion);
     }
 
     private static void writeString(String value, GrowingByteBuffer buf) {

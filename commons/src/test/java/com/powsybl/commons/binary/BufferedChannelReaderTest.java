@@ -10,14 +10,9 @@ package com.powsybl.commons.binary;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class BufferedChannelReaderTest {
 
-    private static ReadableByteChannel readerOf(byte[] data) {
-        return Channels.newChannel(new ByteArrayInputStream(data));
+    private static InputStream readerOf(byte[] data) {
+        return new ByteArrayInputStream(data);
     }
 
     @FunctionalInterface
