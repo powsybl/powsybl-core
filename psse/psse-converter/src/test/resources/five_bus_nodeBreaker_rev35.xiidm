@@ -51,7 +51,7 @@
                 <iidm:step g="125.0" b="125.0" rho="0.6666666666666666"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
-        <iidm:threeWindingsTransformer id="T-1-3-4-1 " name="3WT         " r1="367.48" x1="1.6384999999999997E-4" g1="0.0" b1="0.0" ratedU1="138.0" r2="2975.31" x2="0.0011793499999999998" g2="0.0" b2="0.0" ratedU2="45.0" r3="-352.33" x3="9.013500000000002E-4" g3="0.0" b3="0.0" ratedU3="21.0" ratedU0="1.0" voltageLevelId1="VL1" node1="5" voltageLevelId2="VL3" node2="4" voltageLevelId3="VL4" node3="3">
+        <iidm:threeWindingsTransformer id="T-1-3-4-1 " name="3WT         " r1="367.48" x1="1.6384999999999997E-4" ratedU1="138.0" r2="2975.31" x2="0.0011793499999999998" ratedU2="45.0" r3="-352.33" x3="9.013500000000002E-4" ratedU3="21.0" ratedU0="1.0" voltageLevelId1="VL1" node1="5" voltageLevelId2="VL3" node2="4" voltageLevelId3="VL4" node3="3">
             <iidm:property name="v" value="1.0"/>
             <iidm:property name="angle" value="0.0"/>
             <iidm:ratioTapChanger1 tapPosition="0" loadTapChangingCapabilities="false">
