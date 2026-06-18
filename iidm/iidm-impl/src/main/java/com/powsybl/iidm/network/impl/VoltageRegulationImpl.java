@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
@@ -23,14 +24,35 @@ import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public class VoltageRegulationImpl implements VoltageRegulationExt {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VoltageRegulationImpl.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(VoltageRegulationImpl.class);
+    private static final String VOLTAGE_REGULATION_PREFIX = "VoltageRegulation.";
+
+    public enum NotifyUpdateKey {
+        REGULATION_MODE(VOLTAGE_REGULATION_PREFIX + "RegulationMode"),
+        REGULATING(VOLTAGE_REGULATION_PREFIX + "isRegulating"),
+        TERMINAL(VOLTAGE_REGULATION_PREFIX + "Terminal"),
+        SLOPE(VOLTAGE_REGULATION_PREFIX + "Slope"),
+        TARGET_VALUE(VOLTAGE_REGULATION_PREFIX + "TargetValue"),
+        TARGET_DEADBAND(VOLTAGE_REGULATION_PREFIX + "TargetDeadband");
+
+        private final String key;
+
+        NotifyUpdateKey(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return this.key;
+        }
+    }
 
     // Context
     private final Validable validable;
@@ -117,8 +139,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return setTargetValueOnCurrentVariant(targetValue);
     }
 
-    private double setTargetValueOnCurrentVariant(double targetValue) {
-        return this.targetValue.set(getCurrentVariantIndex(), targetValue);
+    private double setTargetValueOnCurrentVariant(double newTargetValue) {
+        double oldTargetValue = this.targetValue.set(getCurrentVariantIndex(), newTargetValue);
+        int currentVariantIndex = getCurrentVariantIndex();
+        String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
+        notifyUpdate(NotifyUpdateKey.TARGET_VALUE, variantId, oldTargetValue, newTargetValue);
+        return oldTargetValue;
     }
 
     @Override
@@ -136,8 +162,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return setTargetDeadbandOnCurrentVariant(targetDeadband);
     }
 
-    private double setTargetDeadbandOnCurrentVariant(double targetDeadband) {
-        return this.targetDeadband.set(getCurrentVariantIndex(), targetDeadband);
+    private double setTargetDeadbandOnCurrentVariant(double newTargetDeadband) {
+        double oldTargetDeadband = this.targetDeadband.set(getCurrentVariantIndex(), newTargetDeadband);
+        int currentVariantIndex = getCurrentVariantIndex();
+        String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
+        notifyUpdate(NotifyUpdateKey.TARGET_DEADBAND, variantId, oldTargetDeadband, newTargetDeadband);
+        return oldTargetDeadband;
     }
 
     @Override
@@ -155,8 +185,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return setSlopeOnCurrentVariant(slope);
     }
 
-    private double setSlopeOnCurrentVariant(double slope) {
-        return this.slope.set(getCurrentVariantIndex(), slope);
+    private double setSlopeOnCurrentVariant(double newSlope) {
+        double oldSlope = this.slope.set(getCurrentVariantIndex(), newSlope);
+        int currentVariantIndex = getCurrentVariantIndex();
+        String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
+        notifyUpdate(NotifyUpdateKey.SLOPE, variantId, oldSlope, newSlope);
+        return oldSlope;
     }
 
     @Override
@@ -188,13 +222,16 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return setModeOnCurrentVariant(mode);
     }
 
-    private @Nullable RegulationMode setModeOnCurrentVariant(RegulationMode mode) {
+    private @Nullable RegulationMode setModeOnCurrentVariant(RegulationMode newMode) {
         RegulationMode oldMode = getMode();
-        if (mode == null) {
-            regulationMode.set(getCurrentVariantIndex(), UNDEFINED_REGULATION_MODE);
+        int currentVariantIndex = getCurrentVariantIndex();
+        String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
+        if (newMode == null) {
+            regulationMode.set(currentVariantIndex, UNDEFINED_REGULATION_MODE);
         } else {
-            regulationMode.set(getCurrentVariantIndex(), mode.getIndex());
+            regulationMode.set(currentVariantIndex, newMode.getIndex());
         }
+        notifyUpdate(NotifyUpdateKey.REGULATION_MODE, variantId, oldMode, newMode);
         return oldMode;
     }
 
@@ -219,8 +256,13 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return setRegulatingOnCurrentVariant(regulating);
     }
 
-    private boolean setRegulatingOnCurrentVariant(boolean regulating) {
-        return this.regulating.set(getCurrentVariantIndex(), regulating);
+    private boolean setRegulatingOnCurrentVariant(boolean newRegulating) {
+        boolean oldRegulating = isRegulating();
+        int currentVariantIndex = getCurrentVariantIndex();
+        String variantId = network.get().getVariantManager().getVariantId(currentVariantIndex);
+        notifyUpdate(NotifyUpdateKey.REGULATING, variantId, oldRegulating, newRegulating);
+        this.regulating.set(getCurrentVariantIndex(), newRegulating);
+        return oldRegulating;
     }
 
     @Override
@@ -335,15 +377,17 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return network.get().getVariantIndex();
     }
 
-    private void updateTerminal(Terminal terminal) {
+    private void updateTerminal(Terminal newTerminal) {
+        Terminal oldTerminal = this.terminal;
         if (this.terminal != null) {
             this.terminal.getReferrerManager().unregister(this);
             this.terminal = null;
         }
-        if (terminal != null) {
-            this.terminal = (TerminalExt) terminal;
+        if (newTerminal != null) {
+            this.terminal = (TerminalExt) newTerminal;
             this.terminal.getReferrerManager().register(this);
         }
+        notifyUpdate(NotifyUpdateKey.TERMINAL, oldTerminal, newTerminal);
     }
 
     private void actionOnRemovedTerminal() {
@@ -356,7 +400,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
             Bus bus = terminal.getBusView().getBus();
             Bus localBus = localTerminal.getBusView().getBus();
             if (bus != null && bus == localBus) {
-                LOG.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", terminal.getConnectable().getId(),
+                LOGGER.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", terminal.getConnectable().getId(),
                     regulatedEquipmentId, regulatedEquipmentId);
                 updateTerminal(localTerminal);
                 return;
@@ -366,7 +410,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         } else {
             updateTerminal(null);
         }
-        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
+        LOGGER.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", oldRegulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
         if (regulating != null) {
             regulating.fill(0, regulating.size(), false);
         }
@@ -380,12 +424,24 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         if (localTerminal != null) {
             regulatedEquipmentId = localTerminal.getConnectable().getId();
         } else {
-            if (validable instanceof RatioTapChangerParent parent) {
-                regulatedEquipmentId = parent.getTransformer().getId();
-            } else {
-                regulatedEquipmentId = "";
-            }
+            regulatedEquipmentId = getIdentifiable().getId();
         }
         return regulatedEquipmentId;
+    }
+
+    protected void notifyUpdate(@Nonnull NotifyUpdateKey attribute, Object oldValue, Object newValue) {
+        network.get().getListeners().notifyUpdate(getIdentifiable(), attribute.getKey(), oldValue, newValue);
+    }
+
+    protected void notifyUpdate(@Nonnull NotifyUpdateKey attribute, String variantId, Object oldValue, Object newValue) {
+        network.get().getListeners().notifyUpdate(getIdentifiable(), attribute.getKey(), variantId, oldValue, newValue);
+    }
+
+    private Identifiable<?> getIdentifiable() {
+        if (validable instanceof RatioTapChangerParent parent) {
+            return parent.getTransformer();
+        } else {
+            return (Identifiable<?>) this.validable;
+        }
     }
 }
