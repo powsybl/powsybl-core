@@ -84,8 +84,7 @@ final class ContainersMappingHelper {
         private String getSubstationId(Set<Integer> ids) {
             String substationId = getPowerFactorySubstationId(ids);
             // automatic naming
-            return Objects.requireNonNullElseGet(substationId, () -> "S" + ids.stream().sorted().findFirst()
-                .orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set")));
+            return Objects.requireNonNullElseGet(substationId, () -> buildSubstationId(ids.stream().sorted().findFirst().orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set"))));
         }
 
         // Find an ElmSite with same ElmSubstats as defined by the ids argument
@@ -255,5 +254,9 @@ final class ContainersMappingHelper {
             id -> 0,
             busesToVoltageLevelId::getVoltageLevelId,
             busesToVoltageLevelId::getSubstationId);
+    }
+
+    static String buildSubstationId(long objId) {
+        return "S" + objId;
     }
 }

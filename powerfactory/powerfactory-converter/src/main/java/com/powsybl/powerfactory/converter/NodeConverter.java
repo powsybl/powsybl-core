@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
@@ -20,6 +21,9 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillSubstationGeoData;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -168,6 +172,19 @@ class NodeConverter extends AbstractConverter {
             String busbarId = vl.getId() + "_" + elmTerm.getLocName();
 
             return new NodeModel(iUsage == 0 || forceAllElmTermsAsBusbars, busbarId);
+        }
+    }
+
+    static void addGeoData(Network network, DataObject elmObj, String substationId) {
+        float gpsLatitude = elmObj.findFloatAttributeValue("GPSlat").orElse(Float.NaN);
+        float gpsLongitude = elmObj.findFloatAttributeValue("GPSlon").orElse(Float.NaN);
+
+        if (Float.isFinite(gpsLatitude) && Float.isFinite(gpsLongitude)) {
+            Coordinate coordinates = new Coordinate(gpsLatitude, gpsLongitude);
+            AtomicInteger substationsWithNewData = new AtomicInteger();
+            AtomicInteger substationsWithUpdatedData = new AtomicInteger();
+            AtomicInteger unknownSubstations = new AtomicInteger();
+            fillSubstationGeoData(network, substationId, coordinates, false, substationsWithNewData, substationsWithUpdatedData, unknownSubstations);
         }
     }
 }
