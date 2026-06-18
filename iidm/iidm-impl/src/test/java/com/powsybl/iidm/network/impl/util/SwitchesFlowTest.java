@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZonedDateTime;
@@ -70,6 +71,31 @@ class SwitchesFlowTest {
 
         assertSwitchFlowValue(switchesFlow31, "S3VL1-SW-0-1", -71.0, -11.0);
         assertSwitchFlowValue(switchesFlow31, "S3VL1-SW-0-2", 71.0, 11.0);
+    }
+
+    @Test
+    void switchesFlowParallelSwitchMetadata() {
+
+        Network network = createNodeBreaker();
+
+        // Create a grid with 3 parallel switches 
+        VoltageLevel voltageLevel12 = network.getVoltageLevel("S1VL2");
+        createSwitch(voltageLevel12, "S1VL2-SW-0-1-PAR", SwitchKind.DISCONNECTOR, false, 0, 1);
+        createSwitch(voltageLevel12, "S1VL2-SW-0-1-PAR2", SwitchKind.DISCONNECTOR, false, 0, 1);
+
+        SwitchesFlow switchesFlow12 = new SwitchesFlow(voltageLevel12);
+
+        assertSwitchFlowValue(switchesFlow12, "S1VL2-SW-0-1", 251.0, 35.0);
+        assertSwitchFlowValue(switchesFlow12, "S1VL2-SW-0-1-PAR", 0.0, 0.0);
+        assertSwitchFlowValue(switchesFlow12, "S1VL2-SW-0-1-PAR2", 0.0, 0.0);
+        assertTrue(switchesFlow12.hasParallelSwitch("S1VL2-SW-0-1"));
+        assertEquals("S1VL2-SW-0-1-PAR", switchesFlow12.getFirstParallelSwitchId("S1VL2-SW-0-1").orElseThrow());
+        assertTrue(switchesFlow12.hasParallelSwitch("S1VL2-SW-0-1-PAR"));
+        assertEquals("S1VL2-SW-0-1", switchesFlow12.getFirstParallelSwitchId("S1VL2-SW-0-1-PAR").orElseThrow());
+        assertTrue(switchesFlow12.hasParallelSwitch("S1VL2-SW-0-1-PAR2"));
+        assertEquals("S1VL2-SW-0-1", switchesFlow12.getFirstParallelSwitchId("S1VL2-SW-0-1-PAR2").orElseThrow());
+        assertFalse(switchesFlow12.hasParallelSwitch("S1VL2-SW-0-2"));
+        assertTrue(switchesFlow12.getFirstParallelSwitchId("S1VL2-SW-0-2").isEmpty());
     }
 
     private static Network createNodeBreaker() {

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
+
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
 import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
@@ -27,6 +28,7 @@ public class SwitchesFlow {
     private final VoltageLevel voltageLevel;
     private final Terminal slackTerminal;
     private final Map<String, SwFlow> switchesFlows;
+    private final Map<String, String> parallelSwitchIds;
 
     public SwitchesFlow(VoltageLevel voltageLevel) {
         this(voltageLevel, null);
@@ -36,6 +38,7 @@ public class SwitchesFlow {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
         this.slackTerminal = slackTerminal;
         switchesFlows = new HashMap<>();
+        parallelSwitchIds = new HashMap<>();
 
         compute();
     }
@@ -91,6 +94,27 @@ public class SwitchesFlow {
         }
     }
 
+    /**
+     * Indicates whether the switch has at least one parallel switch connected to the same endpoints.
+     *
+     * @param switchId the switch identifier
+     * @return {@code true} if a parallel switch is detected, otherwise {@code false}
+     */
+    public boolean hasParallelSwitch(String switchId) {
+        return parallelSwitchIds.containsKey(switchId);
+    }
+
+    /**
+     * Returns one parallel switch identifier when the switch is connected in parallel with another switch.
+     * If more than two switches are in parallel, it returns the first one iterated over in the graph walk.
+     *
+     * @param switchId the switch identifier
+     * @return an optional containing one parallel switch identifier, or an empty optional if none exists
+     */
+    public Optional<String> getFirstParallelSwitchId(String switchId) {
+        return Optional.ofNullable(parallelSwitchIds.get(switchId));
+    }
+
     private void buildGraph(Map<String, SwNode> swNodeInjection, SimpleWeightedGraph<SwNode, SwEdge> graph) {
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             buildGraphFromNodeBreaker(swNodeInjection, graph);
@@ -110,9 +134,7 @@ public class SwitchesFlow {
             if (swNode1 == swNode2) {
                 return;
             }
-            graph.addVertex(swNode1);
-            graph.addVertex(swNode2);
-            graph.addEdge(swNode1, swNode2, new SwEdge(sw, swNode1, swNode2));
+            addSwitchEdge(graph, sw, swNode1, swNode2);
         });
 
         voltageLevel.getNodeBreakerView().getInternalConnections().forEach(ic -> {
@@ -140,10 +162,20 @@ public class SwitchesFlow {
             if (swNode1 == swNode2) {
                 return;
             }
-            graph.addVertex(swNode1);
-            graph.addVertex(swNode2);
-            graph.addEdge(swNode1, swNode2, new SwEdge(sw, swNode1, swNode2));
+            addSwitchEdge(graph, sw, swNode1, swNode2);
         });
+    }
+
+    private void addSwitchEdge(SimpleWeightedGraph<SwNode, SwEdge> graph, Switch sw, SwNode swNode1, SwNode swNode2) {
+        graph.addVertex(swNode1);
+        graph.addVertex(swNode2);
+        SwEdge existingEdge = graph.getEdge(swNode1, swNode2);
+        if (existingEdge == null) {
+            graph.addEdge(swNode1, swNode2, new SwEdge(sw, swNode1, swNode2));
+        } else if (existingEdge.isSwitch()) {
+            parallelSwitchIds.put(sw.getId(), existingEdge.getSwitchId());
+            parallelSwitchIds.putIfAbsent(existingEdge.getSwitchId(), sw.getId());
+        }
     }
 
     private static SwNode addSwNode(Map<String, SwNode> swNodeInjection, int node) {
