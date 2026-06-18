@@ -252,10 +252,8 @@ public final class ConnectableSerDeUtil {
         ImportOptions options = context.getOptions();
         ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(context.getNetworkValidationLevel());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
-            if (permanentLimitName != null) {
-                adder.setPermanentLimitName(permanentLimitName);
-            }
+            String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+            adder.setPermanentLimitName(permanentLimitName);
         });
         double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
         if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
@@ -364,7 +362,7 @@ public final class ConnectableSerDeUtil {
                     writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                     writer.writeStringAttribute("name", tl.getName());
                     writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
-                    writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
+                    writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
                     writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
                     IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
                     writer.writeEndNode();
@@ -376,7 +374,7 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits> void writePermanentLimit(L limits, TreeDataWriter writer, IidmVersion version) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version, () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version, () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
         writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
     }
 

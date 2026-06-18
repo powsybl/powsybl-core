@@ -52,43 +52,43 @@
                 <iidm:step r="0.1331" x="0.01331" g="0.9090909090909092" b="0.09090909090909093" rho="1.1"/>
             </iidm:ratioTapChanger3>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
+                <iidm:activePowerLimits permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:activePowerLimits>
-                <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
+                <iidm:apparentPowerLimits permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:apparentPowerLimits>
-                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="1000.0">
+                <iidm:currentLimits permanentLimit="1000.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="1200.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="1400.0"/>
                 </iidm:currentLimits>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
+                <iidm:activePowerLimits permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:activePowerLimits>
-                <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
+                <iidm:apparentPowerLimits permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:apparentPowerLimits>
-                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="100.0">
+                <iidm:currentLimits permanentLimit="100.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="120.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="140.0"/>
                 </iidm:currentLimits>
             </iidm:operationalLimitsGroup2>
             <iidm:operationalLimitsGroup3 id="DEFAULT">
-                <iidm:activePowerLimits permanentLimitName="permanent" permanentLimit="350.0">
+                <iidm:activePowerLimits permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:activePowerLimits>
-                <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="350.0">
+                <iidm:apparentPowerLimits permanentLimit="350.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
                 </iidm:apparentPowerLimits>
-                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="10.0">
+                <iidm:currentLimits permanentLimit="10.0">
                     <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="12.0"/>
                     <iidm:temporaryLimit name="10'" acceptableDuration="600" value="14.0"/>
                 </iidm:currentLimits>

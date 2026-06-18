@@ -139,6 +139,11 @@ public class BinWriter implements TreeDataWriter {
     }
 
     @Override
+    public void writeStringAttribute(String name, String value, String defaultValue) {
+        writeString(value, tmpDos);
+    }
+
+    @Override
     public void writeFloatAttribute(String name, float value) {
         try {
             tmpDos.writeFloat(value);

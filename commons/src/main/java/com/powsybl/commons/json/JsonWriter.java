@@ -146,6 +146,17 @@ public class JsonWriter extends AbstractTreeDataWriter {
     }
 
     @Override
+    public void writeStringAttribute(String name, String value, String defaultValue) {
+        try {
+            if (value != null && !value.equals(defaultValue)) {
+                jsonGenerator.writeStringField(name, value);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public void writeFloatAttribute(String name, float value) {
         try {
             if (!Float.isNaN(value)) {

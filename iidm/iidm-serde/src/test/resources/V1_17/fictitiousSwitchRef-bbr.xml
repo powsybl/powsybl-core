@@ -87,10 +87,10 @@
                 <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="42.8"/>
             </iidm:phaseTapChanger>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="931.0"/>
+                <iidm:currentLimits permanentLimit="931.0"/>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits permanentLimitName="permanent" permanentLimit="931.0"/>
+                <iidm:currentLimits permanentLimit="931.0"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
@@ -98,10 +98,10 @@
                connectableBus1="C_0" voltageLevelId1="C" bus2="N_3" connectableBus2="N_3" voltageLevelId2="N"
                selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits permanentLimitName="permanent" permanentLimit="931.0"/>
+            <iidm:currentLimits permanentLimit="931.0"/>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:currentLimits permanentLimitName="permanent" permanentLimit="931.0">
+            <iidm:currentLimits permanentLimit="931.0">
                 <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
                 <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
             </iidm:currentLimits>

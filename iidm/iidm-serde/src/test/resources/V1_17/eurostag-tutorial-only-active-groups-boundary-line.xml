@@ -15,7 +15,7 @@
             </iidm:busBreakerTopology>
             <iidm:boundaryLine id="NHV1_XNODE1" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" bus="NHV1" connectableBus="NHV1" pairingKey="XNODE1" p="302.4440612792969" q="98.74027252197266" selectedOperationalLimitsGroupIds="activated_1_1">
                 <iidm:operationalLimitsGroup id="activated_1_1">
-                    <iidm:currentLimits permanentLimitName="permanent" permanentLimit="175.0"/>
+                    <iidm:currentLimits permanentLimit="175.0"/>
                 </iidm:operationalLimitsGroup>
             </iidm:boundaryLine>
             <iidm:boundaryLine id="NHV1_XNODE2" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" bus="NHV1" connectableBus="NHV1" pairingKey="XNODE2" p="302.4440612792969" q="98.74027252197266"/>
@@ -29,10 +29,10 @@
             </iidm:busBreakerTopology>
             <iidm:boundaryLine id="XNODE1_NHV2" p0="0.0" q0="0.0" r="1.5" x="13.0" g="2.0E-6" b="1.93E-4" bus="NHV2" connectableBus="NHV2" pairingKey="XNODE1" p="-300.43389892578125" q="-137.18849182128906" selectedOperationalLimitsGroupIds="activated_1_1,activated_1_2">
                 <iidm:operationalLimitsGroup id="activated_1_1">
-                    <iidm:apparentPowerLimits permanentLimitName="permanent" permanentLimit="135.0"/>
+                    <iidm:apparentPowerLimits permanentLimit="135.0"/>
                 </iidm:operationalLimitsGroup>
                 <iidm:operationalLimitsGroup id="activated_1_2">
-                    <iidm:currentLimits permanentLimitName="permanent" permanentLimit="500.0"/>
+                    <iidm:currentLimits permanentLimit="500.0"/>
                 </iidm:operationalLimitsGroup>
             </iidm:boundaryLine>
             <iidm:boundaryLine id="XNODE2_NHV2" p0="0.0" q0="0.0" r="1.5" x="13.0" g="2.0E-6" b="1.93E-4" bus="NHV2" connectableBus="NHV2" pairingKey="XNODE2" p="-300.43389892578125" q="-137.18849182128906"/>

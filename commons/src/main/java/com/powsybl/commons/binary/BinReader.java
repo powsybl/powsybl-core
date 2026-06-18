@@ -173,6 +173,12 @@ public class BinReader implements TreeDataReader {
     }
 
     @Override
+    public String readStringAttribute(String name, String defaultValue) {
+        String value = readString();
+        return value != null ? value : defaultValue;
+    }
+
+    @Override
     public int readIntAttribute(String name) {
         return readInt();
     }
