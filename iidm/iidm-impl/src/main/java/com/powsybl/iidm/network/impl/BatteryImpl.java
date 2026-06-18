@@ -179,6 +179,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
+    }
+
     /**
      * {@inheritDoc}
      */
