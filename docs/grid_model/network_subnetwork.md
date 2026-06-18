@@ -40,6 +40,7 @@ In the PowSyBl grid model, the Network contains [substations](#substation), whic
 The `SourceFormat` attribute is a required attribute that indicates the origin of the network model automatically set by the [importers](../grid_exchange_formats/index.md). If the case date and the forecast distance cannot be found in the case file, the network is considered as a snapshot: the case date is set to the current date, and the forecast distance is set to `0`.
 
 **Available extensions**
+- [Line Couplings](extensions.md#line-couplings)
 
 (substation)=
 ## Substation
@@ -942,7 +943,7 @@ LCC and VSC share the following characteristics.
 | $SwitchingLoss$ | MW / A   | Switching losses                                                      |
 | $ResistiveLoss$ | $\Omega$ | Resistive losses                                                      |
 | $PccTerminal$   |          | Point of common coupling (PCC) AC terminal                            |
-| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or V_DC_DROOP               |
+| $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or P_PCC_DROOP              |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
 | $DroopCurve$    |          | Droop curve for droop control mode                                    |
