@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
+import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.ValidationException;
@@ -58,6 +59,64 @@ public abstract class AbstractMinMaxReactiveLimitsTest {
     public void invalidMinQBiggerThenMaxQ() {
         ValidationException e = assertThrows(ValidationException.class, () -> addMinMaxReactiveLimits(2.0, 1.0));
         assertTrue(e.getMessage().contains("maximum reactive power is expected to be greater than or equal to minimum reactive power"));
+    }
+
+    @Test
+    public void testProperties() {
+        MinMaxReactiveLimits limits = generator.newMinMaxReactiveLimits()
+                .setMaxQ(100.0)
+                .setMinQ(10.0)
+                .add();
+
+        // Test that MinMaxReactiveLimits supports properties
+        assertFalse(limits.hasProperty());
+
+        String key = "testKey";
+        String value = "testValue";
+        String oldValue = limits.setProperty(key, value);
+        assertNull(oldValue);
+        assertTrue(limits.hasProperty());
+        assertTrue(limits.hasProperty(key));
+        assertEquals(value, limits.getProperty(key));
+        assertEquals(value, limits.getProperty(key, "default"));
+
+        // Test updating property
+        String newValue = "newValue";
+        oldValue = limits.setProperty(key, newValue);
+        assertEquals(value, oldValue);
+        assertEquals(newValue, limits.getProperty(key));
+
+        // Test removing property
+        assertTrue(limits.removeProperty(key));
+        assertFalse(limits.hasProperty());
+        assertFalse(limits.hasProperty(key));
+        assertNull(limits.getProperty(key));
+        assertEquals("default", limits.getProperty(key, "default"));
+    }
+
+    @Test
+    public void testAdderProperties() {
+        // Test that MinMaxReactiveLimitsAdder supports properties
+        MinMaxReactiveLimitsAdder adder = generator.newMinMaxReactiveLimits()
+                .setMaxQ(100.0)
+                .setMinQ(10.0);
+
+        // Test adder properties
+        assertFalse(adder.hasProperty());
+
+        String key = "testKey";
+        String value = "testValue";
+        String oldValue = adder.setProperty(key, value);
+        assertNull(oldValue);
+        assertTrue(adder.hasProperty());
+        assertTrue(adder.hasProperty(key));
+        assertEquals(value, adder.getProperty(key));
+        assertEquals(value, adder.getProperty(key, "default"));
+
+        // Test that properties are copied to the created limits
+        MinMaxReactiveLimits limits = adder.add();
+        assertTrue(limits.hasProperty(key));
+        assertEquals(value, limits.getProperty(key));
     }
 
     private void addMinMaxReactiveLimits(double minQ, double maxQ) {

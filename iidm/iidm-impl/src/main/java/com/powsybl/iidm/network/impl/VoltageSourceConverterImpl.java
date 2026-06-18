@@ -127,6 +127,11 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
+    }
+
+    @Override
     public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
         return new MinMaxReactiveLimitsAdderImpl(this);
     }

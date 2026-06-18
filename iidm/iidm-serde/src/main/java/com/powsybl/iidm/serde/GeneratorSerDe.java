@@ -21,7 +21,6 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
 
     static final String ROOT_ELEMENT_NAME = "generator";
     static final String ARRAY_ELEMENT_NAME = "generators";
-    static final String REGULATING_TERMINAL = "regulatingTerminal";
 
     @Override
     protected String getRootElementName() {
@@ -49,7 +48,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
         if (g != g.getRegulatingTerminal().getConnectable()) {
-            TerminalRefSerDe.writeTerminalRef(g.getRegulatingTerminal(), context, REGULATING_TERMINAL);
+            TerminalRefSerDe.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
         ReactiveLimitsSerDe.INSTANCE.write(g, context);
     }
@@ -94,7 +93,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
     protected void readSubElements(Generator g, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case REGULATING_TERMINAL -> TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal);
+                case "regulatingTerminal" -> TerminalRefSerDe.readTerminalRef(context, g.getNetwork(), g::setRegulatingTerminal);
+                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_SHAPE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityShape(g, context);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(g, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(g, context);
                 default -> readSubElement(elementName, g, context);
