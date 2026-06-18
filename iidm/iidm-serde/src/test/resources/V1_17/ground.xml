@@ -5,13 +5,13 @@
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="BBS1" node="0"/>
                 <iidm:busbarSection id="BBS2" node="1"/>
-                <iidm:switch id="D_0_3" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="4"/>
-                <iidm:switch id="D_1_3" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="4"/>
-                <iidm:switch id="D_0_5" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:switch id="D_1_5" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="5"/>
-                <iidm:switch id="BR_LOAD" kind="BREAKER" retained="false" open="false" node1="2" node2="4"/>
-                <iidm:switch id="BR_VL1" kind="BREAKER" retained="false" open="true" node1="3" node2="5"/>
-                <iidm:switch id="D_1_6" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="6"/>
+                <iidm:switch id="D_0_3" kind="DISCONNECTOR" open="false" node1="0" node2="4"/>
+                <iidm:switch id="D_1_3" kind="DISCONNECTOR" open="false" node1="1" node2="4"/>
+                <iidm:switch id="D_0_5" kind="DISCONNECTOR" open="false" node1="0" node2="5"/>
+                <iidm:switch id="D_1_5" kind="DISCONNECTOR" open="false" node1="1" node2="5"/>
+                <iidm:switch id="BR_LOAD" kind="BREAKER" open="false" node1="2" node2="4"/>
+                <iidm:switch id="BR_VL1" kind="BREAKER" open="true" node1="3" node2="5"/>
+                <iidm:switch id="D_1_6" kind="DISCONNECTOR" open="false" node1="1" node2="6"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="L" loadType="UNDEFINED" p0="1.0" q0="1.0" node="2"/>
             <iidm:ground id="GroundNB" name="GroundNB1" node="6"/>
@@ -27,7 +27,7 @@
             </iidm:generator>
             <iidm:ground id="GroundBB" name="GroundBB1" bus="BUS2" connectableBus="BUS2"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" bus2="BUS1" connectableBus2="BUS1"/>
+        <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" bus2="BUS1" connectableBus2="BUS1"/>
     </iidm:substation>
     <iidm:extension id="BBS2">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
