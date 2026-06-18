@@ -59,8 +59,7 @@
                 <iidm:temporaryLimit name="30'" acceptableDuration="1800" value="600.0"/>
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup1>
-        <iidm:operationalLimitsGroup1 id="low limits">
-        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup1 id="low limits"/>
         <iidm:operationalLimitsGroup2 id="DEFAULT"/>
         <iidm:operationalLimitsGroup2 id="activated_2_1">
             <iidm:currentLimits permanentLimit="600.0">

@@ -90,6 +90,11 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
+    public String readStringAttribute(String name, String defaultValue) {
+        return XmlUtil.readStringAttribute(reader, name, defaultValue);
+    }
+
+    @Override
     public int readIntAttribute(String name) {
         Integer value = XmlUtil.readIntegerAttribute(reader, name);
         if (value == null) {

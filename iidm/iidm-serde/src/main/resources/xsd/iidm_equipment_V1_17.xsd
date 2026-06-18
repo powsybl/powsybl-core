@@ -382,6 +382,7 @@
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
+        <xs:attribute name="permanentLimitName" use="optional" type="xs:string"/>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="OperationalLimitsGroup">

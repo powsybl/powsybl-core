@@ -226,6 +226,16 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     @Override
+    public String readStringAttribute(String name, String defaultValue) {
+        if (isAttrAbsent(name)) {
+            return defaultValue;
+        }
+        String val = readString();
+        peekNextEntry();
+        return val;
+    }
+
+    @Override
     public int readIntAttribute(String name) {
         if (isAttrAbsent(name)) {
             throw new PowsyblException("Missing required int attribute: " + name);

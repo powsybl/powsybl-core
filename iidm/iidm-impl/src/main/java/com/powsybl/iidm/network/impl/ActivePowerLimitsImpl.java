@@ -16,6 +16,10 @@ import java.util.TreeMap;
  */
 class ActivePowerLimitsImpl extends AbstractLoadingLimits<ActivePowerLimitsImpl> implements ActivePowerLimits {
 
+    ActivePowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, permanentLimitName, temporaryLimits);
+    }
+
     /**
      * Create an {@link ActivePowerLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#HIGH}.
      */

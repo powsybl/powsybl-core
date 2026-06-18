@@ -26,6 +26,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     protected final OperationalLimitsGroupImpl group;
     private final DetectionKind detectionKind;
     private double permanentLimit;
+    private String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
     // Epsilon to filter small temporary limit changes (in A, MW and MVA)
@@ -77,7 +78,11 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
      * @param temporaryLimits the temporary limits
      */
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        this(owner, DetectionKind.HIGH, permanentLimit, temporaryLimits);
+        this(owner, permanentLimit, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, temporaryLimits);
+    }
+
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this(owner, DetectionKind.HIGH, permanentLimit, permanentLimitName, temporaryLimits);
     }
 
     /**
@@ -86,16 +91,17 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
      * @param temporaryLimits the temporary limits
      */
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        this(owner, DetectionKind.LOW, Double.NaN, temporaryLimits);
+        this(owner, DetectionKind.LOW, Double.NaN, "", temporaryLimits);
     }
 
-    private AbstractLoadingLimits(OperationalLimitsGroupImpl owner, DetectionKind detectionKind, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+    private AbstractLoadingLimits(OperationalLimitsGroupImpl owner, DetectionKind detectionKind, double permanentLimit, String permanentLimitName, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
         this.detectionKind = Objects.requireNonNull(detectionKind);
         if (detectionKind == DetectionKind.LOW) {
             LOGGER.warn("BETA feature, there is no guarantee that a LoadingLimit with DetectionKind.LOW will still exist in the model in the next releases");
         }
         this.permanentLimit = permanentLimit;
+        this.permanentLimitName = Objects.requireNonNull(permanentLimitName);
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
     }
@@ -121,7 +127,20 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
         network.invalidateValidationLevel();
-        group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
+        group.notifyPermanentLimitUpdate(getLimitType(), this.permanentLimitName, this.permanentLimitName, oldValue, this.permanentLimit);
+        return (L) this;
+    }
+
+    @Override
+    public String getPermanentLimitName() {
+        return permanentLimitName;
+    }
+
+    @Override
+    public L setPermanentLimitName(String name) {
+        String oldName = this.permanentLimitName;
+        this.permanentLimitName = Objects.requireNonNull(name);
+        group.notifyPermanentLimitUpdate(getLimitType(), oldName, this.permanentLimitName, this.permanentLimit, this.permanentLimit);
         return (L) this;
     }
 

@@ -337,6 +337,15 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Run a given runnable if the context's IIDM version equals or is older than a given maximum IIDM version.
+     */
+    public static void runUntilMaximumVersion(IidmVersion maxVersion, IidmVersion contextVersion, Runnable runnable) {
+        if (contextVersion.compareTo(maxVersion) <= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
      * Run a given runnable if the context's IIDM versions is equals or is more recent that the minimum version given,
      * and is equal or older than a given maximum IIDM version
      * @param minVersion the minimum version from which to run the runnable (included)

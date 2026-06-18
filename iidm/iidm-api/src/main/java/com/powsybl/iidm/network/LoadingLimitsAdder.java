@@ -36,6 +36,8 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
 
     }
 
+    A setPermanentLimitName(String limitName);
+
     A setPermanentLimit(double limit);
 
     A setDetectionKind(DetectionKind detectionKind);
