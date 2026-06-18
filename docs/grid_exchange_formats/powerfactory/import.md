@@ -100,6 +100,12 @@ properties of the switch are disregarded for the DC network.
 - For now PCC control is not taken into account and the VSC is connected to a single terminal.
 - Attribute `ciEarthed` of `ElmTerm` is ignored by the importer.
 
+## Importing GPS coordinates
+
+If the import `powerfactory.import.geodata` option is set to `true`, the importer will include geodata for both substations and lines.
+
+GPS coordinates for substations are stored in a `SubstationPosition` extension attached to the corresponding substation. Similarly, line coordinates are stored in a `LinePosition` extension attached to the corresponding line, represented as a list of coordinates points.
+
 ## Import PowerFactory internal format
 
 A [powsybl-powerfactory-db-native](https://github.com/powsybl/powsybl-powerfactory-db-native) repository has been created to import a proprietary PowerFactory file (`.pfd`) directly via a C++ API but the import can be slower and is not maintained for now.
