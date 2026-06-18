@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
 /**
  *
@@ -35,10 +37,10 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
     protected void writeRootElementAttributes(Line l, Network n, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r", l.getR());
         context.getWriter().writeDoubleAttribute("x", l.getX());
-        context.getWriter().writeDoubleAttribute("g1", l.getG1());
-        context.getWriter().writeDoubleAttribute("b1", l.getB1());
-        context.getWriter().writeDoubleAttribute("g2", l.getG2());
-        context.getWriter().writeDoubleAttribute("b2", l.getB2());
+        writeFormerlyMandatoryDoubleAttribute("g1", l.getG1(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b1", l.getB1(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("g2", l.getG2(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b2", l.getB2(), IidmVersion.V_1_17, context);
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
         writeOptionalPQ(1, l.getTerminal1(), context.getWriter(), context.getOptions()::isWithBranchSV);
@@ -70,10 +72,10 @@ class LineSerDe extends AbstractSimpleIdentifiableSerDe<Line, LineAdder, Network
     protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkDeserializerContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double g1 = context.getReader().readDoubleAttribute("g1");
-        double b1 = context.getReader().readDoubleAttribute("b1");
-        double g2 = context.getReader().readDoubleAttribute("g2");
-        double b2 = context.getReader().readDoubleAttribute("b2");
+        double g1 = readFormerlyMandatoryDoubleAttribute("g1", IidmVersion.V_1_17, context);
+        double b1 = readFormerlyMandatoryDoubleAttribute("b1", IidmVersion.V_1_17, context);
+        double g2 = readFormerlyMandatoryDoubleAttribute("g2", IidmVersion.V_1_17, context);
+        double b2 = readFormerlyMandatoryDoubleAttribute("b2", IidmVersion.V_1_17, context);
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)
