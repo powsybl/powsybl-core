@@ -63,7 +63,6 @@ public final class ConnectableSerDeUtil {
         return index != null ? index.toString() : "";
     }
 
-
     public static void writeNodeOrBus(Integer index, Terminal t, NetworkSerializerContext context) {
         if (index != null) {
             context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
