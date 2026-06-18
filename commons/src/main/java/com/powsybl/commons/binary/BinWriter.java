@@ -7,16 +7,13 @@
  */
 package com.powsybl.commons.binary;
 
+import com.github.luben.zstd.ZstdOutputStream;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
-
-import com.github.luben.zstd.ZstdOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -32,15 +29,15 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     private final String rootVersion;
     private final byte[] binaryMagicNumber;
-    private final WritableByteChannel channel;
+    private final OutputStream outputStream;
     private final GrowingByteBuffer body = new GrowingByteBuffer();
     private final Map<TypedName, Integer> namesIndex = new LinkedHashMap<>();
     private Map<String, String> extensionVersions = Collections.emptyMap();
 
     private record TypedName(String name, byte type) { }
 
-    public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
-        this.channel = Channels.newChannel(Objects.requireNonNull(outputStream));
+    public BinWriter(OutputStream os, byte[] binaryMagicNumber, String rootVersion) {
+        this.outputStream = Objects.requireNonNull(os);
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
         this.rootVersion = Objects.requireNonNull(rootVersion);
     }
@@ -208,10 +205,9 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void close() {
-        try (channel; var zstdOut = new ZstdOutputStream(Channels.newOutputStream(channel), -2).setChecksum(false)) {
-            WritableByteChannel zstdChannel = Channels.newChannel(zstdOut);
-            buildHeader().drainTo(zstdChannel);
-            body.drainTo(zstdChannel);
+        try (var zstdOut = new ZstdOutputStream(outputStream, -2).setChecksum(false)) {
+            buildHeader().writeTo(zstdOut);
+            body.writeTo(zstdOut);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

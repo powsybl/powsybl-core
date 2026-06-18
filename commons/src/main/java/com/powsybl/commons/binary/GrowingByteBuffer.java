@@ -8,8 +8,8 @@
 package com.powsybl.commons.binary;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,14 +85,11 @@ final class GrowingByteBuffer {
         }
     }
 
-    /** Writes every staged byte to the channel in order, blocking until fully drained. */
-    void drainTo(WritableByteChannel channel) throws IOException {
+    void writeTo(OutputStream os) throws IOException {
         current.flip();
         filledBlocks.add(current);
         for (ByteBuffer block : filledBlocks) {
-            while (block.hasRemaining()) {
-                channel.write(block);
-            }
+            os.write(block.array());
         }
     }
 }
