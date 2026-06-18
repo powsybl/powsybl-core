@@ -16,12 +16,11 @@ import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Importer;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
+
+import static com.powsybl.powerfactory.converter.ContainersMappingHelper.buildSubstationId;
 import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.converter.AbstractConverter.ConnectedObjRef;
@@ -55,6 +54,7 @@ public class PowerFactoryImporter implements Importer {
     // Import parameters
     public static final String HVDC_IMPORT_MT = "powerfactory.import.dgs.HVDC-import-detailed";
     public static final String FORCE_ALL_ELMTERMS_AS_BUSBARS = "powerfactory.import.dgs.force-all-elmTerms-as-busbars";
+    public static final String IMPORT_GEODATA = "powerfactory.import.geodata";
 
     public static final Parameter HVDC_IMPORT_DETAILED_PARAMETER = new Parameter(
             HVDC_IMPORT_MT,
@@ -70,11 +70,19 @@ public class PowerFactoryImporter implements Importer {
             Boolean.FALSE
     );
 
+    public static final Parameter IMPORT_GEODATA_PARAMETER = new Parameter(
+            IMPORT_GEODATA,
+            ParameterType.BOOLEAN,
+            "Import geoData",
+            Boolean.FALSE
+    );
+
     @Override
     public List<Parameter> getParameters() {
         List<Parameter> parameterList = List.of(
                 HVDC_IMPORT_DETAILED_PARAMETER,
-                FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER);
+                FORCE_ALL_ELMTERMS_AS_BUSBARS_PARAMETER,
+                IMPORT_GEODATA_PARAMETER);
         return ConfiguredParameter.load(parameterList, getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
@@ -227,6 +235,11 @@ public class PowerFactoryImporter implements Importer {
                 network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
 
         setVoltagesAndAngles(network, importContext, elmTerms);
+
+        boolean importGeoData = Parameter.readBoolean(FORMAT, parameters, IMPORT_GEODATA_PARAMETER, ParameterDefaultValueConfig.INSTANCE);
+        if (importGeoData) {
+            addGeoData(studyCase, network);
+        }
 
         return network;
     }
@@ -394,6 +407,57 @@ public class PowerFactoryImporter implements Importer {
         VoltageAndAngle va = new VoltageAndAngle(importContext, network);
         for (DataObject elmTerm : elmTerms) {
             va.update(elmTerm);
+        }
+    }
+
+    private static void addGeoData(StudyCase studyCase, Network network) {
+        HashMap<String, DataObject> substationDataObj = createSubstationDataMap(studyCase, network);
+        substationDataObj.forEach((substationId, elmObj) -> NodeConverter.addGeoData(network, elmObj, substationId));
+
+        studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmLne").stream())
+                .forEach(obj -> LineConverter.addGeoData(network, obj));
+    }
+
+    private static HashMap<String, DataObject> createSubstationDataMap(StudyCase studyCase, Network network) {
+        HashMap<String, DataObject> substationDataObj = new HashMap<>();
+
+        studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmSite").stream())
+                .forEach(obj -> addSubstationDataMap(network, substationDataObj, obj.getLocName(), obj));
+
+        studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmSubstat").stream())
+                .forEach(obj -> addSubstationDataMap(network, substationDataObj, obj));
+
+        studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmTrfstat").stream())
+                .forEach(obj -> addSubstationDataMap(network, substationDataObj, obj));
+
+        studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream())
+                .forEach(obj -> addSubstationDataMap(network, substationDataObj, buildSubstationId(obj.getId()), obj));
+
+        return substationDataObj;
+    }
+
+    private static void addSubstationDataMap(Network network, HashMap<String, DataObject> substationDataObj, String substationId, DataObject obj) {
+        if (!substationDataObj.containsKey(substationId) && network.getSubstation(substationId) != null) {
+            substationDataObj.put(substationId, obj);
+        }
+    }
+
+    private static void addSubstationDataMap(Network network, HashMap<String, DataObject> substationDataObj, DataObject obj) {
+        VoltageLevel vl = network.getVoltageLevel(obj.getLocName());
+        if (vl == null) {
+            return;
+        }
+        Substation substation = vl.getSubstation().orElse(null);
+        if (substation == null) {
+            return;
+        }
+        if (!substationDataObj.containsKey(substation.getId()) && substation.getVoltageLevelStream().count() == 1) {
+            substationDataObj.put(substation.getId(), obj);
         }
     }
 
