@@ -129,6 +129,16 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I>, 
     }
 
     /**
+     * Update object unique identifier.
+     *
+     * @param id new unique identifier of the object
+     * @return the object itself
+     */
+    default I setId(String id) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
      * Get the fictitious status
      */
     default boolean isFictitious() {

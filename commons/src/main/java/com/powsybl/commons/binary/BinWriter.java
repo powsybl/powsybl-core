@@ -7,95 +7,60 @@
  */
 package com.powsybl.commons.binary;
 
-import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.AbstractTreeDataWriter;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 
-import static com.powsybl.commons.binary.BinUtil.END_NODE;
-import static com.powsybl.commons.binary.BinUtil.NULL_ENUM;
+import static com.powsybl.commons.binary.BinUtil.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
+ * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
  */
-public class BinWriter implements TreeDataWriter {
+public class BinWriter extends AbstractTreeDataWriter {
+
+    private static final int HEADER_BLOCK_SIZE = 4 * 1024;
 
     private final String rootVersion;
-    private final DataOutputStream dos;
-    private final DataOutputStream tmpDos;
-    private final ByteArrayOutputStream buffer;
-    private final Map<String, Integer> nodeNamesIndex = new LinkedHashMap<>();
-    private Map<String, String> extensionVersions;
     private final byte[] binaryMagicNumber;
+    private final WritableByteChannel channel;
+    private final GrowingByteBuffer body = new GrowingByteBuffer();
+    private final Map<TypedName, Integer> namesIndex = new LinkedHashMap<>();
+    private Map<String, String> extensionVersions = Collections.emptyMap();
 
-    public BinWriter(OutputStream outputStream, byte[] binaryMagicNumber, String rootVersion) {
+    private record TypedName(String name, byte type) { }
+
+    public BinWriter(WritableByteChannel channel, byte[] binaryMagicNumber, String rootVersion) {
+        this.channel = Objects.requireNonNull(channel);
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
         this.rootVersion = Objects.requireNonNull(rootVersion);
-        this.dos = new DataOutputStream(new BufferedOutputStream(Objects.requireNonNull(outputStream)));
-        this.buffer = new ByteArrayOutputStream();
-        this.tmpDos = new DataOutputStream(buffer);
     }
 
-    private static void writeIndex(int index, DataOutputStream dataOutputStream) {
-        try {
-            dataOutputStream.writeShort(index);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public BinWriter(Path path, byte[] binaryMagicNumber, String rootVersion) throws IOException {
+        this(Files.newByteChannel(Objects.requireNonNull(path),
+                StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
+            binaryMagicNumber, rootVersion);
     }
 
-    private static void writeString(String value, DataOutputStream dataOutputStream) {
-        try {
-            if (value == null) {
-                writeIndex(-1, dataOutputStream);
-            } else {
-                byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-                writeIndex(bytes.length, dataOutputStream);
-                dataOutputStream.write(bytes);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    private static void writeString(String value, GrowingByteBuffer buf) {
+        if (value == null) {
+            buf.writeShort(NULL_STRING_SENTINEL);
+            return;
         }
-    }
-
-    private void writeDouble(double value) {
-        try {
-            tmpDos.writeDouble(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length >= NULL_STRING_SENTINEL) {
+            throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
         }
-    }
-
-    private void writeInt(int value) {
-        try {
-            tmpDos.writeInt(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private <T> void writeArray(Collection<T> values, Consumer<T> valueWriter) {
-        try {
-            tmpDos.writeShort(values.size());
-            for (T value : values) {
-                valueWriter.accept(value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void writeBoolean(boolean value) {
-        try {
-            tmpDos.writeBoolean(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        buf.writeShort(bytes.length);
+        buf.writeBytes(bytes);
     }
 
     @Override
@@ -109,163 +74,161 @@ public class BinWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeStartNode(String namespace, String name) {
-        if (nodeNamesIndex.isEmpty()) {
-            nodeNamesIndex.put(name, 1); // root element is not a child of another node, hence index is not expected
-        } else {
-            int index = nodeNamesIndex.computeIfAbsent(name, n -> 1 + nodeNamesIndex.size());
-            writeIndex(index, tmpDos);
-        }
-    }
-
-    @Override
-    public void writeEndNode() {
-        writeIndex(END_NODE, tmpDos);
-    }
-
-    @Override
     public void writeNamespace(String prefix, String namespace) {
         // nothing to do
     }
 
     @Override
+    public void writeStartNode(String namespace, String name) {
+        if (namesIndex.isEmpty()) {
+            // root element is not a child of another node, its index is not consumed in the body
+            namesIndex.put(new TypedName(name, TYPE_OBJECT), 1);
+        } else {
+            writeEntry(name, TYPE_OBJECT);
+        }
+    }
+
+    @Override
+    public void writeEndNode() {
+        body.writeShort(END_NODE);
+    }
+
+    private void writeEntry(String name, byte type) {
+        TypedName key = new TypedName(name, type);
+        Integer index = namesIndex.get(key);
+        if (index == null) {
+            int newIndex = namesIndex.size() + 1;
+            if (newIndex > MAX_NAME_IDX) {
+                throw new PowsyblException("Binary format: too many distinct names (max " + MAX_NAME_IDX + ")");
+            }
+            namesIndex.put(key, newIndex);
+            index = newIndex;
+        }
+        body.writeShort(index);
+    }
+
+    @Override
     public void writeNodeContent(String value) {
-        writeString(value, tmpDos);
+        writeEntry("", TYPE_STRING_CONTENT);
+        writeString(value, body);
     }
 
     @Override
     public void writeStringAttribute(String name, String value) {
-        writeString(value, tmpDos);
-    }
-
-    @Override
-    public void writeStringAttribute(String name, String value, String defaultValue) {
-        writeString(value, tmpDos);
-    }
-
-    @Override
-    public void writeFloatAttribute(String name, float value) {
-        try {
-            tmpDos.writeFloat(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        writeEntry(name, TYPE_STRING);
+        writeString(value, body);
     }
 
     @Override
     public void writeDoubleAttribute(String name, double value) {
-        writeDouble(value);
+        writeDoubleAttribute(name, value, Double.NaN);
     }
 
     @Override
     public void writeDoubleAttribute(String name, double value, double absentValue) {
-        writeDouble(value);
+        boolean isAbsent = Double.isNaN(absentValue) ? Double.isNaN(value) : value == absentValue;
+        if (isAbsent) {
+            return;
+        }
+        writeEntry(name, TYPE_DOUBLE);
+        body.writeDouble(value);
     }
 
     @Override
-    public void writeOptionalDoubleAttribute(String name, Double value) {
-        try {
-            tmpDos.writeBoolean(value != null);
-            if (value != null) {
-                writeDouble(value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    public void writeFloatAttribute(String name, float value) {
+        if (Float.isNaN(value)) {
+            return;
         }
+        writeEntry(name, TYPE_FLOAT);
+        body.writeFloat(value);
     }
 
     @Override
     public void writeIntAttribute(String name, int value) {
-        writeInt(value);
+        writeEntry(name, TYPE_INT);
+        body.writeInt(value);
     }
 
     @Override
     public void writeIntAttribute(String name, int value, int absentValue) {
-        writeInt(value);
-    }
-
-    @Override
-    public void writeOptionalIntAttribute(String name, Integer value) {
-        try {
-            tmpDos.writeBoolean(value != null);
-            if (value != null) {
-                writeInt(value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (value == absentValue) {
+            return;
         }
-    }
-
-    @Override
-    public void writeIntArrayAttribute(String name, Collection<Integer> values) {
-        writeArray(values, this::writeInt);
-    }
-
-    @Override
-    public void writeStringArrayAttribute(String name, Collection<String> values) {
-        writeArray(values, s -> writeString(s, tmpDos));
-    }
-
-    @Override
-    public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
-        writeIndex(value != null ? value.ordinal() : NULL_ENUM, tmpDos);
+        writeIntAttribute(name, value);
     }
 
     @Override
     public void writeBooleanAttribute(String name, boolean value) {
-        writeBoolean(value);
+        writeEntry(name, TYPE_BOOLEAN);
+        body.writeBoolean(value);
     }
 
     @Override
     public void writeBooleanAttribute(String name, boolean value, boolean absentValue) {
-        writeBoolean(value);
+        if (value == absentValue) {
+            return;
+        }
+        writeBooleanAttribute(name, value);
     }
 
     @Override
-    public void writeOptionalBooleanAttribute(String name, Boolean value) {
-        try {
-            tmpDos.writeBoolean(value != null);
-            if (value != null) {
-                writeBoolean(value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
+        if (value == null) {
+            return;
+        }
+        writeEntry(name, TYPE_ENUM);
+        body.writeShort(value.ordinal());
+    }
+
+    @Override
+    public void writeIntArrayAttribute(String name, Collection<Integer> values) {
+        writeEntry(name, TYPE_INT_ARRAY);
+        body.writeShort(values.size());
+        for (int v : values) {
+            body.writeInt(v);
         }
     }
 
     @Override
-    public void close() {
-        try {
-            tmpDos.flush();
-            writeHeader();
-            dos.write(buffer.toByteArray());
-            dos.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    public void writeStringArrayAttribute(String name, Collection<String> values) {
+        writeEntry(name, TYPE_STRING_ARRAY);
+        body.writeShort(values.size());
+        for (String s : values) {
+            writeString(s, body);
         }
-    }
-
-    private void writeHeader() throws IOException {
-        // magic number ("Binary IIDM" in ASCII)
-        dos.write(binaryMagicNumber);
-
-        // iidm version
-        writeString(rootVersion, dos);
-
-        // extensions versions
-        writeIndex(extensionVersions.size(), dos);
-        extensionVersions.forEach((extensionName, extensionVersion) -> {
-            writeString(extensionName, dos);
-            writeString(extensionVersion, dos);
-        });
-
-        // dictionary
-        writeIndex(nodeNamesIndex.size(), dos);
-        nodeNamesIndex.forEach((name, index) -> writeString(name, dos));
     }
 
     @Override
     public void setVersions(Map<String, String> extensionVersions) {
         this.extensionVersions = Objects.requireNonNull(extensionVersions);
+    }
+
+    @Override
+    public void close() {
+        try (channel) {
+            buildHeader().drainTo(channel);
+            body.drainTo(channel);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private GrowingByteBuffer buildHeader() {
+        GrowingByteBuffer header = new GrowingByteBuffer(HEADER_BLOCK_SIZE);
+        header.writeBytes(binaryMagicNumber);
+        writeString(rootVersion, header);
+
+        header.writeShort(extensionVersions.size());
+        for (var entry : extensionVersions.entrySet()) {
+            writeString(entry.getKey(), header);
+            writeString(entry.getValue(), header);
+        }
+
+        header.writeShort(namesIndex.size());
+        for (TypedName key : namesIndex.keySet()) {
+            writeString(key.name(), header);
+            header.writeByte(key.type());
+        }
+        return header;
     }
 }

@@ -12,6 +12,9 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.Coordinate;
+import com.powsybl.iidm.network.extensions.LinePosition;
+import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -318,6 +321,80 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
     private static boolean allBusesHaveBusbarSection(Network network) {
         return network.getBusView().getBusStream().allMatch(bus ->
                 bus.getConnectedTerminalStream().anyMatch(terminal -> terminal.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION));
+    }
+
+    @Test
+    void importGeoDataTest() {
+        Network network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("Geodata", new ResourceSet("/", "Geodata.dgs")),
+                        NetworkFactory.findDefault(),
+                        null);
+        assertNotNull(network);
+
+        assertNullSubstationCoordinates(network, "Substation_A");
+        assertNullSubstationCoordinates(network, "S4");
+        assertNullSubstationCoordinates(network, "S5");
+        assertNullSubstationCoordinates(network, "S6");
+
+        assertNullLineCoordinates(network, "Line_A_B_1");
+        assertNullLineCoordinates(network, "Line_B_C_1");
+        assertNullLineCoordinates(network, "Line_C_D_1");
+
+        Properties parameters = new Properties();
+        parameters.put(PowerFactoryImporter.IMPORT_GEODATA, "true");
+        network = new PowerFactoryImporter()
+                .importData(new ResourceDataSource("Geodata", new ResourceSet("/", "Geodata.dgs")),
+                        NetworkFactory.findDefault(),
+                        parameters);
+        assertNotNull(network);
+
+        assertSubstationCoordinates(network, "Substation_A", 49.95, 11.45);
+        assertSubstationCoordinates(network, "S4", 48.95, 10.45);
+        assertSubstationCoordinates(network, "S5", 47.95, 9.45);
+        assertSubstationCoordinates(network, "S6", 46.95, 8.45);
+
+        assertLineCoordinates(network, "Line_A_B_1", List.of(new Coordinate(45.2, 9.2), new Coordinate(45.1, 9.1), new Coordinate(45.0, 9.0)));
+        assertLineCoordinates(network, "Line_B_C_1", List.of(new Coordinate(44.2, 8.2), new Coordinate(44.1, 8.1), new Coordinate(44.0, 8.0)));
+        assertLineCoordinates(network, "Line_C_D_1", List.of(new Coordinate(43.2, 7.2), new Coordinate(43.1, 7.1), new Coordinate(43.0, 7.0)));
+    }
+
+    private static void assertNullSubstationCoordinates(Network network, String substationId) {
+        Substation substation = network.getSubstation(substationId);
+        assertNotNull(substation);
+        SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
+        assertNull(substationPosition);
+    }
+
+    private static void assertSubstationCoordinates(Network network, String substationId, double latitude, double longitude) {
+        Substation substation = network.getSubstation(substationId);
+        assertNotNull(substation);
+        SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
+        assertNotNull(substationPosition);
+        assertEquals(latitude, substationPosition.getCoordinate().getLatitude(), 0.0001);
+        assertEquals(longitude, substationPosition.getCoordinate().getLongitude(), 0.0001);
+    }
+
+    private static void assertNullLineCoordinates(Network network, String lineId) {
+        Line line = network.getLine(lineId);
+        assertNotNull(line);
+        LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
+        assertNull(linePosition);
+    }
+
+    private static void assertLineCoordinates(Network network, String lineId, List<Coordinate> coordinates) {
+        Line line = network.getLine(lineId);
+        assertNotNull(line);
+        LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
+        assertNotNull(linePosition);
+
+        assertEquals(coordinates.size(), linePosition.getCoordinates().size());
+        for (int index = 0; index < coordinates.size(); index++) {
+            Coordinate expected = coordinates.get(index);
+            Coordinate actual = linePosition.getCoordinates().get(index);
+
+            assertEquals(expected.getLatitude(), actual.getLatitude(), 0.0001);
+            assertEquals(expected.getLongitude(), actual.getLongitude(), 0.0001);
+        }
     }
 
     @Test
