@@ -372,17 +372,19 @@ public final class IidmSerDeUtil {
      * otherwise, by their natural order if the network defines one.
      * In all other cases, do not change the identifiables order.
      */
-    public static <T extends Identifiable> Iterable<T> sorted(Network network, Iterable<T> identifiables, ExportOptions exportOptions) {
+    public static <T extends Identifiable<?>> Iterable<T> sorted(Network network, Iterable<T> identifiables, ExportOptions exportOptions) {
         Objects.requireNonNull(identifiables);
         Objects.requireNonNull(exportOptions);
 
-        if (!exportOptions.isSorted() && network.getIdentifiableNaturalOrderComparator().isEmpty()) {
+        Comparator<Identifiable<?>> comparator;
+        if (exportOptions.isSorted()) {
+            comparator = Comparator.comparing(Identifiable::getId);
+        }
+        else if (network.getIdentifiableNaturalOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableNaturalOrderComparator().get();
+        } else {
             return identifiables;
         }
-
-        Comparator<Identifiable> comparator = exportOptions.isSorted()
-            ? Comparator.comparing(Identifiable::getId)
-            : network.getIdentifiableNaturalOrderComparator().get();
 
         return StreamSupport.stream(identifiables.spliterator(), false)
                 .sorted(comparator)
@@ -407,13 +409,15 @@ public final class IidmSerDeUtil {
         Objects.requireNonNull(stream);
         Objects.requireNonNull(exportOptions);
 
-        if (!exportOptions.isSorted() && network.getIdentifiableNaturalOrderComparator().isEmpty()) {
+        Comparator<Identifiable<?>> comparator;
+        if (exportOptions.isSorted()) {
+            comparator = Comparator.comparing(Identifiable::getId);
+        }
+        else if (network.getIdentifiableNaturalOrderComparator().isPresent()) {
+            comparator = network.getIdentifiableNaturalOrderComparator().get();
+        } else {
             return stream;
         }
-
-        Comparator<Identifiable> comparator = exportOptions.isSorted()
-                ? Comparator.comparing(Identifiable::getId)
-                : network.getIdentifiableNaturalOrderComparator().get();
 
         return stream.sorted(comparator);
     }
