@@ -205,17 +205,17 @@
     "q2" : -137.18849182128906
   } ],
   "extensions" : [ {
+    "id" : "GEN",
+    "activePowerControl" : {
+      "participate" : true,
+      "droop" : 2.0
+    }
+  }, {
     "id" : "LOAD",
     "position" : {
       "feeder" : {
         "direction" : "BOTTOM"
       }
-    }
-  }, {
-    "id" : "GEN",
-    "activePowerControl" : {
-      "participate" : true,
-      "droop" : 2.0
     }
   } ]
 }

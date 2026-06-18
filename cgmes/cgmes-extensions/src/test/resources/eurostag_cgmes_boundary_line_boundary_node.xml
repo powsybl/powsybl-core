@@ -42,10 +42,10 @@
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:tieLine id="NHV1_NHV2_2" boundaryLineId1="NHV1_XNODE2" boundaryLineId2="XNODE2_NHV2"/>
-    <iidm:extension id="XNODE1_NHV2">
-        <cblbn:cgmesBoundaryLineBoundaryNode isHvdc="false"/>
-    </iidm:extension>
     <iidm:extension id="NHV1_XNODE1">
         <cblbn:cgmesBoundaryLineBoundaryNode isHvdc="false" lineEnergyIdentificationCodeEic="EIC_CODE"/>
+    </iidm:extension>
+    <iidm:extension id="XNODE1_NHV2">
+        <cblbn:cgmesBoundaryLineBoundaryNode isHvdc="false"/>
     </iidm:extension>
 </iidm:network>

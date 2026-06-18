@@ -435,7 +435,7 @@ public final class NetworkSerDe {
 
     private static void writeExtensions(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         context.getWriter().writeStartNodes();
-        for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n.getIdentifiables(), context.getOptions())) {
+        for (Identifiable<?> identifiable : IidmSerDeUtil.sorted(n, n.getIdentifiables(), context.getOptions())) {
             if (ignoreEquipmentAtExport(identifiable, context) || !isElementWrittenInsideNetwork(identifiable, n, context)) {
                 continue;
             }
@@ -627,7 +627,7 @@ public final class NetworkSerDe {
 
     private static void writeDcNodes(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcNode dcNode : IidmSerDeUtil.sorted(n.getDcNodes(), context.getOptions())) {
+        for (DcNode dcNode : IidmSerDeUtil.sorted(n, n.getDcNodes(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcNode, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcNodeSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -639,7 +639,7 @@ public final class NetworkSerDe {
 
     private static void writeDcGrounds(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcGround dcGround : IidmSerDeUtil.sorted(n.getDcGrounds(), context.getOptions())) {
+        for (DcGround dcGround : IidmSerDeUtil.sorted(n, n.getDcGrounds(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcGround, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcGroundSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -651,7 +651,7 @@ public final class NetworkSerDe {
 
     private static void writeDcLines(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcLine dcLine : IidmSerDeUtil.sorted(n.getDcLines(), context.getOptions())) {
+        for (DcLine dcLine : IidmSerDeUtil.sorted(n, n.getDcLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcLine, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcLineSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -663,7 +663,7 @@ public final class NetworkSerDe {
 
     private static void writeDcSwitches(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (DcSwitch dcSwitch : IidmSerDeUtil.sorted(n.getDcSwitches(), context.getOptions())) {
+        for (DcSwitch dcSwitch : IidmSerDeUtil.sorted(n, n.getDcSwitches(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(dcSwitch, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, DcSwitchSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
@@ -675,7 +675,7 @@ public final class NetworkSerDe {
 
     private static void writeSubnetworks(Network n, NetworkSerializerContext context, ExtensionsSupplier extensionsSupplier) {
         context.getWriter().writeStartNodes();
-        for (Network subnetwork : IidmSerDeUtil.sorted(n.getSubnetworks(), context.getOptions())) {
+        for (Network subnetwork : IidmSerDeUtil.sorted(n, n.getSubnetworks(), context.getOptions())) {
             IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME,
                     IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_11, context);
             write(subnetwork, context, extensionsSupplier);
@@ -685,7 +685,7 @@ public final class NetworkSerDe {
 
     private static void writeAreas(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (Area area : IidmSerDeUtil.sorted(n.getAreas(), context.getOptions())) {
+        for (Area area : IidmSerDeUtil.sorted(n, n.getAreas(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(area, n, context)) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_13, context);
@@ -697,7 +697,7 @@ public final class NetworkSerDe {
 
     private static void writeVoltageLevels(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
+        for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(n, n.getVoltageLevels(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(voltageLevel, n, context) && voltageLevel.getSubstation().isEmpty()) {
                 IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_6, context);
@@ -709,7 +709,7 @@ public final class NetworkSerDe {
 
     private static void writeSubstations(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
-        for (Substation s : IidmSerDeUtil.sorted(n.getSubstations(), context.getOptions())) {
+        for (Substation s : IidmSerDeUtil.sorted(n, n.getSubstations(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(s, n, context)) {
                 SubstationSerDe.INSTANCE.write(s, n, context);
             }
@@ -720,7 +720,7 @@ public final class NetworkSerDe {
     private static void writeLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes();
-        for (Line l : IidmSerDeUtil.sorted(n.getLines(), context.getOptions())) {
+        for (Line l : IidmSerDeUtil.sorted(n, n.getLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 LineSerDe.INSTANCE.write(l, n, context);
             }
@@ -731,7 +731,7 @@ public final class NetworkSerDe {
     private static void writeTieLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes();
-        for (TieLine l : IidmSerDeUtil.sorted(n.getTieLines(), context.getOptions())) {
+        for (TieLine l : IidmSerDeUtil.sorted(n, n.getTieLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
                 TieLineSerDe.INSTANCE.write(l, n, context);
             }
@@ -742,7 +742,7 @@ public final class NetworkSerDe {
     private static void writeHvdcLines(Network n, NetworkSerializerContext context) {
         BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes();
-        for (HvdcLine l : IidmSerDeUtil.sorted(n.getHvdcLines(), context.getOptions())) {
+        for (HvdcLine l : IidmSerDeUtil.sorted(n, n.getHvdcLines(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
                 HvdcLineSerDe.INSTANCE.write(l, n, context);
             }

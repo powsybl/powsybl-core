@@ -49,9 +49,9 @@
             <oa:bus ids="NGEN" areaNumber="1" status="OBSERVABLE"/>
         </oa:observabilityArea>
     </iidm:extension>
-    <iidm:extension id="VLLOAD">
+    <iidm:extension id="VLHV1">
         <oa:observabilityArea consistentWithTopology="true">
-            <oa:bus ids="NLOAD,test2" areaNumber="0" status="NON_OBSERVABLE"/>
+            <oa:bus ids="NHV1" areaNumber="1" status="OBSERVABLE"/>
         </oa:observabilityArea>
     </iidm:extension>
     <iidm:extension id="VLHV2">
@@ -60,9 +60,9 @@
             <oa:bus ids="test" areaNumber="0" status="NON_OBSERVABLE"/>
         </oa:observabilityArea>
     </iidm:extension>
-    <iidm:extension id="VLHV1">
+    <iidm:extension id="VLLOAD">
         <oa:observabilityArea consistentWithTopology="true">
-            <oa:bus ids="NHV1" areaNumber="1" status="OBSERVABLE"/>
+            <oa:bus ids="NLOAD,test2" areaNumber="0" status="NON_OBSERVABLE"/>
         </oa:observabilityArea>
     </iidm:extension>
 </iidm:network>

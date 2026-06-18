@@ -25,11 +25,11 @@
             <iidm:load id="LOAD-3" loadType="UNDEFINED" p0="20.0" q0="0.0" bus="BUS-3" connectableBus="BUS-3"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-3-1" r="0.0" x="5.2E-4" g="0.0" b="0.0" ratedU1="0.947" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId2="VL-1" bus2="BUS-1" connectableBus2="BUS-1"/>
-        <iidm:twoWindingsTransformer id="TWT-7001-1" r="0.0" x="1.953E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-7001" connectableBus1="BUS-7001" voltageLevelId2="VL-1" bus2="BUS-1" connectableBus2="BUS-1"/>
         <iidm:twoWindingsTransformer id="TWT-3-2" r="0.0" x="5.2E-4" g="0.0" b="0.0" ratedU1="0.956" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId2="VL-1" bus2="BUS-2" connectableBus2="BUS-2"/>
-        <iidm:twoWindingsTransformer id="TWT-7002-2" r="1.0E-5" x="1.46E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-7002" connectableBus1="BUS-7002" voltageLevelId2="VL-1" bus2="BUS-2" connectableBus2="BUS-2"/>
         <iidm:twoWindingsTransformer id="TWT-3-4" r="0.0" x="5.0E-5" g="0.0" b="0.0" ratedU1="0.971" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId2="VL-1" bus2="BUS-4" connectableBus2="BUS-4"/>
+        <iidm:twoWindingsTransformer id="TWT-7002-2" r="1.0E-5" x="1.46E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-7002" connectableBus1="BUS-7002" voltageLevelId2="VL-1" bus2="BUS-2" connectableBus2="BUS-2"/>
         <iidm:twoWindingsTransformer id="TWT-7003-3" r="0.0" x="1.0540000000000001E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-7003" connectableBus1="BUS-7003" voltageLevelId2="VL-1" bus2="BUS-3" connectableBus2="BUS-3"/>
+        <iidm:twoWindingsTransformer id="TWT-7001-1" r="0.0" x="1.953E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-1" bus1="BUS-7001" connectableBus1="BUS-7001" voltageLevelId2="VL-1" bus2="BUS-1" connectableBus2="BUS-1"/>
     </iidm:substation>
     <iidm:substation id="SUB-5">
         <iidm:voltageLevel id="VL-5" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -169,8 +169,8 @@
             <iidm:load id="LOAD-23" loadType="UNDEFINED" p0="21.0" q0="7.0" bus="BUS-23" connectableBus="BUS-23"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-24-23" r="0.0" x="6.4E-4" g="0.0" b="0.0" ratedU1="0.943" ratedU2="1.0" voltageLevelId1="VL-23" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId2="VL-23" bus2="BUS-23" connectableBus2="BUS-23"/>
-        <iidm:twoWindingsTransformer id="TWT-7023-23" r="0.0" x="2.3E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-23" bus1="BUS-7023" connectableBus1="BUS-7023" voltageLevelId2="VL-23" bus2="BUS-23" connectableBus2="BUS-23"/>
         <iidm:twoWindingsTransformer id="TWT-7024-24" r="0.0" x="2.89E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-23" bus1="BUS-7024" connectableBus1="BUS-7024" voltageLevelId2="VL-23" bus2="BUS-24" connectableBus2="BUS-24"/>
+        <iidm:twoWindingsTransformer id="TWT-7023-23" r="0.0" x="2.3E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-23" bus1="BUS-7023" connectableBus1="BUS-7023" voltageLevelId2="VL-23" bus2="BUS-23" connectableBus2="BUS-23"/>
     </iidm:substation>
     <iidm:substation id="SUB-25">
         <iidm:voltageLevel id="VL-25" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
@@ -299,8 +299,8 @@
             <iidm:load id="LOAD-44" loadType="UNDEFINED" p0="195.0" q0="29.0" bus="BUS-44" connectableBus="BUS-44"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-45-44" r="0.0" x="2.0E-4" g="0.0" b="0.0" ratedU1="1.008" ratedU2="1.0" voltageLevelId1="VL-44" bus1="BUS-45" connectableBus1="BUS-45" voltageLevelId2="VL-44" bus2="BUS-44" connectableBus2="BUS-44"/>
-        <iidm:twoWindingsTransformer id="TWT-7044-44" r="0.0" x="0.0018181" g="0.0" b="0.0" ratedU1="0.942" ratedU2="1.0" voltageLevelId1="VL-44" bus1="BUS-7044" connectableBus1="BUS-7044" voltageLevelId2="VL-44" bus2="BUS-44" connectableBus2="BUS-44"/>
         <iidm:twoWindingsTransformer id="TWT-45-46" r="0.0" x="2.1E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" voltageLevelId1="VL-44" bus1="BUS-45" connectableBus1="BUS-45" voltageLevelId2="VL-44" bus2="BUS-46" connectableBus2="BUS-46"/>
+        <iidm:twoWindingsTransformer id="TWT-7044-44" r="0.0" x="0.0018181" g="0.0" b="0.0" ratedU1="0.942" ratedU2="1.0" voltageLevelId1="VL-44" bus1="BUS-7044" connectableBus1="BUS-7044" voltageLevelId2="VL-44" bus2="BUS-44" connectableBus2="BUS-44"/>
     </iidm:substation>
     <iidm:substation id="SUB-47">
         <iidm:voltageLevel id="VL-47" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
