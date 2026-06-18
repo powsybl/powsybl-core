@@ -20,7 +20,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -704,13 +703,14 @@ public final class EquipmentExport {
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
             // TODO OPE: use a "default" regulation mode?
             RegulationMode regulationMode = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getMode() : null;
+            double slope = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getSlope() : Double.NaN;
             StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc),
                 svc.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()),
                 regulatingControlId,
                 inductiveRating,
                 capacitiveRating,
-                svc.getExtension(VoltagePerReactivePowerControl.class),
+                slope,
                 regulationMode,
                 svc.getRegulatingTargetV(),
                 cimNamespace,

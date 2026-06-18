@@ -109,6 +109,28 @@ public abstract class AbstractStaticVarCompensatorTest {
     }
 
     @Test
+    public void changeSlopeTest() {
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        final VoltageRegulation voltageRegulation = svc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)
+            .withSlope(0.3)
+            .build();
+        assertEquals(0.3, voltageRegulation.getSlope());
+
+        assertThrows(ValidationException.class, () -> voltageRegulation.setSlope(Double.NaN));
+        assertFalse(Double.isNaN(voltageRegulation.getSlope()));
+
+        VoltageRegulation voltageRegulationWithVoltage = svc.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withSlope(Double.NaN)
+            .build();
+        voltageRegulationWithVoltage.setSlope(Double.NaN);
+        assertTrue(Double.isNaN(voltageRegulationWithVoltage.getSlope()));
+        voltageRegulationWithVoltage.setSlope(0.4);
+        assertEquals(0.4, voltageRegulationWithVoltage.getSlope());
+    }
+
+    @Test
     public void regulatingTerminalTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());

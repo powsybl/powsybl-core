@@ -5,27 +5,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.extensions;
+package com.powsybl.iidm.network.extensions.removed;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class VoltagePerReactivePowerControlImpl extends AbstractExtension<StaticVarCompensator> implements VoltagePerReactivePowerControl {
+public class VoltagePerReactivePowerControl implements Extension<StaticVarCompensator> {
 
+    public static final String NAME = "voltagePerReactivePowerControl";
+
+    private StaticVarCompensator svc;
     private double slope;
 
-    public VoltagePerReactivePowerControlImpl(StaticVarCompensator svc, double slope) {
-        super(svc);
+    public VoltagePerReactivePowerControl(StaticVarCompensator svc, double slope) {
+        this.svc = svc;
         this.slope = checkSlope(slope);
     }
 
-    @Override
     public double getSlope() {
         return slope;
     }
@@ -40,8 +42,23 @@ public class VoltagePerReactivePowerControlImpl extends AbstractExtension<Static
             throw new PowsyblException("Undefined value for slope");
         }
         if (slope < 0) {
-            throw new PowsyblException("Slope value of SVC " + getExtendable().getId() + " must be positive: " + slope);
+            throw new PowsyblException("Slope value of SVC " + svc.getId() + " must be positive: " + slope);
         }
         return slope;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public StaticVarCompensator getExtendable() {
+        return svc;
+    }
+
+    @Override
+    public void setExtendable(StaticVarCompensator extendable) {
+        svc = extendable;
     }
 }
