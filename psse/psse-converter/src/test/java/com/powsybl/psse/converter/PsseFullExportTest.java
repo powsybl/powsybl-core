@@ -86,11 +86,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
         createSwitch(vl1S2, "Sw-BoundaryLine-Vl1-Sub2", 1, 6, false);
         BoundaryLine dlVl1S2 = createBoundaryLine(vl1S2, "BoundaryLine-Vl1-Sub2", 6, 5.0, 2.0, "TieLine");
 
-        createSubstation3(network);
+        createSubstationAndVl3(network);
         VoltageLevel vl1S3 = network.getVoltageLevel("Vl1-Sub3");
-        createSubstation4(network);
+        createSubstationAndVl4(network);
         VoltageLevel vl1S4 = network.getVoltageLevel("Vl1-Sub4");
-        createSubstation5(network);
+        createSubstationAndVl5(network);
         VoltageLevel vl1S5 = network.getVoltageLevel("Vl1-Sub5");
 
         Substation sub6 = createSubstation(network, "Sub6");
@@ -182,7 +182,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
         return network;
     }
 
-    private static void createSubstation3(Network network) {
+    private static void createSubstationAndVl3(Network network) {
         Substation sub3 = createSubstation(network, "Sub3");
         VoltageLevel vl1S3 = createVoltageLevel(sub3, "Vl1-Sub3", 400.0, TopologyKind.NODE_BREAKER);
         createSwitch(vl1S3, "Sw-Line-Vl1-Sub3-Sub2", 1, 2, false);
@@ -252,7 +252,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
             .add();
     }
 
-    private static void createSubstation4(Network network) {
+    private static void createSubstationAndVl4(Network network) {
         Substation sub4 = createSubstation(network, "Sub4");
         VoltageLevel vl1S4 = createVoltageLevel(sub4, "Vl1-Sub4", 400.0, TopologyKind.NODE_BREAKER);
         createSwitch(vl1S4, "Sw-Vsc-Vl1-Sub4-Sub2", 1, 2, false);
@@ -372,7 +372,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
             .add();
     }
 
-    private static void createSubstation5(Network network) {
+    private static void createSubstationAndVl5(Network network) {
         Substation sub5 = createSubstation(network, "Sub5");
         VoltageLevel vl1S5 = createVoltageLevel(sub5, "Vl1-Sub5", 400.0, TopologyKind.NODE_BREAKER);
         createSwitch(vl1S5, "Sw-Lcc-Vl1-Sub5-Sub2", 1, 2, false);
