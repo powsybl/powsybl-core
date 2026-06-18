@@ -7,8 +7,9 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ class LineCommutatedConverterSerDeTest extends AbstractIidmSerDeTest {
     void testMinPNotSupported() {
         Network network = createNetworkWithNonDefaultMinP();
         Path filename = tmpDir.resolve("fail");
-        assertThrows(PowsyblException.class, () -> NetworkSerDe.write(network, filename));
+        assertThrows(NotImplementedException.class, () -> NetworkSerDe.write(network, filename));
     }
 
     @Test
