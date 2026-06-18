@@ -946,6 +946,8 @@ LCC and VSC share the following characteristics.
 | $ControlMode$   |          | The converter's control mode: P_PCC, V_DC or P_PCC_DROOP              |
 | $TargetP$       | MW       | Active power target at point of common coupling, load sign convention |
 | $TargetVdc$     | kV       | DC voltage target                                                     |
+| $MinP$          | MW       | Minimum active power at point of common coupling, load sign convention |
+| $MaxP$          | MW       | Maximum active power at point of common coupling, load sign convention |
 | $DroopCurve$    |          | Droop curve for droop control mode                                    |
 
 Converter losses are modeled using the `IdleLoss`, `SwitchingLoss` and `ResistiveLoss` parameters, all positive values.
@@ -1005,6 +1007,12 @@ Each droop segment in the `DroopCurve` is defined with minimal and maximal volta
 droop segment should be the one which verifies:
 $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's Terminals.
 
+`MinP` and `MaxP` define the operational active power limits of the converter at the Point of Common Coupling, using the
+same load sign convention as `TargetP`.
+
+`MinP` must be less than or equal to `MaxP`. Both attributes are optional; if not set, the converter is considered with unlimited active power capability.
+
+`MinP` and `MaxP` are not serializable as of today. Trying to serialize AC-DC converters with non-default values of `MinP` or `MaxP` will raise an error.
 
 
 (line-commutated-converter)=
