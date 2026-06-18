@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import com.powsybl.iidm.network.util.UnsupportedPropertiesHolder;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 
@@ -23,6 +24,7 @@ import java.util.TreeMap;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractReducedLoadingLimits extends UnsupportedPropertiesHolder implements LoadingLimits {
+    private String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
     private final DetectionKind detectionKind;
     private final double permanentLimit;
     private final double originalPermanentLimit;
@@ -109,6 +111,17 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
     @Override
     public double getPermanentLimit() {
         return getValueOrThrowDetectionKind(permanentLimit);
+    }
+
+    @Override
+    public String getPermanentLimitName() {
+        return permanentLimitName;
+    }
+
+    @Override
+    public LoadingLimits setPermanentLimitName(String name) {
+        this.permanentLimitName = Objects.requireNonNull(name);
+        return this;
     }
 
     public double getOriginalPermanentLimit() {

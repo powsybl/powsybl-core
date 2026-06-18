@@ -23,8 +23,6 @@ import java.util.function.Function;
  */
 public final class LimitViolationUtils {
 
-    public static final String PERMANENT_LIMIT_NAME = "permanent";
-
     private LimitViolationUtils() {
     }
 
@@ -225,7 +223,7 @@ public final class LimitViolationUtils {
             return null;
         }
         Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
-        String previousLimitName = PERMANENT_LIMIT_NAME;
+        String previousLimitName = limitsContainer.getLimits().getPermanentLimitName();
         double previousLimit = permanentLimit;
         int previousAcceptableDuration = 0; // never mind initialisation it will be overridden with first loop
         boolean isBelowFirstTemporaryLimit = true;
@@ -289,14 +287,15 @@ public final class LimitViolationUtils {
     private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         String opGroupId = limitsContainer.getOperationalLimitsGroupId();
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
+        String permanentLimitName = limitsContainer.getLimits().getPermanentLimitName();
         double originalPermanentLimit = limitsContainer.getOriginalLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
-            return new PermanentLimitCheckResult(false, Double.NaN, limitReductionValue, opGroupId);
+            return new PermanentLimitCheckResult(false, Double.NaN, permanentLimitName, limitReductionValue, opGroupId);
         }
         if (i >= permanentLimit * limitReductionValue) {
-            return new PermanentLimitCheckResult(true, originalPermanentLimit, limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : limitReductionValue, opGroupId);
+            return new PermanentLimitCheckResult(true, originalPermanentLimit, permanentLimitName, limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : limitReductionValue, opGroupId);
         }
-        return new PermanentLimitCheckResult(false, originalPermanentLimit, limitReductionValue, opGroupId);
+        return new PermanentLimitCheckResult(false, originalPermanentLimit, permanentLimitName, limitReductionValue, opGroupId);
     }
 
     /**
@@ -348,7 +347,7 @@ public final class LimitViolationUtils {
         return getLimits(identifiable, side, type, computer)
             .filter(l -> l.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH)
             .map(l -> checkPermanentLimitIfAny(l, i))
-            .orElse(new PermanentLimitCheckResult(false, Double.NaN, 1.0, ""));
+            .orElse(new PermanentLimitCheckResult(false, Double.NaN, "", 1.0, ""));
     }
 
     public static double getValueForLimit(Terminal t, LimitType type) {

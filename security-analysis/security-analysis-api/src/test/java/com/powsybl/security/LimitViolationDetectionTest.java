@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.detectors.AbstractLimitViolationDetectionTest;
 import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
 import com.powsybl.security.limitreduction.LimitReduction;
@@ -157,7 +156,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         assertEquals(1, violationsCollector.size());
         LimitViolation violation = violationsCollector.getFirst();
         // the limit at 1200 is raised to 1320
-        assertEquals(LimitViolationUtils.PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
         assertEquals(600, violation.getAcceptableDuration());
         assertEquals(1100, violation.getLimit());
         assertEquals(1, violation.getLimitReduction());
@@ -182,7 +181,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         assertEquals(1, violationsCollector.size());
         LimitViolation violation = violationsCollector.getFirst();
         // the limit at 1200 is raised to 1560 above the limit at 1500
-        assertEquals(LimitViolationUtils.PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
         assertEquals(60, violation.getAcceptableDuration());
         assertEquals(1100, violation.getLimit());
         assertEquals(1, violation.getLimitReduction());
@@ -391,7 +390,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.95), LimitType.CURRENT, 299, List.of()), // below any permanent limit
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.8), LimitType.CURRENT, 310, List.of(
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
                     300,
                     60 * 40
@@ -399,13 +398,13 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             )), // above permanent of activated_1_2
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.82), LimitType.CURRENT, 510, List.of(
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
                     300,
                     60 * 40
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     500,
                     Integer.MAX_VALUE
@@ -419,7 +418,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     30
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     500,
                     Integer.MAX_VALUE
@@ -433,13 +432,13 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     30
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     500,
                     Integer.MAX_VALUE
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
                     1100,
                     60 * 10
@@ -453,7 +452,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     30
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     500,
                     Integer.MAX_VALUE
@@ -473,7 +472,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     30
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     500,
                     Integer.MAX_VALUE
@@ -493,7 +492,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     0
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     500,
                     Integer.MAX_VALUE
@@ -508,7 +507,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.99), LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.96), LimitType.ACTIVE_POWER, 275, List.of(
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     250,
                     Integer.MAX_VALUE
@@ -516,13 +515,13 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             )), // above permanent of Default, there is no temporary above, so by default we use the max value for the duration
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.88), LimitType.ACTIVE_POWER, 375, List.of(
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     250,
                     Integer.MAX_VALUE
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
                     350,
                     45 * 60
@@ -530,7 +529,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
             )), // above permanent of activated_3_1
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.77), LimitType.ACTIVE_POWER, 405, List.of(
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     "DEFAULT",
                     250,
                     Integer.MAX_VALUE
@@ -559,7 +558,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     2400
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
                     600,
                     600
@@ -573,7 +572,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     600
                 ),
                 new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
                     600,
                     600

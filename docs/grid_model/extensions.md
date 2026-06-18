@@ -312,14 +312,57 @@ This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 ## Line Fortescue
 
 This extension models the homopolar line data to be used for asymmetrical short-circuit calculations.
+Side 1 and side 2 correspond respectively to terminal1 and terminal2 of the line.
 
-| Attribute  | Type    | Unit | Required | Default value | Description                                  |
-|------------|---------|------|----------|---------------|----------------------------------------------|
-| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line     |
-| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line      |
-| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open |
-| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open |
-| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open |
+| Attribute  | Type    | Unit | Required | Default value | Description                                         |
+|------------|---------|------|----------|---------------|-----------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line            |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line             |
+| g1z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 1 |
+| b1z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 1 |
+| g2z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 2 |
+| b2z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 2 |
+| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open        |
+| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open        |
+| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open        |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(line-couplings-extension)=
+## Line Couplings
+
+This extension models the mutual coupling between two lines. It is attached to the `Network` object and contains a list of mutual couplings.
+
+The attributes of a `MutualCoupling` are:
+
+| Attribute    | Type        | Unit | Required | Default value | Description                                                   |
+|--------------|-------------|------|----------|---------------|---------------------------------------------------------------|
+| line1        | Line        | -    | yes      | -             | The first coupled line                                        |
+| line2        | Line        | -    | yes      | -             | The second coupled line                                       |
+| r            | double      | Ω    | yes      | -             | The mutual coupling resistance                                |
+| x            | double      | Ω    | yes      | -             | The mutual coupling reactance                                 |
+| line1Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the first line (0 to 1)  |
+| line2Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the second line (0 to 1) |
+
+The position of the mutual coupling is expressed as a ratio between 0 and 1, through a `LineSegment` object.
+A `LineSegment` has a start and an end position, with the constraint that: 0 ≤ start ≤ end ≤ 1
+Mutual coupling is symmetric: a coupling between line1 and line2 is equivalent to a coupling between line2 and line1.
+Mutual couplings are considered symmetric. Therefore, the extension cannot contain both (line1, line2) and (line2, line1).
+
+Example of code to add a mutual coupling:
+
+```java
+Line line1 = network.getLine("L1");
+Line line2 = network.getLine("L2");
+network.newExtension(LineCouplingsAdder.class).add();
+network.getExtension(LineCouplings.class)
+    .newMutualCoupling()
+    .withLine1(line1)
+    .withLine2(line2)
+    .withR(0.1)
+    .withX(0.4)
+    .add();
+```
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
@@ -332,7 +375,8 @@ This extension models the homopolar two-winding transformer data to be used for 
 |-----------------|-----------------------|------|----------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | rz              | double                | Ω    | no       | -                                | The zero-sequence resistance of the two-winding transformer                                            |
 | xz              | double                | Ω    | no       | -                                | The zero-sequence reactance of the two-winding transformer                                             |
-| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               | 
+| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               |
+| xm              | double                | Ω    | no       | Double.NaN                       | If the fluxes are not free, the magnetizing impedance of the two-winding transformer                   |
 | connectionType1 | WindingConnectionType | -    | no       | WindingConnectionType.DELTA      | The connection type of the winding 1                                                                   | 
 | connectionType2 | WindingConnectionType | -    | no       | WindingConnectionType.Y_GROUNDED | The connection type of the winding 2                                                                   | 
 | groundingR1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the resistance part of the impedance to the ground | 
@@ -390,6 +434,33 @@ This extension contains the sub-object `ObservabilityQuality`.
 | redundant          | boolean | -          | yes      | -             | Indicates if the value is confirmed by redundancy |
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(observability-area-extension)=
+## Observability Area
+
+This extension represents the observability status of some sub-elements in a voltage level. An observability status
+could be defined by bus, by a set of buses or by a set of nodes. It is defined after a state estimation computation.
+
+It has several getters to retrieve the observability status of the sub-elements. This status is defined by an object
+called **AreaCharacteristics**. You can access to **AreaCharacteristics** by terminal, by bus ID (in bus-breaker or bus view) or by node number (in node-breaker view).
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+### Object AreaCharacteristics
+
+| Attribute             | Type                | Unit | Required | Default value | Description                                                  |
+|-----------------------|---------------------|------|----------|---------------|--------------------------------------------------------------|
+| status                | ObservabilityStatus | -    | yes      | -             | Observability status (OBSERVABLE, NON_OBSERVABLE, BORDER)    |
+| areaNumber            | int                 | -    | yes      | -             | Associated number representing this area                     |
+| terminals             | Set<Terminal>       | -    | yes      | -             | Associated terminals in the area                             |
+| nodeBreakerData.nodes | Set<Integer>        | -    | no       | -             | Associated nodes in the area (for node-breaker view)         |
+| busBreakerData.busIds | Set<String>         | -    | no       | -             | Associated buses in the area (for bus-breaker and bus views) |
+
+### Usage warnings
+
+As it associates an observability status with a topological element (a bus or a node), it deeply relies on the topology during the state estimation computation. Therefore, any topological change could lead to either outdated results (wrong status) or hanging areas (defined on nodes that don't exist in the voltage level).
+
+To mitigate issues related to the second point, a helper method (ObservabilityArea.isConsistentWithTopology()) is defined to check if all the elements that define observability areas are still present in the network. But nothing prevents the user from using outdated observability statuses due to topological changes. So, it's their responsibility to invalidate observability areas when it is necessary.
 
 (line-position-extension)=
 ## Line Position

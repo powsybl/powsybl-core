@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="TwoWindingsTransformerSharedVoltageControl" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S50">
+        <iidm:voltageLevel id="VL50" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL50_Bus 1-Slack" node="0"/>
+                <iidm:internalConnection node1="0" node2="1"/>
+                <iidm:internalConnection node1="0" node2="2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="Gen_1_1" energySource="OTHER" minP="0.0" maxP="50.470001220703125" voltageRegulatorOn="true" targetP="50.470001220703125" targetV="423.9999771118164" targetQ="0.0" node="2">
+                <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S51">
+        <iidm:voltageLevel id="VL51" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL51_Bus 2" node="0"/>
+                <iidm:internalConnection node1="0" node2="1"/>
+                <iidm:internalConnection node1="0" node2="2"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S52">
+        <iidm:voltageLevel id="VL52" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL52_Bus 3" node="0"/>
+                <iidm:internalConnection node1="0" node2="1"/>
+                <iidm:internalConnection node1="0" node2="2"/>
+                <iidm:internalConnection node1="0" node2="3"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL53" nominalV="20.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL53_Bus 3L" node="0"/>
+                <iidm:internalConnection node1="0" node2="1"/>
+                <iidm:internalConnection node1="0" node2="2"/>
+                <iidm:internalConnection node1="0" node2="3"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="Load_3L_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="1"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="T2w_3_3L_1" r="0.0031199999227605408" x="0.09771995949237713" ratedU1="400.0" ratedU2="20.0" ratedS="29.760000228881836" voltageLevelId1="VL52" node1="2" voltageLevelId2="VL53" node2="2">
+            <iidm:ratioTapChanger regulating="true" tapPosition="2" targetDeadband="11.999988555908203" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="400.0">
+                <iidm:terminalRef id="VL51_Bus 2"/>
+                <iidm:step rho="1.1111111111111112"/>
+                <iidm:step rho="1.0526315789473684"/>
+                <iidm:step rho="1.0"/>
+                <iidm:step rho="0.9523809523809523"/>
+                <iidm:step rho="0.9090909090909091"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T2w_3_3L_2" r="0.0031199999227605408" x="0.09771995949237713" ratedU1="400.0" ratedU2="20.0" ratedS="29.760000228881836" voltageLevelId1="VL52" node1="3" voltageLevelId2="VL53" node2="3">
+            <iidm:ratioTapChanger regulating="true" tapPosition="2" targetDeadband="11.999988555908203" loadTapChangingCapabilities="true" regulationMode="VOLTAGE" regulationValue="400.0">
+                <iidm:terminalRef id="VL51_Bus 2"/>
+                <iidm:step rho="1.1111111111111112"/>
+                <iidm:step rho="1.0526315789473684"/>
+                <iidm:step rho="1.0"/>
+                <iidm:step rho="0.9523809523809523"/>
+                <iidm:step rho="0.9090909090909091"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:line id="Line_1_2_1" r="31.007963180541992" x="94.67198181152344" b1="1.0815001583099366E-4" b2="1.0815001583099366E-4" voltageLevelId1="VL50" node1="1" voltageLevelId2="VL51" node2="1"/>
+    <iidm:line id="Line_2_3_1" r="31.007963180541992" x="94.67198181152344" b1="1.0815001583099366E-4" b2="1.0815001583099366E-4" voltageLevelId1="VL51" node1="2" voltageLevelId2="VL52" node2="1"/>
+</iidm:network>

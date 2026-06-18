@@ -334,6 +334,7 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
         Line line = createNetwork().getLine("L");
         CurrentLimitsAdder currentLimitsAdder = line.getOrCreateSelectedOperationalLimitsGroup1().newCurrentLimits()
                                         .setPermanentLimit(100.0)
+                                        .setPermanentLimitName("customPermanentName")
                                             .beginTemporaryLimit()
                                             .setName("20'")
                                             .setAcceptableDuration(20 * 60)
@@ -418,8 +419,11 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
         }
 
         assertEquals(LimitType.CURRENT, currentLimits.getLimitType());
+        assertEquals("customPermanentName", currentLimits.getPermanentLimitName());
         currentLimits.setPermanentLimit(1000.0);
+        currentLimits.setPermanentLimitName("otherName");
         assertEquals(1000.0, currentLimits.getPermanentLimit(), 0.0);
+        assertEquals("otherName", currentLimits.getPermanentLimitName());
         assertEquals(3, currentLimits.getTemporaryLimits().size());
         assertTrue(Double.isNaN(currentLimits.getTemporaryLimitValue(2)));
 

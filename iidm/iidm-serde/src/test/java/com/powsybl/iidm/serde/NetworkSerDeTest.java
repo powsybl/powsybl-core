@@ -35,7 +35,10 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Set;
 import java.util.Objects;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
@@ -97,6 +100,97 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void roundTripTestExportOnlyActiveGroups() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        TwoWindingsTransformer twt = n.getTwoWindingsTransformer(EurostagTutorialExample1Factory.NGEN_NHV1);
+        twt.newOperationalLimitsGroup2(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).newApparentPowerLimits().setPermanentLimit(150).add();
+        twt.newOperationalLimitsGroup2("not activated");
+        twt.addSelectedOperationalLimitsGroups(TwoSides.TWO, EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE);
+        n.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).deselectOperationalLimitsGroups(TwoSides.ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        //network with some inactive groups, export only active
+        Network networkRead = allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+        assertEquals(Set.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), networkRead.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getAllSelectedOperationalLimitsGroupIds(TwoSides.ONE));
+    }
+
+    @Test
+    void roundTripTestExportOnlyActiveGroupsThreeWindingTransformer() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWith3wTransformer();
+        n.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        ThreeWindingsTransformer twt = n.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
+        twt.getLeg1().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE).newCurrentLimits()
+            .setPermanentLimit(100)
+            .beginTemporaryLimit()
+            .setName("40'")
+            .setAcceptableDuration(40 * 60)
+            .setValue(500)
+            .endTemporaryLimit()
+            .add();
+        twt.getLeg1().newOperationalLimitsGroup("not activated").newActivePowerLimits().setPermanentLimit(10).add();
+        twt.getLeg1().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+
+        twt.getLeg2().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE).newApparentPowerLimits().setPermanentLimit(75).add();
+        twt.getLeg2().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO).newApparentPowerLimits().setPermanentLimit(80).add();
+        twt.getLeg2().newOperationalLimitsGroup("not activated").newApparentPowerLimits().setPermanentLimit(100).add();
+        twt.getLeg2().newOperationalLimitsGroup("not activated 2").newApparentPowerLimits().setPermanentLimit(110).add();
+        twt.getLeg2().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO);
+
+        twt.getLeg3().newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE).newActivePowerLimits()
+            .setPermanentLimit(150)
+            .beginTemporaryLimit()
+            .setName("30'")
+            .setAcceptableDuration(30 * 60)
+            .setValue(400)
+            .endTemporaryLimit()
+            .add();
+        twt.getLeg3().newOperationalLimitsGroup("not activated");
+        twt.getLeg3().newOperationalLimitsGroup("not activated 2");
+        twt.getLeg3().newOperationalLimitsGroup("not activated 3").newCurrentLimits().setPermanentLimit(500).add();
+        twt.getLeg3().addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE);
+
+        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-three-winding.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+    }
+
+    @Test
+    void roundTripTestExportOnlyActiveGroupsBoundaryLine() throws IOException {
+        Network n = EurostagTutorialExample1Factory.createWithTieLine();
+        BoundaryLine bl1 = n.getBoundaryLine(EurostagTutorialExample1Factory.BOUNDARY_LINE_XNODE1_1);
+        bl1.newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE).newCurrentLimits().setPermanentLimit(175).add();
+        bl1.newOperationalLimitsGroup("not activated").newActivePowerLimits().setPermanentLimit(145).add();
+        bl1.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+
+        BoundaryLine bl2 = n.getBoundaryLine(EurostagTutorialExample1Factory.BOUNDARY_LINE_XNODE1_2);
+        bl2.newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE).newApparentPowerLimits().setPermanentLimit(135).add();
+        bl2.newOperationalLimitsGroup(EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO).newCurrentLimits().setPermanentLimit(500).add();
+        bl2.newOperationalLimitsGroup("not activated");
+        bl2.newOperationalLimitsGroup("not activated 2");
+        bl2.addSelectedOperationalLimitsGroups(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE, EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO);
+
+        allFormatsRoundTripTest(n, "eurostag-tutorial-only-active-groups-boundary-line.xml", CURRENT_IIDM_VERSION, new ExportOptions().setOnlySelectedOperationalLimitsGroups(true));
+    }
+
+    @Test
+    void testImportOnlyActiveGroups() throws URISyntaxException {
+        ImportOptions importOptions = new ImportOptions().setOnlySelectedOperationalLimitsGroups(true);
+        //read only active groups
+        Network onlyActiveGroupsNetwork = NetworkSerDe.read(Paths.get(getClass().getResource(getVersionedNetworkPath("eurostag-tutorial-only-active-groups.xml", CURRENT_IIDM_VERSION)).toURI()), importOptions);
+        Line line1 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO), TwoSides.ONE);
+        assertAllGroupsOneLineSelected(line1, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE), TwoSides.TWO);
+        Line line2 = onlyActiveGroupsNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
+        assertAllGroupsOneLineSelected(line2, List.of("DEFAULT"), TwoSides.ONE);
+        assertAllGroupsOneLineSelected(line2, List.of("DEFAULT", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO), TwoSides.TWO);
+    }
+
+    private void assertAllGroupsOneLineSelected(Line line, List<String> expectedIds, TwoSides side) {
+        assertEquals(expectedIds, line.getAllSelectedOperationalLimitsGroupIdsOrdered(side));
+        int allGroupsSize = switch (side) {
+            case ONE -> line.getOperationalLimitsGroups1().size();
+            case TWO -> line.getOperationalLimitsGroups2().size();
+        };
+        assertEquals(0, allGroupsSize - line.getAllSelectedOperationalLimitsGroups(side).size());
+    }
+
+    @Test
     void checkNoExportOfLowLimits() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1)
@@ -118,7 +212,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = TreeDataFormat.class, names = {"XML", "JSON"})
+    @EnumSource(TreeDataFormat.class)
     void testSkippedExtension(TreeDataFormat format) throws IOException {
         Network network = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"));
         Path file = tmpDir.resolve("data");

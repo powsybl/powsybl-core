@@ -365,9 +365,11 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
     @Override
     public void invalidateCache(boolean exceptBusBreakerView) {
+        // Invalidation on the current variant only
         calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();
         getNetwork().getBusBreakerView().invalidateCache();
+        // Invalidation on all the variants (no variants support for these managers)
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getSynchronousComponentsManager().invalidate();
     }
@@ -887,7 +889,16 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
     }
 
     @Override
+    public void attachInCurrentVariant(final TerminalExt terminal, boolean test) {
+        attach(terminal, test, false);
+    }
+
+    @Override
     public void attach(final TerminalExt terminal, boolean test) {
+        attach(terminal, test, true);
+    }
+
+    private void attach(final TerminalExt terminal, boolean test, boolean allVariants) {
         checkTerminal(terminal);
         if (test) {
             return;
@@ -900,16 +911,30 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
 
         final ConfiguredBus connectableBus = getBus(connectableBusId, true);
 
-        getNetwork().getVariantManager().forEachVariant(() -> {
+        Runnable task = () -> {
             connectableBus.addTerminal((BusTerminal) terminal);
-
             // invalidate connected components
             invalidateCache();
-        });
+        };
+
+        if (allVariants) {
+            getNetwork().getVariantManager().forEachVariant(task);
+        } else {
+            task.run();
+        }
+    }
+
+    @Override
+    public void detachInCurrentVariant(final TerminalExt terminal) {
+        detach(terminal, false);
     }
 
     @Override
     public void detach(final TerminalExt terminal) {
+        detach(terminal, true);
+    }
+
+    private void detach(final TerminalExt terminal, boolean allVariants) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalArgumentException("Incorrect terminal type");
         }
@@ -918,15 +943,21 @@ class BusBreakerTopologyModel extends AbstractTopologyModel {
         String connectableBusId = ((BusTerminal) terminal).getConnectableBusId();
 
         final ConfiguredBus connectableBus = getBus(connectableBusId, true);
-
-        getNetwork().getVariantManager().forEachVariant(() -> {
+        Runnable task = () -> {
             connectableBus.removeTerminal((BusTerminal) terminal);
             ((BusTerminal) terminal).unsetConnectableBusId();
-
             invalidateCache();
-        });
-        // remove the link terminal -> voltage level
-        terminal.setVoltageLevel(null);
+        };
+
+        if (allVariants) {
+            getNetwork().getVariantManager().forEachVariant(task);
+            // remove the link terminal -> voltage level
+            terminal.setVoltageLevel(null);
+        } else {
+            task.run();
+            // The voltage level of the terminal is never set to null in this case
+            // (even when the terminal is no more referenced by any variant).
+        }
     }
 
     boolean connect(TerminalExt terminal) {
