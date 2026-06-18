@@ -272,6 +272,40 @@ public final class IidmSerDeUtil {
     /**
      * Run a given runnable if the context's IIDM version equals or is more recent than a given minimum IIDM version.
      */
+    /**
+     * Writes a double attribute that was formerly mandatory and is now optional (since a given version).
+     * Before that version, it is written as a mandatory attribute.
+     * From that version, it is written with a default value of 0.0.
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @param optionalSince the version from which the attribute became optional
+     * @param context the serialization context
+     */
+    public static void writeFormerlyMandatoryDoubleAttribute(String name, double value, IidmVersion optionalSince, NetworkSerializerContext context) {
+        if (context.getVersion().compareTo(optionalSince) < 0) {
+            context.getWriter().writeDoubleAttribute(name, value);
+        } else {
+            context.getWriter().writeDoubleAttribute(name, value, 0.0);
+        }
+    }
+
+    /**
+     * Reads a double attribute that was formerly mandatory and is now optional (since a given version).
+     * Before that version, it is read as a mandatory attribute.
+     * From that version, it is read with a default value of 0.0.
+     * @param name the name of the attribute
+     * @param optionalSince the version from which the attribute became optional
+     * @param context the deserialization context
+     * @return the value of the attribute
+     */
+    public static double readFormerlyMandatoryDoubleAttribute(String name, IidmVersion optionalSince, NetworkDeserializerContext context) {
+        if (context.getVersion().compareTo(optionalSince) < 0) {
+            return context.getReader().readDoubleAttribute(name);
+        } else {
+            return context.getReader().readDoubleAttribute(name, 0.0);
+        }
+    }
+
     public static void runFromMinimumVersion(IidmVersion minVersion, IidmVersion contextVersion, Runnable runnable) {
         if (contextVersion.compareTo(minVersion) >= 0) {
             runnable.run();

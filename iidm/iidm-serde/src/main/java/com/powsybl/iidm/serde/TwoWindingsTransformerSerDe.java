@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
 /**
  *
@@ -36,8 +38,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r", twt.getR());
         context.getWriter().writeDoubleAttribute("x", twt.getX());
-        writeFormerlyMandatoryDoubleAttribute("g", twt.getG(), context);
-        writeFormerlyMandatoryDoubleAttribute("b", twt.getB(), context);
+        writeFormerlyMandatoryDoubleAttribute("g", twt.getG(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b", twt.getB(), IidmVersion.V_1_17, context);
         context.getWriter().writeDoubleAttribute("ratedU1", twt.getRatedU1());
         context.getWriter().writeDoubleAttribute("ratedU2", twt.getRatedU2());
         writeRatedS("ratedS", twt.getRatedS(), context);
@@ -80,8 +82,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Substation s, NetworkDeserializerContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double g = readFormerlyMandatoryDoubleAttribute("g", context);
-        double b = readFormerlyMandatoryDoubleAttribute("b", context);
+        double g = readFormerlyMandatoryDoubleAttribute("g", IidmVersion.V_1_17, context);
+        double b = readFormerlyMandatoryDoubleAttribute("b", IidmVersion.V_1_17, context);
         double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
         double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
         adder.setR(r)

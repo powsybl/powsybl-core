@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -39,8 +41,8 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r1", twt.getLeg1().getR());
         context.getWriter().writeDoubleAttribute("x1", twt.getLeg1().getX());
-        writeFormerlyMandatoryDoubleAttribute("g1", twt.getLeg1().getG(), context);
-        writeFormerlyMandatoryDoubleAttribute("b1", twt.getLeg1().getB(), context);
+        writeFormerlyMandatoryDoubleAttribute("g1", twt.getLeg1().getG(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b1", twt.getLeg1().getB(), IidmVersion.V_1_17, context);
         context.getWriter().writeDoubleAttribute("ratedU1", twt.getLeg1().getRatedU());
         writeRatedS("ratedS1", twt.getLeg1().getRatedS(), context);
         context.getWriter().writeDoubleAttribute("r2", twt.getLeg2().getR());
@@ -154,8 +156,8 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
 
         double r1 = context.getReader().readDoubleAttribute("r1");
         double x1 = context.getReader().readDoubleAttribute("x1");
-        double g1 = readFormerlyMandatoryDoubleAttribute("g1", context);
-        double b1 = readFormerlyMandatoryDoubleAttribute("b1", context);
+        double g1 = readFormerlyMandatoryDoubleAttribute("g1", IidmVersion.V_1_17, context);
+        double b1 = readFormerlyMandatoryDoubleAttribute("b1", IidmVersion.V_1_17, context);
         double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
         legAdder1.setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_2, context, () -> readRatedS("ratedS1", context, legAdder1::setRatedS));

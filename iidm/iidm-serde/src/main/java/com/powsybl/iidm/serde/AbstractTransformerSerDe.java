@@ -19,6 +19,8 @@ import java.util.function.DoubleConsumer;
 
 import static com.powsybl.iidm.serde.PropertiesSerDe.NAME;
 import static com.powsybl.iidm.serde.PropertiesSerDe.VALUE;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute;
+import static com.powsybl.iidm.serde.util.IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -46,10 +48,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static TreeDataWriter writeCommonTapChangerAttributes(TapChangerStep<?> tcs, NetworkSerializerContext context) {
         TreeDataWriter writer = context.getWriter();
-        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("r", tcs.getR(), context);
-        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("x", tcs.getX(), context);
-        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g", tcs.getG(), context);
-        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b", tcs.getB(), context);
+        writeFormerlyMandatoryDoubleAttribute("r", tcs.getR(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("x", tcs.getX(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("g", tcs.getG(), IidmVersion.V_1_17, context);
+        writeFormerlyMandatoryDoubleAttribute("b", tcs.getB(), IidmVersion.V_1_17, context);
         writer.writeDoubleAttribute("rho", tcs.getRho());
         return writer;
     }
@@ -331,10 +333,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     private static double[] readCommonDoubleAttributesForAdder(NetworkDeserializerContext context) {
-        double r = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("r", context);
-        double x = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("x", context);
-        double g = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("g", context);
-        double b = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("b", context);
+        double r = readFormerlyMandatoryDoubleAttribute("r", IidmVersion.V_1_17, context);
+        double x = readFormerlyMandatoryDoubleAttribute("x", IidmVersion.V_1_17, context);
+        double g = readFormerlyMandatoryDoubleAttribute("g", IidmVersion.V_1_17, context);
+        double b = readFormerlyMandatoryDoubleAttribute("b", IidmVersion.V_1_17, context);
         double rho = context.getReader().readDoubleAttribute("rho");
         return new double[] {r, x, g, b, rho};
     }
