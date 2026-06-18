@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.binary;
 
+import com.github.luben.zstd.ZstdInputStream;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataReader;
 import com.powsybl.commons.io.TreeDataHeader;
@@ -36,7 +37,11 @@ public class BinReader extends AbstractTreeDataReader {
 
     public BinReader(InputStream inputStream, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
-        this.in = new BufferedChannelReader(Objects.requireNonNull(inputStream));
+        try {
+            this.in = new BufferedChannelReader(new ZstdInputStream(Objects.requireNonNull(inputStream)));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override

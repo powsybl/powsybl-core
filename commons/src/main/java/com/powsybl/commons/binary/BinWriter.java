@@ -10,6 +10,8 @@ package com.powsybl.commons.binary;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataWriter;
 
+import com.github.luben.zstd.ZstdOutputStream;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -206,9 +208,10 @@ public class BinWriter extends AbstractTreeDataWriter {
 
     @Override
     public void close() {
-        try (channel) {
-            buildHeader().drainTo(channel);
-            body.drainTo(channel);
+        try (channel; var zstdOut = new ZstdOutputStream(Channels.newOutputStream(channel), -2).setChecksum(false)) {
+            WritableByteChannel zstdChannel = Channels.newChannel(zstdOut);
+            buildHeader().drainTo(zstdChannel);
+            body.drainTo(zstdChannel);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
