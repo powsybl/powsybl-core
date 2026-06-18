@@ -46,10 +46,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static TreeDataWriter writeCommonTapChangerAttributes(TapChangerStep<?> tcs, NetworkSerializerContext context) {
         TreeDataWriter writer = context.getWriter();
-        ConnectableSerDeUtil.writeDoubleAttribute("r", tcs.getR(), context);
-        ConnectableSerDeUtil.writeDoubleAttribute("x", tcs.getX(), context);
-        ConnectableSerDeUtil.writeDoubleAttribute("g", tcs.getG(), context);
-        ConnectableSerDeUtil.writeDoubleAttribute("b", tcs.getB(), context);
+        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("r", tcs.getR(), context);
+        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("x", tcs.getX(), context);
+        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g", tcs.getG(), context);
+        ConnectableSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b", tcs.getB(), context);
         writer.writeDoubleAttribute("rho", tcs.getRho());
         return writer;
     }
@@ -331,10 +331,10 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
     }
 
     private static double[] readCommonDoubleAttributesForAdder(NetworkDeserializerContext context) {
-        double r = ConnectableSerDeUtil.readDoubleAttribute("r", context);
-        double x = ConnectableSerDeUtil.readDoubleAttribute("x", context);
-        double g = ConnectableSerDeUtil.readDoubleAttribute("g", context);
-        double b = ConnectableSerDeUtil.readDoubleAttribute("b", context);
+        double r = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("r", context);
+        double x = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("x", context);
+        double g = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("g", context);
+        double b = ConnectableSerDeUtil.readFormerlyMandatoryDoubleAttribute("b", context);
         double rho = context.getReader().readDoubleAttribute("rho");
         return new double[] {r, x, g, b, rho};
     }

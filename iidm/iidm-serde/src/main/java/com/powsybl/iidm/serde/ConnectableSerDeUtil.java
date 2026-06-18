@@ -63,12 +63,23 @@ public final class ConnectableSerDeUtil {
         return index != null ? index.toString() : "";
     }
 
-    public static void writeDoubleAttribute(String name, double value, NetworkSerializerContext context) {
+    /**
+     * Writes a double attribute that was formerly mandatory and is now optional (since version 1.17).
+     * Before version 1.17, it is written as a mandatory attribute.
+     * From version 1.17, it is written with a default value of 0.0.
+     */
+    public static void writeFormerlyMandatoryDoubleAttribute(String name, double value, NetworkSerializerContext context) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute(name, value));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(name, value, 0.0));
     }
 
-    public static double readDoubleAttribute(String name, NetworkDeserializerContext context) {
+    /**
+     * Reads a double attribute that was formerly mandatory and is now optional (since version 1.17).
+     * Before version 1.17, it is read as a mandatory attribute.
+     * From version 1.17, it is read with a default value of 0.0.
+     * @return the value of the attribute
+     */
+    public static double readFormerlyMandatoryDoubleAttribute(String name, NetworkDeserializerContext context) {
         double[] value = new double[1];
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> value[0] = context.getReader().readDoubleAttribute(name));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> value[0] = context.getReader().readDoubleAttribute(name, 0.0));

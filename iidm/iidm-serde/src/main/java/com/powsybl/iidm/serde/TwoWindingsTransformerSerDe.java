@@ -36,8 +36,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkSerializerContext context) {
         context.getWriter().writeDoubleAttribute("r", twt.getR());
         context.getWriter().writeDoubleAttribute("x", twt.getX());
-        writeDoubleAttribute("g", twt.getG(), context);
-        writeDoubleAttribute("b", twt.getB(), context);
+        writeFormerlyMandatoryDoubleAttribute("g", twt.getG(), context);
+        writeFormerlyMandatoryDoubleAttribute("b", twt.getB(), context);
         context.getWriter().writeDoubleAttribute("ratedU1", twt.getRatedU1());
         context.getWriter().writeDoubleAttribute("ratedU2", twt.getRatedU2());
         writeRatedS("ratedS", twt.getRatedS(), context);
@@ -80,8 +80,8 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Substation s, NetworkDeserializerContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double g = readDoubleAttribute("g", context);
-        double b = readDoubleAttribute("b", context);
+        double g = readFormerlyMandatoryDoubleAttribute("g", context);
+        double b = readFormerlyMandatoryDoubleAttribute("b", context);
         double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
         double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
         adder.setR(r)
