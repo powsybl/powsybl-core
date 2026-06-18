@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 final class BufferedChannelReader implements AutoCloseable {
 
-    static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
+    static final int DEFAULT_BUFFER_SIZE = 8 * 1024;
 
     private final ReadableByteChannel channel;
     private final ByteBuffer buffer;
