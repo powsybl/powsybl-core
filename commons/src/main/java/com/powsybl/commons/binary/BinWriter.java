@@ -120,6 +120,14 @@ public class BinWriter extends AbstractTreeDataWriter {
     }
 
     @Override
+    public void writeStringAttribute(String name, String value, String defaultValue) {
+        if (Objects.equals(defaultValue, name)) {
+            return;
+        }
+        writeStringAttribute(name, value);
+    }
+
+    @Override
     public void writeDoubleAttribute(String name, double value) {
         writeDoubleAttribute(name, value, Double.NaN);
     }

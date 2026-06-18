@@ -227,8 +227,10 @@ public class BinReader extends AbstractTreeDataReader {
 
     @Override
     public String readStringAttribute(String name, String defaultValue) {
-        String value = readString();
-        return value != null ? value : defaultValue;
+        if (isAttrAbsent(name)) {
+            return defaultValue;
+        }
+        return readStringAttribute(name);
     }
 
     @Override
