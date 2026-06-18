@@ -191,4 +191,19 @@ public abstract class AbstractVscTest {
         assertEquals(cs2.getTerminal(), network.getVscConverterStation("C3").getRegulatingTerminal());
 
     }
+
+    @Test
+    public void testVscConverterStationAdderWithoutVoltageRegulatorOnWithEquipmentValidationLevel() {
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+
+        VscConverterStation converterStation = network.getVoltageLevel("VL1").newVscConverterStation()
+                .setId("C4")
+                .setReactivePowerSetpoint(123)
+                .setConnectableBus("B1")
+                .setLossFactor(1.1f)
+                .add();
+
+        assertFalse(converterStation.isVoltageRegulatorOn());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+    }
 }
