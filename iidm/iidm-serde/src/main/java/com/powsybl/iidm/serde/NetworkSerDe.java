@@ -1311,30 +1311,16 @@ public final class NetworkSerDe {
         Objects.requireNonNull(executor);
         try {
             Pipe pipe = Pipe.open();
-            Pipe.SinkChannel sink = pipe.sink();
-            Pipe.SourceChannel source = pipe.source();
-            if (format == TreeDataFormat.BIN) {
-                ExportOptions exportOptions = new ExportOptions().setFormat(format);
-                executor.execute(() -> {
-                    try (BinWriter writer = new BinWriter(Channels.newOutputStream(sink), BIIDM_MAGIC_NUMBER, exportOptions.getVersion().toString("."))) {
-                        write(network, exportOptions, writer);
-                    } catch (Exception t) {
-                        LOGGER.error(t.toString(), t);
-                    }
-                });
-                try (BinReader reader = new BinReader(Channels.newInputStream(source), BIIDM_MAGIC_NUMBER)) {
-                    return read(reader, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
-                }
-            }
             executor.execute(() -> {
-                try (OutputStream os = new BufferedOutputStream(Channels.newOutputStream(sink))) {
-                    write(network, new ExportOptions().setFormat(format), os);
+                try (Pipe.SinkChannel sinkChannel = pipe.sink()) {
+                    write(network, new ExportOptions().setFormat(format), Channels.newOutputStream(sinkChannel));
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
             });
-            try (InputStream is = new BufferedInputStream(Channels.newInputStream(source))) {
-                return read(is, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
+            try (Pipe.SourceChannel sourceChannel = pipe.source()) {
+                return read(Channels.newInputStream(sourceChannel),
+                        new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
