@@ -122,7 +122,10 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
             switch (elementName) {
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(toApply, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(toApply, context);
-                case REGULATING_TERMINAL -> VoltageRegulationSerDe.readRegulatingTerminal(toApply, context); // TODO MSA add error version > that supported version
+                case REGULATING_TERMINAL -> {
+                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_16, context);
+                    VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                }
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
                 default -> readSubElement(elementName, id, toApply, context);
             }

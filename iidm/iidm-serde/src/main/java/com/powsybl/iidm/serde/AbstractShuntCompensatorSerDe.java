@@ -240,7 +240,10 @@ abstract class AbstractShuntCompensatorSerDe extends AbstractComplexIdentifiable
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case REGULATING_TERMINAL -> VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                case REGULATING_TERMINAL -> {
+                    IidmSerDeUtil.assertMaximumVersion(rootElementName, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_16, context);
+                    VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                }
                 case SHUNT_LINEAR_MODEL -> readShuntLinearModel(adder, context);
                 case SHUNT_NON_LINEAR_MODEL -> readShuntNonLinearModel(id, adder, context);
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
