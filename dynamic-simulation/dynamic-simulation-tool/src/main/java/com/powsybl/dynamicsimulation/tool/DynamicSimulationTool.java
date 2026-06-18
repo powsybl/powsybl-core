@@ -16,6 +16,7 @@ import com.powsybl.dynamicsimulation.groovy.DynamicSimulationReports;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
+import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -26,6 +27,7 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -33,6 +35,8 @@ import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Properties;
+
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.readProperties;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -47,6 +51,8 @@ public class DynamicSimulationTool implements Tool {
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_LOG_FILE = "output-log-file";
+    private static final String OUTPUT_CASE_FILE = "output-case-file";
+    private static final String OUTPUT_CASE_FORMAT = "output-case-format";
 
     @Override
     public Command getCommand() {
@@ -70,43 +76,61 @@ public class DynamicSimulationTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE)
-                    .desc("the case path")
-                    .hasArg()
-                    .argName("FILE")
-                    .required()
-                    .build());
-                options.addOption(Option.builder().longOpt(DYNAMIC_MODELS_FILE)
-                    .desc("dynamic models description as a Groovy file: defines the dynamic models to be associated to chosen equipments of the network")
-                    .hasArg()
-                    .argName("FILE")
-                    .required()
-                    .build());
-                options.addOption(Option.builder().longOpt(EVENT_MODELS_FILE)
-                    .desc("dynamic event models description as a Groovy file: defines the dynamic event models to be associated to chosen equipments of the network")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_VARIABLES_FILE)
-                    .desc("output variables description as Groovy file: defines a list of variables to plot or get the final value")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
-                    .desc("dynamic simulation parameters as JSON file")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FILE)
-                    .desc("dynamic simulation results output path")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_LOG_FILE)
-                    .desc("dynamic simulation logs output path")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
+                options.addOption(Option.builder()
+                        .longOpt(CASE_FILE)
+                        .desc("the case path")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .get());
+                options.addOption(Option.builder()
+                        .longOpt(DYNAMIC_MODELS_FILE)
+                        .desc("dynamic models description as a Groovy file: defines the dynamic models to be associated to chosen equipments of the network")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .get());
+                options.addOption(Option.builder()
+                        .longOpt(EVENT_MODELS_FILE)
+                        .desc("dynamic event models description as a Groovy file: defines the dynamic event models to be associated to chosen equipments of the network")
+                        .hasArg()
+                        .argName("FILE")
+                        .get());
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_VARIABLES_FILE)
+                        .desc("output variables description as Groovy file: defines a list of variables to plot or get the final value")
+                        .hasArg()
+                        .argName("FILE")
+                        .get());
+                options.addOption(Option.builder()
+                        .longOpt(PARAMETERS_FILE)
+                        .desc("dynamic simulation parameters as JSON file")
+                        .hasArg()
+                        .argName("FILE")
+                        .get());
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_FILE)
+                        .desc("dynamic simulation results output path")
+                        .hasArg()
+                        .argName("FILE")
+                        .get());
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_LOG_FILE)
+                        .desc("dynamic simulation logs output path")
+                        .hasArg()
+                        .argName("FILE")
+                        .get());
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_CASE_FILE)
+                        .desc("modified network base name")
+                        .hasArg()
+                        .argName("FILE").get());
+                options.addOption(Option.builder()
+                        .longOpt(OUTPUT_CASE_FORMAT)
+                        .desc("modified network output format " + Exporter.getFormats())
+                        .hasArg()
+                        .argName("CASE_FORMAT")
+                        .get());
                 options.addOption(ConversionToolUtils.createImportParametersFileOption());
                 options.addOption(ConversionToolUtils.createImportParameterOption());
                 return options;
@@ -125,8 +149,19 @@ public class DynamicSimulationTool implements Tool {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
         // process a single network: output-file/output-format options available
 
+        Path outputCaseFile = null;
+        String outputCaseFormat = null;
+        if (line.hasOption(OUTPUT_CASE_FILE)) {
+            outputCaseFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FILE));
+            if (line.hasOption(OUTPUT_CASE_FORMAT)) {
+                outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
+            } else {
+                throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
+            }
+        }
+
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
@@ -170,6 +205,12 @@ public class DynamicSimulationTool implements Tool {
             exportResult(result, context, outputFile);
         } else {
             printResult(result, context);
+        }
+
+        if (outputCaseFile != null) {
+            context.getOutputStream().println("Writing case file to '" + outputCaseFile + "'");
+            Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
+            network.write(outputCaseFormat, outputParams, outputCaseFile);
         }
     }
 

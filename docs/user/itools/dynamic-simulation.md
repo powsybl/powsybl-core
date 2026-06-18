@@ -5,6 +5,7 @@ In the end, the results and the modified network can be exported to files.
 
 ## Usage
 ```
+$> itools dynamic-simulation --help
 usage: itools [OPTIONS] dynamic-simulation --case-file <FILE> [--output-variables-file
        <FILE>] --dynamic-models-file <FILE> [--event-models-file <FILE>]
        [--help] [-I <property=value>] [--import-parameters <IMPORT_PARAMETERS>]
@@ -32,6 +33,9 @@ Available arguments are:
  -I <property=value>                          use value for given importer
                                               parameter
     --import-parameters <IMPORT_PARAMETERS>   the importer configuation file
+    --output-case-file <FILE>                 modified network base name
+    --output-case-format <CASE_FORMAT>         modified network output format
+                                              [CGMES, AMPL, JIIDM, XIIDM, BIIDM]
     --output-file <FILE>                      dynamic simulation results output
                                               path
     --parameters-file <FILE>                  dynamic simulation parameters as
