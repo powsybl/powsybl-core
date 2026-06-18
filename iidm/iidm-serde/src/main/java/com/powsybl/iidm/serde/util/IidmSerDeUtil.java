@@ -290,6 +290,20 @@ public final class IidmSerDeUtil {
     }
 
     /**
+     * Write a double attribute from a given minimum version, knowing it is mandatory until another given verions
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @param minVersion the version from which the attribute exists
+     * @param optionalSince the version from which the attribute became optional
+     * @param context the serialization context
+     */
+    public static void writeFormerlyMandatoryDoubleAttribute(String name, double value, IidmVersion minVersion, IidmVersion optionalSince, NetworkSerializerContext context) {
+        if (context.getVersion().compareTo(minVersion) >= 0) {
+            writeFormerlyMandatoryDoubleAttribute(name, value, optionalSince, context);
+        }
+    }
+
+    /**
      * Reads a double attribute that was formerly mandatory and is now optional (since a given version).
      * Before that version, it is read as a mandatory attribute.
      * From that version, it is read with a default value of 0.0.

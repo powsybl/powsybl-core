@@ -56,14 +56,8 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
             IidmSerDeUtil.assertMinimumVersionIfNotDefault(b2 != 0, ROOT_ELEMENT_NAME,
                     "b2", IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
         });
-        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_1, IidmVersion.V_1_16, context, () -> {
-            context.getWriter().writeDoubleAttribute("g2", g2);
-            context.getWriter().writeDoubleAttribute("b2", b2);
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            context.getWriter().writeDoubleAttribute("g2", g2, 0);
-            context.getWriter().writeDoubleAttribute("b2", b2, 0);
-        });
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g2", g2, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b2", b2, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
 
         context.getWriter().writeDoubleAttribute("ratedU2", twt.getLeg2().getRatedU());
         writeRatedS("ratedS2", twt.getLeg2().getRatedS(), context);
@@ -78,14 +72,8 @@ class ThreeWindingsTransformerSerDe extends AbstractTransformerSerDe<ThreeWindin
             IidmSerDeUtil.assertMinimumVersionIfNotDefault(b3 != 0, ROOT_ELEMENT_NAME,
                     "b3", IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmVersion.V_1_1, context);
         });
-        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_1, IidmVersion.V_1_16, context, () -> {
-            context.getWriter().writeDoubleAttribute("g3", g3);
-            context.getWriter().writeDoubleAttribute("b3", b3);
-        });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
-            context.getWriter().writeDoubleAttribute("g3", g3, 0);
-            context.getWriter().writeDoubleAttribute("b3", b3, 0);
-        });
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g3", g3, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b3", b3, IidmVersion.V_1_1, IidmVersion.V_1_17, context);
 
         context.getWriter().writeDoubleAttribute("ratedU3", twt.getLeg3().getRatedU());
         writeRatedS("ratedS3", twt.getLeg3().getRatedS(), context);
