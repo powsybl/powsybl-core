@@ -127,10 +127,10 @@
                 <iidm:step r="39.78473" x="39.784725" rho="1.0" alpha="42.8"/>
             </iidm:phaseTapChanger>
             <iidm:operationalLimitsGroup1 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="1031.0"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="1031.0"/>
             </iidm:operationalLimitsGroup1>
             <iidm:operationalLimitsGroup2 id="DEFAULT">
-                <iidm:currentLimits permanentLimit="1031.0"/>
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="1031.0"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
@@ -202,10 +202,10 @@
     <iidm:line id="LINE_S2S3" r="0.009999999" x="19.100000024" node1="6" voltageLevelId1="S2VL1" node2="2" voltageLevelId2="S3VL1" p1="109.8893" q1="190.0229" p2="-109.8864" q2="-184.5171"/>
     <iidm:line id="LINE_S3S4" r="0.009999999" x="13.100000024" node1="8" voltageLevelId1="S3VL1" node2="6" voltageLevelId2="S4VL1" p1="240.0036" q1="2.1751" p2="-240.0" q2="2.5415" selectedOperationalLimitsGroupIds1="DEFAULT" selectedOperationalLimitsGroupIds2="DEFAULT">
         <iidm:operationalLimitsGroup1 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0"/>
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0"/>
         </iidm:operationalLimitsGroup1>
         <iidm:operationalLimitsGroup2 id="DEFAULT">
-            <iidm:currentLimits permanentLimit="931.0">
+            <iidm:currentLimits detectionKind="HIGH" permanentLimit="931.0">
                 <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
                 <iidm:temporaryLimit name="LD71" acceptableDuration="60"/>
             </iidm:currentLimits>

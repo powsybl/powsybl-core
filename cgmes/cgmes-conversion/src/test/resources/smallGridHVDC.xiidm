@@ -2426,7 +2426,7 @@
                 <iidm:alias>_5631ccc0-d9d2-11e2-bb49-005056c00008</iidm:alias>
                 <iidm:alias>_e7a3d162-f09d-4dc7-8687-e7bc65522b58</iidm:alias>
                 <iidm:property name="lineEnergyIdentificationCodeEIC" value="10T-AT-DE-00001A"/>
-                <iidm:currentLimits permanentLimit="1000.0">
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="1000.0">
                     <iidm:temporaryLimit name="7c27ab8a-8043-4a55-851d-72adb14d9f4d" acceptableDuration="900" value="1150.0"/>
                     <iidm:temporaryLimit name="f4458b8d-a0e1-4adc-977f-14a07b3c44e9" acceptableDuration="60" value="1400.0"/>
                 </iidm:currentLimits>
@@ -7641,7 +7641,7 @@
                 <iidm:alias>_0457f391-c766-11e1-8775-005056c00008</iidm:alias>
                 <iidm:alias>_c46e8cb6-b2b9-4031-b5c8-da2735658f1a</iidm:alias>
                 <iidm:property name="lineEnergyIdentificationCodeEIC" value="10T-DK-sE-00001S"/>
-                <iidm:currentLimits permanentLimit="1000.0">
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="1000.0">
                     <iidm:temporaryLimit name="c42b1a7f-971e-44aa-b615-fb7d49f3256c" acceptableDuration="900" value="1150.0"/>
                     <iidm:temporaryLimit name="543c8189-a696-4529-9d26-f06fd03e57ad" acceptableDuration="60" value="1400.0"/>
                 </iidm:currentLimits>
@@ -8062,7 +8062,7 @@
                 <iidm:alias>_5631f3d5-d9d2-11e2-bb49-005056c00008</iidm:alias>
                 <iidm:alias>_5631f3d4-d9d2-11e2-bb49-005056c00008</iidm:alias>
                 <iidm:property name="lineEnergyIdentificationCodeEIC" value="10T-DK-SE-00001D"/>
-                <iidm:currentLimits permanentLimit="1000.0">
+                <iidm:currentLimits detectionKind="HIGH" permanentLimit="1000.0">
                     <iidm:temporaryLimit name="d8fc27d8-dd8b-4396-ae7f-b877910f9726" acceptableDuration="900" value="1150.0"/>
                     <iidm:temporaryLimit name="1481884d-3134-4896-ae32-b507830cc47a" acceptableDuration="60" value="1400.0"/>
                 </iidm:currentLimits>

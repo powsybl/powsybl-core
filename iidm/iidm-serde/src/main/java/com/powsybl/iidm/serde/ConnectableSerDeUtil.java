@@ -383,19 +383,17 @@ public final class ConnectableSerDeUtil {
         if (limits != null) {
             throwBetaLowLimit(limits, exportOptions);
 
-            if (!limits.getTemporaryLimits().isEmpty()) {
-                if (writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type)) {
-                    writer.writeStartNodes();
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
-                    for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                        writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
-                        writer.writeStringAttribute("name", tl.getName());
-                        writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
-                        writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
-                        writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
-                        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
-                        writer.writeEndNode();
-                    }
+            if (writeLoadingLimitAttributes(index, limits, writer, nsUri, exportOptions, type)) {
+                writer.writeStartNodes();
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(limits, writer, nsUri, exportOptions));
+                for (LoadingLimits.TemporaryLimit tl : IidmSerDeUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
+                    writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
+                    writer.writeStringAttribute("name", tl.getName());
+                    writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
+                    writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
+                    writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
+                    writer.writeEndNode();
                 }
                 writer.writeEndNodes();
                 writer.writeEndNode();
@@ -406,7 +404,7 @@ public final class ConnectableSerDeUtil {
     private static <L extends LoadingLimits> boolean writeLoadingLimitAttributes(Integer index, L limits, TreeDataWriter writer, String nsUri, ExportOptions exportOptions, String type) {
         Boolean[] canContinueWriting = {true};
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
-            if (!Double.isNaN(limits.getPermanentLimit())) {
+            if (limits.getDetectionKind() == DetectionKind.HIGH && !Double.isNaN(limits.getPermanentLimit())) {
                 writer.writeStartNode(nsUri, type + indexToString(index));
                 IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
@@ -426,8 +424,12 @@ public final class ConnectableSerDeUtil {
                     canContinueWriting[0] = false;
                 }
             } else {
-                writer.writeStartNode(nsUri, type + indexToString(index));
-                writer.writeStringAttribute(DETECTION_KIND, kind.name());
+                if (!limits.getTemporaryLimits().isEmpty()) {
+                    writer.writeStartNode(nsUri, type + indexToString(index));
+                    writer.writeStringAttribute(DETECTION_KIND, kind.name());
+                } else {
+                    canContinueWriting[0] = false;
+                }
             }
         });
         return canContinueWriting[0];

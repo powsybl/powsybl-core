@@ -606,12 +606,14 @@
       "operationalLimitsGroups1" : [ {
         "id" : "DEFAULT",
         "currentLimits" : {
+          "detectionKind" : "HIGH",
           "permanentLimit" : 931.0
         }
       } ],
       "operationalLimitsGroups2" : [ {
         "id" : "DEFAULT",
         "currentLimits" : {
+          "detectionKind" : "HIGH",
           "permanentLimit" : 931.0
         }
       } ]
@@ -630,12 +632,14 @@
     "operationalLimitsGroups1" : [ {
       "id" : "DEFAULT",
       "currentLimits" : {
+        "detectionKind" : "HIGH",
         "permanentLimit" : 931.0
       }
     } ],
     "operationalLimitsGroups2" : [ {
       "id" : "DEFAULT",
       "currentLimits" : {
+        "detectionKind" : "HIGH",
         "permanentLimit" : 931.0,
         "temporaryLimits" : [ {
           "name" : "IST",
