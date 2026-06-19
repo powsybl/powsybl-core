@@ -273,7 +273,11 @@ public final class ConnectableSerDeUtil {
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(String type, A adder, NetworkDeserializerContext context, TreeDataReader reader, IidmVersion iidmVersion, ValidationLevel minimalValidationLevel) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
-            double permanentLimit = reader.readDoubleAttribute("permanentLimit");
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+                String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+                adder.setPermanentLimitName(permanentLimitName);
+            });
+            double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
             if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
                 throw new PowsyblException("permanentLimit is absent in '" + type + "'");
             }
@@ -282,7 +286,9 @@ public final class ConnectableSerDeUtil {
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             DetectionKind kind = DetectionKind.valueOf(reader.readStringAttribute(DETECTION_KIND));
             if (kind == DetectionKind.HIGH) {
-                double permanentLimit = reader.readDoubleAttribute("permanentLimit");
+                String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+                adder.setPermanentLimitName(permanentLimitName);
+                double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
                 if (Double.isNaN(permanentLimit) && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
                     throw new PowsyblException("permanentLimit is absent in '" + type + "'");
                 }
@@ -385,7 +391,7 @@ public final class ConnectableSerDeUtil {
                         writer.writeStartNode(version.getNamespaceURI(valid), TEMPORARY_LIMITS_ROOT_ELEMENT_NAME);
                         writer.writeStringAttribute("name", tl.getName());
                         writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
-                        writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
+                        writer.writeDoubleAttribute(VALUE_KEY, tl.getValue(), Double.MAX_VALUE);
                         writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
                         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, version, () -> PropertiesSerDe.write(tl, writer, nsUri, exportOptions));
                         writer.writeEndNode();
@@ -402,7 +408,8 @@ public final class ConnectableSerDeUtil {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
             if (!Double.isNaN(limits.getPermanentLimit())) {
                 writer.writeStartNode(nsUri, type + indexToString(index));
-                writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
+                writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             } else {
                 canContinueWriting[0] = false;
             }
@@ -413,7 +420,8 @@ public final class ConnectableSerDeUtil {
                 if (!Double.isNaN(limits.getPermanentLimit())) {
                     writer.writeStartNode(nsUri, type + indexToString(index));
                     writer.writeStringAttribute(DETECTION_KIND, kind.name());
-                    writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+                    writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+                    writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
                 } else {
                     canContinueWriting[0] = false;
                 }
