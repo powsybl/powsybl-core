@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.channels.Channels;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +28,7 @@ class BinWriterReaderTest {
     /** Write a single root node, close the writer, return an initialised reader. */
     private BinReader roundTrip(WriterAction action) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (BinWriter writer = new BinWriter(baos, MAGIC, ROOT_VERSION)) {
+        try (BinWriter writer = new BinWriter(Channels.newChannel(baos), MAGIC, ROOT_VERSION)) {
             writer.setVersions(Collections.emptyMap());
             writer.writeStartNode(null, "root");
             action.run(writer);
@@ -35,7 +36,7 @@ class BinWriterReaderTest {
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
-        BinReader reader = new BinReader(new ByteArrayInputStream(baos.toByteArray()), MAGIC);
+        BinReader reader = new BinReader(Channels.newChannel(new ByteArrayInputStream(baos.toByteArray())), MAGIC);
         reader.readHeader();
         return reader;
     }
@@ -270,7 +271,7 @@ class BinWriterReaderTest {
     @Test
     void testInvalidMagicNumber() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (BinWriter writer = new BinWriter(baos, MAGIC, ROOT_VERSION)) {
+        try (BinWriter writer = new BinWriter(Channels.newChannel(baos), MAGIC, ROOT_VERSION)) {
             writer.setVersions(Collections.emptyMap());
             writer.writeStartNode(null, "root");
             writer.writeEndNode();
@@ -278,7 +279,7 @@ class BinWriterReaderTest {
             throw new RuntimeException(e);
         }
         byte[] wrongMagic = {0x00, 0x00, 0x00, 0x00};
-        BinReader reader = new BinReader(new ByteArrayInputStream(baos.toByteArray()), wrongMagic);
+        BinReader reader = new BinReader(Channels.newChannel(new ByteArrayInputStream(baos.toByteArray())), wrongMagic);
         assertThrows(PowsyblException.class, reader::readHeader);
         reader.close();
     }
