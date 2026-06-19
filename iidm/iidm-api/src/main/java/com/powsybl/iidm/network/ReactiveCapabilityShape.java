@@ -73,5 +73,5 @@ public interface ReactiveCapabilityShape extends ReactiveLimits {
      * @param u The Voltage (U in kV).
      * @return true if the point satisfies ALL plane constraints, false otherwise.
      */
-    boolean isInside(final double p, final double q, final double u);
+    boolean isInside(double p, double q, double u);
 }

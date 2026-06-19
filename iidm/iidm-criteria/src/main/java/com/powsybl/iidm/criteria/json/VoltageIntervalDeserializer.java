@@ -39,33 +39,7 @@ public class VoltageIntervalDeserializer extends StdDeserializer<VoltageInterval
     @Override
     public VoltageInterval deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parsePolymorphicObject(parser, name -> {
-            switch (name) {
-                case "nominalVoltageLowBound" -> {
-                    parser.nextToken();
-                    context.nominalVoltageLowBound = parser.getValueAsDouble();
-                    return true;
-                }
-                case "lowClosed" -> {
-                    parser.nextToken();
-                    context.lowClosed = parser.getValueAsBoolean();
-                    return true;
-                }
-                case "nominalVoltageHighBound" -> {
-                    parser.nextToken();
-                    context.nominalVoltageHighBound = parser.getValueAsDouble();
-                    return true;
-                }
-                case "highClosed" -> {
-                    parser.nextToken();
-                    context.highClosed = parser.getValueAsBoolean();
-                    return true;
-                }
-                default -> {
-                    return false;
-                }
-            }
-        });
+        JsonUtil.parsePolymorphicObject(parser, name -> parseVoltageInterval(parser, context, name));
         VoltageInterval.Builder builder = VoltageInterval.builder();
         if (checkBoundData(context.nominalVoltageLowBound, context.lowClosed, "nominalVoltageLowBound", "lowClosed", MISSING_BOUND_ATTRIBUTE_MESSAGE)) {
             builder.setLowBound(context.nominalVoltageLowBound, context.lowClosed);
@@ -74,5 +48,33 @@ public class VoltageIntervalDeserializer extends StdDeserializer<VoltageInterval
             builder.setHighBound(context.nominalVoltageHighBound, context.highClosed);
         }
         return builder.build();
+    }
+
+    private boolean parseVoltageInterval(JsonParser parser, ParsingContext context, String name) throws IOException {
+        switch (name) {
+            case "nominalVoltageLowBound" -> {
+                parser.nextToken();
+                context.nominalVoltageLowBound = parser.getValueAsDouble();
+                return true;
+            }
+            case "lowClosed" -> {
+                parser.nextToken();
+                context.lowClosed = parser.getValueAsBoolean();
+                return true;
+            }
+            case "nominalVoltageHighBound" -> {
+                parser.nextToken();
+                context.nominalVoltageHighBound = parser.getValueAsDouble();
+                return true;
+            }
+            case "highClosed" -> {
+                parser.nextToken();
+                context.highClosed = parser.getValueAsBoolean();
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
     }
 }

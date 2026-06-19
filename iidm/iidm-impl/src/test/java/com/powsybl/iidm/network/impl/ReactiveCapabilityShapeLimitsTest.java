@@ -155,5 +155,3 @@ class ReactiveCapabilityShapeLimitsTest {
         assertEquals(expected, actual);
     }
 }
-
-

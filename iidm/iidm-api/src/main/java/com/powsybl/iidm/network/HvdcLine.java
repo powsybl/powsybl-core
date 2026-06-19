@@ -211,7 +211,8 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     /**
      * Connect the converter stations.<br/>
      * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
-     * use {@link #connectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * use {@link #connectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates}
+     * such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
      * @return true if the stations have been connected by this operation, false otherwise (any of the two stations could not be connected, or was already connected)
      */
     default boolean connectConverterStations() {
@@ -232,15 +233,18 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * if the connection is not possible.
      * @param isTypeSwitchToOperate which switches to operate on
      * @param side the side to operate on. If the side is null, both sides should be operated on.
-     * @return true if the station on the <code>side</code> has been connected by this operation, false otherwise (the station on the given side could not be connected, or was already connected)
+     * @return true if the station on the <code>side</code> has been connected by this operation, false otherwise (the
+     * station on the given side could not be connected, or was already connected)
      */
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
     /**
      * Disconnect the converter stations.<br/>
      * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
-     * use {@link #disconnectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
-     * @return true if the stations disconnection by this operation succeeded, false otherwise (any of the two stations could not be disconnected, or was already disconnected)
+     * use {@link #disconnectConverterStations(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates}
+     * such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if the stations disconnection by this operation succeeded, false otherwise (any of the two stations could not be
+     * disconnected, or was already disconnected)
      */
     default boolean disconnectConverterStations() {
         return disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
@@ -260,7 +264,8 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * if the disconnection is not possible.
      * @param isSwitchOpenable which switches to operate on
      * @param side the side to operate on. If the side is null, both sides should be operated on.
-     * @return true if the station on the <code>side</code> has been disconnected by this operation, false otherwise (the station on the given side could not be disconnected, or was already disconnected)
+     * @return true if the station on the <code>side</code> has been disconnected by this operation, false otherwise
+     * (the station on the given side could not be disconnected, or was already disconnected)
      */
     boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side);
 

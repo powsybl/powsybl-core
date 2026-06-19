@@ -117,7 +117,7 @@ class LoadingLimitsUtilTest {
         private double permanentLimit;
         private DetectionKind detectionKind;
 
-        public LimitsAdder(String ownerId, double permanentLimit, List<TemporaryLimitToCreate> temporaryLimitToCreateList) {
+        LimitsAdder(String ownerId, double permanentLimit, List<TemporaryLimitToCreate> temporaryLimitToCreateList) {
             this.ownerId = ownerId;
             this.permanentLimit = permanentLimit;
             this.temporaryLimitToCreateList = new ArrayList<>(temporaryLimitToCreateList);

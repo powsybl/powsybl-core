@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
@@ -102,8 +102,12 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
-        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_TWT_BREAKER"), beforeRemovalObjects);
-        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_TWT_BREAKER"), removedObjects);
+        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1",
+            "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_TWT_BREAKER"),
+            beforeRemovalObjects);
+        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1",
+            "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_TWT_BREAKER"),
+            removedObjects);
         assertNull(network.getVoltageLevel("S1VL1"));
         assertNull(network.getTwoWindingsTransformer("TWT"));
 

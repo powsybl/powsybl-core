@@ -10,8 +10,8 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.LineCouplingsAdder;
 import com.powsybl.iidm.network.extensions.LineCouplings;
+import com.powsybl.iidm.network.extensions.LineCouplingsAdder;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}

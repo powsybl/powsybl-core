@@ -27,8 +27,10 @@ import static com.powsybl.iidm.modification.util.ModificationReports.generatorLo
  * <p>Network modification to set a generator regulation to local instead of remote.</p>
  * <ul>
  *     <li>Generator's RegulatingTerminal is set to the generator's own Terminal.</li>
- *     <li>In case other generators are already regulating locally on the same bus, targetV value is determined by being the closest value to the voltage level nominal voltage among the regulating terminals.</li>
- *     <li>If no other generator is regulating on the same bus, targetV engineering unit value is adapted to the voltage level nominal voltage, but the per unit value remains the same.</li>
+ *     <li>In case other generators are already regulating locally on the same bus, targetV value is determined by being
+ *     the closest value to the voltage level nominal voltage among the regulating terminals.</li>
+ *     <li>If no other generator is regulating on the same bus, targetV engineering unit value is adapted to the voltage
+ *     level nominal voltage, but the per unit value remains the same.</li>
  * </ul>
  *
  * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}

@@ -8,10 +8,6 @@
 package com.powsybl.ieeecdf.model.elements;
 
 /**
- * <p>
- * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
- * </p>
- *
  * <pre>
  * Columns  1- 2   Area number (I) no zeros! *
  * Columns  4- 7   Interchange slack bus number (I) *
@@ -22,6 +18,7 @@ package com.powsybl.ieeecdf.model.elements;
  * Columns 46-75   Area name (A)
  * </pre>
  *
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfInterchangeData extends AbstractIeeeElement {
