@@ -111,13 +111,8 @@
         <commonstext.version>1.15.0</commonstext.version>
         <ejml.version>0.45.1</ejml.version>
         <fastcsv.version>4.3.0</fastcsv.version>
-        <!-- findbugs cannot be updated until graphviz is updated/replaced since findbugs groupdId changed -->
-        <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
-        <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <!-- gdata seems abandoned - to be replaced? -->
         <gdata.version>1.47.1_1</gdata.version>
-        <!-- graphviz-builder seems abandoned - to be replaced ? -->
-        <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <!-- groovy can be updated to v5 -->
         <groovy.version>4.0.32</groovy.version>
         <guava.version>33.6.0-jre</guava.version>
@@ -706,16 +701,6 @@
                 <version>${autoservice.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>annotations</artifactId>
-                <version>${findbugs-annotations.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${findbugs-jsr305.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -770,11 +755,6 @@
                 <groupId>net.sf.trove4j</groupId>
                 <artifactId>trove4j</artifactId>
                 <version>${trove4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.anarres.graphviz</groupId>
-                <artifactId>graphviz-builder</artifactId>
-                <version>${graphviz-builder.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.luben</groupId>
@@ -874,6 +854,11 @@
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
+                <version>${jgrapht.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-io</artifactId>
                 <version>${jgrapht.version}</version>
             </dependency>
             <dependency>
