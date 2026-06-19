@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
  */
-final class GrowingByteBuffer {
+final class SegmentedByteBuffer {
 
     private static final int BLOCK_SIZE = 64 * 1024;
 
@@ -26,11 +26,11 @@ final class GrowingByteBuffer {
     private final List<ByteBuffer> filledBlocks = new ArrayList<>();
     private ByteBuffer current;
 
-    GrowingByteBuffer() {
+    SegmentedByteBuffer() {
         this(BLOCK_SIZE);
     }
 
-    GrowingByteBuffer(int blockSize) {
+    SegmentedByteBuffer(int blockSize) {
         this.blockSize = blockSize;
         this.current = ByteBuffer.allocate(blockSize);
     }

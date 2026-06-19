@@ -30,7 +30,7 @@ public class BinWriter extends AbstractTreeDataWriter {
     private final String rootVersion;
     private final byte[] binaryMagicNumber;
     private final OutputStream outputStream;
-    private final GrowingByteBuffer body = new GrowingByteBuffer();
+    private final SegmentedByteBuffer body = new SegmentedByteBuffer();
     private final Map<TypedName, Integer> namesIndex = new LinkedHashMap<>();
     private Map<String, String> extensionVersions = Collections.emptyMap();
 
@@ -42,7 +42,7 @@ public class BinWriter extends AbstractTreeDataWriter {
         this.rootVersion = Objects.requireNonNull(rootVersion);
     }
 
-    private static void writeString(String value, GrowingByteBuffer buf) {
+    private static void writeString(String value, SegmentedByteBuffer buf) {
         if (value == null) {
             buf.writeShort(NULL_STRING_SENTINEL);
             return;
@@ -213,8 +213,8 @@ public class BinWriter extends AbstractTreeDataWriter {
         }
     }
 
-    private GrowingByteBuffer buildHeader() {
-        GrowingByteBuffer header = new GrowingByteBuffer(HEADER_BLOCK_SIZE);
+    private SegmentedByteBuffer buildHeader() {
+        SegmentedByteBuffer header = new SegmentedByteBuffer(HEADER_BLOCK_SIZE);
         header.writeBytes(binaryMagicNumber);
         writeString(rootVersion, header);
 
