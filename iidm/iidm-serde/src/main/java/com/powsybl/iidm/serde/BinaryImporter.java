@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.github.luben.zstd.ZstdInputStream;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.TreeDataFormat;
@@ -47,7 +48,7 @@ public class BinaryImporter extends AbstractTreeDataImporter {
     @Override
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
         if (ext != null) {
-            try (InputStream dis = dataSource.newInputStream(null, ext)) {
+            try (InputStream dis = new ZstdInputStream(dataSource.newInputStream(null, ext))) {
                 return Arrays.equals(dis.readNBytes(NetworkSerDe.BIIDM_MAGIC_NUMBER.length), NetworkSerDe.BIIDM_MAGIC_NUMBER);
             }
         }
