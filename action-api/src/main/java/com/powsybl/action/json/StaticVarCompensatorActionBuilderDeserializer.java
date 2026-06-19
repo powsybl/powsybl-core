@@ -33,7 +33,7 @@ public class StaticVarCompensatorActionBuilderDeserializer extends StdDeserializ
         return builder;
     }
 
-    private boolean parseStaticVarCompensatorAction(JsonParser jsonParser, StaticVarCompensatorActionBuilder builder, String name) throws IOException {
+    private boolean parseStaticVarCompensatorAction(JsonParser jsonParser, StaticVarCompensatorActionBuilder builder, String name) throws JacksonException {
         switch (name) {
             case "type":
                 if (!StaticVarCompensatorAction.NAME.equals(jsonParser.nextStringValue())) {
@@ -47,7 +47,7 @@ public class StaticVarCompensatorActionBuilderDeserializer extends StdDeserializ
                 builder.withStaticVarCompensatorId(jsonParser.nextStringValue());
                 return true;
             case "regulationMode":
-                builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(jsonParser.nextTextValue()));
+                builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(jsonParser.nextStringValue()));
                 return true;
             case "voltageSetpoint":
                 jsonParser.nextToken();

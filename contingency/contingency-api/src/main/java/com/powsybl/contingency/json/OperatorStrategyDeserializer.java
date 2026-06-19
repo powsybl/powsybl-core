@@ -81,7 +81,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     }
 
     private boolean parseChildNode(JsonParser parser, DeserializationContext deserializationContext, String fieldName,
-                                   ParsingContext context) throws IOException {
+                                   ParsingContext context) throws JacksonException {
         switch (fieldName) {
             case "id":
                 parser.nextToken();

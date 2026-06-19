@@ -503,7 +503,7 @@ public class DataObject {
         JsonUtil.parseObject(parser, fieldName -> parseField(parser, index, context, dataClass, fieldName));
     }
 
-    private static boolean parseField(JsonParser parser, DataObjectIndex index, ParsingContext context, DataClass dataClass, String fieldName) throws IOException {
+    private static boolean parseField(JsonParser parser, DataObjectIndex index, ParsingContext context, DataClass dataClass, String fieldName) throws JacksonException {
         DataAttribute attribute = dataClass.getAttributeByName(fieldName);
         switch (attribute.getType()) {
             case INTEGER:
@@ -570,7 +570,7 @@ public class DataObject {
         return object;
     }
 
-    private static boolean parseField(JsonParser parser, DataObjectIndex index, DataScheme scheme, ParsingContext context, String fieldName) throws IOException {
+    private static boolean parseField(JsonParser parser, DataObjectIndex index, DataScheme scheme, ParsingContext context, String fieldName) throws JacksonException {
         switch (fieldName) {
             case "id":
                 parser.nextToken();

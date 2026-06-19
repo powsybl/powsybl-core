@@ -8,6 +8,7 @@
 package com.powsybl.powerfactory.model;
 
 import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 
@@ -62,7 +63,7 @@ public class StudyCase extends AbstractPowerFactoryData {
         return new StudyCase(context.name, context.time, context.elmNets, context.index);
     }
 
-    private static boolean parseField(JsonParser parser, ParsingContext context, String fieldName) throws IOException {
+    private static boolean parseField(JsonParser parser, ParsingContext context, String fieldName) throws JacksonException {
         return switch (fieldName) {
             case "name" -> {
                 context.name = parser.nextStringValue();

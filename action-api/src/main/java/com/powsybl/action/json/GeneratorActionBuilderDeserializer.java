@@ -32,7 +32,7 @@ public class GeneratorActionBuilderDeserializer extends StdDeserializer<Generato
         return generatorActionBuilder;
     }
 
-    private boolean parseGeneratorAction(JsonParser parser, GeneratorActionBuilder generatorActionBuilder, String name) throws IOException {
+    private boolean parseGeneratorAction(JsonParser parser, GeneratorActionBuilder generatorActionBuilder, String name) throws JacksonException {
         switch (name) {
             case "type":
                 if (!GeneratorAction.NAME.equals(parser.nextStringValue())) {

@@ -67,7 +67,7 @@ public class BranchResultDeserializer extends StdDeserializer<BranchResult> {
     }
 
     private boolean parseBranchResult(JsonParser jsonParser, DeserializationContext deserializationContext,
-                                      ParsingContext context, String name) throws IOException {
+                                      ParsingContext context, String name) throws JacksonException {
         switch (name) {
             case "branchId":
                 context.branchId = jsonParser.nextStringValue();

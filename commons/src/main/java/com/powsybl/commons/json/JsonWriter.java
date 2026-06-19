@@ -127,12 +127,8 @@ public class JsonWriter extends AbstractTreeDataWriter {
 
     @Override
     public void writeStringAttribute(String name, String value, String absentValue) {
-        try {
-            if (value != null && !value.equals(absentValue)) {
-                jsonGenerator.writeStringField(name, value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (value != null && !value.equals(absentValue)) {
+            jsonGenerator.writeStringProperty(name, value);
         }
     }
 

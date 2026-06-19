@@ -33,7 +33,7 @@ public class HvdcActionBuilderDeserializer extends StdDeserializer<HvdcActionBui
         return hvdcActionBuilder;
     }
 
-    private boolean parseHvdcAction(JsonParser jsonParser, HvdcActionBuilder hvdcActionBuilder, String name) throws IOException {
+    private boolean parseHvdcAction(JsonParser jsonParser, HvdcActionBuilder hvdcActionBuilder, String name) throws JacksonException {
         switch (name) {
             case "type":
                 if (!HvdcAction.NAME.equals(jsonParser.nextStringValue())) {
@@ -55,7 +55,7 @@ public class HvdcActionBuilderDeserializer extends StdDeserializer<HvdcActionBui
                 hvdcActionBuilder.withActivePowerSetpoint(jsonParser.getValueAsDouble());
                 return true;
             case "converterMode":
-                hvdcActionBuilder.withConverterMode(HvdcLine.ConvertersMode.valueOf(jsonParser.nextTextValue()));
+                hvdcActionBuilder.withConverterMode(HvdcLine.ConvertersMode.valueOf(jsonParser.nextStringValue()));
                 return true;
             case "droop":
                 jsonParser.nextToken();

@@ -7,7 +7,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;

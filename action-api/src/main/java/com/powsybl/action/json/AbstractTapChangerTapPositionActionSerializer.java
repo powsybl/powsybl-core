@@ -7,8 +7,8 @@
  */
 package com.powsybl.action.json;
 
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.AbstractTapChangerTapPositionAction;
+import com.powsybl.commons.json.JsonUtil;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.ser.std.StdSerializer;

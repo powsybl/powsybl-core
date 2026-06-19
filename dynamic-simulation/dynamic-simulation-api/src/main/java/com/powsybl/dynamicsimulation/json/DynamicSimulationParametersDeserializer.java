@@ -19,10 +19,6 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import java.util.Collections;
 import java.util.List;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import static com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters.getExtensionSerializers;
 
 /**

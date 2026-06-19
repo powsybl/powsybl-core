@@ -7,18 +7,18 @@
  */
 package com.powsybl.action.json;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.action.Action;
 import com.powsybl.action.ActionBuilder;
 import com.powsybl.action.ActionList;
 import com.powsybl.action.IdentifierActionList;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
         return new ActionList(context.actions);
     }
 
-    private boolean parseActionList(JsonParser parser, DeserializationContext deserializationContext, ParsingContext context, String fieldName) throws IOException {
+    private boolean parseActionList(JsonParser parser, DeserializationContext deserializationContext, ParsingContext context, String fieldName) throws JacksonException {
         switch (fieldName) {
             case VERSION:
                 context.version = parser.nextStringValue();

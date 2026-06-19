@@ -7,7 +7,6 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.databind.DatabindException;
 import com.powsybl.action.PhaseTapChangerRegulationAction;
 import com.powsybl.action.PhaseTapChangerRegulationActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
@@ -34,7 +33,7 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
         return builder;
     }
 
-    private boolean parsePhaseTapChangerRegulationAction(JsonParser jsonParser, PhaseTapChangerRegulationActionBuilder builder, String name) throws IOException {
+    private boolean parsePhaseTapChangerRegulationAction(JsonParser jsonParser, PhaseTapChangerRegulationActionBuilder builder, String name) throws JacksonException {
         boolean found = deserializeCommonAttributes(jsonParser, builder, name);
         if (found) {
             return true;
@@ -47,7 +46,7 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
                 }
                 return true;
             case "regulationMode":
-                builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextTextValue()));
+                builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextStringValue()));
                 return true;
             case "regulationValue":
                 jsonParser.nextToken();

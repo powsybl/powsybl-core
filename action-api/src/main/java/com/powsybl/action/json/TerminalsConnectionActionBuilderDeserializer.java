@@ -33,7 +33,7 @@ public class TerminalsConnectionActionBuilderDeserializer extends StdDeserialize
         return builder;
     }
 
-    private boolean parseTerminalsConnectionAction(JsonParser jsonParser, TerminalsConnectionActionBuilder builder, String name) throws IOException {
+    private boolean parseTerminalsConnectionAction(JsonParser jsonParser, TerminalsConnectionActionBuilder builder, String name) throws JacksonException {
         switch (name) {
             case "type":
                 if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextStringValue())) {

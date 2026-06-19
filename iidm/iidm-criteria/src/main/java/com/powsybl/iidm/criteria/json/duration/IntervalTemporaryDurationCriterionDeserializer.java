@@ -52,7 +52,7 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
         return builder.build();
     }
 
-    private boolean parseIntervalTemporaryDurationCriterion(JsonParser parser, ParsingContext context, String name) throws IOException {
+    private boolean parseIntervalTemporaryDurationCriterion(JsonParser parser, ParsingContext context, String name) throws JacksonException {
         switch (name) {
             case "type" -> {
                 readAndCheckType(LimitDurationType.TEMPORARY, TemporaryDurationCriterionType.INTERVAL, parser);

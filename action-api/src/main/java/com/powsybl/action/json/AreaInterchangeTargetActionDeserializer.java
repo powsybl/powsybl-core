@@ -32,7 +32,7 @@ public class AreaInterchangeTargetActionDeserializer extends StdDeserializer<Are
         return builder;
     }
 
-    private boolean parseAreaInterchangeTargetAction(JsonParser jsonParser, AreaInterchangeTargetActionBuilder builder, String name) throws IOException {
+    private boolean parseAreaInterchangeTargetAction(JsonParser jsonParser, AreaInterchangeTargetActionBuilder builder, String name) throws JacksonException {
         switch (name) {
             case "type":
                 if (!AreaInterchangeTargetAction.NAME.equals(jsonParser.nextStringValue())) {

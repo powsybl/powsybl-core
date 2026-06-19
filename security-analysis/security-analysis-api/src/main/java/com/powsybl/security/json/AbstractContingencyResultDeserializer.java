@@ -14,7 +14,6 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.security.results.*;
 
 import java.util.Collections;
 import java.util.List;

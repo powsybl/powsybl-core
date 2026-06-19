@@ -71,7 +71,7 @@ public class ThreeWindingsTransformerResultDeserializer extends StdDeserializer<
     }
 
     private boolean parseThreeWindingsTransformerResult(JsonParser jsonParser, DeserializationContext deserializationContext,
-                                                        ParsingContext context, String name) throws IOException {
+                                                        ParsingContext context, String name) throws JacksonException {
         switch (name) {
             case "threeWindingsTransformerId":
                 context.threeWindingsTransformerId = jsonParser.nextStringValue();

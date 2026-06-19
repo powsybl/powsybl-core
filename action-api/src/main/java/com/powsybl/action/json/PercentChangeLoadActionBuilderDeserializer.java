@@ -31,7 +31,7 @@ public class PercentChangeLoadActionBuilderDeserializer extends StdDeserializer<
         return builder;
     }
 
-    private boolean parsePercentChangeLoadAction(JsonParser jsonParser, PercentChangeLoadActionBuilder builder, String name) throws IOException {
+    private boolean parsePercentChangeLoadAction(JsonParser jsonParser, PercentChangeLoadActionBuilder builder, String name) throws JacksonException {
         switch (name) {
             case "type":
                 if (!PercentChangeLoadAction.NAME.equals(jsonParser.nextStringValue())) {
@@ -49,7 +49,7 @@ public class PercentChangeLoadActionBuilderDeserializer extends StdDeserializer<
                 builder.withP0PercentChange(jsonParser.getValueAsDouble());
                 return true;
             case "qModificationStrategy":
-                builder.withQModificationStrategy(PercentChangeLoadAction.QModificationStrategy.valueOf(jsonParser.nextTextValue()));
+                builder.withQModificationStrategy(PercentChangeLoadAction.QModificationStrategy.valueOf(jsonParser.nextStringValue()));
                 return true;
             default:
                 return false;

@@ -49,7 +49,7 @@ public class VoltageIntervalDeserializer extends StdDeserializer<VoltageInterval
         return builder.build();
     }
 
-    private boolean parseVoltageInterval(JsonParser parser, ParsingContext context, String name) throws IOException {
+    private boolean parseVoltageInterval(JsonParser parser, ParsingContext context, String name) throws JacksonException {
         switch (name) {
             case "nominalVoltageLowBound" -> {
                 parser.nextToken();

@@ -71,7 +71,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     }
 
     private boolean parseChilNode(JsonParser parser, ParsingContext context, String fieldName,
-                                  DeserializationContext deserializationContext) throws IOException {
+                                  DeserializationContext deserializationContext) throws JacksonException {
         switch (fieldName) {
             case "type":
                 context.type = parser.nextStringValue();

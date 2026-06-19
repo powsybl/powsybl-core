@@ -64,7 +64,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     }
 
     private boolean parseLimitReduction(JsonParser parser, DeserializationContext deserializationContext,
-                                        ParsingContext context, String fieldName) throws IOException {
+                                        ParsingContext context, String fieldName) throws JacksonException {
         switch (fieldName) {
             case "value" -> {
                 parser.nextToken();

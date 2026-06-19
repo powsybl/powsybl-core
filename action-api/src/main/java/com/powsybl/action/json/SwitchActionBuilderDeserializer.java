@@ -32,7 +32,7 @@ public class SwitchActionBuilderDeserializer extends StdDeserializer<SwitchActio
         return builder;
     }
 
-    private boolean parseSwitchAction(JsonParser parser, SwitchActionBuilder builder, String name) throws IOException {
+    private boolean parseSwitchAction(JsonParser parser, SwitchActionBuilder builder, String name) throws JacksonException {
         switch (name) {
             case "type":
                 if (!SwitchAction.NAME.equals(parser.nextStringValue())) {

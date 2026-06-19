@@ -41,7 +41,7 @@ public class SensitivityAnalysisParametersSerializer extends StdSerializer<Sensi
         jsonGenerator.writeNumberProperty("flow-voltage-sensitivity-value-threshold", parameters.getFlowVoltageSensitivityValueThreshold());
         jsonGenerator.writeNumberProperty("angle-flow-sensitivity-value-threshold", parameters.getAngleFlowSensitivityValueThreshold());
         jsonGenerator.writeStringProperty("operator-strategies-calculation-mode", parameters.getOperatorStrategiesCalculationMode().name());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "debug-dir", parameters.getDebugDir());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "debug-dir", parameters.getDebugDir());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
 

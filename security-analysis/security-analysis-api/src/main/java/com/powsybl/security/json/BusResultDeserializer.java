@@ -55,7 +55,8 @@ public class BusResultDeserializer extends StdDeserializer<BusResult> {
         return busResult;
     }
 
-    private boolean parseBusResult(JsonParser jsonParser, DeserializationContext deserializationContext, ParsingContext context, String name) throws IOException {
+    private boolean parseBusResult(JsonParser jsonParser, DeserializationContext deserializationContext,
+                                   ParsingContext context, String name) throws JacksonException {
         switch (name) {
             case "voltageLevelId":
                 context.voltageLevelId = jsonParser.nextStringValue();
