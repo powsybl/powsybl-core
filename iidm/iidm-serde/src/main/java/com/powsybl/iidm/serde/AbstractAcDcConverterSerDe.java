@@ -7,11 +7,13 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.AcDcConverter;
+import com.powsybl.iidm.network.AcDcConverterAdder;
+import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.VoltageLevel;
+import org.apache.commons.lang3.NotImplementedException;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
-
-import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}

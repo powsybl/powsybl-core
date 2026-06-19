@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.LineCouplingsAdder;
 import com.powsybl.iidm.network.extensions.LineCouplings;
+import com.powsybl.iidm.network.extensions.LineCouplingsAdder;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}

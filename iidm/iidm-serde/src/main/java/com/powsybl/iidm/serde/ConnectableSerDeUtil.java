@@ -266,31 +266,36 @@ public final class ConnectableSerDeUtil {
         }
         adder.setPermanentLimit(permanentLimit);
         // Read and add the temporary limits
-        reader.readChildNodes(elementName -> {
-            switch (elementName) {
-                case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
-                    String name = reader.readStringAttribute("name");
-                    int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
-                    double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
-                    boolean fictitious = reader.readBooleanAttribute("fictitious", false);
-                    LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
-                    readProperties(context, tempLimitAdder);
-                    tempLimitAdder
-                        .setName(name)
-                        .setAcceptableDuration(acceptableDuration)
-                        .setValue(value)
-                        .setFictitious(fictitious)
-                        .endTemporaryLimit();
-                }
-                case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(adder, context);
-                case null, default ->
-                    throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
-            }
-        });
+        reader.readChildNodes(elementName -> readLimit(type, adder, context, reader, elementName));
         if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
             adder.fixLimits(options.getMissingPermanentLimitPercentage()).add();
         } else {
             adder.add();
+        }
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLimit(String type, A adder,
+                                                                                                NetworkDeserializerContext context,
+                                                                                                TreeDataReader reader,
+                                                                                                String elementName) {
+        switch (elementName) {
+            case TEMPORARY_LIMITS_ROOT_ELEMENT_NAME -> {
+                String name = reader.readStringAttribute("name");
+                int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
+                double value = reader.readDoubleAttribute(VALUE_KEY, Double.MAX_VALUE);
+                boolean fictitious = reader.readBooleanAttribute("fictitious", false);
+                LoadingLimitsAdder.TemporaryLimitAdder<A> tempLimitAdder = adder.beginTemporaryLimit();
+                readProperties(context, tempLimitAdder);
+                tempLimitAdder
+                    .setName(name)
+                    .setAcceptableDuration(acceptableDuration)
+                    .setValue(value)
+                    .setFictitious(fictitious)
+                    .endTemporaryLimit();
+            }
+            case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(adder, context);
+            case null, default ->
+                throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
         }
     }
 
@@ -379,7 +384,8 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits> void writePermanentLimit(L limits, TreeDataWriter writer, IidmVersion version) {
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version, () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, version,
+            () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
         writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
     }
 

@@ -21,7 +21,8 @@ import com.powsybl.iidm.serde.IidmVersion;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
-public class TwoWindingsTransformerFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe<TwoWindingsTransformer, TwoWindingsTransformerFortescue, TwoWindingsTransformerFortescueSerDe.Version> {
+public class TwoWindingsTransformerFortescueSerDe extends AbstractVersionableNetworkExtensionSerDe<TwoWindingsTransformer,
+    TwoWindingsTransformerFortescue, TwoWindingsTransformerFortescueSerDe.Version> {
 
     public enum Version implements SerDeVersion<Version> {
         V_1_0("/xsd/twoWindingsTransformerFortescue_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0",
