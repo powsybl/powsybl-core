@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Segmented heap buffer used to stage binary payloads in memory before draining them to a channel.
+ * Segmented heap buffer used to stage binary payloads in memory before writing them to a stream.
  *
  * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
  */
@@ -89,7 +89,7 @@ final class GrowingByteBuffer {
         current.flip();
         filledBlocks.add(current);
         for (ByteBuffer block : filledBlocks) {
-            os.write(block.array());
+            os.write(block.array(), block.arrayOffset() + block.position(), block.remaining());
         }
     }
 }
