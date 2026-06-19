@@ -10,8 +10,10 @@ package com.powsybl.commons.binary;
 import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Objects;
 
@@ -28,12 +30,12 @@ final class BufferedChannelReader implements AutoCloseable {
     private final ByteBuffer buffer;
     private boolean channelExhausted;
 
-    BufferedChannelReader(ReadableByteChannel channel) {
-        this(channel, DEFAULT_BUFFER_SIZE);
+    BufferedChannelReader(InputStream inputStream) {
+        this(inputStream, DEFAULT_BUFFER_SIZE);
     }
 
-    BufferedChannelReader(ReadableByteChannel channel, int bufferSize) {
-        this.channel = Objects.requireNonNull(channel);
+    BufferedChannelReader(InputStream inputStream, int bufferSize) {
+        this.channel = Objects.requireNonNull(Channels.newChannel(inputStream));
         this.buffer = ByteBuffer.allocateDirect(bufferSize);
         this.buffer.flip();
     }

@@ -8,13 +8,13 @@
 package com.powsybl.commons.binary;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Segmented heap buffer used to stage binary payloads in memory before draining them to a channel.
+ * Segmented heap buffer used to stage binary payloads in memory before writing them to a stream.
  *
  * @author Clement Leclerc {@literal <clement.leclerc at rte-france.com>}
  */
@@ -85,14 +85,11 @@ final class GrowingByteBuffer {
         }
     }
 
-    /** Writes every staged byte to the channel in order, blocking until fully drained. */
-    void drainTo(WritableByteChannel channel) throws IOException {
+    void writeTo(OutputStream os) throws IOException {
         current.flip();
         filledBlocks.add(current);
         for (ByteBuffer block : filledBlocks) {
-            while (block.hasRemaining()) {
-                channel.write(block);
-            }
+            os.write(block.array(), block.arrayOffset() + block.position(), block.remaining());
         }
     }
 }

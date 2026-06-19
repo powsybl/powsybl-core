@@ -38,7 +38,10 @@ import com.powsybl.iidm.serde.extensions.util.ExtensionsSupplier;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 import javax.xml.XMLConstants;
@@ -549,7 +552,7 @@ public final class NetworkSerDe {
     }
 
     private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {
-        return new BinWriter(Channels.newChannel(os), BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
+        return new BinWriter(os, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
     }
 
     private static void writeRootElement(Network n, NetworkSerializerContext context) {
@@ -826,13 +829,6 @@ public final class NetworkSerDe {
     }
 
     public static Anonymizer write(Network n, ExportOptions options, Path xmlFile) {
-        if (options.getFormat() == TreeDataFormat.BIN) {
-            try (BinWriter writer = new BinWriter(xmlFile, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."))) {
-                return write(n, options, writer);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(xmlFile))) {
             return write(n, options, os);
         } catch (IOException e) {
@@ -880,7 +876,7 @@ public final class NetworkSerDe {
         return switch (config.getFormat()) {
             case XML -> createXmlReader(is, config, extensionsSupplier);
             case JSON -> createJsonReader(is, config, extensionsSupplier);
-            case BIN -> new BinReader(Channels.newChannel(is), BIIDM_MAGIC_NUMBER);
+            case BIN -> new BinReader(is, BIIDM_MAGIC_NUMBER);
         };
     }
 
@@ -1188,13 +1184,6 @@ public final class NetworkSerDe {
     }
 
     public static Network read(Path xmlFile, ImportOptions options, Anonymizer anonymizer, NetworkFactory networkFactory, ReportNode reportNode) {
-        if (options.getFormat() == TreeDataFormat.BIN) {
-            try (BinReader reader = new BinReader(xmlFile, BIIDM_MAGIC_NUMBER)) {
-                return read(reader, options, anonymizer, networkFactory, reportNode);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
         try (InputStream is = Files.newInputStream(xmlFile)) {
             return read(is, options, anonymizer, networkFactory, reportNode);
         } catch (IOException e) {
@@ -1327,13 +1316,13 @@ public final class NetworkSerDe {
             if (format == TreeDataFormat.BIN) {
                 ExportOptions exportOptions = new ExportOptions().setFormat(format);
                 executor.execute(() -> {
-                    try (BinWriter writer = new BinWriter(sink, BIIDM_MAGIC_NUMBER, exportOptions.getVersion().toString("."))) {
+                    try (BinWriter writer = new BinWriter(Channels.newOutputStream(sink), BIIDM_MAGIC_NUMBER, exportOptions.getVersion().toString("."))) {
                         write(network, exportOptions, writer);
                     } catch (Exception t) {
                         LOGGER.error(t.toString(), t);
                     }
                 });
-                try (BinReader reader = new BinReader(source, BIIDM_MAGIC_NUMBER)) {
+                try (BinReader reader = new BinReader(Channels.newInputStream(source), BIIDM_MAGIC_NUMBER)) {
                     return read(reader, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
                 }
             }
