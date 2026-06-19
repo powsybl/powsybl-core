@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 final class BufferedChannelReader implements AutoCloseable {
 
-    static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
+    static final int DEFAULT_BUFFER_SIZE = 8 * 1024;
 
     private final ReadableByteChannel channel;
     private final ByteBuffer buffer;
@@ -75,6 +75,19 @@ final class BufferedChannelReader implements AutoCloseable {
         return Short.toUnsignedInt(buffer.getShort());
     }
 
+    /**
+     * Reads an unsigned short, or returns {@link BinUtil#END_OF_FILE} if the end of the stream is reached before.
+     */
+    int readOptionalUnsignedShort() {
+        int readCount = fill(2);
+        if (readCount == 0) {
+            return BinUtil.END_OF_FILE;
+        } else if (readCount < 2) {
+            throw new PowsyblException("Unexpected end of stream: needed 2 bytes, got only 1");
+        }
+        return Short.toUnsignedInt(buffer.getShort());
+    }
+
     int readInt() {
         require(4);
         return buffer.getInt();
@@ -118,14 +131,6 @@ final class BufferedChannelReader implements AutoCloseable {
             buffer.position(buffer.position() + skip);
             remaining -= skip;
         }
-    }
-
-    /** Returns true when no more bytes are available in the buffer or the channel. */
-    boolean isEndOfStream() {
-        if (buffer.hasRemaining()) {
-            return false;
-        }
-        return fill(1) == 0;
     }
 
     @Override

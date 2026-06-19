@@ -94,10 +94,7 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     private int readNameIndex() {
-        if (in.isEndOfStream()) {
-            return END_OF_FILE;
-        }
-        return in.readUnsignedShort();
+        return in.readOptionalUnsignedShort();
     }
 
     private boolean isAttrAbsent(String name) {

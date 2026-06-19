@@ -67,7 +67,6 @@ class BufferedChannelReaderTest {
             assertTrue(r.readBoolean());
             assertFalse(r.readBoolean());
             assertArrayEquals(new byte[] {1, 2, 3, 4, 5}, r.readNBytes(5));
-            assertTrue(r.isEndOfStream());
         }
     }
 
@@ -84,7 +83,6 @@ class BufferedChannelReaderTest {
             for (int i = 0; i < 100; i++) {
                 assertEquals(i, r.readInt());
             }
-            assertTrue(r.isEndOfStream());
         }
     }
 
@@ -111,14 +109,6 @@ class BufferedChannelReaderTest {
             r.skipNBytes(4L * 25);
             assertEquals(25, r.readInt());
             r.skipNBytes(4L * 24);
-            assertTrue(r.isEndOfStream());
-        }
-    }
-
-    @Test
-    void isEndOfStreamWorksWithoutRead() throws Exception {
-        try (BufferedChannelReader r = new BufferedChannelReader(readerOf(new byte[0]))) {
-            assertTrue(r.isEndOfStream());
         }
     }
 

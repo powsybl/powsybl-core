@@ -25,12 +25,10 @@ import static com.powsybl.commons.binary.BinUtil.*;
  */
 public class BinWriter extends AbstractTreeDataWriter {
 
-    private static final int HEADER_BLOCK_SIZE = 4 * 1024;
-
     private final String rootVersion;
     private final byte[] binaryMagicNumber;
     private final OutputStream outputStream;
-    private final GrowingByteBuffer body = new GrowingByteBuffer();
+    private final SegmentedByteBuffer body = new SegmentedByteBuffer();
     private final Map<TypedName, Integer> namesIndex = new LinkedHashMap<>();
     private Map<String, String> extensionVersions = Collections.emptyMap();
 
@@ -40,19 +38,6 @@ public class BinWriter extends AbstractTreeDataWriter {
         this.outputStream = Objects.requireNonNull(os);
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
         this.rootVersion = Objects.requireNonNull(rootVersion);
-    }
-
-    private static void writeString(String value, GrowingByteBuffer buf) {
-        if (value == null) {
-            buf.writeShort(NULL_STRING_SENTINEL);
-            return;
-        }
-        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        if (bytes.length >= NULL_STRING_SENTINEL) {
-            throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
-        }
-        buf.writeShort(bytes.length);
-        buf.writeBytes(bytes);
     }
 
     @Override
@@ -102,13 +87,44 @@ public class BinWriter extends AbstractTreeDataWriter {
     @Override
     public void writeNodeContent(String value) {
         writeEntry("", TYPE_STRING_CONTENT);
-        writeString(value, body);
+        writeString(value);
     }
 
     @Override
     public void writeStringAttribute(String name, String value) {
         writeEntry(name, TYPE_STRING);
-        writeString(value, body);
+        writeString(value);
+    }
+
+    private void writeString(String value) {
+        if (value == null) {
+            body.writeShort(NULL_STRING_SENTINEL);
+            return;
+        }
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length >= NULL_STRING_SENTINEL) {
+            throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
+        }
+        body.writeShort(bytes.length);
+        body.writeBytes(bytes);
+    }
+
+    private static void writeString(String value, OutputStream out) throws IOException {
+        if (value == null) {
+            writeShort(out, NULL_STRING_SENTINEL);
+            return;
+        }
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length >= NULL_STRING_SENTINEL) {
+            throw new PowsyblException("Binary format: string too long (max " + (NULL_STRING_SENTINEL - 1) + " bytes)");
+        }
+        writeShort(out, bytes.length);
+        out.write(bytes);
+    }
+
+    private static void writeShort(OutputStream out, int s) throws IOException {
+        out.write((s >>> 8) & 0xFF);
+        out.write(s & 0xFF);
     }
 
     @Override
@@ -194,7 +210,7 @@ public class BinWriter extends AbstractTreeDataWriter {
         writeEntry(name, TYPE_STRING_ARRAY);
         body.writeShort(values.size());
         for (String s : values) {
-            writeString(s, body);
+            writeString(s);
         }
     }
 
@@ -206,29 +222,28 @@ public class BinWriter extends AbstractTreeDataWriter {
     @Override
     public void close() {
         try (var zstdOut = new ZstdOutputStream(outputStream, -2).setChecksum(false)) {
-            buildHeader().writeTo(zstdOut);
+            writeHeader(zstdOut);
             body.writeTo(zstdOut);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private GrowingByteBuffer buildHeader() {
-        GrowingByteBuffer header = new GrowingByteBuffer(HEADER_BLOCK_SIZE);
-        header.writeBytes(binaryMagicNumber);
-        writeString(rootVersion, header);
+    private void writeHeader(OutputStream out) throws IOException {
+        out.write(binaryMagicNumber);
+        writeString(rootVersion, out);
 
-        header.writeShort(extensionVersions.size());
+        writeShort(out, extensionVersions.size());
         for (var entry : extensionVersions.entrySet()) {
-            writeString(entry.getKey(), header);
-            writeString(entry.getValue(), header);
+            writeString(entry.getKey(), out);
+            writeString(entry.getValue(), out);
         }
 
-        header.writeShort(namesIndex.size());
+        writeShort(out, namesIndex.size());
         for (TypedName key : namesIndex.keySet()) {
-            writeString(key.name(), header);
-            header.writeByte(key.type());
+            writeString(key.name(), out);
+            out.write(key.type());
         }
-        return header;
+        out.flush();
     }
 }
