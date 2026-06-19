@@ -30,6 +30,8 @@ public abstract class AbstractOptions<T> {
 
     protected TreeDataFormat format = TreeDataFormat.XML;
 
+    protected boolean onlySelectedOperationalLimitsGroups = false;
+
     /**
      * Set the set of extensions to be included from import / export
      * @param extensions the set of extensions o be included from import / export
@@ -140,6 +142,15 @@ public abstract class AbstractOptions<T> {
 
     public T setFormat(TreeDataFormat format) {
         this.format = Objects.requireNonNull(format);
+        return castThis();
+    }
+
+    public boolean isOnlySelectedOperationalLimitsGroups() {
+        return onlySelectedOperationalLimitsGroups;
+    }
+
+    public T setOnlySelectedOperationalLimitsGroups(boolean onlySelectedOperationalLimitsGroups) {
+        this.onlySelectedOperationalLimitsGroups = onlySelectedOperationalLimitsGroups;
         return castThis();
     }
 

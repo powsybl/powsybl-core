@@ -29,31 +29,33 @@ public class TerminalsConnectionActionBuilderDeserializer extends StdDeserialize
     @Override
     public TerminalsConnectionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         TerminalsConnectionActionBuilder builder = new TerminalsConnectionActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            switch (name) {
-                case "type":
-                    if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextStringValue())) {
-                        throw DatabindException.from(jsonParser, "Expected type " + TerminalsConnectionAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    builder.withId(jsonParser.nextStringValue());
-                    return true;
-                case "elementId":
-                    builder.withNetworkElementId(jsonParser.nextStringValue());
-                    return true;
-                case "side":
-                    jsonParser.nextToken();
-                    builder.withSide(ThreeSides.valueOf(jsonParser.getValueAsString()));
-                    return true;
-                case "open":
-                    jsonParser.nextToken();
-                    builder.withOpen(jsonParser.getValueAsBoolean());
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> parseTerminalsConnectionAction(jsonParser, builder, name));
         return builder;
+    }
+
+    private boolean parseTerminalsConnectionAction(JsonParser jsonParser, TerminalsConnectionActionBuilder builder, String name) throws IOException {
+        switch (name) {
+            case "type":
+                if (!TerminalsConnectionAction.NAME.equals(jsonParser.nextStringValue())) {
+                    throw DatabindException.from(jsonParser, "Expected type " + TerminalsConnectionAction.NAME);
+                }
+                return true;
+            case "id":
+                builder.withId(jsonParser.nextStringValue());
+                return true;
+            case "elementId":
+                builder.withNetworkElementId(jsonParser.nextStringValue());
+                return true;
+            case "side":
+                jsonParser.nextToken();
+                builder.withSide(ThreeSides.valueOf(jsonParser.getValueAsString()));
+                return true;
+            case "open":
+                jsonParser.nextToken();
+                builder.withOpen(jsonParser.getValueAsBoolean());
+                return true;
+            default:
+                return false;
+        }
     }
 }

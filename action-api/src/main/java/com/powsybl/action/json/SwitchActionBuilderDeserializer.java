@@ -28,27 +28,29 @@ public class SwitchActionBuilderDeserializer extends StdDeserializer<SwitchActio
     @Override
     public SwitchActionBuilder deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         SwitchActionBuilder builder = new SwitchActionBuilder();
-        JsonUtil.parsePolymorphicObject(parser, name -> {
-            switch (name) {
-                case "type":
-                    if (!SwitchAction.NAME.equals(parser.nextStringValue())) {
-                        throw DatabindException.from(parser, "Expected type " + SwitchAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    builder.withId(parser.nextStringValue());
-                    return true;
-                case "switchId":
-                    builder.withSwitchId(parser.nextStringValue());
-                    return true;
-                case "open":
-                    parser.nextToken();
-                    builder.withOpen(parser.getValueAsBoolean());
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(parser, name -> parseSwitchAction(parser, builder, name));
         return builder;
+    }
+
+    private boolean parseSwitchAction(JsonParser parser, SwitchActionBuilder builder, String name) throws IOException {
+        switch (name) {
+            case "type":
+                if (!SwitchAction.NAME.equals(parser.nextStringValue())) {
+                    throw DatabindException.from(parser, "Expected type " + SwitchAction.NAME);
+                }
+                return true;
+            case "id":
+                builder.withId(parser.nextStringValue());
+                return true;
+            case "switchId":
+                builder.withSwitchId(parser.nextStringValue());
+                return true;
+            case "open":
+                parser.nextToken();
+                builder.withOpen(parser.getValueAsBoolean());
+                return true;
+            default:
+                return false;
+        }
     }
 }

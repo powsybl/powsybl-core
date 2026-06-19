@@ -28,43 +28,45 @@ public class GeneratorActionBuilderDeserializer extends StdDeserializer<Generato
     @Override
     public GeneratorActionBuilder deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         GeneratorActionBuilder generatorActionBuilder = new GeneratorActionBuilder();
-        JsonUtil.parsePolymorphicObject(parser, name -> {
-            switch (name) {
-                case "type":
-                    if (!GeneratorAction.NAME.equals(parser.nextStringValue())) {
-                        throw DatabindException.from(parser, "Expected type " + GeneratorAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    generatorActionBuilder.withId(parser.nextStringValue());
-                    return true;
-                case "generatorId":
-                    generatorActionBuilder.withGeneratorId(parser.nextStringValue());
-                    return true;
-                case "activePowerRelativeValue":
-                    parser.nextToken();
-                    generatorActionBuilder.withActivePowerRelativeValue(parser.getValueAsBoolean());
-                    return true;
-                case "activePowerValue":
-                    parser.nextToken();
-                    generatorActionBuilder.withActivePowerValue(parser.getValueAsDouble());
-                    return true;
-                case "voltageRegulatorOn":
-                    parser.nextToken();
-                    generatorActionBuilder.withVoltageRegulatorOn(parser.getValueAsBoolean());
-                    return true;
-                case "targetV":
-                    parser.nextToken();
-                    generatorActionBuilder.withTargetV(parser.getValueAsDouble());
-                    return true;
-                case "targetQ":
-                    parser.nextToken();
-                    generatorActionBuilder.withTargetQ(parser.getValueAsDouble());
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(parser, name -> parseGeneratorAction(parser, generatorActionBuilder, name));
         return generatorActionBuilder;
+    }
+
+    private boolean parseGeneratorAction(JsonParser parser, GeneratorActionBuilder generatorActionBuilder, String name) throws IOException {
+        switch (name) {
+            case "type":
+                if (!GeneratorAction.NAME.equals(parser.nextStringValue())) {
+                    throw DatabindException.from(parser, "Expected type " + GeneratorAction.NAME);
+                }
+                return true;
+            case "id":
+                generatorActionBuilder.withId(parser.nextStringValue());
+                return true;
+            case "generatorId":
+                generatorActionBuilder.withGeneratorId(parser.nextStringValue());
+                return true;
+            case "activePowerRelativeValue":
+                parser.nextToken();
+                generatorActionBuilder.withActivePowerRelativeValue(parser.getValueAsBoolean());
+                return true;
+            case "activePowerValue":
+                parser.nextToken();
+                generatorActionBuilder.withActivePowerValue(parser.getValueAsDouble());
+                return true;
+            case "voltageRegulatorOn":
+                parser.nextToken();
+                generatorActionBuilder.withVoltageRegulatorOn(parser.getValueAsBoolean());
+                return true;
+            case "targetV":
+                parser.nextToken();
+                generatorActionBuilder.withTargetV(parser.getValueAsDouble());
+                return true;
+            case "targetQ":
+                parser.nextToken();
+                generatorActionBuilder.withTargetQ(parser.getValueAsDouble());
+                return true;
+            default:
+                return false;
+        }
     }
 }

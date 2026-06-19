@@ -7,9 +7,9 @@
  */
 package com.powsybl.action.json;
 
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.action.TerminalsConnectionAction;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;

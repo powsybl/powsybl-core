@@ -8,9 +8,9 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -128,8 +128,12 @@ public final class TestingResultFactory {
     }
 
     public static ShortCircuitAnalysisResult createResultWithTwoFaultResults() {
-        Fault fault1 = new BusFault("id1", "busId", 0.0, 0.0);
-        Fault fault2 = new BusFault("id2", "busId2", 0.0, 0.0);
+        return createResultWithTwoFaultResults(Fault.FaultType.THREE_PHASE, Fault.FaultType.THREE_PHASE);
+    }
+
+    public static ShortCircuitAnalysisResult createResultWithTwoFaultResults(Fault.FaultType faultType1, Fault.FaultType faultType2) {
+        Fault fault1 = new BusFault("id1", "busId", faultType1);
+        Fault fault2 = new BusFault("id2", "busId2", faultType2);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
@@ -191,7 +195,8 @@ public final class TestingResultFactory {
         FortescueFeederResult feederResult = new FortescueFeederResult("id2", new FortescueValue(1.0, 10));
         feederResults.add(feederResult);
         List<FaultResult> faultResults = new ArrayList<>();
-        FortescueFaultResult faultResult = new FortescueFaultResult(fault, 1.0, feederResults, limitViolations, new FortescueValue(1.0, 10), new FortescueValue(50, 50), busResults, Duration.ofSeconds(1), SUCCESS);
+        FortescueFaultResult faultResult = new FortescueFaultResult(fault, 1.0, feederResults, limitViolations, new FortescueValue(1.0, 10),
+            new FortescueValue(50, 50), busResults, Duration.ofSeconds(1), SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);

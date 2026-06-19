@@ -28,26 +28,24 @@ public class ShuntCompensatorPositionActionBuilderDeserializer extends StdDeseri
     @Override
     public ShuntCompensatorPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         ShuntCompensatorPositionActionBuilder builder = new ShuntCompensatorPositionActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            switch (name) {
-                case "type":
-                    if (!ShuntCompensatorPositionAction.NAME.equals(jsonParser.nextStringValue())) {
-                        throw DatabindException.from(jsonParser, "Expected type " + ShuntCompensatorPositionAction.NAME);
-                    }
-                    return true;
-                case "id":
-                    builder.withId(jsonParser.nextStringValue());
-                    return true;
-                case "shuntCompensatorId":
-                    builder.withShuntCompensatorId(jsonParser.nextStringValue());
-                    return true;
-                case "sectionCount":
-                    jsonParser.nextToken();
-                    builder.withSectionCount(jsonParser.getValueAsInt());
-                    return true;
-                default:
-                    return false;
-            }
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> switch (name) {
+            case "type":
+                if (!ShuntCompensatorPositionAction.NAME.equals(jsonParser.nextStringValue())) {
+                    throw DatabindException.from(jsonParser, "Expected type " + ShuntCompensatorPositionAction.NAME);
+                }
+                yield true;
+            case "id":
+                builder.withId(jsonParser.nextStringValue());
+                yield true;
+            case "shuntCompensatorId":
+                builder.withShuntCompensatorId(jsonParser.nextStringValue());
+                yield true;
+            case "sectionCount":
+                jsonParser.nextToken();
+                builder.withSectionCount(jsonParser.getValueAsInt());
+                yield true;
+            default:
+                yield false;
         });
         return builder;
     }

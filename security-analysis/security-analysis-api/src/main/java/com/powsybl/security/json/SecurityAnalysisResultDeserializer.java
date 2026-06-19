@@ -14,8 +14,8 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.NetworkMetadata;
-import com.powsybl.security.results.*;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.results.*;
 import com.powsybl.security.results.OperatorStrategyResult;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -76,7 +76,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "preContingencyResult":
                     parser.nextToken();
-                    if (version != null && version.equals("1.0")) {
+                    if ("1.0".equals(version)) {
                         limitViolationsResult = JsonUtil.readValue(ctx, parser, LimitViolationsResult.class);
                     } else {
                         preContingencyResult = JsonUtil.readValue(ctx, parser, PreContingencyResult.class);
@@ -106,7 +106,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         SecurityAnalysisResult result = null;
         if (preContingencyResult == null) {
             LoadFlowResult.ComponentResult.Status status = null;
-            if (limitViolationsResult != null && version.equals("1.0")) {
+            if (limitViolationsResult != null && "1.0".equals(version)) {
                 status = limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
             } else {
                 status = LoadFlowResult.ComponentResult.Status.CONVERGED;

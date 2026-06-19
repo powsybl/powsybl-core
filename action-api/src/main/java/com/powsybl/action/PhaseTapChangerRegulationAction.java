@@ -57,11 +57,13 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return new PhaseTapChangerRegulationAction(id, transformerId, side, true, null, null);
     }
 
-    public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
+    public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId,
+                                                                                  PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
         return new PhaseTapChangerRegulationAction(id, transformerId, null, true, regulationMode, regulationValue);
     }
 
-    public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId, ThreeSides side, PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
+    public static PhaseTapChangerRegulationAction activateAndChangeRegulationMode(String id, String transformerId, ThreeSides side,
+                                                                                  PhaseTapChanger.RegulationMode regulationMode, Double regulationValue) {
         return new PhaseTapChangerRegulationAction(id, transformerId, side, true, regulationMode, regulationValue);
     }
 

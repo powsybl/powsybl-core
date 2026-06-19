@@ -143,10 +143,12 @@ public class NodeContainerMapping {
         fictitiousVoltageLevels.keySet().stream()
                 .filter(this::isSubstationContainer)
                 .map(this::voltageLevelIidm) // map the representative voltageLevel
-                .filter(voltageLevelRepresentative -> fictitiousVoltageLevels.containsKey(voltageLevelRepresentative) && isSubstationContainer(voltageLevelRepresentative)) // representative must be fictitious
+                .filter(voltageLevelRepresentative ->
+                    fictitiousVoltageLevels.containsKey(voltageLevelRepresentative) && isSubstationContainer(voltageLevelRepresentative)) // representative must be fictitious
                 .findFirst().ifPresent(fictitiousVoltageLevelForSubstationContainer -> {
                     String containerId = getContainerId(fictitiousVoltageLevelForSubstationContainer).orElseThrow();
-                    throw new ConversionException("Substation container directly associated with connectivity or topological nodes. It is not expected to create a fictitious voltage level: " + containerId);
+                    throw new ConversionException("Substation container directly associated with connectivity or " +
+                        "topological nodes. It is not expected to create a fictitious voltage level: " + containerId);
                 });
     }
 
@@ -304,7 +306,7 @@ public class NodeContainerMapping {
         Set<String> visited = new HashSet<>();
         for (String fictitiousVoltageLevelId : fictitiousVoltageLevelAdjacency.keySet()) {
             if (!visited.contains(fictitiousVoltageLevelId)) {
-                Set<String>vlAds = allConnected(fictitiousVoltageLevelAdjacency, visited, fictitiousVoltageLevelId);
+                Set<String> vlAds = allConnected(fictitiousVoltageLevelAdjacency, visited, fictitiousVoltageLevelId);
                 referenceVoltageLevel(vlAds).ifPresent(referenceId -> recordReferenceVoltageLevel(vlAds, referenceId));
             }
         }

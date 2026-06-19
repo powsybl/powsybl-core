@@ -96,6 +96,7 @@ public class JsonActionTest extends AbstractSerDeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"/ActionFileTestV1.0.json", "/ActionFileTestV1.1.json", "/ActionFileTestV1.2.json"})
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     void actionsReadOldVersion(String path) {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream(path));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -109,14 +110,14 @@ public class JsonActionTest extends AbstractSerDeTest {
 
     @Test
     void wrongActions() throws IOException {
-        try (final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
             JacksonException exception = assertThrows(JacksonException.class, () -> ActionList.readJsonInputStream(inputStream));
             assertThat(exception.getMessage())
                 .contains("for phase tap changer tap position action relative value field can't be null")
                 .contains("through reference chain: java.util.ArrayList[0]");
         }
 
-        try (final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
+        try (InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
             JacksonException exception = assertThrows(JacksonException.class, () -> ActionList.readJsonInputStream(inputStream3));
             assertTrue(exception.getMessage()
                 .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));

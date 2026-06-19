@@ -102,6 +102,25 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void testPermanentLimitName() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Line line = network.getLine("NHV1_NHV2_2");
+        OperationalLimitsGroup operationalLimitsGroup1 = line.getOrCreateSelectedOperationalLimitsGroup1();
+        OperationalLimitsGroup operationalLimitsGroup2 = line.getOrCreateSelectedOperationalLimitsGroup2();
+        createLoadingLimits(operationalLimitsGroup1::newActivePowerLimits, "name1");
+        createLoadingLimits(operationalLimitsGroup2::newActivePowerLimits, "strange,,name");
+        createLoadingLimits(operationalLimitsGroup1::newApparentPowerLimits, "other name");
+        createLoadingLimits(operationalLimitsGroup2::newApparentPowerLimits, "");
+        createLoadingLimits(operationalLimitsGroup1::newCurrentLimits, "hello");
+        createLoadingLimits(operationalLimitsGroup2::newCurrentLimits, "perma");
+        allFormatsRoundTripTest(network, "eurostag-loading-limits_permanent_name.xml", CURRENT_IIDM_VERSION);
+
+        // backward compatibility from version 1.17
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("eurostag-loading-limits_permanent_name.xml", IidmVersion.V_1_17);
+    }
+
+    @Test
     void testTieLine() throws IOException {
         Network network = NetworkSerDe.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_VERSION));
         TieLine tl = network.getTieLine("NHV1_NHV2_1");
@@ -231,19 +250,24 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         assertEquals("Unexpected value for minimalValidationLevel: Unknown value", e.getMessage());
     }
 
-    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier, String permanentLimitName) {
         limitsAdderSupplier.get()
-                .setPermanentLimit(350)
-                .beginTemporaryLimit()
-                .setValue(370)
-                .setAcceptableDuration(20 * 60)
-                .setName("20'")
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
-                .setValue(380)
-                .setAcceptableDuration(10 * 60)
-                .setName("10'")
-                .endTemporaryLimit()
-                .add();
+            .setPermanentLimit(350)
+            .setPermanentLimitName(permanentLimitName)
+            .beginTemporaryLimit()
+            .setValue(370)
+            .setAcceptableDuration(20 * 60)
+            .setName("20'")
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setValue(380)
+            .setAcceptableDuration(10 * 60)
+            .setName("10'")
+            .endTemporaryLimit()
+            .add();
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {
+        createLoadingLimits(limitsAdderSupplier, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
     }
 }

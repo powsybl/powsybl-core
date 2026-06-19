@@ -82,7 +82,8 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeTwoWindingsVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
+    private static void serializeTwoWindingsVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion,
+                                                             JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         Optional<VoltageInterval> optInterval = twoNominalVoltageCriterion.getVoltageInterval1();
         if (optInterval.isPresent()) {
             serializationContext.defaultSerializeProperty("voltageInterval1", optInterval.get(), jsonGenerator);
@@ -93,7 +94,8 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
         }
     }
 
-    private static void serializeThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
+    private static void serializeThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion,
+                                                              JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         Optional<VoltageInterval> optInterval = threeNominalVoltageCriterion.getVoltageInterval1();
         if (optInterval.isPresent()) {
             serializationContext.defaultSerializeProperty("voltageInterval1", optInterval.get(), jsonGenerator);

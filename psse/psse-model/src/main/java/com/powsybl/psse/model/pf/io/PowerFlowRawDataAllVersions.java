@@ -9,12 +9,12 @@ package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
-import com.powsybl.psse.model.PsseVersion;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -99,10 +99,14 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
                 case NON_TRANSFORMER_BRANCH_DATA -> new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
                 case TRANSFORMER_DATA -> new TransformerData().write(model.getTransformers(), context, outputStream);
                 case AREA_INTERCHANGE_DATA -> new AreaInterchangeData().write(model.getAreas(), context, outputStream);
-                case TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA -> new TwoTerminalDcTransmissionLineData().write(model.getTwoTerminalDcTransmissionLines(), context, outputStream);
-                case VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA -> new VoltageSourceConverterDcTransmissionLineData().write(model.getVoltageSourceConverterDcTransmissionLines(), context, outputStream);
-                case TRANSFORMER_IMPEDANCE_CORRECTION_TABLES_DATA -> new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
-                case MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA -> new MultiTerminalDcTransmissionLineData().write(model.getMultiTerminalDcTransmissionLines(), context, outputStream);
+                case TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA -> new TwoTerminalDcTransmissionLineData()
+                    .write(model.getTwoTerminalDcTransmissionLines(), context, outputStream);
+                case VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA -> new VoltageSourceConverterDcTransmissionLineData()
+                    .write(model.getVoltageSourceConverterDcTransmissionLines(), context, outputStream);
+                case TRANSFORMER_IMPEDANCE_CORRECTION_TABLES_DATA -> new TransformerImpedanceCorrectionTablesData()
+                    .write(model.getTransformerImpedanceCorrections(), context, outputStream);
+                case MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA -> new MultiTerminalDcTransmissionLineData()
+                    .write(model.getMultiTerminalDcTransmissionLines(), context, outputStream);
                 case MULTI_SECTION_LINE_GROUPING_DATA -> new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
                 case ZONE_DATA -> new ZoneData().write(model.getZones(), context, outputStream);
                 case INTERAREA_TRANSFER_DATA -> new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);

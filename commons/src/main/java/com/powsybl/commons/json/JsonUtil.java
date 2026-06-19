@@ -493,7 +493,7 @@ public final class JsonUtil {
     }
 
     public static void assertSupportedVersion(String contextName, String version, String maxSupportedVersion) {
-        Objects.requireNonNull(version);
+        checkVersion(contextName, version);
         if (compareVersions(version, maxSupportedVersion) > 0) {
             String exception = String.format(
                     "%s. Unsupported version %s. Version should be <= %s %n",
@@ -503,7 +503,7 @@ public final class JsonUtil {
     }
 
     public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
-        Objects.requireNonNull(version);
+        checkVersion(contextName, version);
         if (compareVersions(version, referenceVersion) > 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be <= %s %n",
@@ -513,7 +513,7 @@ public final class JsonUtil {
     }
 
     public static void assertGreaterThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
-        Objects.requireNonNull(version);
+        checkVersion(contextName, version);
         if (compareVersions(version, referenceVersion) <= 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be > %s %n",
@@ -523,7 +523,7 @@ public final class JsonUtil {
     }
 
     public static void assertGreaterOrEqualThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
-        Objects.requireNonNull(version);
+        checkVersion(contextName, version);
         if (compareVersions(version, referenceVersion) < 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be >= %s %n",
@@ -533,11 +533,20 @@ public final class JsonUtil {
     }
 
     public static void assertLessThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
-        Objects.requireNonNull(version);
+        checkVersion(contextName, version);
         if (compareVersions(version, referenceVersion) >= 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be < %s %n",
                     contextName, elementName, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
+    public static void checkVersion(String contextName, String version) {
+        if (version == null) {
+            String exception = String.format(
+                    "%s. 'version' field should be positioned at the top of the JSON object.",
+                    contextName);
             throw new PowsyblException(exception);
         }
     }

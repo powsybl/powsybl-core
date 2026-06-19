@@ -18,6 +18,27 @@ With the reactive capability curve limits, the reactive power limitation depends
 The curve is defined as a set of points that associate, to each active power value, a minimum and maximum reactive power value.
 In between the defined points of the curve, the reactive power limits are computed through a linear interpolation.
 
+(reactive-capability-shape)=
+### Reactive capability shape
+
+```{note}
+The reactive capability shape is a **beta feature**. It is not yet serialized and is not supported across
+the downstream projects. Exporting a network that contains such limits raises an error unless the
+beta-feature export is explicitly forced (see below).
+```
+
+With the reactive capability shape limits, the reactive power limitation depends on a 3D (P, Q, U) convex volume.
+The volume is defined by a list of planes provided by the user.
+Each plane is described by an inequality `delta * Q + alpha * U + beta * P ≤ gamma` or `delta * Q + alpha * U + beta * P ≥ gamma`,
+where:
+- `alpha` is the coefficient for the voltage U,
+- `beta` is the coefficient for the active power P,
+- `delta` is the coefficient for the reactive power Q,
+- `gamma` is the right-hand-side constant.
+
+Additionally, some upper and lower bounds can be defined for each of the P, Q and U variables.
+
+
 ### Examples
 
 This example shows how to use the `MinMaxReactiveLimits` and `ReactiveCapabilityCurve` classes:
@@ -64,6 +85,25 @@ generator.newReactiveCapabilityCurve()
     .add();
 ```
 
+This example shows how to create a new `ReactiveCapabilityShape` object. Each plane is added with
+`addPlane(alpha, beta, delta, isGreaterOrEqual, gamma)`, where `alpha`, `beta` and `delta` are the
+coefficients of U, P and Q, `isGreaterOrEqual` selects the `≥` (`true`) or `≤` (`false`) inequality,
+and `gamma` is the right-hand side. The coefficients, inequality direction and right-hand side are all
+passed in the same call, so a plane is fully defined by a single `addPlane(...)` invocation.
+```java
+Generator generator = network.getGenerator("G");
+// Define a convex PQU region with six bounding planes.
+generator.newReactiveCapabilityShape()
+        // delta*Q + alpha*U + beta*P  {≤,≥}  gamma
+        .addPlane(0.0, 0.0, 1.0, false, 80.0)   // Q ≤ 80
+        .addPlane(0.0, 0.0, 1.0, true, -60.0)   // Q ≥ -60
+        .addPlane(0.0, 1.0, 1.0, false, 120.0)  // Q + P ≤ 120
+        .addPlane(0.0, 1.0, 1.0, true, -50.0)   // Q + P ≥ -50
+        .addPlane(1.0, 0.0, 1.0, false, 410.0)  // Q + U ≤ 410
+        .addPlane(1.0, 0.0, 1.0, true, 390.0)   // Q + U ≥ 390
+        .add();
+```
+
 (loading-limits)=
 ## Loading Limits
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LoadingLimits.html)
@@ -75,7 +115,13 @@ They may be set for [lines](./network_subnetwork.md#line), [boundary lines](./ne
 [tie lines](./network_subnetwork.md#tie-line) (via their boundary lines), [two-winding transformers](./network_subnetwork.md#two-winding-transformer)
 and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
 
-Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
+### High loading limits
+
+```{note}
+High loading limits is the only kind of limit that is currently serialized and fully supported by downstream projects.
+```
+
+High loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
 The permanent limit sets the current, active power or apparent power absolute value under which the equipment can safely
 be operated for any duration.
 The temporary limits can be used to define higher current, active power or apparent power limitations corresponding
@@ -84,7 +130,7 @@ A temporary limit thus has an **acceptable duration**.
 
 The component on which the current limits are applied can safely remain
 between the preceding limit (it could be another temporary limit or a permanent limit) and this limit for a duration up to the acceptable duration.
-Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all loading limits):
+Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all high loading limits):
 
 ![Loading limits model](img/current-limits.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits.svg){width="50%" align=center class="only-dark"}
@@ -92,6 +138,27 @@ Please look at this scheme to fully understand the modeling (the following examp
 Note that, following this modeling, in general, the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero.
 If temporary limits are modeled, the permanent limit becomes mandatory.
 If no temporary limit is present, then the acceptable duration above the permanent limit will be infinite.
+
+### Low loading limits
+
+```{note}
+Currently, this model is in BETA and only available in the IIDM representation. There is no import or export of this kind of limit with any
+exchange format.
+The model is subject to change and support for downstream projects (`powsybl-open-loadflow`, `powsybl-dynawo`, etc.) may vary.
+Please consult the documentation of each project to verify support. In general, lack of explicit mention means no support.
+
+If you're unsure, feel free to reach out to the PowSyBl community [here](https://www.powsybl.org/pages/community/contact.html)
+```
+
+Low loading limits are defined by one or more temporary limits. Contrary to high loading limits, low loading limits
+do not have a permanent limit.
+
+The component on which the current limits are applied can safely remain
+at a given level for a duration up to the acceptable duration of the limit directly below the given level.
+Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all low loading limits):
+
+![Loading limits model](img/current-limits-low.svg){width="50%" align=center class="only-light"}
+![Loading limits model](img/dark_mode/current-limits-low.svg){width="50%" align=center class="only-dark"}
 
 (limit-group-collection)=
 ### Limit group collection

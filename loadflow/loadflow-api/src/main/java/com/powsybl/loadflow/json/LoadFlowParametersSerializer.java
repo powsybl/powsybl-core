@@ -50,6 +50,7 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         jsonGenerator.writeStringProperty("componentMode", parameters.getComponentMode().name());
         jsonGenerator.writeBooleanProperty("hvdcAcEmulation", parameters.isHvdcAcEmulation());
         jsonGenerator.writeNumberProperty("dcPowerFactor", parameters.getDcPowerFactor());
+        JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonLoadFlowParameters.getExtensionSerializers()::get);
 

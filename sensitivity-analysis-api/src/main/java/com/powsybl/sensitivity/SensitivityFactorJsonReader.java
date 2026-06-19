@@ -9,6 +9,8 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.Network;
+import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import java.nio.file.Path;
@@ -20,30 +22,39 @@ import java.util.Objects;
 public class SensitivityFactorJsonReader implements SensitivityFactorReader {
 
     private final Path jsonFile;
+    private final Network network;
 
-    public SensitivityFactorJsonReader(Path jsonFile) {
+    public SensitivityFactorJsonReader(Path jsonFile, Network network) {
         this.jsonFile = Objects.requireNonNull(jsonFile);
+        this.network = Objects.requireNonNull(network);
     }
 
     @Override
     public void read(Handler handler) {
         Objects.requireNonNull(handler);
 
-        JsonUtil.parseJson(jsonFile, parser -> {
+        JsonUtil.parseJson(jsonFile, parser -> parseJson(parser, handler, network));
+    }
+
+    private static SensitivityFactor parseJson(JsonParser parser, Handler handler, Network network) {
+        try {
             var context = new SensitivityFactor.ParsingContext();
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.PROPERTY_NAME) {
                     SensitivityFactor.parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
-                            ContingencyContext.create(context.contingencyId, context.contingencyContextType));
+                    String functionId = SensitivityFactor.resolveBusId(context.functionId, context.functionType, network);
+                    handler.onFactor(context.functionType, functionId, context.variableType, context.variableId, context.variableSet,
+                        ContingencyContext.create(context.contingencyId, context.contingencyContextType));
                     context.reset();
                 } else if (token == JsonToken.END_ARRAY) {
                     break;
                 }
             }
-            return null;
-        });
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return null;
     }
 }

@@ -7,6 +7,7 @@
  */
 package com.powsybl.action.json;
 
+import com.fasterxml.jackson.databind.DatabindException;
 import com.powsybl.action.PhaseTapChangerRegulationAction;
 import com.powsybl.action.PhaseTapChangerRegulationActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
@@ -29,29 +30,31 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
     @Override
     public PhaseTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
         PhaseTapChangerRegulationActionBuilder builder = new PhaseTapChangerRegulationActionBuilder();
-        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, builder, name);
-            if (found) {
-                return true;
-            }
-            switch (name) {
-                case "type":
-                    String type = jsonParser.nextStringValue();
-                    if (!PhaseTapChangerRegulationAction.NAME.equals(type)) {
-                        throw DatabindException.from(jsonParser, "Expected type :" + PhaseTapChangerRegulationAction.NAME + " got : " + type);
-                    }
-                    return true;
-                case "regulationMode":
-                    builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextStringValue()));
-                    return true;
-                case "regulationValue":
-                    jsonParser.nextToken();
-                    builder.withRegulationValue(jsonParser.getValueAsDouble());
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> parsePhaseTapChangerRegulationAction(jsonParser, builder, name));
         return builder;
+    }
+
+    private boolean parsePhaseTapChangerRegulationAction(JsonParser jsonParser, PhaseTapChangerRegulationActionBuilder builder, String name) throws IOException {
+        boolean found = deserializeCommonAttributes(jsonParser, builder, name);
+        if (found) {
+            return true;
+        }
+        switch (name) {
+            case "type":
+                String type = jsonParser.nextStringValue();
+                if (!PhaseTapChangerRegulationAction.NAME.equals(type)) {
+                    throw DatabindException.from(jsonParser, "Expected type :" + PhaseTapChangerRegulationAction.NAME + " got : " + type);
+                }
+                return true;
+            case "regulationMode":
+                builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextTextValue()));
+                return true;
+            case "regulationValue":
+                jsonParser.nextToken();
+                builder.withRegulationValue(jsonParser.getValueAsDouble());
+                return true;
+            default:
+                return false;
+        }
     }
 }

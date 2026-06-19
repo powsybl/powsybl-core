@@ -8,16 +8,16 @@
 
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.triplestore.api.PropertyBag;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -111,75 +111,77 @@ public class ReportTapChangers {
         cgmes.ratioTapChangers().forEach(this::addTapChanger);
         cgmes.phaseTapChangers().forEach(this::addTapChanger);
 
-        txEnds.keySet().forEach(txId -> {
-            List<PropertyBag> ends = txEnds.get(txId);
-            List<PropertyBag> tcs = txTapChangers.get(txId);
+        txEnds.keySet().forEach(this::processById);
+    }
 
-            ReportRow d = new ReportRow("TapChanger");
-            d.col(dataSource);
-            d.col(modelId);
-            d.col(txId);
-            d.col(txName(txId));
-            d.col(ends.size());
+    private void processById(String txId) {
+        List<PropertyBag> ends = txEnds.get(txId);
+        List<PropertyBag> tcs = txTapChangers.get(txId);
 
-            int k;
-            for (k = 0; k < ends.size(); k++) {
-                PropertyBag end = ends.get(k);
-                d.col(end.asDouble("ratedU"));
-                d.col(end.asDouble("r"));
-                d.col(end.asDouble("x"));
-                d.col(end.asDouble("g"));
-                d.col(end.asDouble("b"));
-            }
-            for (; k < 3; k++) {
-                d.col("-");
-                d.col("-");
-                d.col("-");
-                d.col("-");
-                d.col("-");
-            }
+        ReportRow d = new ReportRow("TapChanger");
+        d.col(dataSource);
+        d.col(modelId);
+        d.col(txId);
+        d.col(txName(txId));
+        d.col(ends.size());
 
-            if (tcs == null) {
-                // num tap changers is zero
-                d.col(0);
-            } else {
-                long rtc1 = tcs.stream().filter(tc -> end(tc) == 1 && isRatio(tc)).count();
-                long ptc1 = tcs.stream().filter(tc -> end(tc) == 1 && isPhase(tc)).count();
-                long rtc2 = tcs.stream().filter(tc -> end(tc) == 2 && isRatio(tc)).count();
-                long ptc2 = tcs.stream().filter(tc -> end(tc) == 2 && isPhase(tc)).count();
-                long rtc3 = tcs.stream().filter(tc -> end(tc) == 3 && isRatio(tc)).count();
-                long ptc3 = tcs.stream().filter(tc -> end(tc) == 3 && isPhase(tc)).count();
-                List<Integer> steps = tcs.stream().map(this::steps).toList();
-                boolean sameSteps = steps.isEmpty()
-                        || steps.stream().allMatch(steps.get(0)::equals);
-                d.col(tcs.size());
-                d.col(sameSteps);
-                d.col(rtc1);
-                d.col(ptc1);
-                d.col(rtc2);
-                d.col(ptc2);
-                d.col(rtc3);
-                d.col(ptc3);
-                tcs.forEach(tc -> {
-                    String tcId = tcId(tc);
-                    int lowStep = tc.asInt(CgmesNames.LOW_STEP);
-                    int highStep = tc.asInt(CgmesNames.HIGH_STEP);
-                    int neutralStep = tc.asInt("neutralStep");
-                    int step = (int) tc.asDouble("SVtapStep", neutralStep);
-                    boolean atNeutral = neutralStep == step;
-                    boolean regulating = tc.asBoolean("regulatingControlEnabled", false);
-                    d.col(tcId);
-                    d.col(end(tc));
-                    d.col(lowStep);
-                    d.col(highStep);
-                    d.col(neutralStep);
-                    d.col(step);
-                    d.col(atNeutral);
-                    d.col(regulating);
-                });
-            }
-            d.end(output);
-        });
+        int k;
+        for (k = 0; k < ends.size(); k++) {
+            PropertyBag end = ends.get(k);
+            d.col(end.asDouble("ratedU"));
+            d.col(end.asDouble("r"));
+            d.col(end.asDouble("x"));
+            d.col(end.asDouble("g"));
+            d.col(end.asDouble("b"));
+        }
+        for (; k < 3; k++) {
+            d.col("-");
+            d.col("-");
+            d.col("-");
+            d.col("-");
+            d.col("-");
+        }
+
+        if (tcs == null) {
+            // num tap changers is zero
+            d.col(0);
+        } else {
+            long rtc1 = tcs.stream().filter(tc -> end(tc) == 1 && isRatio(tc)).count();
+            long ptc1 = tcs.stream().filter(tc -> end(tc) == 1 && isPhase(tc)).count();
+            long rtc2 = tcs.stream().filter(tc -> end(tc) == 2 && isRatio(tc)).count();
+            long ptc2 = tcs.stream().filter(tc -> end(tc) == 2 && isPhase(tc)).count();
+            long rtc3 = tcs.stream().filter(tc -> end(tc) == 3 && isRatio(tc)).count();
+            long ptc3 = tcs.stream().filter(tc -> end(tc) == 3 && isPhase(tc)).count();
+            List<Integer> steps = tcs.stream().map(this::steps).toList();
+            boolean sameSteps = steps.isEmpty()
+                || steps.stream().allMatch(steps.get(0)::equals);
+            d.col(tcs.size());
+            d.col(sameSteps);
+            d.col(rtc1);
+            d.col(ptc1);
+            d.col(rtc2);
+            d.col(ptc2);
+            d.col(rtc3);
+            d.col(ptc3);
+            tcs.forEach(tc -> {
+                String tcId = tcId(tc);
+                int lowStep = tc.asInt(CgmesNames.LOW_STEP);
+                int highStep = tc.asInt(CgmesNames.HIGH_STEP);
+                int neutralStep = tc.asInt("neutralStep");
+                int step = (int) tc.asDouble("SVtapStep", neutralStep);
+                boolean atNeutral = neutralStep == step;
+                boolean regulating = tc.asBoolean("regulatingControlEnabled", false);
+                d.col(tcId);
+                d.col(end(tc));
+                d.col(lowStep);
+                d.col(highStep);
+                d.col(neutralStep);
+                d.col(step);
+                d.col(atNeutral);
+                d.col(regulating);
+            });
+        }
+        d.end(output);
     }
 
     private String transformerId(PropertyBag tc) {

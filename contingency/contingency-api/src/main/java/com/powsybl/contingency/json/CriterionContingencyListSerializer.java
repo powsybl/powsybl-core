@@ -28,7 +28,8 @@ public final class CriterionContingencyListSerializer {
         jsonGenerator.writeStringProperty("name", contingencyList.getName());
     }
 
-    public static void serializeCommonCriterionAttributes(AbstractEquipmentCriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
+    public static void serializeCommonCriterionAttributes(AbstractEquipmentCriterionContingencyList criterionContingencyList,
+                                                          JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         if (criterionContingencyList.getCountryCriterion() != null) {
             serializationContext.defaultSerializeProperty("countryCriterion",
                     criterionContingencyList.getCountryCriterion(),

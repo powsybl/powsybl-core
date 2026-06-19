@@ -9,10 +9,9 @@ package com.powsybl.commons.json;
 
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.BeforeEach;
-
+import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
 import static com.powsybl.commons.json.JsonUtil.createJsonMapper;

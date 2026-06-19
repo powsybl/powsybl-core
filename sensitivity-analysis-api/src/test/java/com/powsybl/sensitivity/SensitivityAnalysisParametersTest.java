@@ -8,7 +8,11 @@
 package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -26,6 +30,7 @@ import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,6 +38,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
+
+    private static final double EPS = 10E-3;
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
@@ -141,7 +148,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName(DUMMY_EXTENSION_NAME));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
@@ -159,7 +166,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     void testExtensionFromConfig() {
         SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName(DUMMY_EXTENSION_NAME));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
@@ -233,6 +240,40 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testLoadFromFile() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            String debugDir = "/tmp/debugDir";
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("sensitivity-analysis-default-parameters");
+            moduleConfig.setStringProperty("flow-flow-sensitivity-value-threshold", "0.1");
+            moduleConfig.setStringProperty("flow-voltage-sensitivity-value-threshold", "0.2");
+            moduleConfig.setStringProperty("voltage-voltage-sensitivity-value-threshold", "0.3");
+            moduleConfig.setStringProperty("angle-flow-sensitivity-value-threshold", "0.4");
+            moduleConfig.setStringProperty("sensitivity-operator-strategies-calculation-mode", "ONLY_OPERATOR_STRATEGIES");
+            moduleConfig.setStringProperty("debug-dir", debugDir);
+
+            SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load(platformConfig);
+            assertEquals(0.1, parameters.getFlowFlowSensitivityValueThreshold(), EPS);
+            assertEquals(0.2, parameters.getFlowVoltageSensitivityValueThreshold(), EPS);
+            assertEquals(0.3, parameters.getVoltageVoltageSensitivityValueThreshold(), EPS);
+            assertEquals(0.4, parameters.getAngleFlowSensitivityValueThreshold(), EPS);
+            assertEquals(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES, parameters.getOperatorStrategiesCalculationMode());
+            assertEquals(debugDir, parameters.getDebugDir());
+        }
+    }
+
+    @Test
+    void testDefaultPlatformConfig() {
+        SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
+        assertEquals(0.0, parameters.getFlowFlowSensitivityValueThreshold(), EPS);
+        assertEquals(0.0, parameters.getFlowVoltageSensitivityValueThreshold(), EPS);
+        assertEquals(0.0, parameters.getVoltageVoltageSensitivityValueThreshold(), EPS);
+        assertEquals(0.0, parameters.getAngleFlowSensitivityValueThreshold(), EPS);
+        assertEquals(SensitivityOperatorStrategiesCalculationMode.NONE, parameters.getOperatorStrategiesCalculationMode());
+        assertNull(parameters.getDebugDir());
+    }
+
+    @Test
     void updateThresholdParameters() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
 
@@ -264,6 +305,20 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
                 .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.1.json"));
         assertEquals(0.2, parameters.getFlowFlowSensitivityValueThreshold());
+    }
+
+    @Test
+    void readJsonVersion12() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.2.json"));
+        assertEquals(SensitivityOperatorStrategiesCalculationMode.ONLY_OPERATOR_STRATEGIES, parameters.getOperatorStrategiesCalculationMode());
+    }
+
+    @Test
+    void readJsonVersion13() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.3.json"));
+        assertEquals("/tmp/debugDir", parameters.getDebugDir());
     }
 
     @Test
