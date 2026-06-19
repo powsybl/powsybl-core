@@ -228,6 +228,12 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
                 .toArray(IidmVersion[]::new);
     }
 
+    private static IidmVersion[] allFollowingVersions(IidmVersion minVersion) {
+        return Stream.of(IidmVersion.values())
+            .filter(v -> v.compareTo(minVersion) >= 0)
+            .toArray(IidmVersion[]::new);
+    }
+
     /**
      * All-formats round trip from given network with reference xml file:
      * <ul>
@@ -267,6 +273,12 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version) throws IOException {
         return allFormatsRoundTripTest(network, filename, version, new ExportOptions());
+    }
+
+    public void allFormatsRoundTripFromMinVersionTest(Network network, String filename, IidmVersion minVersion) throws IOException {
+        for (IidmVersion version : allFollowingVersions(minVersion)) {
+            allFormatsRoundTripTest(network, filename, version);
+        }
     }
 
     /**

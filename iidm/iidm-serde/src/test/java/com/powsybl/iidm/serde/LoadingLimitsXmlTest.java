@@ -250,6 +250,36 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         assertEquals("Unexpected value for minimalValidationLevel: Unknown value", e.getMessage());
     }
 
+    @Test
+    void testLowLimits() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(ZonedDateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.newOperationalLimitsGroup1("a").newCurrentLimits().setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setAcceptableDuration(40 * 60)
+            .setName("40'")
+            .setValue(700)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setAcceptableDuration(60 * 60)
+            .setName("60'")
+            .setValue(500)
+            .endTemporaryLimit()
+            .add();
+        line.newOperationalLimitsGroup1("b").newApparentPowerLimits()
+            .setPermanentLimit(100)
+            .add();
+        line.newOperationalLimitsGroup2("c").newApparentPowerLimits().setDetectionKind(DetectionKind.LOW)
+            .beginTemporaryLimit()
+            .setAcceptableDuration(30 * 60)
+            .setName("30'")
+            .setValue(400)
+            .endTemporaryLimit()
+            .add();
+        allFormatsRoundTripFromMinVersionTest(network, "eurostag-low-limits.xml", IidmVersion.V_1_18);
+    }
+
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier, String permanentLimitName) {
         limitsAdderSupplier.get()
             .setPermanentLimit(350)
