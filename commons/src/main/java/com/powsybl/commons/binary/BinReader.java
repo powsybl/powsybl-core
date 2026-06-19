@@ -7,17 +7,15 @@
  */
 package com.powsybl.commons.binary;
 
+import com.github.luben.zstd.ZstdInputStream;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.AbstractTreeDataReader;
 import com.powsybl.commons.io.TreeDataHeader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import static com.powsybl.commons.binary.BinUtil.*;
@@ -37,13 +35,13 @@ public class BinReader extends AbstractTreeDataReader {
     private int nextNameIdx = END_NODE;
     private byte nextType;
 
-    public BinReader(ReadableByteChannel channel, byte[] binaryMagicNumber) {
+    public BinReader(InputStream inputStream, byte[] binaryMagicNumber) {
         this.binaryMagicNumber = Objects.requireNonNull(binaryMagicNumber);
-        this.in = new BufferedChannelReader(Objects.requireNonNull(channel));
-    }
-
-    public BinReader(Path path, byte[] binaryMagicNumber) throws IOException {
-        this(Files.newByteChannel(Objects.requireNonNull(path), StandardOpenOption.READ), binaryMagicNumber);
+        try {
+            this.in = new BufferedChannelReader(new ZstdInputStream(Objects.requireNonNull(inputStream)));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
@@ -96,10 +94,7 @@ public class BinReader extends AbstractTreeDataReader {
     }
 
     private int readNameIndex() {
-        if (in.isEndOfStream()) {
-            return END_OF_FILE;
-        }
-        return in.readUnsignedShort();
+        return in.readOptionalUnsignedShort();
     }
 
     private boolean isAttrAbsent(String name) {

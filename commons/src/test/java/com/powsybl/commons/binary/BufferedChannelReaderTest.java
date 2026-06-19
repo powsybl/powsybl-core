@@ -10,14 +10,9 @@ package com.powsybl.commons.binary;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class BufferedChannelReaderTest {
 
-    private static ReadableByteChannel readerOf(byte[] data) {
-        return Channels.newChannel(new ByteArrayInputStream(data));
+    private static InputStream readerOf(byte[] data) {
+        return new ByteArrayInputStream(data);
     }
 
     @FunctionalInterface
@@ -72,7 +67,6 @@ class BufferedChannelReaderTest {
             assertTrue(r.readBoolean());
             assertFalse(r.readBoolean());
             assertArrayEquals(new byte[] {1, 2, 3, 4, 5}, r.readNBytes(5));
-            assertTrue(r.isEndOfStream());
         }
     }
 
@@ -89,7 +83,6 @@ class BufferedChannelReaderTest {
             for (int i = 0; i < 100; i++) {
                 assertEquals(i, r.readInt());
             }
-            assertTrue(r.isEndOfStream());
         }
     }
 
@@ -116,14 +109,6 @@ class BufferedChannelReaderTest {
             r.skipNBytes(4L * 25);
             assertEquals(25, r.readInt());
             r.skipNBytes(4L * 24);
-            assertTrue(r.isEndOfStream());
-        }
-    }
-
-    @Test
-    void isEndOfStreamWorksWithoutRead() throws Exception {
-        try (BufferedChannelReader r = new BufferedChannelReader(readerOf(new byte[0]))) {
-            assertTrue(r.isEndOfStream());
         }
     }
 
