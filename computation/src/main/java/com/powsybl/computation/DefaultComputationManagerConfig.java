@@ -47,22 +47,24 @@ public class DefaultComputationManagerConfig {
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig("default-computation-manager")
-                .map(moduleConfig -> {
-                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
-                    Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
-                    return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
-                })
-                .orElseGet(() -> {
-                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
-                    try {
-                        shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
-                    } catch (ClassNotFoundException e) {
-                        throw new UncheckedClassNotFoundException(e);
-                    } catch (ClassCastException e) {
-                        throw new UncheckedClassCastExceptionException(e);
-                    }
-                    return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
-                });
+            .map(moduleConfig -> {
+                Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory",
+                    ComputationManagerFactory.class);
+                Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory",
+                    ComputationManagerFactory.class, null);
+                return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
+            })
+            .orElseGet(() -> {
+                Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
+                try {
+                    shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
+                } catch (ClassNotFoundException e) {
+                    throw new UncheckedClassNotFoundException(e);
+                } catch (ClassCastException e) {
+                    throw new UncheckedClassCastExceptionException(e);
+                }
+                return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
+            });
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(config.toString());
         }

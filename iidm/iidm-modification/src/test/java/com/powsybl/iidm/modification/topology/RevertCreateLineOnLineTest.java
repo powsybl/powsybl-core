@@ -143,7 +143,8 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .withMessageTemplate("withThrowException")
                 .add();
         assertDoesNotThrow(() -> modificationWithError4.apply(network, false, ReportNode.NO_OP));
-        assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, subReportNode4), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, subReportNode4));
+        assertEquals("Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34", exception.getMessage());
         ReportNode reportNodeChild4a = reportNode4.getChildren().get(0);
         assertEquals("core.iidm.modification.noTeePointAndOrTappedVoltageLevel", reportNodeChild4a.getChildren().get(0).getMessageKey());
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()

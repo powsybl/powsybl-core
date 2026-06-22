@@ -24,7 +24,6 @@
           "name" : "G",
           "fictitious" : true,
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 0,
           "node2" : 1
@@ -33,7 +32,6 @@
           "name" : "I",
           "fictitious" : true,
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 0,
           "node2" : 3
@@ -82,7 +80,6 @@
           "id" : "R",
           "name" : "S",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 0,
           "node2" : 19
@@ -90,7 +87,6 @@
           "id" : "T",
           "name" : "U",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 0,
           "node2" : 17
@@ -98,7 +94,6 @@
           "id" : "V",
           "name" : "W",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 0,
           "node2" : 21
@@ -106,7 +101,6 @@
           "id" : "X",
           "name" : "Y",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 0,
           "node2" : 11
@@ -114,7 +108,6 @@
           "id" : "Z",
           "name" : "AA",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 0,
           "node2" : 13
@@ -122,7 +115,6 @@
           "id" : "AB",
           "name" : "AC",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 0,
           "node2" : 15
@@ -130,7 +122,6 @@
           "id" : "AD",
           "name" : "AE",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 0,
           "node2" : 8
@@ -139,7 +130,6 @@
           "name" : "AG",
           "fictitious" : true,
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 0,
           "node2" : 2
@@ -147,7 +137,6 @@
           "id" : "AH",
           "name" : "AI",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 7,
           "node2" : 0
@@ -155,7 +144,6 @@
           "id" : "AJ",
           "name" : "AK",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 1,
           "node2" : 6
@@ -163,7 +151,6 @@
           "id" : "AL",
           "name" : "AM",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 1,
           "node2" : 19
@@ -171,7 +158,6 @@
           "id" : "AN",
           "name" : "AO",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 1,
           "node2" : 17
@@ -179,7 +165,6 @@
           "id" : "AP",
           "name" : "AQ",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 1,
           "node2" : 21
@@ -187,7 +172,6 @@
           "id" : "AR",
           "name" : "AS",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 1,
           "node2" : 11
@@ -195,7 +179,6 @@
           "id" : "AT",
           "name" : "AU",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 1,
           "node2" : 13
@@ -203,7 +186,6 @@
           "id" : "AV",
           "name" : "AW",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 1,
           "node2" : 15
@@ -211,7 +193,6 @@
           "id" : "AX",
           "name" : "AY",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 1,
           "node2" : 8
@@ -220,7 +201,6 @@
           "name" : "BA",
           "fictitious" : true,
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 1,
           "node2" : 2
@@ -245,7 +225,6 @@
           "id" : "BF",
           "name" : "BG",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 3,
           "node2" : 5
@@ -253,7 +232,6 @@
           "id" : "BH",
           "name" : "BI",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : true,
           "node1" : 9,
           "node2" : 3
@@ -277,7 +255,6 @@
           "id" : "BN",
           "name" : "BO",
           "kind" : "DISCONNECTOR",
-          "retained" : false,
           "open" : false,
           "node1" : 9,
           "node2" : 10
@@ -440,7 +417,6 @@
       "id" : "CI",
       "r" : 2.0,
       "x" : 14.745,
-      "g" : 0.0,
       "b" : 3.2E-5,
       "ratedU1" : 225.0,
       "ratedU2" : 225.0,
@@ -452,7 +428,6 @@
       "selectedOperationalLimitsGroupIds2" : [ "DEFAULT" ],
       "phaseTapChanger" : {
         "regulating" : false,
-        "lowTapPosition" : 0,
         "tapPosition" : 22,
         "loadTapChangingCapabilities" : true,
         "regulationMode" : "CURRENT_LIMITER",
@@ -464,232 +439,166 @@
         "steps" : [ {
           "r" : 39.78473,
           "x" : 39.784725,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -42.8
         }, {
           "r" : 31.720245,
           "x" : 31.720242,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -40.18
         }, {
           "r" : 23.655737,
           "x" : 23.655735,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -37.54
         }, {
           "r" : 16.263271,
           "x" : 16.263268,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -34.9
         }, {
           "r" : 9.542847,
           "x" : 9.542842,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -32.26
         }, {
           "r" : 3.4944773,
           "x" : 3.4944773,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -29.6
         }, {
           "r" : -1.8818557,
           "x" : -1.8818527,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -26.94
         }, {
           "r" : -7.258195,
           "x" : -7.2581954,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -24.26
         }, {
           "r" : -11.962485,
           "x" : -11.962484,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -21.58
         }, {
           "r" : -15.994745,
           "x" : -15.994745,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -18.9
         }, {
           "r" : -19.354952,
           "x" : -19.354952,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -16.22
         }, {
           "r" : -22.043127,
           "x" : -22.043129,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -13.52
         }, {
           "r" : -24.73129,
           "x" : -24.731287,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -10.82
         }, {
           "r" : -26.747417,
           "x" : -26.747417,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -8.12
         }, {
           "r" : -28.091503,
           "x" : -28.091503,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -5.42
         }, {
           "r" : -28.763538,
           "x" : -28.763536,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : -2.7
         }, {
           "r" : -28.763538,
           "x" : -28.763536,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 0.0
         }, {
           "r" : -28.763538,
           "x" : -28.763536,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 2.7
         }, {
           "r" : -28.091503,
           "x" : -28.091503,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 5.42
         }, {
           "r" : -26.747417,
           "x" : -26.747417,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 8.12
         }, {
           "r" : -24.73129,
           "x" : -24.731287,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 10.82
         }, {
           "r" : -22.043127,
           "x" : -22.043129,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 13.52
         }, {
           "r" : -19.354952,
           "x" : -19.354952,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 16.22
         }, {
           "r" : -15.994745,
           "x" : -15.994745,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 18.9
         }, {
           "r" : -11.962485,
           "x" : -11.962484,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 21.58
         }, {
           "r" : -7.258195,
           "x" : -7.2581954,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 24.26
         }, {
           "r" : -1.8818557,
           "x" : -1.8818527,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 26.94
         }, {
           "r" : 3.4944773,
           "x" : 3.4944773,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 29.6
         }, {
           "r" : 9.542847,
           "x" : 9.542842,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 32.26
         }, {
           "r" : 16.263271,
           "x" : 16.263268,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 34.9
         }, {
           "r" : 23.655737,
           "x" : 23.655735,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 37.54
         }, {
           "r" : 31.720245,
           "x" : 31.720242,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 40.18
         }, {
           "r" : 39.78473,
           "x" : 39.784725,
-          "g" : 0.0,
-          "b" : 0.0,
           "rho" : 1.0,
           "alpha" : 42.8
         } ]
@@ -712,10 +621,6 @@
     "id" : "CJ",
     "r" : 0.009999999,
     "x" : 0.100000024,
-    "g1" : 0.0,
-    "b1" : 0.0,
-    "g2" : 0.0,
-    "b2" : 0.0,
     "voltageLevelId1" : "C",
     "node1" : 4,
     "voltageLevelId2" : "N",

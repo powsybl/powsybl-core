@@ -120,6 +120,7 @@ class PhaseShifterXmlTest extends AbstractIidmSerDeTest {
         checkPhaseTapChangerRegulation(network2, "TWT");
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatchWarning") // Any kind of Exception shall be managed here since it's a test
     private void assertXmlAttributes(Map<String, String> expectedAttributes, Path xmlPath) {
         Optional<Boolean> result = Optional.empty();
         StringBuilder errors = new StringBuilder("Errors:");

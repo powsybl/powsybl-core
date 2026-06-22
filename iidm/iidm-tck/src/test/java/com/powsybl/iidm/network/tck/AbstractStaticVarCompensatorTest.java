@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,12 +75,7 @@ public abstract class AbstractStaticVarCompensatorTest {
     @Test
     public void changeRegulationModeErrorTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
-        try {
-            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, () -> svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER));
     }
 
     @Test
@@ -167,12 +163,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            svc.getReactivePowerSetpoint();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, svc::getReactivePowerSetpoint);
     }
 
     private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, StaticVarCompensator.RegulationMode regulationMode) {

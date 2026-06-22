@@ -13,9 +13,10 @@ import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import java.time.ZonedDateTime;
-import java.time.Duration;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 

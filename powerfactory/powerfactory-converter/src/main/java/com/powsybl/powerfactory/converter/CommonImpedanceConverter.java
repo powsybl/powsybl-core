@@ -11,10 +11,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+import org.apache.commons.math3.complex.Complex;
 
 import java.util.List;
-
-import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

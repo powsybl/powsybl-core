@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.criteria.translation;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

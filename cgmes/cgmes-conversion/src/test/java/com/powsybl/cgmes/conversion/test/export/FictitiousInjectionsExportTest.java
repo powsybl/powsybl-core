@@ -100,7 +100,8 @@ class FictitiousInjectionsExportTest extends AbstractSerDeTest {
         validateCgmesExportOfFictitiousInjections(network, params, loadId, terminalId, false, 2.0, 4.0);
     }
 
-    private void validateCgmesExportOfFictitiousInjections(Network network, Properties params, String loadId, String terminalId, boolean connectivityNodeWritten, double expectedFictitiousP, double expectedFictitiousQ) throws IOException {
+    private void validateCgmesExportOfFictitiousInjections(Network network, Properties params, String loadId, String terminalId,
+                                                           boolean connectivityNodeWritten, double expectedFictitiousP, double expectedFictitiousQ) throws IOException {
         validateEqExport(network, params, loadId, terminalId, connectivityNodeWritten);
         validateTpExport(network, params, terminalId);
         validateSshExport(network, params, loadId, terminalId, expectedFictitiousP, expectedFictitiousQ);

@@ -265,7 +265,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
+        if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true)
+            || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)
+            || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
             throw new ValidationException(this,
                     "the 3 windings of the transformer shall belong to the substation '"
                             + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"

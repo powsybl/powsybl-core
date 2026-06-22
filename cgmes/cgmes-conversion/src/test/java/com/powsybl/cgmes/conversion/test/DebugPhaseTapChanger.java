@@ -8,15 +8,14 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.util.function.Consumer;
-
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.util.BranchData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.util.BranchData;
+import java.util.function.Consumer;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

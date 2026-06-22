@@ -26,7 +26,7 @@ class OperationalLimitsGroupImplTest {
     void customOperationalLimitsGroupTest() {
         Network network = EurostagTutorialExample1Factory.create();
         boolean[] updated = new boolean[1];
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 assertEquals("NHV1", identifiable.getId());
@@ -56,7 +56,7 @@ class OperationalLimitsGroupImplTest {
     }
 
     static class CustomOperationalLimitsGroup extends OperationalLimitsGroupImpl {
-        public CustomOperationalLimitsGroup(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
+        CustomOperationalLimitsGroup(String id, Identifiable<?> identifiable, NetworkListenerList listeners,
                                             Validable validable, String attributeName, String selectedId) {
             super(id, identifiable, listeners, validable, attributeName, selectedId::equals);
         }

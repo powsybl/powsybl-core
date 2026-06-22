@@ -15,12 +15,19 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-action-ial</artifactId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-action-ial-util</artifactId>
     <name>Action utilities</name>
     <description>A set of DSL extensions and utility functions</description>
+
+    <properties>
+        <groovydoc.attach>true</groovydoc.attach>
+        <groovydoc.classifier>javadoc</groovydoc.classifier>
+        <groovydoc.groovyDocJavaSources>true</groovydoc.groovyDocJavaSources>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
 
     <build>
         <plugins>

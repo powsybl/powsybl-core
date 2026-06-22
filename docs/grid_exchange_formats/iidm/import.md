@@ -36,6 +36,12 @@ The possible validation levels are  `EQUIPMENT` and `STEADY_STATE_HYPOTHESIS`.
 
 By default, the value is `null`, the network validation level remains the same.
 
+**iidm.import.only-selected-operational-limits-groups**<br>
+The `iidm.import.only-selected-operational-limits-groups` property is an optional property that allows for each equipment to import only the selected operational limits groups.
+Using this will result in a smaller in-memory network.
+
+By default, this is set to `false`, all groups are imported.
+
 ### Deprecated properties
 
 **throwExceptionIfExtensionNotFound**<br>

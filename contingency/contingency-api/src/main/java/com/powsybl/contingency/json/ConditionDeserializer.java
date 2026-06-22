@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.TerminalNumber;
-import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.contingency.strategy.condition.*;
 import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.TerminalNumber;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -47,50 +47,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     @Override
     public Condition deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parseObject(parser, fieldName -> {
-            switch (fieldName) {
-                case "type":
-                    context.type = parser.nextTextValue();
-                    return true;
-                case "violationIds":
-                    parser.nextToken();
-                    context.violationIds = JsonUtil.readList(deserializationContext, parser, String.class);
-                    return true;
-                case "filters":
-                    parser.nextToken();
-                    context.conditionFilters = JsonUtil.readSet(deserializationContext, parser, LimitViolationType.class);
-                    return true;
-                case "threshold":
-                    parser.nextToken();
-                    context.threshold = parser.getValueAsDouble();
-                    return true;
-                case "equipmentId":
-                    context.equipmentId = parser.nextTextValue();
-                    return true;
-                case "side":
-                    parser.nextToken();
-                    context.side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
-                    return true;
-                case "acSide":
-                    parser.nextToken();
-                    context.isAcSide = parser.getBooleanValue();
-                    return true;
-                case "terminalNumber":
-                    parser.nextToken();
-                    context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
-                    return true;
-                case "comparisonType":
-                    parser.nextToken();
-                    context.comparisonType = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.ComparisonType.class);
-                    return true;
-                case "variable":
-                    parser.nextToken();
-                    context.variable = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.Variable.class);
-                    return true;
-                default:
-                    return false;
-            }
-        });
+        JsonUtil.parseObject(parser, fieldName -> parseChilNode(parser, context, fieldName, deserializationContext));
         switch (context.type) {
             case TrueCondition.NAME:
                 return new TrueCondition();
@@ -110,6 +67,52 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 return new AcDcConverterThresholdCondition(context.equipmentId, context.variable, context.comparisonType, context.threshold, context.isAcSide, context.terminalNumber);
             default:
                 throw new JsonMappingException(parser, "Unexpected condition type: " + context.type);
+        }
+    }
+
+    private boolean parseChilNode(JsonParser parser, ParsingContext context, String fieldName,
+                                  DeserializationContext deserializationContext) throws IOException {
+        switch (fieldName) {
+            case "type":
+                context.type = parser.nextTextValue();
+                return true;
+            case "violationIds":
+                parser.nextToken();
+                context.violationIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                return true;
+            case "filters":
+                parser.nextToken();
+                context.conditionFilters = JsonUtil.readSet(deserializationContext, parser, LimitViolationType.class);
+                return true;
+            case "threshold":
+                parser.nextToken();
+                context.threshold = parser.getValueAsDouble();
+                return true;
+            case "equipmentId":
+                context.equipmentId = parser.nextTextValue();
+                return true;
+            case "side":
+                parser.nextToken();
+                context.side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
+                return true;
+            case "acSide":
+                parser.nextToken();
+                context.isAcSide = parser.getBooleanValue();
+                return true;
+            case "terminalNumber":
+                parser.nextToken();
+                context.terminalNumber = TerminalNumber.valueOf(parser.getValueAsInt());
+                return true;
+            case "comparisonType":
+                parser.nextToken();
+                context.comparisonType = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.ComparisonType.class);
+                return true;
+            case "variable":
+                parser.nextToken();
+                context.variable = JsonUtil.readValue(deserializationContext, parser, AbstractThresholdCondition.Variable.class);
+                return true;
+            default:
+                return false;
         }
     }
 }
