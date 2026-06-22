@@ -441,11 +441,14 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits> void throwBetaLowLimit(L limits, ExportOptions exportOptions) {
+        final String errorMessage = """
+                    The network contains low limits, export of this kind of limit is not supported in IIDM 1.17.
+                    Use IIDM 1.18 or later to export low limits, or force the export of the network in 1.17 and ignore those limits by:
+                    - using the config parameter iidm.export.xml.force-export-network-with-beta-features
+                    - using ExportOptions.setForceExportNetworkWithBetaFeatures""";
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_17, IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
             if (limits.getDetectionKind() == DetectionKind.LOW && !exportOptions.isForceExportNetworkWithBetaFeatures()) {
-                throw new NotImplementedException("The network contains low limits, export of this kind of limit is not yet supported. " +
-                    "To force the export of the network and ignore those limits, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
-                    "or ExportOptions.setForceExportNetworkWithBetaFeatures");
+                throw new NotImplementedException(errorMessage);
             }
         });
     }
