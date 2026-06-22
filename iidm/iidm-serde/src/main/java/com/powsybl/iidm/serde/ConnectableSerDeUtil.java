@@ -271,7 +271,10 @@ public final class ConnectableSerDeUtil {
         adder.add();
     }
 
-    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(String type, A adder, NetworkDeserializerContext context, TreeDataReader reader, IidmVersion iidmVersion, ValidationLevel minimalValidationLevel) {
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimitAttributes(
+        String type, A adder, NetworkDeserializerContext context,
+        TreeDataReader reader, IidmVersion iidmVersion, ValidationLevel minimalValidationLevel
+    ) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
                 String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
@@ -406,7 +409,9 @@ public final class ConnectableSerDeUtil {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> {
             if (limits.getDetectionKind() == DetectionKind.HIGH && !Double.isNaN(limits.getPermanentLimit())) {
                 writer.writeStartNode(nsUri, type + indexToString(index));
-                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(), () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME));
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, exportOptions.getVersion(),
+                    () -> writer.writeStringAttribute(PERMANENT_LIMIT_NAME, limits.getPermanentLimitName(), LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
+                );
                 writer.writeDoubleAttribute(PERMANENT_LIMIT_VALUE, limits.getPermanentLimit());
             } else {
                 canContinueWriting[0] = false;
