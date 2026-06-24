@@ -42,7 +42,7 @@ public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
         for (Map.Entry<String, String> entry : env2.entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue();
-            internalCmd.append(name).append("=").append(value);
+            internalCmd.append(name).append("=").append("'").append(singleQuoteEscape(value)).append("'");
             if (name.endsWith("PATH")) {
                 internalCmd.append(File.pathSeparator).append("$").append(name);
             }
@@ -50,7 +50,7 @@ public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
         }
         internalCmd.append(program);
         for (String arg : args) {
-            internalCmd.append(" \"").append(arg).append("\"");
+            internalCmd.append(" '").append(singleQuoteEscape(arg)).append("'");
         }
 
         List<String> cmdLs = ImmutableList.<String>builder()
@@ -64,5 +64,9 @@ public class UnixLocalCommandExecutor extends AbstractLocalCommandExecutor {
     @Override
     void nonZeroLog(List<String> cmdLs, int exitCode) {
         LOGGER.debug(NON_ZERO_LOG_PATTERN, cmdLs, exitCode);
+    }
+
+    private static String singleQuoteEscape(String value) {
+        return value.replace("'", "'\\''");
     }
 }
