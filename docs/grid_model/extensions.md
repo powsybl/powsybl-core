@@ -13,7 +13,8 @@ Every extension is considered as serializable unless explicitly specified as non
 
 (active-power-control-extension)=
 ## Active power control
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#optional-properties) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#balanceType) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
 |----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
@@ -81,7 +82,22 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 (busbar-section-position-extension)=
 ## Busbar section position
 
-This extension gives positions information about a busbar section. The `busbarIndex` gives the position of the busbar section relative to other busbar sections. The `sectionIndex` gives the position of the busbar section within the corresponding busbar. Note that a busbar is a set of busbar sections. Hence, the sections of the same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of the same busbar, which usually reflects their physical relative position.
+This extension is attached to a [bus bar section](network_subnetwork.md#busbar-section) and gives positions information about a busbar section.
+
+Note that a busbar is a set of busbar sections. Hence, the sections of the same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of the same busbar, which usually reflects their physical relative position.
+
+| Attribute             | Type | Unit | Required | Default value | Description                                                          |
+|-----------------------|------|------|----------|---------------|----------------------------------------------------------------------|
+| busbarIndex           | int  | -    | yes      | -1            | The position of the bus bar section relatively to others             |
+| sectionIndex          | int  | -    | yes      | -1            | The position of the bus bar section within the corresponding busbar  |
+
+Example of code to get the position and section position data for a bus bar section :
+```java
+busBarSection.newExtension(BusbarSectionPositionAdder.class)
+    .withBusbarIndex(2)
+    .withSectionIndex(1)
+    .add();
+```
 
 (connectable-position-extension)=
 ## Connectable position
@@ -156,7 +172,22 @@ The DiscreteMeasurement class characteristics are the following:
 (entsoe-area-extension)=
 ## ENTSO-E area
 
-<span style="color: red">TODO</span>
+This extension is attached to a [substation](network_subnetwork.md#substation) and is used to store its ENTSO-E geographical code.
+
+It is used by the UCTE and ENTSO-E data exchange formats. The code identifies the area the substation belongs to (for example `FR`, `BE`, or `D1`, `D2`... for the German areas) and is associated with a country.
+
+| Attribute | Type                    | Unit  | Required | Default value | Description                                            |
+|-----------|-------------------------|-------|----------|---------------|--------------------------------------------------------|
+| code      | EntsoeGeographicalCode  | -     | yes      | -             | The ENTSO-E geographical code of the substation's area |
+
+
+Here is how to add an ENTSO-E area extension to a substation:
+```java
+Substation s = network.getSubstation("S")
+        .newExtension(EntsoeAreaAdder.class)
+        .withCode(EntsoeGeographicalCode.BE)
+        .add();
+```
 
 (hvdc-angle-droop-active-power-control-extension)=
 ## HVDC angle droop active power control
@@ -174,7 +205,23 @@ $$P = P0 + k~(ph1 - ph2)$$
 (hvdc-operator-active-power-range-extension)=
 ## HVDC operator active power range
 
-This extension enables to replace the operational limits of a DC line in AC emulation. In that case, the VSC converter stations min active power and max active power are not used.
+This extension is attached to an [HVDC line](network_subnetwork.md#hvdc-line) and is used to replace the operational limits of a DC line in AC emulation. In that case, the VSC converter stations min and max active power are not used.
+
+| Attribute       | Type    | Unit         | Required | Default value | Description                                                                         |
+|-----------------|---------|--------------|----------|---------------|-------------------------------------------------------------------------------------|
+| oprFromCS1toCS2 | float   | MW           | No       | -             | Operator active power range from the converter station 1 to the converter station 2 |
+| oprFromCS2toCS1 | float   | MW           | No       | -             | Operator active power range from the converter station 2 to the converter station 1 |
+
+The attributes are multi-variants: they can vary from one variant to another.
+
+Here is how to add an operator active power range extension to an HVDC line:
+```java
+HvdcLine hvdcLine = network.getHvdcLine("L")
+        .newExtension(HvdcOperatorActivePowerRangeAdder.class)
+        .withOprFromCS1toCS2(1.0f)
+        .withOprFromCS2toCS1(2.0f)
+        .add();
+```
 
 (generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
@@ -465,7 +512,7 @@ To mitigate issues related to the second point, a helper method (ObservabilityAr
 (line-position-extension)=
 ## Line Position
 
-This extension is attached to a Line and is used to store the geographical coordinates of the Line.
+This extension is attached to a [line](network_subnetwork.md#line) and is used to store the geographical coordinates of the Line.
 The coordinates are stored using latitude and longitude.
 The extension consists of a list of coordinates that can be used to trace the line on a map.
 
@@ -623,7 +670,7 @@ three-winding transformers, HVDC line and a boundary line. The status could be:
 (reference-priority-extension)=
 ## Reference Priority
 
-This extension is attached to a Generator, or a BusBarSection or a Load and is used to define the angle reference bus of
+This extension is attached to a [generator](network_subnetwork.md#generator), or a BusBarSection or a Load and is used to define the angle reference bus of
 a power flow calculation, i.e. which bus will be used with a zero-voltage angle.
 Use this extension before a computation to force the reference bus selection.
 The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
@@ -648,7 +695,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 (reference-terminals-extension)=
 ## Reference Terminals
 
-This extension is attached to a Network and is used to define the angle references of a Power Flow solution.
+This extension is attached to a [network](network_subnetwork.md#network) and is used to define the angle references of a Power Flow solution.
 The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
 today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priority).
 
@@ -680,15 +727,70 @@ This extension is used for generators with a remote reactive control.
 | targetQ            | double     | MVar | yes      | -             | The targetQ at remote regulating terminal          |
 | regulatingTerminal | `Terminal` | -    | yes      | -             | The regulating terminal                            |
 
+(secondary-voltage-control-extension)=
+## Secondary voltage control
+
+This extension models the secondary voltage control of the network. It is attached to a [network](network_subnetwork.md#network) and contains a list of control zones.
+
+The secondary voltage control is a hierarchical voltage control mechanism used in power systems, where pilot nodes are controlled to target voltages through coordinated reactive power output adjustments of participating generators (the extension control units).
+
+**Control zone**
+
+A control zone groups a pilot point with the generators that regulate its voltage.
+
+| Attribute    | Type              | Unit | Required | Default value | Description                                                                                                          |
+|--------------|-------------------|------|----------|---------------|----------------------------------------------------------------------------------------------------------------------|
+| name         | String            | -    | yes      | -             | The unique name of the control zone                                                                                  |
+| pilotPoint   | PilotPoint        | -    | yes      | -             | The pilot point whose voltage is regulated (has a target voltage and a list of regulated busbar sections or bus IDs) |
+| controlUnits | List<ControlUnit> | -    | yes      | -             | The list of control units (generators) with their active flag to indicate their participation in the zone control    |
+
+**Pilot point**
+
+| Attribute                | Type         | Unit | Required | Default value | Description                                                     |
+|--------------------------|--------------|------|----------|---------------|-----------------------------------------------------------------|
+| busbarSectionsOrBusesIds | List<String> | -    | yes      | -             | The IDs of the busbar sections or buses forming the pilot point |
+| targetV                  | double       | kV   | yes      | -             | The target voltage at the pilot point                           |
+
+**Control unit**
+
+| Attribute   | Type    | Unit | Required | Default value | Description                                               |
+|-------------|---------|------|----------|---------------|-----------------------------------------------------------|
+| id          | String  | -    | yes      | -             | The ID of the generator used as a control unit            |
+| participate | boolean | -    | no       | true          | Whether the generator participates in the voltage control |
+
+The `targetV` and `participate` attributes are multi-variants: they can vary from one variant to another.
+
+Here is how to add a secondary voltage control extension to a network:
+```java
+network.newExtension(SecondaryVoltageControlAdder.class)
+    .newControlZone()
+        .withName("z1")
+        .newPilotPoint()
+            .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+            .withTargetV(15d)
+        .add()
+        .newControlUnit()
+            .withId("GEN")
+            .withParticipate(false)
+        .add()
+        .newControlUnit()
+            .withId("GEN2")
+        .add()
+    .add()
+.add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
 (slack-terminal-extension)=
 ## Slack terminal
 
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
 of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
 Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
-[`readSlackBus`](../simulation/loadflow/configuration.md#optional-properties). Use this extension after a computation to attach
+[`readSlackBus`](../simulation/loadflow/configuration.md#readSlackBus). Use this extension after a computation to attach
 to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
-default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#optional-properties).
+default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#writeSlackBus).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 
@@ -702,10 +804,41 @@ SlackTerminal.attach(bus);
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 
+(standby-automaton-extension)=
+## Standby automaton
+
+This extension is attached to a [static var compensator](network_subnetwork.md#static-var-compensator) and is used to define the automaton status and its fixed part susceptance, high and low voltage setpoints and thresholds.
+
+When the static VAR compensator is in standby mode, it behaves as a fixed shunt of susceptance `b0`. The high and low voltage setpoints and thresholds are used by the automaton to adjust the voltage regulation when the monitored voltage leaves the `[lowVoltageThreshold, highVoltageThreshold]` range.
+
+| Attribute             | Type    | Unit | Required | Default value | Description                                                                                       |
+|-----------------------|---------|------|----------|---------------|---------------------------------------------------------------------------------------------------|
+| standby               | boolean | -    | true     | false         | The automaton status (in service or not)                                                          |
+| b0                    | double  | S    | true     | NaN           | The fix part of the susceptance (between the min and max f the static var compensator susceptance |
+| lowVoltageSetpoint    | double  | kV   | true     | NaN           | The voltage setpoint used when the low voltage threshold is reached                               |
+| highVoltageSetpoint   | double  | kV   | true     | NaN           | The voltage setpoint used when the high voltage threshold is reached                              |
+| lowVoltageThreshold   | double  | kV   | true     | NaN           | The voltage threshold under which the static var compensator controls at low voltage setpoint     |
+| highVoltageThreshold  | double  | kV   | true     | NaN           | The voltage threshold above which the static var compensator controls at high voltage setpoint    |
+
+The `standby`, `lowVoltageSetpoint`, `highVoltageSetpoint`, `lowVoltageThreshold` and `highVoltageThreshold` attributes are multi-variants: they can vary from one variant to another.
+
+Example of code to get the standby automaton data for a static var compensator :
+```java
+StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+svc.newExtension(StandbyAutomatonAdder.class)
+    .withB0(0.0001f)
+    .withStandbyStatus(true)
+    .withLowVoltageSetpoint(390f)
+    .withHighVoltageSetpoint(400f)
+    .withLowVoltageThreshold(385f)
+    .withHighVoltageThreshold(405f)
+    .add();
+```
+
 (substation-position-extension)=
 ## Substation Position
 
-This extension is attached to a Substation and is used to store the geographical coordinates of the Substation.
+This extension is attached to a [substation](network_subnetwork.md#substation) and is used to store the geographical coordinates of the Substation.
 The coordinates are stored using latitude and longitude.
 
 | Attribute  | Type         | Unit | Required | Default value | Description                                  |
