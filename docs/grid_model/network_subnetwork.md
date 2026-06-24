@@ -41,6 +41,7 @@ The `SourceFormat` attribute is a required attribute that indicates the origin o
 
 **Available extensions**
 - [Line Couplings](extensions.md#line-couplings)
+- [Secondary Voltage Control](extensions.md#secondary-voltage-control)
 
 (substation)=
 ## Substation
@@ -60,6 +61,7 @@ All three attributes are optional.
 
 **Available extensions**
 - [ENTSO-E Area](extensions.md#entso-e-area)
+- [Substation position](extensions.md#substation-position)
 
 (voltage-level)=
 ## Voltage level
@@ -494,6 +496,7 @@ In IIDM the static VAR compensator also comprises some metadata:
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [VoltagePerReactivePowerControl](extensions.md#voltage-per-reactive-power-control)
+- [StandByAutomaton](extensions.md#standby-automaton)
 
 (line)=
 ## Line
@@ -821,6 +824,8 @@ An LCC converter station is made with electronic switches that can only be turne
 **Available extensions**
 
 - [Connectable position](extensions.md#connectable-position)
+- [Injection observability](extensions.md#injection-observability)
+
 
 (vsc-converter-station)=
 ##### VSC converter station
@@ -853,6 +858,7 @@ A VSC converter station is made with switching devices that can be turned both o
 **Available extensions**
 
 - [Connectable position](extensions.md#connectable-position)
+- [Injection observability](extensions.md#injection-observability)
 
 ### Detailed DC model
 
