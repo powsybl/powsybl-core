@@ -45,15 +45,29 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
         for (Map.Entry<String, String> entry : env2.entrySet()) {
             String name = entry.getKey();
             String value = entry.getValue();
-            internalCmd.append("set ").append("\"").append(name).append("=").append(value);
+            // Validate the variable name: only alphanumerics and underscores are allowed.
+            // This prevents injection via malicious variable names, which cannot be safely escaped.
+            if (!name.matches("[a-zA-Z_]\\w*")) {
+                throw new IllegalArgumentException("Invalid environment variable name");
+            }
+            // Use the 'set "NAME=VALUE"' form: value is inside the outer quotes, so
+            // double-quote doubling ("") is the correct escaping strategy here
+            internalCmd.append("set \"").append(name).append("=").append(escapeCmdEnvValue(value));
             if (name.endsWith("PATH")) {
                 internalCmd.append(File.pathSeparator).append("%").append(name).append("%");
             }
-            internalCmd.append("\"").append(" & ");
+            internalCmd.append("\" & ");
+        }
+        // Quote the program name to handle spaces in paths and validate it contains no quotes.
+        if (program.contains("\"")) {
+            throw new IllegalArgumentException("Program name must not contain double quotes");
+        }
+        if (program.contains(" ")) {
+            throw new IllegalArgumentException("Program name must not contain spaces");
         }
         internalCmd.append(program);
         for (String arg : args) {
-            internalCmd.append(" \"").append(arg).append("\"");
+            internalCmd.append(" \"").append(escapeCmdArg(arg)).append("\"");
         }
         internalCmd.append(" & endlocal");
 
@@ -68,5 +82,39 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
     @Override
     void nonZeroLog(List<String> cmdLs, int exitCode) {
         LOGGER.debug(NON_ZERO_LOG_PATTERN, cmdLs, exitCode);
+    }
+
+    private static String escapeCmdEnvValue(String value) {
+        // This value is embedded inside set "NAME=VALUE", i.e. already inside double quotes.
+        // Inside a quoted set command:
+        //   - " must be doubled ("") — caret-escaping does NOT work inside quotes
+        //   - % must be doubled (%%) to prevent %VAR% expansion
+        //   - ! must be escaped (^!) to prevent delayed expansion (fires even inside quotes)
+        //   - ^ does NOT need escaping inside quotes (it is literal)
+        //   - &, |, <, > do NOT need escaping inside quotes (they are literal)
+        //   - newlines are stripped to prevent command structure breakout
+        return value
+            .replace("%", "%%")
+            .replace("!", "^!")
+            .replace("\"", "\"\"")
+            .replace("\n", "")
+            .replace("\r", "");
+    }
+
+    private static String escapeCmdArg(String arg) {
+        // Double any trailing backslashes before the closing quote
+        int trailingBackslashes = 0;
+        for (int i = arg.length() - 1; i >= 0 && arg.charAt(i) == '\\'; i--) {
+            trailingBackslashes++;
+        }
+        String suffix = "\\".repeat(trailingBackslashes); // repeat them once more
+        return arg
+            .replace("^", "^^")   // escape ^ first (outside-quote context for & | etc.)
+            .replace("%", "^%")   // prevent variable expansion like %PATH%
+            .replace("!", "^!")   // prevent delayed expansion like !VAR!
+            .replace("\"", "\"\"") // double quotes inside the quoted string
+            .replace("\n", "") // prevents newline-based injection
+            .replace("\r", "") // prevents newline-based injection
+            + suffix;
     }
 }
