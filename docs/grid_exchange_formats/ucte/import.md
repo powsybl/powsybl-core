@@ -116,7 +116,7 @@ For nodes with a valid active or reactive load, a [load](../../grid_model/networ
 Its ID is equal to the ID of the bus post-fixed by `_load`.
 The `P0` and `Q0` are equal to the active load and the reactive load of the UCTE node.
 For those with a valid generator, a [generator](../../grid_model/network_subnetwork.md#generator) is created. Its ID is equal to the ID of the bus post-fixed by `_generator`.
-The power plant type is converted to an [energy source]() value (see the mapping table below for the matching).
+The power plant type is converted to an [energy source](../../grid_model/network_subnetwork.md#generator) value (see the mapping table below for the matching).
 
 **Mapping table for power plant types:**
 
@@ -131,7 +131,7 @@ The power plant type is converted to an [energy source]() value (see the mapping
 |       Wind (W)        |        Wind        |
 |      Further (F)      |       Other        |
 
-The list of the power plant types is more detailed than the list of available [energy source]() types in IIDM,
+The list of the power plant types is more detailed than the list of available [energy source](../../grid_model/network_subnetwork.md#generator) types in IIDM,
 so we add the `powerPlantType` property to each generator to keep the initial value.
 
 (ucte-line-conversion)=
@@ -165,8 +165,6 @@ with a single bus called a Y-node. This new voltage level is created in the same
 The transformer is created between the real node and the new Y-node, and the X-node is converted into a boundary line.
 The only difference with a classic X-node conversion, is that the electrical characteristic are hold by the transformer and set to `0` for the boundary line,
 except for the reactance that is set to $0.05\space\Omega$.
-
-**TODO**: insert a schema
 
 (ucte-phase-regulation-conversion)=
 #### Phase regulation

@@ -212,22 +212,16 @@ The following sections describe in detail how each supported PowSyBl network mod
 
 PowSyBl [`Battery`](../../grid_model/network_subnetwork.md#battery) is exported as `SynchronousMachine` with `HydroGeneratingUnit`.
 
-<span style="color: red">TODO details</span>
-
 (cgmes-busbar-section-export)=
 ### BusbarSection
 
-PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section) is exported as CGMES `BusbarSection`.
-
-<span style="color: red">TODO details</span>
+PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section) is exported as CGMES `BusbarSection`, with a reference to its voltage level (`EquipmentContainer`) and to the `BaseVoltage` matching the nominal voltage of its voltage level.
 
 (cgmes-boundary-line-export)=
 ### BoundaryLine
 
 PowSyBl [`BoundaryLine`](../../grid_model/network_subnetwork.md#boundary-line) is exported as several CGMES network objects.
 Each boundary line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
-
-<span style="color: red">TODO details</span>
 
 ### Detailed DC model
 
@@ -366,14 +360,14 @@ The attribute `ConductingEquipment.BaseVoltage` is written from the `nominalV` o
 - if the nominal voltage is the same on both sides of the `Line`, then the `BaseVoltage` is set to this nominal voltage,
 - otherwise, it is set to the highest nominal voltage.
 
-<span style="color: red">TODO details</span>
+The `ACLineSegment` electrical characteristics (`r`, `x`, `gch`, `bch`) are written from the line's resistance, reactance, conductance and susceptance.
 
 (cgmes-load-export)=
 ### Load
 
 PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad` or `EnergyConsumer` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
 
-<span style="color: red">TODO details</span>
+The load is written with a reference to its voltage level (`EquipmentContainer`), to a `LoadGroup` and to a `LoadResponseCharacteristic`. Loads originally imported from a CGMES `EnergySource` are exported back as `EnergySource`.
 
 (cgmes-fictitious-injections-export)=
 ### Fictitious injections (fictitiousP0/fictitiousQ0)
@@ -427,16 +421,14 @@ reactive power target is. Otherwise, the exported mode will be voltage.
 (cgmes-substation-export)=
 ### Substation
 
-PowSyBl [`Substation`](../../grid_model/network_subnetwork.md#substation) is exported as `Substation`.
-
-<span style="color: red">TODO details</span>
+PowSyBl [`Substation`](../../grid_model/network_subnetwork.md#substation) is exported as `Substation`, with a reference to the `SubGeographicalRegion` it belongs to (`Substation.Region`).
 
 (cgmes-switch-export)=
 ### Switch
 
 PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is exported as CGMES `Breaker`, `Disconnector` or `LoadBreakSwitch` depending on its `SwitchKind`.
 
-<span style="color: red">TODO details</span>
+The switch `open` status is written, and the switch is exported as retained only if it would be connected to different topological nodes at its two ends.
 
 (cgmes-three-winding-transformer-export)=
 ### ThreeWindingsTransformer
@@ -488,18 +480,14 @@ This applies to CurrentLimits, ActivePowerLimits, and ApparentPowerLimits.
 (cgmes-voltage-level-export)=
 ### Voltage level
 
-PowSyBl [`VoltageLevel`](../../grid_model/network_subnetwork.md#voltage-level) is exported as `VoltageLevel`.
-
-<span style="color: red">TODO details</span>
+PowSyBl [`VoltageLevel`](../../grid_model/network_subnetwork.md#voltage-level) is exported as `VoltageLevel`, with its low and high voltage limits, a reference to its `Substation` (a fictitious one is created if it has none) and to the `BaseVoltage` matching its nominal voltage.
 
 ## Extensions
 
 (cgmes-control-areas-export)=
 ### Control areas
 
-PowSyBl [`ControlAreas`](import.md#control-areas) are exported as several `ControlArea`.
-
-<span style="color: red">TODO details</span>
+PowSyBl [`ControlAreas`](import.md#control-areas) are exported as several `ControlArea`, each written with its `type` and a reference to an `EnergyArea`.
 
 (cgmes-export-options)=
 ## Options

@@ -129,7 +129,7 @@ Example
 Path to a JSON file defining limit reductions. See [Limit reductions](../../simulation/security/limit-reductions.md) for principles and details.
 
 `--external`<br>
-<span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
+Use this flag to run the security analysis in a separate (external) process instead of the current JVM process. The external execution is delegated to the configured `ComputationManager` and is set up through the [external-security-analysis-config](../configuration/external-security-analysis-config.md) module.
 
 `--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
@@ -138,7 +138,7 @@ This option defines the path of the importer's configuration file. It's possible
 This option allows filtering certain types of violations. It overrides the default configuration defined in the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md) configuration module. The supported types are the following: `CURRENT`, `LOW_VOLTAGE`, `HIGH_VOLTAGE`, `LOW_SHORT_CIRCUIT_CURRENT`, `HIGH_SHORT_CIRCUIT_CURRENT` and `OTHER`.
 
 `--log-file`<br>
-<span style="color: red">TODO</span>
+This option defines the path of a ZIP archive (`.zip`) where the execution logs of the analysis are written.
 
 `--output-file`<br>
 This option defines the path of the result file. If this option is not set, the results are printed to the console.
@@ -153,7 +153,7 @@ This option defines the path of the [parameters](#parameters) file of the simula
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
-The available security analysis implementations are described [here](../../simulation/security/implementations.md).
+The available security analysis implementations are described [here](../../simulation/security/index.md#implementations).
 
 ## Contingencies
 Contingencies are provided through `--contingencies-file`. The file is interpreted by the configured `ContingenciesProviderFactory` (see [`componentDefaultConfig`](../configuration/componentDefaultConfig.md)).
@@ -163,7 +163,7 @@ Typical inputs are:
 - JSON contingencies list (type `ContingencyList`, see examples above)
 
 ## Parameters
-<span style="color: red">TODO</span>
+The available parameters are described [here](../../simulation/security/configuration.md#parameters). They can be provided through the `--parameters-file` option as a JSON file; if it is not set, the analysis is run with the default parameters.
 
 ## Results
 The expected results are described in the [security analysis documentation](../../simulation/security/index.md#outputs)
@@ -496,9 +496,6 @@ Pre-contingency violations:
 +--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+
 ```
 ***
-
-<span style="color: red">TODO</span>: to be clean and completed with the following information
-
 
 ### with-extensions
 Use the `--with-extensions` parameter to activate a list of `com.powsybl.security.interceptors.SecurityAnalysisInterceptor`

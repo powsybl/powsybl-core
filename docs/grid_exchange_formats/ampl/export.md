@@ -57,6 +57,24 @@ These properties can be defined in the configuration file in the [import-export-
 **iidm.export.ampl.export-ratio-tap-changer-voltage-target**<br>
 The `iidm.export.ampl.export-ratio-tap-changer-voltage-target` property is an optional property that defines whether the AMPL exporter exports the ratio tap changer voltage setpoint or not. Its default value is `false`.
 
+**iidm.export.ampl.scope**<br>
+The `iidm.export.ampl.scope` property is an optional property that defines the scope of the equipment to export. Its allowed values are `ALL`, `ONLY_MAIN_CC`, `ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS` and `ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS`. Its default value is `ALL`.
+
+**iidm.export.ampl.with-xnodes**<br>
+The `iidm.export.ampl.with-xnodes` property is an optional property that defines whether the X-nodes of tie-lines are exported. Its default value is `false`.
+
+**iidm.export.ampl.action-type**<br>
+The `iidm.export.ampl.action-type` property is an optional property that defines the type of the remedial actions. Its allowed values are `CURATIVE` and `PREVENTIVE`. Its default value is `CURATIVE`.
+
+**iidm.export.ampl.twt-split-shunt-admittance**<br>
+The `iidm.export.ampl.twt-split-shunt-admittance` property is an optional property that defines whether the shunt admittance of the two-winding transformers is split on both sides. Its default value is `false`.
+
+**iidm.export.ampl.export-version**<br>
+The `iidm.export.ampl.export-version` property is an optional property that defines the version of the AMPL export. Its default value is the latest version (`1.2`).
+
+**iidm.export.ampl.export-sorted**<br>
+The `iidm.export.ampl.export-sorted` property is an optional property that defines whether the equipment are exported alphabetically sorted by id. Its default value is `false`.
+
 ### Deprecated properties
 
 **iidm.export.ampl.exportRatioTapChangerVoltageTarget**<br>

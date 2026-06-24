@@ -140,6 +140,23 @@ intersphinx_disabled_reftypes = ["*"]
 autosummary_generate = True
 
 
+# -- Options for LaTeX / PDF output ------------------------------------------
+# The PDF is generated from these same Markdown sources by the Sphinx LaTeX
+# builder (`make latexpdf`) and published by Read the Docs (see the `formats`
+# section of `.readthedocs.yaml`). The Markdown stays the single source of
+# truth: the HTML site and the PDF are both generated from it.
+
+# (startdocname, targetname, title, author, theme)
+latex_documents = [
+    ('index', 'powsybl-core.tex', f'{project} documentation', 'PowSyBl', 'manual'),
+]
+
+latex_elements = {
+    'papersize': 'a4paper',
+    'pointsize': '10pt',
+}
+
+
 # -- Dependencies versions ---------------------------------------------------
 # This part will automatically look in the pom.xml to find versions corresponding to the dependencies whose
 # documentation is used in the present one, except if it's a SNAPSHOT version or if a specific version has been chosen

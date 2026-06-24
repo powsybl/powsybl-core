@@ -11,6 +11,7 @@ default-computation-manager.md
 external-security-analysis-config.md
 geodata.md
 groovy-dsl-contingencies.md
+iidm.md
 import-export-parameters-default-value.md
 limit-violation-default-filter.md
 loadflow-results-completion-parameters.md
@@ -26,18 +27,19 @@ table-formatter.md
 - [default-computation-manager](default-computation-manager.md)
 - [dynamic-simulation](../../simulation/dynamic/configuration.md#implementation)
 - [dynamic-simulation-default-parameters](../../simulation/dynamic/configuration.md#parameters)
-- [dynawo](../../simulation/dynamic/configuration.md#specific-parameters)
-- [dynawo-simulation-default-parameters](../../simulation/dynamic/configuration.md#specific-parameters)
+- [dynawo](../../simulation/dynamic/configuration.md#implementation-specific-parameters)
+- [dynawo-simulation-default-parameters](../../simulation/dynamic/configuration.md#implementation-specific-parameters)
 - [external-security-analysis-config](external-security-analysis-config.md)
 - [geo-json-importer-post-processor](geodata.md)
 - [groovy-dsl-contingencies](groovy-dsl-contingencies.md)
 - [groovy-post-processor](../../grid_features/import_post_processor.md#groovy-post-processor)
+- [iidm](iidm.md)
 - [import-export-parameters-default-value](import-export-parameters-default-value.md)
 - [load-flow](../../simulation/loadflow/configuration.md#implementation)
-- [load-flow-default-parameters](../../simulation/loadflow/configuration.md#optional-properties)
+- [load-flow-default-parameters](../../simulation/loadflow/configuration.md#parameters)
 - [network](network.md)
-- [open-loadflow-default-parameters](../../simulation/loadflow/configuration.md#specific-parameters) (Open Load Flow implementation of the loadflow)
-- [dynaflow-default-parameters](../../simulation/loadflow/configuration.md#specific-parameters) (Dynaflow implementation of the loadflow)
+- [open-loadflow-default-parameters](../../simulation/loadflow/configuration.md#implementation-specific-parameters) (Open Load Flow implementation of the loadflow)
+- [dynaflow-default-parameters](../../simulation/loadflow/configuration.md#implementation-specific-parameters) (Dynaflow implementation of the loadflow)
 - [load-flow-based-phase-shifter-optimizer](../../simulation/loadflow/load-flow-based-phase-shifter-optimizer.md)
 - [load-flow-action-simulator](load-flow-action-simulator.md)
 - [loadflow-results-completion-parameters](loadflow-results-completion-parameters.md)

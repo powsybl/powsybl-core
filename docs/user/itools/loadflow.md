@@ -107,4 +107,5 @@ Components results:
 ```
 
 ## See also
-<span style="color: red">TODO</span>
+- [loadflow-validation](loadflow-validation.md): validate the results of a load flow on a network
+- [Load flow documentation](../../simulation/loadflow/index.md)

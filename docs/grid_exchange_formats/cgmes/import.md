@@ -290,11 +290,18 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
 - `isCondenser` is defined from the `SynchronousMachine.type`. If it contains `condenser` (`condenser`,
 `generatorOrCondenser`, `motorOrCondenser`, `generatorOrMotorOrCondenser`), then the flag is set to `true`. Otherwise, it is set to `false`.
 
-<span style="color: red">TODO reactive limits</span>
+The reactive limits are imported either as a reactive capability curve or as min-max reactive limits:
+- If the CGMES machine references a `ReactiveCapabilityCurve` with at least two valid points, a `ReactiveCapabilityCurve` is created, with one point per CGMES curve point (`P` from the point, `minQ`/`maxQ` from its `y1value`/`y2value`). If the curve has a single point, `MinMaxReactiveLimits` are created from that point instead.
+- Otherwise, if CGMES `minQ` and `maxQ` are defined, `MinMaxReactiveLimits` are created from them. If they are missing, the reactive limits are left unbounded.
 
-<span style="color: red">TODO regulation</span>
+If `minQ` is greater than `maxQ`, the two values are swapped.
 
-<span style="color: red">TODO normalPF</span>
+The regulation is imported from the CGMES `RegulatingControl` associated with the machine, depending on its mode:
+- In voltage control mode, the regulating terminal is set from the control terminal (defaulting to the generator's own terminal). If `qPercent` is defined, a [`CoordinatedReactiveControl`](../../grid_model/extensions.md#coordinated-reactive-control) extension is added with this value.
+- In reactive power control mode, a [`RemoteReactivePowerControl`](../../grid_model/extensions.md#remote-reactive-power-control) extension is added with the regulating terminal (disabled by default), and `qPercent` is stored in a `CoordinatedReactiveControl` extension if defined.
+- Other regulation modes are ignored.
+
+The `normalPF` value of the associated `GeneratingUnit`, when defined, is imported as the participation factor of the generator: if the generator already has an [`ActivePowerControl`](../../grid_model/extensions.md#active-power-control) extension, its participation factor is updated; otherwise, depending on the import configuration, an `ActivePowerControl` extension is created (with the generator participating) or the value is stored as the `normalPF` property of the generator.
 
 (cgmes-equivalent-shunt-import)=
 ### EquivalentShunt
@@ -316,9 +323,9 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, they are set to `0`.
 - `EnergySource` is set as `OTHER`
 
-<span style="color: red">TODO reactive limits</span>
+The reactive limits are imported the same way as for a [SynchronousMachine](#cgmes-synchronous-machine-import): as a reactive capability curve if the CGMES injection references one with at least two valid points, otherwise as min-max reactive limits built from CGMES `minQ`/`maxQ` (or left unbounded if they are missing).
 
-<span style="color: red">TODO regulation</span>
+The regulation is imported from the CGMES `RegulatingControl` associated with the injection, like for a [SynchronousMachine](#cgmes-synchronous-machine-import): in voltage control mode the regulating terminal is set, and in reactive power control mode a [`RemoteReactivePowerControl`](../../grid_model/extensions.md#remote-reactive-power-control) extension is added. The `qPercent`, when defined, is stored in a [`CoordinatedReactiveControl`](../../grid_model/extensions.md#coordinated-reactive-control) extension.
 
 (cgmes-linear-shunt-compensator-import)=
 ### LinearShuntCompensator
@@ -332,7 +339,7 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 - `GPerSection` is copied from CGMES `gPerSection` if defined. Else, it is left undefined.
 - `MaximumSectionCount` is copied from CGMES `maximumSections`.
 
-<span style="color: red">TODO regulation</span>
+If the shunt compensator participates in a CGMES `RegulatingControl`, its regulating terminal is set from the control terminal (defaulting to the shunt compensator's own terminal).
 
 (cgmes-nonlinear-shunt-compensator-import)=
 ### NonlinearShuntCompensator
@@ -347,7 +354,7 @@ Sections are created from the lowest CGMES `sectionNumber` to the highest and ea
 - `B` is calculated as the sum of all CGMES `b` of `NonlinearShuntCompensatorPoints` with `sectionNumber` lower or equal to its `sectionNumber`
 - `G` is calculated as the sum of all CGMES `g` of `NonlinearShuntCompensatorPoints` with `sectionNumber` lower or equal to its `sectionNumber`
 
-<span style="color: red">TODO regulation</span>
+If the shunt compensator participates in a CGMES `RegulatingControl`, its regulating terminal is set from the control terminal (defaulting to the shunt compensator's own terminal).
 
 (cgmes-operational_limit-import)=
 ### OperationalLimits
@@ -443,7 +450,7 @@ A `StaticVarCompensator` is mapped to a PowSyBl [`StaticVarCompensator`](../../g
 
 A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#voltage-per-reactive-power-control) extension is also created from the CGMES `StaticVarCompensator` and linked to the PowSyBl `StaticVarCompensator` with its `slope` attribute copied from CGMES `slope` if the latter is `0` or positive.
 
-<span style="color: red">TODO regulation</span>
+The regulation is imported from the CGMES `RegulatingControl` associated with the static var compensator: the regulating terminal is set, and the regulation mode is set to `VOLTAGE` in voltage control mode or to `REACTIVE_POWER` in reactive power control mode. If the control mode is invalid, the regulation mode defaults to `VOLTAGE`.
 
 (cgmes-switch-import)=
 ### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector, Jumper)
@@ -667,7 +674,7 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 (cgmes-tap-changers-import)=
 ### CGMES Tap Changers
 
-<span style="color: red">TODO</span>
+CGMES ratio and phase tap changers are imported as the corresponding IIDM `RatioTapChanger` and `PhaseTapChanger` of the two- and three-winding transformers.
 
 The `TapPosition` of the IIDM `TapChanger` is copied from the CGMES SSH `step` if present. If not, it is copied from CGMES `SVtapStep` or `normalStep` from EQ.
 The `SolvedTapPosition` is copied from `SVtapStep` if the SV is imported, and left to `null` otherwise.
@@ -747,7 +754,7 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 (cgmes-model-import)=
 ### CGMES model
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesModelExtension.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesModelExtension.html)
 
 This extension provides access to the PowSyBl CGMES Network Model implemented with a triplestore.
 
@@ -766,7 +773,7 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-conversion` module.
 (cgmes-conversion-context-import)=
 ### CGMES conversion context
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesConversionContextExtension.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/cgmes/conversion/CgmesConversionContextExtension.html)
 
 This extension is useful for external validation of the mapping made between CGMES and IIDM.
 
@@ -826,6 +833,10 @@ Optional property that defines if control areas must be imported or not. `true` 
 Optional property that defines which naming strategy is used to transform CGMES identifiers to IIDM identifiers. Currently, all naming strategies assign CGMES Ids directly to IIDM Ids during import, without any transformation. The default value is `identity`.
 You can also define a custom naming strategy by implementing the `NamingStrategy` interface on your own project and declare
 a `NamingStrategyProvider` that can be automatically discovered. Then in this parameter, you can specify the name of the provider.
+
+**iidm.import.cgmes.pre-processors**<br>
+Optional property that defines all the CGMES pre-processors which will be activated before import.
+By default, it is an empty list.
 
 **iidm.import.cgmes.post-processors**<br>
 Optional property that defines all the CGMES post-processors which will be activated after import.

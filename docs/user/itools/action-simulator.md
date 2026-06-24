@@ -53,7 +53,7 @@ This option defines the path of the strategy to evaluate. This is a groovy scrip
 ### Optional parameters
 
 `--apply-if-solved-violations`<br>
-<span style="color: red">TODO</span>
+If this flag is set, the simulator applies the first tested action that solves all the violations, instead of continuing to evaluate the remaining rules and actions.
 
 `--contingencies`<br>
 This option defines the list of contingencies to simulate. If this parameter is omitted, all the contingencies defined in the DSL file are simulated.
@@ -86,10 +86,10 @@ This option enables the verbose mode, to display more information during the sim
 Currently, the only simulator which is supported is the load-flow-based simulator.
 
 ## Parameters
-<span style="color: red">TODO</span>
+The action simulator is configured through the [load-flow-action-simulator](../configuration/load-flow-action-simulator.md) configuration module.
 
 ## Results
-<span style="color: red">TODO</span>
+When the simulation completes, the final result lists the remaining pre-contingency violations and, for each tested contingency, its status, the actions that were applied and the remaining post-contingency violations. If `--output-file` is set, the results are exported in the selected format; otherwise they are printed to the console, as shown in the [examples](#examples) below.
 
 ## Examples
 This example shows a small [action DSL](../../simulation/security/action-dsl.md) script:

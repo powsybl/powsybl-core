@@ -13,7 +13,7 @@ Every extension is considered as serializable unless explicitly specified as non
 
 (active-power-control-extension)=
 ## Active power control
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#optional-properties) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#balancetype) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
 |----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
@@ -156,7 +156,18 @@ The DiscreteMeasurement class characteristics are the following:
 (entsoe-area-extension)=
 ## ENTSO-E area
 
-<span style="color: red">TODO</span>
+This extension stores the ENTSO-E geographical code of a [substation](network_subnetwork.md#substation), used by the UCTE and ENTSO-E data exchange formats. The code identifies the area the substation belongs to (for example `FR`, `BE`, or `D1`, `D2`... for the German areas) and is associated with a country.
+
+| Attribute | Type | Unit | Required | Default value | Description |
+|-----------|------|------|----------|---------------|-------------|
+| code | EntsoeGeographicalCode | - | yes | - | The ENTSO-E geographical code of the substation's area |
+
+Here is how to add an ENTSO-E area extension to a substation:
+```java
+substation.newExtension(EntsoeAreaAdder.class)
+    .withCode(EntsoeGeographicalCode.FR)
+    .add();
+```
 
 (hvdc-angle-droop-active-power-control-extension)=
 ## HVDC angle droop active power control
@@ -609,15 +620,42 @@ This extension is used for generators with a remote reactive control.
 | targetQ            | double     | MVar | yes      | -             | The targetQ at remote regulating terminal          |
 | regulatingTerminal | `Terminal` | -    | yes      | -             | The regulating terminal                            |
 
+(secondary-voltage-control-extension)=
+## Secondary voltage control
+
+This extension models the secondary voltage control of a network. It is attached to the whole [network](network_subnetwork.md) and holds a list of control zones. Each control zone is made of:
+- a name;
+- a pilot point, defined by a list of busbar section or bus IDs whose voltage is monitored and a target voltage (in kV);
+- a list of control units, each referencing a controlling equipment (by ID) and a flag indicating whether it participates in the control.
+
+Here is how to add a secondary voltage control extension to a network:
+```java
+network.newExtension(SecondaryVoltageControlAdder.class)
+    .newControlZone()
+        .withName("zone1")
+        .newPilotPoint()
+            .withTargetV(400.0)
+            .withBusbarSectionsOrBusesIds(List.of("busbarSectionId"))
+            .add()
+        .newControlUnit()
+            .withId("generatorId")
+            .withParticipate(true)
+            .add()
+        .add()
+    .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
 (slack-terminal-extension)=
 ## Slack terminal
 
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
 of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
 Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
-[`readSlackBus`](../simulation/loadflow/configuration.md#optional-properties). Use this extension after a computation to attach
+[`readSlackBus`](../simulation/loadflow/configuration.md#readslackbus). Use this extension after a computation to attach
 to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
-default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#optional-properties).
+default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#writeslackbus).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 
@@ -630,6 +668,34 @@ SlackTerminal.attach(bus);
 ```
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
+(standby-automaton-extension)=
+## Standby automaton
+
+This extension is attached to a [static VAR compensator](network_subnetwork.md#static-var-compensator) to model a standby automaton. When the static VAR compensator is in standby mode, it behaves as a fixed shunt of susceptance `b0`. The high and low voltage setpoints and thresholds are used by the automaton to adjust the voltage regulation when the monitored voltage leaves the `[lowVoltageThreshold, highVoltageThreshold]` range.
+
+| Attribute | Type | Unit | Required | Default value | Description |
+|-----------|---------|------|----------|---------------|-------------|
+| standby | boolean | - | yes | - | Whether the static VAR compensator is in standby mode |
+| b0 | double | S | yes | - | The susceptance applied when in standby mode |
+| highVoltageSetpoint | double | kV | yes | - | The voltage setpoint used above the high voltage threshold |
+| highVoltageThreshold | double | kV | yes | - | The high voltage threshold |
+| lowVoltageSetpoint | double | kV | yes | - | The voltage setpoint used below the low voltage threshold |
+| lowVoltageThreshold | double | kV | yes | - | The low voltage threshold |
+
+Here is how to add a standby automaton extension to a static VAR compensator:
+```java
+svc.newExtension(StandbyAutomatonAdder.class)
+    .withStandbyStatus(true)
+    .withB0(0.0001)
+    .withHighVoltageSetpoint(400.0)
+    .withHighVoltageThreshold(420.0)
+    .withLowVoltageSetpoint(380.0)
+    .withLowVoltageThreshold(360.0)
+    .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
 (substation-position-extension)=
 ## Substation Position
@@ -774,6 +840,27 @@ Here is how to add a voltage per reactive power control extension to a static VA
 ```java
 svc.newExtension(VoltagePerReactivePowerControlAdder.class)
     .withSlope(0.5)
+    .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
+(voltage-regulation-extension)=
+## Voltage regulation
+
+This extension is attached to a [battery](network_subnetwork.md#battery) to enable voltage regulation, similarly to a generator. It defines whether the voltage regulation is enabled, the voltage target and the regulating terminal.
+
+| Attribute | Type | Unit | Required | Default value | Description |
+|-----------|------------|------|----------|----------------------|-------------|
+| voltageRegulatorOn | boolean | - | yes | - | Whether the voltage regulation is enabled |
+| targetV | double | kV | - | - | The voltage target |
+| regulatingTerminal | `Terminal` | - | - | the battery terminal | The regulating terminal |
+
+Here is how to add a voltage regulation extension to a battery:
+```java
+battery.newExtension(VoltageRegulationAdder.class)
+    .withVoltageRegulatorOn(true)
+    .withTargetV(400.0)
     .add();
 ```
 

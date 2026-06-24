@@ -25,7 +25,7 @@ The validation level can be set to `EQUIPMENT` or `STEADY_STATE_HYPOTHESIS`. A n
 
 (network)=
 ## Network
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Network.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Network.html)
 
 In the PowSyBl grid model, the Network contains [substations](#substation), which themselves contain [voltage levels](#voltage-level).
 
@@ -43,7 +43,7 @@ The `SourceFormat` attribute is a required attribute that indicates the origin o
 
 (substation)=
 ## Substation
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Substation.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Substation.html)
 
 A substation represents a specific geographical location with equipment grouped in one or several [voltage levels](#voltage-level).
 
@@ -62,7 +62,7 @@ All three attributes are optional.
 
 (voltage-level)=
 ## Voltage level
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.html)
 
 A voltage level contains equipment with the same nominal voltage. Two voltage levels may be connected through lines (when they belong to different substations) or through transformers (they must be located within the same substation).
 
@@ -102,7 +102,7 @@ When defining the model, the user has to specify how the different pieces of equ
 
 (area)=
 ## Area
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Area.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Area.html)
 
 An Area is a geographical zone of a given type.
 
@@ -151,7 +151,7 @@ which are then separated for AC and DC parts.
 
 (generator)=
 ## Generator
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
 
 A generator is a piece of equipment that injects or consumes active power, and injects or consumes reactive power. It may be used as a controller to hold a voltage or reactive target somewhere in the network, not necessarily directly where it is connected. In that specific case, the voltage or reactive power control is remote.
 
@@ -202,7 +202,7 @@ The optional `EquivalentLocalTargetV` value can be used by simulators that deact
 
 (load)=
 ## Load
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Load.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Load.html)
 
 A load is a passive equipment representing a delivery point that consumes or produces active and reactive power.
 
@@ -256,7 +256,7 @@ In the grid model, loads comprise the following metadata:
 
 (battery)=
 ## Battery
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
 
 A battery on the electric grid is an energy storage device that is either capable of capturing energy from the grid or
 of injecting it into the grid. The electric energy on the grid side is thus transformed into chemical energy on the
@@ -295,9 +295,15 @@ a [reactive capability curve](./additional.md#reactive-capability-curve).
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
+(ground)=
+## Ground
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Ground.html)
+
+A ground is an injection with a single terminal used to represent a connection to the ground (earth) at a node of the network. It is created with the `newGround()` method of a [voltage level](#voltage-level). As an injection, it only carries its connection information (bus or node) and has no specific electrical attribute.
+
 (boundary-line)=
 ## Boundary line
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BoundaryLine.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BoundaryLine.html)
 
 A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a boundary line, which represents the part of that boundary line which is located in it. A boundary line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
 
@@ -308,7 +314,7 @@ A generation part, at boundary side can also be modeled with a constant active p
 
 Resulting flows at the boundary line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
-Boundary lines are key objects for merging networks. Merging will be described soon [here](TODO).
+Boundary lines are key objects for merging networks. Merging is described in [Working with subnetworks](../grid_features/working_with_subnetworks.md#merging-networks).
 
 **Characteristics**
 
@@ -370,7 +376,7 @@ are automatically computed using information from the terminal of the boundary l
 
 (shunt-compensator)=
 ## Shunt compensator
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ShuntCompensator.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ShuntCompensator.html)
 
 A shunt compensator represents a shunt capacitor or reactor or a set of switchable banks of shunt capacitors or reactors in the network. A section of a shunt compensator
 is an individual capacitor or reactor: if its reactive power (Q) is negative, it is a capacitor; if it is positive, it is a reactor.
@@ -446,7 +452,7 @@ $B$ and $G$ attributes can be equal zero, but the disconnected status of the non
 
 (static-var-compensator)=
 ## Static VAR compensator
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/StaticVarCompensator.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/StaticVarCompensator.html)
 
 It may be controlled to hold a voltage or reactive setpoint somewhere in the network (not necessarily directly where it is connected).
 Static VAR compensators follow a passive-sign convention:
@@ -496,7 +502,7 @@ In IIDM the static VAR compensator also comprises some metadata:
 
 (line)=
 ## Line
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Line.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Line.html)
 
 AC transmission lines are modeled using a standard $\pi$ model with distributed parameters. A `Line` is a `Branch`, that models equipment with two terminals (or two sides). For the time being, a branch is an AC equipment.
 
@@ -555,7 +561,7 @@ $$
 
 (tie-line)=
 ## Tie line
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TieLine.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TieLine.html)
 
 A tie line is an AC line sharing power between two neighbouring regional grids.
 It is created by pairing two [boundary lines](#boundary-line) with the same pairing key.
@@ -580,7 +586,7 @@ A tie line is not a connectable. It is just a container of two underlying bounda
 
 (two-winding-transformer)=
 ### Two-winding transformer
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TwoWindingsTransformer.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TwoWindingsTransformer.html)
 
 A two-winding power transformer is connected to two voltage levels (side 1 and side 2) that belong to the same substation.
 Two winding transformers are modeled with the following equivalent $\Pi$ model:
@@ -650,7 +656,7 @@ $$
 
 (three-winding-transformer)=
 ### Three-winding transformer
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ThreeWindingsTransformer.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ThreeWindingsTransformer.html)
 
 A three-winding power transformer is connected to three voltage levels (side 1, side 2 and side 3) that belong to the
 same substation. We usually have:
@@ -741,7 +747,7 @@ Further details on these two modeling approaches are provided in the following s
 
 (hvdc-line)=
 #### HVDC line
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/HvdcLine.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/HvdcLine.html)
 
 An HVDC line is connected to the DC side of two HVDC converter stations, either an [LCC station](#lcc-converter-station) or a [VSC station](#vsc-converter-station).
 
@@ -801,7 +807,7 @@ The positive loss factor `LossFactor` is used to model the losses during the con
 
 (lcc-converter-station)=
 ##### LCC converter station
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
 
 An LCC converter station is made with electronic switches that can only be turned on (thyristors). Below are some characteristics:
 - Use semiconductors which can withstand voltage in either polarity
@@ -823,7 +829,7 @@ An LCC converter station is made with electronic switches that can only be turne
 
 (vsc-converter-station)=
 ##### VSC converter station
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VscConverterStation.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VscConverterStation.html)
 
 A VSC converter station is made with switching devices that can be turned both on and off (transistors). Below are some characteristics:
 - Use semiconductors which can pass current in either direction
@@ -866,7 +872,7 @@ If you’re unsure, feel free to reach out to the PowSyBl community [here](https
 (dc-node)=
 #### DC Node
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcNode.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcNode.html)<br>
 DC nodes are points where DC terminals of DC conducting equipment are connected together with zero impedance.
 
 **Characteristics**
@@ -881,7 +887,7 @@ the solved voltages can be negative - for example, in the case of an LCC monopol
 (dc-line)=
 #### DC Line
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcLine.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcLine.html)<br>
 A DC Line connects two DC Nodes with a series resistance.
 
 A DC Line has two DC Terminals.
@@ -896,7 +902,7 @@ A DC Line has two DC Terminals.
 (dc-switch)=
 #### DC Switch
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcSwitch.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcSwitch.html)<br>
 A DC Switch connects two DC Nodes and can be opened or closed.
 
 **Characteristics**
@@ -910,7 +916,7 @@ A DC Switch connects two DC Nodes and can be opened or closed.
 (dc-ground)=
 #### DC Ground
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcGround.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcGround.html)<br>
 DC Grounds represent grounding electrodes and are modeled as having zero voltage potential with a grounding resistance taken into account.
 
 A DC Ground has a single DC Terminal.
@@ -925,7 +931,7 @@ A DC Ground has a single DC Terminal.
 (acdc-converter)=
 #### AC/DC Converter
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/AcDcConverter.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/AcDcConverter.html)<br>
 
 AC/DC Converter transfers power between AC and DC grids. Its connectivity is modeled with:
 - either one or two AC Terminals,
@@ -1009,7 +1015,7 @@ $V_{DC} \in [V_{min}, V_{max}]$ where $V_{DC}$ is the DC Voltage at converter's 
 (line-commutated-converter)=
 ##### Line Commutated Converter
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LineCommutatedConverter.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LineCommutatedConverter.html)<br>
 
 **Characteristics**
 
@@ -1025,7 +1031,7 @@ hence a PowerFactor of 0.89443.
 (voltage-source-converter)=
 ##### Voltage Source Converter
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageSourceConverter.html)<br>
 
 **Characteristics**
 
@@ -1044,8 +1050,8 @@ hence a PowerFactor of 0.89443.
 
 #### DC Topology Processing
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcTerminal.html) DcTerminal<br>
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcBus.html) DcBus<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcTerminal.html) DcTerminal<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DcBus.html) DcBus<br>
 
 DC equipment connectivity may be modified in two ways:
 - By changing the `connected` attribute of a `DcTerminal` of a DC Line, or a DC Ground, or an AC/DC Converter:
@@ -1090,12 +1096,8 @@ For more details about working with subnetworks, see [Working with subnetworks](
 (busbar-section)=
 ## Busbar section
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BusbarSection.html)<br>
-A busbar section is a non impedant element used in a node/breaker substation topology to connect equipment.
-
-<!---
-<span style="color:red"> TODO</span>
--->
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BusbarSection.html)<br>
+A busbar section is a non impedant element used in a node/breaker substation topology to connect equipment. The voltage magnitude (`V`, in kV) and angle (`Angle`, in degrees) of the bus to which the busbar section belongs are available as attributes, computed by a power flow.
 
 **Available extensions**
 
@@ -1108,13 +1110,16 @@ A busbar section is a non impedant element used in a node/breaker substation top
 (switch)=
 ## Breaker/switch
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Switch.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Switch.html)<br>
 A switch is a device designed to close or open one or more electric circuits. There are several types of switches:
 - breakers are capable of breaking currents under abnormal operating conditions (e.g. short-circuit);
 - load break switches are capable of breaking currents under normal operating conditions;
 - and disconnectors can only make or break negligible current.
 
-A switch has an attribute to say if it is open or closed.
+A switch has the following attributes:
+- the kind of switch (breaker, disconnector or load break switch);
+- a boolean indicating whether it is open or closed;
+- a `retained` boolean, only meaningful in a node/breaker voltage level, indicating whether the switch is kept in the bus/breaker view of the network. Retained switches are the ones that appear in the bus/breaker topology, the others being collapsed into buses.
 
 **Available extensions**
 
@@ -1123,7 +1128,7 @@ A switch has an attribute to say if it is open or closed.
 (internal-connection)=
 ## Internal connection
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.NodeBreakerView.InternalConnection.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.NodeBreakerView.InternalConnection.html)<br>
 An internal connection is a zero-impedance connection between two elements in a voltage level.
 
 Contrary to the switch, the internal connection does not have any attribute to say of it is open or closed.
@@ -1131,7 +1136,7 @@ Contrary to the switch, the internal connection does not have any attribute to s
 (overload-management-system)=
 ## Overload management systems
 
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/OverloadManagementSystem.html)<br>
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/OverloadManagementSystem.html)<br>
 An overload management system is an automation system that monitors current on a terminal, defined by an equipment and an optional side.
 Based on the measured values, various strategies (referred as 'trippings' in the model) can be implemented to reduce the current.
 In a given strategy, if the current exceeds a threshold, a switch can be opened or closed to resolve the violation.

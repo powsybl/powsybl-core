@@ -75,3 +75,9 @@ limit-violation-default-filter:
         - LOW_VOLTAGE
         - HIGH_VOLTAGE
 ```
+
+(param-secu-intermediate-results-in-operator-strategy)=
+### intermediateResultsInOperatorStrategy
+The `intermediateResultsInOperatorStrategy` parameter (configuration key `intermediate-results-in-operator-strategy`) indicates whether the intermediate results computed while simulating an operator strategy are included in the security analysis results, in addition to the final result of the strategy.
+
+The default value is `false`.

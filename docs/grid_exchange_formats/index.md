@@ -13,12 +13,25 @@ or network simulation via different tools: check them out below.
 | [IEEE-CDF](ieee/ieee.md)                    | a IEEE standard format                                                                                       | <span style="color:green">&#x2714;</span> |  <span style="color:red">&#x2718;</span>   |
 | [PSS®E](psse/index.md)                      | the format for power flow analysis on Siemens PSS®E software                                                 | <span style="color:green">&#x2714;</span> | <span style="color:green">&#x2714;</span>  |
 | [PowerFactory](powerfactory/index.md)       | the format for DIgSILENT PowerFactory software                                                               | <span style="color:green">&#x2714;</span> |  <span style="color:red">&#x2718;</span>   |
-| [Matpower](matpower/index.md)               | the format for the free and open-source Matlab toolbox dedicated to power system simulation and optimization | <span style="color:green">&#x2714;</span> |  <span style="color:red">&#x2718;</span>   |
+| [Matpower](matpower/index.md)               | the format for the free and open-source Matlab toolbox dedicated to power system simulation and optimization | <span style="color:green">&#x2714;</span> | <span style="color:green">&#x2714;</span>  |
 | [AMPL](ampl/index.md)                       | a data separated value format easy to parse with AMPL                                                        |  <span style="color:red">&#x2718;</span>  | <span style="color:green">&#x2714;</span>  |
 
 \* Note that updated export is available, that is, export is possible if the file was imported with the same format.
 For instance, if you import a UCTE-DEF file in powsybl, you can update some elements and then export it back to UCTE-DEF
 format, but you cannot export to UCTE-DEF format a file imported from another format.
+
+## Reading and writing a network
+
+A network can be imported from any of the supported formats with `Network.read`; the format is detected automatically from the file extension:
+```java
+Network network = Network.read("/path/to/case.xiidm");
+```
+
+It can then be exported to a given format with `Network.write`, optionally passing format-specific [parameters](../user/configuration/import-export-parameters-default-value.md):
+```java
+Properties exportParameters = new Properties();
+network.write("XIIDM", exportParameters, Path.of("/path/to/output.xiidm"));
+```
 
 ```{toctree}
 ---

@@ -49,3 +49,12 @@ The `angleFlowSensitivityValueThreshold` is the threshold under which sensitivit
 and `BRANCH_CURRENT_1/2/3` will be filtered from the analysis results.
 
 The default value is `0.0`.
+
+(param-sensi-operator-strategies-calculation-mode)=
+### operatorStrategiesCalculationMode
+
+The `operatorStrategiesCalculationMode` defines whether the sensitivities are also computed for the operator strategies. It can take the following values:
+- `NONE` (default): the operator strategies sensitivities are not computed; only the N (base case) and N-K (post-contingency) sensitivities are calculated.
+- `CONTINGENCIES_AND_OPERATOR_STRATEGIES`: the operator strategies sensitivities are computed for all contingencies, in addition to the N and N-K sensitivities.
+
+The default value is `NONE`.

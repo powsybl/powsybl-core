@@ -66,7 +66,7 @@ This option defines the path of the contingency files. If this parameter is not 
 This option defines the path of the configuration for the events to simulate during the simulation. At the moment, only groovy scripts are supported. The [event models DSL](../../simulation/dynamic/index.md#event-models-configuration) depends on the simulator used.
 
 `--external`<br>
-<span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
+Use this flag to run the dynamic security analysis in a separate (external) process instead of the current JVM process. The external execution is delegated to the configured `ComputationManager` and is set up through the [external-security-analysis-config](../configuration/external-security-analysis-config.md) module.
 
 `--import-parameters`<br>
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
@@ -75,7 +75,7 @@ This option defines the path of the importer's configuration file. It's possible
 This option allows filtering certain types of violations. It overrides the default configuration defined in the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md) configuration module. The supported types are the following: `CURRENT`, `LOW_VOLTAGE`, `HIGH_VOLTAGE`, `LOW_SHORT_CIRCUIT_CURRENT`, `HIGH_SHORT_CIRCUIT_CURRENT` and `OTHER`.
 
 `--log-file`<br>
-<span style="color: red">TODO</span>
+This option defines the path of a ZIP archive (`.zip`) where the execution logs of the analysis are written.
 
 `--output-file`<br>
 This option defines the path of the result file. If this option is not set, the results are printed to the console.
@@ -90,16 +90,16 @@ This option defines the path of the [parameters](#parameters) file of the simula
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
-<span style="color: red">TODO</span>
+The available dynamic security analysis implementations are described [here](../../simulation/dynamic_security/index.md#implementations).
 
 ## Contingencies
-<span style="color: red">TODO</span>
+Contingencies are provided through `--contingencies-file`. The file is a Groovy script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax. If this option is not set, the security violations are checked on the base state only.
 
 ## Parameters
-<span style="color: red">TODO</span>
+The available parameters are described [here](../../simulation/dynamic_security/configuration.md#parameters). They can be provided through the `--parameters-file` option as a JSON file; if it is not set, the analysis is run with the default parameters.
 
 ## Results
-<span style="color: red">TODO</span>
+The expected results are described in the [dynamic security analysis documentation](../../simulation/dynamic_security/index.md#outputs).
 
 ### with-extensions
 Use the `--with-extensions` parameter to activate a list of `com.powsybl.security.interceptors.SecurityAnalysisInterceptor`

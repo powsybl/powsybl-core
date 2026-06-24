@@ -282,8 +282,9 @@ rule('example3') {
 <span style="color: red">TODO</span>
 
 ## Configuration
-<span style="color: red">TODO</span>
+The action simulator is configured through the [load-flow-action-simulator](../../user/configuration/load-flow-action-simulator.md) configuration module.
 
 ## Going further
-<span style="color: red">TODO</span>
+- [iTools action-simulator](../../user/itools/action-simulator.md): run a security analysis with remedial actions from the command line
+- [Security analysis](index.md)
 

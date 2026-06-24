@@ -19,7 +19,12 @@ The `psse.import.ignore-node-breaker-topology` property is an optional property 
 
 (psse-inconsistency-checks)=
 ## Inconsistency checks
--<span style="color: red">TODO</span>
+Before the conversion, the parsed PSS®E model is validated to detect inconsistencies. The validation collects warnings and errors by checking, among others:
+- the case identification: the base power `Sbase` and the base frequency `Basfrq` must be strictly positive;
+- the buses: no duplicated bus number, bus numbers within the allowed range, and non-negative base voltage;
+- the loads, fixed shunts, generators, branches, transformers, DC lines, FACTS devices and switched shunts, in particular that they reference existing buses.
+
+Warnings are logged and the corresponding records are generally ignored, while errors mark the case as invalid.
 
 ## Conversion
 

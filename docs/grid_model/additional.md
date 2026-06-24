@@ -3,7 +3,7 @@
 Network elements can be described in an advanced way with reactive limits, loading limits, phase and ratio tap changers.
 
 ## Reactive limits
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ReactiveLimits.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ReactiveLimits.html)
 
 The reactive limits may be used to model limitations of the reactive power of
 [generators](./network_subnetwork.md#generator), [VSC converter stations](./network_subnetwork.md#vsc-converter-station) and [batteries](./network_subnetwork.md#battery).
@@ -66,7 +66,7 @@ generator.newReactiveCapabilityCurve()
 
 (loading-limits)=
 ## Loading Limits
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LoadingLimits.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LoadingLimits.html)
 
 Some equipment has operational limits regarding the current, active power or apparent power value, corresponding to the equipment's physical limitations (related to heating).
 
@@ -254,7 +254,7 @@ If you wish to have an acceptable duration of 0 instead, create a temporary limi
 
 (phase-tap-changer)=
 ## Phase tap changer
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
 
 A phase tap changer can be added to either [two-winding transformers](./network_subnetwork.md#two-winding-transformer) or [three-winding transformers' legs](./network_subnetwork.md#three-winding-transformer-leg).
 
@@ -327,7 +327,7 @@ twoWindingsTransformer.newPhaseTapChanger()
 
 (ratio-tap-changer)=
 ## Ratio tap changer
-[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/RatioTapChanger.html)
+[Javadoc](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/RatioTapChanger.html)
 
 A ratio tap changer can be added to either [two-winding transformers](./network_subnetwork.md#two-winding-transformer) or [three-winding transformers' legs](./network_subnetwork.md#three-winding-transformer-leg).
 

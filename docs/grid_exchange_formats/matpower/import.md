@@ -24,6 +24,13 @@ savecase("case6515rte.mat", mpc);
 ```
 Note that the `loadcase` and `savecase` are functions provided by the Matpower toolbox.
 
+## Options
+These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+
+| Property | Type | Default value | Description |
+|----------|---------|---------------|-------------|
+| `matpower.import.ignore-base-voltage` | boolean | `false` | Ignore the base voltage specified in the file |
+
 ## Importing with PowSyBl
 
 This section assumes that you have a `.mat` file. If you have a `.m` file, please follow the [Matpower cases conversions](#matpower-cases-conversions) section above.
