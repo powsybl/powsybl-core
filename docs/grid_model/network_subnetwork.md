@@ -41,6 +41,7 @@ The `SourceFormat` attribute is a required attribute that indicates the origin o
 
 **Available extensions**
 - [Line Couplings](extensions.md#line-couplings)
+- [Secondary Voltage Control](extensions.md#secondary-voltage-control)
 
 (substation)=
 ## Substation

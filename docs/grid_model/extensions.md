@@ -713,6 +713,33 @@ SlackTerminal.attach(bus);
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 
+(secondary-voltage-control-extension)=
+## Secondary voltage control
+
+This extension models the secondary voltage control of a network. It is attached to the whole [network](network_subnetwork.md) and holds a list of control zones. Each control zone is made of:
+- a name;
+- a pilot point, defined by a list of busbar section or bus IDs whose voltage is monitored and a target voltage (in kV);
+- a list of control units, each referencing a controlling equipment (by ID) and a flag indicating whether it participates in the control.
+
+Here is how to add a secondary voltage control extension to a network:
+```java
+network.newExtension(SecondaryVoltageControlAdder.class)
+    .newControlZone()
+        .withName("zone1")
+        .newPilotPoint()
+            .withTargetV(400.0)
+            .withBusbarSectionsOrBusesIds(List.of("busbarSectionId"))
+            .add()
+        .newControlUnit()
+            .withId("generatorId")
+            .withParticipate(true)
+            .add()
+        .add()
+    .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
 (substation-position-extension)=
 ## Substation Position
 
