@@ -156,7 +156,18 @@ The DiscreteMeasurement class characteristics are the following:
 (entsoe-area-extension)=
 ## ENTSO-E area
 
-<span style="color: red">TODO</span>
+This extension stores the ENTSO-E geographical code of a [substation](network_subnetwork.md#substation), used by the UCTE and ENTSO-E data exchange formats. The code identifies the area the substation belongs to (for example `FR`, `BE`, or `D1`, `D2`... for the German areas) and is associated with a country.
+
+| Attribute | Type                   | Unit | Required | Default value | Description                                            |
+|-----------|------------------------|------|----------|---------------|--------------------------------------------------------|
+| code      | EntsoeGeographicalCode | -    | yes      | -             | The ENTSO-E geographical code of the substation's area |
+
+Here is how to add an ENTSO-E area extension to a substation:
+```java
+substation.newExtension(EntsoeAreaAdder.class)
+    .withCode(EntsoeGeographicalCode.FR)
+    .add();
+```
 
 (hvdc-angle-droop-active-power-control-extension)=
 ## HVDC angle droop active power control
