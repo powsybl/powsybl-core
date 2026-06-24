@@ -494,6 +494,7 @@ In IIDM the static VAR compensator also comprises some metadata:
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
+- [StandByAutomaton](extensions.md#standby-automaton)
 - [VoltagePerReactivePowerControl](extensions.md#voltage-per-reactive-power-control)
 
 (line)=

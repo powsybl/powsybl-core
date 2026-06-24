@@ -740,6 +740,34 @@ network.newExtension(SecondaryVoltageControlAdder.class)
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(standby-automaton-extension)=
+## Standby automaton
+
+This extension is attached to a [static VAR compensator](network_subnetwork.md#static-var-compensator) to model a standby automaton. When the static VAR compensator is in standby mode, it behaves as a fixed shunt of susceptance `b0`. The high and low voltage setpoints and thresholds are used by the automaton to adjust the voltage regulation when the monitored voltage leaves the `[lowVoltageThreshold, highVoltageThreshold]` range.
+
+| Attribute            | Type    | Unit | Required | Default value | Description                                                |
+|----------------------|---------|------|----------|---------------|------------------------------------------------------------|
+| standby              | boolean | -    | yes      | -             | Whether the static VAR compensator is in standby mode      |
+| b0                   | double  | S    | yes      | -             | The susceptance applied when in standby mode               |
+| highVoltageSetpoint  | double  | kV   | yes      | -             | The voltage setpoint used above the high voltage threshold |
+| highVoltageThreshold | double  | kV   | yes      | -             | The high voltage threshold                                 |
+| lowVoltageSetpoint   | double  | kV   | yes      | -             | The voltage setpoint used below the low voltage threshold  |
+| lowVoltageThreshold  | double  | kV   | yes      | -             | The low voltage threshold                                  |
+
+Here is how to add a standby automaton extension to a static VAR compensator:
+```java
+svc.newExtension(StandbyAutomatonAdder.class)
+    .withStandbyStatus(true)
+    .withB0(0.0001)
+    .withHighVoltageSetpoint(400.0)
+    .withHighVoltageThreshold(420.0)
+    .withLowVoltageSetpoint(380.0)
+    .withLowVoltageThreshold(360.0)
+    .add();
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
+
 (substation-position-extension)=
 ## Substation Position
 
