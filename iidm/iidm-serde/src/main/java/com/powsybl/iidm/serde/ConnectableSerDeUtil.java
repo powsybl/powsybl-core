@@ -288,17 +288,42 @@ public final class ConnectableSerDeUtil {
         });
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             DetectionKind kind = DetectionKind.valueOf(reader.readStringAttribute(DETECTION_KIND));
-            if (kind == DetectionKind.HIGH) {
-                String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
-                adder.setPermanentLimitName(permanentLimitName);
-                double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
-                if (Double.isNaN(permanentLimit) && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
-                    throw new PowsyblException("permanentLimit is absent in '" + type + "'");
-                }
-                adder.setPermanentLimit(permanentLimit);
+            //no need to handle null case, valueOf would throw if the kind is unknown
+            switch (kind) {
+                case HIGH -> readHighLimit(type, adder, reader, minimalValidationLevel);
+                case LOW -> checkNoPermanentLimitWithLowLimit(reader);
             }
             adder.setDetectionKind(kind);
         });
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readHighLimit(String type, A adder, TreeDataReader reader, ValidationLevel minimalValidationLevel) {
+        String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME, LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME);
+        adder.setPermanentLimitName(permanentLimitName);
+        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
+        if (Double.isNaN(permanentLimit) && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
+            throw new PowsyblException("permanentLimit is absent in '" + type + "'");
+        }
+        adder.setPermanentLimit(permanentLimit);
+    }
+
+    private static void checkNoPermanentLimitWithLowLimit(TreeDataReader reader) {
+        String permanentLimitName = reader.readStringAttribute(PERMANENT_LIMIT_NAME);
+        if (permanentLimitName != null) {
+            throw new PowsyblException(
+                String.format(
+                    "The permanent limit name '%s' is specified, but the detection kind is LOW. There is no permanent limit for such a kind",
+                    permanentLimitName
+                ));
+        }
+        double permanentLimit = reader.readDoubleAttribute(PERMANENT_LIMIT_VALUE);
+        if (!Double.isNaN(permanentLimit)) {
+            throw new PowsyblException(
+                String.format(
+                    "A permanent limit of value '%.2f' is specified, but the detection kind is LOW. There is no permanent limit for such a kind",
+                    permanentLimit
+                ));
+        }
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLimit(String type, A adder,
