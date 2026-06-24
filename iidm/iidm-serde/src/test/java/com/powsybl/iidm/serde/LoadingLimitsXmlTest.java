@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.ZonedDateTime;
 import java.util.function.Supplier;
 
@@ -278,6 +279,32 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
             .endTemporaryLimit()
             .add();
         allFormatsRoundTripFromMinVersionTest(network, "eurostag-low-limits.xml", IidmVersion.V_1_18);
+    }
+
+    @Test
+    void checkInvalidLowLimitWithPermanentName() {
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream networkStream = getVersionedNetworkAsStream("invalidLowLimitWithPermanentLimitName.xml", version);
+            Exception e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(networkStream));
+            assertEquals("The permanent limit name 'invalidPermanent' is specified, but the detection kind is LOW. There is no permanent limit for such a kind", e.getMessage());
+        });
+    }
+
+    @Test
+    void checkInvalidLowLimitWithPermanentValue() {
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream networkStream = getVersionedNetworkAsStream("invalidLowLimitWithPermanentLimitValue.xml", version);
+            Exception e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(networkStream));
+            assertEquals("A permanent limit of value '557.34' is specified, but the detection kind is LOW. There is no permanent limit for such a kind", e.getMessage());
+        });
+    }
+
+    @Test
+    void checkInvalidLimitKind() {
+        testForAllVersionsSince(IidmVersion.V_1_18, version -> {
+            InputStream networkStream = getVersionedNetworkAsStream("invalidLimitKind.xml", version);
+            assertThrows(IllegalArgumentException.class, () -> NetworkSerDe.read(networkStream));
+        });
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier, String permanentLimitName) {
