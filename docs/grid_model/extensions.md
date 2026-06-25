@@ -169,6 +169,15 @@ The DiscreteMeasurement class characteristics are the following:
 | value      | Object                         | -    | no       | -             | The discrete measurement value                                                                                   |
 | valid      | boolean                        | -    | no       | -             | The validity status (if true, the discrete measured value cannot be null)                                        |
 
+
+(dynamic-model-info-extension)=
+## Dynamic Model Info
+This extension is attached to an Identifiable. It is used to store the dynamic model used during a dynamic simulation.
+
+| Attribute           | Type              | Unit | Required | Default value | Description                               |
+|---------------------|-------------------|------|----------|---------------|-------------------------------------------|
+| modelNamePerVariant | ArrayList<String> | -    | no       | -             | A list of models used per network variant |
+
 (entsoe-area-extension)=
 ## ENTSO-E area
 
