@@ -680,8 +680,8 @@ three-winding transformers, HVDC line and a boundary line. The status could be:
 - `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
 - `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
 
-(reference-priority-extension)=
-## Reference Priority
+(reference-priorities-extension)=
+## Reference Priorities
 
 This extension is attached to a [generator](network_subnetwork.md#generator), or a [busbar section](network_subnetwork.md#busbar-section) or a [load](network_subnetwork.md#load) and is used to define the angle reference bus of
 a power flow calculation, i.e. which bus will be used with a zero-voltage angle.

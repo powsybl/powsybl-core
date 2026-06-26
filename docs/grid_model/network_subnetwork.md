@@ -214,7 +214,7 @@ The optional `EquivalentLocalTargetV` value can be used by simulators that deact
 - [Generator Startup](extensions.md#generator-startup)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
-- [Reference Priority](extensions.md#reference-priority)
+- [Reference Priorities](extensions.md#reference-priorities)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
 - [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
@@ -272,7 +272,7 @@ In the grid model, loads comprise the following metadata:
 - [Load Asymmetrical](extensions.md#load-asymmetrical)
 - [Load Detail](extensions.md#load-detail)
 - [Measurements](extensions.md#measurements)
-- [Reference Priority](extensions.md#reference-priority)
+- [Reference Priorities](extensions.md#reference-priorities)
 
 (battery)=
 ## Battery
@@ -1177,7 +1177,7 @@ A busbar section is a non impedant element used in a node/breaker substation top
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 - [Operating Status](extensions.md#operating-status)
-- [Reference Priority](extensions.md#reference-priority)
+- [Reference Priorities](extensions.md#reference-priorities)
 
 (switch)=
 ## Breaker/switch
