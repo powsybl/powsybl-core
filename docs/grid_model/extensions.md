@@ -683,7 +683,7 @@ three-winding transformers, HVDC line and a boundary line. The status could be:
 (reference-priority-extension)=
 ## Reference Priority
 
-This extension is attached to a [generator](network_subnetwork.md#generator), or a [busbar section](network_subnetwork.html#busbar-section) or a [load](network_subnetwork.html#load) and is used to define the angle reference bus of
+This extension is attached to a [generator](network_subnetwork.md#generator), or a [busbar section](network_subnetwork.md#busbar-section) or a [load](network_subnetwork.md#load) and is used to define the angle reference bus of
 a power flow calculation, i.e. which bus will be used with a zero-voltage angle.
 Use this extension before a computation to force the reference bus selection.
 The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
