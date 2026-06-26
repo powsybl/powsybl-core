@@ -14,7 +14,7 @@ Every extension is considered as serializable unless explicitly specified as non
 (active-power-control-extension)=
 ## Active power control
 
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#balanceType) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#balancetype) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
 |----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
@@ -88,10 +88,10 @@ Note that a busbar is a set of busbar sections. Hence, the sections of the same 
 
 | Attribute             | Type | Unit | Required | Default value | Description                                                          |
 |-----------------------|------|------|----------|---------------|----------------------------------------------------------------------|
-| busbarIndex           | int  | -    | yes      | -1            | The position of the bus bar section relatively to others             |
-| sectionIndex          | int  | -    | yes      | -1            | The position of the bus bar section within the corresponding busbar  |
+| busbarIndex           | int  | -    | yes      | -             | The position of the bus bar section relatively to others             |
+| sectionIndex          | int  | -    | yes      | -             | The position of the bus bar section within the corresponding busbar  |
 
-Example of code to get the position and section position data for a bus bar section :
+Example of code to set the position and section position data for a bus bar section :
 ```java
 busBarSection.newExtension(BusbarSectionPositionAdder.class)
     .withBusbarIndex(2)
@@ -174,16 +174,20 @@ The DiscreteMeasurement class characteristics are the following:
 ## Dynamic Model Info
 This extension is attached to an Identifiable. It is used to store the dynamic model used during a dynamic simulation.
 
-| Attribute           | Type              | Unit | Required | Default value | Description                               |
-|---------------------|-------------------|------|----------|---------------|-------------------------------------------|
-| modelNamePerVariant | ArrayList<String> | -    | no       | -             | A list of models used per network variant |
+| Attribute | Type              | Unit | Required | Default value | Description                                         |
+|-----------|-------------------|------|----------|---------------|-----------------------------------------------------|
+| modelName | ArrayList<String> | -    | no       | -             | The dynamic model used during a dynamic simulation  |
+
+This attribute is multi-variant: it can vary from one variant to another.
 
 (entsoe-area-extension)=
 ## ENTSO-E area
 
 This extension is attached to a [substation](network_subnetwork.md#substation) and is used to store its ENTSO-E geographical code.
 
-It is used by the UCTE and ENTSO-E data exchange formats. The code identifies the area the substation belongs to (for example `FR`, `BE`, or `D1`, `D2`... for the German areas) and is associated with a country.
+The code identifies the area the substation belongs to (for example `FR`, `BE`, or `D1`, `D2`... for the German areas) and is associated with a country.
+
+When importing a UCTE file, this extension is created for the substations.
 
 | Attribute | Type                    | Unit  | Required | Default value | Description                                            |
 |-----------|-------------------------|-------|----------|---------------|--------------------------------------------------------|
