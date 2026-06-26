@@ -42,6 +42,7 @@ The `SourceFormat` attribute is a required attribute that indicates the origin o
 **Available extensions**
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Line Couplings](extensions.md#line-couplings)
+- [Reference Terminals](extensions.md#reference-terminals)
 - [Secondary Voltage Control](extensions.md#secondary-voltage-control)
 
 
@@ -106,6 +107,7 @@ When defining the model, the user has to specify how the different pieces of equ
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
+- [Observability Area](extensions.md#observability-area)
 - [Slack Terminal](extensions.md#slack-terminal)
 
 
@@ -202,14 +204,17 @@ The optional `EquivalentLocalTargetV` value can be used by simulators that deact
 **Available extensions**
 
 - [Active Power Control](extensions.md#active-power-control)
+- [Connectable Position](extensions.md#connectable-position)
 - [Coordinated Reactive Control](extensions.md#coordinated-reactive-control)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Generator ENTSO-E Category](extensions.md#generator-entso-e-category)
+- [Generator Fortescue](extensions.md#generator-fortescue)
 - [Generator Short-Circuit](extensions.md#generator-short-circuit)
 - [Generator Startup](extensions.md#generator-startup)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
+- [Reference Priority](extensions.md#reference-priority)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
 - [Manual Frequency Restoration Reserve](extensions.md#manual-frequency-restoration-reserve)
 
@@ -267,6 +272,7 @@ In the grid model, loads comprise the following metadata:
 - [Load Asymmetrical](extensions.md#load-asymmetrical)
 - [Load Detail](extensions.md#load-detail)
 - [Measurements](extensions.md#measurements)
+- [Reference Priority](extensions.md#reference-priority)
 
 (battery)=
 ## Battery
@@ -303,6 +309,7 @@ a [reactive capability curve](./additional.md#reactive-capability-curve).
 **Available extensions**
 
 - [Active Power Control](extensions.md#active-power-control)
+- [Battery Short-Circuit](extensions.md#battery-short-circuit)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
@@ -383,6 +390,7 @@ are automatically computed using information from the terminal of the boundary l
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
+- [Operating Status](extensions.md#operating-status)
 
 (shunt-compensator)=
 ## Shunt compensator
@@ -571,6 +579,8 @@ $$
 - [CGMES Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-line-boundary-node)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
+- [Line Fortescue](extensions.md#line-fortescue)
+- [Line Position](extensions.md#line-position)
 - [Measurements](extensions.md#measurements)
 
 (tie-line)=
@@ -597,7 +607,9 @@ $G2$ (resp. $B2$) is equal to the second boundary line's $G2$ (resp. $B2$).
 A tie line is not a connectable. It is just a container of two underlying boundary lines with the same pairing key. When connected together, each boundary line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free boundary lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
 
 **Available extensions**
+- [Branch Observability](extensions.md#branch-observability)
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
+- [Operating Status](extensions.md#operating-status)
 
 ## Transformers
 
@@ -669,8 +681,9 @@ $$
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
-- [Two-windings Transformer Phase Angle Clock](extensions.md#two-winding-transformer-phase-angle-clock)
-- [Two-windings Transformer To Be Estimated](extensions.md#two-winding-transformer-to-be-estimated)
+- [Two-winding Transformer Fortescue](extensions.md#two-winding-transformer-fortescue)
+- [Two-winding Transformer Phase Angle Clock](extensions.md#two-winding-transformer-phase-angle-clock)
+- [Two-winding Transformer To Be Estimated](extensions.md#two-winding-transformer-to-be-estimated)
 
 (three-winding-transformer)=
 ### Three-winding transformer
@@ -707,8 +720,9 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
-- [Three-windings Transformer Phase Angle Clock](extensions.md#three-winding-transformer-phase-angle-clock)
-- [Three-windings Transformer To Be Estimated](extensions.md#three-winding-transformer-to-be-estimated)
+- [Three-winding Transformer Fortescue](extensions.md#three-winding-transformer-fortescue)
+- [Three-winding Transformer Phase Angle Clock](extensions.md#three-winding-transformer-phase-angle-clock)
+- [Three-winding Transformer To Be Estimated](extensions.md#three-winding-transformer-to-be-estimated)
 
 #### Three-winding transformer leg
 
@@ -793,6 +807,7 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 - [Dynamic Model Info](extensions.md#dynamic-model-info)
 - [HVDC Angle Droop Active Power Control](extensions.md#hvdc-angle-droop-active-power-control)
 - [HVDC Operator Active Power Range](extensions.md#hvdc-operator-active-power-range)
+- [Operating Status](extensions.md#operating-status)
 
 (hvdc-converter-station)=
 #### HVDC converter station
@@ -1161,6 +1176,8 @@ A busbar section is a non impedant element used in a node/breaker substation top
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
+- [Operating Status](extensions.md#operating-status)
+- [Reference Priority](extensions.md#reference-priority)
 
 (switch)=
 ## Breaker/switch
