@@ -144,8 +144,9 @@ class LocalCommandExecutorSecurityTest {
         assertFalse(Files.exists(pwndFileEnvVariable), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVariable));
     }
 
+    // The following test can be executed on every OS.
+    // It asserts that no system command is run when invalid environment variable names are detected.
     @Test
-    @EnabledOnOs(OS.WINDOWS)
     void testCommandInjectionViaEnvVarNameOnWindows() {
         // 7. Injection via environment variable name: names cannot be safely escaped,
         //    so the executor must reject invalid names outright.
@@ -165,8 +166,9 @@ class LocalCommandExecutorSecurityTest {
         assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
     }
 
+    // The following test can be executed on every OS.
+    // It asserts that no system command is run when an invalid program name is detected.
     @Test
-    @EnabledOnOs(OS.WINDOWS)
     void testCommandInjectionViaProgramNameOnWindows() {
         // 8. Injection via program name containing a double quote.
         //    The executor must reject program names with quotes rather than pass them raw.
@@ -191,5 +193,15 @@ class LocalCommandExecutorSecurityTest {
         );
         assertEquals("Program name must not contain spaces", exception2.getMessage());
         assertFalse(Files.exists(pwndFileEnvVarName), String.format("[!] Command injection confirmed: %s created", pwndFileEnvVarName));
+    }
+
+    @Test
+    void testEscapeCmdArgOnWindows() {
+        assertEquals("abc\\\\\\\\", WindowsLocalCommandExecutor.escapeCmdArg("abc\\\\"));
+        assertEquals("a^^b", WindowsLocalCommandExecutor.escapeCmdArg("a^b"));
+        assertEquals("a^%", WindowsLocalCommandExecutor.escapeCmdArg("a%"));
+        assertEquals("^!ab", WindowsLocalCommandExecutor.escapeCmdArg("!ab"));
+        assertEquals("a\"\"b", WindowsLocalCommandExecutor.escapeCmdArg("a\"b"));
+        assertEquals("ab", WindowsLocalCommandExecutor.escapeCmdArg("a\n\rb"));
     }
 }

@@ -101,7 +101,7 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
             .replace("\r", "");
     }
 
-    private static String escapeCmdArg(String arg) {
+    protected static String escapeCmdArg(String arg) {
         // Double any trailing backslashes before the closing quote
         int trailingBackslashes = 0;
         for (int i = arg.length() - 1; i >= 0 && arg.charAt(i) == '\\'; i--) {
