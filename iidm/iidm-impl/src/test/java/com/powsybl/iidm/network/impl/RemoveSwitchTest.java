@@ -27,7 +27,7 @@ class RemoveSwitchTest {
             assertTrue(node1 >= 0);
             assertTrue(node2 >= 0);
             return true;
-        } catch (PowsyblException x) {
+        } catch (PowsyblException ignored) {
             return false;
         }
     }
@@ -39,7 +39,7 @@ class RemoveSwitchTest {
             assertNotNull(bus1);
             assertNotNull(bus2);
             return true;
-        } catch (PowsyblException x) {
+        } catch (PowsyblException ignored) {
             return false;
         }
     }

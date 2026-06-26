@@ -8,10 +8,6 @@
 package com.powsybl.ieeecdf.model.elements;
 
 /**
- * <p>
- * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
- * </p>
- *
  * <pre>
  * Columns  1- 4   Bus number (I) *
  * Columns  7-17   Name (A) (left justify) *
@@ -37,6 +33,7 @@ package com.powsybl.ieeecdf.model.elements;
  * Columns 124-127 Remote controlled bus number
  * </pre>
  *
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfBus extends AbstractIeeeElement {

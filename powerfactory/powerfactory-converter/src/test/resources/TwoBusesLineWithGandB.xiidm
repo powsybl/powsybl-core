@@ -4,7 +4,7 @@
         <iidm:voltageLevel id="VL3" nominalV="220.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="VL3_Busbar-A" node="0"/>
-                <iidm:switch id="VL3_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL3_Switch" kind="BREAKER" open="false" node1="0" node2="1"/>
             </iidm:nodeBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -12,7 +12,7 @@
         <iidm:voltageLevel id="VL4" nominalV="220.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="VL4_Busbar-B" node="0"/>
-                <iidm:switch id="VL4_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL4_Switch" kind="BREAKER" open="false" node1="0" node2="1"/>
             </iidm:nodeBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>

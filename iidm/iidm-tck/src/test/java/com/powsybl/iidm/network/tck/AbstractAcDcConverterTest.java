@@ -498,11 +498,23 @@ public abstract class AbstractAcDcConverterTest {
         PowsyblException e6 = assertThrows(PowsyblException.class, acDcConverterA::getResistiveLoss);
         assertEquals("Cannot access resistiveLoss of removed equipment converterA", e6.getMessage());
 
-        PowsyblException e7 = assertThrows(PowsyblException.class, t1::isConnected);
-        assertEquals("Cannot access removed equipment converterA", e7.getMessage());
+        PowsyblException e7 = assertThrows(PowsyblException.class, () -> acDcConverterA.setMinP(2.));
+        assertEquals("Cannot modify minP of removed equipment converterA", e7.getMessage());
 
-        PowsyblException e8 = assertThrows(PowsyblException.class, () -> t2.setConnected(false));
-        assertEquals("Cannot modify removed equipment converterA", e8.getMessage());
+        PowsyblException e8 = assertThrows(PowsyblException.class, acDcConverterA::getMinP);
+        assertEquals("Cannot access minP of removed equipment converterA", e8.getMessage());
+
+        PowsyblException e9 = assertThrows(PowsyblException.class, () -> acDcConverterA.setMaxP(2.));
+        assertEquals("Cannot modify maxP of removed equipment converterA", e9.getMessage());
+
+        PowsyblException e10 = assertThrows(PowsyblException.class, acDcConverterA::getMaxP);
+        assertEquals("Cannot access maxP of removed equipment converterA", e10.getMessage());
+
+        PowsyblException e11 = assertThrows(PowsyblException.class, t1::isConnected);
+        assertEquals("Cannot access removed equipment converterA", e11.getMessage());
+
+        PowsyblException e12 = assertThrows(PowsyblException.class, () -> t2.setConnected(false));
+        assertEquals("Cannot modify removed equipment converterA", e12.getMessage());
     }
 
     @Test
@@ -679,17 +691,20 @@ public abstract class AbstractAcDcConverterTest {
 
         // test cannot create Converter across subnetwork1 & subnetwork2
         PowsyblException e1 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Subnet2' are in different networks 'subnetwork1' and 'subnetwork2'", e1.getMessage());
+        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Subnet2' are in different networks 'subnetwork1' and 'subnetwork2'",
+            e1.getMessage());
 
         // test cannot create Converter in subnetwork1 referencing nodes of subnetwork2
         adder.setDcNode1(dcNode1Subnet2.getId()).setDcNode2(dcNode2Subnet2.getId());
         PowsyblException e2 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet2' and 'dcNode2Subnet2' are in network 'subnetwork2' but DC Equipment is in 'subnetwork1'", e2.getMessage());
+        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet2' and 'dcNode2Subnet2' are in network 'subnetwork2' but DC Equipment is in 'subnetwork1'",
+            e2.getMessage());
 
         // test cannot create Converter in subnetwork1 referencing nodes of netWithSubnet
         adder.setDcNode1(dcNode1Subnet1.getId()).setDcNode2(dcNode1Root.getId());
         PowsyblException e3 = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Root' are in different networks 'subnetwork1' and 'test'", e3.getMessage());
+        assertEquals("AC/DC Voltage Source Converter 'converterAcrossSubnets': DC Nodes 'dcNode1Subnet1' and 'dcNode1Root' are in different networks 'subnetwork1' and 'test'",
+            e3.getMessage());
     }
 
     @Test
@@ -847,6 +862,191 @@ public abstract class AbstractAcDcConverterTest {
         // remove the line, check PCC Terminal automatically fixed to be the converter terminal 1
         lineax.remove();
         assertSame(acDcConverterA.getTerminal1(), acDcConverterA.getPccTerminal());
+    }
+
+    // ---- minP / maxP test infrastructure ----
+
+    private static final String LCC_TYPE_LABEL = "AC/DC Line Commutated Converter";
+    private static final String VSC_TYPE_LABEL = "AC/DC Voltage Source Converter";
+    private static final String LCC_MIN_MAX_TEST_ID = "lccMinMaxTest";
+    private static final String VSC_MIN_MAX_TEST_ID = "vscMinMaxTest";
+    private static final String LCC_MIN_MAX_TEST_PREFIX = LCC_TYPE_LABEL + " '" + LCC_MIN_MAX_TEST_ID + "'";
+    private static final String VSC_MIN_MAX_TEST_PREFIX = VSC_TYPE_LABEL + " '" + VSC_MIN_MAX_TEST_ID + "'";
+
+    @FunctionalInterface
+    private interface ConverterFactory {
+        AcDcConverter<?> create(double minP, double maxP);
+    }
+
+    private ConverterFactory lccFactory() {
+        return (minP, maxP) -> createLccAdder(vla)
+                .setId(LCC_MIN_MAX_TEST_ID)
+                .setBus1(b1a.getId()).setConnectableBus1(b1a.getId())
+                .setBus2(b2a.getId()).setConnectableBus2(b2a.getId())
+                .setDcNode1(dcNode1a.getId()).setDcNode2(dcNode2a.getId())
+                .setDcConnected1(true).setDcConnected2(true)
+                .setMinP(minP).setMaxP(maxP)
+                .add();
+    }
+
+    private ConverterFactory vscFactory() {
+        return (minP, maxP) -> createVscAdder(vlb)
+                .setId(VSC_MIN_MAX_TEST_ID)
+                .setBus1(b1b.getId()).setConnectableBus1(b1b.getId())
+                .setBus2(b2b.getId()).setConnectableBus2(b2b.getId())
+                .setDcNode1(dcNode1b.getId()).setDcNode2(dcNode2b.getId())
+                .setDcConnected1(true).setDcConnected2(true)
+                .setVoltageRegulatorOn(false).setReactivePowerSetpoint(0.0)
+                .setMinP(minP).setMaxP(maxP)
+                .add();
+    }
+
+    private void checkMinMaxPDefaults(AcDcConverter<?> converter) {
+        assertEquals(-Double.MAX_VALUE, converter.getMinP());
+        assertEquals(Double.MAX_VALUE, converter.getMaxP());
+    }
+
+    private void checkMinMaxPSetter(AcDcConverter<?> converter) {
+        converter.setMinP(-500.0);
+        assertEquals(-500.0, converter.getMinP());
+        converter.setMaxP(1000.0);
+        assertEquals(1000.0, converter.getMaxP());
+    }
+
+    private void checkMinMaxPAdder(ConverterFactory factory) {
+        AcDcConverter<?> converter = factory.create(-200.0, 800.0);
+        assertEquals(-200.0, converter.getMinP());
+        assertEquals(800.0, converter.getMaxP());
+    }
+
+    private static String converterLabel(AcDcConverter<?> converter) {
+        String typeLabel = switch (converter.getType()) {
+            case LINE_COMMUTATED_CONVERTER -> LCC_TYPE_LABEL;
+            case VOLTAGE_SOURCE_CONVERTER -> VSC_TYPE_LABEL;
+            default -> throw new IllegalStateException("Unknown type: " + converter.getType());
+        };
+        return typeLabel + " '" + converter.getId() + "'";
+    }
+
+    private void checkMinMaxPSetterRejectsNaN(AcDcConverter<?> converter) {
+        String prefix = converterLabel(converter);
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> converter.setMinP(Double.NaN));
+        assertEquals(prefix + ": invalid value (NaN) for minimum P", e1.getMessage());
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> converter.setMaxP(Double.NaN));
+        assertEquals(prefix + ": invalid value (NaN) for maximum P", e2.getMessage());
+    }
+
+    private void checkMinMaxPAdderRejectsNaN(ConverterFactory factory, String expectedPrefix) {
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> factory.create(Double.NaN, 1000.0));
+        assertEquals(expectedPrefix + ": invalid value (NaN) for minimum P", e1.getMessage());
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> factory.create(-500.0, Double.NaN));
+        assertEquals(expectedPrefix + ": invalid value (NaN) for maximum P", e2.getMessage());
+    }
+
+    private void checkMinMaxPSetterRejectsInconsistentLimits(AcDcConverter<?> converter) {
+        String prefix = converterLabel(converter);
+        converter.setMinP(-500.0);
+        converter.setMaxP(1000.0);
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> converter.setMinP(2000.0));
+        assertEquals(prefix + ": invalid active limits [2000.0, 1000.0]", e1.getMessage());
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> converter.setMaxP(-1000.0));
+        assertEquals(prefix + ": invalid active limits [-500.0, -1000.0]", e2.getMessage());
+    }
+
+    private void checkMinMaxPAdderRejectsInconsistentLimits(ConverterFactory factory, String expectedPrefix) {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> factory.create(2000.0, 1000.0));
+        assertEquals(expectedPrefix + ": invalid active limits [2000.0, 1000.0]", e.getMessage());
+    }
+
+    private void checkMinMaxPNotifyUpdate(AcDcConverter<?> converter) {
+        converter.setMinP(-500.0);
+        converter.setMaxP(1000.0);
+
+        var minPListener = new NetworkListener() {
+            boolean updated = false;
+
+            @Override
+            public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+                if ("minP".equals(attribute) && identifiable.getId().equals(converter.getId())) {
+                    assertNull(variantId);
+                    assertEquals(-500.0, (double) oldValue, 0.0);
+                    assertEquals(-100.0, (double) newValue, 0.0);
+                    updated = true;
+                }
+            }
+        };
+        network.addListener(minPListener);
+        converter.setMinP(-100.0);
+        assertTrue(minPListener.updated);
+        network.removeListener(minPListener);
+
+        var maxPListener = new NetworkListener() {
+            boolean updated = false;
+
+            @Override
+            public void onUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+                if ("maxP".equals(attribute) && identifiable.getId().equals(converter.getId())) {
+                    assertNull(variantId);
+                    assertEquals(1000.0, (double) oldValue, 0.0);
+                    assertEquals(2000.0, (double) newValue, 0.0);
+                    updated = true;
+                }
+            }
+        };
+        network.addListener(maxPListener);
+        converter.setMaxP(2000.0);
+        assertTrue(maxPListener.updated);
+        network.removeListener(minPListener);
+    }
+
+    // ---- minP / maxP test methods ----
+
+    @Test
+    public void testMinMaxPDefaultValues() {
+        checkMinMaxPDefaults(createLccA(vla));
+        checkMinMaxPDefaults(createVscB(vlb));
+    }
+
+    @Test
+    public void testMinMaxPSetter() {
+        checkMinMaxPSetter(createLccA(vla));
+        checkMinMaxPSetter(createVscB(vlb));
+    }
+
+    @Test
+    public void testMinMaxPAdder() {
+        checkMinMaxPAdder(lccFactory());
+        checkMinMaxPAdder(vscFactory());
+    }
+
+    @Test
+    public void testMinMaxPSetterRejectsNaN() {
+        checkMinMaxPSetterRejectsNaN(createLccA(vla));
+        checkMinMaxPSetterRejectsNaN(createVscB(vlb));
+    }
+
+    @Test
+    public void testMinMaxPAdderRejectsNaN() {
+        checkMinMaxPAdderRejectsNaN(lccFactory(), LCC_MIN_MAX_TEST_PREFIX);
+        checkMinMaxPAdderRejectsNaN(vscFactory(), VSC_MIN_MAX_TEST_PREFIX);
+    }
+
+    @Test
+    public void testMinMaxPSetterRejectsInconsistentLimits() {
+        checkMinMaxPSetterRejectsInconsistentLimits(createLccA(vla));
+        checkMinMaxPSetterRejectsInconsistentLimits(createVscB(vlb));
+    }
+
+    @Test
+    public void testMinMaxPAdderRejectsInconsistentLimits() {
+        checkMinMaxPAdderRejectsInconsistentLimits(lccFactory(), LCC_MIN_MAX_TEST_PREFIX);
+        checkMinMaxPAdderRejectsInconsistentLimits(vscFactory(), VSC_MIN_MAX_TEST_PREFIX);
+    }
+
+    @Test
+    public void testMinMaxPNotifyUpdate() {
+        checkMinMaxPNotifyUpdate(createLccA(vla));
+        checkMinMaxPNotifyUpdate(createVscB(vlb));
     }
 
     @Test

@@ -39,8 +39,9 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
             throw new PowsyblException(String.format("Error adding CurrentLimits on %s: error getting or creating the group", getOwnerId()));
         }
         CurrentLimitsImpl limits = detectionKind == DetectionKind.HIGH ?
-            new CurrentLimitsImpl(group, permanentLimit, temporaryLimits)
+            new CurrentLimitsImpl(group, permanentLimit, permanentLimitName, temporaryLimits)
             : new CurrentLimitsImpl(group, temporaryLimits);
+
         group.setCurrentLimits(limits);
         this.copyPropertiesTo(limits);
         return limits;

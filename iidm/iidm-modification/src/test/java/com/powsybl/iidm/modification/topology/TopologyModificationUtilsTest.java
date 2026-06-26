@@ -16,9 +16,9 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerWithExtensionsFactory;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerWithExtensionsFactory;
 import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
 

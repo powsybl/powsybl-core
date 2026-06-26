@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
@@ -180,6 +180,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         @Override
         public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
             return new ReactiveCapabilityCurveAdderImpl<>(this);
+        }
+
+        @Override
+        public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+            return new ReactiveCapabilityShapeAdderImpl(this);
         }
 
         @Override

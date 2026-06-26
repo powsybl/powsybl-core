@@ -15,8 +15,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
+import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 
 import java.io.IOException;
 import java.util.Collections;

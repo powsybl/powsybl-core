@@ -10,10 +10,6 @@ package com.powsybl.ieeecdf.model.elements;
 import java.time.LocalDate;
 
 /**
- * <p>
- * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
- * </p>
- *
  * <pre>
  * Columns  2- 9   Date, in format DD/MM/YY with leading zeros. If no date provided, use 0b/0b/0b where b is blank.
  * Columns 11-30   Originator's name (A)
@@ -23,6 +19,7 @@ import java.time.LocalDate;
  * Column  46-73   Case identification (A)
  * </pre>
  *
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfTitle extends AbstractIeeeElement {

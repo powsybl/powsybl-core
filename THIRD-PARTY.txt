@@ -36,8 +36,6 @@ List of third-party dependencies grouped by their license type.
         * docker-java-transport-zerodep (com.github.docker-java:docker-java-transport-zerodep:3.4.2 - https://github.com/docker-java/docker-java)
         * EJML (org.ejml:ejml-core:0.45.1 - https://ejml.org/)
         * error-prone annotations (com.google.errorprone:error_prone_annotations:2.47.0 - https://errorprone.info/error_prone_annotations)
-        * FindBugs-jsr305 (com.google.code.findbugs:jsr305:3.0.2 - http://findbugs.sourceforge.net/)
-        * graphviz-builder (org.anarres.graphviz:graphviz-builder:1.0.12 - https://github.com/shevek/graphviz4j)
         * Guava: Google Core Libraries for Java (com.google.guava:guava:33.6.0-jre - https://github.com/google/guava)
         * Guava InternalFutureFailureAccess and InternalFutures (com.google.guava:failureaccess:1.0.3 - https://github.com/google/guava/failureaccess)
         * Guava ListenableFuture only (com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava - https://github.com/google/guava/listenablefuture)
@@ -81,15 +79,12 @@ List of third-party dependencies grouped by their license type.
     BSD 3-clause License
 
         * ANTLR 3 Runtime (org.antlr:antlr-runtime:3.5.3 - http://www.antlr.org)
+        * ANTLR 4 Runtime (org.antlr:antlr4-runtime:4.13.2 - https://www.antlr.org/antlr4-runtime/)
         * curvesapi (com.github.virtuald:curvesapi:1.08 - https://github.com/virtuald/curvesapi)
         * Hamcrest Core (org.hamcrest:hamcrest-core:1.3 - https://github.com/hamcrest/JavaHamcrest/hamcrest-core)
         * JSONLD Java :: Core (com.github.jsonld-java:jsonld-java:0.13.4 - http://github.com/jsonld-java/jsonld-java/jsonld-java/)
         * StringTemplate 4 (org.antlr:ST4:4.3.4 - http://nexus.sonatype.org/oss-repository-hosting.html/ST4)
         * ThreeTen-Extra (org.threeten:threeten-extra:1.8.0 - https://www.threeten.org/threeten-extra)
-
-    Creative Commons Attribution 2.5 Generic License
-
-        * "Java Concurrency in Practice" book annotations (net.jcip:jcip-annotations:1.0 - http://jcip.net/)
 
     Eclipse Distribution License - v 1.0
 
@@ -147,6 +142,7 @@ List of third-party dependencies grouped by their license type.
     Eclipse Public License - v 2.0, GNU Lesser General Public License v2.1
 
         * JGraphT - Core (org.jgrapht:jgrapht-core:1.5.3 - http://www.jgrapht.org/jgrapht-core)
+        * JGraphT - I/O (org.jgrapht:jgrapht-io:1.5.3 - http://www.jgrapht.org/jgrapht-io)
 
     Eclipse Public License - v 2.0, LGPL-2.1-only
 
@@ -155,7 +151,6 @@ List of third-party dependencies grouped by their license type.
 
     GNU Lesser General Public License v2.1
 
-        * FindBugs-Annotations (com.google.code.findbugs:annotations:3.0.1 - http://findbugs.sourceforge.net/)
         * GNU Trove (net.sf.trove4j:trove4j:3.0.3 - http://trove4j.sf.net)
 
     Go License

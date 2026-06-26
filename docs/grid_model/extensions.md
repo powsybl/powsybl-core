@@ -312,14 +312,57 @@ This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 ## Line Fortescue
 
 This extension models the homopolar line data to be used for asymmetrical short-circuit calculations.
+Side 1 and side 2 correspond respectively to terminal1 and terminal2 of the line.
 
-| Attribute  | Type    | Unit | Required | Default value | Description                                  |
-|------------|---------|------|----------|---------------|----------------------------------------------|
-| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line     |
-| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line      |
-| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open |
-| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open |
-| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open |
+| Attribute  | Type    | Unit | Required | Default value | Description                                         |
+|------------|---------|------|----------|---------------|-----------------------------------------------------|
+| rz         | double  | Ω    | no       | -             | The zero-sequence resistance of the line            |
+| xz         | double  | Ω    | no       | -             | The zero-sequence reactance of the line             |
+| g1z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 1 |
+| b1z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 1 |
+| g2z        | double  | S    | no       | -             | The zero-sequence conductance of the line on side 2 |
+| b2z        | double  | S    | no       | -             | The zero-sequence susceptance of the line on side 2 |
+| openPhaseA | boolean | -    | no       | false         | Indicates if the phase A of the line is open        |
+| openPhaseB | boolean | -    | no       | false         | Indicates if the phase B of the line is open        |
+| openPhaseC | boolean | -    | no       | false         | Indicates if the phase C of the line is open        |
+
+This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
+
+(line-couplings-extension)=
+## Line Couplings
+
+This extension models the mutual coupling between two lines. It is attached to the `Network` object and contains a list of mutual couplings.
+
+The attributes of a `MutualCoupling` are:
+
+| Attribute    | Type        | Unit | Required | Default value | Description                                                   |
+|--------------|-------------|------|----------|---------------|---------------------------------------------------------------|
+| line1        | Line        | -    | yes      | -             | The first coupled line                                        |
+| line2        | Line        | -    | yes      | -             | The second coupled line                                       |
+| r            | double      | Ω    | yes      | -             | The mutual coupling resistance                                |
+| x            | double      | Ω    | yes      | -             | The mutual coupling reactance                                 |
+| line1Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the first line (0 to 1)  |
+| line2Segment | LineSegment | -    | no       | 0..1          | The starting and ending positions on the second line (0 to 1) |
+
+The position of the mutual coupling is expressed as a ratio between 0 and 1, through a `LineSegment` object.
+A `LineSegment` has a start and an end position, with the constraint that: 0 ≤ start ≤ end ≤ 1
+Mutual coupling is symmetric: a coupling between line1 and line2 is equivalent to a coupling between line2 and line1.
+Mutual couplings are considered symmetric. Therefore, the extension cannot contain both (line1, line2) and (line2, line1).
+
+Example of code to add a mutual coupling:
+
+```java
+Line line1 = network.getLine("L1");
+Line line2 = network.getLine("L2");
+network.newExtension(LineCouplingsAdder.class).add();
+network.getExtension(LineCouplings.class)
+    .newMutualCoupling()
+    .withLine1(line1)
+    .withLine2(line2)
+    .withR(0.1)
+    .withX(0.4)
+    .add();
+```
 
 This extension is provided in the `com.powsybl:powsybl-iidm-extensions` module.
 
@@ -332,7 +375,8 @@ This extension models the homopolar two-winding transformer data to be used for 
 |-----------------|-----------------------|------|----------|----------------------------------|--------------------------------------------------------------------------------------------------------|
 | rz              | double                | Ω    | no       | -                                | The zero-sequence resistance of the two-winding transformer                                            |
 | xz              | double                | Ω    | no       | -                                | The zero-sequence reactance of the two-winding transformer                                             |
-| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               | 
+| freeFluxes      | boolean               | -    | no       | true                             | If set to true, then the magnetizing impedance is considered as infinite                               |
+| xm              | double                | Ω    | no       | Double.NaN                       | If the fluxes are not free, the magnetizing impedance of the two-winding transformer                   |
 | connectionType1 | WindingConnectionType | -    | no       | WindingConnectionType.DELTA      | The connection type of the winding 1                                                                   | 
 | connectionType2 | WindingConnectionType | -    | no       | WindingConnectionType.Y_GROUNDED | The connection type of the winding 2                                                                   | 
 | groundingR1     | double                | Ω    | no       | 0                                | If the winding on side 1 is connected to the earth, the resistance part of the impedance to the ground | 

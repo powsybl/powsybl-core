@@ -54,7 +54,8 @@ public class PsseFixes {
             model.replaceAllSwitchedShunts(fixDuplicatedIds(model.getSwitchedShunts(), sh -> sh.getI() + "-" + sh.getId(), "SwitchedShunt"));
         }
         model.replaceAllTwoTerminalDcTransmissionLines(fixDuplicatedIds(model.getTwoTerminalDcTransmissionLines(), PsseTwoTerminalDcTransmissionLine::getName, "TwoTerminalDcLine"));
-        model.replaceAllVoltageSourceConverterDcTransmissionLines(fixDuplicatedIds(model.getVoltageSourceConverterDcTransmissionLines(), PsseVoltageSourceConverterDcTransmissionLine::getName, "VscDcLine"));
+        model.replaceAllVoltageSourceConverterDcTransmissionLines(fixDuplicatedIds(model.getVoltageSourceConverterDcTransmissionLines(),
+            PsseVoltageSourceConverterDcTransmissionLine::getName, "VscDcLine"));
         model.replaceAllFacts(fixDuplicatedIds(model.getFacts(), PsseFacts::getName, "Facts"));
         model.replaceAllAreas(fixDuplicatedIds(model.getAreas(), a -> String.valueOf(a.getI()), "Area"));
     }
@@ -135,7 +136,8 @@ public class PsseFixes {
 
     private void fixTransformerWindingControlledBus(Set<Integer> buses, PsseTransformer psseTransformer, PsseTransformerWinding winding, String windingTag) {
         if (winding.getCont() != 0 && !buses.contains(winding.getCont())) {
-            warn("Transformer", String.format("%d, %d, %d, %s, ... %s ", psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt(), windingTag), winding.getCont());
+            warn("Transformer", String.format("%d, %d, %d, %s, ... %s ",
+                psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt(), windingTag), winding.getCont());
             winding.setCont(0);
         }
     }
@@ -147,9 +149,11 @@ public class PsseFixes {
         });
     }
 
-    private void fixVscDcTransmissionLineConverterControlledBus(Set<Integer> buses, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, PsseVoltageSourceConverter psseVscDcConverter, String converterTag) {
+    private void fixVscDcTransmissionLineConverterControlledBus(Set<Integer> buses, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine,
+                                                                PsseVoltageSourceConverter psseVscDcConverter, String converterTag) {
         if (vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version) != 0 && !buses.contains(vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version))) {
-            warn("VoltageSourceConverterDcTransmissionLine", String.format("%s, ... %s", psseVscDcTransmissionLine.getName(), converterTag), vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version));
+            warn("VoltageSourceConverterDcTransmissionLine", String.format("%s, ... %s", psseVscDcTransmissionLine.getName(), converterTag),
+                vscDcTransmissionLineRegulatingBus(psseVscDcConverter, version));
             psseVscDcConverter.setVsreg(0);
             psseVscDcConverter.setRemot(0);
         }
@@ -177,7 +181,8 @@ public class PsseFixes {
 
     private void warn(PsseTransformer transformer, String windingTag, int cod, int fixedCod) {
         if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn("Transformer {} Cod fixed: I {} J {} K {} CKT {}. Cod '{}' Fixed Cod '{}'. Controlled bus is not defined (cont == 0).", windingTag, transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt(), cod, fixedCod);
+            LOGGER.warn("Transformer {} Cod fixed: I {} J {} K {} CKT {}. Cod '{}' Fixed Cod '{}'. Controlled bus is not defined (cont == 0).",
+                windingTag, transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt(), cod, fixedCod);
         }
     }
 
