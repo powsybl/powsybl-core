@@ -174,9 +174,9 @@ The DiscreteMeasurement class characteristics are the following:
 ## Dynamic Model Info
 This extension is attached to an Identifiable. It is used to store the dynamic model used during a dynamic simulation.
 
-| Attribute | Type              | Unit | Required | Default value | Description                                         |
-|-----------|-------------------|------|----------|---------------|-----------------------------------------------------|
-| modelName | ArrayList<String> | -    | no       | -             | The dynamic model used during a dynamic simulation  |
+| Attribute | Type   | Unit | Required | Default value | Description                                         |
+|-----------|--------|------|----------|---------------|-----------------------------------------------------|
+| modelName | String | -    | no       | -             | The dynamic model used during a dynamic simulation  |
 
 This attribute is multi-variant: it can vary from one variant to another.
 
