@@ -797,9 +797,9 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
 of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
 Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
-[`readSlackBus`](../simulation/loadflow/configuration.md#readSlackBus). Use this extension after a computation to attach
+[`readSlackBus`](../simulation/loadflow/configuration.md#readslackbus). Use this extension after a computation to attach
 to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
-default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#writeSlackBus).
+default load flow parameter [`writeSlackBus`](../simulation/loadflow/configuration.md#writeslackbus).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 
@@ -816,22 +816,22 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 (standby-automaton-extension)=
 ## Standby automaton
 
-This extension is attached to a [static var compensator](network_subnetwork.md#static-var-compensator) and is used to define the automaton status and its fixed part susceptance, high and low voltage setpoints and thresholds.
+This extension is attached to a [static VAR compensator](network_subnetwork.md#static-var-compensator) and is used to define the automaton status and its fixed part susceptance, high and low voltage setpoints and thresholds.
 
 When the static VAR compensator is in standby mode, it behaves as a fixed shunt of susceptance `b0`. The high and low voltage setpoints and thresholds are used by the automaton to adjust the voltage regulation when the monitored voltage leaves the `[lowVoltageThreshold, highVoltageThreshold]` range.
 
 | Attribute             | Type    | Unit | Required | Default value | Description                                                                                       |
 |-----------------------|---------|------|----------|---------------|---------------------------------------------------------------------------------------------------|
 | standby               | boolean | -    | true     | false         | The automaton status (in service or not)                                                          |
-| b0                    | double  | S    | true     | NaN           | The fix part of the susceptance (between the min and max f the static var compensator susceptance |
+| b0                    | double  | S    | true     | NaN           | The fix part of the susceptance (between the min and max f the static VAR compensator susceptance |
 | lowVoltageSetpoint    | double  | kV   | true     | NaN           | The voltage setpoint used when the low voltage threshold is reached                               |
 | highVoltageSetpoint   | double  | kV   | true     | NaN           | The voltage setpoint used when the high voltage threshold is reached                              |
-| lowVoltageThreshold   | double  | kV   | true     | NaN           | The voltage threshold under which the static var compensator controls at low voltage setpoint     |
-| highVoltageThreshold  | double  | kV   | true     | NaN           | The voltage threshold above which the static var compensator controls at high voltage setpoint    |
+| lowVoltageThreshold   | double  | kV   | true     | NaN           | The voltage threshold under which the static VAR compensator controls at low voltage setpoint     |
+| highVoltageThreshold  | double  | kV   | true     | NaN           | The voltage threshold above which the static VAR compensator controls at high voltage setpoint    |
 
 The `standby`, `lowVoltageSetpoint`, `highVoltageSetpoint`, `lowVoltageThreshold` and `highVoltageThreshold` attributes are multi-variants: they can vary from one variant to another.
 
-Example of code to get the standby automaton data for a static var compensator :
+Example of code to add the standby automaton data for a static VAR compensator :
 ```java
 StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
 svc.newExtension(StandbyAutomatonAdder.class)
