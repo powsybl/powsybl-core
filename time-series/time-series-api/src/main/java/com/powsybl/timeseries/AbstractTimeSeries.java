@@ -170,7 +170,10 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         C previousChunk = splitChunks.isEmpty() ? null : splitChunks.get(splitChunks.size() - 1);
         int previousChunkSize = 0;
         //We can complete the previous chunk if 1) it is uncomplete and 2) the current offset is not a multiple of newChunkSize
-        if (previousChunk != null && previousChunk.getLength() < newChunkSize && chunkToSplit.getOffset() % newChunkSize != 0) {
+        if (previousChunk != null
+                && previousChunk.getLength() < newChunkSize
+                && previousChunk.getOffset() + previousChunk.getLength() == chunkToSplit.getOffset()
+                && chunkToSplit.getOffset() % newChunkSize != 0) {
             usePreviousChunk = true;
             previousChunkSize = previousChunk.getLength();
         }

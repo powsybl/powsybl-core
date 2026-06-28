@@ -463,4 +463,26 @@ class StoredDoubleTimeSeriesTest {
         assertArrayEquals(new double[] {1d, 2d, 3d, NaN, NaN, NaN, 7d, 8d}, timeSeries.toCompactArray());
     }
 
+    @Test
+    void splitNonSuccessiveChunksShouldPreserveGap() {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(8);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        DoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        DoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        List<DoubleTimeSeries> split = timeSeries.split(4);
+
+        assertEquals(2, split.size());
+        StoredDoubleTimeSeries first = (StoredDoubleTimeSeries) split.getFirst();
+        StoredDoubleTimeSeries second = (StoredDoubleTimeSeries) split.get(1);
+        assertEquals(0, first.getChunks().getFirst().getOffset());
+        assertEquals(3, first.getChunks().getFirst().getLength());
+        assertEquals(6, second.getChunks().getFirst().getOffset());
+        assertEquals(2, second.getChunks().getFirst().getLength());
+        assertArrayEquals(new double[]{1d, 2d, 3d, NaN, NaN, NaN, NaN, NaN}, first.toArray());
+        assertArrayEquals(new double[]{NaN, NaN, NaN, NaN, NaN, NaN, 7d, 8d}, second.toArray());
+    }
+
 }
