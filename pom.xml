@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>7.2.1</version>
+    <version>7.2.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -214,6 +214,19 @@
             </build>
         </profile>
     </profiles>
+
+    <distributionManagement>
+        <repository>
+            <id>deployment</id>
+            <name>accel-r</name>
+            <url>https://devin-depot.rte-france.com/repository/accel-r-releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>deployment-snapshot</id>
+            <name>accel-r</name>
+            <url>https://devin-depot.rte-france.com/repository/accel-r-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>

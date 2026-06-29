@@ -224,7 +224,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     private static List<LoadFlowDefaultParametersLoader> getDefaultParemtersLoaders() {
-        return ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
+        return ServiceLoader.load(LoadFlowDefaultParametersLoader.class, LoadFlowParameters.class.getClassLoader())
                 .stream()
                 .map(ServiceLoader.Provider::get)
                 .toList();
