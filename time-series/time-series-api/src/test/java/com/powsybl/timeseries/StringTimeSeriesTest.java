@@ -12,9 +12,9 @@ import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertIteratorsEquals;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
