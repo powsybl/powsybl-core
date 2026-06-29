@@ -39,7 +39,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "dynamic-simulation", 9, 2);
+        assertCommand(command, "dynamic-simulation", 11, 2);
         assertEquals("Computation", command.getTheme());
         assertEquals("Run dynamic simulation", command.getDescription());
         assertNull(command.getUsageFooter());
@@ -49,6 +49,8 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "output-variables-file", false, true);
         assertOption(command.getOptions(), "output-file", false, true);
         assertOption(command.getOptions(), "output-log-file", false, true);
+        assertOption(command.getOptions(), "output-case-file", false, true);
+        assertOption(command.getOptions(), "output-case-format", false, true);
     }
 
     @BeforeEach
@@ -113,6 +115,22 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         String expectedOutputFile = "Dynamic Simulation Tool\n";
         assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest.log"}, expectedOut);
         ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
+    }
+
+    @Test
+    void testDynamicSimulationWithOutputCaseFile() throws IOException {
+        String expectedOut = String.join(System.lineSeparator(),
+                "Loading network '/network.xiidm'",
+                "Dynamic Simulation Tool",
+                "dynamic simulation results:",
+                "+---------+",
+                "| Result  |",
+                "+---------+",
+                "| SUCCESS |",
+                "+---------+",
+                "Writing case file to 'outputCaseFile.xiidm'" + System.lineSeparator());
+        assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-case-file", "outputCaseFile.xiidm", "--output-case-format", "XIIDM"}, expectedOut);
+        ComparisonUtils.assertXmlEquals(getClass().getResourceAsStream("/network.xiidm"), Files.newInputStream(fileSystem.getPath("outputCaseFile.xiidm")));
     }
 
     @Test
