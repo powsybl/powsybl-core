@@ -1,0 +1,3 @@
+contingency-screening-security-analysis-parameters:
+  firstProviderName: LoadFlow
+  secondProviderName: DynaFlow
