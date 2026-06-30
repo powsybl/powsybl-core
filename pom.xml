@@ -117,7 +117,7 @@
         <groovy.version>4.0.32</groovy.version>
         <guava.version>33.6.0-jre</guava.version>
         <!-- jackson-core can be updated to v3 -->
-        <jackson.version>2.21.4</jackson.version>
+        <jackson.version>2.22.0</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.3</jgrapht.version>
