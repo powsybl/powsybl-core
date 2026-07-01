@@ -15,11 +15,10 @@ import java.util.Deque;
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
-public class NodeCalcPrinterV2 implements NodeCalcVisitor<Printable, Void> {
+public class FastNodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
 
-    // use a stack to avoid recursion and repeated copie
     public static String print(NodeCalc nodeCalc) {
-        Printable root = nodeCalc.accept(new NodeCalcPrinterV2(), null, 0);
+        Printable root = nodeCalc.accept(new FastNodeCalcPrinter(), null, 0);
         StringBuilder builder = new StringBuilder();
         Deque<Object> stack = new ArrayDeque<>();
         stack.push(root);

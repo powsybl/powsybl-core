@@ -11,8 +11,6 @@ import com.powsybl.timeseries.ast.*;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -162,69 +160,4 @@ class NodeCalcEvaluatorAndPrintTest {
         assertEquals(5.0, NodeCalcEvaluator.eval(node, null), 0f);
         assertEquals("5.0", NodeCalcPrinter.print(node));
     }
-
-    private String timeTester(int n) {
-        Instant start = Instant.now();
-        NodeCalc node = new IntegerNodeCalc(0);
-        for (int i = 0; i < n; i++) {
-            node = BinaryOperation.plus(new IntegerNodeCalc(0), node);
-        }
-        String nodeString = NodeCalcPrinter.print(node);
-        Instant stop = Instant.now();
-        long duration = Duration.between(start, stop).toNanos();
-        String message = String.format("print tree with %5d nodes: %9.3f ms - %9.3f (time/n) - %9.3f (time/n2)", n, duration / 1e6, (double) duration / ((long) n), (double) duration / ((long) n * (long) n));
-        System.out.println(message);
-        return nodeString;
-    }
-
-    private String timeTesterV2(int n) {
-        Instant start = Instant.now();
-        NodeCalc node = new IntegerNodeCalc(0);
-        for (int i = 0; i < n; i++) {
-            node = BinaryOperation.plus(new IntegerNodeCalc(0), node);
-        }
-        String nodeString = NodeCalcPrinterV2.print(node);
-        Instant stop = Instant.now();
-        long duration = Duration.between(start, stop).toNanos();
-        String message = String.format("print tree with %5d nodes: %9.3f ms - %9.3f (time/n) - %9.3f (time/n2)", n, duration / 1e6, (double) duration / ((long) n), (double) duration / ((long) n * (long) n));
-        System.out.println(message);
-        return nodeString;
-    }
-
-    /**
-     * <pre>
-     * Benchmark                   Mode  Cnt     Score   Error  Units
-     *      Time
-     *                    print    avgt    2  1046,929          us/op
-     *                    printV2  avgt    2   225,151          us/op
-     *      Memory
-     *                    print    avgt    2  12216808,768      B/op
-     *                    printV2  avgt    2    403712,167      B/op
-     * </pre>
-     */
-    @Test
-    void test878() {
-        assertEquals("(0 + ".repeat(1000) + "0" + ")".repeat(1000), timeTester(1000));
-        assertEquals("(0 + ".repeat(2000) + "0" + ")".repeat(2000), timeTester(2000));
-        assertEquals("(0 + ".repeat(4000) + "0" + ")".repeat(4000), timeTester(4000));
-        assertEquals("(0 + ".repeat(8000) + "0" + ")".repeat(8000), timeTester(8000));
-        assertEquals("(0 + ".repeat(16000) + "0" + ")".repeat(16000), timeTester(16000));
-        assertEquals("(0 + ".repeat(32000) + "0" + ")".repeat(32000), timeTester(32000));
-        assertEquals("(0 + ".repeat(64000) + "0" + ")".repeat(64000), timeTester(64000));
-
-        System.out.println("V2");
-        test878Improved();
-    }
-
-    @Test
-    void test878Improved() {
-        assertEquals("(0 + ".repeat(1000) + "0" + ")".repeat(1000), timeTesterV2(1000));
-        assertEquals("(0 + ".repeat(2000) + "0" + ")".repeat(2000), timeTesterV2(2000));
-        assertEquals("(0 + ".repeat(4000) + "0" + ")".repeat(4000), timeTesterV2(4000));
-        assertEquals("(0 + ".repeat(8000) + "0" + ")".repeat(8000), timeTesterV2(8000));
-        assertEquals("(0 + ".repeat(16000) + "0" + ")".repeat(16000), timeTesterV2(16000));
-        assertEquals("(0 + ".repeat(32000) + "0" + ")".repeat(32000), timeTesterV2(32000));
-        assertEquals("(0 + ".repeat(64000) + "0" + ")".repeat(64000), timeTesterV2(64000));
-    }
-
 }
