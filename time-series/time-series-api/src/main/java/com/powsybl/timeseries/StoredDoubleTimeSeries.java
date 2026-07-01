@@ -8,7 +8,6 @@
 package com.powsybl.timeseries;
 
 import java.nio.DoubleBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -35,6 +34,21 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
     @Override
     protected DoubleTimeSeries createTimeSeries(DoubleDataChunk chunk) {
         return new StoredDoubleTimeSeries(metadata, chunk);
+    }
+
+    @Override
+    protected DoubleTimeSeries createTimeSeries(List<DoubleDataChunk> chunks) {
+        return new StoredDoubleTimeSeries(metadata, chunks);
+    }
+
+    @Override
+    protected DoubleDataChunk toCompactChunk() {
+        return new UncompressedDoubleDataChunk(getMinOffset(), toCompactArray());
+    }
+
+    @Override
+    protected boolean isBlank(DoubleDataChunk chunk) {
+        return chunk.stream(metadata.getIndex()).allMatch(p -> Double.isNaN(p.getValue()));
     }
 
     private void forEachChunk(Consumer<DoubleDataChunk> consumer) {
@@ -78,23 +92,6 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
     @Override
     public DoubleTimeSeriesValues getDoubleTimeSeriesValues() {
         return new DoubleTimeSeriesValues(toCompactArray(), getMinOffset());
-    }
-
-    @Override
-    public List<DoubleTimeSeries> split(int newChunkSize) {
-        double[] compactArray = toCompactArray();
-        int chunkCount = (int) Math.ceil((double) compactArray.length / newChunkSize);
-        List<DoubleTimeSeries> result = new ArrayList<>(chunkCount);
-
-        for (int i = 0; i < chunkCount; i++) {
-            int offset = i * newChunkSize;
-            int length = Math.min(newChunkSize, compactArray.length - offset);
-            double[] dest = new double[length];
-            System.arraycopy(compactArray, offset, dest, 0, length);
-            DoubleDataChunk chunk = new UncompressedDoubleDataChunk(getMinOffset() + offset, dest);
-            result.add(new StoredDoubleTimeSeries(metadata, chunk));
-        }
-        return result;
     }
 
 }

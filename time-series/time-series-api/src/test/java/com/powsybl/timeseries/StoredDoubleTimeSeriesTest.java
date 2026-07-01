@@ -450,6 +450,7 @@ class StoredDoubleTimeSeriesTest {
         double[] tsCompactArray2 = chunks.get(1).toCompactArray();
 
         // Then
+        assertEquals(2, chunks.size());
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, timeSeriesCompactArray, 0d);
         assertArrayEquals(new double[]{1d, 2d, 3d, 4d}, tsCompactArray1, 0d);
         assertArrayEquals(new double[]{5d, 6d, 7d, 8d}, tsCompactArray2, 0d);
@@ -480,6 +481,30 @@ class StoredDoubleTimeSeriesTest {
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunks);
         List<List<DoubleTimeSeries>> split = TimeSeries.split(Collections.singletonList(timeSeries), newChunkSize);
         assertThat(split).hasSize(expectedChunkCount);
+    }
+
+    @Test
+    void shouldNotThrowWhenSplittingListOverGap() {
+        RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"), Duration.ofMinutes(15));
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(0, new double[]{1d, 2d, 3d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{7d, 8d});
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk1, chunk2);
+
+        List<List<DoubleTimeSeries>> timeSeriesSplitList = assertDoesNotThrow(() -> TimeSeries.split(Collections.singletonList(timeSeries), 2));
+        assertDoesNotThrow(() -> TimeSeries.split(Collections.singletonList(timeSeries), 3));
+        assertDoesNotThrow(() -> TimeSeries.split(Collections.singletonList(timeSeries), 4));
+
+        assertEquals(4, timeSeriesSplitList.size());
+        assertEquals(1, timeSeriesSplitList.get(0).size());
+        assertEquals(1, timeSeriesSplitList.get(1).size());
+        assertEquals(1, timeSeriesSplitList.get(2).size());
+        assertEquals(1, timeSeriesSplitList.get(3).size());
+
+        assertArrayEquals(new double[]{1d, 2d}, timeSeriesSplitList.get(0).getFirst().toCompactArray(), 0d);
+        assertArrayEquals(new double[]{3d, NaN}, timeSeriesSplitList.get(1).getFirst().toCompactArray(), 0d);
+        assertArrayEquals(new double[]{}, timeSeriesSplitList.get(2).getFirst().toCompactArray(), 0d); // empty serie: gap
+        assertArrayEquals(new double[]{7d, 8d}, timeSeriesSplitList.get(3).getFirst().toCompactArray(), 0d);
     }
 
 }

@@ -8,7 +8,6 @@
 package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -34,6 +33,21 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
     @Override
     protected StringTimeSeries createTimeSeries(StringDataChunk chunk) {
         return new StringTimeSeries(metadata, chunk);
+    }
+
+    @Override
+    protected StringTimeSeries createTimeSeries(List<StringDataChunk> chunks) {
+        return new StringTimeSeries(metadata, chunks);
+    }
+
+    @Override
+    protected StringDataChunk toCompactChunk() {
+        return new UncompressedStringDataChunk(getMinOffset(), toCompactArray());
+    }
+
+    @Override
+    protected boolean isBlank(StringDataChunk chunk) {
+        return chunk.stream(metadata.getIndex()).allMatch(p -> p.getValue() == null);
     }
 
     private void forEachChunk(Consumer<StringDataChunk> consumer) {
@@ -73,20 +87,4 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         return new StringTimeSeriesValues(toCompactArray(), getMinOffset());
     }
 
-    @Override
-    public List<StringTimeSeries> split(int newChunkSize) {
-        String[] compactArray = toCompactArray();
-        int chunkCount = (int) Math.ceil((double) compactArray.length / newChunkSize);
-        List<StringTimeSeries> result = new ArrayList<>(chunkCount);
-
-        for (int i = 0; i < chunkCount; i++) {
-            int offset = i * newChunkSize;
-            int length = Math.min(newChunkSize, compactArray.length - offset);
-            String[] dest = new String[length];
-            System.arraycopy(compactArray, offset, dest, 0, length);
-            StringDataChunk chunk = new UncompressedStringDataChunk(getMinOffset() + offset, dest);
-            result.add(new StringTimeSeries(metadata, chunk));
-        }
-        return result;
-    }
 }
