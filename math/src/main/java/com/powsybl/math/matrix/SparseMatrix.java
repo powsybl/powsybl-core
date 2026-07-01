@@ -168,6 +168,53 @@ public class SparseMatrix extends AbstractMatrix implements Serializable {
         }
     }
 
+    /**
+     * Checking if there is a building inconsistency in the matrix.
+     * Three kind of failures are detected:
+     * - Row indices that are referenced multiple time for a single column
+     * - ColumnValueCount that do not correspond to the difference between successive columnStart indices
+     * - Last columnStart index that is not equal to the number of values in the sparse matrix
+     * @throws MatrixException if a building inconsistency is detected.
+     */
+    public void checkBuildingInconsistency() {
+        if (columnStart[columnStart.length - 1] != values.size()) {
+            throw new MatrixException("Value count of the sparse matrix not corresponding to the number of values stored in the matrix");
+        }
+        boolean checkingNewColumn = false;
+        int[] exploredRows = new int[values.size()]; // List containing each row index of the current explored column (used to check duplicates)
+        int exploredRowsSize = 0; // Storing the size of the list to avoid clearing it for each column
+        int currentColumnIndex = 0; // current index of the explored column
+        int previousColumnStart = 0; // start index of the previous explored column
+        int previousColumnValueCount = columnValueCount[0]; // value count of the previous explored column: new column start should be equal to previousColumnStart + previousColumnValueCount
+        for (int k = 0; k < values.size(); k++) {
+            // Checking new column
+            while (checkingNewColumn) {
+                currentColumnIndex += 1;
+                if (columnStart[currentColumnIndex] != -1 && columnStart[currentColumnIndex] != previousColumnStart) {
+                    if (columnStart[currentColumnIndex] != previousColumnStart + previousColumnValueCount) {
+                        throw new MatrixException("Value count of column " + currentColumnIndex + " do not correspond with column start index");
+                    }
+                    previousColumnStart = columnStart[currentColumnIndex];
+                    previousColumnValueCount = columnValueCount[currentColumnIndex];
+                    exploredRowsSize = 0;
+                    checkingNewColumn = false;
+                }
+            }
+            // Checking new row
+            int rowIndex = rowIndices.get(k);
+            for (int i = 0; i < exploredRowsSize; i++) {
+                if (exploredRows[i] == rowIndex) {
+                    throw new MatrixException("Same row value (" + rowIndices.get(k) + ") is referenced multiple times in the same column (" + currentColumnIndex + ")");
+                }
+            }
+            exploredRows[exploredRowsSize] = rowIndex;
+            exploredRowsSize++;
+            if (exploredRowsSize == previousColumnValueCount) {
+                checkingNewColumn = true;
+            }
+        }
+    }
+
     public double getRgrowthThreshold() {
         return rgrowthThreshold;
     }
