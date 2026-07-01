@@ -36,6 +36,21 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         return new StoredDoubleTimeSeries(metadata, chunk);
     }
 
+    @Override
+    protected DoubleTimeSeries createTimeSeries(List<DoubleDataChunk> chunks) {
+        return new StoredDoubleTimeSeries(metadata, chunks);
+    }
+
+    @Override
+    protected DoubleDataChunk toCompactChunk() {
+        return new UncompressedDoubleDataChunk(getMinOffset(), toCompactArray());
+    }
+
+    @Override
+    protected boolean isBlank(DoubleDataChunk chunk) {
+        return chunk.stream(metadata.getIndex()).allMatch(p -> Double.isNaN(p.getValue()));
+    }
+
     private void forEachChunk(Consumer<DoubleDataChunk> consumer) {
         chunks.forEach(consumer);
     }
