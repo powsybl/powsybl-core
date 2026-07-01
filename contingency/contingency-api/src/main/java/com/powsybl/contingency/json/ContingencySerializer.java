@@ -7,13 +7,13 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -26,17 +26,17 @@ public class ContingencySerializer extends StdSerializer<Contingency> {
     }
 
     @Override
-    public void serialize(Contingency contingency, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Contingency contingency, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("id", contingency.getId());
+        jsonGenerator.writeStringProperty("id", contingency.getId());
         Optional<String> contingencyName = contingency.getName();
         if (contingencyName.isPresent()) {
-            jsonGenerator.writeStringField("name", contingencyName.get());
+            jsonGenerator.writeStringProperty("name", contingencyName.get());
         }
-        serializerProvider.defaultSerializeField("elements", contingency.getElements(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("elements", contingency.getElements(), jsonGenerator);
 
-        JsonUtil.writeExtensions(contingency, jsonGenerator, serializerProvider);
+        JsonUtil.writeExtensions(contingency, jsonGenerator, serializationContext);
 
         jsonGenerator.writeEndObject();
     }

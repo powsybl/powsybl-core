@@ -7,15 +7,14 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.FortescueFeederResult;
 import com.powsybl.shortcircuit.MagnitudeFeederResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -27,20 +26,20 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
     }
 
     @Override
-    public void serialize(FeederResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(FeederResult result, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("connectableId", result.getConnectableId());
+        jsonGenerator.writeStringProperty("connectableId", result.getConnectableId());
         if (result instanceof FortescueFeederResult fortescueFeederResult) {
             if (fortescueFeederResult.getCurrent() != null) {
-                serializerProvider.defaultSerializeField("current", fortescueFeederResult.getCurrent(), jsonGenerator);
+                serializationContext.defaultSerializeProperty("current", fortescueFeederResult.getCurrent(), jsonGenerator);
             }
         } else {
             if (!Double.isNaN(((MagnitudeFeederResult) result).getCurrent())) {
-                serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFeederResult) result).getCurrent(), jsonGenerator);
+                serializationContext.defaultSerializeProperty("currentMagnitude", ((MagnitudeFeederResult) result).getCurrent(), jsonGenerator);
             }
         }
-        JsonUtil.writeOptionalEnumField(jsonGenerator, "side", result.getSide());
+        JsonUtil.writeOptionalEnumProperty(jsonGenerator, "side", result.getSide());
         jsonGenerator.writeEndObject();
     }
 }

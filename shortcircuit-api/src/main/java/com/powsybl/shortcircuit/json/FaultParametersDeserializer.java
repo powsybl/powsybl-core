@@ -7,20 +7,22 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
 import com.powsybl.shortcircuit.VoltageRange;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 
-import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.*;
+import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.ParametersType;
+import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.SOURCE_PARAMETER_TYPE_ATTRIBUTE;
+import static com.powsybl.shortcircuit.json.ParametersDeserializationConstants.SOURCE_VERSION_ATTRIBUTE;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
@@ -35,7 +37,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
     }
 
     @Override
-    public FaultParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public FaultParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String version = null;
         String id = null;
         boolean withLimitViolations = false;

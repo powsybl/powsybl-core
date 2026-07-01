@@ -7,12 +7,11 @@
  */
 package com.powsybl.iidm.criteria.json.duration;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.iidm.criteria.duration.IntervalTemporaryDurationCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * <p>Serializer for {@link IntervalTemporaryDurationCriterion} objects.</p>
@@ -25,16 +24,16 @@ public class IntervalTemporaryDurationCriterionSerializer extends StdSerializer<
     }
 
     @Override
-    public void serialize(IntervalTemporaryDurationCriterion criterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(IntervalTemporaryDurationCriterion criterion, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
         LimitDurationCriterionSerDeUtil.serializeCommonHeadAttributes(criterion, jsonGenerator);
         if (criterion.getLowBound().isPresent()) {
-            jsonGenerator.writeNumberField("lowBound", criterion.getLowBound().orElseThrow());
-            jsonGenerator.writeBooleanField("lowClosed", criterion.isLowClosed());
+            jsonGenerator.writeNumberProperty("lowBound", criterion.getLowBound().orElseThrow());
+            jsonGenerator.writeBooleanProperty("lowClosed", criterion.isLowClosed());
         }
         if (criterion.getHighBound().isPresent()) {
-            jsonGenerator.writeNumberField("highBound", criterion.getHighBound().orElseThrow());
-            jsonGenerator.writeBooleanField("highClosed", criterion.isHighClosed());
+            jsonGenerator.writeNumberProperty("highBound", criterion.getHighBound().orElseThrow());
+            jsonGenerator.writeBooleanProperty("highClosed", criterion.isHighClosed());
         }
         jsonGenerator.writeEndObject();
     }

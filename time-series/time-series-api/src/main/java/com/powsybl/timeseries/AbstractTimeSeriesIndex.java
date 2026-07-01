@@ -7,8 +7,8 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.json.JsonUtil;
+import tools.jackson.core.JsonGenerator;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

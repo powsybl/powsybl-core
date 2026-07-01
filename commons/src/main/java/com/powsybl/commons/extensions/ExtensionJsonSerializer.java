@@ -7,13 +7,12 @@
  */
 package com.powsybl.commons.extensions;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.report.ReportNode;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * An {@link ExtensionProvider} able to serialize/deserialize extensions from JSON.
@@ -25,14 +24,14 @@ public interface ExtensionJsonSerializer<T extends Extendable, E extends Extensi
     /**
      * Serializes the provided extension to JSON.
      */
-    void serialize(E extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException;
+    void serialize(E extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException;
 
     /**
      * Deserializes the provided JSON to an extension of type {@code E}.
      */
-    E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException;
+    E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException;
 
-    default E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
+    default E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, ReportNode reportNode) throws JacksonException {
         return deserialize(jsonParser, deserializationContext);
     }
 
@@ -42,11 +41,11 @@ public interface ExtensionJsonSerializer<T extends Extendable, E extends Extensi
      * <p>The default implementation only returns a new object as provided by {@link #deserialize(JsonParser, DeserializationContext)},
      * therefore interface implementations must provide their own implementation if they want the extension to actually be updatable from JSON.
      */
-    default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E extension) throws IOException {
+    default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E extension) throws JacksonException {
         return deserialize(jsonParser, deserializationContext);
     }
 
-    default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E extension, ReportNode reportNode) throws IOException {
+    default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E extension, ReportNode reportNode) throws JacksonException {
         return deserializeAndUpdate(jsonParser, deserializationContext, extension);
     }
 }

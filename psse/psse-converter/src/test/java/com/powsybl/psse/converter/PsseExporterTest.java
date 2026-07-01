@@ -7,18 +7,13 @@
  */
 package com.powsybl.psse.converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -29,6 +24,12 @@ import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.databind.ser.FilterProvider;
+import tools.jackson.databind.ser.PropertyWriter;
+import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,7 +129,7 @@ class PsseExporterTest extends AbstractSerDeTest {
         tw2t.getTerminal2().disconnect();
     }
 
-    private static String toJsonString(PssePowerFlowModel rawData) throws JsonProcessingException {
+    private static String toJsonString(PssePowerFlowModel rawData) throws JacksonException {
         PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
             @Override
@@ -138,7 +139,10 @@ class PsseExporterTest extends AbstractSerDeTest {
             }
         };
         FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
-        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
+        String json = JsonUtil.createJsonMapperBuilder()
+            .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+            .build()
+            .writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
         return TestUtil.normalizeLineSeparator(json) + "\n";
     }
 

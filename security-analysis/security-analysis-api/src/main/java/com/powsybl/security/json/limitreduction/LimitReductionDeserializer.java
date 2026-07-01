@@ -7,17 +7,17 @@
  */
 package com.powsybl.security.json.limitreduction;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.limitreduction.LimitReduction;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,7 +44,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     }
 
     @Override
-    public LimitReduction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitReduction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> parseLimitReduction(parser, deserializationContext, context, fieldName));
         LimitReduction.Builder builder = LimitReduction.builder(checkAttribute(context.limitType, "limitType"),
@@ -64,7 +64,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     }
 
     private boolean parseLimitReduction(JsonParser parser, DeserializationContext deserializationContext,
-                                        ParsingContext context, String fieldName) throws IOException {
+                                        ParsingContext context, String fieldName) throws JacksonException {
         switch (fieldName) {
             case "value" -> {
                 parser.nextToken();
@@ -72,7 +72,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
                 return true;
             }
             case "limitType" -> {
-                context.limitType = LimitType.valueOf(parser.nextTextValue());
+                context.limitType = LimitType.valueOf(parser.nextStringValue());
                 return true;
             }
             case "monitoringOnly" -> {

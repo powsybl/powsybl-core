@@ -7,14 +7,14 @@
  */
 package com.powsybl.shortcircuit;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
+import static com.powsybl.commons.json.JsonUtil.createJsonMapperBuilder;
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
@@ -99,7 +99,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     private static List<VoltageRange> getVoltageRangesFromConfig(ModuleConfig config) {
         return config.getOptionalPathProperty("voltage-ranges").map((Function<Path, List<VoltageRange>>) voltageRangePath -> {
-            ObjectMapper mapper = createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
+            JsonMapper mapper = createJsonMapperBuilder().addModule(new ShortCircuitAnalysisJsonModule()).build();
             try (InputStream is = Files.newInputStream(voltageRangePath)) {
                 return mapper.readValue(is, new TypeReference<>() {
                 });

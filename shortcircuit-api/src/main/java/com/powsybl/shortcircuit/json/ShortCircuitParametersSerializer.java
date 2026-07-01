@@ -7,15 +7,14 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
 import com.powsybl.shortcircuit.StudyType;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Boubakeur Brahimi
@@ -27,29 +26,29 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
     }
 
     @Override
-    public void serialize(ShortCircuitParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ShortCircuitParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", ShortCircuitParameters.VERSION);
-        jsonGenerator.writeBooleanField("withLimitViolations", parameters.isWithLimitViolations());
-        jsonGenerator.writeBooleanField("withVoltageResult", parameters.isWithVoltageResult());
-        jsonGenerator.writeBooleanField("withFeederResult", parameters.isWithFeederResult());
-        jsonGenerator.writeStringField("studyType", parameters.getStudyType().name());
+        jsonGenerator.writeStringProperty("version", ShortCircuitParameters.VERSION);
+        jsonGenerator.writeBooleanProperty("withLimitViolations", parameters.isWithLimitViolations());
+        jsonGenerator.writeBooleanProperty("withVoltageResult", parameters.isWithVoltageResult());
+        jsonGenerator.writeBooleanProperty("withFeederResult", parameters.isWithFeederResult());
+        jsonGenerator.writeStringProperty("studyType", parameters.getStudyType().name());
         if (parameters.getStudyType() == StudyType.SUB_TRANSIENT) {
-            JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
+            JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
         }
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
-        jsonGenerator.writeBooleanField("withFortescueResult", parameters.isWithFortescueResult());
-        jsonGenerator.writeBooleanField("withLoads", parameters.isWithLoads());
-        jsonGenerator.writeBooleanField("withShuntCompensators", parameters.isWithShuntCompensators());
-        jsonGenerator.writeBooleanField("withVSCConverterStations", parameters.isWithVSCConverterStations());
-        jsonGenerator.writeBooleanField("withNeutralPosition", parameters.isWithNeutralPosition());
-        jsonGenerator.writeStringField("initialVoltageProfileMode", parameters.getInitialVoltageProfileMode().name());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
+        jsonGenerator.writeBooleanProperty("withFortescueResult", parameters.isWithFortescueResult());
+        jsonGenerator.writeBooleanProperty("withLoads", parameters.isWithLoads());
+        jsonGenerator.writeBooleanProperty("withShuntCompensators", parameters.isWithShuntCompensators());
+        jsonGenerator.writeBooleanProperty("withVSCConverterStations", parameters.isWithVSCConverterStations());
+        jsonGenerator.writeBooleanProperty("withNeutralPosition", parameters.isWithNeutralPosition());
+        jsonGenerator.writeStringProperty("initialVoltageProfileMode", parameters.getInitialVoltageProfileMode().name());
         if (parameters.getInitialVoltageProfileMode() == InitialVoltageProfileMode.CONFIGURED) {
-            serializerProvider.defaultSerializeField("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
         }
-        jsonGenerator.writeBooleanField("detailedReport", parameters.isDetailedReport());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers()::get);
+        jsonGenerator.writeBooleanProperty("detailedReport", parameters.isDetailedReport());
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "debugDir", parameters.getDebugDir());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonShortCircuitParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }
 

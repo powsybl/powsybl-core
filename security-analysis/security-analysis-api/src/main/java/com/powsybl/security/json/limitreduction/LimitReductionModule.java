@@ -8,16 +8,16 @@
 package com.powsybl.security.json.limitreduction;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.criteria.json.*;
 import com.powsybl.iidm.criteria.json.duration.*;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.LimitReductionList;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -97,7 +97,7 @@ public class LimitReductionModule extends SimpleModule {
     interface LimitDurationCriterionMixIn {
     }
 
-    private <T> void registerNamedSubtype(Class<T> clazz, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {
+    private <T> void registerNamedSubtype(Class<T> clazz, String typeName, ValueSerializer<T> serializer, ValueDeserializer<T> deserializer) {
         registerSubtypes(new NamedType(clazz, typeName));
         addSerializer(clazz, serializer);
         addDeserializer(clazz, deserializer);

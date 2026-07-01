@@ -8,14 +8,15 @@
  */
 package com.powsybl.loadflow.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         super(LoadFlowResult.class);
     }
 
-    public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser, String version) throws IOException {
+    public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser, String version) throws JacksonException {
         Integer connectedComponentNum = null;
         Integer synchronousComponentNum = null;
         LoadFlowResult.ComponentResult.Status status = null;
@@ -159,7 +160,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         );
     }
 
-    public LoadFlowResult.SlackBusResult deserializeSlackBusResult(JsonParser parser) throws IOException {
+    public LoadFlowResult.SlackBusResult deserializeSlackBusResult(JsonParser parser) throws JacksonException {
         String id = null;
         Double activePowerMismatch = null;
 
@@ -187,20 +188,20 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         return new LoadFlowResultImpl.SlackBusResultImpl(id, activePowerMismatch);
     }
 
-    public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults, String version) throws IOException {
+    public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults, String version) throws JacksonException {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             componentResults.add(deserializeComponentResult(parser, version));
         }
     }
 
-    public void deserializeSlackBusResults(JsonParser parser, List<LoadFlowResult.SlackBusResult> slackBusResults) throws IOException {
+    public void deserializeSlackBusResults(JsonParser parser, List<LoadFlowResult.SlackBusResult> slackBusResults) throws JacksonException {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             slackBusResults.add(deserializeSlackBusResult(parser));
         }
     }
 
     @Override
-    public LoadFlowResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public LoadFlowResult deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         String version = null;
         Boolean ok = null;
         Map<String, String> metrics = null;
@@ -237,11 +238,12 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         return new LoadFlowResultImpl(ok, metrics, log, componentResults);
     }
 
-    public static LoadFlowResult read(InputStream is) throws IOException {
+    public static LoadFlowResult read(InputStream is) {
         Objects.requireNonNull(is);
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-        objectMapper.registerModule(new LoadFlowResultJsonModule());
-        return objectMapper.readValue(is, LoadFlowResult.class);
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new LoadFlowResultJsonModule())
+            .build();
+        return jsonMapper.readValue(is, LoadFlowResult.class);
     }
 
     public static LoadFlowResult read(Path jsonFile) {

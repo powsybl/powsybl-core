@@ -7,15 +7,15 @@
  */
 package com.powsybl.security.json.limitreduction;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.LimitReductionList;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -32,12 +32,12 @@ public class LimitReductionListDeserializer extends StdDeserializer<LimitReducti
     }
 
     @Override
-    public LimitReductionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitReductionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (parser.currentName()) {
                 case "version":
-                    context.version = parser.nextTextValue();
+                    context.version = parser.nextStringValue();
                     return true;
                 case "limitReductions":
                     parser.nextToken(); // skip
@@ -48,7 +48,7 @@ public class LimitReductionListDeserializer extends StdDeserializer<LimitReducti
             }
         });
         if (context.version == null) {
-            throw new JsonMappingException(parser, "version is missing");
+            throw DatabindException.from(parser, "version is missing");
         }
         return new LimitReductionList(context.limitReductions);
     }

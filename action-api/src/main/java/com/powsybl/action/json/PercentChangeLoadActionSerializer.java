@@ -7,12 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.PercentChangeLoadAction;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Benoît Chiquet {@literal <benoit.chiquet@rte-france.com>}
@@ -24,13 +23,13 @@ public class PercentChangeLoadActionSerializer extends StdSerializer<PercentChan
     }
 
     @Override
-    public void serialize(PercentChangeLoadAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(PercentChangeLoadAction action, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("loadId", action.getLoadId());
-        jsonGenerator.writeNumberField("p0PercentChange", action.getP0PercentChange());
-        jsonGenerator.writeStringField("qModificationStrategy", action.getQModificationStrategy().toString());
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty("loadId", action.getLoadId());
+        jsonGenerator.writeNumberProperty("p0PercentChange", action.getP0PercentChange());
+        jsonGenerator.writeStringProperty("qModificationStrategy", action.getQModificationStrategy().toString());
         jsonGenerator.writeEndObject();
     }
 }

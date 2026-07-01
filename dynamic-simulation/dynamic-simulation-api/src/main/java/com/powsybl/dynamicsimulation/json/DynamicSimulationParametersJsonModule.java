@@ -7,8 +7,8 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}

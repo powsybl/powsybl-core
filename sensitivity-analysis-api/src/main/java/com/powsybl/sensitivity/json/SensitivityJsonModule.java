@@ -7,8 +7,8 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.sensitivity.*;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}

@@ -7,15 +7,15 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.function.Consumer;
@@ -23,8 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian
- *         {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class DataObject {
 
@@ -457,7 +456,7 @@ public class DataObject {
         final Map<String, Object> attributeValues = new LinkedHashMap<>();
     }
 
-    private static RealMatrix parseMatrixJson(JsonParser parser) throws IOException {
+    private static RealMatrix parseMatrixJson(JsonParser parser) throws JacksonException {
         Mutable<RealMatrix> result = new MutableObject<>();
 
         parser.nextToken();
@@ -467,7 +466,7 @@ public class DataObject {
             private Integer columnCount;
 
             @Override
-            public boolean onField(String fieldName3) throws IOException {
+            public boolean onField(String fieldName3) throws JacksonException {
                 switch (fieldName3) {
                     case "rowCount":
                         parser.nextToken();
@@ -499,12 +498,12 @@ public class DataObject {
     }
 
     private static void parseValueJson(JsonParser parser, DataObjectIndex index, ParsingContext context,
-            DataClass dataClass) throws IOException {
+            DataClass dataClass) throws JacksonException {
         parser.nextToken();
         JsonUtil.parseObject(parser, fieldName -> parseField(parser, index, context, dataClass, fieldName));
     }
 
-    private static boolean parseField(JsonParser parser, DataObjectIndex index, ParsingContext context, DataClass dataClass, String fieldName) throws IOException {
+    private static boolean parseField(JsonParser parser, DataObjectIndex index, ParsingContext context, DataClass dataClass, String fieldName) throws JacksonException {
         DataAttribute attribute = dataClass.getAttributeByName(fieldName);
         switch (attribute.getType()) {
             case INTEGER:
@@ -524,7 +523,7 @@ public class DataObject {
                 context.attributeValues.put(fieldName, parser.getValueAsDouble());
                 return true;
             case STRING:
-                context.attributeValues.put(fieldName, parser.nextTextValue());
+                context.attributeValues.put(fieldName, parser.nextStringValue());
                 return true;
             case OBJECT:
                 parser.nextToken();
@@ -571,14 +570,14 @@ public class DataObject {
         return object;
     }
 
-    private static boolean parseField(JsonParser parser, DataObjectIndex index, DataScheme scheme, ParsingContext context, String fieldName) throws IOException {
+    private static boolean parseField(JsonParser parser, DataObjectIndex index, DataScheme scheme, ParsingContext context, String fieldName) throws JacksonException {
         switch (fieldName) {
             case "id":
                 parser.nextToken();
                 context.id = parser.getValueAsLong();
                 return true;
             case "className":
-                context.className = parser.nextTextValue();
+                context.className = parser.nextStringValue();
                 return true;
             case "values":
                 DataClass dataClass = scheme.getClassByName(context.className);
@@ -593,7 +592,7 @@ public class DataObject {
         }
     }
 
-    private static boolean writeValue(JsonGenerator generator, Object value) throws IOException {
+    private static boolean writeValue(JsonGenerator generator, Object value) {
         if (value instanceof String stringValue) {
             generator.writeString(stringValue);
             return true;
@@ -616,7 +615,7 @@ public class DataObject {
         return false;
     }
 
-    private void writeListJson(JsonGenerator generator, Map.Entry<String, Object> e) throws IOException {
+    private void writeListJson(JsonGenerator generator, Map.Entry<String, Object> e) {
         generator.writeStartArray();
         for (Object value : (List) e.getValue()) {
             writeValue(generator, value);
@@ -624,12 +623,12 @@ public class DataObject {
         generator.writeEndArray();
     }
 
-    private void writeMatrixJson(JsonGenerator generator, Map.Entry<String, Object> e) throws IOException {
+    private void writeMatrixJson(JsonGenerator generator, Map.Entry<String, Object> e) {
         RealMatrix matrix = (RealMatrix) e.getValue();
         generator.writeStartObject();
-        generator.writeNumberField("rowCount", matrix.getRowDimension());
-        generator.writeNumberField("columnCount", matrix.getColumnDimension());
-        generator.writeFieldName("data");
+        generator.writeNumberProperty("rowCount", matrix.getRowDimension());
+        generator.writeNumberProperty("columnCount", matrix.getColumnDimension());
+        generator.writeName("data");
         generator.writeStartArray();
         for (int row = 0; row < matrix.getRowDimension(); row++) {
             double[] rowValues = matrix.getRow(row);
@@ -641,16 +640,16 @@ public class DataObject {
         generator.writeEndObject();
     }
 
-    public void writeJson(JsonGenerator generator) throws IOException {
+    public void writeJson(JsonGenerator generator) {
         generator.writeStartObject();
 
-        generator.writeNumberField("id", id);
-        generator.writeStringField("className", dataClass.getName());
+        generator.writeNumberProperty("id", id);
+        generator.writeStringProperty("className", dataClass.getName());
 
-        generator.writeFieldName("values");
+        generator.writeName("values");
         generator.writeStartObject();
         for (var e : attributeValues.entrySet()) {
-            generator.writeFieldName(e.getKey());
+            generator.writeName(e.getKey());
             if (writeValue(generator, e.getValue())) {
                 // nothing
             } else if (e.getValue() instanceof List) {
@@ -664,7 +663,7 @@ public class DataObject {
         generator.writeEndObject();
 
         if (!children.isEmpty()) {
-            generator.writeFieldName("children");
+            generator.writeName("children");
             generator.writeStartArray();
             for (DataObject child : children) {
                 child.writeJson(generator);

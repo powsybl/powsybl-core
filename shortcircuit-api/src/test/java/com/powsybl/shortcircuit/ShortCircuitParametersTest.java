@@ -8,12 +8,6 @@
 package com.powsybl.shortcircuit;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.YamlModuleConfigRepository;
@@ -28,10 +22,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -39,7 +40,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
@@ -99,7 +108,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     public static class DummySerializer implements ExtensionJsonSerializer<ShortCircuitParameters, DummyExtension> {
 
         @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeEndObject();
         }
@@ -113,21 +122,22 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
             ShortCircuitParameters getExtendable();
         }
 
-        private static ObjectMapper createMapper() {
-            return JsonUtil.createObjectMapper()
-                    .addMixIn(DummyExtension.class, SerializationSpec.class);
+        private static JsonMapper createMapper() {
+            return JsonUtil.createJsonMapperBuilder()
+                .addMixIn(DummyExtension.class, SerializationSpec.class)
+                .build();
         }
 
         @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws JacksonException {
             return new DummyExtension();
         }
 
         @Override
-        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
-            ObjectMapper objectMapper = createMapper();
-            ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            return objectReader.readValue(jsonParser, DummyExtension.class);
+        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws JacksonException {
+            JsonMapper jsonMapper = createMapper();
+            ObjectReader objectReader = jsonMapper.readerForUpdating(parameters);
+            return objectReader.readValue(jsonParser);
         }
 
         @Override
@@ -304,8 +314,10 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     @Test
     void testInvalidVersion12VoltageNotSupportedInVoltageRange() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json")) {
-            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
-            assertTrue(e.getMessage().contains("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3"));
+            DatabindException e = assertThrows(DatabindException.class, () -> JsonShortCircuitParameters.read(is));
+            assertThat(e.getMessage())
+                .contains("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3")
+                .contains("(through reference chain: java.util.ArrayList[0])");
         }
     }
 

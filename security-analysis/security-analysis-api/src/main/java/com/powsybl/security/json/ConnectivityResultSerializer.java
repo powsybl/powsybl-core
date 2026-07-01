@@ -7,12 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.results.ConnectivityResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -24,14 +23,14 @@ public class ConnectivityResultSerializer extends StdSerializer<ConnectivityResu
     }
 
     @Override
-    public void serialize(ConnectivityResult connectivityResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ConnectivityResult connectivityResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
 
         jsonGenerator.writeStartObject();
-        serializerProvider.defaultSerializeField("createdSynchronousComponentCount", connectivityResult.getCreatedSynchronousComponentCount(), jsonGenerator);
-        serializerProvider.defaultSerializeField("createdConnectedComponentCount", connectivityResult.getCreatedConnectedComponentCount(), jsonGenerator);
-        serializerProvider.defaultSerializeField("disconnectedLoadActivePower", connectivityResult.getDisconnectedLoadActivePower(), jsonGenerator);
-        serializerProvider.defaultSerializeField("disconnectedGenerationActivePower", connectivityResult.getDisconnectedGenerationActivePower(), jsonGenerator);
-        serializerProvider.defaultSerializeField("disconnectedElements", connectivityResult.getDisconnectedElements(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("createdSynchronousComponentCount", connectivityResult.getCreatedSynchronousComponentCount(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("createdConnectedComponentCount", connectivityResult.getCreatedConnectedComponentCount(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("disconnectedLoadActivePower", connectivityResult.getDisconnectedLoadActivePower(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("disconnectedGenerationActivePower", connectivityResult.getDisconnectedGenerationActivePower(), jsonGenerator);
+        serializationContext.defaultSerializeProperty("disconnectedElements", connectivityResult.getDisconnectedElements(), jsonGenerator);
         jsonGenerator.writeEndObject();
 
     }

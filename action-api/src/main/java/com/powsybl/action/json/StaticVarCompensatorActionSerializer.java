@@ -7,13 +7,11 @@
  */
 package com.powsybl.action.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.StaticVarCompensatorAction;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -26,32 +24,17 @@ public class StaticVarCompensatorActionSerializer extends StdSerializer<StaticVa
 
     @Override
     public void serialize(StaticVarCompensatorAction action, JsonGenerator jsonGenerator,
-                          SerializerProvider serializerProvider) throws IOException {
+                          SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", action.getType());
-        jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("staticVarCompensatorId", action.getStaticVarCompensatorId());
-        action.getRegulationMode().ifPresent(regulationMode -> {
-            try {
-                jsonGenerator.writeStringField("regulationMode", String.valueOf(regulationMode));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-        action.getReactivePowerSetpoint().ifPresent(reactivePowerSetpoint -> {
-            try {
-                jsonGenerator.writeNumberField("reactivePowerSetpoint", reactivePowerSetpoint);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-        action.getVoltageSetpoint().ifPresent(voltageSetpoint -> {
-            try {
-                jsonGenerator.writeNumberField("voltageSetpoint", voltageSetpoint);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+        jsonGenerator.writeStringProperty("type", action.getType());
+        jsonGenerator.writeStringProperty("id", action.getId());
+        jsonGenerator.writeStringProperty("staticVarCompensatorId", action.getStaticVarCompensatorId());
+        action.getRegulationMode().ifPresent(regulationMode ->
+            jsonGenerator.writeStringProperty("regulationMode", String.valueOf(regulationMode)));
+        action.getReactivePowerSetpoint().ifPresent(reactivePowerSetpoint ->
+            jsonGenerator.writeNumberProperty("reactivePowerSetpoint", reactivePowerSetpoint));
+        action.getVoltageSetpoint().ifPresent(voltageSetpoint ->
+            jsonGenerator.writeNumberProperty("voltageSetpoint", voltageSetpoint));
         jsonGenerator.writeEndObject();
     }
 }

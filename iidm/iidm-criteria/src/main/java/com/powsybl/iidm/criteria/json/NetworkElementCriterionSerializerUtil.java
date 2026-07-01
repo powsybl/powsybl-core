@@ -7,12 +7,11 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.iidm.criteria.AbstractNetworkElementEquipmentCriterion;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 /**
  * <p>Utility class for serialization/deserialization of {@link NetworkElementCriterion} objects.</p>
@@ -22,25 +21,25 @@ public final class NetworkElementCriterionSerializerUtil {
     private NetworkElementCriterionSerializerUtil() {
     }
 
-    public static void serializeCommonHeadAttributes(NetworkElementCriterion criterion, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField("type", criterion.getNetworkElementCriterionType().getName());
-        jsonGenerator.writeStringField("version", NetworkElementCriterion.getVersion());
+    public static void serializeCommonHeadAttributes(NetworkElementCriterion criterion, JsonGenerator jsonGenerator) throws JacksonException {
+        jsonGenerator.writeStringProperty("type", criterion.getNetworkElementCriterionType().getName());
+        jsonGenerator.writeStringProperty("version", NetworkElementCriterion.getVersion());
         if (criterion.getName() != null) {
-            jsonGenerator.writeStringField("name", criterion.getName());
+            jsonGenerator.writeStringProperty("name", criterion.getName());
         }
     }
 
     public static void serializeCountryCriterion(AbstractNetworkElementEquipmentCriterion criterion, JsonGenerator jsonGenerator,
-                                                 SerializerProvider serializerProvider) throws IOException {
+                                                 SerializationContext serializationContext) throws JacksonException {
         if (criterion.getCountryCriterion() != null) {
-            serializerProvider.defaultSerializeField("countryCriterion", criterion.getCountryCriterion(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("countryCriterion", criterion.getCountryCriterion(), jsonGenerator);
         }
     }
 
     public static void serializeNominalVoltageCriterion(AbstractNetworkElementEquipmentCriterion criterion, JsonGenerator jsonGenerator,
-                                                        SerializerProvider serializerProvider) throws IOException {
+                                                        SerializationContext serializationContext) throws JacksonException {
         if (criterion.getNominalVoltageCriterion() != null) {
-            serializerProvider.defaultSerializeField("nominalVoltageCriterion", criterion.getNominalVoltageCriterion(), jsonGenerator);
+            serializationContext.defaultSerializeProperty("nominalVoltageCriterion", criterion.getNominalVoltageCriterion(), jsonGenerator);
         }
     }
 }

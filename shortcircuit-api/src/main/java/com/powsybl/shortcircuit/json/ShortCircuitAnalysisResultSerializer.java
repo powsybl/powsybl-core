@@ -7,13 +7,12 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import static com.powsybl.shortcircuit.ShortCircuitAnalysisResult.VERSION;
 
@@ -27,13 +26,13 @@ public class ShortCircuitAnalysisResultSerializer extends StdSerializer<ShortCir
     }
 
     @Override
-    public void serialize(ShortCircuitAnalysisResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ShortCircuitAnalysisResult result, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", VERSION);
-        serializerProvider.defaultSerializeField("faultResults", result.getFaultResults(), jsonGenerator);
+        jsonGenerator.writeStringProperty("version", VERSION);
+        serializationContext.defaultSerializeProperty("faultResults", result.getFaultResults(), jsonGenerator);
 
-        JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);
+        JsonUtil.writeExtensions(result, jsonGenerator, serializationContext);
 
         jsonGenerator.writeEndObject();
     }

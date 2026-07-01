@@ -7,12 +7,11 @@
  */
 package com.powsybl.iidm.modification.scalable.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -24,28 +23,28 @@ public class ScalingParametersSerializer extends StdSerializer<ScalingParameters
     }
 
     @Override
-    public void serialize(ScalingParameters scalingParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ScalingParameters scalingParameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", ScalingParameters.VERSION);
-        jsonGenerator.writeStringField("scalingConvention", scalingParameters.getScalingConvention().name());
-        jsonGenerator.writeStringField("scalingType", scalingParameters.getScalingType().name());
-        jsonGenerator.writeBooleanField("constantPowerFactor", scalingParameters.isConstantPowerFactor());
-        jsonGenerator.writeBooleanField("reconnect", scalingParameters.isReconnect());
-        jsonGenerator.writeStringField("priority", scalingParameters.getPriority().name());
+        jsonGenerator.writeStringProperty("version", ScalingParameters.VERSION);
+        jsonGenerator.writeStringProperty("scalingConvention", scalingParameters.getScalingConvention().name());
+        jsonGenerator.writeStringProperty("scalingType", scalingParameters.getScalingType().name());
+        jsonGenerator.writeBooleanProperty("constantPowerFactor", scalingParameters.isConstantPowerFactor());
+        jsonGenerator.writeBooleanProperty("reconnect", scalingParameters.isReconnect());
+        jsonGenerator.writeStringProperty("priority", scalingParameters.getPriority().name());
 
-        jsonGenerator.writeArrayFieldStart("ignoredInjectionIds");
+        jsonGenerator.writeArrayPropertyStart("ignoredInjectionIds");
         for (String id : scalingParameters.getIgnoredInjectionIds().stream().sorted().toList()) { //sorted alphabetically
             jsonGenerator.writeString(id);
         }
         jsonGenerator.writeEndArray();
 
-        jsonGenerator.writeNumberField("loadMinPowerFactor", scalingParameters.getLoadMinPowerFactor());
+        jsonGenerator.writeNumberProperty("loadMinPowerFactor", scalingParameters.getLoadMinPowerFactor());
         if (scalingParameters.getLoadMinQRate().isPresent()) {
-            jsonGenerator.writeNumberField("loadMinQRate", scalingParameters.getLoadMinQRate().getAsDouble());
+            jsonGenerator.writeNumberProperty("loadMinQRate", scalingParameters.getLoadMinQRate().getAsDouble());
         }
         if (scalingParameters.getLoadMaxQRate().isPresent()) {
-            jsonGenerator.writeNumberField("loadMaxQRate", scalingParameters.getLoadMaxQRate().getAsDouble());
+            jsonGenerator.writeNumberProperty("loadMaxQRate", scalingParameters.getLoadMaxQRate().getAsDouble());
         }
 
         jsonGenerator.writeEndObject();

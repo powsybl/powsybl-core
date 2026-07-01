@@ -7,18 +7,17 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.OperatorStrategyResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
@@ -32,7 +31,7 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
     }
 
     @Override
-    public OperatorStrategyResult.ConditionalActionsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public OperatorStrategyResult.ConditionalActionsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
             version = SecurityAnalysisResultSerializer.VERSION;
@@ -66,7 +65,7 @@ public class ConditionalActionsResultDeserializer extends StdDeserializer<Operat
                             "Tag: distributedActivePower", version, "1.9");
                     distributedActivePower = parser.getValueAsDouble();
                 }
-                default -> throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
+                default -> throw DatabindException.from(parser, "Unexpected field: " + parser.currentName());
             }
         }
         return new OperatorStrategyResult.ConditionalActionsResult(conditionalActionsId, status, limitViolationsResult, networkResult, distributedActivePower);

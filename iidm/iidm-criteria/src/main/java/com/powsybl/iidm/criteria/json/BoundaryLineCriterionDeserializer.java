@@ -7,16 +7,15 @@
  */
 package com.powsybl.iidm.criteria.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.BoundaryLineCriterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import com.powsybl.iidm.criteria.SingleCountryCriterion;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 
 /**
  * <p>Deserializer for {@link BoundaryLineCriterion} objects.</p>
@@ -28,7 +27,7 @@ public class BoundaryLineCriterionDeserializer extends AbstractNetworkElementCri
     }
 
     @Override
-    public BoundaryLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public BoundaryLineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws JacksonException {
         AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = fillParsingContext(parser, deserializationContext,
                 BoundaryLineCriterion.TYPE, CriterionType.SINGLE_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE);
 

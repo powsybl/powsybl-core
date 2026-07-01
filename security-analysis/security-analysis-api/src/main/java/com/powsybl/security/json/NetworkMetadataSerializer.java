@@ -7,13 +7,13 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.NetworkMetadata;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -27,15 +27,15 @@ public class NetworkMetadataSerializer extends StdSerializer<NetworkMetadata> {
     }
 
     @Override
-    public void serialize(NetworkMetadata networkMetadata, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(NetworkMetadata networkMetadata, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("id", networkMetadata.getId());
-        jsonGenerator.writeStringField("sourceFormat", networkMetadata.getSourceFormat());
-        jsonGenerator.writeStringField("caseDate", DATE_TIME_FORMATTER.format(networkMetadata.getCaseDate()));
-        jsonGenerator.writeNumberField("forecastDistance", networkMetadata.getForecastDistance());
+        jsonGenerator.writeStringProperty("id", networkMetadata.getId());
+        jsonGenerator.writeStringProperty("sourceFormat", networkMetadata.getSourceFormat());
+        jsonGenerator.writeStringProperty("caseDate", DATE_TIME_FORMATTER.format(networkMetadata.getCaseDate()));
+        jsonGenerator.writeNumberProperty("forecastDistance", networkMetadata.getForecastDistance());
 
-        JsonUtil.writeExtensions(networkMetadata, jsonGenerator, serializerProvider);
+        JsonUtil.writeExtensions(networkMetadata, jsonGenerator, serializationContext);
 
         jsonGenerator.writeEndObject();
     }

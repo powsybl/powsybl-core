@@ -7,11 +7,6 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -19,6 +14,12 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +47,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
     }
 
     @Override
-    public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws JacksonException {
         String version = null;
         List<FaultResult> faultResults = null;
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
@@ -84,12 +85,9 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
     public static ShortCircuitAnalysisResult read(InputStream is) {
         Objects.requireNonNull(is);
 
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new ShortCircuitAnalysisJsonModule());
-        try {
-            return objectMapper.readValue(is, ShortCircuitAnalysisResult.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new ShortCircuitAnalysisJsonModule())
+            .build();
+        return jsonMapper.readValue(is, ShortCircuitAnalysisResult.class);
     }
 }

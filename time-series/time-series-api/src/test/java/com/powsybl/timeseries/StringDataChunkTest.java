@@ -7,14 +7,13 @@
  */
 package com.powsybl.timeseries;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
@@ -36,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class StringDataChunkTest {
 
     @Test
-    void baseTest() throws IOException {
+    void baseTest() {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"a", "b", "c"});
         assertEquals(1, chunk.getOffset());
         assertEquals(3, chunk.getLength());
@@ -57,16 +56,17 @@ class StringDataChunkTest {
         assertEquals(jsonRef, JsonUtil.toJson(chunk::writeJson));
 
         // test json with object mapper
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new TimeSeriesJsonModule());
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new TimeSeriesJsonModule())
+            .build();
 
-        List<StringDataChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(List.of(chunk)),
-                                                               TypeFactory.defaultInstance().constructCollectionType(List.class, StringDataChunk.class));
+        List<StringDataChunk> chunks = jsonMapper.readValue(jsonMapper.writeValueAsString(List.of(chunk)),
+                                                               TypeFactory.createDefaultInstance().constructCollectionType(List.class, StringDataChunk.class));
         assertEquals(1, chunks.size());
         assertEquals(chunk, chunks.get(0));
 
         // check base class (DataChunk) deserializer
-        assertInstanceOf(StringDataChunk.class, objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class));
+        assertInstanceOf(StringDataChunk.class, jsonMapper.readValue(jsonMapper.writeValueAsString(chunk), DataChunk.class));
 
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:45:00Z"),

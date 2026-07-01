@@ -7,14 +7,13 @@
  */
 package com.powsybl.security.dynamic.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -26,14 +25,14 @@ public class DynamicSecurityAnalysisParametersSerializer extends StdSerializer<D
     }
 
     @Override
-    public void serialize(DynamicSecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(DynamicSecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", DynamicSecurityAnalysisParameters.VERSION);
-        jsonGenerator.writeFieldName("dynamic-simulation-parameters");
-        JsonDynamicSimulationParameters.serialize(parameters.getDynamicSimulationParameters(), jsonGenerator, serializerProvider);
-        serializerProvider.defaultSerializeField("contingencies-parameters", parameters.getDynamicContingenciesParameters(), jsonGenerator);
-        JsonUtil.writeOptionalStringField(jsonGenerator, "debugDir", parameters.getDebugDir());
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonDynamicSecurityAnalysisParameters.getExtensionSerializers()::get);
+        jsonGenerator.writeStringProperty("version", DynamicSecurityAnalysisParameters.VERSION);
+        jsonGenerator.writeName("dynamic-simulation-parameters");
+        JsonDynamicSimulationParameters.serialize(parameters.getDynamicSimulationParameters(), jsonGenerator, serializationContext);
+        serializationContext.defaultSerializeProperty("contingencies-parameters", parameters.getDynamicContingenciesParameters(), jsonGenerator);
+        JsonUtil.writeOptionalStringProperty(jsonGenerator, "debugDir", parameters.getDebugDir());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializationContext, JsonDynamicSecurityAnalysisParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }
 }

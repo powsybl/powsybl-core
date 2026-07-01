@@ -8,12 +8,6 @@
 package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
@@ -27,6 +21,13 @@ import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -42,7 +43,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
-    private final ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
+    private final JsonMapper jsonMapper = JsonSensitivityAnalysisParameters.createJsonMapper();
 
     static class DummyExtension extends AbstractExtension<SensitivityAnalysisParameters> {
         double parameterDouble;
@@ -99,13 +100,14 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
             SensitivityAnalysisParameters getExtendable();
         }
 
-        private static ObjectMapper createMapper() {
-            return JsonUtil.createObjectMapper()
-                    .addMixIn(DummyExtension.class, SerializationSpec.class);
+        private static JsonMapper createMapper() {
+            return JsonUtil.createJsonMapperBuilder()
+                .addMixIn(DummyExtension.class, SerializationSpec.class)
+                .build();
         }
 
         @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeEndObject();
         }
@@ -116,10 +118,10 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         }
 
         @Override
-        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
-            ObjectMapper objectMapper = createMapper();
-            ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            return objectReader.readValue(jsonParser, DummyExtension.class);
+        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws JacksonException {
+            JsonMapper mapper = createMapper();
+            ObjectReader objectReader = mapper.readerForUpdating(parameters);
+            return objectReader.readValue(jsonParser);
         }
 
         @Override
@@ -171,8 +173,8 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     @Test
     void roundTrip() throws IOException {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
-        roundTripTest(parameters, (parameters1, jsonFile) -> JsonUtil.writeJson(jsonFile, parameters1, objectMapper),
-            jsonFile -> JsonUtil.readJsonAndUpdate(jsonFile, new SensitivityAnalysisParameters(), objectMapper),
+        roundTripTest(parameters, (parameters1, jsonFile) -> JsonUtil.writeJson(jsonFile, parameters1, jsonMapper),
+            jsonFile -> JsonUtil.readJsonAndUpdate(jsonFile, new SensitivityAnalysisParameters(), jsonMapper),
             "/SensitivityAnalysisParameters.json");
     }
 
@@ -180,7 +182,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
+        writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, jsonMapper),
                 ComparisonUtils::assertTxtEquals, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
@@ -188,7 +190,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     void updateLoadFlowParameters() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.getLoadFlowParameters().setTwtSplitShuntAdmittance(true);
-        JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersIncomplete.json"), parameters, objectMapper);
+        JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersIncomplete.json"), parameters, jsonMapper);
 
         assertTrue(parameters.getLoadFlowParameters().isTwtSplitShuntAdmittance());
     }
@@ -196,7 +198,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     @Test
     void readExtension() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
-        JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersWithExtension.json"), parameters, objectMapper);
+        JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersWithExtension.json"), parameters, jsonMapper);
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
@@ -211,7 +213,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         extension.setParameterDouble(2.8);
         DummyExtension oldExtension = new DummyExtension(extension);
         parameters.addExtension(DummyExtension.class, extension);
-        JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersExtensionUpdate.json"), parameters, objectMapper);
+        JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersExtensionUpdate.json"), parameters, jsonMapper);
         DummyExtension updatedExtension = parameters.getExtension(DummyExtension.class);
         assertEquals(oldExtension.isParameterBoolean(), updatedExtension.isParameterBoolean());
         assertEquals(oldExtension.getParameterDouble(), updatedExtension.getParameterDouble(), 0.01);
@@ -222,7 +224,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json")) {
             SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
-            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, objectMapper));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, jsonMapper));
             assertEquals("Unexpected field: unexpected", e.getMessage());
         }
     }
@@ -230,9 +232,11 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
     @Test
     void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
         SensitivityAnalysisResult.SensitivityStateStatus value = new SensitivityAnalysisResult.SensitivityStateStatus(SensitivityState.postContingency("C1"), SensitivityAnalysisResult.Status.SUCCESS);
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
-        roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
-            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, objectMapper), "/stateStatusRef.json");
+        JsonMapper jsonMapper = JsonUtil.createJsonMapperBuilder()
+            .addModule(new SensitivityJsonModule())
+            .build();
+        roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, jsonMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityStateStatus.class, jsonMapper), "/stateStatusRef.json");
     }
 
     @Test

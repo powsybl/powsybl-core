@@ -7,10 +7,10 @@
  */
 package com.powsybl.security.json.limitreduction;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.limitreduction.LimitReductionList;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,12 +46,8 @@ public final class LimitReductionListSerDeUtil {
      */
     public static LimitReductionList read(InputStream is) {
         Objects.requireNonNull(is);
-        ObjectMapper objectMapper = createObjectMapper();
-        try {
-            return objectMapper.readValue(is, LimitReductionList.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        return jsonMapper.readValue(is, LimitReductionList.class);
     }
 
     /**
@@ -74,17 +70,14 @@ public final class LimitReductionListSerDeUtil {
      * @param outputStream the output stream to use for the serialization
      */
     public static void write(LimitReductionList limitReductionList, OutputStream outputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, limitReductionList);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper jsonMapper = createJsonMapper();
+        ObjectWriter writer = jsonMapper.writerWithDefaultPrettyPrinter();
+        writer.writeValue(outputStream, limitReductionList);
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new LimitReductionModule());
+    private static JsonMapper createJsonMapper() {
+        return JsonUtil.createJsonMapperBuilder()
+            .addModule(new LimitReductionModule())
+            .build();
     }
 }

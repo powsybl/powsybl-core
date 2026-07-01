@@ -7,13 +7,12 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -25,19 +24,19 @@ public class ThreeWindingsTransformerResultSerializer extends StdSerializer<Thre
     }
 
     @Override
-    public void serialize(ThreeWindingsTransformerResult transfoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ThreeWindingsTransformerResult transfoResult, JsonGenerator jsonGenerator, SerializationContext serializationContext) throws JacksonException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("threeWindingsTransformerId", transfoResult.getThreeWindingsTransformerId());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p1", transfoResult.getP1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q1", transfoResult.getQ1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i1", transfoResult.getI1());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p2", transfoResult.getP2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q2", transfoResult.getQ2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i2", transfoResult.getI2());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p3", transfoResult.getP3());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q3", transfoResult.getQ3());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i3", transfoResult.getI3());
-        JsonUtil.writeExtensions(transfoResult, jsonGenerator, serializerProvider);
+        jsonGenerator.writeStringProperty("threeWindingsTransformerId", transfoResult.getThreeWindingsTransformerId());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p1", transfoResult.getP1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q1", transfoResult.getQ1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i1", transfoResult.getI1());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p2", transfoResult.getP2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q2", transfoResult.getQ2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i2", transfoResult.getI2());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "p3", transfoResult.getP3());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "q3", transfoResult.getQ3());
+        JsonUtil.writeOptionalDoubleProperty(jsonGenerator, "i3", transfoResult.getI3());
+        JsonUtil.writeExtensions(transfoResult, jsonGenerator, serializationContext);
         jsonGenerator.writeEndObject();
     }
 }
