@@ -72,7 +72,7 @@ class TopologyTraverseDepthAndBreadthTest {
         private final boolean onlyConnectedBbs;
         private String firstTraversedBbsId;
 
-        public BusbarSectionFinderTraverser(boolean onlyConnectedBbs) {
+        BusbarSectionFinderTraverser(boolean onlyConnectedBbs) {
             this.onlyConnectedBbs = onlyConnectedBbs;
         }
 

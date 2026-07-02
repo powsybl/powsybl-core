@@ -212,9 +212,11 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
-     * Write the network to all the specified versions between <code>minVersion</code> and <code>maxVersion</code> (both included), and compare with the corresponding versioned file <code>filename</code>
+     * Write the network to all the specified versions between <code>minVersion</code> and <code>maxVersion</code> (both included),
+     * and compare with the corresponding versioned file <code>filename</code>
      */
-    protected void testWriteVersionedXmlBetweenVersions(Network network, ExportOptions exportOptions, String filename, IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
+    protected void testWriteVersionedXmlBetweenVersions(Network network, ExportOptions exportOptions, String filename,
+                                                        IidmVersion minVersion, IidmVersion maxVersion) throws IOException {
         testWriteVersionedXml(network, exportOptions, filename, Stream.of(IidmVersion.values())
             .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(maxVersion) <= 0)
             .toArray(IidmVersion[]::new));

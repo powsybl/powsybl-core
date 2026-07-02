@@ -38,30 +38,32 @@ public final class TransformerUtils {
     public static void copyAndMoveAndAddRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc) {
         copyCommonRatioTapChanger(rtcAdder, rtc);
 
-        rtc.getAllSteps().keySet().stream().sorted().forEach(step -> {
-            double rho = rtc.getStep(step).getRho();
-            double r = rtc.getStep(step).getR();
-            double x = rtc.getStep(step).getX();
-            double g = rtc.getStep(step).getG();
-            double b = rtc.getStep(step).getB();
-
-            Complex ratio = obtainComplexRatio(1.0 / rho, 0.0);
-            Complex movedRatio = ratio.reciprocal();
-
-            double rCorrection = 100 * (impedanceConversion(1 + r / 100, ratio) - 1);
-            double xCorrection = 100 * (impedanceConversion(1 + x / 100, ratio) - 1);
-            double gCorrection = 100 * (admittanceConversion(1 + g / 100, ratio) - 1);
-            double bCorrection = 100 * (admittanceConversion(1 + b / 100, ratio) - 1);
-
-            rtcAdder.beginStep()
-                    .setR(rCorrection)
-                    .setX(xCorrection)
-                    .setG(gCorrection)
-                    .setB(bCorrection)
-                    .setRho(1.0 / movedRatio.abs())
-                    .endStep();
-        });
+        rtc.getAllSteps().keySet().stream().sorted().forEach(step -> copyRatioTapChangerStep(rtcAdder, rtc, step));
         rtcAdder.add();
+    }
+
+    private static void copyRatioTapChangerStep(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc, int step) {
+        double rho = rtc.getStep(step).getRho();
+        double r = rtc.getStep(step).getR();
+        double x = rtc.getStep(step).getX();
+        double g = rtc.getStep(step).getG();
+        double b = rtc.getStep(step).getB();
+
+        Complex ratio = obtainComplexRatio(1.0 / rho, 0.0);
+        Complex movedRatio = ratio.reciprocal();
+
+        double rCorrection = 100 * (impedanceConversion(1 + r / 100, ratio) - 1);
+        double xCorrection = 100 * (impedanceConversion(1 + x / 100, ratio) - 1);
+        double gCorrection = 100 * (admittanceConversion(1 + g / 100, ratio) - 1);
+        double bCorrection = 100 * (admittanceConversion(1 + b / 100, ratio) - 1);
+
+        rtcAdder.beginStep()
+            .setR(rCorrection)
+            .setX(xCorrection)
+            .setG(gCorrection)
+            .setB(bCorrection)
+            .setRho(1.0 / movedRatio.abs())
+            .endStep();
     }
 
     private static void copyCommonRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc) {
@@ -94,32 +96,34 @@ public final class TransformerUtils {
     public static void copyAndMoveAndAddPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
         copyCommonPhaseTapChanger(ptcAdder, ptc);
 
-        ptc.getAllSteps().keySet().stream().sorted().forEach(step -> {
-            double rho = ptc.getStep(step).getRho();
-            double alpha = ptc.getStep(step).getAlpha();
-            double r = ptc.getStep(step).getR();
-            double x = ptc.getStep(step).getX();
-            double g = ptc.getStep(step).getG();
-            double b = ptc.getStep(step).getB();
-
-            Complex ratio = obtainComplexRatio(1.0 / rho, -alpha);
-            Complex movedRatio = ratio.reciprocal();
-
-            double rCorrection = 100 * (impedanceConversion(1 + r / 100, ratio) - 1);
-            double xCorrection = 100 * (impedanceConversion(1 + x / 100, ratio) - 1);
-            double gCorrection = 100 * (admittanceConversion(1 + g / 100, ratio) - 1);
-            double bCorrection = 100 * (admittanceConversion(1 + b / 100, ratio) - 1);
-
-            ptcAdder.beginStep()
-                    .setR(rCorrection)
-                    .setX(xCorrection)
-                    .setG(gCorrection)
-                    .setB(bCorrection)
-                    .setRho(1.0 / movedRatio.abs())
-                    .setAlpha(-Math.toDegrees(movedRatio.getArgument()))
-                    .endStep();
-        });
+        ptc.getAllSteps().keySet().stream().sorted().forEach(step -> copyPhaseTapChangerStep(ptcAdder, ptc, step));
         ptcAdder.add();
+    }
+
+    private static void copyPhaseTapChangerStep(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc, int step) {
+        double rho = ptc.getStep(step).getRho();
+        double alpha = ptc.getStep(step).getAlpha();
+        double r = ptc.getStep(step).getR();
+        double x = ptc.getStep(step).getX();
+        double g = ptc.getStep(step).getG();
+        double b = ptc.getStep(step).getB();
+
+        Complex ratio = obtainComplexRatio(1.0 / rho, -alpha);
+        Complex movedRatio = ratio.reciprocal();
+
+        double rCorrection = 100 * (impedanceConversion(1 + r / 100, ratio) - 1);
+        double xCorrection = 100 * (impedanceConversion(1 + x / 100, ratio) - 1);
+        double gCorrection = 100 * (admittanceConversion(1 + g / 100, ratio) - 1);
+        double bCorrection = 100 * (admittanceConversion(1 + b / 100, ratio) - 1);
+
+        ptcAdder.beginStep()
+            .setR(rCorrection)
+            .setX(xCorrection)
+            .setG(gCorrection)
+            .setB(bCorrection)
+            .setRho(1.0 / movedRatio.abs())
+            .setAlpha(-Math.toDegrees(movedRatio.getArgument()))
+            .endStep();
     }
 
     private static void copyCommonPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
@@ -177,14 +181,18 @@ public final class TransformerUtils {
         t2wFortescueAdder.add();
     }
 
-    public static void copyAndAddFortescue(ThreeWindingsTransformerFortescueAdder t3wFortescue, TwoWindingsTransformerFortescue t2w1Fortescue, boolean isWellOrientedT2w1, TwoWindingsTransformerFortescue t2w2Fortescue, boolean isWellOrientedT2w2, TwoWindingsTransformerFortescue t2w3Fortescue, boolean isWellOrientedT2w3) {
+    public static void copyAndAddFortescue(ThreeWindingsTransformerFortescueAdder t3wFortescue,
+                                           TwoWindingsTransformerFortescue t2w1Fortescue, boolean isWellOrientedT2w1,
+                                           TwoWindingsTransformerFortescue t2w2Fortescue, boolean isWellOrientedT2w2,
+                                           TwoWindingsTransformerFortescue t2w3Fortescue, boolean isWellOrientedT2w3) {
         copyFortescueLeg(t3wFortescue.leg1(), t2w1Fortescue, isWellOrientedT2w1);
         copyFortescueLeg(t3wFortescue.leg2(), t2w2Fortescue, isWellOrientedT2w2);
         copyFortescueLeg(t3wFortescue.leg3(), t2w3Fortescue, isWellOrientedT2w3);
         t3wFortescue.add();
     }
 
-    private static void copyFortescueLeg(ThreeWindingsTransformerFortescueAdder.LegFortescueAdder legFortescueAdder, TwoWindingsTransformerFortescue t2wFortescue, boolean isWellOrientedT2w) {
+    private static void copyFortescueLeg(ThreeWindingsTransformerFortescueAdder.LegFortescueAdder legFortescueAdder,
+                                         TwoWindingsTransformerFortescue t2wFortescue, boolean isWellOrientedT2w) {
         if (t2wFortescue != null) {
             legFortescueAdder.withConnectionType(isWellOrientedT2w ? t2wFortescue.getConnectionType1() : t2wFortescue.getConnectionType2())
                     .withFreeFluxes(t2wFortescue.isFreeFluxes())
@@ -200,7 +208,9 @@ public final class TransformerUtils {
         phaseAngleClockAdder.add();
     }
 
-    public static void copyAndAddPhaseAngleClock(ThreeWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder, TwoWindingsTransformerPhaseAngleClock t2w2PhaseAngleClock, TwoWindingsTransformerPhaseAngleClock t2w3PhaseAngleClock) {
+    public static void copyAndAddPhaseAngleClock(ThreeWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder,
+                                                 TwoWindingsTransformerPhaseAngleClock t2w2PhaseAngleClock,
+                                                 TwoWindingsTransformerPhaseAngleClock t2w3PhaseAngleClock) {
         if (t2w2PhaseAngleClock != null) {
             phaseAngleClockAdder.withPhaseAngleClockLeg2(t2w2PhaseAngleClock.getPhaseAngleClock());
         }
@@ -216,7 +226,10 @@ public final class TransformerUtils {
         toBeEstimatedAdder.add();
     }
 
-    public static void copyAndAddToBeEstimated(ThreeWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder, TwoWindingsTransformerToBeEstimated t2w1ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w2ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w3ToBeEstimated) {
+    public static void copyAndAddToBeEstimated(ThreeWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder,
+                                               TwoWindingsTransformerToBeEstimated t2w1ToBeEstimated,
+                                               TwoWindingsTransformerToBeEstimated t2w2ToBeEstimated,
+                                               TwoWindingsTransformerToBeEstimated t2w3ToBeEstimated) {
         if (t2w1ToBeEstimated != null) {
             toBeEstimatedAdder.withRatioTapChanger1Status(t2w1ToBeEstimated.shouldEstimateRatioTapChanger())
                     .withPhaseTapChanger1Status(t2w1ToBeEstimated.shouldEstimatePhaseTapChanger());

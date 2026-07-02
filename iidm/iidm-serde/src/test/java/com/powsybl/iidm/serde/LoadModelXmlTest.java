@@ -9,10 +9,10 @@ package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 

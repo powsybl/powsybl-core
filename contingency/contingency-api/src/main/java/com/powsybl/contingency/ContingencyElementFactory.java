@@ -8,7 +8,6 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.*;
 
 import java.util.Map;

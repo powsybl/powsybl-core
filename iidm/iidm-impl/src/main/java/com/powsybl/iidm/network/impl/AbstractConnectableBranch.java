@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
@@ -88,7 +88,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
+    public List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side) {
         return getOperationalLimitsHolder(side).getAllSelectedOperationalLimitsGroups();
     }
 

@@ -7,18 +7,17 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.contingency.violations.LimitViolationType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -99,7 +98,8 @@ class LimitViolationComparatorTest {
             .side(TwoSides.ONE)
             .build();
 
-        List<LimitViolation> violations = Arrays.asList(line1Violation2, vl1Violation1, line2Violation2, line2Violation3, line2Violation1, line1Violation1, vl1Violation2, line1AcPViolation, line2AppViolation);
+        List<LimitViolation> violations = Arrays.asList(line1Violation2, vl1Violation1, line2Violation2, line2Violation3,
+            line2Violation1, line1Violation1, vl1Violation2, line1AcPViolation, line2AppViolation);
         Collections.sort(violations, new LimitViolationComparator());
 
         assertEquals(line1AcPViolation, violations.get(0));

@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.VoltageSourceConverter;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -32,10 +32,11 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     private final RegulatingPoint regulatingPoint;
 
     VoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                               double minP, double maxP,
                                double idleLoss, double switchingLoss, double resistiveLoss,
                                TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
                                boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
-        super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
+        super(ref, id, name, fictitious, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
@@ -123,6 +124,11 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     @Override
     public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl(this);
+    }
+
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
     }
 
     @Override

@@ -195,12 +195,7 @@ public abstract class AbstractHvdcLineTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            hvdcLine.getConvertersMode();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, hvdcLine::getConvertersMode);
     }
 
     private void createHvdcLine(String id, String name, double r, HvdcLine.ConvertersMode mode, double v,
@@ -251,6 +246,29 @@ public abstract class AbstractHvdcLineTest {
 
         // Connection on the other side fails since it's still connected
         assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+    }
+
+    @Test
+    void testConnectDisconnectWithFictitiousBreaker() {
+        Network hvdcNetworkWithFictitiousBreaker = HvdcTestNetwork.createLcc(NetworkFactory.findDefault(), true);
+        HvdcLine hvdcLine = hvdcNetworkWithFictitiousBreaker.getHvdcLine("L");
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        //Fails since disconnect cannot operate fictitious breakers by default
+        assertFalse(hvdcLine.disconnectConverterStations());
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        //Force open
+        assertTrue(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER));
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        //Fails since connect cannot operate fictitious breakers by default
+        assertFalse(hvdcLine.connectConverterStations());
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        //Force closed
+        assertTrue(hvdcLine.connectConverterStations(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR));
+        assertHvdcLineConnection(hvdcLine, true, true);
     }
 
     private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {

@@ -7,14 +7,17 @@
  */
 package com.powsybl.iidm.network;
 
- /**
+/**
   * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
   */
 public interface Overload {
     /**
-     * The temporary limit under which the current is.
-     * In particular, it determines the duration during which
-     * the current current value may be sustained.
+     * The temporary limit determining the duration of time at which the present current
+     * may be sustained.This depends on the {@link DetectionKind}:
+     * <ul>
+     *     <li>{@link DetectionKind#HIGH}: the temporary limit whose value is directly above the present current</li>
+     *     <li>{@link DetectionKind#LOW}: the temporary limit whose value is directly under the present current (this corresponds to {@link #getPreviousLimit()}</li>
+     * </ul>
      */
     LoadingLimits.TemporaryLimit getTemporaryLimit();
 
@@ -28,7 +31,7 @@ public interface Overload {
      */
     String getPreviousLimitName();
 
-     /**
+    /**
       * @return the id of the {@link OperationalLimitsGroup} this overload relates to
       */
     String getOperationalLimitsGroupId();
