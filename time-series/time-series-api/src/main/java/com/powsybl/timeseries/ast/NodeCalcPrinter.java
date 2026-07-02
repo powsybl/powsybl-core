@@ -9,83 +9,131 @@ package com.powsybl.timeseries.ast;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
+public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
 
     public static String print(NodeCalc nodeCalc) {
-        return nodeCalc.accept(new NodeCalcPrinter(), null, 0);
+        Printable root = nodeCalc.accept(new NodeCalcPrinter(), null, 0);
+        StringBuilder builder = new StringBuilder();
+        Deque<Object> stack = new ArrayDeque<>();
+        stack.push(root);
+
+        while (!stack.isEmpty()) {
+            Object node = stack.pop();
+            if (node instanceof String text) {
+                builder.append(text);
+            } else if (node instanceof Printable printable) {
+                printable.pushTo(stack);
+            }
+        }
+        return builder.toString();
     }
 
     @Override
-    public String visit(IntegerNodeCalc nodeCalc, Void arg) {
-        return Integer.toString(nodeCalc.getValue());
+    public Printable visit(IntegerNodeCalc nodeCalc, Void arg) {
+        return stack -> stack.push(Integer.toString(nodeCalc.getValue()));
     }
 
     @Override
-    public String visit(FloatNodeCalc nodeCalc, Void arg) {
-        return Float.toString(nodeCalc.getValue());
+    public Printable visit(FloatNodeCalc nodeCalc, Void arg) {
+        return stack -> stack.push(Float.toString(nodeCalc.getValue()));
     }
 
     @Override
-    public String visit(DoubleNodeCalc nodeCalc, Void arg) {
-        return Double.toString(nodeCalc.getValue());
+    public Printable visit(DoubleNodeCalc nodeCalc, Void arg) {
+        return stack -> stack.push(Double.toString(nodeCalc.getValue()));
     }
 
     @Override
-    public String visit(BigDecimalNodeCalc nodeCalc, Void arg) {
-        return nodeCalc.getValue().toString();
+    public Printable visit(BigDecimalNodeCalc nodeCalc, Void arg) {
+        return stack -> stack.push(nodeCalc.getValue().toString());
     }
 
     @Override
-    public String visit(BinaryOperation nodeCalc, Void arg, String left, String right) {
-        return "(" + left + " " + nodeCalc.getOperator() + " " + right + ")";
+    public Printable visit(BinaryOperation nodeCalc, Void arg, Printable left, Printable right) {
+        return stack -> {
+            stack.push(")");
+            stack.push(right);
+            stack.push(" " + nodeCalc.getOperator() + " ");
+            stack.push(left);
+            stack.push("(");
+        };
     }
 
     @Override
-    public String visit(UnaryOperation nodeCalc, Void arg, String child) {
-        return "(" + child + ")." + nodeCalc.getOperator() + "()";
+    public Printable visit(UnaryOperation nodeCalc, Void arg, Printable child) {
+        return stack -> {
+            stack.push(")." + nodeCalc.getOperator() + "()");
+            stack.push(child);
+            stack.push("(");
+        };
     }
 
     @Override
-    public String visit(MinNodeCalc nodeCalc, Void arg, String child) {
-        return child + ".min(" + nodeCalc.getMin() + ")";
+    public Printable visit(MinNodeCalc nodeCalc, Void arg, Printable child) {
+        return stack -> {
+            stack.push(".min(" + nodeCalc.getMin() + ")");
+            stack.push(child);
+        };
     }
 
     @Override
-    public String visit(MaxNodeCalc nodeCalc, Void arg, String child) {
-        return child + ".max(" + nodeCalc.getMax() + ")";
+    public Printable visit(MaxNodeCalc nodeCalc, Void arg, Printable child) {
+        return stack -> {
+            stack.push(".max(" + nodeCalc.getMax() + ")");
+            stack.push(child);
+        };
     }
 
     @Override
-    public String visit(CachedNodeCalc nodeCalc, Void arg, String child) {
+    public Printable visit(CachedNodeCalc nodeCalc, Void arg, Printable child) {
         return child;
     }
 
     @Override
-    public String visit(TimeNodeCalc nodeCalc, Void arg, String child) {
-        return "(" + child + ").time()";
+    public Printable visit(TimeNodeCalc nodeCalc, Void arg, Printable child) {
+        return stack -> {
+            stack.push(").time()");
+            stack.push(child);
+            stack.push("(");
+        };
     }
 
     @Override
-    public String visit(TimeSeriesNameNodeCalc nodeCalc, Void arg) {
-        return "timeSeries['" + nodeCalc.getTimeSeriesName() + "']";
+    public Printable visit(TimeSeriesNameNodeCalc nodeCalc, Void arg) {
+        return stack -> stack.push("timeSeries['" + nodeCalc.getTimeSeriesName() + "']");
     }
 
     @Override
-    public String visit(TimeSeriesNumNodeCalc nodeCalc, Void arg) {
-        return "timeSeries[" + nodeCalc.getTimeSeriesNum() + "]";
+    public Printable visit(TimeSeriesNumNodeCalc nodeCalc, Void arg) {
+        return stack -> stack.push("timeSeries[" + nodeCalc.getTimeSeriesNum() + "]");
     }
 
     @Override
-    public String visit(BinaryMinCalc nodeCalc, Void arg, String left, String right) {
-        return "min(" + left + ", " + right + ")";
+    public Printable visit(BinaryMinCalc nodeCalc, Void arg, Printable left, Printable right) {
+        return stack -> {
+            stack.push(")");
+            stack.push(right);
+            stack.push(", ");
+            stack.push(left);
+            stack.push("min(");
+        };
     }
 
     @Override
-    public String visit(BinaryMaxCalc nodeCalc, Void arg, String left, String right) {
-        return "max(" + left + ", " + right + ")";
+    public Printable visit(BinaryMaxCalc nodeCalc, Void arg, Printable left, Printable right) {
+        return stack -> {
+            stack.push(")");
+            stack.push(right);
+            stack.push(", ");
+            stack.push(left);
+            stack.push("max(");
+        };
     }
 
     @Override
