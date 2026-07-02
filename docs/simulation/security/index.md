@@ -31,6 +31,7 @@ violations can have different types:
 The first input of the security analysis is a network. As this simulation is based on a [load flow](../loadflow/index)
 engine for a list of contingencies, this network should converge in the pre-contingency state.
 
+(security-contingencies)=
 ### Contingencies
 
 The security analysis needs a list of contingencies as an input. When contingencies are provided, the violations are
@@ -58,6 +59,7 @@ A contingency is made of contingency elements. A contingency can trigger one ele
 at a time (N-K). Bus bar and bus contingencies are special N-K contingencies as they trigger all the equipments
 connected to a given bus bar section.
 
+(security-operator-strategies)=
 ### Operator strategies
 
 An operator strategy is applied in pre-contingency or after a contingency, depending on the contingency context
@@ -69,6 +71,7 @@ provided. A contingency context can be:
 
 An operator strategy groups a condition and a list of remedial actions.
 
+(security-remedial-actions)=
 #### Remedial actions
 
 Remedial actions are actions that are applied when limit violations occur. Supported actions are:
@@ -99,6 +102,7 @@ Remedial actions can be *preventive* or *curative*:
 
 Note: you can find the current list of remedial actions implemented in the PowSyBl Open Load Flow security analysis provider in the [PowSyBl Open Load Flow documentation](inv:powsyblopenloadflow:*:*#security/inputs).
 
+(security-conditions)=
 #### Conditions
 
 Actions are applied if a condition is met. The conditions can be diversified and extended in the future:
@@ -116,7 +120,7 @@ Actions are applied if a condition is met. The conditions can be diversified and
   transformer threshold condition, injection threshold condition and AC/DC converter threshold condition.
 
 
-
+(security-state-monitors)=
 ### State monitors
 
 A stateMonitor allows getting information about branch, bus and three-winding transformers on the network after a
@@ -131,6 +135,7 @@ state or post-contingency state with a contingency id or both. For example:
   contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the
   branch.
 
+(security-limit-reductions)=
 ### Limit reductions
 
 Limit reductions can be specified in order to detect when a specific limit is **nearly** reached, without having to
@@ -146,6 +151,7 @@ These criteria can include:
 - the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.);
 - the network elements targeted by the reduction (by ids, countries and/or nominal voltages);
 - which operational limits are affected by the reduction (permanent or temporary + acceptable duration).
+- which specified operational limit groups are affected by the reduction
 
 You can find more details about limit reductions [here](./limit-reductions).
 
