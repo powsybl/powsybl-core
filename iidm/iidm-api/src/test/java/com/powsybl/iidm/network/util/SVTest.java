@@ -7,11 +7,11 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -283,24 +283,24 @@ class SVTest {
     }
 
     private static final class TwoWindingsTransformerTestData {
-        private static double R = 0.43;
-        private static double X = 15.90;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double RTC_RHO = 1.0;
-        private static double RTC_R = 0.0;
-        private static double RTC_X = 0.0;
-        private static double RTC_G = 0.0;
-        private static double RTC_B = 0.0;
-        private static double PTC_RHO = 0.98;
-        private static double PTC_ALPHA = -5.0;
-        private static double PTC_R = 0.0;
-        private static double PTC_X = 0.0;
-        private static double PTC_G = 0.0;
-        private static double PTC_B = 0.0;
-        private static double RATEDU1 = 230.0;
-        private static double RATEDU2 = 138.0;
-        private static double VN = 138.0;
+        private static final double R = 0.43;
+        private static final double X = 15.90;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double RTC_RHO = 1.0;
+        private static final double RTC_R = 0.0;
+        private static final double RTC_X = 0.0;
+        private static final double RTC_G = 0.0;
+        private static final double RTC_B = 0.0;
+        private static final double PTC_RHO = 0.98;
+        private static final double PTC_ALPHA = -5.0;
+        private static final double PTC_R = 0.0;
+        private static final double PTC_X = 0.0;
+        private static final double PTC_G = 0.0;
+        private static final double PTC_B = 0.0;
+        private static final double RATEDU1 = 230.0;
+        private static final double RATEDU2 = 138.0;
+        private static final double VN = 138.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
@@ -356,19 +356,19 @@ class SVTest {
     }
 
     private static final class TwoWindingsTransformerWithoutRtcTestData {
-        private static double R = 0.43;
-        private static double X = 15.90;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double PTC_RHO = 0.98;
-        private static double PTC_ALPHA = -5.0;
-        private static double PTC_R = 0.0;
-        private static double PTC_X = 0.0;
-        private static double PTC_G = 0.0;
-        private static double PTC_B = 0.0;
-        private static double RATEDU1 = 230.0;
-        private static double RATEDU2 = 138.0;
-        private static double VN = 138.0;
+        private static final double R = 0.43;
+        private static final double X = 15.90;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double PTC_RHO = 0.98;
+        private static final double PTC_ALPHA = -5.0;
+        private static final double PTC_R = 0.0;
+        private static final double PTC_X = 0.0;
+        private static final double PTC_G = 0.0;
+        private static final double PTC_B = 0.0;
+        private static final double RATEDU1 = 230.0;
+        private static final double RATEDU2 = 138.0;
+        private static final double VN = 138.0;
 
         private static PhaseTapChanger ptc;
         private static PhaseTapChangerStep ptcStep;
@@ -414,18 +414,18 @@ class SVTest {
     }
 
     private static final class TwoWindingsTransformerWithoutPtcTestData {
-        private static double R = 0.43;
-        private static double X = 15.90;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double RTC_RHO = 0.98;
-        private static double RTC_R = 0.0;
-        private static double RTC_X = 0.0;
-        private static double RTC_G = 0.0;
-        private static double RTC_B = 0.0;
-        private static double RATEDU1 = 230.0;
-        private static double RATEDU2 = 138.0;
-        private static double VN = 138.0;
+        private static final double R = 0.43;
+        private static final double X = 15.90;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double RTC_RHO = 0.98;
+        private static final double RTC_R = 0.0;
+        private static final double RTC_X = 0.0;
+        private static final double RTC_G = 0.0;
+        private static final double RTC_B = 0.0;
+        private static final double RATEDU1 = 230.0;
+        private static final double RATEDU2 = 138.0;
+        private static final double VN = 138.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
@@ -552,13 +552,13 @@ class SVTest {
     }
 
     private static final class LineDcTestData {
-        private static double R = 0.0;
-        private static double X = 5.917E-4;
-        private static double G1 = 0.01;
-        private static double B1 = 0.0020;
-        private static double G2 = 0.01;
-        private static double B2 = 0.0020;
-        private static double VN = 1.0;
+        private static final double R = 0.0;
+        private static final double X = 5.917E-4;
+        private static final double G1 = 0.01;
+        private static final double B1 = 0.0020;
+        private static final double G2 = 0.01;
+        private static final double B2 = 0.0020;
+        private static final double VN = 1.0;
         private static Line line;
         private static Terminal t1;
         private static Terminal t2;
@@ -593,14 +593,14 @@ class SVTest {
     }
 
     private static final class TwoWindingsTransformerDcTestData {
-        private static double R = 0.0043;
-        private static double X = 0.0055618;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double RTC_RHO = 1.0;
-        private static double RATEDU1 = 0.969;
-        private static double RATEDU2 = 1.0;
-        private static double VN = 1.0;
+        private static final double R = 0.0043;
+        private static final double X = 0.0055618;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double RTC_RHO = 1.0;
+        private static final double RATEDU1 = 0.969;
+        private static final double RATEDU2 = 1.0;
+        private static final double VN = 1.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
@@ -639,15 +639,15 @@ class SVTest {
     }
 
     private static final class PhaseShifterDcTestData {
-        private static double R = 0.00043;
-        private static double X = 0.0020912;
-        private static double G = 0.0;
-        private static double B = 0.0;
-        private static double PTC_RHO = 1.0;
-        private static double PTC_ALPHA = 10.0;
-        private static double RATEDU1 = 0.978;
-        private static double RATEDU2 = 1.0;
-        private static double VN = 1.0;
+        private static final double R = 0.00043;
+        private static final double X = 0.0020912;
+        private static final double G = 0.0;
+        private static final double B = 0.0;
+        private static final double PTC_RHO = 1.0;
+        private static final double PTC_ALPHA = 10.0;
+        private static final double RATEDU1 = 0.978;
+        private static final double RATEDU2 = 1.0;
+        private static final double VN = 1.0;
 
         private static PhaseTapChanger ptc;
         private static PhaseTapChangerStep ptcStep;

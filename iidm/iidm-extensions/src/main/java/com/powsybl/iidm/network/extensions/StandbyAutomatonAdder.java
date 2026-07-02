@@ -26,7 +26,7 @@ public interface StandbyAutomatonAdder extends ExtensionAdder<StaticVarCompensat
     StandbyAutomatonAdder withStandbyStatus(boolean standby);
 
     /**
-     * Define the fix part of the susceptance (in S) used when the static var compensator is in stand by. Should be between the mininal
+     * Define the fix part of the susceptance (in S) used when the static var compensator is in stand by. Should be between the minimal
      * and the maximal susceptance of the static var compensator.
      */
     StandbyAutomatonAdder withB0(double b0);

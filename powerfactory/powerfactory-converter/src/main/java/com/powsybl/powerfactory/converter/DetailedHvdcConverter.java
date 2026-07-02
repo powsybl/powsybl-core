@@ -8,21 +8,22 @@
 
 package com.powsybl.powerfactory.converter;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.AcDcConverter.ControlMode;
-import com.powsybl.iidm.network.DcNode;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageSourceConverterAdder;
-import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.powsybl.powerfactory.converter.DataAttributeNames.OBJ_ID;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.TYP_ID;
 
 /**
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}
@@ -41,7 +42,8 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     private record DcGridData(Set<DataObject> dcElmLnes,
                               Set<DataObject> dcElmTerms,
                               Set<DataObject> acDcConverters,
-                              Set<DataObject> elmGndswt) {
+                              Set<DataObject> elmGndswt,
+                              Set<DataObject> elmCoup) {
 
         /**
          * Create the data model by reading from the PowerFactory data models.
@@ -52,18 +54,14 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
          * Selection is done based on the systp attribute of ElmTerm and of TypLne.
          */
         static DcGridData createGridData(List<DataObject> elmNets) {
-            assert elmNets.isEmpty() || ELMNET.equals(elmNets.getFirst().getDataClassName());
-
             List<DataObject> elmTerms = PowerFactoryImporter.gatherElmTerms(elmNets);
-            assert elmTerms.isEmpty() || ELMTERM.equals(elmTerms.getFirst().getDataClassName());
             List<DataObject> elmVscs = PowerFactoryImporter.gatherElmVscs(elmNets);
-            assert elmVscs.isEmpty() || "ElmVsc".equals(elmVscs.getFirst().getDataClassName());
 
             // Add DC lines
             Set<DataObject> dcElmLnes = new HashSet<>();
             List<DataObject> elmLines = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmLne").stream()).toList();
             for (DataObject elmLne : elmLines) {
-                DataObjectRef typLneRef = elmLne.getObjectAttributeValue("typ_id");
+                DataObjectRef typLneRef = elmLne.getObjectAttributeValue(TYP_ID);
                 DataObject typLne = typLneRef.resolve().orElseThrow(() -> new PowerFactoryException("Missing line type in TypLne for ElmLne " + elmLne.getId() + "."));
                 int lineSysType = typLne.findIntAttributeValue("systp").orElseThrow(() -> new PowerFactoryException("Missing systp for TypLne " + typLne.getId() + "."));
                 if (lineSysType == 1) {
@@ -85,7 +83,41 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
             // Add grounds
             Set<DataObject> elmGndswt = elmNets.stream().flatMap(elmNet -> elmNet.search(".*.ElmGndswt").stream()).collect(Collectors.toSet());
 
-            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt);
+            // Add switches / breakers (ElmCoup) where both ends are in the DC network
+            Set<DataObject> dcElmCoup = getDcSwitchObjs(dcElmTerms);
+
+            return new DcGridData(dcElmLnes, dcElmTerms, usedVscs, elmGndswt, dcElmCoup);
+        }
+
+        /**
+         * Gather data of DC ElmCoup from the PowerFactory data model.
+         * @param dcElmTerms DC terminals.
+         * @return set of ElmCoup data objects that are connected to 2 DC terminals.
+         */
+        private static @NonNull Set<DataObject> getDcSwitchObjs(Set<DataObject> dcElmTerms) {
+
+            // List of cubicles connected to DC terminals
+            List<DataObject> connectedCubic = dcElmTerms.stream().flatMap(e -> e.getChildrenByClass("StaCubic").stream()).toList();
+
+            // Each ElmCoup appears once per DC terminal it is connected to, so counting occurrences gives
+            // the number of DC terminals connected to each switch.
+            Map<DataObject, Long> terminalCount = connectedCubic.stream()
+                    .flatMap(cubic -> cubic.findObjectAttributeValue(OBJ_ID).flatMap(DataObjectRef::resolve).stream()) // all equipment connected to at least one DC terminal, with repetitions
+                    .filter(obj -> "ElmCoup".equals(obj.getDataClassName())) // Keep only ElmCoup
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+            terminalCount.forEach((elmCoup, count) -> {
+                if (count != 2) {
+                    throw new PowerFactoryException("ElmCoup " + elmCoup.getId() + " is connected to " + count + " DC terminals, expected exactly 2.");
+                }
+            });
+
+            return new HashSet<>(terminalCount.keySet());
+
+        }
+
+        int getCount() {
+            return dcElmLnes.size() + dcElmTerms.size() + acDcConverters.size() + elmGndswt.size() + elmCoup.size();
         }
 
     } // private record DcGridData
@@ -93,10 +125,16 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
     DetailedHvdcConverter(ImportContext importContext, Network network, List<DataObject> elmNets) {
         super(importContext, network);
         gridData = DcGridData.createGridData(elmNets);
-        final int nRead = gridData.acDcConverters.size()
-                + gridData.dcElmLnes.size()
-                + gridData.dcElmTerms.size();
-        LOGGER.info("{} data objects read from the DGS file for detailed DC data .", nRead);
+        LOGGER.info("{} data objects read from the DGS file for detailed DC data.", gridData.getCount());
+    }
+
+    @Override
+    boolean isDcObject(DataObject obj) {
+        return gridData.dcElmTerms.contains(obj)
+                || gridData.dcElmLnes.contains(obj)
+                || gridData.acDcConverters.contains(obj)
+                || gridData.elmGndswt.contains(obj)
+                || gridData.elmCoup.contains(obj);
     }
 
     @Override
@@ -104,14 +142,9 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         return gridData.dcElmTerms.contains(elmTerm);
     }
 
-    @Override
-    boolean isDcLink(DataObject elmLne) {
-        return gridData.dcElmLnes.contains(elmLne);
-    }
-
     /**
      * Record representation of the StaCubic content.
-     * @param busIndexIn // obj_bud in the DGS file - connector id for the equipment.
+     * @param busIndexIn // obj_bus in the DGS file - connector id for the equipment.
      * @param dcNodeId   // id of the DcNode in the PowSyBl DC network.
      */
     private record DcNodeRef(int busIndexIn, String dcNodeId) {
@@ -152,12 +185,77 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
                 .forEachOrdered(line -> addDcLine(line, network, objIdDcNodeRef));
 
         // create and connect grounds
-        LOGGER.debug("Creating {} DC grounds.", 0);
+        LOGGER.debug("Creating {} DC grounds.", gridData.elmGndswt.size());
         gridData.elmGndswt.stream()
                 .sorted(Comparator.comparing(DataObject::getId))
                 .forEachOrdered(gnd -> addDcGround(gnd, network, objIdDcNodeRef));
 
+        // create DC switches
+        LOGGER.debug("Creating {} DC switches.", gridData.elmCoup.size());
+        gridData.elmCoup.stream()
+                .sorted(Comparator.comparing(DataObject::getId))
+                .forEachOrdered(coup -> addDcSwitch(coup, network, objIdDcNodeRef));
+
         LOGGER.debug("DC subnetworks created.");
+    }
+
+    /**
+     * Add a DcSwitch to network with the data in elmCoup.
+     * @param elmCoup data object with DC switch.
+     * @param network where to add the DcSwitch.
+     * @param objIdDcNodeRef map from objects to DC nodes.
+     */
+    private static void addDcSwitch(DataObject elmCoup, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
+        // Find the nodes
+        List<String> dcNodeIds = getAndCheckDcNodes(elmCoup, 2, objIdDcNodeRef);
+
+        DcSwitchKind kind = getKind(elmCoup);
+
+        // connected unless explicitly disconnected
+        int onOff = elmCoup.findIntAttributeValue("on_off").orElse(1);
+
+        // get resistance in TypSwitch if present, otherwise default to zero
+        double r = getDcSwitchResistance(elmCoup);
+
+        network.newDcSwitch()
+                .setId(idInNetworkString(elmCoup))
+                .setDcNode1(dcNodeIds.getFirst())
+                .setDcNode2(dcNodeIds.getLast())
+                .setOpen(onOff == 0)
+                .setKind(kind)
+                .setR(r)
+                .add();
+    }
+
+    /**
+     * Get the kind of DcSwitch from the string in elmCoup aUsage field. If aUsage is absent, default to
+     * disconnector.
+     * @param elmCoup ElmCoup object from the DGS file.
+     * @return DcSwitchKind associated with the ElmCoup DGS object.
+     * @throws PowerFactoryException in case of unsupported string in aUsage field.
+     */
+    private static DcSwitchKind getKind(DataObject elmCoup) {
+        // disconnector unless explicitly a breaker
+        String aUsage = elmCoup.findStringAttributeValue("aUsage").orElse("dct");
+        return switch (aUsage) {
+            case "dct" -> DcSwitchKind.DISCONNECTOR;
+            case "cbk" -> DcSwitchKind.BREAKER;
+            default -> throw new PowerFactoryException("Unsupported aUsage value '" + aUsage + "' for ElmCoup " + elmCoup.getId()
+                                                        + ". Supported values: 'dct' (disconnector), 'cbk' (breaker).");
+        };
+    }
+
+    /**
+     * get resistance of DC switch if present in a related TypSwitch.
+     * @param elmCoup data object of the DC switch
+     * @return resistance of the switch if present in the related TypSwitch
+     * or zero if absent or if no related TypSwitch.
+     */
+    private static double getDcSwitchResistance(DataObject elmCoup) {
+        return elmCoup.findObjectAttributeValue(TYP_ID)
+                .flatMap(DataObjectRef::resolve)
+                .flatMap(t -> t.findFloatAttributeValue("R_on"))
+                .orElse(0.0f);
     }
 
     /**
@@ -174,7 +272,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
 
         for (DataObject elmTerm : dcGridData.dcElmTerms) {
             for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
-                DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
+                DataObject connectedObj = staCubic.findObjectAttributeValue(OBJ_ID)
                         .flatMap(DataObjectRef::resolve)
                         .orElse(null);
 
@@ -202,13 +300,10 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @throws PowerFactoryException if a referenced node is absent from the network.
      */
     private static void objIdDcNodeRefSanityCheck(Map<Long, List<DcNodeRef>> objIdDcNodeRef, Network network, Set<DataObject> elmTerms) {
-        assert elmTerms != null;
-        assert elmTerms.isEmpty() || ELMTERM.equals(elmTerms.iterator().next().getDataClassName());
         for (var entry : objIdDcNodeRef.entrySet()) {
             for (DcNodeRef nodeRef : entry.getValue()) {
                 if (network.getDcNode(nodeRef.dcNodeId()) == null) {
                     DataObject elmTerm = elmTerms.stream().filter(term -> idInNetworkString(term).equals(nodeRef.dcNodeId())).findFirst().orElse(null);
-                    assert elmTerm != null;
                     throw new PowerFactoryException("ElmTerm "
                             + elmTerm.getId() + " is referenced by equipment "
                             + entry.getKey()
@@ -233,7 +328,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         }
 
         String gndId = idInNetworkString(elmGndswt);
-        assert gndId != null;
 
         // Find terminal connected to ground
         List<String> dcNodesId = getAndCheckDcNodes(elmGndswt, 1, objIdDcNodeRef);
@@ -250,9 +344,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param network  where to add the node.
      */
     private static void addDcNode(DataObject terminal, Network network) {
-
-        assert ELMTERM.equals(terminal.getDataClassName());
-
         network.newDcNode().setId(idInNetworkString(terminal)).setName(terminal.getLocName()).setNominalV(terminal.getFloatAttributeValue("uknom")).add();
 
         double uknom = terminal.getFloatAttributeValue("uknom");
@@ -318,7 +409,7 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
         double lineLength = line.getFloatAttributeValue("dline"); // km
         int numberOfParallelLines = line.findIntAttributeValue("nlnum").orElse(1);
 
-        DataObject lineType = line.getObjectAttributeValue("typ_id").resolve().orElseThrow(() -> new PowerFactoryException("Missing line type referenced by DC line " + line.getId() + "."));
+        DataObject lineType = line.getObjectAttributeValue(TYP_ID).resolve().orElseThrow(() -> new PowerFactoryException("Missing line type referenced by DC line " + line.getId() + "."));
 
         int lineSysType = lineType.findIntAttributeValue("systype").orElse(1);
         if (lineSysType != 1) {
@@ -377,10 +468,6 @@ final class DetailedHvdcConverter extends AbstractHvdcConverter {
      * @param network       PowSyBl network with all DC nodes already added.
      */
     private void addAcDcConverter(DataObject elmVsc, Network network, Map<Long, List<DcNodeRef>> objIdDcNodeRef) {
-
-        assert "ElmVsc".equals(elmVsc.getDataClassName());
-        assert network.getDcNodeCount() > 0;
-
         // Fetch data from the ElmVsc DataObject
         PowerFactoryAcDcConverterParameters pfParams = fetchPowerFactoryAcDcConverterParameters(elmVsc);
 

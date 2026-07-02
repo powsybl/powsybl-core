@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_16" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_17" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:voltageLevel id="VLTEST" nominalV="380.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology></iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
@@ -8,22 +8,22 @@
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="O" name="E" node="0"/>
                 <iidm:busbarSection id="P" name="Q" node="1"/>
-                <iidm:switch id="R" name="S" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="19"/>
-                <iidm:switch id="T" name="U" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="17"/>
-                <iidm:switch id="V" name="W" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="21"/>
-                <iidm:switch id="X" name="Y" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="11"/>
-                <iidm:switch id="Z" name="AA" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
-                <iidm:switch id="AB" name="AC" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="15"/>
-                <iidm:switch id="AF" name="AG" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="2"/>
-                <iidm:switch id="AH" name="AI" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="0"/>
-                <iidm:switch id="AJ" name="AK" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="6"/>
-                <iidm:switch id="AL" name="AM" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="19"/>
-                <iidm:switch id="AN" name="AO" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="17"/>
-                <iidm:switch id="AP" name="AQ" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="21"/>
-                <iidm:switch id="AR" name="AS" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="11"/>
-                <iidm:switch id="AT" name="AU" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="13"/>
-                <iidm:switch id="AV" name="AW" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="15"/>
-                <iidm:switch id="AZ" name="BA" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+                <iidm:switch id="R" name="S" kind="DISCONNECTOR" open="true" node1="0" node2="19"/>
+                <iidm:switch id="T" name="U" kind="DISCONNECTOR" open="true" node1="0" node2="17"/>
+                <iidm:switch id="V" name="W" kind="DISCONNECTOR" open="true" node1="0" node2="21"/>
+                <iidm:switch id="X" name="Y" kind="DISCONNECTOR" open="true" node1="0" node2="11"/>
+                <iidm:switch id="Z" name="AA" kind="DISCONNECTOR" open="true" node1="0" node2="13"/>
+                <iidm:switch id="AB" name="AC" kind="DISCONNECTOR" open="false" node1="0" node2="15"/>
+                <iidm:switch id="AF" name="AG" fictitious="true" kind="DISCONNECTOR" open="true" node1="0" node2="2"/>
+                <iidm:switch id="AH" name="AI" kind="DISCONNECTOR" open="false" node1="7" node2="0"/>
+                <iidm:switch id="AJ" name="AK" kind="DISCONNECTOR" open="false" node1="1" node2="6"/>
+                <iidm:switch id="AL" name="AM" kind="DISCONNECTOR" open="false" node1="1" node2="19"/>
+                <iidm:switch id="AN" name="AO" kind="DISCONNECTOR" open="false" node1="1" node2="17"/>
+                <iidm:switch id="AP" name="AQ" kind="DISCONNECTOR" open="false" node1="1" node2="21"/>
+                <iidm:switch id="AR" name="AS" kind="DISCONNECTOR" open="true" node1="1" node2="11"/>
+                <iidm:switch id="AT" name="AU" kind="DISCONNECTOR" open="true" node1="1" node2="13"/>
+                <iidm:switch id="AV" name="AW" kind="DISCONNECTOR" open="true" node1="1" node2="15"/>
+                <iidm:switch id="AZ" name="BA" fictitious="true" kind="DISCONNECTOR" open="true" node1="1" node2="2"/>
                 <iidm:switch id="BB" name="BC" fictitious="true" kind="BREAKER" retained="true" open="true" node1="2" node2="3"/>
                 <iidm:switch id="BD" name="BE" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
                 <iidm:switch id="BJ" name="BK" kind="BREAKER" retained="true" open="false" node1="6" node2="7"/>

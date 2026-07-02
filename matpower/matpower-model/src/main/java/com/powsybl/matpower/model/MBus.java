@@ -12,10 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * Bus data
  *
- * <p>
  * @see <a href="https://matpower.org/doc/">https://matpower.org/doc/</a>
- * </p>
- *
  * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.eu>}
  */
 public class MBus {

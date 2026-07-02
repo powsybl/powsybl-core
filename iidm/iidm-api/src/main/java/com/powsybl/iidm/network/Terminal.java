@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
@@ -25,7 +26,7 @@ public interface Terminal {
     /**
      * A node/breaker view of the terminal.
      */
-    public static interface NodeBreakerView {
+    interface NodeBreakerView {
 
         /**
          * Get the connection node of this terminal in a node/breaker topology.
@@ -43,7 +44,7 @@ public interface Terminal {
     /**
      * A bus/breaker view of the terminal.
      */
-    public static interface BusBreakerView {
+    interface BusBreakerView {
 
         /**
          * Get the connection bus of this terminal in the bus/breaker topology.
@@ -54,7 +55,7 @@ public interface Terminal {
         Bus getBus();
 
         /**
-         * Get a bus that can be used to connected the terminal in the
+         * Get a bus that can be used to connect the terminal in the
          * bus/breaker topology.
          */
         Bus getConnectableBus();
@@ -71,7 +72,7 @@ public interface Terminal {
     /**
      * A bus view of the terminal.
      */
-    public static interface BusView {
+    interface BusView {
 
         /**
          * Get the connection bus of this terminal in the bus only topology.
@@ -150,34 +151,47 @@ public interface Terminal {
     double getI();
 
     /**
+     * Removes P and Q values of this terminal.
+     */
+    default void unsetSolvedValues() {
+        this.setP(Double.NaN).setQ(Double.NaN);
+    }
+
+    /**
      * Try to connect the terminal.<br/>
-     * Depends on the working variant.
-     * @return true if terminal has been connected, false otherwise
+     * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * @return true if terminal has been connected, false otherwise (the terminal could not be connected, or it was already connected)
      * @see VariantManager
      */
-    boolean connect();
+    default boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
     /**
      * Try to connect the terminal.<br/>
      * Depends on the working variant.
-     * @return true if terminal has been connected, false otherwise
+     * @return true if terminal has been connected, false otherwise (the terminal could not be connected, or it was already connected)
      * @see VariantManager
      */
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
     /**
      * Disconnect the terminal.<br/>
-     * Depends on the working variant.
-     * @return true if terminal has been disconnected, false otherwise
+     * Depends on the working variant. By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnect(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates} such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if terminal has been disconnected, false otherwise (the terminal could not be disconnected, or it was already disconnected)
      * @see VariantManager
      */
-    boolean disconnect();
+    default boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
     /**
      * Disconnect the terminal.<br/>
      * Depends on the working variant.
      * @param isSwitchOpenable predicate telling if a switch is considered openable
-     * @return true if terminal has been disconnected, false otherwise
+     * @return true if terminal has been disconnected, false otherwise (the terminal could not be disconnected, or it was already disconnected)
      * @see VariantManager
      */
     boolean disconnect(Predicate<Switch> isSwitchOpenable);

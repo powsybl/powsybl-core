@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.detectors.AbstractLimitViolationDetectionTest;
 import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
 import com.powsybl.security.limitreduction.LimitReduction;
@@ -123,6 +122,81 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                 assertEquals(500, violationsCollector.get(0).getLimit());
                 assertEquals("VLHV2", violationsCollector.get(0).getSubjectId());
             });
+    }
+
+    @Test
+    void testTemporaryBranchViolationKeepsNullSubjectName() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+
+        assertTrue(line.getOptionalName().isEmpty());
+
+        checkCurrent(line, TwoSides.TWO, 1201, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .singleElement()
+            .satisfies(violation -> Assertions.assertThat(violation.getSubjectName()).isNull());
+    }
+
+    @Test
+    void testSingleTempLimitIncrease() {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
+            List.of(LimitReduction.builder(LimitType.CURRENT, 1.1)
+                .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
+                .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
+                .build()
+            )
+        );
+        line.setSelectedOperationalLimitsGroup1(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        LimitViolationDetection.checkLimitViolation(
+            line, TwoSides.ONE, 1300., LimitType.CURRENT, Set.of(LoadingLimitType.TATL, LoadingLimitType.PATL), applier, violationsCollector::add
+        );
+        assertEquals(1, violationsCollector.size());
+        LimitViolation violation = violationsCollector.getFirst();
+        // the limit at 1200 is raised to 1320
+        assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(600, violation.getAcceptableDuration());
+        assertEquals(1100, violation.getLimit());
+        assertEquals(1, violation.getLimitReduction());
+    }
+
+    @Test
+    void testTempLimitIntervertedWithIncrease() {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        DefaultLimitReductionsApplier applier = new DefaultLimitReductionsApplier(
+            List.of(LimitReduction.builder(LimitType.CURRENT, 1.3)
+                .withOperationalLimitsGroupIdSelection(List.of(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE))
+                .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(600))
+                .build()
+            )
+        );
+        line.setSelectedOperationalLimitsGroup1(EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE);
+        //Check detection between the original at 1200 (now raised to 1560) and the IT1 at 1500
+        LimitViolationDetection.checkLimitViolation(
+            line, TwoSides.ONE, 1300., LimitType.CURRENT, Set.of(LoadingLimitType.TATL, LoadingLimitType.PATL), applier, violationsCollector::add
+        );
+        assertEquals(1, violationsCollector.size());
+        LimitViolation violation = violationsCollector.getFirst();
+        // the limit at 1200 is raised to 1560 above the limit at 1500
+        assertEquals(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME, violation.getLimitName());
+        assertEquals(60, violation.getAcceptableDuration());
+        assertEquals(1100, violation.getLimit());
+        assertEquals(1, violation.getLimitReduction());
+
+        violationsCollector.clear();
+        //Check above both limits
+        LimitViolationDetection.checkLimitViolation(
+            line, TwoSides.ONE, 1600., LimitType.CURRENT, Set.of(LoadingLimitType.TATL, LoadingLimitType.PATL), applier, violationsCollector::add
+        );
+        assertEquals(1, violationsCollector.size());
+        violation = violationsCollector.getFirst();
+        assertEquals("1'", violation.getLimitName());
+        assertEquals(0, violation.getAcceptableDuration());
+        assertEquals(1500, violation.getLimit());
+        assertEquals(1, violation.getLimitReduction());
     }
 
     @Test
@@ -260,7 +334,9 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
 
     @ParameterizedTest
     @MethodSource("provideUtilCheckLimitViolationArguments")
-    void checkLimitViolationMultipleActiveGroupsTest(Identifiable<?> identifiable, ThreeSides side, Collection<Double> limitReductions, LimitType type, double value, Collection<ExpectedLimitViolation> expected) {
+    void checkLimitViolationMultipleActiveGroupsTest(Identifiable<?> identifiable, ThreeSides side,
+                                                     Collection<Double> limitReductions, LimitType type, double value,
+                                                     Collection<ExpectedLimitViolation> expected) {
         for (double limitReduction : limitReductions) {
             Collection<LimitViolation> violations = new ArrayList<>();
             switch (identifiable) {
@@ -268,20 +344,31 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     if (limitReduction == 1) {
                         LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value, type, Set.of(LoadingLimitType.values()), new LimitsComputer.NoModificationsImpl(), violations::add);
                     } else {
-                        //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
-                        //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                        //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
-                        LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value * limitReduction, type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
+                        /*
+                         * multiply by limitReduction because all the limits will be reduced, so we also want to reduce
+                         * the actual value to match that.
+                         * The arguments to this method test both with and without limitReduction.
+                         * All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                         * To get the same situation, we need to reduce both the limits and the value.
+                         * The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                         */
+                        LimitViolationDetection.checkLimitViolation(b, side.toTwoSides(), value * limitReduction,
+                            type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
                     }
                 }
                 case ThreeWindingsTransformer t -> {
                     if (limitReduction == 1) {
                         LimitViolationDetection.checkLimitViolation(t, side, value, type, Set.of(LoadingLimitType.values()), new LimitsComputer.NoModificationsImpl(), violations::add);
                     } else {
-                        //multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
-                        //the arguments to this method test both with and without limitReduction. All the cases with a limitReduction are the exact same case as without, but with a coefficient
-                        //To get the same situation, we need to reduce both the limits and the value. The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
-                        LimitViolationDetection.checkLimitViolation(t, side, value * limitReduction, type, Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
+                        /*
+                        multiply by limitReduction because all the limits will be reduced, so we also want to reduce the actual value to match that.
+                        the arguments to this method test both with and without limitReduction.
+                        All the cases with a limitReduction are the exact same case as without, but with a coefficient
+                        To get the same situation, we need to reduce both the limits and the value.
+                        The limits are supposed to be reduced by checkAllTemporaryLimits, and we reduce the value in the test
+                        */
+                        LimitViolationDetection.checkLimitViolation(t, side, value * limitReduction, type,
+                            Set.of(LoadingLimitType.values()), new SimpleLimitsComputer(limitReduction), violations::add);
                     }
                 }
                 default -> throw new UnsupportedOperationException(String.format("The class %s cannot be used to check temporary limits", identifiable.getClass()));
@@ -306,164 +393,122 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         Network networkLine = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedCurrentLimits();
         Line l = networkLine.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
 
+        Network lowLimitNetwork = EurostagTutorialExample1Factory.createWithHighAndLowCurrentLimits();
+        Line l2 = lowLimitNetwork.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+
         Network network3wt = EurostagTutorialExample1Factory.createWithMultipleSelectedFixedActivePowerLimits();
         ThreeWindingsTransformer transformer = network3wt.getThreeWindingsTransformer(EurostagTutorialExample1Factory.NGEN_V2_NHV1);
 
         return Stream.of(
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.95), LimitType.CURRENT, 299, List.of()), // below any permanent limit
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.8), LimitType.CURRENT, 310, List.of(
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    300,
-                    60 * 40
-                )
+                    300, 60 * 40)
             )), // above permanent of activated_1_2
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.82), LimitType.CURRENT, 510, List.of(
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    300,
-                    60 * 40
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    500,
-                    Integer.MAX_VALUE
-                )
+                    300, 60 * 40),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 500, Integer.MAX_VALUE)
             )), // above permanent of Default, there is no temporary above, so by default we use the max value for the duration
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.7), LimitType.CURRENT, 701, List.of(
-                new ExpectedLimitViolation(
-                    "40'",
+                new ExpectedLimitViolation("40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    700,
-                    30
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    500,
-                    Integer.MAX_VALUE
-                )
+                    700, 30),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 500, Integer.MAX_VALUE)
             )), // above first temporary of 1_2
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.92), LimitType.CURRENT, 1122, List.of(
-                new ExpectedLimitViolation(
-                    "40'",
+                new ExpectedLimitViolation("40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    700,
-                    30
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    500,
-                    Integer.MAX_VALUE
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    700, 30),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 500, Integer.MAX_VALUE),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
-                    1100,
-                    60 * 10
-                )
+                    1100, 60 * 10)
             )), // above permanent of 1_1
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.87), LimitType.CURRENT, 1450, List.of(
-                new ExpectedLimitViolation(
-                    "40'",
+                new ExpectedLimitViolation("40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    700,
-                    30
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    500,
-                    Integer.MAX_VALUE
-                ),
-                new ExpectedLimitViolation(
-                    "10'",
+                    700, 30),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 500, Integer.MAX_VALUE),
+                new ExpectedLimitViolation("10'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
-                    1200,
-                    60
-                )
+                    1200, 60)
             )), // above first temporary of 1_1
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.3), LimitType.CURRENT, 1500, List.of(
-                new ExpectedLimitViolation(
-                    "40'",
+                new ExpectedLimitViolation("40'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    700,
-                    30
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    500,
-                    Integer.MAX_VALUE
-                ),
-                new ExpectedLimitViolation(
-                    "1'",
+                    700, 30),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 500, Integer.MAX_VALUE),
+                new ExpectedLimitViolation("1'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
-                    1500,
-                    0
-                )
+                    1500, 0)
             )), // above last temporary of 1_1
             Arguments.of(l, ThreeSides.ONE, List.of(1., 0.84), LimitType.CURRENT, 1601, List.of(
-                new ExpectedLimitViolation(
-                    "0.5'",
+                new ExpectedLimitViolation("0.5'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_TWO,
-                    1600,
-                    0
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    500,
-                    Integer.MAX_VALUE
-                ),
-                new ExpectedLimitViolation(
-                    "1'",
+                    1600, 0),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 500, Integer.MAX_VALUE),
+                new ExpectedLimitViolation("1'",
                     EurostagTutorialExample1Factory.ACTIVATED_ONE_ONE,
-                    1500,
-                    0
-                )
+                    1500, 0)
             )), // above last temporary of 1_2
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.99), LimitType.ACTIVE_POWER, 200, List.of()), //under all limits
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.96), LimitType.ACTIVE_POWER, 275, List.of(
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    250,
-                    Integer.MAX_VALUE
-                )
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 250, Integer.MAX_VALUE)
             )), // above permanent of Default, there is no temporary above, so by default we use the max value for the duration
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.88), LimitType.ACTIVE_POWER, 375, List.of(
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    250,
-                    Integer.MAX_VALUE
-                ),
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 250, Integer.MAX_VALUE),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
-                    350,
-                    45 * 60
-                )
+                    350, 45 * 60)
             )), // above permanent of activated_3_1
             Arguments.of(transformer, ThreeSides.THREE, List.of(1., 0.77), LimitType.ACTIVE_POWER, 405, List.of(
-                new ExpectedLimitViolation(
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    "DEFAULT",
-                    250,
-                    Integer.MAX_VALUE
-                ),
-                new ExpectedLimitViolation(
-                    "45'",
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    "DEFAULT", 250, Integer.MAX_VALUE),
+                new ExpectedLimitViolation("45'",
                     EurostagTutorialExample1Factory.ACTIVATED_THREE_ONE,
-                    400,
-                    0
-                )
-            )) // above last temporary of activated_3_1
+                    400, 0)
+            )), // above last temporary of activated_3_1
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 400, List.of()), // under all limits
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 550, List.of(
+                new ExpectedLimitViolation("40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    500, 2400)
+            )), // above first temporary of activated_2_2 (LOW limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 650, List.of(
+                new ExpectedLimitViolation("40'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    500, 2400),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
+                    600, 600)
+            )), // above permanent of activated_2_1 (HIGH limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 950, List.of(
+                new ExpectedLimitViolation("10'",
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO,
+                    900, 600),
+                new ExpectedLimitViolation(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME,
+                    EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE,
+                    600, 600)
+            )), // above second temporary of activated_2_2 (LOW limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 1100, List.of(
+                new ExpectedLimitViolation("10'", EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO, 900, 600),
+                new ExpectedLimitViolation("10'", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, 1000, 0)
+            )), // above first temporary of activated_2_1 (HIGH limit)
+            Arguments.of(l2, ThreeSides.TWO, List.of(1., 0.7), LimitType.CURRENT, 1210, List.of(
+                new ExpectedLimitViolation("5'", EurostagTutorialExample1Factory.ACTIVATED_TWO_TWO, 1200, 300),
+                new ExpectedLimitViolation("10'", EurostagTutorialExample1Factory.ACTIVATED_TWO_ONE, 1000, 0)
+            )) // above last temporary of activated_2_2 (LOW limit)
         );
     }
 

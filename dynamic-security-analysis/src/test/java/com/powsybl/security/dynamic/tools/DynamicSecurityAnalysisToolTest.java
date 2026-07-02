@@ -15,13 +15,13 @@ import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.violations.LimitViolationFilter;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.contingency.violations.LimitViolationFilter;
-import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.dynamic.*;
@@ -93,7 +93,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
         Options options = command.getOptions();
-        assertCommand(command, "dynamic-security-analysis", 16, 2);
+        assertCommand(command, "dynamic-security-analysis", 19, 2);
         assertOption(options, "case-file", true, true);
         assertOption(options, "dynamic-models-file", true, true);
         assertOption(options, "parameters-file", false, true);
@@ -108,6 +108,9 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(options, "log-file", false, true);
         assertOption(options, "monitoring-file", false, true);
         assertOption(options, "event-models-file", false, true);
+        assertOption(options, "strategies-file", false, true);
+        assertOption(options, "actions-file", false, true);
+        assertOption(options, "limit-reductions-file", false, true);
     }
 
     @Test
@@ -313,7 +316,8 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     public static class DynamicSecurityAnalysisExceptionProviderMock implements DynamicSecurityAnalysisProvider {
 
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier,
+                                                             ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

@@ -10,6 +10,14 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseSubstation;
+import com.powsybl.psse.model.pf.internal.PsseSubstationEquipmentTerminal;
+import com.powsybl.psse.model.pf.internal.PsseSubstationEquipmentTerminalCommonStart;
+import com.powsybl.psse.model.pf.internal.PsseSubstationEquipmentTerminalx;
+import com.powsybl.psse.model.pf.internal.PsseSubstationNode;
+import com.powsybl.psse.model.pf.internal.PsseSubstationNodex;
+import com.powsybl.psse.model.pf.internal.PsseSubstationRecord;
+import com.powsybl.psse.model.pf.internal.PsseSubstationSwitchingDevice;
+import com.powsybl.psse.model.pf.internal.PsseSubstationSwitchingDevicex;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,7 +27,6 @@ import java.util.List;
 
 import static com.powsybl.psse.model.pf.PsseSubstation.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
-import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I_NODE;
 
 /**
  *
@@ -27,17 +34,6 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_I_NODE;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class SubstationData extends AbstractRecordGroup<PsseSubstation> {
-
-    static final String[] FIELD_NAMES_SUBSTATION = {"is", "name", "lati", "long", "srg"};
-    static final String[] FIELD_NAMES_SUBSTATION_NODE = {"ni", "name", "i", "status", "vm", "va"};
-    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES = {"ni", "nj", "ckt", "name", "type", "status", "nstat", "x", "rate1", "rate2", "rate3"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS = {"i", "ni", "type", "id"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES = {"i", "ni", "type", "j", "id"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES = {"i", "ni", "type", "j", "k", "id"};
-    static final String[] FIELD_NAMES_SUBSTATION_RAWX = {"isub", "name", "lati", "long", "srg"};
-    static final String[] FIELD_NAMES_SUBSTATION_NODE_RAWX = {"isub", STR_I_NODE, "name", "ibus", "stat", "vm", "va"};
-    static final String[] FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES_RAWX = {"isub", STR_I_NODE, "jnode", "swdid", "name", "type", "stat", "nstat", "xpu", "rate1", "rate2", "rate3"};
-    static final String[] FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_RAWX = {"isub", STR_I_NODE, "type", "eqid", "ibus", "jbus", "kbus"};
 
     SubstationData() {
         super(SUBSTATION);
@@ -124,7 +120,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                 writeEndComment(" END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA", outputStream);
 
                 SubstationSwitchingDeviceData switchingDeviceData = new SubstationSwitchingDeviceData();
-                write(switchingDeviceData.buildRecords(substation.getSwitchingDevices(), context.getFieldNames(INTERNAL_SUBSTATION_SWITCHING_DEVICE), switchingDeviceData.quotedFields(), context), outputStream);
+                write(switchingDeviceData.buildRecords(substation.getSwitchingDevices(), context.getFieldNames(INTERNAL_SUBSTATION_SWITCHING_DEVICE), switchingDeviceData.quotedFields(), context),
+                    outputStream);
                 writeEndComment(" END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA", outputStream);
 
                 write(writeEquipmentTerminalData(substation.getEquipmentTerminals(), context), outputStream);
@@ -154,8 +151,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationNodeData extends AbstractRecordGroup<PsseSubstationNode> {
             SubstationNodeData() {
-                super(INTERNAL_SUBSTATION_NODE, FIELD_NAMES_SUBSTATION_NODE);
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_NODE, PsseSubstationNode.getFieldNames());
+                withQuotedFields(PsseSubstationNode.getFieldNamesString());
             }
 
             @Override
@@ -166,8 +163,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationSwitchingDeviceData extends AbstractRecordGroup<PsseSubstationSwitchingDevice> {
             SubstationSwitchingDeviceData() {
-                super(INTERNAL_SUBSTATION_SWITCHING_DEVICE, FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES);
-                withQuotedFields(QUOTED_FIELDS_SWITCHING_DEVICES);
+                super(INTERNAL_SUBSTATION_SWITCHING_DEVICE, PsseSubstationSwitchingDevice.getFieldNames());
+                withQuotedFields(PsseSubstationSwitchingDevice.getFieldNamesString());
             }
 
             @Override
@@ -178,8 +175,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataCommonStart extends AbstractRecordGroup<PsseSubstationEquipmentTerminalCommonStart> {
             SubstationEquipmentTerminalDataCommonStart() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START, "i", "ni", "type");
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START, PsseSubstationEquipmentTerminalCommonStart.getFieldNames());
+                withQuotedFields(PsseSubstationEquipmentTerminalCommonStart.getFieldNamesString());
             }
 
             @Override
@@ -190,8 +187,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataOneBus extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataOneBus() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS);
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, PsseSubstationEquipmentTerminal.getFieldNamesOneBus());
+                withQuotedFields(PsseSubstationEquipmentTerminal.getFieldNamesString());
             }
 
             @Override
@@ -202,8 +199,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataTwoBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataTwoBuses() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES);
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesTwoBuses());
+                withQuotedFields(PsseSubstationEquipmentTerminal.getFieldNamesString());
             }
 
             @Override
@@ -214,8 +211,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private static class SubstationEquipmentTerminalDataThreeBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataThreeBuses() {
-                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES);
-                withQuotedFields(QUOTED_FIELDS);
+                super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, PsseSubstationEquipmentTerminal.getFieldNamesThreeBuses());
+                withQuotedFields(PsseSubstationEquipmentTerminal.getFieldNamesString());
             }
 
             @Override
@@ -252,17 +249,17 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
             List<PsseSubstationNodex> nodexList = new ArrayList<>();
             substationList.forEach(substation -> substation.getNodes().forEach(node -> nodexList.add(
-                    new PsseSubstationNodex(substation.getRecord().getIs(), node))));
+                    new PsseSubstationNodex(substation.getIs(), node))));
             new SubstationNodexData().write(nodexList, context, null);
 
             List<PsseSubstationSwitchingDevicex> switchingDevicexList = new ArrayList<>();
             substationList.forEach(substation -> substation.getSwitchingDevices().forEach(switchingDevice -> switchingDevicexList.add(
-                    new PsseSubstationSwitchingDevicex(substation.getRecord().getIs(), switchingDevice))));
+                    new PsseSubstationSwitchingDevicex(substation.getIs(), switchingDevice))));
             new SubstationSwitchingDevicexData().write(switchingDevicexList, context, null);
 
             List<PsseSubstationEquipmentTerminalx> equipmentTerminalxList = new ArrayList<>();
             substationList.forEach(substation -> substation.getEquipmentTerminals().forEach(equipmentTerminal -> equipmentTerminalxList.add(
-                    new PsseSubstationEquipmentTerminalx(substation.getRecord().getIs(), equipmentTerminal))));
+                    new PsseSubstationEquipmentTerminalx(substation.getIs(), equipmentTerminal))));
             new SubstationEquipmentTerminalxData().write(equipmentTerminalxList, context, null);
         }
 
@@ -273,8 +270,10 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             List<PsseSubstation> substationList = new ArrayList<>();
             for (PsseSubstationRecord substationRecord : recordList) {
                 List<PsseSubstationNode> nodeList = nodexList.stream().filter(n -> n.getIsub() == substationRecord.getIs()).map(PsseSubstationNodex::getNode).toList();
-                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == substationRecord.getIs()).map(PsseSubstationSwitchingDevicex::getSwitchingDevice).toList();
-                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == substationRecord.getIs()).map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).toList();
+                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == substationRecord.getIs())
+                    .map(PsseSubstationSwitchingDevicex::getSwitchingDevice).toList();
+                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == substationRecord.getIs())
+                    .map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).toList();
 
                 substationList.add(new PsseSubstation(substationRecord, nodeList, switchingDeviceList, equipmentTerminalList));
             }
@@ -284,7 +283,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationNodexData extends AbstractRecordGroup<PsseSubstationNodex> {
             SubstationNodexData() {
                 super(INTERNAL_SUBSTATION_NODE);
-                withQuotedFields(QUOTED_FIELDS);
+                withQuotedFields(PsseSubstationNodex.getFieldNamesString());
             }
 
             @Override
@@ -296,7 +295,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationSwitchingDevicexData extends AbstractRecordGroup<PsseSubstationSwitchingDevicex> {
             SubstationSwitchingDevicexData() {
                 super(INTERNAL_SUBSTATION_SWITCHING_DEVICE);
-                withQuotedFields(QUOTED_FIELDS_SWITCHING_DEVICES);
+                withQuotedFields(PsseSubstationSwitchingDevicex.getFieldNamesString());
             }
 
             @Override
@@ -308,7 +307,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationEquipmentTerminalxData extends AbstractRecordGroup<PsseSubstationEquipmentTerminalx> {
             SubstationEquipmentTerminalxData() {
                 super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL);
-                withQuotedFields(QUOTED_FIELDS);
+                withQuotedFields(PsseSubstationEquipmentTerminalx.getFieldNamesString());
             }
 
             @Override
@@ -320,8 +319,8 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
     private static class SubstationRecordData extends AbstractRecordGroup<PsseSubstationRecord> {
         SubstationRecordData() {
-            super(SUBSTATION, FIELD_NAMES_SUBSTATION);
-            withQuotedFields(QUOTED_FIELDS);
+            super(SUBSTATION, PsseSubstationRecord.getFieldNames());
+            withQuotedFields(PsseSubstationRecord.getFieldNamesString());
         }
 
         @Override
@@ -330,6 +329,4 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         }
     }
 
-    private static final String[] QUOTED_FIELDS = {"name", "type", "id", "ckt", "eqid"};
-    private static final String[] QUOTED_FIELDS_SWITCHING_DEVICES = {"name", "ckt", "swdid"};
 }

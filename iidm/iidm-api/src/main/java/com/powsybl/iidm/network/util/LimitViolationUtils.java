@@ -23,8 +23,6 @@ import java.util.function.Function;
  */
 public final class LimitViolationUtils {
 
-    public static final String PERMANENT_LIMIT_NAME = "permanent";
-
     private LimitViolationUtils() {
     }
 
@@ -70,7 +68,8 @@ public final class LimitViolationUtils {
      * @param limitsComputer how to access the limit, refer to {@link LimitsComputer}
      * @param i the value at the given side of the branch that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on
+     * the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
         return checkAllTemporaryLimitsIdentifiable(branch, side.toThreeSides(), limitsComputer, 1, List.of(), i, type);
@@ -84,9 +83,12 @@ public final class LimitViolationUtils {
      * @param limitsComputer how to access the limit, refer to {@link LimitsComputer}
      * @param i the value at the given side of the transformer that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the
+     * <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
-    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double i, LimitType type) {
+    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side,
+                                                               LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
+                                                               double i, LimitType type) {
         return checkAllTemporaryLimitsIdentifiable(transformer, side, limitsComputer, 1, List.of(), i, type);
     }
 
@@ -98,7 +100,8 @@ public final class LimitViolationUtils {
      * @param limitReductionValue value between 0 and 1 to reduce the limit below its original value
      * @param i the value at the given side of the branch that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on
+     * the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
     public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
@@ -111,14 +114,19 @@ public final class LimitViolationUtils {
      * @param branch the branch on which to check the limits
      * @param side the side of the branch to check
      * @param limitReductionValue value between 0 and 1 to reduce the limit below its original value
-     * @param groupsToApplyLimitReductionValue which groups to apply the limitReductionValue to. If no group is specified, the reduction will be applied on all the selected groups as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()}
+     * @param groupsToApplyLimitReductionValue which groups to apply the limitReductionValue to. If no group is specified,
+     *                                         the reduction will be applied on all the selected groups as defined by
+     *                                         {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()}
      * @param i the value at the given side of the branch that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limit sets, on
+     * the <code>side</code> of the <code>branch</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
-    public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReductionValue, double i, LimitType type) {
-        return checkAllTemporaryLimitsIdentifiable(branch, side.toThreeSides(), LimitsComputer.NO_MODIFICATIONS, limitReductionValue, groupsToApplyLimitReductionValue, i, type);
+    public static Collection<Overload> checkAllTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue,
+                                                               Collection<String> groupsToApplyLimitReductionValue, double i, LimitType type) {
+        return checkAllTemporaryLimitsIdentifiable(branch, side.toThreeSides(), LimitsComputer.NO_MODIFICATIONS,
+            limitReductionValue, groupsToApplyLimitReductionValue, i, type);
     }
 
     /**
@@ -129,10 +137,12 @@ public final class LimitViolationUtils {
      * @param limitReductionValue value between 0 and 1 to reduce the limit below its original value
      * @param i the value at the given side of the transformer that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the
+     * <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
-    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
+    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side,
+                                                               double limitReductionValue, double i, LimitType type) {
         return checkAllTemporaryLimitsIdentifiable(transformer, side, LimitsComputer.NO_MODIFICATIONS, limitReductionValue, List.of(), i, type);
     }
 
@@ -142,17 +152,26 @@ public final class LimitViolationUtils {
      * @param transformer the transformer on which to check the limits
      * @param side the side of the transformer to check
      * @param limitReductionValue value between 0 and 1 to reduce the limit below its original value
-     * @param groupsToApplyLimitReductionValue which groups to apply the limitReductionValue to. If no group is specified, the reduction will be applied on all the selected groups as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()}
-     * @param i the value at the given side of the transformer that is of the type limitType (for example, if we are checking the current, it will be the intensity in Ampere)
+     * @param groupsToApplyLimitReductionValue which groups to apply the limitReductionValue to. If no group is specified,
+     *                                         the reduction will be applied on all the selected groups as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()}
+     * @param i the value at the given side of the transformer that is of the type limitType (for example, if we are
+     *          checking the current, it will be the intensity in Ampere)
      * @param type the type we are checking the limit of
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on
+     * the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      * @see #getOverload(LimitsContainer, double) return of this function depending on the situation
      */
-    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, Collection<String> groupsToApplyLimitReductionValue, double i, LimitType type) {
-        return checkAllTemporaryLimitsIdentifiable(transformer, side, LimitsComputer.NO_MODIFICATIONS, limitReductionValue, groupsToApplyLimitReductionValue, i, type);
+    public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side,
+                                                               double limitReductionValue, Collection<String> groupsToApplyLimitReductionValue, double i, LimitType type) {
+        return checkAllTemporaryLimitsIdentifiable(transformer, side, LimitsComputer.NO_MODIFICATIONS, limitReductionValue,
+            groupsToApplyLimitReductionValue, i, type);
     }
 
-    private static Collection<Overload> checkAllTemporaryLimitsIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double limitReductionValue, Collection<String> groupsToApplyLimitReductionValue, double i, LimitType type) {
+    private static Collection<Overload> checkAllTemporaryLimitsIdentifiable(Identifiable<?> identifiable, ThreeSides side,
+                                                                            LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer,
+                                                                            double limitReductionValue,
+                                                                            Collection<String> groupsToApplyLimitReductionValue,
+                                                                            double i, LimitType type) {
         Objects.requireNonNull(identifiable);
         Objects.requireNonNull(side);
         Objects.requireNonNull(groupsToApplyLimitReductionValue);
@@ -163,7 +182,8 @@ public final class LimitViolationUtils {
             .toList();
     }
 
-    private static Overload getOverloadSelectGroup(LimitsContainer<LoadingLimits> limits, double value, double limitReductionValue, Collection<String> groupsToApplyLimitReductionValue) {
+    private static Overload getOverloadSelectGroup(LimitsContainer<LoadingLimits> limits, double value, double limitReductionValue,
+                                                   Collection<String> groupsToApplyLimitReductionValue) {
         double reductionValue = 1;
         if (groupsToApplyLimitReductionValue.isEmpty() || groupsToApplyLimitReductionValue.contains(limits.getOperationalLimitsGroupId())) {
             reductionValue = limitReductionValue;
@@ -204,21 +224,30 @@ public final class LimitViolationUtils {
      * @param limitsContainer a container with the limits (permanent and temporary)
      * @param i the value we need to check against the limits
      * @param limitReductionValue a coefficient between 0 and 1 to compare <code>i</code> to a new set of limit that is originalLimit * reduction
-     * @return <p>an empty {@link Optional} if <code>i</code> is below all limits, or if the limits only contain a permanent limit without any temporary (even if <code>i</code> is above said permanent limit)</p>
+     * @return <p>an empty {@link Optional} if <code>i</code> is below all limits, or if the limits only contain a permanent
+     * limit without any temporary (even if <code>i</code> is above said permanent limit)</p>
      * An {@link Overload} in the following cases:
      * <ul>
      *     <li><code>i</code> is above a permanent limit with at least a temporary limit above</li>
      *     <li><code>i</code> is above a temporary limit</li>
      * </ul>
-     * Note that in the second case, if we crossed all temporary limits defined by the user, then this will consider another limit above, at the maximum <code>i</code> possible, with an acceptable duration of 0.
+     * Note that in the second case, if we crossed all temporary limits defined by the user, then this will consider another
+     * limit above, at the maximum <code>i</code> possible, with an acceptable duration of 0.
      */
     private static OverloadImpl getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
+        return switch (limitsContainer.getOriginalLimits().getDetectionKind()) {
+            case HIGH -> getOverloadHigh(limitsContainer, i, limitReductionValue);
+            case LOW -> getOverloadLow(limitsContainer, i, limitReductionValue);
+        };
+    }
+
+    private static OverloadImpl getOverloadHigh(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
             return null;
         }
         Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
-        String previousLimitName = PERMANENT_LIMIT_NAME;
+        String previousLimitName = limitsContainer.getLimits().getPermanentLimitName();
         double previousLimit = permanentLimit;
         int previousAcceptableDuration = 0; // never mind initialisation it will be overridden with first loop
         boolean isBelowFirstTemporaryLimit = true;
@@ -239,17 +268,36 @@ public final class LimitViolationUtils {
         return null;
     }
 
+    private static OverloadImpl getOverloadLow(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
+        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
+        LoadingLimits.TemporaryLimit previousTemporaryLimit = null;
+        //iterate on ascending values until i is not above a temporary limit
+        for (LoadingLimits.TemporaryLimit tl : temporaryLimits) {
+            if (i >= tl.getValue() * limitReductionValue) {
+                previousTemporaryLimit = tl;
+            } else {
+                break;
+            }
+        }
+        return previousTemporaryLimit != null ?
+            createOverload(previousTemporaryLimit, previousTemporaryLimit.getValue(), previousTemporaryLimit.getName(),
+                limitsContainer, false, previousTemporaryLimit.getAcceptableDuration(), limitReductionValue)
+            : null;
+    }
+
     /**
      * Gets the overload corresponding to the temporary limit that is directly above the value of <code>i</code> in the limits contained in <code>limitsContainer</code>
      * @param limitsContainer a container with the limits (permanent and temporary)
      * @param i the value we need to check against the limits
-     * @return <p>an empty {@link Optional} if <code>i</code> is below all limits, or if the limits only contain a permanent limit without any temporary (even if <code>i</code> is above said permanent limit)</p>
+     * @return <p>an empty {@link Optional} if <code>i</code> is below all limits, or if the limits only contain a permanent
+     * limit without any temporary (even if <code>i</code> is above said permanent limit)</p>
      * An {@link Overload} in the following cases:
      * <ul>
      *     <li><code>i</code> is above a permanent limit with at least a temporary limit above</li>
      *     <li><code>i</code> is above a temporary limit</li>
      * </ul>
-     * Note that in the second case, if we crossed all temporary limits defined by the user, then this will consider another limit above, at the maximum <code>i</code> possible, with an acceptable duration of 0.
+     * Note that in the second case, if we crossed all temporary limits defined by the user, then this will consider another
+     * limit above, at the maximum <code>i</code> possible, with an acceptable duration of 0.
      */
     public static Optional<Overload> getOverload(LimitsContainer<LoadingLimits> limitsContainer, double i) {
         return Optional.ofNullable(getOverload(limitsContainer, i, 1));
@@ -259,17 +307,24 @@ public final class LimitViolationUtils {
         return checkPermanentLimitIfAny(limitsContainer, i, 1);
     }
 
+    /**
+     * Return a permanent limit violation if there is one. This should only be called on limits that have a permanent limit, ie
+     * high loading limits (but not low loading limits)
+     */
     private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
-        double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
-        double originalPermanentLimit = limitsContainer.getOriginalLimits().getPermanentLimit();
         String opGroupId = limitsContainer.getOperationalLimitsGroupId();
+        double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
+        String permanentLimitName = limitsContainer.getLimits().getPermanentLimitName();
+        double originalPermanentLimit = limitsContainer.getOriginalLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
-            return new PermanentLimitCheckResult(false, Double.NaN, limitReductionValue, opGroupId);
+            return new PermanentLimitCheckResult(false, Double.NaN, permanentLimitName, limitReductionValue, opGroupId);
         }
         if (i >= permanentLimit * limitReductionValue) {
-            return new PermanentLimitCheckResult(true, originalPermanentLimit, limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : limitReductionValue, opGroupId);
+            return new PermanentLimitCheckResult(true, originalPermanentLimit, permanentLimitName, limitsContainer.isDistinct() ?
+                ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() :
+                limitReductionValue, opGroupId);
         }
-        return new PermanentLimitCheckResult(false, originalPermanentLimit, limitReductionValue, opGroupId);
+        return new PermanentLimitCheckResult(false, originalPermanentLimit, permanentLimitName, limitReductionValue, opGroupId);
     }
 
     /**
@@ -302,25 +357,29 @@ public final class LimitViolationUtils {
 
     private static boolean checkPermanentLimitIdentifiable(Identifiable<?> identifiable, ThreeSides side, double limitReductionValue, double i, LimitType type) {
         for (LimitsContainer<LoadingLimits> limit : getAllLimits(identifiable, side, type, LimitsComputer.NO_MODIFICATIONS)) {
-            if (checkPermanentLimitIfAny(limit, i, limitReductionValue).isOverload()) {
+            if (limit.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH && checkPermanentLimitIfAny(limit, i, limitReductionValue).isOverload()) {
                 return true;
             }
         }
         return false;
     }
 
-    public static PermanentLimitCheckResult checkPermanentLimit(Branch<?> branch, TwoSides side, double i, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+    public static PermanentLimitCheckResult checkPermanentLimit(Branch<?> branch, TwoSides side, double i, LimitType type,
+                                                                LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return checkPermanentLimitIdentifiable(branch, side.toThreeSides(), computer, i, type);
     }
 
-    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
+    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side,
+                                                                LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
         return checkPermanentLimitIdentifiable(transformer, side, computer, i, type);
     }
 
-    private static PermanentLimitCheckResult checkPermanentLimitIdentifiable(Identifiable<?> identifiable, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
+    private static PermanentLimitCheckResult checkPermanentLimitIdentifiable(Identifiable<?> identifiable, ThreeSides side,
+                                                                             LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
         return getLimits(identifiable, side, type, computer)
+            .filter(l -> l.getOriginalLimits().getDetectionKind() == DetectionKind.HIGH)
             .map(l -> checkPermanentLimitIfAny(l, i))
-            .orElse(new PermanentLimitCheckResult(false, Double.NaN, 1.0, ""));
+            .orElse(new PermanentLimitCheckResult(false, Double.NaN, "", 1.0, ""));
     }
 
     public static double getValueForLimit(Terminal t, LimitType type) {
@@ -337,15 +396,18 @@ public final class LimitViolationUtils {
         return checkPermanentLimit(transformer, side, limitReductionValue, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
-    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side,
+                                                                LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return checkPermanentLimit(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
-    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, LimitType type) {
+    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue,
+                                                LimitType type) {
         return checkTemporaryLimits(transformer, side, limitReductionValue, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
-    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side,
+                                                LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return checkTemporaryLimits(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
@@ -356,7 +418,8 @@ public final class LimitViolationUtils {
      * @param side the side of the transformer to check
      * @param limitReductionValue value between 0 and 1 to reduce the limit below its original value
      * @param type the type we are checking the limit of
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the
+     * <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, LimitType type) {
         return checkAllTemporaryLimits(transformer, side, limitReductionValue, getValueForLimit(transformer.getTerminal(side), type), type);
@@ -369,7 +432,8 @@ public final class LimitViolationUtils {
      * @param side the side of the transformer to check
      * @param type the type we are checking the limit of
      * @param computer how to access the limit, refer to {@link LimitsComputer}
-     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
+     * @return a collection of {@link Overload} representing all the violations that happened on selected limits, on the
+     * <code>side</code> of the <code>transformer</code> when checking the <code>type</code> with a value of <code>i</code> going through it
      */
     public static Collection<Overload> checkAllTemporaryLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return checkAllTemporaryLimits(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type);
@@ -387,7 +451,8 @@ public final class LimitViolationUtils {
      * if any {@link OperationalLimitsGroup} was selected.
      * An empty {@link Optional} otherwise.
      */
-    public static Optional<? extends LimitsContainer<LoadingLimits>> getLimits(Identifiable<?> identifiable, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+    public static Optional<? extends LimitsContainer<LoadingLimits>> getLimits(Identifiable<?> identifiable, ThreeSides side,
+                                                                               LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         Optional<String> groupId = switch (identifiable.getType()) {
             case LINE, TWO_WINDINGS_TRANSFORMER, TIE_LINE -> {
                 Branch<?> branch = (Branch<?>) identifiable;
@@ -413,7 +478,8 @@ public final class LimitViolationUtils {
      * of the <code>type</code> on the <code>side</code> of the <code>identifiable</code>, calculated using <code>computer</code>.
      * Might be empty if no {@link OperationalLimitsGroup} is selected.
      */
-    public static Collection<? extends LimitsContainer<LoadingLimits>> getAllLimits(Identifiable<?> identifiable, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+    public static Collection<? extends LimitsContainer<LoadingLimits>> getAllLimits(Identifiable<?> identifiable, ThreeSides side,
+                                                                                    LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return computer.computeLimits(identifiable, type, side, false);
     }
 

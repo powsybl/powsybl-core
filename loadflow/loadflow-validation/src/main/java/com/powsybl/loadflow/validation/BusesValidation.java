@@ -7,6 +7,11 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -15,12 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
-
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 import static com.powsybl.loadflow.validation.ValidationUtils.*;
 
@@ -163,7 +162,7 @@ public final class BusesValidation {
         double incomingP = genP + batP + shuntP + svcP + vscCSP + lineP + boundaryLineP + t2wtP + t3wtP;
         double incomingQ = genQ + batQ + shuntQ + svcQ + vscCSQ + lineQ + boundaryLineQ + t2wtQ + t3wtQ;
         if (isMainComponent(config, mainComponent)) {
-             // |incomingP + loadP| <= threshold
+            // |incomingP + loadP| <= threshold
             validated &= validatePowerBalance(id, "P", incomingP, loadP, config);
             // |incomingQ + loadQ| <= threshold
             validated &= validatePowerBalance(id, "Q", incomingQ, loadQ, config);

@@ -7,7 +7,11 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.AcDcConverter;
+import com.powsybl.iidm.network.AcDcConverterAdder;
+import com.powsybl.iidm.network.DcTerminal;
+import com.powsybl.iidm.network.VoltageLevel;
+import org.apache.commons.lang3.NotImplementedException;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
@@ -37,6 +41,16 @@ abstract class AbstractAcDcConverterSerDe<T extends AcDcConverter<T>, A extends 
         context.getWriter().writeEnumAttribute("controlMode", converter.getControlMode());
         context.getWriter().writeDoubleAttribute("targetP", converter.getTargetP());
         context.getWriter().writeDoubleAttribute("targetVdc", converter.getTargetVdc());
+        if (converter.getMinP() != -Double.MAX_VALUE && !context.getOptions().isForceExportNetworkWithBetaFeatures()) {
+            throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': minP serialization is not yet supported. " +
+                "To force the export of the network and ignore this value, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
+                "or ExportOptions.setForceExportNetworkWithBetaFeatures");
+        }
+        if (converter.getMaxP() != Double.MAX_VALUE && !context.getOptions().isForceExportNetworkWithBetaFeatures()) {
+            throw new NotImplementedException(getRootElementName() + " '" + converter.getId() + "': maxP serialization is not yet supported. " +
+                "To force the export of the network and ignore this value, either use the config parameter iidm.export.xml.force-export-network-with-beta-features, " +
+                "or ExportOptions.setForceExportNetworkWithBetaFeatures");
+        }
 
         writeNodeOrBus(converter, context);
     }

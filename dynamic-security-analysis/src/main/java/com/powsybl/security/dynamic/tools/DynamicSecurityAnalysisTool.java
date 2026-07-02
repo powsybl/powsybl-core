@@ -14,12 +14,12 @@ import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProviders;
+import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.iidm.network.ImportersServiceLoader;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.contingency.violations.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisInput;
@@ -44,7 +44,8 @@ import java.util.function.Supplier;
 
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION;
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION;
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.DEFAULT_SERVICE_IMPL_NAME_PROPERTY;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.PARAMETERS_FILE_OPTION;
 import static com.powsybl.tools.ToolConstants.TASK;
 
 /**

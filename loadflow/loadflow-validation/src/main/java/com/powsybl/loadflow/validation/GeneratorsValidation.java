@@ -7,6 +7,12 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -15,13 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 import static com.powsybl.loadflow.validation.ValidationUtils.*;
 
@@ -246,9 +245,9 @@ public final class GeneratorsValidation {
     }
 
     /**
-     * Rule 6: rule for valid result:</p>
-     * <code> targetV - V < threshold && |Q - minQ| <= threshold</code></p>
-     * <code> V - targetV < threshold && |Q - maxQ| <= threshold</code></p>
+     * Rule 6: rule for valid result:
+     * <code> targetV - V < threshold && |Q - minQ| <= threshold</code>
+     * <code> V - targetV < threshold && |Q - maxQ| <= threshold</code>
      * <code> |V - targetV|  < threshold && minQ <= Q <= maxQ </code>
      */
     private static boolean isGenVoltageRegulationInconsistent(double qGen, double v, double targetV, double minQ, double maxQ, double threshold) {

@@ -52,14 +52,33 @@ class SecurityTest {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
         // create pre-contingency results, just one violation on line1
-        line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, TwoSides.ONE);
+        line1Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limitName(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
+            .limit(1000.0)
+            .reduction(0.95f)
+            .value(1100.0)
+            .side(TwoSides.ONE)
+            .build();
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, TwoSides.ONE);
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")), NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+        line2Violation = LimitViolation.builder()
+            .subject("NHV1_NHV2_2")
+            .type(LimitViolationType.CURRENT)
+            .limitName("permanent2")
+            .limit(900.0)
+            .reduction(0.95f)
+            .value(950.0)
+            .side(TwoSides.ONE)
+            .build();
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1,
+            PostContingencyComputationStatus.CONVERGED,
+            new LimitViolationsResult(Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2")),
+            NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
 
         result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
@@ -76,7 +95,7 @@ class SecurityTest {
                                  "Pre-contingency violations",
                                  "Action,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
                                  "action1,,,,,,,,,,",
-                                 ",NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00"),
+                                 ",NHV1_NHV2_1,VLHV1,FR,380,CURRENT,permanent,1100.0000,950.0000,150.0000,110.00"),
                      writer.toString().trim());
     }
 
@@ -93,8 +112,8 @@ class SecurityTest {
                                  "Contingency,Status,Action,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
                                  "contingency1,CONVERGED,,Equipment (2),,,,,,,,,",
                                  ",,action2,,,,,,,,,,",
-                                 ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00",
-                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
+                                 ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,permanent,1100.0000,950.0000,150.0000,110.00",
+                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,permanent2,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
     }
 
@@ -111,18 +130,19 @@ class SecurityTest {
                                  "Contingency,Status,Action,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
                                  "contingency1,CONVERGED,,Equipment (1),,,,,,,,,",
                                  ",,action2,,,,,,,,,,",
-                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
+                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,permanent2,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
     }
 
     @Test
     void printLimitsViolations() {
-        assertEquals("+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
-                     "| Equipment (2) | End   | Country | Base voltage | Violation type | Violation name  | Value     | Limit    | abs(value-limit) | Loading rate % |\n" +
-                     "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
-                     "| NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit | 1100.0000 | 950.0000 |         150.0000 |         110.00 |\n" +
-                     "| NHV1_NHV2_2   | VLHV1 | FR      |          380 | CURRENT        | Permanent limit |  950.0000 | 855.0000 |          95.0000 |         105.56 |\n" +
-                     "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+",
+        assertEquals("""
+                     +---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+                     | Equipment (2) | End   | Country | Base voltage | Violation type | Violation name | Value     | Limit    | abs(value-limit) | Loading rate % |
+                     +---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+                     | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 1100.0000 | 950.0000 |         150.0000 |         110.00 |
+                     | NHV1_NHV2_2   | VLHV1 | FR      |          380 | CURRENT        | permanent2     |  950.0000 | 855.0000 |          95.0000 |         105.56 |
+                     +---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+""",
                      Security.printLimitsViolations(Arrays.asList(line1Violation, line2Violation), network, new LimitViolationFilter(), formatterConfig));
     }
 

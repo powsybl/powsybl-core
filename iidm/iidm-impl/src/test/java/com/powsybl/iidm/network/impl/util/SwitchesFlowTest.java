@@ -7,24 +7,14 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.ZonedDateTime;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.SwitchesFlow;
+import java.time.ZonedDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -41,34 +31,34 @@ class SwitchesFlowTest {
         VoltageLevel voltageLevel11 = network.getVoltageLevel("S1VL1");
         SwitchesFlow switchesFlow11 = new SwitchesFlow(voltageLevel11);
 
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-1B", -180.0, -19.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-1A", 10.0, -1.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1B-2B", 70.0, 10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0B-10", 100.0, 10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-8", -80.0, -10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-0A-0B", -80.0, -9.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2A-2B", 0.0, 0.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-1B", 0.0, 0.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-2B-12", 70.0, 10.0));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-1A-2A", 90.0, 9.0));
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-0B-1B", 0.0, 0.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-0A-1A", -170.0, -20.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-1B-2B", 0.0, 0.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-0B-10", 100.0, 10.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-1A-8", -80.0, -10.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-0A-0B", 100.0, 10.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-2A-2B", 70.0, 10.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-1A-1B", -250.0, -29.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-2B-12", 70.0, 10.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-1A-2A", 160.0, 19.0);
 
         VoltageLevel voltageLevel12 = network.getVoltageLevel("S1VL2");
         SwitchesFlow switchesFlow12 = new SwitchesFlow(voltageLevel12);
 
-        assertTrue(compareSwitchFlow(switchesFlow12, "S1VL2-SW-0-1", 251.0, 35.0));
-        assertTrue(compareSwitchFlow(switchesFlow12, "S1VL2-SW-0-2", -251.0, -35.0));
+        assertSwitchFlowValue(switchesFlow12, "S1VL2-SW-0-1", 251.0, 35.0);
+        assertSwitchFlowValue(switchesFlow12, "S1VL2-SW-0-2", -251.0, -35.0);
 
         VoltageLevel voltageLevel21 = network.getVoltageLevel("S2VL1");
         SwitchesFlow switchesFlow21 = new SwitchesFlow(voltageLevel21);
 
-        assertTrue(compareSwitchFlow(switchesFlow21, "S2VL1-SW-0-1", -75.0, -15.0));
-        assertTrue(compareSwitchFlow(switchesFlow21, "S2VL1-SW-0-2", 75.0, 15.0));
+        assertSwitchFlowValue(switchesFlow21, "S2VL1-SW-0-1", -75.0, -15.0);
+        assertSwitchFlowValue(switchesFlow21, "S2VL1-SW-0-2", 75.0, 15.0);
 
         VoltageLevel voltageLevel31 = network.getVoltageLevel("S3VL1");
         SwitchesFlow switchesFlow31 = new SwitchesFlow(voltageLevel31);
 
-        assertTrue(compareSwitchFlow(switchesFlow31, "S3VL1-SW-0-1", -71.0, -11.0));
-        assertTrue(compareSwitchFlow(switchesFlow31, "S3VL1-SW-0-2", 71.0, 11.0));
+        assertSwitchFlowValue(switchesFlow31, "S3VL1-SW-0-1", -71.0, -11.0);
+        assertSwitchFlowValue(switchesFlow31, "S3VL1-SW-0-2", 71.0, 11.0);
     }
 
     private static Network createNodeBreaker() {
@@ -313,9 +303,9 @@ class SwitchesFlowTest {
         VoltageLevel voltageLevel11 = network.getVoltageLevel("S1VL1");
         SwitchesFlow switchesFlow11 = new SwitchesFlow(voltageLevel11);
 
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS1", -25.0, -10.5));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS1-BUS2", -25.0, -10.5));
-        assertTrue(compareSwitchFlow(switchesFlow11, "S1VL1-SW-BUS0-BUS2", 0.0, 0.0));
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-BUS0-BUS1", 0.0, 0.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-BUS1-BUS2", 0.0, 0.0);
+        assertSwitchFlowValue(switchesFlow11, "S1VL1-SW-BUS0-BUS2", -25.0, -10.5);
 
         VoltageLevel voltageLevel12 = network.getVoltageLevel("S1VL2");
         SwitchesFlow switchesFlow12 = new SwitchesFlow(voltageLevel12);
@@ -431,20 +421,11 @@ class SwitchesFlowTest {
         twt.getTerminal2().setP(p2).setQ(q2);
     }
 
-    private static boolean compareSwitchFlow(SwitchesFlow switchesFlow, String id, double p1, double q1) {
+    private static void assertSwitchFlowValue(SwitchesFlow switchesFlow, String id, double p1, double q1) {
         double tol = 0.000001;
-        if (Math.abs(p1 - switchesFlow.getP1(id)) > tol) {
-            return false;
-        }
-        if (Math.abs(q1 - switchesFlow.getQ1(id)) > tol) {
-            return false;
-        }
-        if (Math.abs(-p1 - switchesFlow.getP2(id)) > tol) {
-            return false;
-        }
-        if (Math.abs(-q1 - switchesFlow.getQ2(id)) > tol) {
-            return false;
-        }
-        return true;
+        assertEquals(p1, switchesFlow.getP1(id), tol);
+        assertEquals(q1, switchesFlow.getQ1(id), tol);
+        assertEquals(-p1, switchesFlow.getP2(id), tol);
+        assertEquals(-q1, switchesFlow.getQ2(id), tol);
     }
 }

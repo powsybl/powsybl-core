@@ -7,6 +7,12 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -16,22 +22,15 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.loadflow.validation.io.ValidationWriter;
-
 import static com.powsybl.loadflow.validation.ValidationUtils.*;
 
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  *
- * Rules for valid results :<br/>
- * Rule1: |p| < e </br>
- * Rule2: q must match expectedQ </br>
+ * Rules for valid results :
+ * Rule1: |p| < e
+ * Rule2: q must match expectedQ
  * Rule3: if the shunt is disconnected, q should be undefined or 0
  */
 public final class ShuntCompensatorsValidation {
@@ -125,8 +124,8 @@ public final class ShuntCompensatorsValidation {
     }
 
     /**
-     * - Rule1: |p| < e </br>
-     * - Rule2: q must match expectedQ </br>
+     * - Rule1: |p| < e
+     * - Rule2: q must match expectedQ
      * - Rule3: if the shunt is disconnected, q should be NaN or 0
      */
     public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,

@@ -19,8 +19,8 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.LimitReductionList;
-import org.junit.jupiter.api.Test;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -45,6 +45,21 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 getLimitReduction2(),
                 getLimitReduction3(),
                 getLimitReduction4()
+            )
+        );
+        compareLimitReductionList(expectedReductions, limitReductionList);
+    }
+
+    @Test
+    void limitReductionReadV11() {
+        LimitReductionList limitReductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.1.json"));
+        LimitReductionList expectedReductions = new LimitReductionList(
+            List.of(
+                getLimitReduction1(),
+                getLimitReduction2(),
+                getLimitReduction3(),
+                getLimitReduction4(),
+                getLimitReduction5()
             )
         );
         compareLimitReductionList(expectedReductions, limitReductionList);
@@ -79,11 +94,19 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        LimitReductionList limitReductionList = new LimitReductionList(List.of(getLimitReduction1(), getLimitReduction2(), getLimitReduction3(), getLimitReduction4(), getLimitReduction5()));
+        LimitReductionList limitReductionList = new LimitReductionList(
+            List.of(
+                getLimitReduction1(),
+                getLimitReduction2(),
+                getLimitReduction3(),
+                getLimitReduction4(),
+                getLimitReduction5(),
+                getLimitReduction6()
+            ));
 
         roundTripTest(limitReductionList, LimitReductionListSerDeUtil::write,
                 LimitReductionListSerDeUtil::read,
-            "/LimitReductionsV1.1.json");
+            "/LimitReductionsV1.2.json");
     }
 
     @Test
@@ -91,7 +114,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             LimitReductionListSerDeUtil.write(reductionList, bos);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_groupV1.1.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_groupV1.2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             // Should not happen
             fail();
@@ -149,6 +172,12 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         return LimitReduction.builder(LimitType.ACTIVE_POWER, 0.88)
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1", "NHV1_NHV2_2")))
             .withOperationalLimitsGroupIdSelection("DEFAULT", "activated_1_3", "activated_2_1")
+            .build();
+    }
+
+    private LimitReduction getLimitReduction6() {
+        return LimitReduction.builder(LimitType.CURRENT, 1.13)
+            .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder().setLowBound(60, true).build())
             .build();
     }
 }

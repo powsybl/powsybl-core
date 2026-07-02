@@ -7,8 +7,12 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -17,26 +21,24 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
-import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLImporter;
-import com.powsybl.iidm.network.util.BranchData;
-import com.powsybl.iidm.network.util.TwtData;
-
-import com.google.re2j.Matcher;
-import com.google.re2j.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,18 +51,15 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.FileSystem;
 import java.util.*;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getRatioTapChangerAliasType;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.writeCgmesProfile;
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -1607,7 +1606,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         return network;
     }
 
-    private Network exportImport(Network expected, ReadOnlyDataSource dataSource, boolean importTP, boolean importBD, boolean transformersWithHighestVoltageAtEnd1) throws IOException, XMLStreamException {
+    private Network exportImport(Network expected, ReadOnlyDataSource dataSource, boolean importTP, boolean importBD,
+                                 boolean transformersWithHighestVoltageAtEnd1) throws IOException, XMLStreamException {
         Path exportedEq = exportToCgmesEQ(expected, transformersWithHighestVoltageAtEnd1);
 
         // From reference data source we use only boundaries
@@ -1759,61 +1759,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                     bus.setAngle(Double.NaN);
                 })
         );
-        network.getIdentifiables().forEach(identifiable -> {
-            if (identifiable instanceof Bus) {
-                // Nothing to do
-            } else if (identifiable instanceof BusbarSection) {
-                // Nothing to do
-            } else if (identifiable instanceof ShuntCompensator) {
-                ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
-                shuntCompensator.setVoltageRegulatorOn(false);
-                shuntCompensator.setTargetV(Double.NaN);
-                shuntCompensator.setTargetDeadband(Double.NaN);
-                shuntCompensator.getTerminal().setQ(0.0);
-                shuntCompensator.getTerminal().setP(0.0);
-                shuntCompensator.setSectionCount(0);
-            } else if (identifiable instanceof Generator) {
-                Generator generator = (Generator) identifiable;
-                generator.setVoltageRegulatorOn(false);
-                generator.setTargetV(Double.NaN);
-                generator.setTargetP(Double.NaN);
-                generator.setTargetQ(Double.NaN);
-                generator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof StaticVarCompensator) {
-                StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
-                staticVarCompensator.setRegulating(false).setVoltageSetpoint(0.0)
-                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
-                staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof VscConverterStation) {
-                VscConverterStation converter = (VscConverterStation) identifiable;
-                converter.setVoltageRegulatorOn(false);
-                converter.setLossFactor(0.8f);
-                converter.setVoltageSetpoint(Double.NaN);
-                converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof LccConverterStation) {
-                LccConverterStation converter = (LccConverterStation) identifiable;
-                converter.setPowerFactor(0.8f);
-                converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Injection) {
-                Injection injection = (Injection) identifiable;
-                injection.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof HvdcLine) {
-                HvdcLine hvdcLine = (HvdcLine) identifiable;
-                hvdcLine.setActivePowerSetpoint(0.0);
-                hvdcLine.setMaxP(0.0);
-                hvdcLine.getConverterStation1().getTerminal().setP(0.0).setQ(0.0);
-                hvdcLine.getConverterStation2().getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Branch) {
-                Branch branch = (Branch) identifiable;
-                branch.getTerminal1().setP(0.0).setQ(0.0);
-                branch.getTerminal2().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer threeWindingsTransformer = (ThreeWindingsTransformer) identifiable;
-                threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
-                threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
-                threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);
-            }
-        });
+        network.getIdentifiables().forEach(EquipmentExportTest::prepareNetworkElementForEQComparison);
         for (Load load : network.getLoads()) {
             load.setP0(0.0).setQ0(0.0);
         }
@@ -1826,6 +1772,53 @@ class EquipmentExportTest extends AbstractSerDeTest {
         network.removeExtension(CimCharacteristics.class);
 
         return network;
+    }
+
+    private static void prepareNetworkElementForEQComparison(Identifiable<?> identifiable) {
+        if (identifiable instanceof Bus) {
+            // Nothing to do
+        } else if (identifiable instanceof BusbarSection) {
+            // Nothing to do
+        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
+            shuntCompensator.setVoltageRegulatorOn(false);
+            shuntCompensator.setTargetV(Double.NaN);
+            shuntCompensator.setTargetDeadband(Double.NaN);
+            shuntCompensator.getTerminal().setQ(0.0);
+            shuntCompensator.getTerminal().setP(0.0);
+            shuntCompensator.setSectionCount(0);
+        } else if (identifiable instanceof Generator generator) {
+            generator.setVoltageRegulatorOn(false);
+            generator.setTargetV(Double.NaN);
+            generator.setTargetP(Double.NaN);
+            generator.setTargetQ(Double.NaN);
+            generator.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
+            staticVarCompensator.setRegulating(false).setVoltageSetpoint(0.0)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+            staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof VscConverterStation converter) {
+            converter.setVoltageRegulatorOn(false);
+            converter.setLossFactor(0.8f);
+            converter.setVoltageSetpoint(Double.NaN);
+            converter.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof LccConverterStation converter) {
+            converter.setPowerFactor(0.8f);
+            converter.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof Injection<?> injection) {
+            injection.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof HvdcLine hvdcLine) {
+            hvdcLine.setActivePowerSetpoint(0.0);
+            hvdcLine.setMaxP(0.0);
+            hvdcLine.getConverterStation1().getTerminal().setP(0.0).setQ(0.0);
+            hvdcLine.getConverterStation2().getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof Branch<?> branch) {
+            branch.getTerminal1().setP(0.0).setQ(0.0);
+            branch.getTerminal2().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
+            threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
+            threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
+            threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);
+        }
     }
 
     private static Network allGeneratingUnitTypesNetwork() {
@@ -1949,5 +1942,27 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals("onshore", getFirstMatch(eqXml, onshorePattern));
         Pattern offshorePattern = Pattern.compile(sPattern.replace("${rdfId}", "_wind_offshore_WGU"), Pattern.DOTALL);
         assertEquals("offshore", getFirstMatch(eqXml, offshorePattern));
+    }
+
+    @Test
+    void linesWithDifferentBaseVoltageOnBothSideTest() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        double newNominalV = 400.0;
+        network.getVoltageLevel("VLHV1").setNominalV(newNominalV);
+        Line line = network.getLine("NHV1_NHV2_1");
+        assertEquals(newNominalV, line.getTerminal1().getVoltageLevel().getNominalV());
+        assertNotEquals(newNominalV, line.getTerminal2().getVoltageLevel().getNominalV());
+
+        String eqXml = writeCgmesProfile(network, "EQ", tmpDir);
+
+        String lineEq = getElement(eqXml, "ACLineSegment", line.getId());
+        assertNotNull(lineEq);
+
+        String baseVoltage = getResource(lineEq, "ConductingEquipment.BaseVoltage");
+        assertNotNull(baseVoltage);
+
+        String baseVoltageEq = getElement(eqXml, "BaseVoltage", baseVoltage);
+        assertNotNull(baseVoltageEq);
+        assertEquals(newNominalV, Double.parseDouble(getAttribute(baseVoltageEq, "BaseVoltage.nominalVoltage")));
     }
 }

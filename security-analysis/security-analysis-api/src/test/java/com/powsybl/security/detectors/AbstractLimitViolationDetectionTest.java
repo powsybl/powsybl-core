@@ -7,11 +7,11 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.contingency.violations.LimitViolationType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,10 +24,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
+import static com.powsybl.iidm.network.LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
@@ -87,7 +86,7 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(600, l.getAcceptableDuration());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 
@@ -109,7 +108,7 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
                     assertEquals(0.9, l.getLimitReduction(), 0.001);
@@ -157,7 +156,7 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(600, l.getAcceptableDuration());
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
 
@@ -179,7 +178,7 @@ public abstract class AbstractLimitViolationDetectionTest {
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
-                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
                     assertEquals(0.9, l.getLimitReduction(), 0.001);
@@ -527,17 +526,17 @@ public abstract class AbstractLimitViolationDetectionTest {
         return Stream.of(
                 // Case 1: no upper infinite limit
                 Arguments.of(network, case1, 90., null), // below the permanent limit
-                Arguments.of(network, case1, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
+                Arguments.of(network, case1, 110., new ExpectedResults(DEFAULT_PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL1
                 Arguments.of(network, case1, 130., new ExpectedResults("TL1", 120., 600)), // between TL1 and TL2
                 Arguments.of(network, case1, 150., new ExpectedResults("TL2", 140., 0)), // over the highest temp limit (TL2)
                 // Case 2: with an upper infinite limit
                 Arguments.of(network, case2, 90., null), // below the permanent limit
-                Arguments.of(network, case2, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
+                Arguments.of(network, case2, 110., new ExpectedResults(DEFAULT_PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and IT20
                 Arguments.of(network, case2, 130., new ExpectedResults("IT20", 120., 600)), // between IT20 and IT10
                 Arguments.of(network, case2, 150., new ExpectedResults("IT10", 140., 60)), // between IT10 and IT1 (over IT1 is not possible)
                 // Case 3: same as 1 but with a single temp limit
                 Arguments.of(network, case3, 90., null), // below the permanent limit
-                Arguments.of(network, case3, 110., new ExpectedResults(PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
+                Arguments.of(network, case3, 110., new ExpectedResults(DEFAULT_PERMANENT_LIMIT_NAME, 100., 1200)), // between permanent and TL
                 Arguments.of(network, case3, 130., new ExpectedResults("TL", 120., 0)) // over the highest temp limit (TL)
         );
     }

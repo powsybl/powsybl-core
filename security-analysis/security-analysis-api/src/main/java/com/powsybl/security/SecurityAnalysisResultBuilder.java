@@ -235,7 +235,9 @@ public class SecurityAnalysisResultBuilder {
          */
         public SecurityAnalysisResultBuilder endPreContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            preContingencyResult = new PreContingencyResult(status, new LimitViolationsResult(filteredViolations), new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), distributedActivePower);
+            preContingencyResult = new PreContingencyResult(status,
+                new LimitViolationsResult(filteredViolations),
+                new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), distributedActivePower);
             interceptors.forEach(i -> i.onPreContingencyResult(preContingencyResult, resultContext));
             return SecurityAnalysisResultBuilder.this;
         }

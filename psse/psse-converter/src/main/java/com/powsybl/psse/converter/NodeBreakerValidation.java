@@ -7,9 +7,11 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.psse.model.pf.*;
-import com.powsybl.psse.model.pf.PsseSubstation.PsseSubstationNode;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import com.powsybl.psse.model.pf.PsseSubstation;
+import com.powsybl.psse.model.pf.PsseTransformer;
+import com.powsybl.psse.model.pf.internal.PsseSubstationNode;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.util.Pair;

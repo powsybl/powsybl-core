@@ -7,8 +7,12 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.TwoSides;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -18,13 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import com.powsybl.iidm.network.TwoSides;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.powsybl.contingency.violations.LimitViolation;
-import com.powsybl.contingency.violations.LimitViolationType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
@@ -41,9 +40,28 @@ class SecurityAnalysisResultComparisonWriterTest {
 
     @BeforeEach
     void setUp() {
-        vlViolation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
-        lineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.0, TwoSides.ONE);
-        similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, TwoSides.ONE);
+        vlViolation = LimitViolation.builder()
+            .subject("VL1")
+            .type(LimitViolationType.HIGH_VOLTAGE)
+            .limit(200.0)
+            .value(250)
+            .build();
+        lineViolation = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limitName("PermanentLimit")
+            .limit(1000.0)
+            .value(1100)
+            .side(TwoSides.ONE)
+            .build();
+        similarLineViolation = LimitViolation.builder()
+            .subject("NHV1_NHV2_1")
+            .type(LimitViolationType.CURRENT)
+            .limitName("PermanentLimit")
+            .limit(1000.0)
+            .value(1100.09)
+            .side1()
+            .build();
         actions = Arrays.asList("action1", "action2");
         writer = new StringWriter();
         comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer);

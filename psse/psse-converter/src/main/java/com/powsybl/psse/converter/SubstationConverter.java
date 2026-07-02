@@ -7,14 +7,14 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Objects;
-import java.util.Optional;
-
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseSubstation;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

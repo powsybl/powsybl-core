@@ -98,6 +98,12 @@ public class JsonReader extends AbstractTreeDataReader {
         return readStringAttribute(name, false);
     }
 
+    @Override
+    public String readStringAttribute(String name, String defaultValue) {
+        String value = readStringAttribute(name, false);
+        return value == null ? defaultValue : value;
+    }
+
     private String readStringAttribute(String name, boolean throwException) {
         Objects.requireNonNull(name);
         try {

@@ -7,8 +7,8 @@
  */
 package com.powsybl.security.limitreduction.computation;
 
-import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,11 +7,8 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.BoundaryLine.Generation;
-import com.powsybl.iidm.network.BoundaryLineAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
@@ -69,8 +66,8 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         context.getWriter().writeDoubleAttribute("q0", q0[0]);
         context.getWriter().writeDoubleAttribute("r", bl.getR());
         context.getWriter().writeDoubleAttribute("x", bl.getX());
-        context.getWriter().writeDoubleAttribute("g", bl.getG());
-        context.getWriter().writeDoubleAttribute("b", bl.getB());
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("g", bl.getG(), IidmVersion.V_1_17, context);
+        IidmSerDeUtil.writeFormerlyMandatoryDoubleAttribute("b", bl.getB(), IidmVersion.V_1_17, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             context.getWriter().writeOptionalBooleanAttribute("generationVoltageRegulationOn", getOptionalValue(generation, Generation::isVoltageRegulationOn));
             context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, getOptionalValue(generation, Generation::getMinP));
@@ -89,9 +86,9 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         );
         writePQ(null, t, context.getWriter());
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () ->
-                writeSelectedGroupId(null, bl.getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter()));
+            writeSelectedGroupId(null, bl.getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter()));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
-                writeAllSelectedGroupIds(bl, context.getWriter()));
+            writeAllSelectedGroupIds(bl, context.getWriter()));
     }
 
     private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
@@ -108,7 +105,8 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
         }
-        writeLimits(context, null, getRootElementName(), dl.getSelectedOperationalLimitsGroup().orElse(null), dl.getOperationalLimitsGroups());
+        writeLimits(context, null, getRootElementName(), dl.getSelectedOperationalLimitsGroup().orElse(null),
+            context.getOptions().isOnlySelectedOperationalLimitsGroups() ? dl.getAllSelectedOperationalLimitsGroups() : dl.getOperationalLimitsGroups());
     }
 
     @Override
@@ -126,7 +124,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         BoundaryLine bl = adder.add();
         readPQ(null, bl.getTerminal(), context.getReader());
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_12, IidmVersion.V_1_15, context, () ->
-                readSelectedGroupId(null, bl::setSelectedOperationalLimitsGroup, context));
+            readSelectedGroupId(null, bl::setSelectedOperationalLimitsGroup, context));
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_16, context, () ->
             readAllSelectedGroupIds(bl, context));
         return bl;
@@ -141,8 +139,8 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         double q0 = context.getReader().readDoubleAttribute("q0");
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
-        double g = context.getReader().readDoubleAttribute("g");
-        double b = context.getReader().readDoubleAttribute("b");
+        double g = IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute("g", IidmVersion.V_1_17, context);
+        double b = IidmSerDeUtil.readFormerlyMandatoryDoubleAttribute("b", IidmVersion.V_1_17, context);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
             Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute("generationVoltageRegulationOn");
             OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
@@ -152,7 +150,7 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
             OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_Q);
             if (voltageRegulationOn.isPresent()) {
                 BoundaryLineAdder.GenerationAdder generationAdder = adder.newGeneration()
-                        .setVoltageRegulationOn(voltageRegulationOn.get());
+                    .setVoltageRegulationOn(voltageRegulationOn.get());
                 minP.ifPresent(generationAdder::setMinP);
                 maxP.ifPresent(generationAdder::setMaxP);
                 targetP.ifPresent(generationAdder::setTargetP);
@@ -163,40 +161,43 @@ class BoundaryLineSerDe extends AbstractSimpleIdentifiableSerDe<BoundaryLine, Bo
         });
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setP0(p0)
-                .setQ0(q0)
-                .setR(r)
-                .setX(x)
-                .setG(g)
-                .setB(b);
+            .setQ0(q0)
+            .setR(r)
+            .setX(x)
+            .setG(g)
+            .setB(b);
     }
 
     @Override
     protected void readSubElements(BoundaryLine dl, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case LIMITS_GROUP -> {
-                    IidmSerDeUtil.assertMinimumVersion(getRootElementName(), LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(dl, LIMITS_GROUP, context));
-                }
-                case ACTIVE_POWER_LIMITS -> {
-                    IidmSerDeUtil.assertMinimumVersion(getRootElementName(), ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
-                }
-                case APPARENT_POWER_LIMITS -> {
-                    IidmSerDeUtil.assertMinimumVersion(getRootElementName(), APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
-                }
-                case CURRENT_LIMITS -> readCurrentLimits(dl.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
-                case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> {
-                    IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
-                    ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(dl.getGeneration(), context);
-                }
-                case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> {
-                    IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
-                    ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(dl.getGeneration(), context);
-                }
-                default -> readSubElement(elementName, dl, context);
+        context.getReader().readChildNodes(elementName -> readChildNode(dl, context, elementName));
+    }
+
+    private void readChildNode(BoundaryLine bl, NetworkDeserializerContext context, String elementName) {
+        switch (elementName) {
+            case LIMITS_GROUP -> {
+                IidmSerDeUtil.assertMinimumVersion(getRootElementName(), LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(bl, bl.getId(), ThreeSides.ONE, LIMITS_GROUP, context));
             }
-        });
+            case ACTIVE_POWER_LIMITS -> {
+                IidmSerDeUtil.assertMinimumVersion(getRootElementName(), ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(bl.getOrCreateSelectedOperationalLimitsGroup().newActivePowerLimits(), context));
+            }
+            case APPARENT_POWER_LIMITS -> {
+                IidmSerDeUtil.assertMinimumVersion(getRootElementName(), APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
+                IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(bl.getOrCreateSelectedOperationalLimitsGroup().newApparentPowerLimits(), context));
+            }
+            case CURRENT_LIMITS ->
+                readCurrentLimits(bl.getOrCreateSelectedOperationalLimitsGroup().newCurrentLimits(), context);
+            case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> {
+                IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+                ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(bl.getGeneration(), context);
+            }
+            case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> {
+                IidmSerDeUtil.assertMinimumVersion(getRootElementName() + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
+                ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(bl.getGeneration(), context);
+            }
+            default -> readSubElement(elementName, bl, context);
+        }
     }
 }

@@ -7,6 +7,14 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -15,15 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 import static com.powsybl.loadflow.validation.ValidationUtils.*;
 
@@ -115,7 +114,8 @@ public final class StaticVarCompensatorsValidation {
         TerminalState terminalState = getTerminalState(svc.getTerminal());
         boolean connected = terminalState.connected();
         boolean mainComponent = terminalState.mainComponent();
-        return checkSVCs(svc.getId(), p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
+        return checkSVCs(svc.getId(), p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint,
+            regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
     }
 
     public boolean checkSVCs(String id, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
@@ -126,7 +126,8 @@ public final class StaticVarCompensatorsValidation {
         Objects.requireNonNull(writer);
 
         try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SVCS)) {
-            return checkSVCs(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
+            return checkSVCs(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint,
+                regulationMode, regulating, bMin, bMax, connected, mainComponent, config, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -153,7 +154,8 @@ public final class StaticVarCompensatorsValidation {
             }
         }
         try {
-            svcsWriter.write(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
+            svcsWriter.write(id, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint,
+                voltageSetpoint, connected, regulationMode, regulating, bMin, bMax, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

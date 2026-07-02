@@ -9,7 +9,6 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.AmplExportConfig.ExportActionType;
 import com.powsybl.ampl.converter.AmplExportConfig.ExportScope;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,12 +25,7 @@ class AmplExportConfigTest {
         assertEquals(ExportScope.ALL, config.getExportScope());
         config.setExportScope(ExportScope.ONLY_MAIN_CC);
         assertEquals(ExportScope.ONLY_MAIN_CC, config.getExportScope());
-        try {
-            config.setExportScope(null);
-            fail();
-        } catch (NullPointerException e) {
-            // NullPointerException is expected here
-        }
+        assertThrows(NullPointerException.class, () -> config.setExportScope(null));
 
         assertTrue(config.isExportXNodes());
         config.setExportXNodes(false);
@@ -40,11 +34,7 @@ class AmplExportConfigTest {
         assertEquals(ExportActionType.CURATIVE, config.getActionType());
         config.setActionType(ExportActionType.PREVENTIVE);
         assertEquals(ExportActionType.PREVENTIVE, config.getActionType());
-        try {
-            config.setActionType(null);
-        } catch (NullPointerException e) {
-            // NullPointerException is expected here
-        }
+        assertThrows(NullPointerException.class, () -> config.setActionType(null));
 
         assertFalse(config.isExportRatioTapChangerVoltageTarget());
         config.setExportRatioTapChangerVoltageTarget(true);

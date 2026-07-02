@@ -14,6 +14,7 @@ usage: itools [OPTIONS] loadflow-validation --case-file <FILE>
        [--load-flow] --output-folder <FOLDER> [--output-format
        <VALIDATION_WRITER>] [--run-computation <COMPUTATION>] [--types
        <VALIDATION_TYPE,VALIDATION_TYPE,...>] [--verbose]
+       [--with-extensions-validation]
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
@@ -115,6 +116,9 @@ Use the `--run-computation` parameter to run a computation before the validation
 `--types`<br>
 Use the `--types` parameter to define the types of checks to run. If this parameter is not set, run all the checks.
 The supported types are `FLOWS`, `GENERATORS`, `BUSES`, `SVCS`, `SHUNTS`, `TWTS`.
+
+`--with-extensions-validation`<br>
+Use the `--with-extensions-validation` parameter to perform extensions validation.
 
 To learn more about the different checks, read the [loadflow validation](../../grid_features/loadflow_validation.md) documentation page.
 

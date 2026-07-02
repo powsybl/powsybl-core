@@ -15,10 +15,10 @@ import com.powsybl.iidm.network.Network;
 import groovy.lang.GroovyCodeSource;
 
 import java.io.InputStream;
-import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
