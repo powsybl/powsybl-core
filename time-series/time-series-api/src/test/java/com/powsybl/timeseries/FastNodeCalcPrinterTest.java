@@ -33,5 +33,4 @@ class FastNodeCalcPrinterTest {
     void testBigDecimalOperations() {
         assertEquals("1.5", FastNodeCalcPrinter.print(new BigDecimalNodeCalc(BigDecimal.valueOf(1.5))));
     }
-
 }
