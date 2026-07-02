@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -110,8 +111,9 @@ class TransformersValidationTest extends AbstractValidationTest {
                                                              targetV, regulatedSide, Float.NaN, connected, mainComponent, strictConfig, NullWriter.INSTANCE));
     }
 
+    @DisplayName("Rule 2 (voltage is higher than target): if voltageDeviation (error) > 0 -> fail when required decrease > available decrease + threshold")
     @Test
-    void checkTwts() {
+    void checkTransformerShouldSucceedWhenVoltageTooHigh() {
         assertTrue(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
         Mockito.when(bus.getV()).thenReturn(highV);
         assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
@@ -128,6 +130,13 @@ class TransformersValidationTest extends AbstractValidationTest {
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.INSTANCE, ValidationType.TWTS);
         assertTrue(ValidationType.TWTS.check(network, strictConfig, validationWriter));
+    }
+
+    @DisplayName("Rule 1 (voltage is lower than target): if voltageDeviation (error) < 0 -> fail when required increase > available increase + threshold")
+    @Test
+    void checkTransformerShouldSucceedWhenVoltageTooLow() {
+        Mockito.when(bus.getV()).thenReturn(lowV);
+        assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
     }
 
 }

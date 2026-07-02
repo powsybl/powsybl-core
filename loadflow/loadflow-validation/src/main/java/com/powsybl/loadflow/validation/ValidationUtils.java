@@ -8,6 +8,8 @@
 package com.powsybl.loadflow.validation;
 
 import com.powsybl.commons.config.ConfigurationException;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
 
@@ -18,6 +20,7 @@ import java.util.Objects;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 public final class ValidationUtils {
 
@@ -55,6 +58,17 @@ public final class ValidationUtils {
         return areNaN;
     }
 
+    public static boolean areNaN(double... values) {
+        boolean areMissing = false;
+        for (double value : values) {
+            if (Double.isNaN(value)) {
+                areMissing = true;
+                break;
+            }
+        }
+        return areMissing;
+    }
+
     public static boolean areNaN(ValidationConfig config, double... values) {
         Objects.requireNonNull(config);
         if (config.areOkMissingValues()) {
@@ -87,6 +101,36 @@ public final class ValidationUtils {
     public static boolean isMainComponent(ValidationConfig config, boolean mainComponent) {
         Objects.requireNonNull(config);
         return !config.isCheckMainComponentOnly() || mainComponent;
+    }
+
+    public record TerminalState(double v, boolean connected, boolean mainComponent) { }
+
+    public static TerminalState getTerminalState(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+        Bus bus = terminal.getBusView().getBus();
+        Bus connectableBus = terminal.getBusView().getConnectableBus();
+        boolean connected = bus != null;
+        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
+        boolean mainComponent = connected ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        double v = connected ? bus.getV() : Double.NaN;
+        return new TerminalState(v, connected, mainComponent);
+    }
+
+    public static boolean isUndefinedOrZero(double value, double threshold) {
+        return Double.isNaN(value) || Math.abs(value) <= threshold;
+    }
+
+    public static boolean isOutsideTolerance(double actual, double expected, double threshold) {
+        return Math.abs(actual - expected) > threshold;
+    }
+
+    public static boolean isOutsideOrAtTolerance(double actual, double expected, double threshold) {
+        return Math.abs(actual - expected) >= threshold;
+    }
+
+    public static boolean isConnectedAndMainComponent(boolean connected, boolean mainComponent, ValidationConfig config) {
+        Objects.requireNonNull(config);
+        return connected && isMainComponent(config, mainComponent);
     }
 
 }

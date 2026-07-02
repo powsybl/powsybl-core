@@ -13,18 +13,22 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
+ * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
 class BusesValidationTest extends AbstractValidationTest {
 
@@ -54,97 +58,98 @@ class BusesValidationTest extends AbstractValidationTest {
     private BoundaryLine boundaryLine;
 
     @BeforeEach
+    @Override
     void setUp() throws IOException {
         super.setUp();
 
-        Terminal loadTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(loadTerminal.getP()).thenReturn(loadP);
-        Mockito.when(loadTerminal.getQ()).thenReturn(loadQ);
-        Load load = Mockito.mock(Load.class);
-        Mockito.when(load.getTerminal()).thenReturn(loadTerminal);
+        Terminal loadTerminal = mock(Terminal.class);
+        when(loadTerminal.getP()).thenReturn(loadP);
+        when(loadTerminal.getQ()).thenReturn(loadQ);
+        Load load = mock(Load.class);
+        when(load.getTerminal()).thenReturn(loadTerminal);
 
-        Terminal genTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(genTerminal.getP()).thenReturn(genP);
-        Mockito.when(genTerminal.getQ()).thenReturn(genQ);
-        Generator gen = Mockito.mock(Generator.class);
-        Mockito.when(gen.getTerminal()).thenReturn(genTerminal);
+        Terminal genTerminal = mock(Terminal.class);
+        when(genTerminal.getP()).thenReturn(genP);
+        when(genTerminal.getQ()).thenReturn(genQ);
+        Generator gen = mock(Generator.class);
+        when(gen.getTerminal()).thenReturn(genTerminal);
 
-        Terminal batTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(batTerminal.getP()).thenReturn(batP);
-        Mockito.when(batTerminal.getQ()).thenReturn(batQ);
-        Battery bat = Mockito.mock(Battery.class);
-        Mockito.when(bat.getTerminal()).thenReturn(batTerminal);
+        Terminal batTerminal = mock(Terminal.class);
+        when(batTerminal.getP()).thenReturn(batP);
+        when(batTerminal.getQ()).thenReturn(batQ);
+        Battery bat = mock(Battery.class);
+        when(bat.getTerminal()).thenReturn(batTerminal);
 
-        Terminal shuntTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(shuntTerminal.getP()).thenReturn(shuntP);
-        Mockito.when(shuntTerminal.getQ()).thenReturn(shuntQ);
-        ShuntCompensator shunt = Mockito.mock(ShuntCompensator.class);
-        Mockito.when(shunt.getTerminal()).thenReturn(shuntTerminal);
+        Terminal shuntTerminal = mock(Terminal.class);
+        when(shuntTerminal.getP()).thenReturn(shuntP);
+        when(shuntTerminal.getQ()).thenReturn(shuntQ);
+        ShuntCompensator shunt = mock(ShuntCompensator.class);
+        when(shunt.getTerminal()).thenReturn(shuntTerminal);
 
-        Bus lineBus = Mockito.mock(Bus.class);
-        Mockito.when(lineBus.getId()).thenReturn("bus");
-        BusView lineBusView = Mockito.mock(BusView.class);
-        Mockito.when(lineBusView.getBus()).thenReturn(lineBus);
-        Terminal lineTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(lineTerminal.getP()).thenReturn(lineP);
-        Mockito.when(lineTerminal.getQ()).thenReturn(lineQ);
-        Mockito.when(lineTerminal.isConnected()).thenReturn(true);
-        Mockito.when(lineTerminal.getBusView()).thenReturn(lineBusView);
-        Line line = Mockito.mock(Line.class);
-        Mockito.when(line.getTerminal1()).thenReturn(lineTerminal);
+        Bus lineBus = mock(Bus.class);
+        when(lineBus.getId()).thenReturn("bus");
+        BusView lineBusView = mock(BusView.class);
+        when(lineBusView.getBus()).thenReturn(lineBus);
+        Terminal lineTerminal = mock(Terminal.class);
+        when(lineTerminal.getP()).thenReturn(lineP);
+        when(lineTerminal.getQ()).thenReturn(lineQ);
+        when(lineTerminal.isConnected()).thenReturn(true);
+        when(lineTerminal.getBusView()).thenReturn(lineBusView);
+        Line line = mock(Line.class);
+        when(line.getTerminal1()).thenReturn(lineTerminal);
 
-        Bus boundaryLineBus = Mockito.mock(Bus.class);
-        Mockito.when(boundaryLineBus.getId()).thenReturn("bus");
-        BusView boundaryLineBusView = Mockito.mock(BusView.class);
-        Mockito.when(boundaryLineBusView.getBus()).thenReturn(boundaryLineBus);
-        Terminal boundaryLineTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(boundaryLineTerminal.getP()).thenReturn(boundaryLineP);
-        Mockito.when(boundaryLineTerminal.getQ()).thenReturn(boundaryLineQ);
-        Mockito.when(boundaryLineTerminal.isConnected()).thenReturn(true);
-        Mockito.when(boundaryLineTerminal.getBusView()).thenReturn(boundaryLineBusView);
-        boundaryLine = Mockito.mock(BoundaryLine.class);
-        Mockito.when(boundaryLine.getTerminal()).thenReturn(boundaryLineTerminal);
-        Mockito.when(boundaryLine.isPaired()).thenReturn(false);
+        Bus boundaryLineBus = mock(Bus.class);
+        when(boundaryLineBus.getId()).thenReturn("bus");
+        BusView boundaryLineBusView = mock(BusView.class);
+        when(boundaryLineBusView.getBus()).thenReturn(boundaryLineBus);
+        Terminal boundaryLineTerminal = mock(Terminal.class);
+        when(boundaryLineTerminal.getP()).thenReturn(boundaryLineP);
+        when(boundaryLineTerminal.getQ()).thenReturn(boundaryLineQ);
+        when(boundaryLineTerminal.isConnected()).thenReturn(true);
+        when(boundaryLineTerminal.getBusView()).thenReturn(boundaryLineBusView);
+        boundaryLine = mock(BoundaryLine.class);
+        when(boundaryLine.getTerminal()).thenReturn(boundaryLineTerminal);
+        when(boundaryLine.isPaired()).thenReturn(false);
 
-        Bus t2wBus = Mockito.mock(Bus.class);
-        Mockito.when(t2wBus.getId()).thenReturn("bus");
-        BusView t2wBusView = Mockito.mock(BusView.class);
-        Mockito.when(t2wBusView.getBus()).thenReturn(t2wBus);
-        Terminal t2wTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(t2wTerminal.getP()).thenReturn(t2wtP);
-        Mockito.when(t2wTerminal.getQ()).thenReturn(t2wtQ);
-        Mockito.when(t2wTerminal.isConnected()).thenReturn(true);
-        Mockito.when(t2wTerminal.getBusView()).thenReturn(t2wBusView);
-        TwoWindingsTransformer t2w = Mockito.mock(TwoWindingsTransformer.class);
-        Mockito.when(t2w.getTerminal1()).thenReturn(t2wTerminal);
+        Bus t2wBus = mock(Bus.class);
+        when(t2wBus.getId()).thenReturn("bus");
+        BusView t2wBusView = mock(BusView.class);
+        when(t2wBusView.getBus()).thenReturn(t2wBus);
+        Terminal t2wTerminal = mock(Terminal.class);
+        when(t2wTerminal.getP()).thenReturn(t2wtP);
+        when(t2wTerminal.getQ()).thenReturn(t2wtQ);
+        when(t2wTerminal.isConnected()).thenReturn(true);
+        when(t2wTerminal.getBusView()).thenReturn(t2wBusView);
+        TwoWindingsTransformer t2w = mock(TwoWindingsTransformer.class);
+        when(t2w.getTerminal1()).thenReturn(t2wTerminal);
 
-        Bus t3wBus = Mockito.mock(Bus.class);
-        Mockito.when(t3wBus.getId()).thenReturn("bus");
-        BusView t3wBusView = Mockito.mock(BusView.class);
-        Mockito.when(t3wBusView.getBus()).thenReturn(t3wBus);
-        Terminal t3wTerminal = Mockito.mock(Terminal.class);
-        Mockito.when(t3wTerminal.getP()).thenReturn(t3wtP);
-        Mockito.when(t3wTerminal.getQ()).thenReturn(t3wtQ);
-        Mockito.when(t3wTerminal.isConnected()).thenReturn(true);
-        Mockito.when(t3wTerminal.getBusView()).thenReturn(t3wBusView);
-        ThreeWindingsTransformer t3w = Mockito.mock(ThreeWindingsTransformer.class);
-        Leg t3wLeg = Mockito.mock(Leg.class);
-        Mockito.when(t3w.getLeg1()).thenReturn(t3wLeg);
-        Mockito.when(t3wLeg.getTerminal()).thenReturn(t3wTerminal);
+        Bus t3wBus = mock(Bus.class);
+        when(t3wBus.getId()).thenReturn("bus");
+        BusView t3wBusView = mock(BusView.class);
+        when(t3wBusView.getBus()).thenReturn(t3wBus);
+        Terminal t3wTerminal = mock(Terminal.class);
+        when(t3wTerminal.getP()).thenReturn(t3wtP);
+        when(t3wTerminal.getQ()).thenReturn(t3wtQ);
+        when(t3wTerminal.isConnected()).thenReturn(true);
+        when(t3wTerminal.getBusView()).thenReturn(t3wBusView);
+        ThreeWindingsTransformer t3w = mock(ThreeWindingsTransformer.class);
+        Leg t3wLeg = mock(Leg.class);
+        when(t3w.getLeg1()).thenReturn(t3wLeg);
+        when(t3wLeg.getTerminal()).thenReturn(t3wTerminal);
 
-        bus = Mockito.mock(Bus.class);
-        Mockito.when(bus.getId()).thenReturn("bus");
-        Mockito.when(bus.getLoadStream()).thenAnswer(dummyLoads -> Stream.of(load));
-        Mockito.when(bus.getGeneratorStream()).thenAnswer(dummyGens -> Stream.of(gen));
-        Mockito.when(bus.getBatteryStream()).thenAnswer(dummyBats -> Stream.of(bat));
-        Mockito.when(bus.getShuntCompensatorStream()).thenAnswer(dummyShunts -> Stream.of(shunt));
-        Mockito.when(bus.getStaticVarCompensatorStream()).thenAnswer(dummyShunts -> Stream.empty());
-        Mockito.when(bus.getVscConverterStationStream()).thenAnswer(dummyShunts -> Stream.empty());
-        Mockito.when(bus.getLineStream()).thenAnswer(dummyLines -> Stream.of(line));
-        Mockito.when(bus.getBoundaryLineStream(BoundaryLineFilter.ALL)).thenAnswer(dummyBoundaryLines -> Stream.of(boundaryLine));
-        Mockito.when(bus.getTwoWindingsTransformerStream()).thenAnswer(dummyTwoWindingsTransformers -> Stream.of(t2w));
-        Mockito.when(bus.getThreeWindingsTransformerStream()).thenAnswer(dummyThreeWindingsTransformers -> Stream.of(t3w));
-        Mockito.when(bus.isInMainConnectedComponent()).thenReturn(mainComponent);
+        bus = mock(Bus.class);
+        when(bus.getId()).thenReturn("bus");
+        when(bus.getLoadStream()).thenAnswer(dummyLoads -> Stream.of(load));
+        when(bus.getGeneratorStream()).thenAnswer(dummyGens -> Stream.of(gen));
+        when(bus.getBatteryStream()).thenAnswer(dummyBats -> Stream.of(bat));
+        when(bus.getShuntCompensatorStream()).thenAnswer(dummyShunts -> Stream.of(shunt));
+        when(bus.getStaticVarCompensatorStream()).thenAnswer(dummyShunts -> Stream.empty());
+        when(bus.getVscConverterStationStream()).thenAnswer(dummyShunts -> Stream.empty());
+        when(bus.getLineStream()).thenAnswer(dummyLines -> Stream.of(line));
+        when(bus.getBoundaryLineStream(BoundaryLineFilter.ALL)).thenAnswer(dummyBoundaryLines -> Stream.of(boundaryLine));
+        when(bus.getTwoWindingsTransformerStream()).thenAnswer(dummyTwoWindingsTransformers -> Stream.of(t2w));
+        when(bus.getThreeWindingsTransformerStream()).thenAnswer(dummyThreeWindingsTransformers -> Stream.of(t3w));
+        when(bus.isInMainConnectedComponent()).thenReturn(mainComponent);
     }
 
     @Test
@@ -182,11 +187,11 @@ class BusesValidationTest extends AbstractValidationTest {
 
     @Test
     void checkNetworkBuses() throws IOException {
-        Network.BusView networkBusView = Mockito.mock(Network.BusView.class);
-        Mockito.when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
-        Network network = Mockito.mock(Network.class);
-        Mockito.when(network.getId()).thenReturn("network");
-        Mockito.when(network.getBusView()).thenReturn(networkBusView);
+        Network.BusView networkBusView = mock(Network.BusView.class);
+        when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
+        Network network = mock(Network.class);
+        when(network.getId()).thenReturn("network");
+        when(network.getBusView()).thenReturn(networkBusView);
 
         assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));
         assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, data));
@@ -198,7 +203,7 @@ class BusesValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
 
         // Consider paired boundaryLines
-        Mockito.when(boundaryLine.isPaired()).thenReturn(true);
+        when(boundaryLine.isPaired()).thenReturn(true);
 
         assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));
         assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, data));
@@ -209,4 +214,57 @@ class BusesValidationTest extends AbstractValidationTest {
         validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.INSTANCE, ValidationType.BUSES);
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
     }
+
+    // Rule: |incomingP + loadP| <= threshold and |incomingQ + loadQ| <= threshold"
+    @DisplayName("P and Q balanced")
+    @Test
+    void checkBusesShouldSucceedWhenPAndQBalanced() {
+        // Given threshold (0.01)
+        Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -50.0);
+        // When
+        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertTrue(result);
+    }
+
+    @DisplayName("P and Q unbalanced")
+    @Test
+    void checkBusesShouldSucceedWhenPAndQUnbalanced() {
+        // Given threshold (0.01)
+        Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -49.8);
+        // When
+        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(result);
+    }
+
+    private Bus mockBusForBalance(double loadP, double loadQ, double genP, double genQ) {
+        Terminal loadTerminal = mock(Terminal.class);
+        when(loadTerminal.getP()).thenReturn(loadP);
+        when(loadTerminal.getQ()).thenReturn(loadQ);
+        Load load = mock(Load.class);
+        when(load.getTerminal()).thenReturn(loadTerminal);
+        Terminal genTerminal = mock(Terminal.class);
+        when(genTerminal.getP()).thenReturn(genP);
+        when(genTerminal.getQ()).thenReturn(genQ);
+        Generator generator = mock(Generator.class);
+        when(generator.getTerminal()).thenReturn(genTerminal);
+
+        Bus busForBalance = mock(Bus.class);
+        when(busForBalance.getId()).thenReturn("bus-test");
+        when(busForBalance.isInMainConnectedComponent()).thenReturn(true);
+        when(busForBalance.getLoadStream()).thenAnswer(i -> Stream.of(load));
+        when(busForBalance.getGeneratorStream()).thenAnswer(i -> Stream.of(generator));
+        // other contributors = 0
+        when(busForBalance.getBatteryStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getShuntCompensatorStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getStaticVarCompensatorStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getVscConverterStationStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getLineStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getBoundaryLineStream(any())).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getTwoWindingsTransformerStream()).thenAnswer(i -> Stream.empty());
+        when(busForBalance.getThreeWindingsTransformerStream()).thenAnswer(i -> Stream.empty());
+        return busForBalance;
+    }
+
 }
