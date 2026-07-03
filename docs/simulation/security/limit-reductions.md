@@ -90,5 +90,5 @@ For instance, if both criteria `PERMANENT` and (`TEMPORARY` ; `EQUALITY`: 600) a
 
 ### Operational limits groups selected
 
-The selected operational limits groups on which the limit reduction will be applied. The list is the list of he groups id. If the collection is empty, then the limit reduction will be applied to all operational limits groups.
+The list of the ids of the operational limits groups on which the limit reduction will be applied. If the list is empty, then the limit reduction will be applied to all operational limits groups.
 
