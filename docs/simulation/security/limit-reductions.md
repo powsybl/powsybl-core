@@ -88,7 +88,7 @@ When no duration criteria are present, the reduction is applied to all permanent
 When several duration criteria are specified, the limit reductions apply to each one.
 For instance, if both criteria `PERMANENT` and (`TEMPORARY` ; `EQUALITY`: 600) are defined, the limit reduction will apply to permanent limits and 600 s limits.
 
-### Operational limits groups selected
+### Operational limits groups selection
 
 The list of the ids of the operational limits groups on which the limit reduction will be applied. If the list is empty, then the limit reduction will be applied to all operational limits groups.
 
