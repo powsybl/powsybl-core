@@ -15,6 +15,25 @@ following format: `MODULE_NAME__PROPERTY_NAME`. Note that these variables will o
 
 The default configuration folder and the configuration file name can be configured in the `POWSYBL_HOME/etc/itools.conf`.
 
+## Bundled default configuration
+
+Libraries can ship a default `config.yml` bundled inside their jar, so that a module comes with
+sensible default configuration out of the box. A jar exposes its defaults by:
+
+- placing a YAML file at the classpath resource `META-INF/powsybl/config.yml`, and
+- registering a `DefaultConfigProvider` service (typically with
+  `@AutoService(DefaultConfigProvider.class)`) that points at that resource and declares a name and
+  a priority.
+
+These bundled defaults form the **lowest-precedence layer** of the configuration. They are
+overridden, in order of increasing precedence, by the distribution config (`$installDir/etc`), the
+user config (`~/.itools`) and the system's environment variables. When two jars define the same
+property of the same module, the provider with the highest priority wins (ties broken by name) and
+an overlap is reported in the logs.
+
+For typed parameters (such as `LoadFlowParameters`), the per-tool `--parameters-file` option still
+overrides everything, including values coming from a bundled `config.yml`.
+
 ## Properties
 The configuration file contains a list of modules that can be required or optional. Each module contains one or
 several properties. These properties can also be required or optional. Names in configuration files are case-sensitive.
