@@ -44,6 +44,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private boolean createFictSubstation;
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
+    private Integer positionForNewLine;
 
     /**
      * Constructor.
@@ -66,13 +67,14 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
+     * @param positionForNewLine       The order position for the new line connection if the ConnectablePosition should be created, or null.
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                      boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                      String line1Id, String line1Name, String line2Id, String line2Name,
-                     Line line, LineAdder lineAdder) {
+                     Line line, LineAdder lineAdder, Integer positionForNewLine) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
@@ -80,6 +82,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.fictitiousSubstationId = fictitiousSubstationId;
         this.fictitiousSubstationName = fictitiousSubstationName;
         this.lineAdder = Objects.requireNonNull(lineAdder);
+        this.positionForNewLine = positionForNewLine;
     }
 
     @Override
@@ -236,6 +239,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
         // Create the new line
         Line newLine = lineAdder.add();
+
+        // create line position for the new line on the side two which is connected to the existing voltage level
+        createConnectablePositionExtensionForNewLine(newLine, TwoSides.TWO, positionForNewLine, reportNode, throwException);
+
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
         ModificationReports.createNewLineAndReplaceOldOne(reportNode, newLine.getId(), line1Id, line2Id, originalLineId);
     }

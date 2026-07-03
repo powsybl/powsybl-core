@@ -8,12 +8,12 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TerminalNumber;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TopologyPoint;
-import com.powsybl.commons.ref.Ref;
 import com.powsybl.math.graph.TraversalType;
 
 import java.util.ArrayList;
@@ -75,10 +75,10 @@ class BusTerminal extends AbstractTerminal {
             // Assert that the new bus exists
             topologyModel.getBus(busId, true);
 
-            topologyModel.detach(BusTerminal.this);
+            topologyModel.detachInCurrentVariant(BusTerminal.this);
             int variantIndex = getVariantManagerHolder().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
-            topologyModel.attach(BusTerminal.this, false);
+            topologyModel.attachInCurrentVariant(BusTerminal.this, false);
             String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
             getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }

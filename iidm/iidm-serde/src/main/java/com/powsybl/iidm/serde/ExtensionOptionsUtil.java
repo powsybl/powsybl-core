@@ -38,7 +38,13 @@ public final class ExtensionOptionsUtil {
      * @return true if some extensions should be included
      * @param <T>  Either ImportOptions or ExportOptions or any descendant of tha AbstractOption class
      */
-    public static <T extends AbstractOptions<T>> boolean getAndCheckExtensionsToInclude(Properties parameters, T options, String format, ParameterDefaultValueConfig defaultValueConfig, Parameter includeListParameter, Parameter excludeListParameter, boolean shouldWarnOnInclusionEmptiness) {
+    public static <T extends AbstractOptions<T>> boolean getAndCheckExtensionsToInclude(Properties parameters,
+                                                                                        T options,
+                                                                                        String format,
+                                                                                        ParameterDefaultValueConfig defaultValueConfig,
+                                                                                        Parameter includeListParameter,
+                                                                                        Parameter excludeListParameter,
+                                                                                        boolean shouldWarnOnInclusionEmptiness) {
         List<String> includedExtensions = Parameter.readStringList(format, parameters, includeListParameter, defaultValueConfig);
         List<String> excludedExtensions = Parameter.readStringList(format, parameters, excludeListParameter, defaultValueConfig);
         if (includedExtensions != null && excludedExtensions != null) {

@@ -97,7 +97,8 @@ public final class Update {
         Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
         addPropertyBags(cgmes.staticVarCompensators(), CgmesNames.STATIC_VAR_COMPENSATOR, equipmentIdPropertyBag);
 
-        network.getStaticVarCompensators().forEach(staticVarCompensator -> StaticVarCompensatorConversion.update(staticVarCompensator, getPropertyBag(staticVarCompensator.getId(), equipmentIdPropertyBag), context));
+        network.getStaticVarCompensators()
+            .forEach(staticVarCompensator -> StaticVarCompensatorConversion.update(staticVarCompensator, getPropertyBag(staticVarCompensator.getId(), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
@@ -108,7 +109,8 @@ public final class Update {
         addPropertyBags(cgmes.shuntCompensators(), CgmesNames.SHUNT_COMPENSATOR, equipmentIdPropertyBag);
         addPropertyBags(cgmes.equivalentShunts(), CgmesNames.EQUIVALENT_SHUNT, equipmentIdPropertyBag);
 
-        network.getShuntCompensators().forEach(shuntCompensator -> updateShuntCompensator(shuntCompensator, getPropertyBag(shuntCompensator.getId(), equipmentIdPropertyBag), context));
+        network.getShuntCompensators()
+            .forEach(shuntCompensator -> updateShuntCompensator(shuntCompensator, getPropertyBag(shuntCompensator.getId(), equipmentIdPropertyBag), context));
         context.popReportNode();
     }
 
@@ -126,7 +128,11 @@ public final class Update {
 
         Map<String, PropertyBag> equipmentIdPropertyBag = new HashMap<>();
         addPropertyBags(cgmes.acDcConverters(), CgmesNames.ACDC_CONVERTER, equipmentIdPropertyBag);
-        network.getHvdcLines().forEach(hvdcLine -> HvdcLineConversion.update(hvdcLine, getPropertyBag(hvdcLine.getConverterStation1().getId(), equipmentIdPropertyBag), getPropertyBag(hvdcLine.getConverterStation2().getId(), equipmentIdPropertyBag), context));
+        network.getHvdcLines()
+            .forEach(hvdcLine -> HvdcLineConversion.update(hvdcLine,
+                getPropertyBag(hvdcLine.getConverterStation1().getId(), equipmentIdPropertyBag),
+                getPropertyBag(hvdcLine.getConverterStation2().getId(), equipmentIdPropertyBag),
+                context));
 
         context.popReportNode();
     }

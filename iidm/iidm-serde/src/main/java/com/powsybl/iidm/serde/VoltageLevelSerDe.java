@@ -344,34 +344,36 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
 
     @Override
     protected void readSubElements(VoltageLevel vl, NetworkDeserializerContext context) {
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case NODE_BREAKER_TOPOLOGY_ELEMENT_NAME -> readNodeBreakerTopology(vl, context);
-                case BUS_BREAKER_TOPOLOGY_ELEMENT_NAME -> readBusBreakerTopology(vl, context);
-                case GeneratorSerDe.ROOT_ELEMENT_NAME -> GeneratorSerDe.INSTANCE.read(vl, context);
-                case BatterySerDe.ROOT_ELEMENT_NAME -> BatterySerDe.INSTANCE.read(vl, context);
-                case LoadSerDe.ROOT_ELEMENT_NAME -> LoadSerDe.INSTANCE.read(vl, context);
-                case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context); // For backward compatibility with IIDM versions < 1.16
-                case ShuntCompensatorSerDe.ROOT_ELEMENT_NAME -> ShuntCompensatorSerDe.INSTANCE.read(vl, context);
-                case BoundaryLineSerDe.ROOT_ELEMENT_NAME -> BoundaryLineSerDe.INSTANCE.read(vl, context);
-                case DanglingLineSerDe.ROOT_ELEMENT_NAME -> DanglingLineSerDe.INSTANCE.read(vl, context); // For backward-compatibility with IIDM versions < 1.16
-                case StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME -> StaticVarCompensatorSerDe.INSTANCE.read(vl, context);
-                case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
-                case LccConverterStationSerDe.ROOT_ELEMENT_NAME -> LccConverterStationSerDe.INSTANCE.read(vl, context);
-                case GroundSerDe.ROOT_ELEMENT_NAME -> GroundSerDe.INSTANCE.read(vl, context);
-                case LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME,
-                            IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
-                    LineCommutatedConverterSerDe.INSTANCE.read(vl, context);
-                }
-                case VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME -> {
-                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME,
-                            IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
-                    VoltageSourceConverterSerDe.INSTANCE.read(vl, context);
-                }
-                default -> readSubElement(elementName, vl, context);
+        context.getReader().readChildNodes(elementName -> readChildNode(vl, context, elementName));
+    }
+
+    private void readChildNode(VoltageLevel vl, NetworkDeserializerContext context, String elementName) {
+        switch (elementName) {
+            case NODE_BREAKER_TOPOLOGY_ELEMENT_NAME -> readNodeBreakerTopology(vl, context);
+            case BUS_BREAKER_TOPOLOGY_ELEMENT_NAME -> readBusBreakerTopology(vl, context);
+            case GeneratorSerDe.ROOT_ELEMENT_NAME -> GeneratorSerDe.INSTANCE.read(vl, context);
+            case BatterySerDe.ROOT_ELEMENT_NAME -> BatterySerDe.INSTANCE.read(vl, context);
+            case LoadSerDe.ROOT_ELEMENT_NAME -> LoadSerDe.INSTANCE.read(vl, context);
+            case ShuntSerDe.ROOT_ELEMENT_NAME -> ShuntSerDe.INSTANCE.read(vl, context); // For backward compatibility with IIDM versions < 1.16
+            case ShuntCompensatorSerDe.ROOT_ELEMENT_NAME -> ShuntCompensatorSerDe.INSTANCE.read(vl, context);
+            case BoundaryLineSerDe.ROOT_ELEMENT_NAME -> BoundaryLineSerDe.INSTANCE.read(vl, context);
+            case DanglingLineSerDe.ROOT_ELEMENT_NAME -> DanglingLineSerDe.INSTANCE.read(vl, context); // For backward-compatibility with IIDM versions < 1.16
+            case StaticVarCompensatorSerDe.ROOT_ELEMENT_NAME -> StaticVarCompensatorSerDe.INSTANCE.read(vl, context);
+            case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
+            case LccConverterStationSerDe.ROOT_ELEMENT_NAME -> LccConverterStationSerDe.INSTANCE.read(vl, context);
+            case GroundSerDe.ROOT_ELEMENT_NAME -> GroundSerDe.INSTANCE.read(vl, context);
+            case LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LineCommutatedConverterSerDe.ROOT_ELEMENT_NAME,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+                LineCommutatedConverterSerDe.INSTANCE.read(vl, context);
             }
-        });
+            case VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME -> {
+                IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, VoltageSourceConverterSerDe.ROOT_ELEMENT_NAME,
+                    IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_15, context);
+                VoltageSourceConverterSerDe.INSTANCE.read(vl, context);
+            }
+            default -> readSubElement(elementName, vl, context);
+        }
     }
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkDeserializerContext context) {

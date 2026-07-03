@@ -1,6 +1,7 @@
 {
   "version" : "1.3",
   "scalingConvention" : "LOAD",
+  "scalingType" : "DELTA_P",
   "constantPowerFactor" : false,
   "reconnect" : true,
   "priority" : "ONESHOT",

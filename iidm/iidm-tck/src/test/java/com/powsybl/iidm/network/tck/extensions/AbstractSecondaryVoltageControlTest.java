@@ -186,4 +186,27 @@ public abstract class AbstractSecondaryVoltageControlTest {
         assertFalse(cu1.isParticipate());
         assertTrue(cu2.isParticipate());
     }
+
+    @Test
+    public void secondaryVoltageControlUpdateListenerTest() {
+        assertEquals(1, control.getControlZones().size());
+        assertTrue(control.getControlZone("z1").isPresent());
+        ControlZone z1 = control.getControlZones().get(0);
+        assertEquals("z1", z1.getName());
+        assertNotNull(z1.getPilotPoint());
+        assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
+        assertEquals("GEN", z1.getControlUnits().get(0).getId());
+
+        network.getIdentifiable("NLOAD").setId("NLOAD_NEW_ID");
+        network.getIdentifiable("GEN").setId("GEN_NEW_ID");
+
+        assertEquals(List.of("NLOAD_NEW_ID"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
+        assertEquals("GEN_NEW_ID", z1.getControlUnits().get(0).getId());
+        assertEquals(2, z1.getControlUnits().size());
+
+        network.getGenerator("GEN_NEW_ID").remove();
+
+        assertEquals("GEN2", z1.getControlUnits().get(0).getId());
+        assertEquals(1, z1.getControlUnits().size());
+    }
 }

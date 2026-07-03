@@ -27,7 +27,8 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 public class PsseMultiTerminalDcConverter {
 
     private static final Map<String, PsseFieldDefinition<PsseMultiTerminalDcConverter, ?>> FIELDS = createFields();
-    private static final String[] FIELD_NAMES = {STR_IB, STR_N, STR_ANGMX, STR_ANGMN, STR_RC, STR_XC, STR_EBAS, STR_TR, STR_TAP, STR_TPMX, STR_TPMN, STR_TSTP, STR_SETVL, STR_DCPF, STR_MARG, STR_CNVCOD};
+    private static final String[] FIELD_NAMES = {STR_IB, STR_N, STR_ANGMX, STR_ANGMN, STR_RC, STR_XC, STR_EBAS, STR_TR,
+        STR_TAP, STR_TPMX, STR_TPMN, STR_TSTP, STR_SETVL, STR_DCPF, STR_MARG, STR_CNVCOD};
 
     private int ib;
     private int n;

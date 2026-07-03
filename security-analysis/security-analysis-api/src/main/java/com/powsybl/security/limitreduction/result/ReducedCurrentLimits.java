@@ -15,8 +15,17 @@ import com.powsybl.iidm.network.CurrentLimits;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class ReducedCurrentLimits extends AbstractReducedLoadingLimits implements CurrentLimits {
+    /**
+     * Create a {@link ReducedCurrentLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
+     */
     public ReducedCurrentLimits(double permanentLimit, double originalPermanentLimit,
                                 double permanentLimitReduction) {
         super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+    }
+
+    /**
+     * Create a {@link ReducedCurrentLimits} with no permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
+     */
+    public ReducedCurrentLimits() {
     }
 }
