@@ -150,8 +150,8 @@ These criteria can include:
 - the use case (for monitoring only or also for applying remedial actions);
 - the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.);
 - the network elements targeted by the reduction (by ids, countries and/or nominal voltages);
-- which operational limits are affected by the reduction (permanent or temporary + acceptable duration).
-- which specified operational limit groups are affected by the reduction
+- which operational limits are affected by the reduction (permanent or temporary + acceptable duration);
+- which specified operational limit groups are affected by the reduction.
 
 You can find more details about limit reductions [here](./limit-reductions).
 
