@@ -163,23 +163,14 @@
             </iidm:currentLimits>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:extension id="VLTEST11">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="VLTEST21">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="VLTEST31">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>
-    </iidm:extension>
     <iidm:extension id="VLTEST12">
         <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
     </iidm:extension>
-    <iidm:extension id="VLTEST22">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
+    <iidm:extension id="VLTEST11">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
     </iidm:extension>
-    <iidm:extension id="VLTEST32">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
+    <iidm:extension id="VLTEST14">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="4"/>
     </iidm:extension>
     <iidm:extension id="VLTEST13">
         <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
@@ -187,16 +178,25 @@
     <iidm:extension id="VLTEST23">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="3"/>
     </iidm:extension>
-    <iidm:extension id="VLTEST33">
-        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="3"/>
-    </iidm:extension>
-    <iidm:extension id="VLTEST14">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="4"/>
+    <iidm:extension id="VLTEST22">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
     </iidm:extension>
     <iidm:extension id="VLTEST24">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="4"/>
     </iidm:extension>
+    <iidm:extension id="VLTEST21">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    </iidm:extension>
     <iidm:extension id="VLTEST34">
         <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST33">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST32">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST31">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>
     </iidm:extension>
 </iidm:network>
