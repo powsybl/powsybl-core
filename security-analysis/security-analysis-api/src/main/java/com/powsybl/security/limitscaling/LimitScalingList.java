@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitscaling;
 
 import com.google.common.collect.ImmutableList;
 
@@ -13,21 +13,22 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Contains the list of the applied limit reductions.
+ * Contains the list of the applied limit scalings.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 
-public class LimitReductionList {
+public class LimitScalingList {
     // v1.2 introduces limit increase (reduction with value above 1)
+    //TODO bump to 1.3 and rename to scaling in the serde ?
     public static final String VERSION = "1.2";
-    private final List<LimitReduction> limitReductions;
+    private final List<LimitScaling> limitScalings;
 
-    public LimitReductionList(List<LimitReduction> limitReductions) {
-        this.limitReductions = ImmutableList.copyOf(Objects.requireNonNull(limitReductions));
+    public LimitScalingList(List<LimitScaling> limitScalings) {
+        this.limitScalings = ImmutableList.copyOf(Objects.requireNonNull(limitScalings));
     }
 
-    public List<LimitReduction> getLimitReductions() {
-        return limitReductions;
+    public List<LimitScaling> getLimitScalings() {
+        return limitScalings;
     }
 }

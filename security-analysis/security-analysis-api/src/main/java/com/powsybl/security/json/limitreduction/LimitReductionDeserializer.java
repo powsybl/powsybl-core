@@ -15,7 +15,7 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitscaling.LimitScaling;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,9 +24,9 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
-public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> {
+public class LimitReductionDeserializer extends StdDeserializer<LimitScaling> {
     public LimitReductionDeserializer() {
-        super(LimitReduction.class);
+        super(LimitScaling.class);
     }
 
     private static final class ParsingContext {
@@ -44,10 +44,10 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     }
 
     @Override
-    public LimitReduction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitScaling deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> parseLimitReduction(parser, deserializationContext, context, fieldName));
-        LimitReduction.Builder builder = LimitReduction.builder(checkAttribute(context.limitType, "limitType"),
+        LimitScaling.Builder builder = LimitScaling.builder(checkAttribute(context.limitType, "limitType"),
                 checkAttribute(context.value, "value"))
                 .withMonitoringOnly(checkAttribute(context.monitoringOnly, "monitoringOnly"))
                 .withContingencyContext(checkAttribute(context.contingencyContext, "contingencyContext"));

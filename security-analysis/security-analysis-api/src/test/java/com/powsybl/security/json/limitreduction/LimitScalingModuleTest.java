@@ -17,8 +17,8 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.limitreduction.LimitReductionList;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.LimitScalingList;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -34,12 +34,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class LimitReductionModuleTest extends AbstractSerDeTest {
+class LimitScalingModuleTest extends AbstractSerDeTest {
 
     @Test
     void limitReductionReadV10() {
-        LimitReductionList limitReductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
-        LimitReductionList expectedReductions = new LimitReductionList(
+        LimitScalingList limitScalingList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
+        LimitScalingList expectedReductions = new LimitScalingList(
             List.of(
                 getLimitReduction1(),
                 getLimitReduction2(),
@@ -47,13 +47,13 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 getLimitReduction4()
             )
         );
-        compareLimitReductionList(expectedReductions, limitReductionList);
+        compareLimitReductionList(expectedReductions, limitScalingList);
     }
 
     @Test
     void limitReductionReadV11() {
-        LimitReductionList limitReductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.1.json"));
-        LimitReductionList expectedReductions = new LimitReductionList(
+        LimitScalingList limitScalingList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.1.json"));
+        LimitScalingList expectedReductions = new LimitScalingList(
             List.of(
                 getLimitReduction1(),
                 getLimitReduction2(),
@@ -62,24 +62,24 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 getLimitReduction5()
             )
         );
-        compareLimitReductionList(expectedReductions, limitReductionList);
+        compareLimitReductionList(expectedReductions, limitScalingList);
     }
 
-    private void compareLimitReductionList(LimitReductionList expected, LimitReductionList actual) {
-        Assertions.assertThat(actual.getLimitReductions())
-            .hasSize(expected.getLimitReductions().size())
+    private void compareLimitReductionList(LimitScalingList expected, LimitScalingList actual) {
+        Assertions.assertThat(actual.getLimitScalings())
+            .hasSize(expected.getLimitScalings().size())
             .usingComparatorForType((Double a, Double b) -> {
                 double tolerance = 1e-2;
                 return Math.abs(a - b) < tolerance ? 0 : Double.compare(a, b);
             }, Double.class)
             .extracting(
-                LimitReduction::getLimitType,
-                LimitReduction::getValue,
+                LimitScaling::getLimitType,
+                LimitScaling::getValue,
                 l -> l.getContingencyContext().getContingencyId(),
                 l -> l.getNetworkElementCriteria().stream().map(NetworkElementCriterion::getNetworkElementCriterionType).toList(),
                 l -> l.getDurationCriteria().stream().map(LimitDurationCriterion::getType).toList(),
-                LimitReduction::getOperationalLimitsGroupIdsSelection
-            ).containsExactlyInAnyOrderElementsOf(expected.getLimitReductions().stream()
+                LimitScaling::getOperationalLimitsGroupIdsSelection
+            ).containsExactlyInAnyOrderElementsOf(expected.getLimitScalings().stream()
                 .map(r -> tuple(
                         r.getLimitType(),
                         r.getValue(),
@@ -94,7 +94,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        LimitReductionList limitReductionList = new LimitReductionList(
+        LimitScalingList limitScalingList = new LimitScalingList(
             List.of(
                 getLimitReduction1(),
                 getLimitReduction2(),
@@ -104,14 +104,14 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 getLimitReduction6()
             ));
 
-        roundTripTest(limitReductionList, LimitReductionListSerDeUtil::write,
+        roundTripTest(limitScalingList, LimitReductionListSerDeUtil::write,
                 LimitReductionListSerDeUtil::read,
             "/LimitReductionsV1.2.json");
     }
 
     @Test
     void compatibilityWithOldCriterion() throws IOException {
-        LimitReductionList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
+        LimitScalingList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             LimitReductionListSerDeUtil.write(reductionList, bos);
             ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_groupV1.2.json"), new ByteArrayInputStream(bos.toByteArray()));
@@ -121,7 +121,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         }
     }
 
-    private LimitReduction getLimitReduction1() {
+    private LimitScaling getLimitReduction1() {
         ContingencyContext contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         List<NetworkElementCriterion> networkElementCriteria1 =
             List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
@@ -136,15 +136,15 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 new BoundaryLineCriterion(null, new SingleNominalVoltageCriterion(
                     VoltageInterval.between(80., 100., true, false))));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
-        return LimitReduction.builder(LimitType.CURRENT, 0.9)
+        return LimitScaling.builder(LimitType.CURRENT, 0.9)
             .withContingencyContext(contingencyContext1)
             .withNetworkElementCriteria(networkElementCriteria1)
             .withLimitDurationCriteria(durationCriteria1)
             .build();
     }
 
-    private LimitReduction getLimitReduction2() {
-        return LimitReduction.builder(LimitType.APPARENT_POWER, 0.5)
+    private LimitScaling getLimitReduction2() {
+        return LimitScaling.builder(LimitType.APPARENT_POWER, 0.5)
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
             .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder()
                 .setLowBound(10 * 60, true)
@@ -153,12 +153,12 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
             .build();
     }
 
-    private LimitReduction getLimitReduction3() {
-        return new LimitReduction(LimitType.ACTIVE_POWER, 0.8, true);
+    private LimitScaling getLimitReduction3() {
+        return new LimitScaling(LimitType.ACTIVE_POWER, 0.8, true);
     }
 
-    private LimitReduction getLimitReduction4() {
-        return LimitReduction.builder(LimitType.CURRENT, 0.9)
+    private LimitScaling getLimitReduction4() {
+        return LimitScaling.builder(LimitType.CURRENT, 0.9)
             .withNetworkElementCriteria(new IdentifiableCriterion(
                 new AtLeastOneCountryCriterion(List.of(Country.FR)),
                 new AtLeastOneNominalVoltageCriterion(
@@ -168,15 +168,15 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
             .build();
     }
 
-    private LimitReduction getLimitReduction5() {
-        return LimitReduction.builder(LimitType.ACTIVE_POWER, 0.88)
+    private LimitScaling getLimitReduction5() {
+        return LimitScaling.builder(LimitType.ACTIVE_POWER, 0.88)
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1", "NHV1_NHV2_2")))
             .withOperationalLimitsGroupIdSelection("DEFAULT", "activated_1_3", "activated_2_1")
             .build();
     }
 
-    private LimitReduction getLimitReduction6() {
-        return LimitReduction.builder(LimitType.CURRENT, 1.13)
+    private LimitScaling getLimitReduction6() {
+        return LimitScaling.builder(LimitType.CURRENT, 1.13)
             .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder().setLowBound(60, true).build())
             .build();
     }

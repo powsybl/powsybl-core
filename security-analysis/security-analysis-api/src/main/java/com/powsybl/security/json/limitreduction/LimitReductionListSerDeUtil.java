@@ -10,7 +10,7 @@ package com.powsybl.security.json.limitreduction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.limitreduction.LimitReductionList;
+import com.powsybl.security.limitscaling.LimitScalingList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ public final class LimitReductionListSerDeUtil {
      * Read a limit reduction list from a JSON file.
      * @param jsonFile the JSON file containing the serialized limit reduction list.
      */
-    public static LimitReductionList read(Path jsonFile) {
+    public static LimitScalingList read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return read(is);
         } catch (IOException e) {
@@ -44,11 +44,11 @@ public final class LimitReductionListSerDeUtil {
      * Read a limit reduction list from an output stream on a JSON.
      * @param is an input stream on the JSON serialized limit reduction list.
      */
-    public static LimitReductionList read(InputStream is) {
+    public static LimitScalingList read(InputStream is) {
         Objects.requireNonNull(is);
         ObjectMapper objectMapper = createObjectMapper();
         try {
-            return objectMapper.readValue(is, LimitReductionList.class);
+            return objectMapper.readValue(is, LimitScalingList.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -56,13 +56,13 @@ public final class LimitReductionListSerDeUtil {
 
     /**
      * Write a limit reduction list as JSON to a file.
-     * @param limitReductionList the reduction list to serialize
+     * @param limitScalingList the reduction list to serialize
      * @param jsonFile a {@link Path} where to serialize the reduction list
      */
-    public static void write(LimitReductionList limitReductionList, Path jsonFile) {
+    public static void write(LimitScalingList limitScalingList, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
-            write(limitReductionList, outputStream);
+            write(limitScalingList, outputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -70,14 +70,14 @@ public final class LimitReductionListSerDeUtil {
 
     /**
      * Write a limit reduction list as JSON to an output stream.
-     * @param limitReductionList the reduction list to serialize
+     * @param limitScalingList the reduction list to serialize
      * @param outputStream the output stream to use for the serialization
      */
-    public static void write(LimitReductionList limitReductionList, OutputStream outputStream) {
+    public static void write(LimitScalingList limitScalingList, OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, limitReductionList);
+            writer.writeValue(outputStream, limitScalingList);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

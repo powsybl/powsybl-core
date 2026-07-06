@@ -16,20 +16,20 @@ import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.criteria.json.*;
 import com.powsybl.iidm.criteria.json.duration.*;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.limitreduction.LimitReductionList;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.LimitScalingList;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class LimitReductionModule extends SimpleModule {
     public LimitReductionModule() {
-        addSerializer(LimitReductionList.class, new LimitReductionListSerializer());
-        addSerializer(LimitReduction.class, new LimitReductionSerializer());
+        addSerializer(LimitScalingList.class, new LimitReductionListSerializer());
+        addSerializer(LimitScaling.class, new LimitReductionSerializer());
         addSerializer(Criterion.class, new CriterionSerializer());
         addSerializer(VoltageInterval.class, new VoltageIntervalSerializer());
-        addDeserializer(LimitReductionList.class, new LimitReductionListDeserializer());
-        addDeserializer(LimitReduction.class, new LimitReductionDeserializer());
+        addDeserializer(LimitScalingList.class, new LimitReductionListDeserializer());
+        addDeserializer(LimitScaling.class, new LimitReductionDeserializer());
         addDeserializer(Criterion.class, new CriterionDeserializer());
         addDeserializer(VoltageInterval.class, new VoltageIntervalDeserializer());
 

@@ -207,10 +207,10 @@ public final class LimitViolationUtils {
                 AbstractDistinctLimitsContainer<?, ?> container = (AbstractDistinctLimitsContainer<?, ?>) limitsContainer;
                 if (isBelowFirstTemporaryLimit) {
                     limit = container.getOriginalPermanentLimit();
-                    reduction = container.getPermanentLimitReduction();
+                    reduction = container.getPermanentLimitScaling();
                 } else {
                     limit = container.getOriginalTemporaryLimit(previousAcceptableDuration);
-                    reduction = container.getTemporaryLimitReduction(previousAcceptableDuration);
+                    reduction = container.getTemporaryLimitScaling(previousAcceptableDuration);
                 }
             }
         }
@@ -321,7 +321,7 @@ public final class LimitViolationUtils {
         }
         if (i >= permanentLimit * limitReductionValue) {
             return new PermanentLimitCheckResult(true, originalPermanentLimit, permanentLimitName, limitsContainer.isDistinct() ?
-                ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() :
+                ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitScaling() :
                 limitReductionValue, opGroupId);
         }
         return new PermanentLimitCheckResult(false, originalPermanentLimit, permanentLimitName, limitReductionValue, opGroupId);

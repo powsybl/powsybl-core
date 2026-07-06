@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitscaling;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
@@ -35,46 +35,46 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultLimitReductionsApplierTest {
-    private static DefaultLimitReductionsApplier applier;
+class DefaultLimitScalingsApplierTest {
+    private static DefaultLimitScalingsApplier applier;
     private static Network network;
 
     @BeforeAll
     static void init() {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
+        LimitScaling reduction1 = LimitScaling.builder(LimitType.CURRENT, 0.9)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency1"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .withLimitDurationCriteria(new PermanentDurationCriterion())
                 .build();
-        LimitReduction reduction2 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+        LimitScaling reduction2 = LimitScaling.builder(LimitType.CURRENT, 0.5)
                 .withMonitoringOnly(false)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
                 .build();
-        LimitReduction reduction3 = LimitReduction.builder(LimitType.CURRENT, 0.1)
+        LimitScaling reduction3 = LimitScaling.builder(LimitType.CURRENT, 0.1)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency3"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
                 .build();
-        LimitReduction reduction4 = LimitReduction.builder(LimitType.CURRENT, 0.75)
+        LimitScaling reduction4 = LimitScaling.builder(LimitType.CURRENT, 0.75)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency4"))
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
                 .build();
-        LimitReduction reduction5 = LimitReduction.builder(LimitType.CURRENT, 0.1)
+        LimitScaling reduction5 = LimitScaling.builder(LimitType.CURRENT, 0.1)
                 .withMonitoringOnly(false)
                 .withContingencyContext(ContingencyContext.specificContingency("contingency5"))
                 // Applicable only for the 2 winding transformer NHV2_NLOAD on Side 2
                 .withNetworkElementCriteria(new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
                         VoltageInterval.between(150., 160., true, true))))
                 .build();
-        LimitReduction reduction6 = LimitReduction.builder(LimitType.CURRENT, 0.2)
+        LimitScaling reduction6 = LimitScaling.builder(LimitType.CURRENT, 0.2)
                 .withMonitoringOnly(true)
                 .build();
-        applier = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5, reduction6));
+        applier = new DefaultLimitScalingsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5, reduction6));
     }
 
     @Test
@@ -261,7 +261,7 @@ class DefaultLimitReductionsApplierTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getNoChangesComputers")
-    void noChangesTest(String desc, DefaultLimitReductionsApplier noChangesComputer) {
+    void noChangesTest(String desc, DefaultLimitScalingsApplier noChangesComputer) {
         // In this test, no effective reductions were defined (either no reductions were used in the computer or
         // their values are all equal to 1.0).
         Collection<LimitsContainer<LoadingLimits>> limits = noChangesComputer.computeLimits(network.getLine("NHV1_NHV2_1"),
@@ -273,14 +273,14 @@ class DefaultLimitReductionsApplierTest {
     }
 
     static Stream<Arguments> getNoChangesComputers() {
-        DefaultLimitReductionsApplier noReductionComputer = new DefaultLimitReductionsApplier(Collections.emptyList());
-        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 1.)
+        DefaultLimitScalingsApplier noReductionComputer = new DefaultLimitScalingsApplier(Collections.emptyList());
+        LimitScaling reduction1 = LimitScaling.builder(LimitType.CURRENT, 1.)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .build();
-        LimitReduction reduction2 = LimitReduction.builder(LimitType.CURRENT, 1.)
+        LimitScaling reduction2 = LimitScaling.builder(LimitType.CURRENT, 1.)
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .build();
-        DefaultLimitReductionsApplier reductionsTo1Computer = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2));
+        DefaultLimitScalingsApplier reductionsTo1Computer = new DefaultLimitScalingsApplier(List.of(reduction1, reduction2));
         return Stream.of(
                 Arguments.of("No reductions", noReductionComputer),
                 Arguments.of("Reductions to 1.0", reductionsTo1Computer)
@@ -292,9 +292,9 @@ class DefaultLimitReductionsApplierTest {
     void isContingencyContextListApplicableTest(String desc, ContingencyContext contingencyContext,
                                                 boolean applicableForPreContingency,
                                                 boolean applicableForContingency1, boolean applicableForContingency2) {
-        assertEquals(applicableForPreContingency, AbstractLimitReductionsApplier.isContingencyInContingencyContext(contingencyContext, null));
-        assertEquals(applicableForContingency1, AbstractLimitReductionsApplier.isContingencyInContingencyContext(contingencyContext, "contingency1"));
-        assertEquals(applicableForContingency2, AbstractLimitReductionsApplier.isContingencyInContingencyContext(contingencyContext, "contingency2"));
+        assertEquals(applicableForPreContingency, AbstractLimitScalingsApplier.isContingencyInContingencyContext(contingencyContext, null));
+        assertEquals(applicableForContingency1, AbstractLimitScalingsApplier.isContingencyInContingencyContext(contingencyContext, "contingency1"));
+        assertEquals(applicableForContingency2, AbstractLimitScalingsApplier.isContingencyInContingencyContext(contingencyContext, "contingency2"));
     }
 
     static Stream<Arguments> getContingencyContextListsData() {

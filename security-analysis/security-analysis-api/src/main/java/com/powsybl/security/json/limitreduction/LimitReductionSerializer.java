@@ -10,39 +10,39 @@ package com.powsybl.security.json.limitreduction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitscaling.LimitScaling;
 
 import java.io.IOException;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
-public class LimitReductionSerializer extends StdSerializer<LimitReduction> {
+public class LimitReductionSerializer extends StdSerializer<LimitScaling> {
 
     public LimitReductionSerializer() {
-        super(LimitReduction.class);
+        super(LimitScaling.class);
     }
 
     @Override
-    public void serialize(LimitReduction limitReduction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitScaling limitScaling, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("value", limitReduction.getValue());
-        jsonGenerator.writeStringField("limitType", limitReduction.getLimitType().name());
-        jsonGenerator.writeBooleanField("monitoringOnly", limitReduction.isMonitoringOnly());
+        jsonGenerator.writeNumberField("value", limitScaling.getValue());
+        jsonGenerator.writeStringField("limitType", limitScaling.getLimitType().name());
+        jsonGenerator.writeBooleanField("monitoringOnly", limitScaling.isMonitoringOnly());
 
         serializerProvider.defaultSerializeField("contingencyContext",
-                limitReduction.getContingencyContext(), jsonGenerator);
-        if (!limitReduction.getNetworkElementCriteria().isEmpty()) {
+                limitScaling.getContingencyContext(), jsonGenerator);
+        if (!limitScaling.getNetworkElementCriteria().isEmpty()) {
             serializerProvider.defaultSerializeField("equipmentCriteria",
-                    limitReduction.getNetworkElementCriteria(), jsonGenerator);
+                    limitScaling.getNetworkElementCriteria(), jsonGenerator);
         }
-        if (!limitReduction.getDurationCriteria().isEmpty()) {
+        if (!limitScaling.getDurationCriteria().isEmpty()) {
             serializerProvider.defaultSerializeField("durationCriteria",
-                    limitReduction.getDurationCriteria(), jsonGenerator);
+                    limitScaling.getDurationCriteria(), jsonGenerator);
         }
-        if (!limitReduction.getOperationalLimitsGroupIdsSelection().isEmpty()) {
+        if (!limitScaling.getOperationalLimitsGroupIdsSelection().isEmpty()) {
             serializerProvider.defaultSerializeField("operationalLimitsGroupIdsSelection",
-                limitReduction.getOperationalLimitsGroupIdsSelection(), jsonGenerator);
+                limitScaling.getOperationalLimitsGroupIdsSelection(), jsonGenerator);
         }
 
         jsonGenerator.writeEndObject();

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitscaling;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class LimitReductionListTest {
+class LimitScalingListTest {
 
-    private static LimitReduction limitReduction1;
-    private static LimitReduction limitReduction2;
+    private static LimitScaling limitScaling1;
+    private static LimitScaling limitScaling2;
     private static NetworkElementCriterion networkElementCriterion1;
     private static NetworkElementCriterion networkElementCriterion2;
     private static NetworkElementCriterion networkElementCriterion3;
@@ -55,79 +55,79 @@ class LimitReductionListTest {
         operationalLimitsGroupId1 = "default";
         operationalLimitsGroupId2 = "activated";
 
-        limitReduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
+        limitScaling1 = LimitScaling.builder(LimitType.CURRENT, 0.9)
                 .withContingencyContext(contingencyContext1)
                 .withNetworkElementCriteria(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4, networkElementCriterion5)
                 .withLimitDurationCriteria(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion())
             .withOperationalLimitsGroupIdSelection(operationalLimitsGroupId1, operationalLimitsGroupId2)
                 .build();
-        limitReduction2 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8, true);
+        limitScaling2 = new LimitScaling(LimitType.ACTIVE_POWER, 0.8, true);
     }
 
     @Test
     void limitReductionListTest() {
-        LimitReductionList limitReductionList = new LimitReductionList(List.of(limitReduction1, limitReduction2));
-        assertEquals(List.of(limitReduction1, limitReduction2), limitReductionList.getLimitReductions());
+        LimitScalingList limitScalingList = new LimitScalingList(List.of(limitScaling1, limitScaling2));
+        assertEquals(List.of(limitScaling1, limitScaling2), limitScalingList.getLimitScalings());
     }
 
     @Test
     void limitReductionGetType() {
-        assertEquals(LimitType.CURRENT, limitReduction1.getLimitType());
-        assertEquals(LimitType.ACTIVE_POWER, limitReduction2.getLimitType());
+        assertEquals(LimitType.CURRENT, limitScaling1.getLimitType());
+        assertEquals(LimitType.ACTIVE_POWER, limitScaling2.getLimitType());
     }
 
     @Test
     void limitReductionGetValue() {
-        assertEquals(0.9, limitReduction1.getValue(), 0.001);
-        assertEquals(0.8, limitReduction2.getValue(), 0.001);
+        assertEquals(0.9, limitScaling1.getValue(), 0.001);
+        assertEquals(0.8, limitScaling2.getValue(), 0.001);
     }
 
     @Test
     void limitReductionIsMonitoringOnly() {
-        assertFalse(limitReduction1.isMonitoringOnly());
-        assertTrue(limitReduction2.isMonitoringOnly());
+        assertFalse(limitScaling1.isMonitoringOnly());
+        assertTrue(limitScaling2.isMonitoringOnly());
     }
 
     @Test
     void limitReductionGetNetworkElementCriteria() {
         assertEquals(List.of(networkElementCriterion1, networkElementCriterion2,
                 networkElementCriterion3, networkElementCriterion4, networkElementCriterion5),
-                limitReduction1.getNetworkElementCriteria());
-        assertTrue(limitReduction2.getNetworkElementCriteria().isEmpty());
+                limitScaling1.getNetworkElementCriteria());
+        assertTrue(limitScaling2.getNetworkElementCriteria().isEmpty());
     }
 
     @Test
     void limitReductionGetContingencyContext() {
-        assertEquals(contingencyContext1, limitReduction1.getContingencyContext());
-        assertEquals(ContingencyContext.all(), limitReduction2.getContingencyContext());
+        assertEquals(contingencyContext1, limitScaling1.getContingencyContext());
+        assertEquals(ContingencyContext.all(), limitScaling2.getContingencyContext());
     }
 
     @Test
     void limitReductionGetDurationCriteria() {
-        assertEquals(2, limitReduction1.getDurationCriteria().size());
-        assertInstanceOf(PermanentDurationCriterion.class, limitReduction1.getDurationCriteria().get(0));
-        assertInstanceOf(AllTemporaryDurationCriterion.class, limitReduction1.getDurationCriteria().get(1));
-        assertTrue(limitReduction2.getDurationCriteria().isEmpty());
+        assertEquals(2, limitScaling1.getDurationCriteria().size());
+        assertInstanceOf(PermanentDurationCriterion.class, limitScaling1.getDurationCriteria().get(0));
+        assertInstanceOf(AllTemporaryDurationCriterion.class, limitScaling1.getDurationCriteria().get(1));
+        assertTrue(limitScaling2.getDurationCriteria().isEmpty());
     }
 
     @Test
     void operationalLimitsGroupIdSelection() {
-        assertEquals(List.of(operationalLimitsGroupId1, operationalLimitsGroupId2), limitReduction1.getOperationalLimitsGroupIdsSelection());
-        assertTrue(limitReduction2.getOperationalLimitsGroupIdsSelection().isEmpty());
+        assertEquals(List.of(operationalLimitsGroupId1, operationalLimitsGroupId2), limitScaling1.getOperationalLimitsGroupIdsSelection());
+        assertTrue(limitScaling2.getOperationalLimitsGroupIdsSelection().isEmpty());
 
     }
 
     @Test
     void unsupportedLimitType() {
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.VOLTAGE, 0.9));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitScaling(LimitType.VOLTAGE, 0.9));
         assertEquals("VOLTAGE is not a supported limit type for limit reduction", e.getMessage());
     }
 
     @Test
     void unsupportedLimitReductionValues() {
         String expectedMessage = "Limit reduction value should be equal or greater than 0";
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, -0.5, true));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitScaling(LimitType.CURRENT, -0.5, true));
         assertEquals(expectedMessage, e.getMessage());
     }
 }

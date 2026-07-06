@@ -1,0 +1,31 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.security.limitscaling.result;
+
+import com.powsybl.iidm.network.CurrentLimits;
+
+/**
+ * <p>Simple implementation of {@link CurrentLimits} not linked to a network element, used to provide
+ * scaled current limits without altering the real ones of the network element.</p>
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
+ */
+public class ScaledCurrentLimits extends AbstractScaledLoadingLimits implements CurrentLimits {
+    /**
+     * Create a {@link ScaledCurrentLimits} with a permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
+     */
+    public ScaledCurrentLimits(double permanentLimit, double originalPermanentLimit,
+                               double permanentLimitScaling) {
+        super(permanentLimit, originalPermanentLimit, permanentLimitScaling);
+    }
+
+    /**
+     * Create a {@link ScaledCurrentLimits} with no permanent limit and {@link com.powsybl.iidm.network.DetectionKind#LOW}
+     */
+    public ScaledCurrentLimits() {
+    }
+}

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction.result;
+package com.powsybl.security.limitscaling.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsContainer;
@@ -15,9 +15,9 @@ import java.util.Optional;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultReducedLimitsContainer extends AbstractDistinctLimitsContainer<AbstractReducedLoadingLimits, LoadingLimits> {
+public class DefaultScaledLimitsContainer extends AbstractDistinctLimitsContainer<AbstractScaledLoadingLimits, LoadingLimits> {
 
-    public DefaultReducedLimitsContainer(AbstractReducedLoadingLimits limits, LoadingLimits originalLimits, String operationalLimitsGroupId) {
+    public DefaultScaledLimitsContainer(AbstractScaledLoadingLimits limits, LoadingLimits originalLimits, String operationalLimitsGroupId) {
         super(limits, originalLimits, operationalLimitsGroupId);
     }
 
@@ -29,19 +29,19 @@ public class DefaultReducedLimitsContainer extends AbstractDistinctLimitsContain
     @Override
     public Double getOriginalTemporaryLimit(int acceptableDuration) {
         return Optional.ofNullable(getLimits().getTemporaryLimit(acceptableDuration))
-                .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit.class::cast)
-                .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit::getOriginalValue)
+                .map(AbstractScaledLoadingLimits.ScaledTemporaryLimit.class::cast)
+                .map(AbstractScaledLoadingLimits.ScaledTemporaryLimit::getOriginalValue)
                 .orElse(null);
     }
 
-    public double getPermanentLimitReduction() {
-        return getLimits().getPermanentLimitReduction();
+    public double getPermanentLimitScaling() {
+        return getLimits().getPermanentLimitScaling();
     }
 
-    public Double getTemporaryLimitReduction(int acceptableDuration) {
+    public Double getTemporaryLimitScaling(int acceptableDuration) {
         return Optional.ofNullable(getLimits().getTemporaryLimit(acceptableDuration))
-                .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit.class::cast)
-                .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit::getLimitReduction)
+                .map(AbstractScaledLoadingLimits.ScaledTemporaryLimit.class::cast)
+                .map(AbstractScaledLoadingLimits.ScaledTemporaryLimit::getLimitScaling)
                 .orElse(null);
     }
 }

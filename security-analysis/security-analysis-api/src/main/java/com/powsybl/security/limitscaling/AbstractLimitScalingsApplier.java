@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitscaling;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
@@ -19,45 +19,45 @@ import com.powsybl.iidm.network.limitmodification.AbstractLimitsComputerWithCach
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
-import com.powsybl.security.limitreduction.computation.AbstractLimitsReducer;
-import com.powsybl.security.limitreduction.computation.AbstractLimitsReducerCreator;
+import com.powsybl.security.limitscaling.computation.AbstractLimitsScaler;
+import com.powsybl.security.limitscaling.computation.AbstractLimitsScalerCreator;
 
 import java.util.*;
 
 import static com.powsybl.contingency.ContingencyContextType.*;
 
 /**
- * Abstract class responsible for computing reduced limits using a list of {@link LimitReduction}.
+ * Abstract class responsible for computing scaled limits using a list of {@link LimitScaling}.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimitsComputerWithCache<P, L> {
-    private final List<LimitReduction> limitReductionList;
-    private List<LimitReduction> reductionsForThisContingency = Collections.emptyList();
+public abstract class AbstractLimitScalingsApplier<P, L> extends AbstractLimitsComputerWithCache<P, L> {
+    private final List<LimitScaling> limitScalingList;
+    private List<LimitScaling> scalingsForThisContingency = Collections.emptyList();
 
     /**
-     * Create a new {@link AbstractLimitReductionsApplier} using a list of reductions.
-     * @param limitReductionList the list of the reductions to use when computing reduced limits.
+     * Create a new {@link AbstractLimitScalingsApplier} using a list of scalings.
+     * @param limitScalingList the list of the scalings to use when computing scaled limits.
      */
-    protected AbstractLimitReductionsApplier(List<LimitReduction> limitReductionList) {
+    protected AbstractLimitScalingsApplier(List<LimitScaling> limitScalingList) {
         super();
-        this.limitReductionList = limitReductionList;
-        computeReductionsForThisContingency(null);
+        this.limitScalingList = limitScalingList;
+        computeScalingsForThisContingency(null);
     }
 
     @Override
     protected Collection<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         NetworkElement networkElement = Objects.requireNonNull(asNetworkElement(processable));
         OriginalLimitsGetter<P, L> originalLimitsGetter = Objects.requireNonNull(getOriginalLimitsGetter());
-        AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());
+        AbstractLimitsScalerCreator<L, AbstractLimitsScaler<L>> limitsScalerCreator = Objects.requireNonNull(getLimitsScalerCreator());
 
         HashMap<String, L> originalLimitsByGroupId = originalLimitsGetter.getLimits(processable, limitType, side);
         Collection<LimitsContainer<L>> limitsContainers = HashSet.newHashSet(3);
 
         for (Map.Entry<String, L> entry : originalLimitsByGroupId.entrySet()) {
             limitsContainers.add(computeUncacheLimit(networkElement, entry.getKey(), entry.getValue(),
-                    limitsReducerCreator, limitType, side, monitoringOnly));
+                    limitsScalerCreator, limitType, side, monitoringOnly));
         }
         // Cache the value to avoid recomputing it
         putInCache(processable, limitType, side, monitoringOnly, limitsContainers);
@@ -65,17 +65,17 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     }
 
     private LimitsContainer<L> computeUncacheLimit(NetworkElement networkElement, String groupId, L originalLimits,
-                                                   AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator,
+                                                   AbstractLimitsScalerCreator<L, AbstractLimitsScaler<L>> limitsScalerCreator,
                                                    LimitType limitType, ThreeSides side, boolean monitoringOnly) {
-        if (reductionsForThisContingency.isEmpty()) {
-            // No reductions to apply or no limits on which to apply them
+        if (scalingsForThisContingency.isEmpty()) {
+            // No scalings to apply or no limits on which to apply them
             return new IdenticalLimitsContainer<>(originalLimits, groupId);
         }
 
-        AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), groupId, originalLimits);
-        updateLimitReducer(limitsReducer, networkElement, limitType, side, monitoringOnly);
+        AbstractLimitsScaler<L> limitsScaler = limitsScalerCreator.create(networkElement.getId(), groupId, originalLimits);
+        updateLimitScaler(limitsScaler, networkElement, limitType, side, monitoringOnly);
 
-        return limitsReducer.getLimits();
+        return limitsScaler.getLimits();
     }
 
     /**
@@ -86,10 +86,10 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     protected abstract OriginalLimitsGetter<P, L> getOriginalLimitsGetter();
 
     /**
-     * Return the {@link AbstractLimitsReducer} creator, which will be used to create an object of type {@link L} containing the modified limits.
-     * @return the creator for {@link AbstractLimitsReducer}
+     * Return the {@link AbstractLimitsScaler} creator, which will be used to create an object of type {@link L} containing the modified limits.
+     * @return the creator for {@link AbstractLimitsScaler}
      */
-    protected abstract AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> getLimitsReducerCreator();
+    protected abstract AbstractLimitsScalerCreator<L, AbstractLimitsScaler<L>> getLimitsScalerCreator();
 
     /**
      * <p>Return a {@link NetworkElement} representation of <code>processable</code>
@@ -99,45 +99,45 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
      */
     protected abstract NetworkElement asNetworkElement(P processable);
 
-    private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement,
-                                    LimitType limitType, ThreeSides side, boolean monitoringOnly) {
-        for (LimitReduction limitReduction : reductionsForThisContingency) {
-            if (limitReduction.getLimitType() == limitType
-                    && limitReduction.isMonitoringOnly() == monitoringOnly
-                    && isNetworkElementAffectedByLimitReduction(networkElement, side, limitReduction)
-                    && isOperationalLimitsGroupAffectedByLimitReduction(limitsReducer.getLimitsGroupId(), limitReduction)) {
-                setLimitReductionsToLimitReducer(limitsReducer, limitReduction);
+    private void updateLimitScaler(AbstractLimitsScaler<?> limitsScaler, NetworkElement networkElement,
+                                   LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+        for (LimitScaling limitScaling : scalingsForThisContingency) {
+            if (limitScaling.getLimitType() == limitType
+                    && limitScaling.isMonitoringOnly() == monitoringOnly
+                    && isNetworkElementAffectedByLimitScaling(networkElement, side, limitScaling)
+                    && isOperationalLimitsGroupAffectedByLimitScaling(limitsScaler.getLimitsGroupId(), limitScaling)) {
+                setLimitScalingsToLimitScaler(limitsScaler, limitScaling);
             }
         }
     }
 
     /**
-     * <p>Change the contingency for which the reduced limits must be computed.</p>
+     * <p>Change the contingency for which the scaled limits must be computed.</p>
      * @param contingencyId the ID of the new contingency, or <code>null</code> if you study the pre-contingency state.
      */
     public void setWorkingContingency(String contingencyId) {
-        var reductionsForPreviousContingency = reductionsForThisContingency;
-        computeReductionsForThisContingency(contingencyId);
-        if (!reductionsForThisContingency.equals(reductionsForPreviousContingency)) {
-            // The limit reductions are not the same as for the previous contingencyId, we clear the cache.
+        var scalingsForPreviousContingency = scalingsForThisContingency;
+        computeScalingsForThisContingency(contingencyId);
+        if (!scalingsForThisContingency.equals(scalingsForPreviousContingency)) {
+            // The limit scalings are not the same as for the previous contingencyId, we clear the cache.
             clearCache();
         }
     }
 
-    private void computeReductionsForThisContingency(String contingencyId) {
-        reductionsForThisContingency = limitReductionList.stream()
+    private void computeScalingsForThisContingency(String contingencyId) {
+        scalingsForThisContingency = limitScalingList.stream()
                 .filter(l -> isContingencyInContingencyContext(l.getContingencyContext(), contingencyId))
                 .toList();
     }
 
-    private void setLimitReductionsToLimitReducer(AbstractLimitsReducer<?> limitsReducer, LimitReduction limitReduction) {
-        if (isPermanentLimitAffectedByLimitReduction(limitReduction)) {
-            limitsReducer.setPermanentLimitReduction(limitReduction.getValue());
+    private void setLimitScalingsToLimitScaler(AbstractLimitsScaler<?> limitsScaler, LimitScaling limitScaling) {
+        if (isPermanentLimitAffectedByLimitScaling(limitScaling)) {
+            limitsScaler.setPermanentLimitScaling(limitScaling.getValue());
         }
-        limitsReducer.getTemporaryLimitsAcceptableDurationStream()
-                .filter(acceptableDuration -> isTemporaryLimitAffectedByLimitReduction(acceptableDuration, limitReduction))
-                .forEach(acceptableDuration -> limitsReducer.setTemporaryLimitReduction(acceptableDuration,
-                        limitReduction.getValue()));
+        limitsScaler.getTemporaryLimitsAcceptableDurationStream()
+                .filter(acceptableDuration -> isTemporaryLimitAffectedByLimitScaling(acceptableDuration, limitScaling))
+                .forEach(acceptableDuration -> limitsScaler.setTemporaryLimitScaling(acceptableDuration,
+                        limitScaling.getValue()));
     }
 
     protected static boolean isContingencyInContingencyContext(ContingencyContext contingencyContext, String contingencyId) {
@@ -148,30 +148,30 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
                 || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyId().equals(contingencyId);
     }
 
-    protected static boolean isNetworkElementAffectedByLimitReduction(NetworkElement networkElement, ThreeSides side, LimitReduction limitReduction) {
+    protected static boolean isNetworkElementAffectedByLimitScaling(NetworkElement networkElement, ThreeSides side, LimitScaling limitScaling) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement, side);
-        List<NetworkElementCriterion> networkElementCriteria = limitReduction.getNetworkElementCriteria();
+        List<NetworkElementCriterion> networkElementCriteria = limitScaling.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
                 || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }
 
-    protected static boolean isPermanentLimitAffectedByLimitReduction(LimitReduction limitReduction) {
-        return limitReduction.getDurationCriteria().isEmpty()
-                || limitReduction.getDurationCriteria().stream()
+    protected static boolean isPermanentLimitAffectedByLimitScaling(LimitScaling limitScaling) {
+        return limitScaling.getDurationCriteria().isEmpty()
+                || limitScaling.getDurationCriteria().stream()
                     .anyMatch(c -> c.getType().equals(LimitDurationCriterion.LimitDurationType.PERMANENT));
     }
 
-    protected static boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReduction limitReduction) {
-        return limitReduction.getDurationCriteria().isEmpty()
-                || limitReduction.getDurationCriteria().stream()
+    protected static boolean isTemporaryLimitAffectedByLimitScaling(int temporaryLimitAcceptableDuration, LimitScaling limitScaling) {
+        return limitScaling.getDurationCriteria().isEmpty()
+                || limitScaling.getDurationCriteria().stream()
                     .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
                     .map(AbstractTemporaryDurationCriterion.class::cast)
                     .anyMatch(c -> c.filter(temporaryLimitAcceptableDuration));
     }
 
-    protected static boolean isOperationalLimitsGroupAffectedByLimitReduction(String operationalLimitsGroupId, LimitReduction limitReduction) {
-        return limitReduction.getOperationalLimitsGroupIdsSelection().isEmpty()
-            || limitReduction.getOperationalLimitsGroupIdsSelection().contains(operationalLimitsGroupId);
+    protected static boolean isOperationalLimitsGroupAffectedByLimitScaling(String operationalLimitsGroupId, LimitScaling limitScaling) {
+        return limitScaling.getOperationalLimitsGroupIdsSelection().isEmpty()
+            || limitScaling.getOperationalLimitsGroupIdsSelection().contains(operationalLimitsGroupId);
     }
 
     /**

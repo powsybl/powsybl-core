@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction.result;
+package com.powsybl.security.limitscaling.result;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DetectionKind;
@@ -20,35 +20,35 @@ import java.util.TreeMap;
 
 /**
  * <p>Simple abstract implementation of {@link LoadingLimits} not linked to a network element, used to provide
- * reduced limits without altering the real limits of the network element.</p>
+ * scaled limits without altering the real limits of the network element.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLoadingLimits extends UnsupportedPropertiesHolder implements LoadingLimits {
+public abstract class AbstractScaledLoadingLimits extends UnsupportedPropertiesHolder implements LoadingLimits {
     private String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
     private final DetectionKind detectionKind;
     private final double permanentLimit;
     private final double originalPermanentLimit;
-    private final double permanentLimitReduction;
+    private final double permanentLimitScaling;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
-    public static final class ReducedTemporaryLimit extends UnsupportedPropertiesHolder implements TemporaryLimit {
+    public static final class ScaledTemporaryLimit extends UnsupportedPropertiesHolder implements TemporaryLimit {
         // 1. Fields
         private final String name;
         private final double value;
         private final int acceptableDuration;
         private final boolean fictitious;
         private final double originalValue;
-        private final double limitReduction;
+        private final double limitScaling;
 
         // 2. Canonical Constructor (to initialize all fields)
-        public ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
-                                     double originalValue, double limitReduction) {
+        public ScaledTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
+                                    double originalValue, double limitScaling) {
             this.name = name;
             this.value = value;
             this.acceptableDuration = acceptableDuration;
             this.fictitious = fictitious;
             this.originalValue = originalValue;
-            this.limitReduction = limitReduction;
+            this.limitScaling = limitScaling;
         }
 
         // 3. Accessor Methods (Getters)
@@ -76,31 +76,31 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
             return originalValue;
         }
 
-        public double getLimitReduction() {
-            return limitReduction;
+        public double getLimitScaling() {
+            return limitScaling;
         }
     }
 
-    protected AbstractReducedLoadingLimits(double permanentLimit, double originalPermanentLimit,
-                                           double permanentLimitReduction) {
-        this(DetectionKind.HIGH, permanentLimit, originalPermanentLimit, permanentLimitReduction);
+    protected AbstractScaledLoadingLimits(double permanentLimit, double originalPermanentLimit,
+                                          double permanentLimitScaling) {
+        this(DetectionKind.HIGH, permanentLimit, originalPermanentLimit, permanentLimitScaling);
     }
 
-    protected AbstractReducedLoadingLimits() {
+    protected AbstractScaledLoadingLimits() {
         this(DetectionKind.LOW, Double.NaN, Double.NaN, Double.NaN);
     }
 
-    private AbstractReducedLoadingLimits(DetectionKind detectionKind, double permanentLimit, double originalPermanentLimit, double permanentLimitReduction) {
+    private AbstractScaledLoadingLimits(DetectionKind detectionKind, double permanentLimit, double originalPermanentLimit, double permanentLimitScaling) {
         this.detectionKind = detectionKind;
         this.permanentLimit = permanentLimit;
         this.originalPermanentLimit = originalPermanentLimit;
-        this.permanentLimitReduction = permanentLimitReduction;
+        this.permanentLimitScaling = permanentLimitScaling;
     }
 
     public void addTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
-                                  double originalValue, double limitReduction) {
-        temporaryLimits.put(acceptableDuration, new ReducedTemporaryLimit(name, value, acceptableDuration, fictitious,
-                originalValue, limitReduction));
+                                  double originalValue, double limitScaling) {
+        temporaryLimits.put(acceptableDuration, new ScaledTemporaryLimit(name, value, acceptableDuration, fictitious,
+                originalValue, limitScaling));
     }
 
     @Override
@@ -128,8 +128,8 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
         return getValueOrThrowDetectionKind(originalPermanentLimit);
     }
 
-    public double getPermanentLimitReduction() {
-        return getValueOrThrowDetectionKind(permanentLimitReduction);
+    public double getPermanentLimitScaling() {
+        return getValueOrThrowDetectionKind(permanentLimitScaling);
     }
 
     private double getValueOrThrowDetectionKind(double value) {
@@ -156,16 +156,16 @@ public abstract class AbstractReducedLoadingLimits extends UnsupportedProperties
 
     @Override
     public LoadingLimits setPermanentLimit(double permanentLimit) {
-        throw new UnsupportedOperationException("Unsupported operation for reduced loading limits.");
+        throw new UnsupportedOperationException("Unsupported operation for scaled loading limits.");
     }
 
     @Override
     public LoadingLimits setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue) {
-        throw new UnsupportedOperationException("Unsupported operation for reduced loading limits.");
+        throw new UnsupportedOperationException("Unsupported operation for scaled loading limits.");
     }
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException("Reduced loading limits are not linked to a network element and thus cannot be removed.");
+        throw new UnsupportedOperationException("Scaled loading limits are not linked to a network element and thus cannot be removed.");
     }
 }

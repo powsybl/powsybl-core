@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction.result;
+package com.powsybl.security.limitscaling.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,10 +20,10 @@ import static org.mockito.Mockito.when;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultReducedLimitsContainerTest {
+class DefaultScaledLimitsContainerTest {
 
     private static LoadingLimits originalLimits;
-    private static AbstractReducedLoadingLimits reducedLimits;
+    private static AbstractScaledLoadingLimits reducedLimits;
 
     @BeforeAll
     static void init() {
@@ -40,24 +40,24 @@ class DefaultReducedLimitsContainerTest {
         when(originalLimits.getPermanentLimit()).thenReturn(1000.);
         when(originalLimits.getTemporaryLimits()).thenReturn(List.of(t600, t300));
 
-        AbstractReducedLoadingLimits.ReducedTemporaryLimit reducedT300 = Mockito.mock(AbstractReducedLoadingLimits.ReducedTemporaryLimit.class);
+        AbstractScaledLoadingLimits.ScaledTemporaryLimit reducedT300 = Mockito.mock(AbstractScaledLoadingLimits.ScaledTemporaryLimit.class);
         when(reducedT300.getAcceptableDuration()).thenReturn(300);
         when(reducedT300.getName()).thenReturn("5'");
         when(reducedT300.getValue()).thenReturn(1050.);
         when(reducedT300.getOriginalValue()).thenReturn(1400.);
-        when(reducedT300.getLimitReduction()).thenReturn(0.75);
+        when(reducedT300.getLimitScaling()).thenReturn(0.75);
 
-        reducedLimits = Mockito.mock(AbstractReducedLoadingLimits.class);
+        reducedLimits = Mockito.mock(AbstractScaledLoadingLimits.class);
         when(reducedLimits.getPermanentLimit()).thenReturn(800.);
         when(reducedLimits.getOriginalPermanentLimit()).thenReturn(1000.);
-        when(reducedLimits.getPermanentLimitReduction()).thenReturn(0.8);
+        when(reducedLimits.getPermanentLimitScaling()).thenReturn(0.8);
         when(reducedLimits.getTemporaryLimits()).thenReturn(List.of(reducedT300));
         when(reducedLimits.getTemporaryLimit(300)).thenReturn(reducedT300);
     }
 
     @Test
     void defaultReducedLimitsContainerTest() {
-        DefaultReducedLimitsContainer container = new DefaultReducedLimitsContainer(reducedLimits, originalLimits, "groupId");
+        DefaultScaledLimitsContainer container = new DefaultScaledLimitsContainer(reducedLimits, originalLimits, "groupId");
         assertTrue(container.isDistinct());
         assertEquals("groupId", container.getOperationalLimitsGroupId());
         assertEquals(originalLimits, container.getOriginalLimits());
@@ -65,9 +65,9 @@ class DefaultReducedLimitsContainerTest {
         assertEquals(800., container.getLimits().getPermanentLimit(), 0.01);
         assertEquals(1050., container.getLimits().getTemporaryLimit(300).getValue(), 0.01);
         assertEquals(1000., container.getOriginalPermanentLimit(), 0.01);
-        assertEquals(0.8, container.getPermanentLimitReduction(), 0.01);
-        assertEquals(0.75, container.getTemporaryLimitReduction(300), 0.01);
+        assertEquals(0.8, container.getPermanentLimitScaling(), 0.01);
+        assertEquals(0.75, container.getTemporaryLimitScaling(300), 0.01);
         assertEquals(1400., container.getOriginalTemporaryLimit(300), 0.01);
-        assertNull(container.getTemporaryLimitReduction(600));
+        assertNull(container.getTemporaryLimitScaling(600));
     }
 }

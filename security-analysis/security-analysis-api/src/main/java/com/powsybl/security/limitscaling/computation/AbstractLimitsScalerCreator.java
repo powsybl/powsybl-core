@@ -5,17 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction.computation;
+package com.powsybl.security.limitscaling.computation;
 
-import com.powsybl.security.limitreduction.AbstractLimitReductionsApplier;
+import com.powsybl.security.limitscaling.AbstractLimitScalingsApplier;
 
 /**
- * <p>Interface for objects generating an {@link AbstractLimitsReducer} object
+ * <p>Interface for objects generating an {@link AbstractLimitsScaler} object
  * configured for a network element, with its original limits of generic type {@link L}.</p>
- * <p>{@link AbstractLimitReductionsApplier} implementations dealing with limits of type {@link L} need
- * an implementation of this interface to compute reduced limits.</p>
+ * <p>{@link AbstractLimitScalingsApplier} implementations dealing with limits of type {@link L} need
+ * an implementation of this interface to compute scaled limits.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface AbstractLimitsReducerCreator<L, R extends AbstractLimitsReducer<L>> {
+public interface AbstractLimitsScalerCreator<L, R extends AbstractLimitsScaler<L>> {
     R create(String networkElementId, String limitsGroupId, L originalLimits);
 }

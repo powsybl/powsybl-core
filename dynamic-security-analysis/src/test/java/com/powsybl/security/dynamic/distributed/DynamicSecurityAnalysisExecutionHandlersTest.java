@@ -26,7 +26,7 @@ import com.powsybl.security.*;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecutionInput;
-import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitscaling.LimitScaling;
 import com.powsybl.security.results.ConnectivityResult;
 import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
@@ -127,7 +127,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
     void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
         OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
-        LimitReduction limitReduction = new LimitReduction(LimitType.CURRENT, 0.9);
+        LimitScaling limitScaling = new LimitScaling(LimitType.CURRENT, 0.9);
 
         DynamicSecurityAnalysisExecutionInput input = new DynamicSecurityAnalysisExecutionInput()
                 .setParameters(new DynamicSecurityAnalysisParameters())
@@ -139,7 +139,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 .addViolationTypes(List.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
                 .setOperatorStrategies(List.of(strategy))
-                .setLimitReductions(List.of(limitReduction));
+                .setLimitReductions(List.of(limitScaling));
         ExecutionHandler<SecurityAnalysisReport> handler = DynamicSecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);

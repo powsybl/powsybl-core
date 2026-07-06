@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitscaling;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.LineCriterion;
@@ -26,18 +26,18 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class LimitReductionBuilderTest {
+class LimitScalingBuilderTest {
 
     @Test
     void defaultValuesTest() {
-        LimitReduction limitReduction = LimitReduction.builder(LimitType.APPARENT_POWER, 0.5).build();
-        assertEquals(LimitType.APPARENT_POWER, limitReduction.getLimitType());
-        assertEquals(0.5, limitReduction.getValue(), 0.01);
-        assertFalse(limitReduction.isMonitoringOnly());
-        assertEquals(ContingencyContext.all(), limitReduction.getContingencyContext());
-        assertTrue(limitReduction.getNetworkElementCriteria().isEmpty());
-        assertTrue(limitReduction.getDurationCriteria().isEmpty());
-        assertTrue(limitReduction.getOperationalLimitsGroupIdsSelection().isEmpty());
+        LimitScaling limitScaling = LimitScaling.builder(LimitType.APPARENT_POWER, 0.5).build();
+        assertEquals(LimitType.APPARENT_POWER, limitScaling.getLimitType());
+        assertEquals(0.5, limitScaling.getValue(), 0.01);
+        assertFalse(limitScaling.isMonitoringOnly());
+        assertEquals(ContingencyContext.all(), limitScaling.getContingencyContext());
+        assertTrue(limitScaling.getNetworkElementCriteria().isEmpty());
+        assertTrue(limitScaling.getDurationCriteria().isEmpty());
+        assertTrue(limitScaling.getOperationalLimitsGroupIdsSelection().isEmpty());
     }
 
     @Test
@@ -47,7 +47,7 @@ class LimitReductionBuilderTest {
         NetworkElementCriterion nec2 = new TwoWindingsTransformerCriterion(null, null);
         LimitDurationCriterion ldc0 = new PermanentDurationCriterion();
         LimitDurationCriterion ldc1 = new EqualityTemporaryDurationCriterion(300);
-        LimitReduction limitReduction = LimitReduction.builder(LimitType.CURRENT, 0.9)
+        LimitScaling limitScaling = LimitScaling.builder(LimitType.CURRENT, 0.9)
                 .withMonitoringOnly(true)
                 .withContingencyContext(ContingencyContext.none())
                 .withNetworkElementCriteria(nec0)
@@ -57,18 +57,18 @@ class LimitReductionBuilderTest {
                 .withOperationalLimitsGroupIdSelection("incorrect", "also incorrect")
                 .withOperationalLimitsGroupIdSelection("correct", "good", "also good")
                 .build();
-        assertEquals(LimitType.CURRENT, limitReduction.getLimitType());
-        assertEquals(0.9, limitReduction.getValue(), 0.01);
-        assertTrue(limitReduction.isMonitoringOnly());
-        assertEquals(ContingencyContext.none(), limitReduction.getContingencyContext());
-        assertEquals(2, limitReduction.getNetworkElementCriteria().size());
+        assertEquals(LimitType.CURRENT, limitScaling.getLimitType());
+        assertEquals(0.9, limitScaling.getValue(), 0.01);
+        assertTrue(limitScaling.isMonitoringOnly());
+        assertEquals(ContingencyContext.none(), limitScaling.getContingencyContext());
+        assertEquals(2, limitScaling.getNetworkElementCriteria().size());
         assertEquals(NetworkElementCriterion.NetworkElementCriterionType.LINE,
-                limitReduction.getNetworkElementCriteria().get(0).getNetworkElementCriterionType());
+                limitScaling.getNetworkElementCriteria().get(0).getNetworkElementCriterionType());
         assertEquals(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER,
-                limitReduction.getNetworkElementCriteria().get(1).getNetworkElementCriterionType());
-        assertEquals(1, limitReduction.getDurationCriteria().size());
+                limitScaling.getNetworkElementCriteria().get(1).getNetworkElementCriterionType());
+        assertEquals(1, limitScaling.getDurationCriteria().size());
         assertEquals(AbstractTemporaryDurationCriterion.TemporaryDurationCriterionType.EQUALITY,
-                ((AbstractTemporaryDurationCriterion) limitReduction.getDurationCriteria().get(0)).getComparisonType());
-        assertEquals(limitReduction.getOperationalLimitsGroupIdsSelection(), List.of("correct", "good", "also good"));
+                ((AbstractTemporaryDurationCriterion) limitScaling.getDurationCriteria().get(0)).getComparisonType());
+        assertEquals(limitScaling.getOperationalLimitsGroupIdsSelection(), List.of("correct", "good", "also good"));
     }
 }

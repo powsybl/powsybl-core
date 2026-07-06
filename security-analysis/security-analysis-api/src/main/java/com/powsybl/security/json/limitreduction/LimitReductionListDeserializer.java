@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.limitreduction.LimitReductionList;
+import com.powsybl.security.limitscaling.LimitScaling;
+import com.powsybl.security.limitscaling.LimitScalingList;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,27 +21,27 @@ import java.util.List;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitReductionListDeserializer extends StdDeserializer<LimitReductionList> {
+public class LimitReductionListDeserializer extends StdDeserializer<LimitScalingList> {
     public LimitReductionListDeserializer() {
-        super(LimitReductionList.class);
+        super(LimitScalingList.class);
     }
 
     private static final class ParsingContext {
         String version;
-        List<LimitReduction> limitReductions;
+        List<LimitScaling> limitScalings;
     }
 
     @Override
-    public LimitReductionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitScalingList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (parser.currentName()) {
                 case "version":
                     context.version = parser.nextTextValue();
                     return true;
-                case "limitReductions":
+                case "limitScalings":
                     parser.nextToken(); // skip
-                    context.limitReductions = JsonUtil.readList(deserializationContext, parser, LimitReduction.class);
+                    context.limitScalings = JsonUtil.readList(deserializationContext, parser, LimitScaling.class);
                     return true;
                 default:
                     return false;
@@ -50,6 +50,6 @@ public class LimitReductionListDeserializer extends StdDeserializer<LimitReducti
         if (context.version == null) {
             throw new JsonMappingException(parser, "version is missing");
         }
-        return new LimitReductionList(context.limitReductions);
+        return new LimitScalingList(context.limitScalings);
     }
 }

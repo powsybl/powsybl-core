@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
-import com.powsybl.security.limitreduction.SimpleLimitsComputer;
+import com.powsybl.security.limitscaling.SimpleLimitsComputer;
 import com.powsybl.security.results.PostContingencyResult;
 
 import java.io.IOException;
