@@ -8,14 +8,17 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.base.Strings;
+import com.powsybl.commons.config.PlatformConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
@@ -30,6 +33,11 @@ public class DenseMatrix extends AbstractMatrix {
     public static final int MAX_ELEMENT_COUNT = Integer.MAX_VALUE / Double.BYTES;
 
     public static final DenseMatrix EMPTY = new DenseMatrix(0, 0);
+
+    private static final OptionalInt DEFAULT_DECIMAL_DIGITS = PlatformConfig.defaultConfig()
+            .getOptionalModuleConfig("matrix")
+            .map(moduleConfig -> moduleConfig.getOptionalIntProperty("print-decimal-digits"))
+            .orElse(OptionalInt.empty());
 
     /**
      * Dense element implementation.
@@ -417,6 +425,11 @@ public class DenseMatrix extends AbstractMatrix {
 
         int[] width = getMaxWidthForEachColumn(columnNames);
 
+        DecimalFormat decimalFormat = null;
+        if (DEFAULT_DECIMAL_DIGITS.isPresent()) {
+            decimalFormat = createFormatter(DEFAULT_DECIMAL_DIGITS.getAsInt());
+            width = getMaxWidthForEachColumn(columnNames, decimalFormat);
+        }
         if (columnNames != null) {
             if (rowNames != null) {
                 out.print(Strings.repeat(" ", rowNamesWidth + 1));
@@ -431,10 +444,19 @@ public class DenseMatrix extends AbstractMatrix {
                 out.print(Strings.padStart(rowNames.get(i), rowNamesWidth + 1, ' '));
             }
             for (int j = 0; j < getColumnCount(); j++) {
-                out.print(Strings.padStart(Double.toString(get(i, j)), width[j] + 1, ' '));
+                if (DEFAULT_DECIMAL_DIGITS.isPresent()) {
+                    out.print(Strings.padStart(decimalFormat.format(get(i, j)), width[j] + 1, ' '));
+                } else {
+                    out.print(Strings.padStart(Double.toString(get(i, j)), width[j] + 1, ' '));
+                }
             }
             out.println();
         }
+    }
+
+    private static DecimalFormat createFormatter(int maxDecimals) {
+        String pattern = "0.0" + "#".repeat(Math.max(0, maxDecimals - 1));
+        return new DecimalFormat(pattern);
     }
 
     private int getMaxWidthAmongRowNames(List<String> rowNames) {
@@ -460,6 +482,19 @@ public class DenseMatrix extends AbstractMatrix {
         return width;
     }
 
+    private int[] getMaxWidthForEachColumn(List<String> columnNames, DecimalFormat decimalFormat) {
+        int[] width = new int[getColumnCount()];
+        for (int i = 0; i < getRowCount(); i++) {
+            for (int j = 0; j < getColumnCount(); j++) {
+                width[j] = Math.max(width[j], decimalFormat.format(get(i, j)).length());
+                if (columnNames != null) {
+                    width[j] = Math.max(width[j], columnNames.get(j).length());
+                }
+            }
+        }
+        return width;
+    }
+
     @Override
     public int hashCode() {
         return rowCount + columnCount + buffer.hashCode();
@@ -472,4 +507,5 @@ public class DenseMatrix extends AbstractMatrix {
         }
         return false;
     }
+
 }
