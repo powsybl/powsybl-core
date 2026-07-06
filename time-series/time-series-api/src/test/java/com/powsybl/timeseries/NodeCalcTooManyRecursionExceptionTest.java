@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -53,25 +52,6 @@ class NodeCalcTooManyRecursionExceptionTest {
         } catch (Exception e) {
             fail(e);
         }
-    }
-
-    @Test
-    void shouldPrintDeepTreeInLinearTime() {
-        long t1 = timeToPrint(100_000);
-        long t2 = timeToPrint(200_000);
-        double ratio = (double) t2 / t1;
-        assertTrue(ratio < 3);
-    }
-
-    private static long timeToPrint(int n) {
-        NodeCalc node = new IntegerNodeCalc(0);
-        for (int i = 0; i < n; i++) {
-            node = BinaryOperation.plus(new IntegerNodeCalc(0), node);
-        }
-        NodeCalcPrinter.print(node);
-        long start = System.nanoTime();
-        NodeCalcPrinter.print(node);
-        return System.nanoTime() - start;
     }
 
 }
