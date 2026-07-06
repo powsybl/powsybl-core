@@ -1299,7 +1299,7 @@ public final class NetworkSerDe {
         try (InputStream is = new PipedInputStream(pos)) {
             executor.execute(() -> {
                 try {
-                    write(network, new ExportOptions().setFormat(format), pos);
+                    write(network, new ExportOptions().setFormat(format).setNaturalOrder(true), pos);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 } finally {

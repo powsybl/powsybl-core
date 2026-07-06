@@ -20,22 +20,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConnectableOrderingXmlTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testRoundTrip() throws IOException {
-        ExportOptions exportOptions = new ExportOptions();
-        roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
-                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
-                NetworkSerDe::validateAndRead,
-                "/twtOrdering.xiidm");
-    }
-
-    @Test
     void testRoundTripSorted() throws IOException {
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setSorted(true);
         roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,
-                "/twtOrderingId.xiidm");
+                "/twtOrderingSorted.xiidm");
+    }
+
+    @Test
+    void testRoundTripNaturalOrder() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setNaturalOrder(true);
+        roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrdering.xiidm");
+
+        roundTripTest(Network.read("/twtOrderingSorted.xiidm", getNetworkAsStream("/twtOrderingSorted.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrderingSorted.xiidm");
+    }
+
+    @Test
+    void testRoundTripSortedOverNaturalOrder() throws IOException {
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setSorted(true);
+        exportOptions.setNaturalOrder(true);
+        roundTripTest(Network.read("/twtOrdering.xiidm", getNetworkAsStream("/twtOrdering.xiidm")),
+                (n, p) -> NetworkSerDe.write(n, exportOptions, p),
+                NetworkSerDe::validateAndRead,
+                "/twtOrderingSorted.xiidm");
     }
 
     @Test

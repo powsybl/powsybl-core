@@ -379,8 +379,7 @@ public final class IidmSerDeUtil {
         Comparator<Identifiable<?>> comparator;
         if (exportOptions.isSorted()) {
             comparator = Comparator.comparing(Identifiable::getId);
-        }
-        else if (network.getIdentifiableNaturalOrderComparator().isPresent()) {
+        } else if (exportOptions.isNaturalOrder() && network.getIdentifiableNaturalOrderComparator().isPresent()) {
             comparator = network.getIdentifiableNaturalOrderComparator().get();
         } else {
             return identifiables;
@@ -412,8 +411,7 @@ public final class IidmSerDeUtil {
         Comparator<Identifiable<?>> comparator;
         if (exportOptions.isSorted()) {
             comparator = Comparator.comparing(Identifiable::getId);
-        }
-        else if (network.getIdentifiableNaturalOrderComparator().isPresent()) {
+        } else if (exportOptions.isNaturalOrder() && network.getIdentifiableNaturalOrderComparator().isPresent()) {
             comparator = network.getIdentifiableNaturalOrderComparator().get();
         } else {
             return stream;
