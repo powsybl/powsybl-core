@@ -120,7 +120,7 @@ The supported types are `FLOWS`, `GENERATORS`, `BUSES`, `SVCS`, `SHUNTS`, `TWTS`
 `--with-extensions-validation`<br>
 Use the `--with-extensions-validation` parameter to perform extensions validation.
 
-To learn more about the different checks, read the [loadflow validation](../../grid_features/loadflow_validation.md) documentation page.
+To learn more about the different checks, read the [loadflow validation](../../grid_features/loadflow_validation/index.md) documentation page.
 
 ### Summary
 The following table summarizes the possible combinations of `compare-results` and `run-computation` parameters, and the
@@ -143,7 +143,7 @@ you have to use the `run-computation` (or `load-flow`) parameter.
 ## Parameters
 
 To learn how to configure the `loadflow-validation` command, read the documentation of the
-[loadflow validation](../configuration/loadflow-validation.md) module.
+[loadflow validation](../../grid_features/loadflow_validation/configuration.md) configuration page.
 
 You may also configure the load flow itself to tune the load flow validation using the `--run-computation` option (check the [loadflow configuration page](../../simulation/loadflow/configuration.md#implementation)).
 
