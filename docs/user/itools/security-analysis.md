@@ -25,7 +25,7 @@ $> itools security-analysis --help
 usage: itools [OPTIONS] security-analysis [--actions-file <FILE>] --case-file
        <FILE> [--contingencies-file <FILE>] [--external] [--help] [-I
        <property=value>] [--import-parameters <IMPORT_PARAMETERS>]
-       [--limit-reductions-file <FILE>] [--limit-types <LIMIT-TYPES>]
+       [--limit-scalings-file <FILE>] [--limit-types <LIMIT-TYPES>]
        [--log-file <FILE>] [--monitoring-file <FILE>] [--output-file <FILE>]
        [--output-format <FORMAT>] [--parameters-file <FILE>] [--strategies-file
        <FILE>] [--with-extensions <EXTENSIONS>]
@@ -42,7 +42,7 @@ Available arguments are:
  -I <property=value>                          use value for given importer
                                               parameter
     --import-parameters <IMPORT_PARAMETERS>   the importer configuration file
-    --limit-reductions-file <FILE>            limit reductions file (.json)
+    --limit-scalings-file <FILE>            limit scalings file (.json)
     --limit-types <LIMIT-TYPES>               limit type filter (all if not set)
     --log-file <FILE>                         log output path (.zip)
     --monitoring-file <FILE>                  monitoring file (.json) to get
@@ -125,8 +125,8 @@ Example
 }
 ```
 
-`--limit-reductions-file`  
-Path to a JSON file defining limit reductions. See [Limit reductions](../../simulation/security/limit-scalings.md) for principles and details.
+`--limit-scalings-file`  
+Path to a JSON file defining limit scalings. See [Limit scalings](../../simulation/security/limit-scalings.md) for principles and details.
 
 `--external`<br>
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
@@ -411,12 +411,12 @@ The result shows that no more limit violations exist.
 ```
 
 ### Example 4
-The following example shows how to run a security analysis simulation with `limit reductions` of a given network.
+The following example shows how to run a security analysis simulation with `limit scalings` of a given network.
 
 ```shell
 itools security-analysis \
   --case-file network.xiidm \
-  --limit-reductions-file limit-reductions.json
+  --limit-scalings-file limit-scalings.json
 ```
 
 #### Inputs
@@ -475,12 +475,12 @@ itools security-analysis \
 </details>
 
 <details>
-<summary>Limit Reductions: reduce the current limit of NHV1_NHV2_1 by 10%</summary>
+<summary>Limit Scalings: Scale the current limit of NHV1_NHV2_1 by a factor of 90% (reduce it by 10%)</summary>
 
 ```json lines
 {
   "version": "1.0",
-  "limitReductions": [
+  "limitScalings": [
     {
       "value": 0.9,
       "limitType": "CURRENT",
@@ -495,7 +495,7 @@ itools security-analysis \
 </details>
 
 #### Output
-The reduction affect results as pre-contingency violations
+The scaling affects results as pre-contingency violations
 ``` shell
 Pre-contingency violations:
 +--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+

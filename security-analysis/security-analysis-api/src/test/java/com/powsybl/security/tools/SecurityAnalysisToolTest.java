@@ -93,7 +93,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(options, "monitoring-file", false, true);
         assertOption(options, "strategies-file", false, true);
         assertOption(options, "actions-file", false, true);
-        assertOption(options, "limit-reductions-file", false, true);
+        assertOption(options, "limit-scalings-file", false, true);
     }
 
     @Test
@@ -306,8 +306,8 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
             assertNotNull(is);
             limitReductionsBytes = is.readAllBytes();
         }
-        Files.write(fileSystem.getPath("limit-reductions"), limitReductionsBytes);
-        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_SCALINGS_FILE, "limit-reductions"));
+        Files.write(fileSystem.getPath("limit-scalings"), limitReductionsBytes);
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_SCALINGS_FILE, "limit-scalings"));
         //When
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         tool.updateInput(options, input);

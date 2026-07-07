@@ -49,7 +49,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
     private static final String PARAMETERS_FILE = "parameters.json";
     private static final String ACTIONS_FILE = "actions.json";
     private static final String STRATEGIES_FILE = "strategies.json";
-    private static final String LIMIT_SCALINGS_FILE = "limit-reductions.json";
+    private static final String LIMIT_SCALINGS_FILE = "limit-scalings.json";
 
     protected final int executionCount;
     protected final T input;

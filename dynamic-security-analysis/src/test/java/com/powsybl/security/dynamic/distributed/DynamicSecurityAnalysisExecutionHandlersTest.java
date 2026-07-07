@@ -155,7 +155,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                         "--contingencies-file=/work/contingencies.groovy",
                         "--actions-file=/work/actions.json",
                         "--strategies-file=/work/strategies.json",
-                        "--limit-reductions-file=/work/limit-reductions.json",
+                        "--limit-scalings-file=/work/limit-scalings.json",
                         "--with-extensions=ext1,ext2",
                         "--limit-types=CURRENT",
                         "--task-count=12");
@@ -167,7 +167,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
         assertThat(workingDir.resolve("contingencies.groovy")).exists();
         assertThat(workingDir.resolve("strategies.json")).exists();
         assertThat(workingDir.resolve("actions.json")).exists();
-        assertThat(workingDir.resolve("limit-reductions.json")).exists();
+        assertThat(workingDir.resolve("limit-scalings.json")).exists();
     }
 
     @Test
