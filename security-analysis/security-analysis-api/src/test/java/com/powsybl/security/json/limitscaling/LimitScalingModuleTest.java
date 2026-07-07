@@ -65,6 +65,21 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
         compareLimitScalingList(expectedReductions, limitScalingList);
     }
 
+    @Test
+    void limitScalingReadV12() throws IOException {
+        LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.2.json"));
+        LimitScalingList expectedScalings = new LimitScalingList(
+            List.of(
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4(),
+                getLimitScaling5(),
+                getLimitScaling6()
+            ));
+        compareLimitScalingList(expectedScalings, limitScalingList);
+    }
+
     private void compareLimitScalingList(LimitScalingList expected, LimitScalingList actual) {
         Assertions.assertThat(actual.getLimitScalings())
             .hasSize(expected.getLimitScalings().size())
@@ -106,7 +121,7 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
 
         roundTripTest(limitScalingList, LimitScalingListSerDeUtil::write,
                 LimitScalingListSerDeUtil::read,
-            "/LimitReductionsV1.2.json");
+            "/LimitReductionsV1.3.json");
     }
 
     @Test

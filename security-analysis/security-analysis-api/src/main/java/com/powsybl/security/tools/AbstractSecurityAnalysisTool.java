@@ -135,7 +135,7 @@ public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAna
         options.getPath(ACTIONS_FILE)
                 .ifPresent(actionFilePath -> inputs.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
         options.getPath(LIMIT_SCALINGS_FILE)
-                .ifPresent(limitReductionsFilePath -> inputs.setLimitScalings(LimitScalingListSerDeUtil.read(limitReductionsFilePath).getLimitScalings()));
+                .ifPresent(limitScalingsFilePath -> inputs.setLimitScalings(LimitScalingListSerDeUtil.read(limitScalingsFilePath).getLimitScalings()));
     }
 
     protected SecurityAnalysisReport runSecurityAnalysisWithLog(Supplier<SecurityAnalysisReport> supplier, Path logPath) {

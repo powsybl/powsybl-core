@@ -56,7 +56,7 @@ public abstract class AbstractLimitViolationDetectionTest {
     }
 
     protected abstract void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
-                                                LimitType limitType, double limitReduction);
+                                                LimitType limitType, double limitScaling);
 
     protected abstract void checkCurrent(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer);
 
@@ -169,11 +169,11 @@ public abstract class AbstractLimitViolationDetectionTest {
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
-        // no violation if limitReduction is 1
+        // no violation if limitScaling is 1
         checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 1.0);
         assertTrue(violationsCollector.isEmpty());
 
-        // violation reported if limitReduction is 0.9
+        // violation reported if limitScaling is 0.9
         checkLimitViolation(tieLine1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 0.9);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)

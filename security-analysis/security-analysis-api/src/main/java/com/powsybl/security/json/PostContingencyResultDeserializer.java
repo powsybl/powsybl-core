@@ -51,7 +51,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
             parsingContext.connectivityResult = ConnectivityResult.empty();
         }
 
-        if (version.compareTo("1.3") < 0) {
+        if (JsonUtil.compareVersions(finalVersion, "1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
         }

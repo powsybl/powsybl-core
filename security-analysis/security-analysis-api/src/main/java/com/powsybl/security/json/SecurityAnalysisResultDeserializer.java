@@ -65,7 +65,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
                     JsonUtil.setSourceVersion(ctx, version, SOURCE_VERSION_ATTRIBUTE);
-                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, version.compareTo("1.7") >= 0);
+                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, JsonUtil.compareVersions(version, "1.7") >= 0);
                     break;
 
                 case "network":
@@ -75,7 +75,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "preContingencyResult":
                     parser.nextToken();
-                    if ("1.0".equals(version)) {
+                    if (JsonUtil.compareVersions(version, "1.0") == 0) {
                         limitViolationsResult = JsonUtil.readValue(ctx, parser, LimitViolationsResult.class);
                     } else {
                         preContingencyResult = JsonUtil.readValue(ctx, parser, PreContingencyResult.class);
@@ -105,7 +105,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         SecurityAnalysisResult result = null;
         if (preContingencyResult == null) {
             LoadFlowResult.ComponentResult.Status status = null;
-            if (limitViolationsResult != null && "1.0".equals(version)) {
+            if (limitViolationsResult != null && JsonUtil.compareVersions(version, "1.0") == 0) {
                 status = limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
             } else {
                 status = LoadFlowResult.ComponentResult.Status.CONVERGED;

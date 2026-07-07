@@ -215,7 +215,8 @@ class ExporterTest extends AbstractSerDeTest {
             Arguments.of("/SecurityAnalysisResultV1.5.json"),
             Arguments.of("/SecurityAnalysisResultV1.6.json"),
             Arguments.of("/SecurityAnalysisResultV1.7.json"),
-            Arguments.of("/SecurityAnalysisResultV1.8.json")
+            Arguments.of("/SecurityAnalysisResultV1.8.json"),
+            Arguments.of("/SecurityAnalysisResultV1.9.json")
         );
     }
 

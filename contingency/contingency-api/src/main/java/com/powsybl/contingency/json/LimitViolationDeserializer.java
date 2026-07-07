@@ -51,7 +51,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         String limitName = null;
         int acceptableDuration = Integer.MAX_VALUE;
         double limit = Double.NaN;
-        double limitReduction = Double.NaN;
+        double limitScaling = Double.NaN;
         double value = Double.NaN;
         ThreeSides side = null;
         ViolationLocation violationLocation = null;
@@ -91,9 +91,10 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     limit = parser.readValueAs(Double.class);
                     break;
 
-                case "limitReduction":
+                // limitReduction for retro-compatibility before V1.10 of SecurityAnalysisResult
+                case "limitScaling", "limitReduction":
                     parser.nextToken();
-                    limitReduction = parser.readValueAs(Float.class);
+                    limitScaling = parser.readValueAs(Float.class);
                     break;
 
                 case "value":
@@ -125,7 +126,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
             }
         }
         LimitViolation violation = new LimitViolation(subjectId, subjectName, operationalLimitsGroupId, limitType, limitName, acceptableDuration,
-            limit, limitReduction, value, side, violationLocation);
+            limit, limitScaling, value, side, violationLocation);
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;

@@ -38,8 +38,8 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
 
     @Override
     protected void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
-                                       LimitType limitType, double limitReduction) {
-        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(limitReduction, EnumSet.allOf(LoadingLimitType.class));
+                                       LimitType limitType, double limitScaling) {
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(limitScaling, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkLimitViolation(branch, side, currentValue, consumer, limitType);
     }
 

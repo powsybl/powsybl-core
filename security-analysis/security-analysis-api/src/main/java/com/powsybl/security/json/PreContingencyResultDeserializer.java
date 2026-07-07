@@ -57,7 +57,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
             }
             return false;
         });
-        if (finalVersion.compareTo("1.3") < 0) {
+        if (JsonUtil.compareVersions(finalVersion, "1.3") < 0) {
             Objects.requireNonNull(commonParsingContext.limitViolationsResult);
             parsingContext.status = commonParsingContext.limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
         }
