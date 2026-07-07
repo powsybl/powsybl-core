@@ -507,5 +507,4 @@ public class DenseMatrix extends AbstractMatrix {
         }
         return false;
     }
-
 }

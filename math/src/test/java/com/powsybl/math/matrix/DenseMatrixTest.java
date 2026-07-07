@@ -8,16 +8,10 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.FileSystem;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -179,29 +173,13 @@ class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    void printTest() throws IOException {
-        Matrix a = matrixFactory.create(1, 3, 2);
-        a.set(0, 0, 1.0 / 3.0);
-        a.set(0, 1, Math.PI);
-        a.set(0, 2, 2);
-        String expected = " 0.3333333333333333 3.141592653589793 2.0" + System.lineSeparator();
-        assertEquals(expected, print(a));
-    }
-
-    @Disabled
-    @Test
-    void printTest2() throws IOException {
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("matrix");
-            moduleConfig.setStringProperty("print-decimal-digits", "3");
-            Matrix matrix = matrixFactory.create(1, 3, 2);
-            matrix.set(0, 0, 1.0 / 3.0);
-            matrix.set(0, 1, Math.PI);
-            matrix.set(0, 2, 2);
-            String expectedIfConfigExist = " 0.333 3.142 2.0" + System.lineSeparator();
-            assertEquals(expectedIfConfigExist, print(matrix)); //fixme
-        }
+    void printTestWhenDecimalDigitsDefined() throws IOException {
+        Matrix matrix = matrixFactory.create(1, 3, 2);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        String expected = " 0.33 3.14 2.0" + System.lineSeparator();
+        assertEquals(expected, print(matrix));
     }
 
 }
