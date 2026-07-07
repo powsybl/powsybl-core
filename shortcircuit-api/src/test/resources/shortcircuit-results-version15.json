@@ -1,5 +1,5 @@
 {
-  "version" : "1.6",
+  "version" : "1.5",
   "faultResults" : [ {
     "status" : "SUCCESS",
     "fault" : {
@@ -18,9 +18,10 @@
     },
     "limitViolations" : [ {
       "subjectId" : "vlId",
+      "operationalLimitsGroupId" : "activated_limits_group",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
       "limit" : 2000.0,
-      "limitScaling" : 1.0,
+      "limitReduction" : 1.0,
       "value" : 2500.0,
       "extensions" : {
         "DummyLimitViolationExtension" : { }

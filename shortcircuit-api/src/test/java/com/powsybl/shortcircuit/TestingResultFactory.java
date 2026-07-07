@@ -45,10 +45,10 @@ public final class TestingResultFactory {
     public static FortescueFaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
         Fault fault = new BusFault(faultId, "BusId", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
-        double limitReductionValue = 1;
-        LimitViolation limitViolation1 = LimitViolation.builder().subject("VLGEN").type(limitType).limit(limit).scaling(limitReductionValue).value(value).build();
+        double limitScalingValue = 1;
+        LimitViolation limitViolation1 = LimitViolation.builder().subject("VLGEN").type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolations.add(limitViolation1);
-        LimitViolation limitViolation2 = LimitViolation.builder().subject("VLGEN").type(limitType).limit(limit).scaling(limitReductionValue).value(value).build();
+        LimitViolation limitViolation2 = LimitViolation.builder().subject("VLGEN").type(limitType).limit(limit).scaling(limitScalingValue).value(value).build();
         limitViolations.add(limitViolation2);
         return new FortescueFaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(value), FortescueFaultResult.Status.SUCCESS);
     }

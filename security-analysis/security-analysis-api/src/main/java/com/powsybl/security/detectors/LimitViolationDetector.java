@@ -442,8 +442,8 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for permanent limit checks
      */
-    default void checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitReductionValue);
+    default void checkPermanentLimit(Branch<?> branch, TwoSides side, double limitScalingValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer = new SimpleLimitsComputer(limitScalingValue);
         LimitViolationDetection.checkLimitViolation(branch, side, value, type, Set.of(LoadingLimitType.PATL), limitsComputer, consumer);
     }
 

@@ -160,6 +160,21 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
         assertEquals(List.of("BBS1"), locationBusBreaker.getBusIds());
     }
 
+    @Test
+    void readJsonFaultResultV15() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+            .read(getClass().getResourceAsStream("/shortcircuit-results-version15.json"));
+        assertEquals(2, result.getFaultResults().size());
+
+        FortescueFaultResult faultResult1 = (FortescueFaultResult) result.getFaultResult("id1");
+        assertEquals(Fault.FaultType.LINE_TO_LINE, faultResult1.getFault().getFaultType());
+        assertEquals(1, faultResult1.getLimitViolations().size());
+        assertEquals(0, faultResult1.getFeederResults().size());
+
+        MagnitudeFaultResult faultResult2 = (MagnitudeFaultResult) result.getFaultResult("id2");
+        assertEquals(Fault.FaultType.LINE_TO_LINE_WITH_EARTH_CONNECTION, faultResult2.getFault().getFaultType());
+    }
+
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisResultExporters.export(result, path, "CSV", network);
