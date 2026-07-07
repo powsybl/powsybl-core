@@ -713,7 +713,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * Only checks overloading for LimitType.Current and permanent limits
      */
-    boolean isOverloaded(double limitReductionValue);
+    boolean isOverloaded(double limitScalingValue);
 
     default int getOverloadDuration() {
         return Stream.concat(
@@ -724,28 +724,28 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
             .orElse(Integer.MAX_VALUE);
     }
 
-    boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit(TwoSides side, double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit(TwoSides side, LimitType type);
 
-    boolean checkPermanentLimit1(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit1(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit1(LimitType type);
 
-    boolean checkPermanentLimit2(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit2(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit2(LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
      * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
+     * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the branch to look at
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
-    Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
@@ -759,12 +759,12 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
      * return an overload for the side 1 of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * by a factor of <code>limitScalingValue</code>.
+     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
-    Overload checkTemporaryLimits1(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits1(double limitScalingValue, LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
@@ -777,12 +777,12 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
      * return an overload for the side 2 of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * by a factor of <code>limitScalingValue</code>.
+     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
      * @param type the type of the limit
      * @return an {@link Overload} if there is an overload on temporary limits, otherwise a null
      */
-    Overload checkTemporaryLimits2(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits2(double limitScalingValue, LimitType type);
 
     /**
      * For the last selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getSelectedOperationalLimitsGroup()},
@@ -795,12 +795,12 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
      * return an overload for the <code>side</code> of the branch, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
+     * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the branch to look at
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a reduction coefficient of the limit (between 0 and 1)
      * @param type the type of the limit
      */
-    Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type);
+    Collection<Overload> checkAllTemporaryLimits(TwoSides side, double limitScalingValue, LimitType type);
 
     /**
      * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},

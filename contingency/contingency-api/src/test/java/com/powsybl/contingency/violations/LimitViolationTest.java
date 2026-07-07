@@ -49,7 +49,7 @@ class LimitViolationTest {
             .subject("testId")
             .type(LimitViolationType.LOW_VOLTAGE)
             .limit(1000)
-            .reduction(1)
+            .scaling(1)
             .value(1100)
             .violationLocation(new BusBreakerViolationLocation(List.of("busId1", "busId2")))
             .build();

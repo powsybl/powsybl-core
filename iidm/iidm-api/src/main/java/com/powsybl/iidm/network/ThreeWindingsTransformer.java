@@ -393,7 +393,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     /**
      * Only checks overloading for LimitType.Current and permanent limits
      */
-    boolean isOverloaded(double limitReductionValue);
+    boolean isOverloaded(double limitScalingValue);
 
     default int getOverloadDuration() {
         return Stream.of(
@@ -405,51 +405,51 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
             .orElse(Integer.MAX_VALUE);
     }
 
-    boolean checkPermanentLimit(ThreeSides side, double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit(ThreeSides side, double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit(ThreeSides side, LimitType type);
 
-    boolean checkPermanentLimit1(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit1(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit1(LimitType type);
 
-    boolean checkPermanentLimit2(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit2(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit2(LimitType type);
 
-    boolean checkPermanentLimit3(double limitReductionValue, LimitType type);
+    boolean checkPermanentLimit3(double limitScalingValue, LimitType type);
 
     boolean checkPermanentLimit3(LimitType type);
 
-    Overload checkTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits(ThreeSides side, double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits(ThreeSides side, LimitType type);
 
-    Overload checkTemporaryLimits1(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits1(double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits1(LimitType type);
 
-    Overload checkTemporaryLimits2(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits2(double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits2(LimitType type);
 
-    Overload checkTemporaryLimits3(double limitReductionValue, LimitType type);
+    Overload checkTemporaryLimits3(double limitScalingValue, LimitType type);
 
     Overload checkTemporaryLimits3(LimitType type);
 
     /**
      * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
-     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>, taking into account a reduction of the limits
-     * by a factor of <code>limitReductionValue</code>.
+     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>, taking into account a scaling of the limits
+     * by a factor of <code>limitScalingValue</code>.
      * @param side the side of the transformer to look at
-     * @param limitReductionValue a reduction coefficient of the limit (between 0 and 1)
+     * @param limitScalingValue a scaling coefficient of the limit (between 0 and 1)
      * @param type the type of the limit
      */
-    Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type);
+    Collection<Overload> checkAllTemporaryLimits(ThreeSides side, double limitScalingValue, LimitType type);
 
     /**
      * For all the selected {@link OperationalLimitsGroup} as defined by {@link FlowsLimitsHolder#getAllSelectedOperationalLimitsGroups()},
-     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>. This does not reduce the limits.
+     * return an overload for the <code>side</code> of the three-winding transformer, of the <code>type</code>. This does not scale the limits.
      * @param side the side of the transformer to look at
      * @param type the type of the limit
      */

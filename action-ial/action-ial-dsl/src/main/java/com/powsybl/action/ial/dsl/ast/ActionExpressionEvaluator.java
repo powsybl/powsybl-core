@@ -210,7 +210,7 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
 
     @Override
     public Object visitIsOverloaded(IsOverloadedNode isOverloadedNode, Void arg) {
-        double limitReduction = isOverloadedNode.getLimitReduction();
+        double limitReduction = isOverloadedNode.getLimitScaling();
 
         // Iterate over all the branch Ids to be sure that all the branches exist in the network
         return isOverloadedNode.getBranchIds().stream()
@@ -220,7 +220,7 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
 
     @Override
     public Object visitAllOverloaded(AllOverloadedNode allOverloadedNode, Void arg) {
-        double limitReduction = allOverloadedNode.getLimitReduction();
+        double limitReduction = allOverloadedNode.getLimitScaling();
 
         // Iterate over all the branch Ids to be sure that all the branches exist in the network
         return allOverloadedNode.getBranchIds().stream()

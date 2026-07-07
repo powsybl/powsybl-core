@@ -57,7 +57,7 @@ class SecurityTest {
             .type(LimitViolationType.CURRENT)
             .limitName(LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME)
             .limit(1000.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(1100.0)
             .side(TwoSides.ONE)
             .build();
@@ -71,7 +71,7 @@ class SecurityTest {
             .type(LimitViolationType.CURRENT)
             .limitName("permanent2")
             .limit(900.0)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(950.0)
             .side(TwoSides.ONE)
             .build();
@@ -178,7 +178,7 @@ class SecurityTest {
     private static void assertViolation05(List<LimitViolation> violations) {
         Optional<LimitViolation> violation = getCurrentLimitViolationOnLine1Side1(violations);
         assertTrue(violation.isPresent());
-        assertEquals(0.5, violation.get().getLimitReduction(), 0.001d);
+        assertEquals(0.5, violation.get().getLimitScaling(), 0.001d);
         assertEquals(2000, violation.get().getLimit(), 0.001d);
         assertEquals(1192, violation.get().getValue(), 1d);
     }

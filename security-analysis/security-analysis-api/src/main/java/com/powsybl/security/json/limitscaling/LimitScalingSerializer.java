@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitreduction;
+package com.powsybl.security.json.limitscaling;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -17,9 +17,9 @@ import java.io.IOException;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
-public class LimitReductionSerializer extends StdSerializer<LimitScaling> {
+public class LimitScalingSerializer extends StdSerializer<LimitScaling> {
 
-    public LimitReductionSerializer() {
+    public LimitScalingSerializer() {
         super(LimitScaling.class);
     }
 

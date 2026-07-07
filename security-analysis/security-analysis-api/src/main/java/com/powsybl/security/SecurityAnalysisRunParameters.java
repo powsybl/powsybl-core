@@ -47,7 +47,7 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
         return securityAnalysisParameters;
     }
 
-    public List<LimitScaling> getLimitReductions() {
+    public List<LimitScaling> getLimitScalings() {
         return limitScalings;
     }
 
@@ -61,15 +61,15 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
     }
 
     /**
-     * Sets the list of the limit reductions to apply, see {@link LimitScaling}
+     * Sets the list of the limit scalings to apply, see {@link LimitScaling}
      */
-    public SecurityAnalysisRunParameters setLimitReductions(List<LimitScaling> limitScalings) {
-        Objects.requireNonNull(limitScalings, "LimitReductions list should not be null");
+    public SecurityAnalysisRunParameters setLimitScalings(List<LimitScaling> limitScalings) {
+        Objects.requireNonNull(limitScalings, "LimitScalings list should not be null");
         this.limitScalings = limitScalings;
         return self();
     }
 
-    public SecurityAnalysisRunParameters addLimitReduction(LimitScaling limitScaling) {
+    public SecurityAnalysisRunParameters addLimitScaling(LimitScaling limitScaling) {
         Objects.requireNonNull(limitScaling, "LimitScaling should not be null");
         limitScalings.add(limitScaling);
         return self();

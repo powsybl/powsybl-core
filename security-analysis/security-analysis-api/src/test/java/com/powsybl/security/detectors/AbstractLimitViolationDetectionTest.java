@@ -99,11 +99,11 @@ public abstract class AbstractLimitViolationDetectionTest {
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
-        // no violation if limitReductionValue is 1
+        // no violation if limitScalingValue is 1
         checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 1.0);
         assertTrue(violationsCollector.isEmpty());
 
-        // violation reported if limitReductionValue is 0.9
+        // violation reported if limitScalingValue is 0.9
         checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT, 0.9);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -111,7 +111,7 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
-                    assertEquals(0.9, l.getLimitReduction(), 0.001);
+                    assertEquals(0.9, l.getLimitScaling(), 0.001);
                 });
     }
 
@@ -181,7 +181,7 @@ public abstract class AbstractLimitViolationDetectionTest {
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(500, l.getLimit(), 0);
                     assertEquals(460, l.getValue(), 0);
-                    assertEquals(0.9, l.getLimitReduction(), 0.001);
+                    assertEquals(0.9, l.getLimitScaling(), 0.001);
                 });
     }
 

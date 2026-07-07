@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitreduction;
+package com.powsybl.security.json.limitscaling;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -22,14 +22,14 @@ import com.powsybl.security.limitscaling.LimitScalingList;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitReductionModule extends SimpleModule {
-    public LimitReductionModule() {
-        addSerializer(LimitScalingList.class, new LimitReductionListSerializer());
-        addSerializer(LimitScaling.class, new LimitReductionSerializer());
+public class LimitScalingModule extends SimpleModule {
+    public LimitScalingModule() {
+        addSerializer(LimitScalingList.class, new LimitScalingListSerializer());
+        addSerializer(LimitScaling.class, new LimitScalingSerializer());
         addSerializer(Criterion.class, new CriterionSerializer());
         addSerializer(VoltageInterval.class, new VoltageIntervalSerializer());
-        addDeserializer(LimitScalingList.class, new LimitReductionListDeserializer());
-        addDeserializer(LimitScaling.class, new LimitReductionDeserializer());
+        addDeserializer(LimitScalingList.class, new LimitScalingListDeserializer());
+        addDeserializer(LimitScaling.class, new LimitScalingDeserializer());
         addDeserializer(Criterion.class, new CriterionDeserializer());
         addDeserializer(VoltageInterval.class, new VoltageIntervalDeserializer());
 

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitreduction;
+package com.powsybl.security.json.limitscaling;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -24,8 +24,8 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
-public class LimitReductionDeserializer extends StdDeserializer<LimitScaling> {
-    public LimitReductionDeserializer() {
+public class LimitScalingDeserializer extends StdDeserializer<LimitScaling> {
+    public LimitScalingDeserializer() {
         super(LimitScaling.class);
     }
 
@@ -46,7 +46,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitScaling> {
     @Override
     public LimitScaling deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        JsonUtil.parseObject(parser, fieldName -> parseLimitReduction(parser, deserializationContext, context, fieldName));
+        JsonUtil.parseObject(parser, fieldName -> parseLimitScaling(parser, deserializationContext, context, fieldName));
         LimitScaling.Builder builder = LimitScaling.builder(checkAttribute(context.limitType, "limitType"),
                 checkAttribute(context.value, "value"))
                 .withMonitoringOnly(checkAttribute(context.monitoringOnly, "monitoringOnly"))
@@ -63,8 +63,8 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitScaling> {
         return builder.build();
     }
 
-    private boolean parseLimitReduction(JsonParser parser, DeserializationContext deserializationContext,
-                                        ParsingContext context, String fieldName) throws IOException {
+    private boolean parseLimitScaling(JsonParser parser, DeserializationContext deserializationContext,
+                                      ParsingContext context, String fieldName) throws IOException {
         switch (fieldName) {
             case "value" -> {
                 parser.nextToken();

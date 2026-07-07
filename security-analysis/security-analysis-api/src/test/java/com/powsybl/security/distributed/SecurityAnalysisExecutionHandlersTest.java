@@ -135,7 +135,7 @@ class SecurityAnalysisExecutionHandlersTest {
                 .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
                 .setOperatorStrategies(List.of(strategy))
-                .setLimitReductions(List.of(limitScaling));
+                .setLimitScalings(List.of(limitScaling));
         ExecutionHandler<SecurityAnalysisReport> handler = SecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         Path workingDir = fileSystem.getPath("/work");

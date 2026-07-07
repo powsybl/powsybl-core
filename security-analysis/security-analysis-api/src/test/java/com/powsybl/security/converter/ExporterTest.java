@@ -169,7 +169,7 @@ class ExporterTest extends AbstractSerDeTest {
             .subject("NHV1_NHV2_1")
             .type(LimitViolationType.CURRENT)
             .limit(100)
-            .reduction(0.95f)
+            .scaling(0.95f)
             .value(110.0)
             .side1()
             .build();

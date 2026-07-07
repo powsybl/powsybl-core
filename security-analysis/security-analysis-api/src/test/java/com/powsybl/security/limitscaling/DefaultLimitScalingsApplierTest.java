@@ -92,7 +92,7 @@ class DefaultLimitScalingsApplierTest {
         // pre-contingency
         applier.setWorkingContingency(null);
         // - No reductions apply for "NHV1_NHV2_1"
-        computeAndCheckLimitsOnLine1WithoutReductions();
+        computeAndCheckLimitsOnLine1WithoutScalings();
         // - Some reductions apply for "NHV1_NHV2_2"
         computeAndCheckLimitsOnLine2(0.5, false);
         computeAndCheckLimitsOnLine2(0.2, true);
@@ -100,7 +100,7 @@ class DefaultLimitScalingsApplierTest {
         // contingency0
         applier.setWorkingContingency("contingency0");
         // - Same reductions as before apply for both network elements => the cache is used.
-        computeAndCheckLimitsOnLine1WithoutReductions();
+        computeAndCheckLimitsOnLine1WithoutScalings();
         computeAndCheckLimitsOnLine2(0.5, false);
         computeAndCheckLimitsOnLine2(0.2, true);
 
@@ -131,7 +131,7 @@ class DefaultLimitScalingsApplierTest {
         computeAndCheckLimitsOnLine2(0.2, true);
     }
 
-    private static void computeAndCheckLimitsOnLine1WithoutReductions() {
+    private static void computeAndCheckLimitsOnLine1WithoutScalings() {
         Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
         assertFalse(limits.isEmpty());
         LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
@@ -170,21 +170,21 @@ class DefaultLimitScalingsApplierTest {
         assertEquals(Double.MAX_VALUE, limits.getTemporaryLimitValue(60), 0.01);
     }
 
-    private static void computeAndCheckLimitsOnLine2(double expectedReduction, boolean monitoringOnly) {
+    private static void computeAndCheckLimitsOnLine2(double expectedScaling, boolean monitoringOnly) {
         Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE, monitoringOnly);
         assertFalse(limits.isEmpty());
         LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
-        LoadingLimits reducedLimits = container.getLimits();
-        assertEquals(1100 * expectedReduction, reducedLimits.getPermanentLimit(), 0.01);
-        assertEquals(1200 * expectedReduction, reducedLimits.getTemporaryLimitValue(20 * 60), 0.01);
-        assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(60), 0.01);
+        LoadingLimits scaledLimits = container.getLimits();
+        assertEquals(1100 * expectedScaling, scaledLimits.getPermanentLimit(), 0.01);
+        assertEquals(1200 * expectedScaling, scaledLimits.getTemporaryLimitValue(20 * 60), 0.01);
+        assertEquals(Double.MAX_VALUE, scaledLimits.getTemporaryLimitValue(60), 0.01);
         checkOriginalLimitsOnLine2(container.getOriginalLimits());
         assertTrue(container.isDistinct());
 
         limits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO, monitoringOnly);
         assertFalse(limits.isEmpty());
         container = limits.stream().findFirst().orElseThrow();
-        assertEquals(500 * expectedReduction, container.getLimits().getPermanentLimit(), 0.01);
+        assertEquals(500 * expectedScaling, container.getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, container.getOriginalLimits().getPermanentLimit(), 0.01);
         assertTrue(container.isDistinct());
     }
@@ -202,11 +202,11 @@ class DefaultLimitScalingsApplierTest {
         Collection<LimitsContainer<LoadingLimits>> limits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
         assertFalse(limits.isEmpty());
         LimitsContainer<LoadingLimits> container = limits.stream().findFirst().orElseThrow();
-        LoadingLimits reducedLimits = container.getLimits();
-        assertEquals(1100, reducedLimits.getPermanentLimit(), 0.01);
-        assertTrue(Double.isNaN(reducedLimits.getTemporaryLimitValue(10 * 60))); // removed since the 1' limit's reduced value is < 1200
-        assertEquals(1125, reducedLimits.getTemporaryLimitValue(60), 0.01);
-        assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(0), 0.01);
+        LoadingLimits scaledLimits = container.getLimits();
+        assertEquals(1100, scaledLimits.getPermanentLimit(), 0.01);
+        assertTrue(Double.isNaN(scaledLimits.getTemporaryLimitValue(10 * 60))); // removed since the 1' limit's reduced value is < 1200
+        assertEquals(1125, scaledLimits.getTemporaryLimitValue(60), 0.01);
+        assertEquals(Double.MAX_VALUE, scaledLimits.getTemporaryLimitValue(0), 0.01);
         checkOriginalLimitsDefaultOnLine1(container.getOriginalLimits());
         assertTrue(container.isDistinct());
     }

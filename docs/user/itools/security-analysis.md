@@ -126,7 +126,7 @@ Example
 ```
 
 `--limit-reductions-file`  
-Path to a JSON file defining limit reductions. See [Limit reductions](../../simulation/security/limit-reductions.md) for principles and details.
+Path to a JSON file defining limit reductions. See [Limit reductions](../../simulation/security/limit-scalings.md) for principles and details.
 
 `--external`<br>
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.

@@ -66,31 +66,31 @@ class LimitScalingListTest {
     }
 
     @Test
-    void limitReductionListTest() {
+    void limitScalingListTest() {
         LimitScalingList limitScalingList = new LimitScalingList(List.of(limitScaling1, limitScaling2));
         assertEquals(List.of(limitScaling1, limitScaling2), limitScalingList.getLimitScalings());
     }
 
     @Test
-    void limitReductionGetType() {
+    void limitScalingGetType() {
         assertEquals(LimitType.CURRENT, limitScaling1.getLimitType());
         assertEquals(LimitType.ACTIVE_POWER, limitScaling2.getLimitType());
     }
 
     @Test
-    void limitReductionGetValue() {
+    void limitScalingGetValue() {
         assertEquals(0.9, limitScaling1.getValue(), 0.001);
         assertEquals(0.8, limitScaling2.getValue(), 0.001);
     }
 
     @Test
-    void limitReductionIsMonitoringOnly() {
+    void limitScalingIsMonitoringOnly() {
         assertFalse(limitScaling1.isMonitoringOnly());
         assertTrue(limitScaling2.isMonitoringOnly());
     }
 
     @Test
-    void limitReductionGetNetworkElementCriteria() {
+    void limitScalingGetNetworkElementCriteria() {
         assertEquals(List.of(networkElementCriterion1, networkElementCriterion2,
                 networkElementCriterion3, networkElementCriterion4, networkElementCriterion5),
                 limitScaling1.getNetworkElementCriteria());
@@ -98,13 +98,13 @@ class LimitScalingListTest {
     }
 
     @Test
-    void limitReductionGetContingencyContext() {
+    void limitScalingGetContingencyContext() {
         assertEquals(contingencyContext1, limitScaling1.getContingencyContext());
         assertEquals(ContingencyContext.all(), limitScaling2.getContingencyContext());
     }
 
     @Test
-    void limitReductionGetDurationCriteria() {
+    void limitScalingGetDurationCriteria() {
         assertEquals(2, limitScaling1.getDurationCriteria().size());
         assertInstanceOf(PermanentDurationCriterion.class, limitScaling1.getDurationCriteria().get(0));
         assertInstanceOf(AllTemporaryDurationCriterion.class, limitScaling1.getDurationCriteria().get(1));
@@ -121,12 +121,12 @@ class LimitScalingListTest {
     @Test
     void unsupportedLimitType() {
         Exception e = assertThrows(PowsyblException.class, () -> new LimitScaling(LimitType.VOLTAGE, 0.9));
-        assertEquals("VOLTAGE is not a supported limit type for limit reduction", e.getMessage());
+        assertEquals("VOLTAGE is not a supported limit type for limit scaling", e.getMessage());
     }
 
     @Test
-    void unsupportedLimitReductionValues() {
-        String expectedMessage = "Limit reduction value should be equal or greater than 0";
+    void unsupportedLimitScalingValues() {
+        String expectedMessage = "Limit scaling value should be equal or greater than 0";
         Exception e = assertThrows(PowsyblException.class, () -> new LimitScaling(LimitType.CURRENT, -0.5, true));
         assertEquals(expectedMessage, e.getMessage());
     }

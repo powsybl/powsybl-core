@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitreduction;
+package com.powsybl.security.json.limitscaling;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitReductionListDeserializer extends StdDeserializer<LimitScalingList> {
-    public LimitReductionListDeserializer() {
+public class LimitScalingListDeserializer extends StdDeserializer<LimitScalingList> {
+    public LimitScalingListDeserializer() {
         super(LimitScalingList.class);
     }
 
@@ -39,7 +39,8 @@ public class LimitReductionListDeserializer extends StdDeserializer<LimitScaling
                 case "version":
                     context.version = parser.nextTextValue();
                     return true;
-                case "limitScalings":
+                // limitReductions for retro-compatibility with versions < 1.3
+                case "limitScalings", "limitReductions":
                     parser.nextToken(); // skip
                     context.limitScalings = JsonUtil.readList(deserializationContext, parser, LimitScaling.class);
                     return true;

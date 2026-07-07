@@ -60,7 +60,7 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         return Collections.unmodifiableList(monitors);
     }
 
-    public List<LimitScaling> getLimitReductions() {
+    public List<LimitScaling> getLimitScalings() {
         return Collections.unmodifiableList(limitScalings);
     }
 
@@ -129,7 +129,7 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         return self();
     }
 
-    public T setLimitReductions(List<LimitScaling> limitScalings) {
+    public T setLimitScalings(List<LimitScaling> limitScalings) {
         Objects.requireNonNull(limitScalings);
         this.limitScalings.clear();
         this.limitScalings.addAll(limitScalings);

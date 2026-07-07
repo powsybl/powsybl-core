@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitreduction;
+package com.powsybl.security.json.limitscaling;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
@@ -38,34 +38,34 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
 
     @Test
     void limitReductionReadV10() {
-        LimitScalingList limitScalingList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
+        LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         LimitScalingList expectedReductions = new LimitScalingList(
             List.of(
-                getLimitReduction1(),
-                getLimitReduction2(),
-                getLimitReduction3(),
-                getLimitReduction4()
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4()
             )
         );
-        compareLimitReductionList(expectedReductions, limitScalingList);
+        compareLimitScalingList(expectedReductions, limitScalingList);
     }
 
     @Test
     void limitReductionReadV11() {
-        LimitScalingList limitScalingList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.1.json"));
+        LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.1.json"));
         LimitScalingList expectedReductions = new LimitScalingList(
             List.of(
-                getLimitReduction1(),
-                getLimitReduction2(),
-                getLimitReduction3(),
-                getLimitReduction4(),
-                getLimitReduction5()
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4(),
+                getLimitScaling5()
             )
         );
-        compareLimitReductionList(expectedReductions, limitScalingList);
+        compareLimitScalingList(expectedReductions, limitScalingList);
     }
 
-    private void compareLimitReductionList(LimitScalingList expected, LimitScalingList actual) {
+    private void compareLimitScalingList(LimitScalingList expected, LimitScalingList actual) {
         Assertions.assertThat(actual.getLimitScalings())
             .hasSize(expected.getLimitScalings().size())
             .usingComparatorForType((Double a, Double b) -> {
@@ -96,24 +96,24 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
     void roundTripTest() throws IOException {
         LimitScalingList limitScalingList = new LimitScalingList(
             List.of(
-                getLimitReduction1(),
-                getLimitReduction2(),
-                getLimitReduction3(),
-                getLimitReduction4(),
-                getLimitReduction5(),
-                getLimitReduction6()
+                getLimitScaling1(),
+                getLimitScaling2(),
+                getLimitScaling3(),
+                getLimitScaling4(),
+                getLimitScaling5(),
+                getLimitScaling6()
             ));
 
-        roundTripTest(limitScalingList, LimitReductionListSerDeUtil::write,
-                LimitReductionListSerDeUtil::read,
+        roundTripTest(limitScalingList, LimitScalingListSerDeUtil::write,
+                LimitScalingListSerDeUtil::read,
             "/LimitReductionsV1.2.json");
     }
 
     @Test
     void compatibilityWithOldCriterion() throws IOException {
-        LimitScalingList reductionList = LimitReductionListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
+        LimitScalingList reductionList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            LimitReductionListSerDeUtil.write(reductionList, bos);
+            LimitScalingListSerDeUtil.write(reductionList, bos);
             ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/LimitReductions_no_limits_groupV1.2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             // Should not happen
@@ -121,7 +121,7 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
         }
     }
 
-    private LimitScaling getLimitReduction1() {
+    private LimitScaling getLimitScaling1() {
         ContingencyContext contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         List<NetworkElementCriterion> networkElementCriteria1 =
             List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
@@ -143,7 +143,7 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
             .build();
     }
 
-    private LimitScaling getLimitReduction2() {
+    private LimitScaling getLimitScaling2() {
         return LimitScaling.builder(LimitType.APPARENT_POWER, 0.5)
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
             .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder()
@@ -153,11 +153,11 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
             .build();
     }
 
-    private LimitScaling getLimitReduction3() {
+    private LimitScaling getLimitScaling3() {
         return new LimitScaling(LimitType.ACTIVE_POWER, 0.8, true);
     }
 
-    private LimitScaling getLimitReduction4() {
+    private LimitScaling getLimitScaling4() {
         return LimitScaling.builder(LimitType.CURRENT, 0.9)
             .withNetworkElementCriteria(new IdentifiableCriterion(
                 new AtLeastOneCountryCriterion(List.of(Country.FR)),
@@ -168,14 +168,14 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
             .build();
     }
 
-    private LimitScaling getLimitReduction5() {
+    private LimitScaling getLimitScaling5() {
         return LimitScaling.builder(LimitType.ACTIVE_POWER, 0.88)
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1", "NHV1_NHV2_2")))
             .withOperationalLimitsGroupIdSelection("DEFAULT", "activated_1_3", "activated_2_1")
             .build();
     }
 
-    private LimitScaling getLimitReduction6() {
+    private LimitScaling getLimitScaling6() {
         return LimitScaling.builder(LimitType.CURRENT, 1.13)
             .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder().setLowBound(60, true).build())
             .build();

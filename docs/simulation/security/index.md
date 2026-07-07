@@ -5,7 +5,7 @@
 configuration.md
 contingency-dsl.md
 action-dsl.md
-limit-reductions.md
+limit-scalings.md
 ```
 
 The security analysis is a simulation that checks violations on a network. These checks can be done on the base case or
@@ -131,23 +131,23 @@ state or post-contingency state with a contingency id or both. For example:
   contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the
   branch.
 
-### Limit reductions
+### Limit scalings
 
-Limit reductions can be specified in order to detect when a specific limit is **nearly** reached, without having to
+Limit scalings can be specified in order to detect when a specific limit is **nearly** reached, without having to
 artificially modify the limit itself.
-For instance, with a limit reduction set to 95% for a limit of 1000 MW, the security analysis will flag a limit
+For instance, with a limit scaling set to 95% for a limit of 1000 MW, the security analysis will flag a limit
 violation for any value exceeding 950 MW.
 
-Each limit reduction has its own criteria specifying for which limits and under what conditions it should be applied.
+Each limit scaling has its own criteria specifying for which limits and under what conditions it should be applied.
 These criteria can include:
 
 - the type of limit (current, active power or apparent power);
 - the use case (for monitoring only or also for applying remedial actions);
 - the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.);
-- the network elements targeted by the reduction (by ids, countries and/or nominal voltages);
-- which operational limits are affected by the reduction (permanent or temporary + acceptable duration).
+- the network elements targeted by the scaling (by ids, countries and/or nominal voltages);
+- which operational limits are affected by the scaling (permanent or temporary + acceptable duration).
 
-You can find more details about limit reductions [here](./limit-reductions).
+You can find more details about limit scalings [here](./limit-scalings).
 
 ## Outputs
 

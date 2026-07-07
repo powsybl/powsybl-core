@@ -139,7 +139,7 @@ class DynamicSecurityAnalysisExecutionHandlersTest {
                 .addViolationTypes(List.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
                 .setOperatorStrategies(List.of(strategy))
-                .setLimitReductions(List.of(limitScaling));
+                .setLimitScalings(List.of(limitScaling));
         ExecutionHandler<SecurityAnalysisReport> handler = DynamicSecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);

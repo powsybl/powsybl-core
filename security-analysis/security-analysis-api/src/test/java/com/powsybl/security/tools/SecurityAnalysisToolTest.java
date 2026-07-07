@@ -307,12 +307,12 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
             limitReductionsBytes = is.readAllBytes();
         }
         Files.write(fileSystem.getPath("limit-reductions"), limitReductionsBytes);
-        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_REDUCTIONS_FILE, "limit-reductions"));
+        ToolOptions options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_SCALINGS_FILE, "limit-reductions"));
         //When
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         tool.updateInput(options, input);
         //Then
-        assertThat(input.getLimitReductions()).isNotEmpty();
+        assertThat(input.getLimitScalings()).isNotEmpty();
     }
 
     @AutoService(SecurityAnalysisProvider.class)

@@ -110,7 +110,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                       assertEquals(1101, l.getValue(), 0d);
                       assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                       assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
-                      assertEquals(1.0f, l.getLimitReduction());
+                      assertEquals(1.0f, l.getLimitScaling());
                   });
     }
 
@@ -174,7 +174,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
-                    assertEquals(1.0f, l.getLimitReduction());
+                    assertEquals(1.0f, l.getLimitScaling());
                 });
     }
 
@@ -239,7 +239,7 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(ThreeSides.TWO, l.getSide());
                     assertEquals(DEFAULT_PERMANENT_LIMIT_NAME, l.getLimitName());
-                    assertEquals(1.0f, l.getLimitReduction());
+                    assertEquals(1.0f, l.getLimitScaling());
                 });
     }
 

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.json.limitreduction;
+package com.powsybl.security.json.limitscaling;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -23,14 +23,14 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public final class LimitReductionListSerDeUtil {
+public final class LimitScalingListSerDeUtil {
 
-    private LimitReductionListSerDeUtil() {
+    private LimitScalingListSerDeUtil() {
     }
 
     /**
-     * Read a limit reduction list from a JSON file.
-     * @param jsonFile the JSON file containing the serialized limit reduction list.
+     * Read a limit scaling list from a JSON file.
+     * @param jsonFile the JSON file containing the serialized limit scaling list.
      */
     public static LimitScalingList read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -41,8 +41,8 @@ public final class LimitReductionListSerDeUtil {
     }
 
     /**
-     * Read a limit reduction list from an output stream on a JSON.
-     * @param is an input stream on the JSON serialized limit reduction list.
+     * Read a limit scaling list from an output stream on a JSON.
+     * @param is an input stream on the JSON serialized limit scaling list.
      */
     public static LimitScalingList read(InputStream is) {
         Objects.requireNonNull(is);
@@ -55,9 +55,9 @@ public final class LimitReductionListSerDeUtil {
     }
 
     /**
-     * Write a limit reduction list as JSON to a file.
-     * @param limitScalingList the reduction list to serialize
-     * @param jsonFile a {@link Path} where to serialize the reduction list
+     * Write a limit scaling list as JSON to a file.
+     * @param limitScalingList the scaling list to serialize
+     * @param jsonFile a {@link Path} where to serialize the scaling list
      */
     public static void write(LimitScalingList limitScalingList, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
@@ -69,8 +69,8 @@ public final class LimitReductionListSerDeUtil {
     }
 
     /**
-     * Write a limit reduction list as JSON to an output stream.
-     * @param limitScalingList the reduction list to serialize
+     * Write a limit scaling list as JSON to an output stream.
+     * @param limitScalingList the scaling list to serialize
      * @param outputStream the output stream to use for the serialization
      */
     public static void write(LimitScalingList limitScalingList, OutputStream outputStream) {
@@ -85,6 +85,6 @@ public final class LimitReductionListSerDeUtil {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new LimitReductionModule());
+                .registerModule(new LimitScalingModule());
     }
 }
