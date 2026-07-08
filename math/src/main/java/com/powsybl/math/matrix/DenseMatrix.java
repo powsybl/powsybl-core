@@ -8,7 +8,6 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.base.Strings;
-import com.powsybl.commons.config.PlatformConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +33,18 @@ public class DenseMatrix extends AbstractMatrix {
 
     public static final DenseMatrix EMPTY = new DenseMatrix(0, 0);
 
-    private static final OptionalInt DEFAULT_DECIMAL_DIGITS = PlatformConfig.defaultConfig()
-            .getOptionalModuleConfig("matrix")
-            .map(moduleConfig -> moduleConfig.getOptionalIntProperty("print-decimal-digits"))
-            .orElse(OptionalInt.empty());
+    private MatrixConfig matrixConfig;
+
+    protected void setConfig(MatrixConfig matrixConfig) {
+        this.matrixConfig = matrixConfig;
+    }
+
+    protected MatrixConfig getConfig() {
+        if (matrixConfig == null) {
+            matrixConfig = MatrixConfig.load();
+        }
+        return matrixConfig;
+    }
 
     /**
      * Dense element implementation.
@@ -426,8 +433,9 @@ public class DenseMatrix extends AbstractMatrix {
         int[] width = getMaxWidthForEachColumn(columnNames);
 
         DecimalFormat decimalFormat = null;
-        if (DEFAULT_DECIMAL_DIGITS.isPresent()) {
-            decimalFormat = createFormatter(DEFAULT_DECIMAL_DIGITS.getAsInt());
+        OptionalInt defaultDecimalDigits = getConfig().getDecimalDigits();
+        if (defaultDecimalDigits.isPresent()) {
+            decimalFormat = createFormatter(defaultDecimalDigits.getAsInt());
             width = getMaxWidthForEachColumn(columnNames, decimalFormat);
         }
         if (columnNames != null) {
@@ -444,7 +452,7 @@ public class DenseMatrix extends AbstractMatrix {
                 out.print(Strings.padStart(rowNames.get(i), rowNamesWidth + 1, ' '));
             }
             for (int j = 0; j < getColumnCount(); j++) {
-                if (DEFAULT_DECIMAL_DIGITS.isPresent()) {
+                if (defaultDecimalDigits.isPresent()) {
                     out.print(Strings.padStart(decimalFormat.format(get(i, j)), width[j] + 1, ' '));
                 } else {
                     out.print(Strings.padStart(Double.toString(get(i, j)), width[j] + 1, ' '));

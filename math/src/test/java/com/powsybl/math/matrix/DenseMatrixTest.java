@@ -8,6 +8,9 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -173,13 +176,36 @@ class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
-    void printTestWhenDecimalDigitsDefined() throws IOException {
+    void printWhenNoConfig() throws IOException {
         Matrix matrix = matrixFactory.create(1, 3, 2);
         matrix.set(0, 0, 1.0 / 3.0);
         matrix.set(0, 1, Math.PI);
         matrix.set(0, 2, 2);
-        String expected = " 0.33 3.14 2.0" + System.lineSeparator();
-        assertEquals(expected, print(matrix));
+        assertEquals(" 0.3333333333333333 3.141592653589793 2.0" + System.lineSeparator(), print(matrix));
+    }
+
+    @Test
+    void printWhenDecimalDigitsPropertyDefined() throws IOException {
+        DenseMatrix matrix = (DenseMatrix) matrixFactory.create(1, 3, 2);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(Jimfs.newFileSystem(Configuration.unix()));
+        platformConfig.createModuleConfig("matrix").setStringProperty("print-decimal-digits", "2");
+        matrix.setConfig(MatrixConfig.load(platformConfig));
+        assertEquals(" 0.33 3.14 2.0" + System.lineSeparator(), print(matrix));
+    }
+
+    @Test
+    void printWhenDecimalDigitsPropertyNotDefined() throws IOException {
+        DenseMatrix matrix = (DenseMatrix) matrixFactory.create(1, 3, 2);
+        matrix.set(0, 0, 1.0 / 3.0);
+        matrix.set(0, 1, Math.PI);
+        matrix.set(0, 2, 2);
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(Jimfs.newFileSystem(Configuration.unix()));
+        platformConfig.createModuleConfig("matrix");
+        matrix.setConfig(MatrixConfig.load(platformConfig));
+        assertEquals(" 0.3333333333333333 3.141592653589793 2.0" + System.lineSeparator(), print(matrix));
     }
 
 }
