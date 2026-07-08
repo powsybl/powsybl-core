@@ -66,7 +66,7 @@ class LimitScalingModuleTest extends AbstractSerDeTest {
     }
 
     @Test
-    void limitScalingReadV12() throws IOException {
+    void limitScalingReadV12() {
         LimitScalingList limitScalingList = LimitScalingListSerDeUtil.read(getClass().getResourceAsStream("/LimitReductionsV1.2.json"));
         LimitScalingList expectedScalings = new LimitScalingList(
             List.of(
