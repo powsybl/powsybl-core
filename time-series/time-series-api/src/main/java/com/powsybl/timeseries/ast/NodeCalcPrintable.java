@@ -12,6 +12,8 @@ import java.util.Deque;
 /**
  * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  */
-public interface Printable {
+@FunctionalInterface
+public interface NodeCalcPrintable {
+
     void pushTo(Deque<Object> stack);
 }

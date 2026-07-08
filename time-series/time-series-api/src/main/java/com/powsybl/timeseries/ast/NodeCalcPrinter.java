@@ -15,10 +15,10 @@ import java.util.Deque;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
+public class NodeCalcPrinter implements NodeCalcVisitor<NodeCalcPrintable, Void> {
 
     public static String print(NodeCalc nodeCalc) {
-        Printable root = nodeCalc.accept(new NodeCalcPrinter(), null, 0);
+        NodeCalcPrintable root = nodeCalc.accept(new NodeCalcPrinter(), null, 0);
         StringBuilder builder = new StringBuilder();
         Deque<Object> stack = new ArrayDeque<>();
         stack.push(root);
@@ -27,7 +27,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
             Object node = stack.pop();
             if (node instanceof String text) {
                 builder.append(text);
-            } else if (node instanceof Printable printable) {
+            } else if (node instanceof NodeCalcPrintable printable) {
                 printable.pushTo(stack);
             }
         }
@@ -35,27 +35,27 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
     }
 
     @Override
-    public Printable visit(IntegerNodeCalc nodeCalc, Void arg) {
+    public NodeCalcPrintable visit(IntegerNodeCalc nodeCalc, Void arg) {
         return stack -> stack.push(Integer.toString(nodeCalc.getValue()));
     }
 
     @Override
-    public Printable visit(FloatNodeCalc nodeCalc, Void arg) {
+    public NodeCalcPrintable visit(FloatNodeCalc nodeCalc, Void arg) {
         return stack -> stack.push(Float.toString(nodeCalc.getValue()));
     }
 
     @Override
-    public Printable visit(DoubleNodeCalc nodeCalc, Void arg) {
+    public NodeCalcPrintable visit(DoubleNodeCalc nodeCalc, Void arg) {
         return stack -> stack.push(Double.toString(nodeCalc.getValue()));
     }
 
     @Override
-    public Printable visit(BigDecimalNodeCalc nodeCalc, Void arg) {
+    public NodeCalcPrintable visit(BigDecimalNodeCalc nodeCalc, Void arg) {
         return stack -> stack.push(nodeCalc.getValue().toString());
     }
 
     @Override
-    public Printable visit(BinaryOperation nodeCalc, Void arg, Printable left, Printable right) {
+    public NodeCalcPrintable visit(BinaryOperation nodeCalc, Void arg, NodeCalcPrintable left, NodeCalcPrintable right) {
         return stack -> {
             stack.push(")");
             stack.push(right);
@@ -66,7 +66,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
     }
 
     @Override
-    public Printable visit(UnaryOperation nodeCalc, Void arg, Printable child) {
+    public NodeCalcPrintable visit(UnaryOperation nodeCalc, Void arg, NodeCalcPrintable child) {
         return stack -> {
             stack.push(")." + nodeCalc.getOperator() + "()");
             stack.push(child);
@@ -75,7 +75,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
     }
 
     @Override
-    public Printable visit(MinNodeCalc nodeCalc, Void arg, Printable child) {
+    public NodeCalcPrintable visit(MinNodeCalc nodeCalc, Void arg, NodeCalcPrintable child) {
         return stack -> {
             stack.push(".min(" + nodeCalc.getMin() + ")");
             stack.push(child);
@@ -83,7 +83,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
     }
 
     @Override
-    public Printable visit(MaxNodeCalc nodeCalc, Void arg, Printable child) {
+    public NodeCalcPrintable visit(MaxNodeCalc nodeCalc, Void arg, NodeCalcPrintable child) {
         return stack -> {
             stack.push(".max(" + nodeCalc.getMax() + ")");
             stack.push(child);
@@ -91,12 +91,12 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
     }
 
     @Override
-    public Printable visit(CachedNodeCalc nodeCalc, Void arg, Printable child) {
+    public NodeCalcPrintable visit(CachedNodeCalc nodeCalc, Void arg, NodeCalcPrintable child) {
         return child;
     }
 
     @Override
-    public Printable visit(TimeNodeCalc nodeCalc, Void arg, Printable child) {
+    public NodeCalcPrintable visit(TimeNodeCalc nodeCalc, Void arg, NodeCalcPrintable child) {
         return stack -> {
             stack.push(").time()");
             stack.push(child);
@@ -105,17 +105,17 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
     }
 
     @Override
-    public Printable visit(TimeSeriesNameNodeCalc nodeCalc, Void arg) {
+    public NodeCalcPrintable visit(TimeSeriesNameNodeCalc nodeCalc, Void arg) {
         return stack -> stack.push("timeSeries['" + nodeCalc.getTimeSeriesName() + "']");
     }
 
     @Override
-    public Printable visit(TimeSeriesNumNodeCalc nodeCalc, Void arg) {
+    public NodeCalcPrintable visit(TimeSeriesNumNodeCalc nodeCalc, Void arg) {
         return stack -> stack.push("timeSeries[" + nodeCalc.getTimeSeriesNum() + "]");
     }
 
     @Override
-    public Printable visit(BinaryMinCalc nodeCalc, Void arg, Printable left, Printable right) {
+    public NodeCalcPrintable visit(BinaryMinCalc nodeCalc, Void arg, NodeCalcPrintable left, NodeCalcPrintable right) {
         return stack -> {
             stack.push(")");
             stack.push(right);
@@ -126,7 +126,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<Printable, Void> {
     }
 
     @Override
-    public Printable visit(BinaryMaxCalc nodeCalc, Void arg, Printable left, Printable right) {
+    public NodeCalcPrintable visit(BinaryMaxCalc nodeCalc, Void arg, NodeCalcPrintable left, NodeCalcPrintable right) {
         return stack -> {
             stack.push(")");
             stack.push(right);

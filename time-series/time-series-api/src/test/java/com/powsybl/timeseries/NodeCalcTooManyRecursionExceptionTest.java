@@ -53,5 +53,4 @@ class NodeCalcTooManyRecursionExceptionTest {
             fail(e);
         }
     }
-
 }
