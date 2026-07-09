@@ -218,7 +218,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.SVCS.check(network, looseConfig, validationWriter));
     }
 
-    @DisplayName("Rule 1: active power should be equal to 0")
+    @DisplayName("Rule: active power should be equal to 0")
     @Test
     void checkSVCActivePowerShouldBeZeroWithinThreshold() {
         // Given (p = 0)
@@ -232,7 +232,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 2: reactivePowerSetpoint** must be 0 if p or q is missing (NaN")
+    @DisplayName("Rule: reactivePowerSetpoint must be 0 if p or q is missing")
     @Test
     void checkSVCReactivePowerSetpointWhenPOrQMissing() {
         // non-zero setpoint with missing p/q => KO
@@ -245,7 +245,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 3: regulationMode = REACTIVE_POWER, OK only if okMissingValues=true")
+    @DisplayName("Rule: regulationMode = REACTIVE_POWER, OK only if okMissingValues=true")
     @Test
     void checkSVCReactivePowerModeMissingInputs() {
         // Given regulation enabled, and regulationMode is REACTIVE_POWER
@@ -264,7 +264,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 3: regulationMode = REACTIVE_POWER, Q must match reactivePowerSetpoint")
+    @DisplayName("Rule: regulationMode = REACTIVE_POWER, Q must match reactivePowerSetpoint")
     @Test
     void checkSVCReactivePowerModeQMustMatchSetpoint() {
         // Given regulation enabled, and regulationMode is REACTIVE_POWER
@@ -283,7 +283,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 4: regulationMode = VOLTAGE, OK only if okMissingValues=true")
+    @DisplayName("Rule: regulationMode = VOLTAGE, OK only if okMissingValues=true")
     @Test
     void checkSVCVoltageModeMissingInputs() {
         // Given regulation enabled, and regulationMode is VOLTAGE
@@ -302,7 +302,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 4: regulationMode = VOLTAGE, V controlled < V setPoint, then Q must match maxQ.")
+    @DisplayName("Rule: regulationMode = VOLTAGE, V controlled < V setPoint, then Q must match maxQ.")
     @Test
     void checkSVCVoltageModeVLowerThanSetpoint() {
         // Given regulation enabled, and regulationMode is VOLTAGE
@@ -323,7 +323,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 4: regulationMode = VOLTAGE, V regulation > V setPoint, then Q must match minQ")
+    @DisplayName("Rule: regulationMode = VOLTAGE, V regulation > V setPoint, then Q must match minQ")
     @Test
     void checkSVCVoltageModeVHigherThanSetpoint() {
         // Given regulation enabled, and regulationMode is VOLTAGE
@@ -344,7 +344,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 4: regulationMode = VOLTAGE, V regulation ~ V setPoint, then Q must be within [minQ, maxQ]")
+    @DisplayName("Rule: regulationMode = VOLTAGE, V regulation ~ V setPoint, then Q must be within [minQ, maxQ]")
     @Test
     void checkSVCVoltageModeVAtSetpoint() {
         // Given regulation enabled, and regulationMode is VOLTAGE
@@ -367,7 +367,7 @@ class StaticVarCompensatorsValidationTest extends AbstractValidationTest {
         assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 5: regulationMode = VOLTAGE, if regulating is false then reactive power (Q) should be equal to 0 ")
+    @DisplayName("Rule: regulationMode = VOLTAGE, if regulating is false then reactive power (Q) should be equal to 0 ")
     @Test
     void checkSVCWhenNoRegulatingQShouldBeZero() {
         when(svc.getRegulationMode()).thenReturn(RegulationMode.VOLTAGE);
