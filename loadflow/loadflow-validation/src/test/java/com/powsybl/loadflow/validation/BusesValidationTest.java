@@ -227,11 +227,22 @@ class BusesValidationTest extends AbstractValidationTest {
         assertTrue(result);
     }
 
-    @DisplayName("P and Q unbalanced")
+    @DisplayName("Q unbalanced")
     @Test
-    void checkBusesShouldFailWhenPAndQUnbalanced() {
+    void checkBusesShouldFailWhenQUnbalanced() {
         // Given threshold (0.01)
         Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -49.8);
+        // When
+        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        // Then
+        assertFalse(result);
+    }
+
+    @DisplayName("P unbalanced")
+    @Test
+    void checkBusesShouldFailWhenPUnbalanced() {
+        // Given threshold (0.01)
+        Bus busForBalance = mockBusForBalance(100.0, 50.0, -99.98, -50.0);
         // When
         boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
         // Then
