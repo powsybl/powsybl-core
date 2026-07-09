@@ -229,7 +229,7 @@ class BusesValidationTest extends AbstractValidationTest {
 
     @DisplayName("P and Q unbalanced")
     @Test
-    void checkBusesShouldSucceedWhenPAndQUnbalanced() {
+    void checkBusesShouldFailWhenPAndQUnbalanced() {
         // Given threshold (0.01)
         Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -49.8);
         // When

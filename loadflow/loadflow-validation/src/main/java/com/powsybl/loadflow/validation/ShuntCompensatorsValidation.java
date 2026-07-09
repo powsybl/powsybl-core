@@ -28,10 +28,6 @@ import static com.powsybl.loadflow.validation.ValidationUtils.*;
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  *
- * Rules for valid results :
- * Rule1: |p| < e
- * Rule2: q must match expectedQ
- * Rule3: if the shunt is disconnected, q should be undefined or 0
  */
 public final class ShuntCompensatorsValidation {
 
@@ -103,10 +99,7 @@ public final class ShuntCompensatorsValidation {
         double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
         TerminalState terminalState = getTerminalState(shunt.getTerminal());
-        double v = terminalState.v();
-        boolean connected = terminalState.connected();
-        boolean mainComponent = terminalState.mainComponent();
-        return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
+        return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, qMax, nominalV, terminalState, config, shuntsWriter);
     }
 
     public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
@@ -123,9 +116,15 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
+    private boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+                               double qMax, double nominalV, TerminalState terminalState, ValidationConfig config, ValidationWriter shuntsWriter) {
+        return checkShunts(id, p, q, currentSectionCount, maximumSectionCount, bPerSection, terminalState.v(), qMax, nominalV, terminalState.connected(),
+                terminalState.mainComponent(), config, shuntsWriter);
+    }
+
     /**
-     * - Rule1: |p| < e
-     * - Rule2: q must match expectedQ
+     * - Rule1: |p| < e <br/>
+     * - Rule2: q must match expectedQ <br/>
      * - Rule3: if the shunt is disconnected, q should be NaN or 0
      */
     public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
@@ -138,7 +137,7 @@ public final class ShuntCompensatorsValidation {
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }
-        // “expectedQ” = - bPerSection * currentSectionCount * v^2
+
         double expectedQ = computeShuntExpectedQ(bPerSection, currentSectionCount, v);
         if (isConnectedAndMainComponent(connected, mainComponent, config)) {
             // Rule1: |p| < e

@@ -105,12 +105,8 @@ public final class TransformersValidation extends AbstractTransformersValidation
             return true;
         }
         TerminalState terminalState = getTerminalState(ratioTapChanger.getRegulationTerminal());
-        double v = terminalState.v();
-        boolean connected = terminalState.connected();
-        boolean mainComponent = terminalState.mainComponent();
-
         return checkTransformer(twt.getId(), rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                 targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
+                                 targetV, regulatedSide, terminalState, config, twtsWriter);
     }
 
     public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
@@ -126,6 +122,12 @@ public final class TransformersValidation extends AbstractTransformersValidation
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition, int lowTapPosition, int highTapPosition, double targetV,
+                                     TwoSides regulatedSide, TerminalState terminalState, ValidationConfig config, ValidationWriter twtsWriter) {
+        return checkTransformer(id, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV, regulatedSide,
+                terminalState.v(), terminalState.connected(), terminalState.mainComponent(), config, twtsWriter);
     }
 
     public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
