@@ -151,7 +151,7 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));
     }
 
-    @DisplayName("Rule 1: |p| < e")
+    @DisplayName("Rule: |p| < e")
     @ParameterizedTest(name = "connected p={0} => valid={1}")
     @MethodSource("connectedShuntPCase")
     void checkShuntShouldSucceedRulePMustBeZero(double p, boolean expectedValid) {
@@ -170,7 +170,7 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         );
     }
 
-    @DisplayName("Rule 2: q must match expectedQ: | q + expectedQ | <= ε")
+    @DisplayName("Rule: q must match expectedQ: | q + expectedQ | <= ε")
     @ParameterizedTest(name = "epsilon={0} => valid={1}")
     @CsvSource({"0.000,  true", "0.009,  true", "-0.009, true", "0.010,  true", "0.011,  false", "-0.011, false"})
     void checkShuntsShouldSucceedRuleQMatchExpectedQ(double epsilon, boolean expectedValid) {
@@ -183,7 +183,7 @@ class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         assertEquals(expectedValid, result);
     }
 
-    @DisplayName("Rule 3: if the shunt is disconnected, q should be undefined or 0")
+    @DisplayName("Rule: if the shunt is disconnected, q should be undefined or 0")
     @ParameterizedTest(name = "disconnected q={0} => valid={1}")
     @MethodSource("disconnectedShuntCase")
     void checkShuntsShouldSucceedRuleWhenDisconnectedShuntQMustBeUndefinedOrZero(double qValue, boolean expectedValid) {
