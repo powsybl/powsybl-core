@@ -52,6 +52,7 @@ class TransformersValidationTest extends AbstractValidationTest {
     private Bus bus;
 
     @BeforeEach
+    @Override
     void setUp() throws IOException {
         super.setUp();
 
@@ -132,11 +133,40 @@ class TransformersValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.TWTS.check(network, strictConfig, validationWriter));
     }
 
-    @DisplayName("Rule 1 (voltage is lower than target): if voltageDeviation (error) < 0 -> fail when required increase > available increase + threshold")
+    @DisplayName("Rule: voltage is lower than target")
     @Test
-    void checkTransformerShouldSucceedWhenVoltageTooLow() {
+    void checkTransformerShouldFailWhenVoltageTooLow() {
         Mockito.when(bus.getV()).thenReturn(lowV);
         assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+    }
+
+    @DisplayName("Rule: voltage is higher than target")
+    @Test
+    void checkTransformerShouldFailWhenVoltageTooHigh() {
+        Mockito.when(bus.getV()).thenReturn(highV);
+        assertFalse(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+    }
+
+    @Test
+    void checkTransformerShouldSucceedWhenVoltageMatchTargetV() {
+        Mockito.when(bus.getV()).thenReturn(targetV);
+        assertTrue(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
+    }
+
+    @DisplayName("Rule: if no increase/decrease is possible, the check is not applies")
+    @Test
+    void checkTransformerShouldSucceedWhenIncreaseDecreaseNotPossible() {
+        // Given no increase/decrease is possible: voltage ratio are undefined
+        RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
+        RatioTapChangerStep previousStep = Mockito.mock(RatioTapChangerStep.class);
+        RatioTapChangerStep nextStep = Mockito.mock(RatioTapChangerStep.class);
+        Mockito.when(previousStep.getRho()).thenReturn(Double.NaN);
+        Mockito.when(nextStep.getRho()).thenReturn(Double.NaN);
+        Mockito.when(ratioTapChanger.getStep(tapPosition - 1)).thenReturn(previousStep);
+        Mockito.when(ratioTapChanger.getStep(tapPosition + 1)).thenReturn(nextStep);
+        Mockito.when(transformer.getRatioTapChanger()).thenReturn(ratioTapChanger);
+        // When Then
+        assertTrue(TransformersValidation.INSTANCE.checkTransformer(transformer, strictConfig, NullWriter.INSTANCE));
     }
 
 }

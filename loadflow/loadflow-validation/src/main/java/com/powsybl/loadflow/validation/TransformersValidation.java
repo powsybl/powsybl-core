@@ -29,9 +29,9 @@ import static com.powsybl.loadflow.validation.ValidationUtils.isConnectedAndMain
  * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
  * <hr/>
  * Rules for valid results: set of rules related to the ratio tap changer <br/>
- * Rule 1: (voltage is lower than target): if voltageDeviation (error) is negative and increase is possible : |deviation| <= downDeadband + threshold <br/>
- * Rule 2: (voltage is higher than target): if voltageDeviation (error) is positive and decrease is possible: deviation < upDeadband + threshold <br/>
- * Rule 3: if no increase/decrease is possible, the check is not applies on the corresponding side <br/>
+ * Rule: (voltage is lower than target): if voltageDeviation (error) is negative and increase is possible : |deviation| <= downDeadband + threshold <br/>
+ * Rule: (voltage is higher than target): if voltageDeviation (error) is positive and decrease is possible: deviation < upDeadband + threshold <br/>
+ * Rule: if no increase/decrease is possible, the check is not applies on the corresponding side <br/>
  * The purpose of those rule is the check that the voltage deviation stays inside the deadband.
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
@@ -182,7 +182,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
             return false;
         }
         double threshold = config.getThreshold();
-        // Rule 1 (voltage is lower than target):
+        // Rule: (voltage is lower than target):
         // if error (voltageDeviation) is negative, i.e. if voltage is lower than target, and an increase is possible,
         // check that voltage is inside the downward deadband, taken equal to the possible increase: |deviation| <= downDeadband + threshold
         // Rule 3 if maxIncrease is NaN, check in the corresponding side is not applied,
@@ -196,10 +196,9 @@ public final class TransformersValidation extends AbstractTransformersValidation
                 validated = false;
             }
         }
-        // Rule 2 (voltage is higher than target):
+        // Rule: (voltage is higher than target):
         // if error (voltageDeviation) is positive, i.e. if voltage is higher than target, and a voltage decrease is possible,
         // check that voltage is inside the upward deadband, taken equal to the possible decrease: deviation < upDeadband + threshold
-        // Rule 3 if maxDecrease is NaN, check in the corresponding side is not applied
         if (error > 0 && !Double.isNaN(maxDecrease)) {
             // required decrease: error
             double upDeadband = -maxDecrease; // available Decrease
@@ -210,6 +209,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
                 validated = false;
             }
         }
+        // Rule: if maxDecrease is NaN, check in the corresponding side is not applied
         return validated;
     }
 
