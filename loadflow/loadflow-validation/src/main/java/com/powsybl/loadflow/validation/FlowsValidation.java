@@ -57,8 +57,8 @@ public final class FlowsValidation {
 
     /**
      * Rules for valid results: <br/>
-     * Rule 1: checks connected terminal: |P - Pcalc| <= ε and |Q - Qcalc| <= ε
-     * Rule 2: checks disconnected terminal: P and Q must be undefined or ~0 <br/>
+     * Rule: check connected terminal: |P - Pcalc| <= ε and |Q - Qcalc| <= ε
+     * Rule: check disconnected terminal: P and Q must be undefined or ~0 <br/>
      */
     public boolean checkFlows(BranchData branch, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(branch);

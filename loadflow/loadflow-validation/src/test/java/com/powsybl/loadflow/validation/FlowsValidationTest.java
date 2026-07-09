@@ -299,7 +299,7 @@ class FlowsValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.FLOWS.check(network, looseConfig, validationWriter));
     }
 
-    @DisplayName("Rule 1: checks disconnected terminal 1 : P and Q must be undefined or ~0")
+    @DisplayName("Rule: checks disconnected terminal 1 : P and Q must be undefined or ~0")
     @Test
     void checkFlowsShouldSucceedRuleWhenDisconnectedTerminal1PQShouldBeUndefinedOrZero() {
         // Given
@@ -321,7 +321,7 @@ class FlowsValidationTest extends AbstractValidationTest {
         assertTrue(Math.abs(terminal1.getQ()) > 0.01);
     }
 
-    @DisplayName("Rule 1: checks disconnected terminal 2 : P and Q must be undefined or ~0")
+    @DisplayName("Rule: checks disconnected terminal 2 : P and Q must be undefined or ~0")
     @Test
     void checkFlowsShouldSucceedRuleWhenDisconnectedTerminal2PQShouldBeUndefinedOrZero() {
         // Given
@@ -343,7 +343,7 @@ class FlowsValidationTest extends AbstractValidationTest {
         assertTrue(Math.abs(terminal1.getQ()) > 0.01);
     }
 
-    @DisplayName("Rule 2: checks connected terminal : P and Q should follows Pcalc and Qcalc (consistent)")
+    @DisplayName("Rule: checks connected terminal : P and Q should follows Pcalc and Qcalc (consistent)")
     @ParameterizedTest(name = "{0}")
     @MethodSource("connectedTerminalCases")
     void checkFlowsShouldSucceedRuleWhenConnectedTerminalAndPQConsistent(String caseName, double p1, double q1, double p2, double q2, boolean expectedValid) {
