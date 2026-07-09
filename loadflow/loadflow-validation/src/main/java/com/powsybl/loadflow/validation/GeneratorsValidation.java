@@ -27,7 +27,6 @@ import static com.powsybl.loadflow.validation.ValidationUtils.*;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
- * @author Samir Romdhani {@literal <samir.romdhani at rte-france.com>}
  *
  */
 public final class GeneratorsValidation {
@@ -127,14 +126,13 @@ public final class GeneratorsValidation {
     }
 
     /**
-     *
      * Rules for valid results :<br/>
-     * Rule 1: A validation error should be detected if there is both a voltage and a target but no p or q <br/>
-     * Rule 2: If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK. <br/>
-     * Rule 3: Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK <br/>
-     * Rule 4: Active power p matches expected setpoint <br/>
-     * Rule 5: If voltage regulator is disabled, reactive power Q matches targetQ <br/>
-     * Rule 6: If voltage regulator is enabled, reactive power q follow V/targetV logic<br/>
+     * Rule: A validation error should be detected if there is both a voltage and a target but no p or q <br/>
+     * Rule: If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK. <br/>
+     * Rule: Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK <br/>
+     * Rule: Active power p matches expected setpoint <br/>
+     * Rule: If voltage regulator is disabled, reactive power Q matches targetQ <br/>
+     * Rule: If voltage regulator is enabled, reactive power q follow V/targetV logic<br/>
      *   - qGen ~ minQ if V > targetV + threshold <br/>
      *   - qGen ~ maxQ if V < targetV - threshold <br/>
      *   - else qGen within [minQ, maxQ])
@@ -207,7 +205,7 @@ public final class GeneratorsValidation {
     }
 
     /**
-     * Rule 1: a validation error should be detected if there is both a voltage and a target but no p or q
+     * Rule: a validation error should be detected if there is both a voltage and a target but no p or q
      */
     private static boolean validateMissingPQRule(String id, double p, double q, double targetP, double targetQ) {
         if (!Double.isNaN(targetP) && targetP != 0 || !Double.isNaN(targetQ) && targetQ != 0) {
@@ -218,38 +216,38 @@ public final class GeneratorsValidation {
     }
 
     /**
-     * Rule 2: rule for valid result: if reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK.
+     * Rule: if reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation OK.
      */
     private static boolean isGenReactiveBoundInverted(double minQ, double maxQ, double threshold, boolean isNoRequirementIfReactiveBoundInversion) {
         return maxQ < minQ - threshold && isNoRequirementIfReactiveBoundInversion;
     }
 
     /**
-     * Rule 3: rule for valid result: active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK
+     * Rule: active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation OK
      */
     private static boolean isGenSetpointOutsidePowerBounds(double targetP, double minP, double maxP, double threshold, boolean isNoRequirementIfSetpointOutsidePowerBounds) {
         return (targetP < minP - threshold || targetP > maxP + threshold) && isNoRequirementIfSetpointOutsidePowerBounds;
     }
 
     /**
-     * Rule 4: rule for valid result: Active power p matches expected setpoint
+     * Rule: Active power p matches expected setpoint
      */
     private static boolean isGenActivePowerInconsistent(double p, double expectedP, double threshold) {
         return isOutsideTolerance(p, -expectedP, threshold);
     }
 
     /**
-     * Rule 5: rule for valid result: Reactive power Q matches targetQ
+     * Rule: Reactive power Q matches targetQ
      */
     private static boolean isGenReactivePowerInconsistent(double q, double targetQ, double threshold) {
         return isOutsideOrAtTolerance(q, -targetQ, threshold);
     }
 
     /**
-     * Rule 6: rule for valid result:<br/>
-     * <code> targetV - V < threshold && |Q - minQ| <= threshold</code> <br/>
-     * <code> V - targetV < threshold && |Q - maxQ| <= threshold</code> <br/>
-     * <code> |V - targetV|  < threshold && minQ <= Q <= maxQ </code>
+     * Rule: If voltage regulator is enabled, reactive power q follow V/targetV logic:<br/>
+     *  - <code> targetV - V < threshold && |Q - minQ| <= threshold</code> <br/>
+     *  - <code> V - targetV < threshold && |Q - maxQ| <= threshold</code> <br/>
+     *  - <code> |V - targetV|  < threshold && minQ <= Q <= maxQ </code>
      */
     private static boolean isGenVoltageRegulationInconsistent(double qGen, double v, double targetV, double minQ, double maxQ, double threshold) {
 

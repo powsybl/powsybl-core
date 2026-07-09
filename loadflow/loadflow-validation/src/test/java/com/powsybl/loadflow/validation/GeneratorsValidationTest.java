@@ -296,7 +296,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         assertTrue(GeneratorsValidation.INSTANCE.checkGenerators(network, looseConfig, NullWriter.INSTANCE));
     }
 
-    @DisplayName("Rule 1: A validation error should be detected if there is both a voltage and a target but no p or q")
+    @DisplayName("Rule: A validation error should be detected if there is both a voltage and a target but no p or q")
     @Test
     void checkGeneratorsShouldSucceedRuleWhenPAndQMissingButTargetsExist() {
         // Given
@@ -310,7 +310,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         assertFalse(result);
     }
 
-    @DisplayName("Rule 2: If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation pass")
+    @DisplayName("Rule: If reactive limits are inverted (`maxQ < minQ`) and noRequirementIfReactiveBoundInversion = true, generator validation pass")
     @ParameterizedTest(name = "noRequirementIfReactiveBoundInversion flag={0} => valid={1}")
     @CsvSource({"true, true", "false, false"})
     void checkGeneratorsShouldSucceedRuleWhenReactiveBoundsInvertedAndFlagEnabled(boolean noRequirementIfReactiveBoundInversion, boolean expectedValid) {
@@ -328,10 +328,10 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         assertEquals(expectedValid, result);
     }
 
-    @DisplayName("Rule 3: Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation pass")
+    @DisplayName("Rule: Active setpoint outside bounds, if `targetP` is outside `[minP, maxP]` and noRequirementIfSetpointOutsidePowerBounds = true, generator validation pass")
     @ParameterizedTest(name = "noRequirementIfReactiveBoundInversion flag={0} => valid={1}")
     @CsvSource({"true, true", "false, false"})
-    void checkGeneratorsShouldSucceedRuleWhenTargetPOutsideBoundsAndFlagEnabled(boolean noRequirementIfReactiveBoundInversion, boolean expectedValid) {
+    void checkGeneratorsShouldFailWhenTargetPOutsideBoundsAndFlagEnabled(boolean noRequirementIfReactiveBoundInversion, boolean expectedValid) {
         // Given
         strictConfig.setNoRequirementIfSetpointOutsidePowerBounds(noRequirementIfReactiveBoundInversion);
         when(generator.getMinP()).thenReturn(20.0);
@@ -343,9 +343,9 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         assertEquals(expectedValid, result);
     }
 
-    @DisplayName("Rule 4: Active power p matches expected setpoint = TargetP")
+    @DisplayName("Rule: Active power p matches expected setpoint = TargetP")
     @Test
-    void checkGeneratorsShouldSucceedRuleWhenActivePowerNotMatchExpectedP() {
+    void checkGeneratorsShouldFailWhenActivePowerNotMatchExpectedP() {
         // Given
         when(generator.getTargetP()).thenReturn(20.0);
         when(genTerminal.getP()).thenReturn(-22.0);
@@ -355,9 +355,9 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         assertFalse(result);
     }
 
-    @DisplayName("Rule 5: If voltage regulator is disabled, reactive power Q matches targetQ")
+    @DisplayName("Rule: If voltage regulator is disabled, reactive power Q matches targetQ")
     @Test
-    void checkGeneratorsShouldSucceedRuleWhenVoltageRegulatorDisabledAndQNotMatchTargetQ() {
+    void checkGeneratorsShouldFailWhenVoltageRegulatorDisabledAndQNotMatchTargetQ() {
         // Given
         when(generator.isVoltageRegulatorOn()).thenReturn(false);
         // keep p consistent
@@ -372,7 +372,7 @@ class GeneratorsValidationTest extends AbstractValidationTest {
         assertFalse(result);
     }
 
-    @DisplayName("Rule 6: If voltage regulator is enabled, reactive power q follow V/targetV logic")
+    @DisplayName("Rule: If voltage regulator is enabled, reactive power q follow V/targetV logic")
     @ParameterizedTest(name = "{0}")
     @MethodSource("cases")
     void checkGeneratorsShouldSucceedRuleWhenVoltageRegulationEnabled(String caseName, double v, double q, boolean expectedValid) {
