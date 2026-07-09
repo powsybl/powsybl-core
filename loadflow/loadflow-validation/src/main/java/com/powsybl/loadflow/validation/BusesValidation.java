@@ -24,11 +24,11 @@ import java.util.Objects;
 import static com.powsybl.loadflow.validation.ValidationUtils.*;
 
 /**
+ * Rule for valid results :<br/>
+ * |incomingP + loadP| <= threshold and |incomingQ + loadQ| <= threshold
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  *
- * Rule for valid results :<br/>
- * |incomingP + loadP| <= threshold and |incomingQ + loadQ| <= threshold
  */
 public final class BusesValidation {
 
