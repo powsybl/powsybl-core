@@ -27,12 +27,6 @@ import static com.powsybl.loadflow.validation.ValidationUtils.isConnectedAndMain
  * <hr/>
  * We check that the voltage deviation from the target voltage stays inside a deadband around the target voltage,
  * taken equal to the maximum possible voltage increase/decrease for a one-tap change.
- * <hr/>
- * Rules for valid results: set of rules related to the ratio tap changer <br/>
- * Rule: (voltage is lower than target): if voltageDeviation (error) is negative and increase is possible : |deviation| <= downDeadband + threshold <br/>
- * Rule: (voltage is higher than target): if voltageDeviation (error) is positive and decrease is possible: deviation < upDeadband + threshold <br/>
- * Rule: if no increase/decrease is possible, the check is not applies on the corresponding side <br/>
- * The purpose of those rule is the check that the voltage deviation stays inside the deadband.
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
  */
@@ -75,6 +69,15 @@ public final class TransformersValidation extends AbstractTransformersValidation
         }
     }
 
+    /**
+     * Rules related to the ratio tap changer <br/>
+     * Rule: check that the voltage deviation stays inside the deadband (acceptable range) <br/>
+     * - voltage lower than target: if voltageDeviation (error) is negative and increase is possible
+     * then the condition |deviation| <= downDeadband + threshold should be satisfied. <br/>
+     * - voltage higher than target: if voltageDeviation (error) is positive and decrease is possible
+     * then the condition deviation < upDeadband + threshold should be satisfied. <br/>
+     * - if no increase/decrease is possible, the check is not applied on the corresponding side<br/>
+     */
     public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
@@ -182,10 +185,8 @@ public final class TransformersValidation extends AbstractTransformersValidation
             return false;
         }
         double threshold = config.getThreshold();
-        // Rule: (voltage is lower than target):
-        // if error (voltageDeviation) is negative, i.e. if voltage is lower than target, and an increase is possible,
-        // check that voltage is inside the downward deadband, taken equal to the possible increase: |deviation| <= downDeadband + threshold
-        // Rule 3 if maxIncrease is NaN, check in the corresponding side is not applied,
+        // Rule (voltage is lower than target): if voltageDeviation (error) is negative and increase is possible
+        // then the condition |deviation| <= downDeadband + threshold should be satisfied
         if (error < 0 && !Double.isNaN(maxIncrease)) {
             // required increase: -error
             double downDeadband = maxIncrease; // available Increase
@@ -196,9 +197,8 @@ public final class TransformersValidation extends AbstractTransformersValidation
                 validated = false;
             }
         }
-        // Rule: (voltage is higher than target):
-        // if error (voltageDeviation) is positive, i.e. if voltage is higher than target, and a voltage decrease is possible,
-        // check that voltage is inside the upward deadband, taken equal to the possible decrease: deviation < upDeadband + threshold
+        // Rule (voltage is higher than target): if voltageDeviation (error) is positive and decrease is possible
+        // then the condition deviation < upDeadband + threshold should be satisfied
         if (error > 0 && !Double.isNaN(maxDecrease)) {
             // required decrease: error
             double upDeadband = -maxDecrease; // available Decrease
