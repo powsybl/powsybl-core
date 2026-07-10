@@ -31,7 +31,6 @@ import static com.powsybl.loadflow.validation.ValidationUtils.*;
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
- *
  */
 public final class FlowsValidation {
 

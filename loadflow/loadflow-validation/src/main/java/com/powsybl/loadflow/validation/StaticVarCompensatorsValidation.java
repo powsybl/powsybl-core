@@ -29,7 +29,6 @@ import static com.powsybl.loadflow.validation.ValidationUtils.*;
 /**
  *
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.eu>}
- *
  */
 public final class StaticVarCompensatorsValidation {
 
