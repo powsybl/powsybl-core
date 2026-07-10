@@ -153,40 +153,40 @@ class BusesValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    void checkBusesValues() {
-        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+    void checkBusValues() {
+        assertTrue(BusesValidation.INSTANCE.checkBus("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                               lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
-        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.INSTANCE.checkBus("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
-        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.INSTANCE.checkBus("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         // check NaN values
-        assertFalse(BusesValidation.INSTANCE.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.INSTANCE.checkBus("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
-        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.INSTANCE.checkBus("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(true);
-        assertTrue(BusesValidation.INSTANCE.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertTrue(BusesValidation.INSTANCE.checkBus("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                               lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
-        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertTrue(BusesValidation.INSTANCE.checkBus("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                               lineP, lineQ, boundaryLineP, boundaryLineQ, t2wtP, Double.NaN, t3wtP, t3wtQ, mainComponent, looseConfig, NullWriter.INSTANCE));
         looseConfig.setOkMissingValues(false);
         // check main component
-        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, boundaryLineP,
+        assertFalse(BusesValidation.INSTANCE.checkBus("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, boundaryLineP,
                                                boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
         mainComponent = false;
-        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, boundaryLineP,
+        assertTrue(BusesValidation.INSTANCE.checkBus("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, boundaryLineP,
                                               boundaryLineQ, t2wtP, t2wtQ, t3wtP, t3wtQ, mainComponent, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
-    void checkBuses() {
-        assertTrue(BusesValidation.INSTANCE.checkBuses(bus, looseConfig, NullWriter.INSTANCE));
-        assertFalse(BusesValidation.INSTANCE.checkBuses(bus, strictConfig, NullWriter.INSTANCE));
+    void checkBus() {
+        assertTrue(BusesValidation.INSTANCE.checkBus(bus, looseConfig, NullWriter.INSTANCE));
+        assertFalse(BusesValidation.INSTANCE.checkBus(bus, strictConfig, NullWriter.INSTANCE));
     }
 
     @Test
-    void checkNetworkBuses() throws IOException {
+    void checkNetworkBus() throws IOException {
         Network.BusView networkBusView = mock(Network.BusView.class);
         when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
         Network network = mock(Network.class);
@@ -218,33 +218,33 @@ class BusesValidationTest extends AbstractValidationTest {
     // Rule: |incomingP + loadP| <= threshold and |incomingQ + loadQ| <= threshold"
     @DisplayName("P and Q balanced")
     @Test
-    void checkBusesShouldSucceedWhenPAndQBalanced() {
+    void checkBusShouldSucceedWhenPAndQBalanced() {
         // Given threshold (0.01)
         Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -50.0);
         // When
-        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        boolean result = BusesValidation.INSTANCE.checkBus(busForBalance, strictConfig, NullWriter.INSTANCE);
         // Then
         assertTrue(result);
     }
 
     @DisplayName("Q unbalanced")
     @Test
-    void checkBusesShouldFailWhenQUnbalanced() {
+    void checkBusShouldFailWhenQUnbalanced() {
         // Given threshold (0.01)
         Bus busForBalance = mockBusForBalance(100.0, 50.0, -100.0, -49.8);
         // When
-        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        boolean result = BusesValidation.INSTANCE.checkBus(busForBalance, strictConfig, NullWriter.INSTANCE);
         // Then
         assertFalse(result);
     }
 
     @DisplayName("P unbalanced")
     @Test
-    void checkBusesShouldFailWhenPUnbalanced() {
+    void checkBusShouldFailWhenPUnbalanced() {
         // Given threshold (0.01)
         Bus busForBalance = mockBusForBalance(100.0, 50.0, -99.98, -50.0);
         // When
-        boolean result = BusesValidation.INSTANCE.checkBuses(busForBalance, strictConfig, NullWriter.INSTANCE);
+        boolean result = BusesValidation.INSTANCE.checkBus(busForBalance, strictConfig, NullWriter.INSTANCE);
         // Then
         assertFalse(result);
     }
