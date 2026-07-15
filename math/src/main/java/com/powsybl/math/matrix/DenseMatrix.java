@@ -430,13 +430,13 @@ public class DenseMatrix extends AbstractMatrix {
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
         int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
 
-        int[] width = getMaxWidthForEachColumn(columnNames);
+        int[] width = getMaxWidthPerColumn(columnNames);
 
         DecimalFormat decimalFormat = null;
         OptionalInt defaultDecimalDigits = getConfig().getDecimalDigits();
         if (defaultDecimalDigits.isPresent()) {
             decimalFormat = createFormatter(defaultDecimalDigits.getAsInt());
-            width = getMaxWidthForEachColumn(columnNames, decimalFormat);
+            width = getMaxWidthPerColumn(columnNames, decimalFormat);
         }
         if (columnNames != null) {
             if (rowNames != null) {
@@ -452,11 +452,11 @@ public class DenseMatrix extends AbstractMatrix {
                 out.print(Strings.padStart(rowNames.get(i), rowNamesWidth + 1, ' '));
             }
             for (int j = 0; j < getColumnCount(); j++) {
-                if (defaultDecimalDigits.isPresent()) {
-                    out.print(Strings.padStart(decimalFormat.format(get(i, j)), width[j] + 1, ' '));
-                } else {
-                    out.print(Strings.padStart(Double.toString(get(i, j)), width[j] + 1, ' '));
-                }
+                out.print(Strings.padStart(
+                        defaultDecimalDigits.isPresent() ? decimalFormat.format(get(i, j)) : Double.toString(get(i, j)),
+                        width[j] + 1,
+                        ' '
+                ));
             }
             out.println();
         }
@@ -477,7 +477,7 @@ public class DenseMatrix extends AbstractMatrix {
         return rowNamesWidth;
     }
 
-    private int[] getMaxWidthForEachColumn(List<String> columnNames) {
+    private int[] getMaxWidthPerColumn(List<String> columnNames) {
         int[] width = new int[getColumnCount()];
         for (int i = 0; i < getRowCount(); i++) {
             for (int j = 0; j < getColumnCount(); j++) {
@@ -490,7 +490,7 @@ public class DenseMatrix extends AbstractMatrix {
         return width;
     }
 
-    private int[] getMaxWidthForEachColumn(List<String> columnNames, DecimalFormat decimalFormat) {
+    private int[] getMaxWidthPerColumn(List<String> columnNames, DecimalFormat decimalFormat) {
         int[] width = new int[getColumnCount()];
         for (int i = 0; i < getRowCount(); i++) {
             for (int j = 0; j < getColumnCount(); j++) {
