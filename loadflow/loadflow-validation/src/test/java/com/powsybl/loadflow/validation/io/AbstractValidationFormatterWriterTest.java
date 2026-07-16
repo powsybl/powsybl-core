@@ -248,10 +248,42 @@ abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, generatorRegulationMode, generatorRegulating, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(generatorId1,
+                p,
+                q,
+                v,
+                targetP,
+                targetQ,
+                targetV,
+                expectedP,
+                connected,
+                generatorRegulationMode,
+                generatorRegulating,
+                minP,
+                maxP,
+                minQ,
+                maxQ,
+                mainComponent,
+                validated);
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, generatorRegulationMode, generatorRegulating, minP, maxP, minQ, maxQ, mainComponent, validated);
+                generatorsWriter.write(generatorId2,
+                    p,
+                    q,
+                    v,
+                    targetP,
+                    targetQ,
+                    targetV,
+                    expectedP,
+                    connected,
+                    generatorRegulationMode,
+                    generatorRegulating,
+                    minP,
+                    maxP,
+                    minQ,
+                    maxQ,
+                    mainComponent,
+                    validated);
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());

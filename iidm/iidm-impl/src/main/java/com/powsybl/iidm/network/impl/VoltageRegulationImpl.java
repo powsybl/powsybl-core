@@ -21,11 +21,10 @@ import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
@@ -135,7 +134,13 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public double setTargetValue(double targetValue) {
-        ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, getMode(), isRegulating(), isWithTerminal(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationTargetValue(validable,
+            targetValue,
+            getMode(),
+            isRegulating(),
+            isWithTerminal(),
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         return setTargetValueOnCurrentVariant(targetValue);
     }
 
@@ -158,7 +163,12 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public double setTargetDeadband(double targetDeadband) {
-        ValidationUtil.checkVoltageRegulationDeadband(validable, targetDeadband, isRegulating(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationDeadband(validable,
+            targetDeadband,
+            isRegulating(),
+            classHolder,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         return setTargetDeadbandOnCurrentVariant(targetDeadband);
     }
 
@@ -202,7 +212,13 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     public void setTerminal(Terminal terminal, double targetValue) {
         ValidationUtil.checkVoltageRegulationTerminal(validable, terminal, isRegulating(), network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
         boolean isWithTerminal = terminal != null;
-        ValidationUtil.checkVoltageRegulationTargetValue(validable, targetValue, getMode(), isRegulating(), isWithTerminal, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationTargetValue(validable,
+            targetValue,
+            getMode(),
+            isRegulating(),
+            isWithTerminal,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         this.updateTerminal(terminal);
         this.setTargetValue(targetValue);
     }
@@ -215,10 +231,22 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public @Nullable RegulationMode setMode(RegulationMode mode) {
-        ValidationUtil.checkVoltageRegulationMode(validable, mode, isRegulating(), isWithTerminal(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationMode(validable,
+            mode,
+            isRegulating(),
+            isWithTerminal(),
+            classHolder,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         // In any case we will check the voltageRegulation object with the new regulationMode value
         AttributesWithTerminal newAttributes = getAttributes().withMode(mode);
-        ValidationUtil.checkVoltageRegulation(validable, newAttributes, isRegulating(), network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulation(validable,
+            newAttributes,
+            isRegulating(),
+            network.get(),
+            classHolder,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         return setModeOnCurrentVariant(mode);
     }
 
@@ -246,13 +274,32 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
      */
     @Override
     public boolean setRegulating(boolean regulating) {
-        ValidationUtil.checkLocalTargetQandV(validable, classHolder, this.holder.getLocalTargetV(), this.holder.getLocalTargetQ(), false, regulating, isWithTerminal(), getMode(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(validable,
+            classHolder,
+            this.holder.getLocalTargetV(),
+            this.holder.getLocalTargetQ(),
+            false,
+            regulating,
+            isWithTerminal(),
+            getMode(),
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         if (holder instanceof RatioTapChanger ratioTapChanger) {
-            ValidationUtil.checkRTCLoadTapChangingCapabilities(validable, ratioTapChanger.hasLoadTapChangingCapabilities(), regulating, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+            ValidationUtil.checkRTCLoadTapChangingCapabilities(validable,
+                ratioTapChanger.hasLoadTapChangingCapabilities(),
+                regulating,
+                network.get().getMinValidationLevel(),
+                network.get().getReportNodeContext().getReportNode());
         }
         // In any case we will check the voltageRegulation object with the new regulating value
         AttributesWithTerminal newAttributes = this.getAttributes().withRegulating(regulating);
-        ValidationUtil.checkVoltageRegulation(validable, newAttributes, regulating, network.get(), classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulation(validable,
+            newAttributes,
+            regulating,
+            network.get(),
+            classHolder,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         return setRegulatingOnCurrentVariant(regulating);
     }
 
@@ -267,7 +314,16 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public void removeTerminal() {
-        ValidationUtil.checkLocalTargetQandV(validable, classHolder, this.holder.getLocalTargetV(), this.holder.getLocalTargetQ(), false, isRegulating(), isWithTerminal(), getMode(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(validable,
+            classHolder,
+            this.holder.getLocalTargetV(),
+            this.holder.getLocalTargetQ(),
+            false,
+            isRegulating(),
+            isWithTerminal(),
+            getMode(),
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         this.updateTerminal(null);
         this.setTargetValue(Double.NaN);
     }
@@ -348,11 +404,38 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         double currentVariantSlope = attributes.slope();
         double currentVariantTargetDeadband = attributes.targetDeadband();
 
-        ValidationUtil.checkVoltageRegulationMode(validable, currentVariantMode, currentVariantRegulating, currentVariantWithTerminal, classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationSlope(validable, currentVariantSlope, currentVariantMode, currentVariantRegulating, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationDeadband(validable, currentVariantTargetDeadband, currentVariantRegulating, classHolder, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationTerminal(validable, currentVariantTerminal, currentVariantRegulating, network.get(), network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        ValidationUtil.checkVoltageRegulationTargetValue(validable, currentVariantTargetValue, currentVariantMode, currentVariantRegulating, currentVariantWithTerminal, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationMode(validable,
+            currentVariantMode,
+            currentVariantRegulating,
+            currentVariantWithTerminal,
+            classHolder,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationSlope(validable,
+            currentVariantSlope,
+            currentVariantMode,
+            currentVariantRegulating,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationDeadband(validable,
+            currentVariantTargetDeadband,
+            currentVariantRegulating,
+            classHolder,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationTerminal(validable,
+            currentVariantTerminal,
+            currentVariantRegulating,
+            network.get(),
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkVoltageRegulationTargetValue(validable,
+            currentVariantTargetValue,
+            currentVariantMode,
+            currentVariantRegulating,
+            currentVariantWithTerminal,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
 
         this.setModeOnCurrentVariant(currentVariantMode);
         this.setSlopeOnCurrentVariant(currentVariantSlope);
@@ -429,11 +512,11 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
         return regulatedEquipmentId;
     }
 
-    protected void notifyUpdate(@Nonnull NotifyUpdateKey attribute, Object oldValue, Object newValue) {
+    protected void notifyUpdate(@NonNull NotifyUpdateKey attribute, Object oldValue, Object newValue) {
         network.get().getListeners().notifyUpdate(getIdentifiable(), attribute.getKey(), oldValue, newValue);
     }
 
-    protected void notifyUpdate(@Nonnull NotifyUpdateKey attribute, String variantId, Object oldValue, Object newValue) {
+    protected void notifyUpdate(@NonNull NotifyUpdateKey attribute, String variantId, Object oldValue, Object newValue) {
         network.get().getListeners().notifyUpdate(getIdentifiable(), attribute.getKey(), variantId, oldValue, newValue);
     }
 

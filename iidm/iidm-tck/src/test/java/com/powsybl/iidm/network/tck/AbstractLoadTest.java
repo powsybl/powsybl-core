@@ -62,7 +62,7 @@ public abstract class AbstractLoadTest {
     @Test
     public void testChangesNotification() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
 
@@ -149,7 +149,7 @@ public abstract class AbstractLoadTest {
     @Test
     public void testSetterGetterInMultiVariants() {
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         // Set observer changes
         network.addListener(mockedListener);
 
@@ -187,12 +187,7 @@ public abstract class AbstractLoadTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            load.getQ0();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, load::getQ0);
 
         // Remove observer changes
         network.removeListener(mockedListener);
@@ -300,7 +295,7 @@ public abstract class AbstractLoadTest {
 
     @Test
     public void setNameTest() {
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = Mockito.mock(NetworkListener.class);
         network.addListener(mockedListener);
         Load load = network.getLoad("CE");
         assertNotNull(load);

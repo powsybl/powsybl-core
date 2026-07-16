@@ -7,14 +7,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -122,7 +122,13 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStation setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkLocalTargetQandV(this, VscConverterStation.class, this.getLocalTargetV(), targetQ, getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -154,6 +160,11 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl(this);
+    }
+
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
     }
 
     @Override
@@ -221,7 +232,16 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public void removeVoltageRegulation() {
-        ValidationUtil.checkLocalTargetQandV(this, VscConverterStation.class, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            this.getLocalTargetV(),
+            this.getLocalTargetQ(),
+            true,
+            false,
+            false,
+            null,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
@@ -258,7 +278,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
      * @param voltageRegulation the voltage regulation to attach or use as source attributes
      * @return the voltage regulation associated with this equipment
      */
-    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = voltageRegulation;
         } else {

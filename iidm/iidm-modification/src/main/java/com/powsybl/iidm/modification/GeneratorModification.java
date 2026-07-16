@@ -258,7 +258,6 @@ public class GeneratorModification extends AbstractNetworkModification {
          * @deprecated use {@link VoltageRegulation#isRegulating()} instead
          */
         @Deprecated(forRemoval = true, since = "7.3.0")
-        @javax.annotation.CheckForNull
         public Boolean getVoltageRegulatorOn() {
             if (this.voltageRegulationMode == null || this.regulating == null) {
                 return null;

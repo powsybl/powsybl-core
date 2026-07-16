@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.time.ZonedDateTime;
-
 import java.util.Objects;
 
 /**

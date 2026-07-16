@@ -7,16 +7,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -126,7 +126,13 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     @Override
     public StaticVarCompensator setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, this.getLocalTargetV(), targetQ, getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            StaticVarCompensator.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -139,7 +145,13 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
     public StaticVarCompensator setLocalTargetV(double targetV) {
         NetworkImpl n = getNetwork();
 
-        ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, targetV, this.getLocalTargetQ(), getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            StaticVarCompensator.class,
+            targetV,
+            this.getLocalTargetQ(),
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetV.set(variantIndex, targetV);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -291,7 +303,7 @@ public class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompe
      * @param voltageRegulation the voltage regulation to attach or use as source attributes
      * @return the voltage regulation associated with this equipment
      */
-    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = voltageRegulation;
         } else {

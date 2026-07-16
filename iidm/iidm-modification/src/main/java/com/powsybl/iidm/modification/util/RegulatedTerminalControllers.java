@@ -180,7 +180,10 @@ public class RegulatedTerminalControllers {
         }
     }
 
-    private static void replaceRegulatedTerminalHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
+    private static void replaceRegulatedTerminalHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation,
+                                                                     TerminalRef currentRegulatedTerminal,
+                                                                     Terminal newRegulatedTerminal,
+                                                                     Double newTargetValue) {
         if (hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             replaceRegulatedTerminalForVoltageRegulationHolder((VscConverterStation) hvdcConverterStation, currentRegulatedTerminal, newRegulatedTerminal, newTargetValue);
         }
@@ -192,7 +195,10 @@ public class RegulatedTerminalControllers {
         }
     }
 
-    private static <T extends VoltageRegulationHolder<T>> void replaceRegulatedTerminalForVoltageRegulationHolder(T voltageRegulationHolder, TerminalRef currentRegulatedTerminal, Terminal newRegulatedTerminal, Double newTargetValue) {
+    private static <T extends VoltageRegulationHolder<T>> void replaceRegulatedTerminalForVoltageRegulationHolder(T voltageRegulationHolder,
+                                                                                                                  TerminalRef currentRegulatedTerminal,
+                                                                                                                  Terminal newRegulatedTerminal,
+                                                                                                                  Double newTargetValue) {
         VoltageRegulation voltageRegulation = voltageRegulationHolder.getVoltageRegulation();
         if (voltageRegulation != null) {
             Terminal currentTerminal = voltageRegulation.getTerminal() != null ? voltageRegulation.getTerminal() : voltageRegulationHolder.getTerminal();

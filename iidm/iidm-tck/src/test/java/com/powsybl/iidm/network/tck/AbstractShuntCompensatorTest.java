@@ -380,12 +380,14 @@ public abstract class AbstractShuntCompensatorTest {
         // targetV
         voltageRegulation.setRegulating(true);
         ValidationException validationException = assertThrows(ValidationException.class, () -> shuntCompensator.setLocalTargetV(Double.NaN));
-        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
+        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+            validationException.getMessage());
 
         voltageRegulation.setRegulating(false);
         shuntCompensator.setLocalTargetV(Double.NaN);
         validationException = assertThrows(ValidationException.class, () -> voltageRegulation.setRegulating(true));
-        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
+        assertEquals("Shunt compensator 'shunt': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+            validationException.getMessage());
 
         shuntCompensator.setLocalTargetV(400);
         assertEquals(400, shuntCompensator.getRegulatingTargetV());
@@ -486,30 +488,10 @@ public abstract class AbstractShuntCompensatorTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            shunt.getSectionCount();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
-        try {
-            shunt.isRegulatingWithMode(RegulationMode.VOLTAGE);
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
-        try {
-            shunt.getRegulatingTargetV();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
-        try {
-            shunt.getVoltageRegulation().getTargetDeadband();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, shunt::getSectionCount);
+        assertThrows(PowsyblException.class, () -> shunt.isRegulatingWithMode(RegulationMode.VOLTAGE));
+        assertThrows(PowsyblException.class, shunt::getRegulatingTargetV);
+        assertThrows(PowsyblException.class, () -> shunt.getVoltageRegulation().getTargetDeadband());
 
         // check we delete a single variant's values
         variantManager.setWorkingVariant("s3");
@@ -662,7 +644,9 @@ public abstract class AbstractShuntCompensatorTest {
         assertNotNull(voltageRegulation);
     }
 
-    private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+    private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection,
+                                               int sectionCount, int maxSectionCount, Terminal regulatingTerminal,
+                                               boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return createShuntAdder(id, name, sectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
                 .newLinearModel()
                 .setBPerSection(bPerSection)
@@ -672,7 +656,8 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
     }
 
-    private ShuntCompensator createNonLinearShunt(String id, String name, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband, double b0, double g0) {
+    private ShuntCompensator createNonLinearShunt(String id, String name, Terminal regulatingTerminal,
+                                                  boolean voltageRegulatorOn, double targetV, double targetDeadband, double b0, double g0) {
         return createShuntAdder(id, name, 1, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
                 .newNonLinearModel()
                 .beginSection()
@@ -683,7 +668,8 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
     }
 
-    private ShuntCompensatorAdder createShuntAdder(String id, String name, int sectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+    private ShuntCompensatorAdder createShuntAdder(String id, String name, int sectionCount, Terminal regulatingTerminal,
+                                                   boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return voltageLevel.newShuntCompensator()
                 .setId(id)
                 .setName(name)

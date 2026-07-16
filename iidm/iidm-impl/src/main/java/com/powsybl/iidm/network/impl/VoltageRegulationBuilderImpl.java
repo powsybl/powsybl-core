@@ -39,7 +39,13 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
     @Override
     public VoltageRegulation build() {
         VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = checkAndGetVoltageRegulationAttributes();
-        ValidationUtil.checkLocalTargetQandV(validable, classHolder, holder.getLocalTargetV(), holder.getLocalTargetQ(), voltageRegulationAttributes, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(validable,
+            classHolder,
+            holder.getLocalTargetV(),
+            holder.getLocalTargetQ(),
+            voltageRegulationAttributes,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
         return this.voltageRegulationSetter.apply(VoltageRegulationImpl.createVoltageRegulation(validable, holder, classHolder, network, voltageRegulationAttributes));
     }
 }

@@ -7,7 +7,9 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VoltageSourceConverter;
+import com.powsybl.iidm.network.VoltageSourceConverterAdder;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
@@ -61,7 +63,10 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
     }
 
     @Override
-    protected void readRootElementAttributes(final VoltageSourceConverterAdder adder, final VoltageLevel parent, List<Consumer<VoltageSourceConverter>> toApply, final NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(final VoltageSourceConverterAdder adder,
+                                             final VoltageLevel parent,
+                                             List<Consumer<VoltageSourceConverter>> toApply,
+                                             final NetworkDeserializerContext context) {
         super.readRootElementCommonAttributes(adder, parent, context);
         AtomicReference<Boolean> voltageRegulatorOnRef = new AtomicReference<>(null);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
@@ -82,9 +87,15 @@ public class VoltageSourceConverterSerDe extends AbstractAcDcConverterSerDe<Volt
         super.readRootElementPqiAttributes(toApply, adder, context);
     }
 
-    private static void readVoltageRegulationPrevious117(VoltageSourceConverterAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
+    private static void readVoltageRegulationPrevious117(VoltageSourceConverterAdder adder,
+                                                         NetworkDeserializerContext context,
+                                                         AtomicReference<Boolean> voltageRegulatorOnRef,
+                                                         AtomicReference<Double> voltageSetpoint,
+                                                         AtomicReference<Double> reactivePowerSetpoint) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
+            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(),
+                voltageSetpoint.get(),
+                reactivePowerSetpoint.get());
             adder.setLocalTargetV(voltageRegulationData.targetV());
             adder.setLocalTargetQ(voltageRegulationData.targetQ());
             if (voltageRegulationData.regulationMode() != null) {

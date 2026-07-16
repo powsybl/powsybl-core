@@ -7,8 +7,8 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.network.util.HvdcUtils;
@@ -30,7 +30,8 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
 
     private static final double DEFAULT_MAXP_FACTOR = 1.2;
 
-    VscDcTransmissionLineConverter(PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, ContainersMapping containerMapping, Network network, PsseVersion version, NodeBreakerImport nodeBreakerImport) {
+    VscDcTransmissionLineConverter(PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine,
+                                   ContainersMapping containerMapping, Network network, PsseVersion version, NodeBreakerImport nodeBreakerImport) {
         super(containerMapping, network);
         this.psseVscDcTransmissionLine = Objects.requireNonNull(psseVscDcTransmissionLine);
         this.version = Objects.requireNonNull(version);
@@ -184,7 +185,11 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         addControlConverter(getNetwork(), psseVscDcTransmissionLine.getConverter2(), (VscConverterStation) hvdcLine.getConverterStation2(), version, nodeBreakerImport);
     }
 
-    private static void addControlConverter(Network network, PsseVoltageSourceConverter converter, VscConverterStation vscConverterStation, PsseVersion psseVersion, NodeBreakerImport nodeBreakerImport) {
+    private static void addControlConverter(Network network,
+                                            PsseVoltageSourceConverter converter,
+                                            VscConverterStation vscConverterStation,
+                                            PsseVersion psseVersion,
+                                            NodeBreakerImport nodeBreakerImport) {
         Terminal regulatingTerminal = findRegulatingTerminal(network, converter, vscConverterStation, nodeBreakerImport, psseVersion);
         double targetV = findTargetVpu(converter) * regulatingTerminal.getVoltageLevel().getNominalV();
         boolean isRegulatingOn = findIsRegulatingOn(converter);
@@ -235,7 +240,8 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
                 psseModel.addVoltageSourceConverterDcTransmissionLines(Collections.singletonList(createVscDcTransmissionLine(hvdcLine, version, contextExport)));
             }
         });
-        psseModel.replaceAllVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines().stream().sorted(Comparator.comparing(PsseVoltageSourceConverterDcTransmissionLine::getName)).toList());
+        psseModel.replaceAllVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines()
+            .stream().sorted(Comparator.comparing(PsseVoltageSourceConverterDcTransmissionLine::getName)).toList());
     }
 
     private static PsseVoltageSourceConverterDcTransmissionLine createVscDcTransmissionLine(HvdcLine hvdcLine, PsseVersion version, ContextExport contextExport) {

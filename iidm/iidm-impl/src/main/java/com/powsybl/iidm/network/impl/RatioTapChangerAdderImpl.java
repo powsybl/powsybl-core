@@ -149,7 +149,8 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     }
 
     @Override
-    protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition, List<RatioTapChangerStepImpl> steps, Integer tapPosition, Integer solvedTapPosition, boolean loadTapChangingCapabilities) {
+    protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition,
+                                               List<RatioTapChangerStepImpl> steps, Integer tapPosition, Integer solvedTapPosition, boolean loadTapChangingCapabilities) {
         // Backward compatibility
         if (voltageRegulationAttributes == null && regulating != null) {
             this.newVoltageRegulation()
@@ -163,8 +164,15 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
         NetworkImpl network = getNetwork();
 
         if (voltageRegulationAttributes != null) {
-            network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, voltageRegulationAttributes.isRegulating(), loadTapChangingCapabilities, voltageRegulationAttributes.terminal(),
-                voltageRegulationAttributes.mode(), voltageRegulationAttributes.targetValue(), getNetwork(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode()));
+            network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent,
+                voltageRegulationAttributes.isRegulating(),
+                loadTapChangingCapabilities,
+                voltageRegulationAttributes.terminal(),
+                voltageRegulationAttributes.mode(),
+                voltageRegulationAttributes.targetValue(),
+                getNetwork(),
+                getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode()));
             network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), voltageRegulationAttributes.isRegulating(),
                 voltageRegulationAttributes.targetDeadband(), network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         }

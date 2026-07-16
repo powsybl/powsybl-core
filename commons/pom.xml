@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>7.3.0-SNAPSHOT</version>
+        <version>7.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-commons</artifactId>
@@ -97,7 +97,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>${commons-csv.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.sirocco</groupId>

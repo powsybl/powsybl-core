@@ -99,13 +99,24 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     }
 
     @Override
-    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, Integer tapPosition, Integer solvedTapPosition, boolean loadTapChangingCapabilities) {
+    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition,
+                                               List<PhaseTapChangerStepImpl> steps, Integer tapPosition, Integer solvedTapPosition, boolean loadTapChangingCapabilities) {
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, loadTapChangingCapabilities, regulationTerminal));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), regulating,
             targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
-        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities, tapPosition, solvedTapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent,
+            lowTapPosition,
+            steps,
+            regulationTerminal,
+            loadTapChangingCapabilities,
+            tapPosition,
+            solvedTapPosition,
+            regulating,
+            regulationMode,
+            regulationValue,
+            targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }

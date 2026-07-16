@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -64,7 +64,13 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensator setLocalTargetV(double targetV) {
-        ValidationUtil.checkLocalTargetQandV(this, ShuntCompensator.class, targetV, Double.NaN, getVoltageRegulation(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            ShuntCompensator.class,
+            targetV,
+            Double.NaN,
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
         this.localTargetV.set(getCurrentIndex(), targetV);
         return this;
     }
@@ -371,7 +377,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
      * @param voltageRegulation the voltage regulation to attach or use as source attributes
      * @return the voltage regulation associated with this equipment
      */
-    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = voltageRegulation;
         } else {

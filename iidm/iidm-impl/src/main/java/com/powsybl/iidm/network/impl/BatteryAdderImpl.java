@@ -118,7 +118,13 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, Battery.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
 
         BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, localTargetQ, localTargetV, voltageRegulationAttributes, minP, maxP);
         battery.addTerminal(terminal);

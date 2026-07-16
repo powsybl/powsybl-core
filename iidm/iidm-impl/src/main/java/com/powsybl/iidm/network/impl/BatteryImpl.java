@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.*;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -221,6 +221,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -294,7 +299,16 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     @Override
     public void removeVoltageRegulation() {
-        ValidationUtil.checkLocalTargetQandV(this, Battery.class, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            Battery.class,
+            this.getLocalTargetV(),
+            this.getLocalTargetQ(),
+            true,
+            false,
+            false,
+            null,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
@@ -313,7 +327,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      * @param voltageRegulation the voltage regulation to attach or use as source attributes
      * @return the voltage regulation associated with this equipment
      */
-    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = voltageRegulation;
         } else {

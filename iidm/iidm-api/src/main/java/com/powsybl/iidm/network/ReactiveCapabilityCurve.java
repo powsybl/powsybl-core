@@ -33,7 +33,8 @@ import java.util.Collection;
  * |
  *</pre>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
- * @see Generator,Battery
+ * @see Generator
+ * @see Battery
  */
 public interface ReactiveCapabilityCurve extends ReactiveLimits {
 

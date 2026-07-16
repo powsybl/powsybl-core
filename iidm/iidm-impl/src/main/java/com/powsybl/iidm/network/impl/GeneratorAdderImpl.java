@@ -158,7 +158,13 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
             createVoltageRegulationBackwardCompatibility(this, targetV, localTargetV, localTargetQ, voltageRegulatorOn, regulatingTerminal);
         }
 
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, Generator.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            Generator.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
 
         GeneratorImpl generator
                 = new GeneratorImpl(getNetworkRef(),

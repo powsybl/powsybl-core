@@ -115,7 +115,8 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
+        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+            validationException.getMessage());
     }
 
     @Test
@@ -129,7 +130,8 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
+        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+            validationException.getMessage());
     }
 
     @Test
@@ -155,7 +157,8 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("Generator 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
+        assertEquals("Generator 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set",
+            validationException.getMessage());
     }
 
     // Cases Regulating True, Terminal present, Mode VOLTAGE
@@ -194,7 +197,8 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("Generator 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", validationException.getMessage());
+        assertEquals("Generator 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set",
+            validationException.getMessage());
     }
 
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
@@ -290,7 +294,6 @@ public abstract class AbstractVoltageRegulationTest {
             .setMaxP(120.0)
             .setTargetP(100.0);
     }
-
 
     record DataGeneratorCreator(
         String id,

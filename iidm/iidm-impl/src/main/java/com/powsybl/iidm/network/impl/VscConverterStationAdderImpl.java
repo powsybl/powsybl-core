@@ -108,7 +108,13 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, VscConverterStation.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetworkRef(),
             localTargetQ, localTargetV, voltageRegulationAttributes);

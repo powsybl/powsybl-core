@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
- /**
+/**
   * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
   */
 public interface Overload {
@@ -31,7 +31,7 @@ public interface Overload {
      */
     String getPreviousLimitName();
 
-     /**
+    /**
       * @return the id of the {@link OperationalLimitsGroup} this overload relates to
       */
     String getOperationalLimitsGroupId();

@@ -10,9 +10,6 @@ package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.AcDcConverter.ControlMode;
-
-import static com.powsybl.powerfactory.converter.DataAttributeNames.*;
-
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
@@ -25,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.powsybl.powerfactory.converter.DataAttributeNames.OBJ_ID;
+import static com.powsybl.powerfactory.converter.DataAttributeNames.TYP_ID;
 
 /**
  * @author Landry Huet {@literal <landry.huet at supergrid-institute.com>}

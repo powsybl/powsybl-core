@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -331,7 +331,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
      * @param voltageRegulation the voltage regulation to attach or use as source attributes
      * @return the voltage regulation associated with this equipment
      */
-    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = voltageRegulation;
         } else {

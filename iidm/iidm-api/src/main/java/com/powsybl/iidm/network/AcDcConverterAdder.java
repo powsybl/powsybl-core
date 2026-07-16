@@ -32,6 +32,22 @@ public interface AcDcConverterAdder<T extends AcDcConverter<T> & Connectable<T> 
 
     A setDcConnected2(boolean connected2);
 
+    /**
+     * Set the minimal active power in MW.
+     * <p><b>Note:</b> IIDM serialization is not yet supported for non-default values.
+     * Setting a value other than -{@link Double#MAX_VALUE} will cause
+     * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
+     */
+    A setMinP(double minP);
+
+    /**
+     * Set the maximal active power in MW.
+     * <p><b>Note:</b> IIDM serialization is not yet supported for non-default values.
+     * Setting a value other than {@link Double#MAX_VALUE} will cause
+     * {@link com.powsybl.iidm.serde.NetworkSerDe#write} to throw a {@link com.powsybl.commons.PowsyblException}.
+     */
+    A setMaxP(double maxP);
+
     A setIdleLoss(double idleLoss);
 
     A setSwitchingLoss(double switchingLoss);

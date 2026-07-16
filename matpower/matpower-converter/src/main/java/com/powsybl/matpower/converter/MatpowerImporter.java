@@ -137,7 +137,7 @@ public class MatpowerImporter implements Importer {
             // create shunt compensator
             createShuntCompensator(mBus, voltageLevel, context);
 
-            //create generators
+            // create generators
             createGenerators(model, mBus, voltageLevel);
         }
 

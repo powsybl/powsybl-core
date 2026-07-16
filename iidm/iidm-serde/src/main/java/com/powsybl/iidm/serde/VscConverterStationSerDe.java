@@ -103,9 +103,15 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
         });
     }
 
-    private static void readVoltageRegulation(VscConverterStationAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
+    private static void readVoltageRegulation(VscConverterStationAdder adder,
+                                              NetworkDeserializerContext context,
+                                              AtomicReference<Boolean> voltageRegulatorOnRef,
+                                              AtomicReference<Double> voltageSetpoint,
+                                              AtomicReference<Double> reactivePowerSetpoint) {
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
+            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(),
+                voltageSetpoint.get(),
+                reactivePowerSetpoint.get());
             adder.setLocalTargetV(voltageRegulationData.targetV());
             adder.setLocalTargetQ(voltageRegulationData.targetQ());
             if (voltageRegulationData.regulationMode() != null) {

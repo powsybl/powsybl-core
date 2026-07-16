@@ -8,13 +8,16 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.VoltageSourceConverter;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -35,10 +38,11 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     private VoltageRegulationExt voltageRegulation;
 
     VoltageSourceConverterImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious,
+                               double minP, double maxP,
                                double idleLoss, double switchingLoss, double resistiveLoss,
                                TerminalExt pccTerminal, ControlMode controlMode, double targetP, double targetVdc,
                                double localTargetQ, double localTargetV, VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
-        super(ref, id, name, fictitious, idleLoss, switchingLoss, resistiveLoss,
+        super(ref, id, name, fictitious, minP, maxP, idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.localTargetQ = new TDoubleArrayList(variantArraySize);
@@ -128,6 +132,11 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
     }
 
     @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
+    }
+
+    @Override
     public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
         return new MinMaxReactiveLimitsAdderImpl(this);
     }
@@ -202,7 +211,16 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
 
     @Override
     public void removeVoltageRegulation() {
-        ValidationUtil.checkLocalTargetQandV(this, VoltageSourceConverter.class, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            VoltageSourceConverter.class,
+            this.getLocalTargetV(),
+            this.getLocalTargetQ(),
+            true,
+            false,
+            false,
+            null,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
         getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
@@ -260,7 +278,7 @@ public class VoltageSourceConverterImpl extends AbstractAcDcConverter<VoltageSou
      * @param voltageRegulation the voltage regulation to attach or use as source attributes
      * @return the voltage regulation associated with this equipment
      */
-    private VoltageRegulationExt setVoltageRegulation(@Nonnull VoltageRegulationExt voltageRegulation) {
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
         if (this.voltageRegulation == null) {
             this.voltageRegulation = voltageRegulation;
         } else {

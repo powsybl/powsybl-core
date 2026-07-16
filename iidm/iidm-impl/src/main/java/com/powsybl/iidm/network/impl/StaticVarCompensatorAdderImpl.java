@@ -153,7 +153,13 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, StaticVarCompensator.class, localTargetV, localTargetQ, voltageRegulationAttributes, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            StaticVarCompensator.class,
+            localTargetV,
+            localTargetQ,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
 
         StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageRegulationAttributes, getNetworkRef(), localTargetQ, localTargetV);
         svc.addTerminal(terminal);

@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -21,6 +22,13 @@ import java.io.IOException;
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
 class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
+
+    @Override
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        properties.put("iidm.export.ampl.export-version", "1.2");
+    }
 
     @Test
     void testNoModifiedExports() throws IOException {
@@ -36,13 +44,20 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
     }
 
-    @Test
-    void testQ0UnitColumnBatteries() throws IOException {
-        Network network = BatteryNetworkFactory.create();
+    Network getBatteriesTestNetwork() {
+        return BatteryNetworkFactory.create();
+    }
 
+    String getBatteriesTestRefFileName() {
+        return "inputs/extended_exporter_v2/battery-q0-unit-column.txt";
+    }
+
+    @Test
+    void testBatteries() throws IOException {
+        Network network = getBatteriesTestNetwork();
         exporter.export(network, properties, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_batteries", "inputs/extended_exporter_v2/battery-q0-unit-column.txt");
+        assertEqualsToRef(dataSource, "_network_batteries", getBatteriesTestRefFileName());
     }
 
     @Test
@@ -114,11 +129,15 @@ class ExtendedAmplExporterV2Test extends AbstractAmplExporterTest {
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/extended_exporter_v2/hvdc-ac-emul-vsc-test-case.txt");
     }
 
+    String getHeadersTestRefFileName() {
+        return "inputs/extended_exporter_v2/headers.txt";
+    }
+
     @Test
-    void writeHeadersWithVersion12() throws IOException {
+    void writeHeaders() throws IOException {
         Network network = Network.create("dummy_network", "test");
         exporter.export(network, properties, dataSource);
-        assertEqualsToRef(dataSource, "_headers", "inputs/extended_exporter_v2/headers.txt");
+        assertEqualsToRef(dataSource, "_headers", getHeadersTestRefFileName());
     }
 
 }

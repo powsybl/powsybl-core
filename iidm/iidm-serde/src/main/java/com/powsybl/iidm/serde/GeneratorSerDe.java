@@ -10,8 +10,8 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -121,7 +121,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         adder.setTargetP(targetP);
         AtomicReference<Double> equivalentLocalTargetV = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> equivalentLocalTargetV.set(context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15,
+            IidmVersion.V_1_16,
+            context,
+            () -> equivalentLocalTargetV.set(context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
         buildVoltageRegulationFromOlderVersions(context, adder, voltageRegulatorOn);
         addTargetV(context, adder, targetV, equivalentLocalTargetV.get());
         adder.setLocalTargetQ(targetQ);
@@ -188,11 +191,11 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
         return voltageRegulatorOn.get();
     }
 
-    private static <T extends AbstractOptions<T>> @Nonnull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
+    private static <T extends AbstractOptions<T>> @NonNull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
         return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetQ" : "localTargetQ";
     }
 
-    private static <T extends AbstractOptions<T>> @Nonnull String getTargetVName(AbstractNetworkSerDeContext<T> context) {
+    private static <T extends AbstractOptions<T>> @NonNull String getTargetVName(AbstractNetworkSerDeContext<T> context) {
         return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetV" : "localTargetV";
     }
 }

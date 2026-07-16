@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -158,7 +159,7 @@ public abstract class AbstractTapChangerTest {
         }
 
         // Changes listener
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(NetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
         // Changes will raise notifications
@@ -476,12 +477,7 @@ public abstract class AbstractTapChangerTest {
     }
 
     private void getTapPositionThrowsException(TapChanger<?, ?, ?, ?> tapChanger) {
-        try {
-            tapChanger.getTapPosition();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, tapChanger::getTapPosition);
     }
 
     private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean loadTapChangingCapabilities, boolean isRegulating,
@@ -796,13 +792,15 @@ public abstract class AbstractTapChangerTest {
         ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal));
         assertEquals("2 windings transformer 'twt': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", e.getMessage());
 
-        ValidationException e2 = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
+        ValidationException e2 = assertThrows(ValidationException.class,
+            () -> createRatioTapChangerWith3Steps(0, 1, true, true, RegulationMode.REACTIVE_POWER, Double.NaN, 1.0, terminal));
         assertEquals("2 windings transformer 'twt': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", e2.getMessage());
     }
 
     @Test
     public void invalidNullModeRatio() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
+        ValidationException e = assertThrows(ValidationException.class,
+            () -> createRatioTapChangerWith3Steps(0, 1, true, true, null, 10.0, 1.0, terminal));
         assertEquals("2 windings transformer 'twt': Undefined value for voltageRegulation.regulationMode", e.getMessage());
     }
 

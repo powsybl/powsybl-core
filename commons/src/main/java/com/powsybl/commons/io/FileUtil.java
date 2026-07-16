@@ -63,7 +63,7 @@ public final class FileUtil {
         private final Path toPath;
         private final CopyOption copyOption;
 
-        public CopyDirVisitor(Path fromPath, Path toPath, CopyOption copyOption) {
+        CopyDirVisitor(Path fromPath, Path toPath, CopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = copyOption;

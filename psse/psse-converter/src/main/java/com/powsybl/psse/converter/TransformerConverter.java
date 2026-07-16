@@ -140,7 +140,9 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private void createThreeWindingsTransformer() {
-        if (!getContainersMapping().isBusDefined(psseTransformer.getI()) || !getContainersMapping().isBusDefined(psseTransformer.getJ()) || !getContainersMapping().isBusDefined(psseTransformer.getK())) {
+        if (!getContainersMapping().isBusDefined(psseTransformer.getI())
+            || !getContainersMapping().isBusDefined(psseTransformer.getJ())
+            || !getContainersMapping().isBusDefined(psseTransformer.getK())) {
             return;
         }
         String id = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
@@ -236,11 +238,14 @@ class TransformerConverter extends AbstractConverter {
                 .setVoltageLevel(voltageLevel3Id);
 
         String equipmentId = getNodeBreakerEquipmentId(PSSE_THREE_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-        legConnectivity(legAdder1, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I"), bus1Id, leg1IsConnected());
+        legConnectivity(legAdder1, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getI(), "I"),
+            bus1Id, leg1IsConnected());
         legAdder1.add();
-        legConnectivity(legAdder2, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J"), bus2Id, leg2IsConnected());
+        legConnectivity(legAdder2, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getJ(), "J"),
+            bus2Id, leg2IsConnected());
         legAdder2.add();
-        legConnectivity(legAdder3, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K"), bus3Id, leg3IsConnected());
+        legConnectivity(legAdder3, getNodeBreakerEquipmentIdBus(equipmentId, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getK(), "K"),
+            bus3Id, leg3IsConnected());
         legAdder3.add();
         ThreeWindingsTransformer twt = adder.add();
 
@@ -812,7 +817,8 @@ class TransformerConverter extends AbstractConverter {
         return regulating;
     }
 
-    private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
+    private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding,
+                                                    PhaseTapChanger ptc, boolean regulatingForcedToOff, NodeBreakerImport nodeBreakerImport) {
         if (Math.abs(winding.getCod()) != 3) {
             return false;
         }
@@ -871,7 +877,8 @@ class TransformerConverter extends AbstractConverter {
         network.getTwoWindingsTransformers().forEach(t2w -> transformers.add(createTwoWindingsTransformer(t2w, contextExport, perUnitContext)));
         network.getThreeWindingsTransformers().forEach(t3w -> transformers.add(createThreeWindingsTransformer(t3w, contextExport, perUnitContext)));
         psseModel.addTransformers(transformers);
-        psseModel.replaceAllTransformers(psseModel.getTransformers().stream().sorted(Comparator.comparingInt(PsseTransformer::getI).thenComparingInt(PsseTransformer::getJ).thenComparingInt(PsseTransformer::getK).thenComparing(PsseTransformer::getCkt)).toList());
+        psseModel.replaceAllTransformers(psseModel.getTransformers().stream()
+            .sorted(Comparator.comparingInt(PsseTransformer::getI).thenComparingInt(PsseTransformer::getJ).thenComparingInt(PsseTransformer::getK).thenComparing(PsseTransformer::getCkt)).toList());
     }
 
     private static PsseTransformer createTwoWindingsTransformer(TwoWindingsTransformer t2w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {

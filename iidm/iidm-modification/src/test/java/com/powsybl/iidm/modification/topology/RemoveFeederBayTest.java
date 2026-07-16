@@ -47,7 +47,7 @@ class RemoveFeederBayTest {
     }
 
     private void addListener(Network network) {
-        network.addListener(new DefaultNetworkListener() {
+        network.addListener(new NetworkListener() {
             @Override
             public void beforeRemoval(Identifiable id) {
                 beforeRemovalObjects.add(id.getId());

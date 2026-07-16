@@ -26,6 +26,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     protected final Validable validable;
     private final String ownerId;
 
+    protected String permanentLimitName = LoadingLimits.DEFAULT_PERMANENT_LIMIT_NAME;
     protected double permanentLimit = Double.NaN;
     protected DetectionKind detectionKind = DetectionKind.HIGH;
     protected final String operationalGroupId;
@@ -128,6 +129,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         this.validable = Objects.requireNonNull(validable);
         this.ownerId = ownerId;
         this.operationalGroupId = operationalGroupId;
+    }
+
+    @Override
+    public A setPermanentLimitName(String limitName) {
+        this.permanentLimitName = Objects.requireNonNull(limitName);
+        return (A) this;
     }
 
     @Override

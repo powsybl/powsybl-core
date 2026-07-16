@@ -468,7 +468,8 @@ public class Conversion {
         final double p0Adjusted = p0 / count;
         final double q0Adjusted = q0 / count;
         dls.forEach(bl -> {
-            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for boundary line {}.", p0, q0, p0Adjusted, q0Adjusted, bl.getId());
+            LOG.warn("Multiple unpaired BoundaryLines were connected at the same boundary side. Adjusted original injection from ({}, {}) to ({}, {}) for boundary line {}.",
+                p0, q0, p0Adjusted, q0Adjusted, bl.getId());
             CgmesReports.multipleUnpairedBoundaryLinesAtSameBoundaryReport(context.getReportNode(), bl.getId(), p0, q0, p0Adjusted, q0Adjusted);
             bl.setP0(p0Adjusted);
             bl.setQ0(q0Adjusted);

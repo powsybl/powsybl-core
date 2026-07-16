@@ -150,7 +150,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @param side the side to get the group limits on
      * @return all the selected {@link OperationalLimitsGroup} on the <code>side</code>, might be empty if none is selected.
      */
-    Collection<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
+    List<OperationalLimitsGroup> getAllSelectedOperationalLimitsGroups(TwoSides side);
 
     /**
      * Get the ids of all the selected {@link OperationalLimitsGroup} on the given <code>side</code>.

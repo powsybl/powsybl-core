@@ -40,7 +40,10 @@ public class LineCommutatedConverterSerDe extends AbstractAcDcConverterSerDe<Lin
     }
 
     @Override
-    protected void readRootElementAttributes(final LineCommutatedConverterAdder adder, final VoltageLevel parent, final List<Consumer<LineCommutatedConverter>> toApply, final NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(final LineCommutatedConverterAdder adder,
+                                             final VoltageLevel parent,
+                                             final List<Consumer<LineCommutatedConverter>> toApply,
+                                             final NetworkDeserializerContext context) {
         super.readRootElementCommonAttributes(adder, parent, context);
         LineCommutatedConverter.ReactiveModel reactiveModel = context.getReader().readEnumAttribute("reactiveModel", LineCommutatedConverter.ReactiveModel.class);
         double powerFactor = context.getReader().readDoubleAttribute("powerFactor");
