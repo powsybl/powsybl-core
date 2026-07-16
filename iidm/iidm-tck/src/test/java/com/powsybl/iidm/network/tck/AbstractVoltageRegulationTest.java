@@ -26,9 +26,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
@@ -40,10 +42,11 @@ public abstract class AbstractVoltageRegulationTest {
 
     private VoltageLevel voltageLevel;
     private Terminal remoteTerminal;
+    private Network network;
 
     @BeforeEach
     void initNetwork() {
-        Network network = BatteryNetworkFactory.create();
+        network = BatteryNetworkFactory.create();
         voltageLevel = network.getVoltageLevel("VLGEN");
         remoteTerminal = network.getBattery("BAT").getTerminal();
     }
@@ -283,6 +286,78 @@ public abstract class AbstractVoltageRegulationTest {
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
         assertEquals("Generator 'Error_Remote_Voltage_OFF_Missing_TargetQ': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)", validationException.getMessage());
+    }
+
+    // RemoveTerminal
+    @Test
+    void testRemoveTerminalOnMultiVariantWithLocalTargetV() {
+        // GIVEN
+        GeneratorAdder generatorAdder = newGeneratorAdder("OK_removeTerminal_multiVariant_With_LocalTargetV");
+        int localTargetV = 25;
+        Generator generator = generatorAdder
+            .setLocalTargetV(localTargetV)
+            .newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(220)
+            .withTerminal(remoteTerminal)
+            .withRegulating(true)
+            .add()
+            .add();
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        String variant3 = "variant3";
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant1);
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant2);
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant3);
+        // WHEN
+        voltageRegulation.removeTerminal();
+        // THEN
+        network.getVariantManager().getVariantIds().forEach(variantId -> {
+            network.getVariantManager().setWorkingVariant(variantId);
+            assertNull(generator.getVoltageRegulation().getTerminal());
+            assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
+            assertEquals(localTargetV, generator.getRegulatingTargetV());
+        });
+    }
+
+    @Test
+    void testRemoveTerminalOnMultiVariantMissingLocalTargetV() {
+        // GIVEN
+        GeneratorAdder generatorAdder = newGeneratorAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
+        int targetValue = 220;
+        Generator generator = generatorAdder
+            .setLocalTargetV(25)
+            .newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(targetValue)
+            .withTerminal(remoteTerminal)
+            .withRegulating(true)
+            .add()
+            .add();
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        String variant3 = "variant3";
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant1);
+        network.getVariantManager().setWorkingVariant(variant1);
+        generator.setLocalTargetV(Double.NaN);
+        network.getVariantManager().cloneVariant(variant1, variant2);
+        network.getVariantManager().cloneVariant(variant1, variant3);
+        network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
+        // WHEN
+        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulation::removeTerminal);
+        // THEN
+        String expectedMessage = "Generator 'Error_removeTerminal_multiVariant_Missing_LocalTargetV': " +
+            "Trying to remove the regulating terminal from the voltageRegulation of Error_removeTerminal_multiVariant_Missing_LocalTargetV " +
+            "but the next variants are missing local target values [variant2, variant1, variant3]";
+        assertEquals(expectedMessage, validationException.getMessage());
+        network.getVariantManager().getVariantIds().forEach(variantId -> {
+            network.getVariantManager().setWorkingVariant(variantId);
+            assertEquals(remoteTerminal, generator.getVoltageRegulation().getTerminal());
+            assertEquals(targetValue, generator.getVoltageRegulation().getTargetValue());
+            assertEquals(targetValue, generator.getRegulatingTargetV());
+        });
     }
 
     private GeneratorAdder newGeneratorAdder(String id) {

@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
@@ -25,6 +26,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
@@ -314,18 +319,46 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
 
     @Override
     public void removeTerminal() {
-        ValidationUtil.checkLocalTargetQandV(validable,
-            classHolder,
-            this.holder.getLocalTargetV(),
-            this.holder.getLocalTargetQ(),
-            false,
-            isRegulating(),
-            isWithTerminal(),
-            getMode(),
-            network.get().getMinValidationLevel(),
-            network.get().getReportNodeContext().getReportNode());
-        this.updateTerminal(null);
-        this.setTargetValue(Double.NaN);
+        // We check all variants because we will set targetValue to NaN for all variants because the terminal is not a variant attribute
+        VariantManagerImpl variantManager = network.get().getVariantManager();
+        String currentVariantId = variantManager.getWorkingVariantId();
+        Collection<String> allVariantId = variantManager.getVariantIds();
+        Set<String> variantMissingLocalValue = new HashSet<>();
+
+        for (String variantId : allVariantId) {
+            variantManager.setWorkingVariant(variantId);
+            try {
+                ValidationUtil.checkLocalTargetQandV(validable,
+                    classHolder,
+                    this.holder.getLocalTargetV(),
+                    this.holder.getLocalTargetQ(),
+                    false,
+                    isRegulating(),
+                    false,
+                    getMode(),
+                    network.get().getMinValidationLevel(),
+                    network.get().getReportNodeContext().getReportNode());
+            } catch (ValidationException validationException) {
+                variantMissingLocalValue.add(variantId);
+            }
+        }
+        if (variantMissingLocalValue.isEmpty()) {
+            // LocalTargetV or LocalTargetQ is present for each variant,
+            // we can remove the terminal and set targetValue to NaN for all variants
+            this.updateTerminal(null);
+            for (String variantId : allVariantId) {
+                variantManager.setWorkingVariant(variantId);
+                this.setTargetValue(Double.NaN);
+            }
+        } else {
+            String errorMessage = String.format(
+                "Trying to remove the regulating terminal from the voltageRegulation of %s but the next variants are missing local target values %s",
+                validable.getMessageHeader().id(),
+                variantMissingLocalValue);
+            LOGGER.error(errorMessage);
+            throw new ValidationException(validable, errorMessage);
+        }
+        variantManager.setWorkingVariant(currentVariantId);
     }
 
     @Override
