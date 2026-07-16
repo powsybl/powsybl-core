@@ -891,7 +891,8 @@ public abstract class AbstractAcDcConverterTest {
                 .setBus2(b2b.getId()).setConnectableBus2(b2b.getId())
                 .setDcNode1(dcNode1b.getId()).setDcNode2(dcNode2b.getId())
                 .setDcConnected1(true).setDcConnected2(true)
-                .setVoltageRegulatorOn(false).setReactivePowerSetpoint(0.0)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .setLocalTargetQ(0.0)
                 .setMinP(minP).setMaxP(maxP)
                 .add();
     }

@@ -217,8 +217,8 @@ class VoltageSourceConverterSerDeTest extends AbstractIidmSerDeTest {
                 .setConnectableBus1("bus")
                 .setControlMode(AcDcConverter.ControlMode.V_DC)
                 .setTargetVdc(500.)
-                .setVoltageRegulatorOn(false)
-                .setReactivePowerSetpoint(0.)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
+                .setLocalTargetQ(0.)
                 .setMaxP(500.)
                 .add();
         return network;

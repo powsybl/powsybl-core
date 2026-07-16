@@ -257,7 +257,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         /**
          * @deprecated use {@link VoltageRegulation#isRegulating()} instead
          */
-        @Deprecated(forRemoval = true, since = "7.3.0")
+        @Deprecated(forRemoval = true, since = "7.4.0")
         public Boolean getVoltageRegulatorOn() {
             if (this.voltageRegulationMode == null || this.regulating == null) {
                 return null;
@@ -268,7 +268,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         /**
          * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
          */
-        @Deprecated(forRemoval = true, since = "7.3.0")
+        @Deprecated(forRemoval = true, since = "7.4.0")
         public void setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
             if (Boolean.TRUE.equals(voltageRegulatorOn)) {
                 this.voltageRegulationMode = RegulationMode.VOLTAGE;

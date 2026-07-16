@@ -42,7 +42,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     /**
      * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }
@@ -50,7 +50,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     /**
      * @deprecated use {@link VoltageRegulationAdder#withMode(RegulationMode)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
@@ -58,7 +58,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     /**
      * @deprecated use {@link VoltageRegulationAdder#withTargetValue(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
@@ -66,7 +66,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
     /**
      * @deprecated use {@link VoltageRegulationAdder#withTargetDeadband(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }

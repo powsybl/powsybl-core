@@ -626,8 +626,8 @@ public abstract class AbstractNodeBreakerTest {
                 .setMinP(0)
                 .setMaxP(100)
                 .setTargetP(50)
-                .setTargetV(400)
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
+                .setLocalTargetV(400)
                 .add();
 
         // Connect BBS to L1 via closed breaker

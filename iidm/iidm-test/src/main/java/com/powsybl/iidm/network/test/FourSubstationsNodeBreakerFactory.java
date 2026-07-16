@@ -511,11 +511,13 @@ public final class FourSubstationsNodeBreakerFactory {
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
-            .setRegulationMode(RegulationMode.VOLTAGE)
-            .setRegulationValue(225.0)
-            .setTargetDeadband(0)
-            .setRegulationTerminal(twt.getTerminal(TwoSides.ONE))
+            .newVoltageRegulation()
+                .withRegulating(true)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(twt.getTerminal(TwoSides.ONE))
+                .withTargetValue(225.0)
+                .withTargetDeadband(0)
+                .add()
             .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);
@@ -554,7 +556,7 @@ public final class FourSubstationsNodeBreakerFactory {
             .setMaxP(100.0)
             .setTargetP(100.0)
             .setLocalTargetQ(70)
-                .setLocalTargetV(400)
+            .setLocalTargetV(400)
             .setNode(2)
             .add();
         generatorThermal1.newReactiveCapabilityCurve()

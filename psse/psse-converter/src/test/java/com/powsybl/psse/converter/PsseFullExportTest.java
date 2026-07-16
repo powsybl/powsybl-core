@@ -119,9 +119,9 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setName("Vsc-Vl1-Sub2")
                 .setNode(4)
                 .setLossFactor(0.001f)
-                .setReactivePowerSetpoint(0.0)
-                .setVoltageSetpoint(vl1S2.getNominalV())
-                .setVoltageRegulatorOn(true)
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(vl1S2.getNominalV())
                 .add();
         vsc1.newMinMaxReactiveLimits().setMinQ(-250.0).setMaxQ(300.0).add();
         VscConverterStation vsc2 = vl1S4.newVscConverterStation()
@@ -129,9 +129,8 @@ class PsseFullExportTest extends AbstractSerDeTest {
                 .setName("Vsc-Vl1-Sub4")
                 .setNode(2)
                 .setLossFactor(0.002f)
-                .setReactivePowerSetpoint(0.1)
-                .setVoltageSetpoint(vl1S4.getNominalV())
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(0.1)
+                .setLocalTargetV(vl1S4.getNominalV())
                 .add();
         vsc2.newMinMaxReactiveLimits().setMinQ(-260.0).setMaxQ(310.0).add();
         network.newHvdcLine()
@@ -308,11 +307,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
             .setBmin(0.0)
             .setBmax(10.0)
             .newVoltageRegulation()
-                    .withMode(RegulationMode.VOLTAGE)
-                    .withTerminal(shunt.getTerminal())
-                    .withTargetValue(vl1S4.getNominalV() * 1.02)
-                    .add()
-                .setLocalTargetQ(0.0)
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(shunt.getTerminal())
+                .withTargetValue(vl1S4.getNominalV() * 1.02)
+                .add()
+            .setLocalTargetQ(0.0)
             .add();
 
         ThreeWindingsTransformer t3w = sub4.newThreeWindingsTransformer()
@@ -363,11 +362,11 @@ class PsseFullExportTest extends AbstractSerDeTest {
             .setRho(0.98)
             .endStep()
             .newVoltageRegulation()
-                    .withTerminal(t3w.getLeg2().getTerminal())
-                    .withTargetValue(vl2S4.getNominalV() * 0.99)
-                    .withTargetDeadband(0.5)
-                    .withMode(RegulationMode.VOLTAGE)
-                    .add();
+                .withTerminal(t3w.getLeg2().getTerminal())
+                .withTargetValue(vl2S4.getNominalV() * 0.99)
+                .withTargetDeadband(0.5)
+                .withMode(RegulationMode.VOLTAGE)
+                .add();
         t3w.getLeg1().newOperationalLimitsGroup("ActivePowerLimits")
             .newActivePowerLimits()
             .setPermanentLimit(210.0)
@@ -398,7 +397,7 @@ class PsseFullExportTest extends AbstractSerDeTest {
             .setMinP(0.0)
             .setMaxP(50.0)
             .setTargetP(14.0)
-            .setTargetQ(3.5)
+            .setLocalTargetQ(3.5)
             .add();
     }
 

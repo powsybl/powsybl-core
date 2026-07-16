@@ -173,7 +173,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -183,13 +183,13 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
      * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setRegulatingTerminal(Terminal regulatingTerminal);
 
     /**
@@ -199,7 +199,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link #getLocalTargetV()} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getTargetV();
 
     /**
@@ -214,7 +214,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link #setLocalTargetV(double)} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setTargetV(double targetV);
 
     /**
@@ -230,7 +230,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link Generator#getLocalTargetV()} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getEquivalentLocalTargetV();
 
     /**
@@ -243,7 +243,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link Generator#setLocalTargetV(double)} instead.
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setTargetV(double targetV, double equivalentLocalTargetV);
 
     /**
@@ -269,7 +269,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getTargetQ();
 
     /**
@@ -288,7 +288,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
      * @see VariantManager
      * @deprecated use {@link #setLocalTargetQ(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Generator setTargetQ(double targetQ);
 
     /**

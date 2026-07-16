@@ -29,7 +29,7 @@ public interface RatioTapChanger extends TapChanger<
      * @return the regulation mode.
      * @deprecated use {@link VoltageRegulation#getMode()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RegulationMode getRegulationMode();
 
     /**
@@ -39,13 +39,13 @@ public interface RatioTapChanger extends TapChanger<
      * @return itself for method chaining
      * @deprecated use {@link #newVoltageRegulation()} with {@link com.powsybl.iidm.network.regulation.VoltageRegulationAdderOrBuilder#withMode(RegulationMode)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RatioTapChanger setRegulationMode(RegulationMode regulationMode);
 
     /**
      * @deprecated use {@link VoltageRegulation#getTargetValue()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getRegulationValue();
 
     /**
@@ -57,7 +57,7 @@ public interface RatioTapChanger extends TapChanger<
      * @return itself for method chaining.
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RatioTapChanger setRegulationValue(double regulationValue);
 
     /**
@@ -69,7 +69,7 @@ public interface RatioTapChanger extends TapChanger<
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#getTargetValue()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getTargetV();
 
     /**
@@ -80,7 +80,7 @@ public interface RatioTapChanger extends TapChanger<
      * @return itself for method chaining.
      * @deprecated use {@link VoltageRegulation#setTargetValue(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     RatioTapChanger setTargetV(double targetV);
 
     @Override
@@ -96,7 +96,7 @@ public interface RatioTapChanger extends TapChanger<
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#getTargetDeadband()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetDeadband() {
         throw new UnsupportedOperationException();
     }
@@ -109,7 +109,7 @@ public interface RatioTapChanger extends TapChanger<
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#setTargetDeadband(double)}  instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default RatioTapChanger setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }

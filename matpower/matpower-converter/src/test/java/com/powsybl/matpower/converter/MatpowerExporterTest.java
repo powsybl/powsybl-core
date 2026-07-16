@@ -408,9 +408,9 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setMaxP(250.0)
                 .setMinP(0.0)
                 .setTargetP(20.0)
-                .setTargetQ(0.0)
-                .setTargetV(vlGen.getNominalV())
-                .setVoltageRegulatorOn(true)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(vlGen.getNominalV())
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
                 .add();
         vlGen.newGenerator()
                 .setId("DisconnectedGen2")
@@ -418,9 +418,9 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setMaxP(200.0)
                 .setMinP(0.0)
                 .setTargetP(30.0)
-                .setTargetQ(0.0)
-                .setTargetV(vlGen.getNominalV())
-                .setVoltageRegulatorOn(false)
+                .setLocalTargetQ(0.0)
+                .setLocalTargetV(vlGen.getNominalV())
+                .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(false).add()
                 .add();
 
         network.newLine().setId("DisconnectedLine").setR(0.0).setX(1.0).setConnectableBus1("NHV1").setBus2("NHV2").add();

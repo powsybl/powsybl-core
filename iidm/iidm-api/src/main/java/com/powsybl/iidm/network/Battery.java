@@ -118,7 +118,7 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
      * @see VariantManager
      * @deprecated use {@link #getRegulatingTargetQ()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     double getTargetQ();
 
     /**
@@ -127,7 +127,7 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder, Volta
      * @see VariantManager
      * @deprecated use {@link #setLocalTargetQ(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     Battery setTargetQ(double targetQ);
 
     /**
