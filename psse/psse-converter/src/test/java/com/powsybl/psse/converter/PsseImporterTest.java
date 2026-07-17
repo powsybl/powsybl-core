@@ -414,6 +414,19 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void skipNodeVoltageUpdateForBusBreakerFallback() throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("multipleNodeBreakerSubstations",
+                new ResourceSet("/", "multipleNodeBreakerSubstations.rawx"));
+        Properties properties = new Properties();
+        properties.setProperty("psse.import.ignore-node-breaker-topology", Boolean.TRUE.toString());
+
+        Network network = assertDoesNotThrow(() -> new PsseImporter().importData(dataSource,
+                new NetworkFactoryImpl(), properties));
+
+        assertEquals(TopologyKind.BUS_BREAKER, network.getVoltageLevel("VL101-102").getTopologyKind());
+    }
+
+    @Test
     void importTwoSubstationsRawxTest() throws IOException {
         importTest("twoSubstations_rev35", "twoSubstations_rev35.rawx", false);
     }
