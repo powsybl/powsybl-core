@@ -39,7 +39,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
                 b.getTargetP());
         context.getWriter().writeDoubleAttribute(IidmSerDeUtil.getAttributeName("q0", getTargetQName(context), context.getVersion(), IidmVersion.V_1_8),
                 b.getLocalTargetQ());
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, b.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, b.getLocalTargetV()));
         context.getWriter().writeDoubleAttribute("minP", b.getMinP());
         context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
         writeNodeOrBus(null, b.getTerminal(), context);
@@ -63,7 +63,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
                 IidmSerDeUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmVersion.V_1_8));
         double targetQ = context.getReader().readDoubleAttribute(
                 IidmSerDeUtil.getAttributeName("q0", getTargetQName(context), context.getVersion(), IidmVersion.V_1_8));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V)));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V)));
         double minP = context.getReader().readDoubleAttribute("minP");
         double maxP = context.getReader().readDoubleAttribute("maxP");
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
@@ -89,6 +89,6 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
     }
 
     private static <T extends AbstractOptions<T>> @NonNull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
-        return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetQ" : "localTargetQ";
+        return context.getVersion().compareTo(IidmVersion.V_1_18) < 0 ? "targetQ" : "localTargetQ";
     }
 }

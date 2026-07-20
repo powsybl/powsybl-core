@@ -21,11 +21,11 @@ public final class VoltageRegulationSerdeUtil {
 
     public static void writeVoltageSetpoint(VoltageRegulationHolder<?> voltageRegulationHolder, NetworkSerializerContext context) {
         double voltageSetpoint = voltageRegulationHolder.getRegulatingTargetV();
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute("voltageSetpoint", voltageSetpoint));
     }
 
     public static void writeReactivePowerSetpoint(VoltageRegulationHolder<?> voltageRegulationHolder, NetworkSerializerContext context) {
         double reactivePowerSetpoint = voltageRegulationHolder.getRegulatingTargetQ();
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute("reactivePowerSetpoint", reactivePowerSetpoint));
     }
 }

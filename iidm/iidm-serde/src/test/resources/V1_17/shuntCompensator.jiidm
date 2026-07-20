@@ -20,6 +20,9 @@
       "shuntCompensators" : [ {
         "id" : "SHUNT",
         "sectionCount" : 1,
+        "voltageRegulatorOn" : true,
+        "targetV" : 200.0,
+        "targetDeadband" : 5.0,
         "bus" : "B1",
         "connectableBus" : "B1",
         "p" : 1.0,
@@ -34,14 +37,8 @@
           "bPerSection" : 1.0E-5,
           "maximumSectionCount" : 1
         },
-        "voltageRegulation" : {
-          "targetValue" : 200.0,
-          "targetDeadband" : 5.0,
-          "mode" : "VOLTAGE",
-          "regulating" : true,
-          "terminalRef" : {
-            "id" : "LOAD"
-          }
+        "regulatingTerminal" : {
+          "id" : "LOAD"
         }
       } ]
     } ]
