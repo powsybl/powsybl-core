@@ -81,4 +81,11 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * @return true if the disconnection succeeded, false otherwise (the connectable on the given <code>side</code> could not be disconnected, or it was already disconnected)
      */
     boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
+
+    /**
+     * Removes all loadflow output values of this connectable (e.g., P and Q on terminals).
+     */
+    default void unsetSolvedValues() {
+        this.getTerminals().forEach(Terminal::unsetSolvedValues);
+    }
 }

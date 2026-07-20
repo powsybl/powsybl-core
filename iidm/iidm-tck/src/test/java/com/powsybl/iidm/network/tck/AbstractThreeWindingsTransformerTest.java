@@ -851,7 +851,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     @Test
     public void invalidLeg3NotSet() {
-        ValidationException e = assertThrows(ValidationException.class, () -> substation.newThreeWindingsTransformer()
+        ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
             .newLeg1()
@@ -874,8 +874,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedS(2.06)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")
-            .add()
-            .add());
+            .add();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
         assertTrue(e.getMessage().contains(ERROR_LEG3_IS_NOT_SET));
     }
 

@@ -57,6 +57,7 @@ public class VoltageSourceConverterAdderImpl extends AbstractAcDcConverterAdder<
                 reactivePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkRegulatingTerminal(this, this.pccTerminal, network);
         VoltageSourceConverterImpl dcVsConverter = new VoltageSourceConverterImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious(),
+                minP, maxP,
                 idleLoss, switchingLoss, resistiveLoss,
                 pccTerminal, controlMode, targetP, targetVdc,
                 voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);

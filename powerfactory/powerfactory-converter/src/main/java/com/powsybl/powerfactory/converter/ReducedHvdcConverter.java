@@ -7,8 +7,8 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
@@ -40,8 +40,8 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
     }
 
     @Override
-    boolean isDcLink(DataObject elmLne) {
-        return dcElmLnes.contains(elmLne);
+    boolean isDcObject(DataObject obj) {
+        return dcElmLnes.contains(obj) || dcElmTerms.contains(obj);
     }
 
     @Override
@@ -65,7 +65,8 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
         for (DataObject elmTerm : elmTerms) {
             getDataObjectsConnectedToElmTerm(elmTerm)      // Find all elements connected to the current terminal elmTerm
                     .filter(elmVscs::contains).findFirst() // leave only VSCs
-                    .ifPresent(elmVsc -> elmTermsConnectedToVscs.computeIfAbsent(elmVsc, k -> new ArrayList<>()).add(elmTerm)); // add elements connected to VSCs to elmTermsConnectedToVscs (or empty list when empty)
+                    // add elements connected to VSCs to elmTermsConnectedToVscs (or empty list when empty)
+                    .ifPresent(elmVsc -> elmTermsConnectedToVscs.computeIfAbsent(elmVsc, k -> new ArrayList<>()).add(elmTerm));
         }
     }
 
@@ -119,10 +120,10 @@ class ReducedHvdcConverter extends AbstractHvdcConverter {
     private Optional<DataObject> otherElmTerm(DataObject elmTerm, DataObject elmLne, DataObject elmVsc) {
         // Search only in elmTerms connected to other VSCs
         return elmTermsConnectedToVscs.entrySet().stream()
-                .filter(e -> !Objects.equals(elmVsc, e.getKey()))
-                .map(Map.Entry::getValue)
-                .flatMap(Collection::stream)
-                // Recheck that elmTerm is different from the given one
+            .filter(e -> !Objects.equals(elmVsc, e.getKey()))
+            .map(Map.Entry::getValue)
+            .flatMap(Collection::stream)
+            // Recheck that elmTerm is different from the given one
             .filter(otherElmTerm -> !elmTerm.equals(otherElmTerm) && isElmTermConnectedToLne(otherElmTerm, elmLne))
             .findFirst();
     }

@@ -82,10 +82,6 @@ public class CgmesExportContext {
     private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
-
-    record BaseVoltageSource(Double nominalV, String id, Source source) { }
-    record Region(String id, String name, Source source) { }
-    record SubRegion(String id, String name, String regionId) { }
     private final Map<Double, BaseVoltageSource> baseVoltageMapping = new HashMap<>();
     private final Map<String, Region> regionsById = new HashMap<>();
     private final Map<String, SubRegion> subRegionsById = new HashMap<>();
@@ -304,30 +300,33 @@ public class CgmesExportContext {
         network.getVoltageLevelStream()
             .map(VoltageLevel::getNominalV)
             .distinct()
-            .forEach(nominalV -> {
-                BaseVoltageSource bvSource;
-                // If it exists in the extension, keep it.
-                if (referenceBvMapping.containsKey(nominalV)) {
-                    BaseVoltageMapping.BaseVoltageSource referenceBvSource = referenceBvMapping.get(nominalV);
-                    bvSource = new BaseVoltageSource(nominalV, referenceBvSource.getId(), referenceBvSource.getSource());
-                } else {
-                    // Try to retrieve the BaseVoltage id from reference data.
-                    String baseVoltageId = null;
-                    Source source = null;
-                    if (referenceDataProvider != null) {
-                        baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
-                        source = Source.BOUNDARY;
-                    }
-                    if (baseVoltageId == null) {
-                        // If not in the reference data, create a new unique id.
-                        CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
-                        baseVoltageId = namingStrategy.getCgmesId(vref, BASE_VOLTAGE);
-                        source = Source.IGM;
-                    }
-                    bvSource = new BaseVoltageSource(nominalV, baseVoltageId, source);
-                }
-                baseVoltageMapping.put(nominalV, bvSource);
-            });
+            .forEach(nominalV -> createVoltageLevelMapping(referenceBvMapping, nominalV, noTrailingZerosFormat));
+    }
+
+    private void createVoltageLevelMapping(Map<Double, BaseVoltageMapping.BaseVoltageSource> referenceBvMapping, Double nominalV,
+                                           DecimalFormat noTrailingZerosFormat) {
+        BaseVoltageSource bvSource;
+        // If it exists in the extension, keep it.
+        if (referenceBvMapping.containsKey(nominalV)) {
+            BaseVoltageMapping.BaseVoltageSource referenceBvSource = referenceBvMapping.get(nominalV);
+            bvSource = new BaseVoltageSource(nominalV, referenceBvSource.getId(), referenceBvSource.getSource());
+        } else {
+            // Try to retrieve the BaseVoltage id from reference data.
+            String baseVoltageId = null;
+            Source source = null;
+            if (referenceDataProvider != null) {
+                baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
+                source = Source.BOUNDARY;
+            }
+            if (baseVoltageId == null) {
+                // If not in the reference data, create a new unique id.
+                CgmesObjectReference vref = ref(noTrailingZerosFormat.format(nominalV));
+                baseVoltageId = namingStrategy.getCgmesId(vref, BASE_VOLTAGE);
+                source = Source.IGM;
+            }
+            bvSource = new BaseVoltageSource(nominalV, baseVoltageId, source);
+        }
+        baseVoltageMapping.put(nominalV, bvSource);
     }
 
     public boolean isExportEquipment() {
@@ -621,5 +620,11 @@ public class CgmesExportContext {
     public boolean updateDependencies() {
         return updateDependencies;
     }
+
+    record BaseVoltageSource(Double nominalV, String id, Source source) { }
+
+    record Region(String id, String name, Source source) { }
+
+    record SubRegion(String id, String name, String regionId) { }
 }
 
