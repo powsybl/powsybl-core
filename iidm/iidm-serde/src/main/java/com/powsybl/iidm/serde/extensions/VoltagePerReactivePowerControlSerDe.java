@@ -15,6 +15,7 @@ import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.removed.VoltagePerReactivePowerControl;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 
@@ -41,9 +42,10 @@ public class VoltagePerReactivePowerControlSerDe extends AbstractExtensionSerDe<
     public VoltagePerReactivePowerControl read(StaticVarCompensator svc, DeserializerContext context) {
         double slope = context.getReader().readDoubleAttribute("slope");
         context.getReader().readEndNode();
-        //if (svc.isWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)) { //TODO OPE is this check expected?
-        svc.getVoltageRegulation().setSlope(slope);
-        //}
+        if (!Double.isNaN(slope)) {
+            svc.getVoltageRegulation().setSlope(slope);
+            svc.getVoltageRegulation().setMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER);
+        }
         return null;
     }
 
@@ -59,8 +61,8 @@ public class VoltagePerReactivePowerControlSerDe extends AbstractExtensionSerDe<
 
     private static boolean isExtensionNeeded(StaticVarCompensator svc) {
         return svc.getVoltageRegulation() != null
-                && !Double.isNaN(svc.getVoltageRegulation().getSlope());
-        //&& svc.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE_PER_REACTIVE_POWER; //TODO OPE is this expected?
+                && !Double.isNaN(svc.getVoltageRegulation().getSlope())
+                && svc.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE_PER_REACTIVE_POWER;
     }
 
     public static boolean isExtensionNeededAndExportable(StaticVarCompensator svc, NetworkSerializerContext context) {

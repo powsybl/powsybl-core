@@ -722,7 +722,6 @@ public final class EquipmentExport {
                 regulatingControlsWritten, mode, cimNamespace, writer, context);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
-            // TODO OPE: use a "default" regulation mode?
             RegulationMode regulationMode = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getMode() : null;
             double slope = svc.getVoltageRegulation() != null ? svc.getVoltageRegulation().getSlope() : Double.NaN;
             StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc),
