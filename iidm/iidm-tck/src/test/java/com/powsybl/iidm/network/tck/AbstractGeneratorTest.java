@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -61,8 +62,8 @@ public abstract class AbstractGeneratorTest {
         double voltageSetpoint = 31.0;
         double ratedS = 41.0;
         generator.setTargetP(activePowerSetpoint);
-        generator.setTargetQ(reactivePowerSetpoint);
-        generator.setTargetV(voltageSetpoint);
+        generator.setLocalTargetQ(reactivePowerSetpoint);
+        generator.setLocalTargetV(voltageSetpoint);
         generator.setRatedS(ratedS);
         assertEquals(activePowerSetpoint, generator.getTargetP(), 0.0);
         assertEquals(reactivePowerSetpoint, generator.getLocalTargetQ(), 0.0);
@@ -346,9 +347,9 @@ public abstract class AbstractGeneratorTest {
         // change values in s4
         generator.getVoltageRegulation().setRegulating(false);
         generator.setTargetP(12.1);
-        generator.setTargetQ(9.2);
+        generator.setLocalTargetQ(9.2);
         generator.getVoltageRegulation().setTargetValue(9.3);
-        generator.setTargetV(4.2);
+        generator.setLocalTargetV(4.2);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -373,12 +374,91 @@ public abstract class AbstractGeneratorTest {
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
-        try {
-            generator.getTargetP();
-            fail();
-        } catch (Exception ignored) {
-            // ignore
-        }
+        assertThrows(PowsyblException.class, generator::getTargetP);
+    }
+
+    @Test
+    void testNewVoltageRegulationInMultiVariants() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
+            15.0, 40.0, true, 2.0);
+
+        Generator generator = network.getGenerator("testMultiVariant");
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(123)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        VoltageRegulation voltageRegulation = generator.newVoltageRegulation().withSlope(1).withRegulating(false).build();
+        // THEN
+        assertNotNull(voltageRegulation);
+        assertEquals(voltageRegulation, generator.getVoltageRegulation());
+        // Variant1
+        assertNull(voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(Double.NaN, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(1, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        assertNull(voltageRegulation.getTerminal());
+        assertEquals(123, voltageRegulation.getTargetValue());
+        assertEquals(Double.NaN, voltageRegulation.getTargetDeadband());
+        assertEquals(Double.NaN, voltageRegulation.getSlope());
+        assertFalse(voltageRegulation.isRegulating());
+    }
+
+    @Test
+    void testRemoveVoltageRegulationInMultiVariant() {
+        // GIVEN
+        VariantManager variantManager = network.getVariantManager();
+        createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
+            15.0, 40.0, true, 2.0);
+
+        Generator generator = network.getGenerator("testMultiVariant");
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        String variant1 = "variant1";
+        List<String> variantsToAdd = List.of(variant1);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+        variantManager.setWorkingVariant(variant1);
+        // WHEN
+        generator.removeVoltageRegulation();
+        // THEN
+        // Variant1
+        assertNull(generator.getVoltageRegulation());
+        // INITIAL_VARIANT_ID
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertNull(generator.getVoltageRegulation());
+    }
+
+    @Test
+    void testNewVoltageRegulationInMonoVariant() {
+        // GIVEN
+        createGenerator("testMonoVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
+            15.0, 40.0, true, 2.0);
+
+        Generator generator = network.getGenerator("testMonoVariant");
+        generator.newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .build();
+        VoltageRegulationBuilder voltageRegulationBuilder = generator.newVoltageRegulation().withRegulating(false);
+        // WHEN
+        VoltageRegulation voltageRegulation = voltageRegulationBuilder.build();
+        // THEN
+        assertNotNull(voltageRegulation);
     }
 
     @Test

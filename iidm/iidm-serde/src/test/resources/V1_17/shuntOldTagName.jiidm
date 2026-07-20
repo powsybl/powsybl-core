@@ -21,7 +21,7 @@
         "id" : "SHUNT",
         "sectionCount" : 1,
         "voltageRegulatorOn" : true,
-        "localTargetV" : 200.0,
+        "targetV" : 200.0,
         "targetDeadband" : 5.0,
         "bus" : "B1",
         "connectableBus" : "B1",

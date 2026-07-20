@@ -5,13 +5,13 @@
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="BBS1" node="0"/>
                 <iidm:busbarSection id="BBS2" node="1"/>
-                <iidm:switch id="D_0_3" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="4"/>
-                <iidm:switch id="D_1_3" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="4"/>
-                <iidm:switch id="D_0_5" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:switch id="D_1_5" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="5"/>
-                <iidm:switch id="BR_LOAD" kind="BREAKER" retained="false" open="false" node1="2" node2="4"/>
-                <iidm:switch id="BR_VL1" kind="BREAKER" retained="false" open="true" node1="3" node2="5"/>
-                <iidm:switch id="D_1_6" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="6"/>
+                <iidm:switch id="D_0_3" kind="DISCONNECTOR" open="false" node1="0" node2="4"/>
+                <iidm:switch id="D_1_3" kind="DISCONNECTOR" open="false" node1="1" node2="4"/>
+                <iidm:switch id="D_0_5" kind="DISCONNECTOR" open="false" node1="0" node2="5"/>
+                <iidm:switch id="D_1_5" kind="DISCONNECTOR" open="false" node1="1" node2="5"/>
+                <iidm:switch id="BR_LOAD" kind="BREAKER" open="false" node1="2" node2="4"/>
+                <iidm:switch id="BR_VL1" kind="BREAKER" open="true" node1="3" node2="5"/>
+                <iidm:switch id="D_1_6" kind="DISCONNECTOR" open="false" node1="1" node2="6"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="L" loadType="UNDEFINED" p0="1.0" q0="1.0" node="2"/>
             <iidm:ground id="GroundNB" name="GroundNB1" node="6"/>
@@ -22,12 +22,12 @@
                 <iidm:bus id="BUS2"/>
                 <iidm:switch id="BR_VL2" kind="BREAKER" retained="true" open="false" bus1="BUS1" bus2="BUS2"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" targetP="0.0" localTargetV="0.0" localTargetQ="0.0" bus="BUS1" connectableBus="BUS1">
+            <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" voltageRegulatorOn="false" targetP="0.0" targetV="0.0" targetQ="0.0" bus="BUS1" connectableBus="BUS1">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
             <iidm:ground id="GroundBB" name="GroundBB1" bus="BUS2" connectableBus="BUS2"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" bus2="BUS1" connectableBus2="BUS1"/>
+        <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" bus2="BUS1" connectableBus2="BUS1"/>
     </iidm:substation>
     <iidm:extension id="BBS2">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>

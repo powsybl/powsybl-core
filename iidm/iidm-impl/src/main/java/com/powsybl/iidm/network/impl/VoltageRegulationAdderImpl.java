@@ -16,16 +16,18 @@ import java.util.function.Consumer;
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
-public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
+public class VoltageRegulationAdderImpl<T extends VoltageRegulationHolderAdder<T>> extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationAdder<T>> implements VoltageRegulationAdder<T> {
     private final T equipmentAdder;
+    private final Consumer<VoltageRegulation.AttributesWithTerminal> voltageRegulationAttributesConsumer;
 
-    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder> holderClass,
+    public VoltageRegulationAdderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                       Validable validable,
                                       T equipmentAdder,
                                       Ref<NetworkImpl> network,
-                                      Consumer<VoltageRegulationExt> voltageRegulationSetter) {
-        super(holderClass, validable, null, network, voltageRegulationSetter);
+                                      Consumer<VoltageRegulation.AttributesWithTerminal> voltageRegulationAttributesConsumer) {
+        super(holderClass, validable, null, network);
         this.equipmentAdder = equipmentAdder;
+        this.voltageRegulationAttributesConsumer = voltageRegulationAttributesConsumer;
     }
 
     @Override
@@ -35,7 +37,9 @@ public class VoltageRegulationAdderImpl<T> extends AbstractVoltageRegulationAdde
 
     @Override
     public T add() {
-        this.voltageRegulationSetter.accept(checkAndCreateVoltageRegulation());
+        if (voltageRegulationAttributesConsumer != null) {
+            voltageRegulationAttributesConsumer.accept(checkAndGetVoltageRegulationAttributes());
+        }
         return equipmentAdder;
     }
 }

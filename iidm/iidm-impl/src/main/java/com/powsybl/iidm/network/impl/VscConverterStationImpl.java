@@ -7,12 +7,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
@@ -33,7 +34,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     private VoltageRegulationExt voltageRegulation;
 
     VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
-                            double localTargetQ, double localTargetV, VoltageRegulationExt voltageRegulation) {
+                            double localTargetQ, double localTargetV, VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
         super(ref, id, name, fictitious, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.localTargetQ = new TDoubleArrayList(variantArraySize);
@@ -41,8 +42,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.localTargetQ.fill(0, variantArraySize, localTargetQ);
         this.localTargetV.fill(0, variantArraySize, localTargetV);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, VscConverterStation.class, ref, voltageRegulationAttributes);
     }
 
     @Override
@@ -57,19 +57,23 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return isWithMode(RegulationMode.VOLTAGE);
+        return isRegulatingWithMode(RegulationMode.VOLTAGE);
     }
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            boolean oldValue = regulation.setRegulating(voltageRegulatorOn);
-            String variantId = n.getVariantManager().getVariantId(variantIndex);
-            n.invalidateValidationLevel();
-            notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
-        });
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        boolean oldValue = isRegulating();
+        if (voltageRegulation != null) {
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            oldValue = voltageRegulation.setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
+        }
+        n.invalidateValidationLevel();
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -118,7 +122,13 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStation setLocalTargetQ(double targetQ) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), targetQ, getVoltageRegulation(), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            this.getLocalTargetV(),
+            targetQ,
+            getVoltageRegulation(),
+            n.getMinValidationLevel(),
+            n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.localTargetQ.set(variantIndex, targetQ);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -150,6 +160,11 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl(this);
+    }
+
+    @Override
+    public ReactiveCapabilityShapeAdderImpl newReactiveCapabilityShape() {
+        return new ReactiveCapabilityShapeAdderImpl(this);
     }
 
     @Override
@@ -217,8 +232,17 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public void removeVoltageRegulation() {
-        ValidationUtil.checkLocalTargetQandV(this, this.getLocalTargetV(), this.getLocalTargetQ(), true, false, null, getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
+        ValidationUtil.checkLocalTargetQandV(this,
+            VscConverterStation.class,
+            this.getLocalTargetV(),
+            this.getLocalTargetQ(),
+            true,
+            false,
+            false,
+            null,
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
 
@@ -236,20 +260,30 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public void remove() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         super.remove();
     }
 
-    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
-    }
-
-    private void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setHolder(this);
-        });
+    /**
+     * Creates or updates the voltage regulation associated with this battery.
+     * <p>
+     * If a voltage regulation already exists, only the current variant attributes are updated from the
+     * provided voltage regulation, while keeping the existing instance.
+     * </p>
+     * <p>
+     * This method must remain private to ensure voltage regulation lifecycle operations are done through
+     * the public API and to avoid sharing a voltage regulation instance between equipments.
+     * </p>
+     *
+     * @param voltageRegulation the voltage regulation to attach or use as source attributes
+     * @return the voltage regulation associated with this equipment
+     */
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = voltageRegulation;
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
+        }
+        return this.voltageRegulation;
     }
 }

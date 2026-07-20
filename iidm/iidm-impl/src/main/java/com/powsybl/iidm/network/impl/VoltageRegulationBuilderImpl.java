@@ -8,24 +8,27 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
-import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.regulation.*;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
  */
 public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdderOrBuilder<VoltageRegulationBuilder> implements VoltageRegulationBuilder {
 
-    public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder> holderClass,
+    private final Function<VoltageRegulationExt, VoltageRegulationExt> voltageRegulationSetter;
+
+    public VoltageRegulationBuilderImpl(Class<? extends VoltageRegulationHolder<?>> holderClass,
                                         Validable validable,
-                                        VoltageRegulationHolder holder,
+                                        VoltageRegulationHolder<?> holder,
                                         Ref<NetworkImpl> network,
-                                        Consumer<VoltageRegulationExt> voltageRegulationSetter) {
-        super(holderClass, validable, holder, network, voltageRegulationSetter);
+                                        UnaryOperator<VoltageRegulationExt> voltageRegulationSetter) {
+        super(holderClass, validable, holder, network);
+        this.voltageRegulationSetter = voltageRegulationSetter;
     }
 
     @Override
@@ -35,12 +38,14 @@ public class VoltageRegulationBuilderImpl extends AbstractVoltageRegulationAdder
 
     @Override
     public VoltageRegulation build() {
-        // TODO MSA add check if several variants are presents
-        VoltageRegulationExt voltageRegulation = checkAndCreateVoltageRegulation();
-        this.voltageRegulationSetter.accept(voltageRegulation);
-        if (!holder.isRemoteRegulating() && (!ShuntCompensator.class.equals(classHolder) || holder.isRegulating())) {
-            ValidationUtil.checkLocalTargetQandV(validable, holder.getLocalTargetV(), holder.getLocalTargetQ(), voltageRegulation, network.get().getMinValidationLevel(), network.get().getReportNodeContext().getReportNode());
-        }
-        return voltageRegulation;
+        VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = checkAndGetVoltageRegulationAttributes();
+        ValidationUtil.checkLocalTargetQandV(validable,
+            classHolder,
+            holder.getLocalTargetV(),
+            holder.getLocalTargetQ(),
+            voltageRegulationAttributes,
+            network.get().getMinValidationLevel(),
+            network.get().getReportNodeContext().getReportNode());
+        return this.voltageRegulationSetter.apply(VoltageRegulationImpl.createVoltageRegulation(validable, holder, classHolder, network, voltageRegulationAttributes));
     }
 }

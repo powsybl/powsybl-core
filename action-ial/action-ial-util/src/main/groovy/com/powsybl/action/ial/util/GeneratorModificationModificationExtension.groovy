@@ -46,7 +46,7 @@ class GeneratorModificationModificationExtension implements DslModificationExten
         RegulationMode voltageRegulationMode
         Boolean regulating;
         // Backward compatibility, use regulating and voltageRegulationMode instead
-        @Deprecated(forRemoval = true, since = "7.3.0")
+        @Deprecated(forRemoval = true, since = "7.4.0")
         Boolean voltageRegulatorOn
         Boolean connected
 
@@ -58,9 +58,9 @@ class GeneratorModificationModificationExtension implements DslModificationExten
             modifs.setDeltaTargetP(deltaTargetP)
             modifs.setTargetV(targetV)
             modifs.setTargetQ(targetQ)
+            modifs.setVoltageRegulatorOn(voltageRegulatorOn)
             modifs.setVoltageRegulationMode(voltageRegulationMode)
             modifs.setRegulating(regulating)
-            modifs.setVoltageRegulatorOn(voltageRegulatorOn)
             modifs.setConnected(connected)
             return modifs
         }
@@ -107,7 +107,7 @@ class GeneratorModificationModificationExtension implements DslModificationExten
             this.targetQ = targetQ
         }
 
-        @Deprecated(forRemoval = true, since = "7.3.0")
+        @Deprecated(forRemoval = true, since = "7.4.0")
         void voltageRegulatorOn(Boolean voltageRegulatorOn) {
             this.voltageRegulatorOn = voltageRegulatorOn
         }

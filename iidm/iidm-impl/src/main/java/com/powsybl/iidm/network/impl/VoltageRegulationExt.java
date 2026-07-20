@@ -8,11 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
-import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 
 /**
  * @author Matthieu SAUR {@literal <matthieu.saur at rte-france.com>}
@@ -20,17 +16,9 @@ import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 public interface VoltageRegulationExt extends VoltageRegulation, MultiVariantObject, Referrer<Terminal> {
 
     /**
-     * To set the validable, used by the validation methods
-     * The validable and the parent (VoltageRegulationHolder) can be different (for example the adder)
+     * Use to unregister all referenced objects
      */
-    void updateValidable(Validable validable);
+    void onRemove();
 
-    /**
-     * To set the holder, used by the validation methods
-     * The Parent is set when the VoltageRegulation is build with {@link VoltageRegulationBuilder}
-     * but must be set in the equipment's constructor when we use an adder {@link VoltageRegulationAdder}
-     */
-    void setHolder(VoltageRegulationHolder holder);
-
-    void remove();
+    void setAttributesOnCurrentVariant(VoltageRegulation voltageRegulation);
 }

@@ -43,13 +43,13 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkSerializerContext context) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
             context.getWriter().writeBooleanAttribute("voltageRegulatorOn", cs.isRegulatingWithMode(RegulationMode.VOLTAGE)));
         context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
         writeVoltageSetpoint(cs, context);
         writeReactivePowerSetpoint(cs, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, cs.getLocalTargetV()));
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, cs.getLocalTargetQ()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_V, cs.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeDoubleAttribute(LOCAL_TARGET_Q, cs.getLocalTargetQ()));
 
         writeNodeOrBus(null, cs.getTerminal(), context);
         writePQ(null, cs.getTerminal(), context.getWriter());
@@ -58,12 +58,12 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
     @Override
     protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkSerializerContext context) {
         ReactiveLimitsSerDe.INSTANCE.write(cs, context);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
             IidmSerDeUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(cs, cs.getRegulatingTerminal().getConnectable()),
                 ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
                 IidmVersion.V_1_6, context, () -> TerminalRefSerDe.writeTerminalRef(cs.getRegulatingTerminal(), context, REGULATING_TERMINAL))
         );
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context,
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context,
             () -> VoltageRegulationSerDe.writeVoltageRegulation(cs.getVoltageRegulation(), context));
     }
 
@@ -75,17 +75,17 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
     @Override
     protected void readRootElementAttributes(VscConverterStationAdder adder, VoltageLevel voltageLevel, List<Consumer<VscConverterStation>> toApply, NetworkDeserializerContext context) {
         AtomicReference<Boolean> voltageRegulatorOnRef = new AtomicReference<>(null);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> voltageRegulatorOnRef.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
 
         float lossFactor = context.getReader().readFloatAttribute("lossFactor");
 
         AtomicReference<Double> voltageSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> voltageSetpoint.set(context.getReader().readDoubleAttribute("voltageSetpoint")));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> voltageSetpoint.set(context.getReader().readDoubleAttribute("voltageSetpoint")));
 
         AtomicReference<Double> reactivePowerSetpoint = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint")));
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> reactivePowerSetpoint.set(context.getReader().readDoubleAttribute("reactivePowerSetpoint")));
 
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> {
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> {
             adder.setLocalTargetV(context.getReader().readDoubleAttribute(LOCAL_TARGET_V, Double.NaN));
             adder.setLocalTargetQ(context.getReader().readDoubleAttribute(LOCAL_TARGET_Q, Double.NaN));
         });
@@ -103,9 +103,15 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
         });
     }
 
-    private static void readVoltageRegulation(VscConverterStationAdder adder, NetworkDeserializerContext context, AtomicReference<Boolean> voltageRegulatorOnRef, AtomicReference<Double> voltageSetpoint, AtomicReference<Double> reactivePowerSetpoint) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
-            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(), voltageSetpoint.get(), reactivePowerSetpoint.get());
+    private static void readVoltageRegulation(VscConverterStationAdder adder,
+                                              NetworkDeserializerContext context,
+                                              AtomicReference<Boolean> voltageRegulatorOnRef,
+                                              AtomicReference<Double> voltageSetpoint,
+                                              AtomicReference<Double> reactivePowerSetpoint) {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
+            VoltageRegulationUtils.VoltageRegulationData voltageRegulationData = VoltageRegulationUtils.buildVoltageRegulationData(voltageRegulatorOnRef.get(),
+                voltageSetpoint.get(),
+                reactivePowerSetpoint.get());
             adder.setLocalTargetV(voltageRegulationData.targetV());
             adder.setLocalTargetQ(voltageRegulationData.targetQ());
             if (voltageRegulationData.regulationMode() != null) {
@@ -122,7 +128,10 @@ class VscConverterStationSerDe extends AbstractComplexIdentifiableSerDe<VscConve
             switch (elementName) {
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(toApply, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(toApply, context);
-                case REGULATING_TERMINAL -> VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                case REGULATING_TERMINAL -> {
+                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_17, context);
+                    VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                }
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
                 default -> readSubElement(elementName, id, toApply, context);
             }

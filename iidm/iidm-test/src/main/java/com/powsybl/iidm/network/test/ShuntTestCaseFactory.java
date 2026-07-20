@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 
 import java.time.ZonedDateTime;
-
 import java.util.Objects;
 
 /**

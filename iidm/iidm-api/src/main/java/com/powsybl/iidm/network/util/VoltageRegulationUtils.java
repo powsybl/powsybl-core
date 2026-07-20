@@ -40,8 +40,11 @@ public final class VoltageRegulationUtils {
                 vrAdder.withTargetValue(targetValue)
                     .withTerminal(terminal);
             }
-            if (withTargetValue || terminal == null) {
+            if (terminal == null) {
+                adder.setLocalTargetV(targetValue);
+            } else if (withTargetValue) {
                 adder.setLocalTargetV(localTargetV);
+
             }
             vrAdder.add();
             adder.setLocalTargetQ(targetQ);
@@ -135,7 +138,7 @@ public final class VoltageRegulationUtils {
         }
     }
 
-    public static <A extends VoltageRegulationHolder & Identifiable<?>> boolean logMissingVoltageRegulation(A holder, Logger logger, String type, String message) {
+    public static <A extends VoltageRegulationHolder<?> & Identifiable<?>> boolean logMissingVoltageRegulation(A holder, Logger logger, String type, String message) {
         if (holder != null && holder.getVoltageRegulation() == null) {
             logger.warn("Missing VoltageRegulation in {} '{}': {}", type, holder.getId(), message);
             return true;
@@ -159,7 +162,7 @@ public final class VoltageRegulationUtils {
             || isRemoteReactivePowerRegulating;
     }
 
-    public static void buildVoltageRegulation(VoltageRegulationHolder holder, boolean isLocalTerminal, double targetV, Terminal regulatingTerminal, boolean isRegulatingOn) {
+    public static void buildVoltageRegulation(VoltageRegulationHolder<?> holder, boolean isLocalTerminal, double targetV, Terminal regulatingTerminal, boolean isRegulatingOn) {
         if (isLocalTerminal) {
             holder.setLocalTargetV(targetV);
         }

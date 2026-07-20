@@ -9,11 +9,11 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 /**
@@ -35,7 +35,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private TerminalExt regulatingTerminal;
 
-    private VoltageRegulationExt voltageRegulation;
+    private VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes = null;
 
     private boolean voltageRegulatorOn = false;
 
@@ -196,8 +196,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     @Override
     public VoltageRegulationAdder<ShuntCompensatorAdder> newVoltageRegulation() {
-        Consumer<VoltageRegulationExt> voltageRegulationConsumer = vr -> this.voltageRegulation = vr;
-        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, this, getNetworkRef(), voltageRegulationConsumer);
+        return new VoltageRegulationAdderImpl<>(ShuntCompensator.class, this, this, getNetworkRef(), this::setVoltageRegulationAttributes);
     }
 
     @Override
@@ -224,6 +223,10 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         return this;
     }
 
+    private void setVoltageRegulationAttributes(VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
+        this.voltageRegulationAttributes = voltageRegulationAttributes;
+    }
+
     @Override
     public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
         this.targetDeadband = targetDeadband;
@@ -239,13 +242,14 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        if (this.voltageRegulation == null) {
+        if (this.voltageRegulationAttributes == null) {
             boolean isWithTerminal = regulatingTerminal != null;
-            if (voltageRegulatorOn) {
+            if (voltageRegulatorOn || !Double.isNaN(targetDeadband)) {
                 this.newVoltageRegulation().withMode(RegulationMode.VOLTAGE)
                     .withTargetValue(isWithTerminal ? targetV : Double.NaN)
                     .withTargetDeadband(targetDeadband)
                     .withTerminal(regulatingTerminal)
+                    .withRegulating(voltageRegulatorOn)
                     .add();
                 if (!isWithTerminal) {
                     localTargetV = targetV;
@@ -260,13 +264,23 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(),
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        if (voltageRegulation != null && voltageRegulation.isRegulating() && voltageRegulation.getTerminal() == null) {
-            network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this, localTargetV, Double.NaN, voltageRegulation, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
-        }
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkLocalTargetQandV(this,
+            ShuntCompensator.class,
+            localTargetV,
+            Double.NaN,
+            voltageRegulationAttributes,
+            network.getMinValidationLevel(),
+            network.getReportNodeContext().getReportNode()));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
-                id, getName(), isFictitious(), modelBuilder.build(),
-            sectionCount, solvedSectionCount, localTargetV, voltageRegulation);
+            id,
+            getName(),
+            isFictitious(),
+            modelBuilder.build(),
+            sectionCount,
+            solvedSectionCount,
+            localTargetV,
+            voltageRegulationAttributes);
 
         shunt.addTerminal(terminal);
         voltageLevel.getTopologyModel().attach(terminal, false);

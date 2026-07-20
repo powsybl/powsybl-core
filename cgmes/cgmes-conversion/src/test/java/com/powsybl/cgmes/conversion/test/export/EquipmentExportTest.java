@@ -7,8 +7,12 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -17,13 +21,14 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
-import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
@@ -31,14 +36,11 @@ import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLImporter;
-import com.powsybl.iidm.network.util.BranchData;
-import com.powsybl.iidm.network.util.TwtData;
-
-import com.google.re2j.Matcher;
-import com.google.re2j.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,12 +53,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.FileSystem;
 import java.util.*;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 
 import static com.powsybl.cgmes.conversion.Conversion.*;
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.getPhaseTapChangerAliasType;
@@ -112,11 +112,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Avoid negative zeros during the comparison
         expected.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
         actual.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
 
         assertTrue(compareNetworksEQdata(expected, actual));
@@ -131,11 +131,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Avoid negative zeros during the comparison
         expected.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
         actual.getGenerators().forEach(generator -> {
             generator.setTargetP(generator.getTargetP() + 0.0);
-            generator.setTargetQ(generator.getLocalTargetQ() + 0.0);
+            generator.setLocalTargetQ(generator.getLocalTargetQ() + 0.0);
         });
 
         assertTrue(compareNetworksEQdata(expected, actual));
@@ -583,7 +583,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
-            actualGenerator.setTargetQ(expectedGenerator.getLocalTargetQ());
+            actualGenerator.setLocalTargetQ(expectedGenerator.getLocalTargetQ());
         });
 
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
@@ -662,7 +662,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         expected.getGenerators().forEach(expectedGenerator -> {
             Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
             actualGenerator.setTargetP(expectedGenerator.getTargetP());
-            actualGenerator.setTargetQ(expectedGenerator.getLocalTargetQ());
+            actualGenerator.setLocalTargetQ(expectedGenerator.getLocalTargetQ());
         });
 
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
@@ -832,7 +832,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
 
         assertEquals(twtNetwork.getRatioTapChanger().getRegulatingTargetV(), twtActual.getRatioTapChanger().getRegulatingTargetV());
-        assertEquals(twtNetwork.getRatioTapChanger().getTargetDeadband(), twtActual.getRatioTapChanger().getTargetDeadband());
+        assertEquals(twtNetwork.getRatioTapChanger().getVoltageRegulation().getTargetDeadband(), twtActual.getRatioTapChanger().getVoltageRegulation().getTargetDeadband());
 
         assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
         assertEquals(twtNetwork.getPhaseTapChanger().getRegulationValue(), twtActual.getPhaseTapChanger().getRegulationValue());
@@ -934,7 +934,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private static void checkLeg(ThreeWindingsTransformer.Leg legNetwork, ThreeWindingsTransformer.Leg legActual) {
         assertEquals(legNetwork.getRatioTapChanger().getRegulatingTargetV(), legActual.getRatioTapChanger().getRegulatingTargetV());
-        assertEquals(legNetwork.getRatioTapChanger().getTargetDeadband(), legActual.getRatioTapChanger().getTargetDeadband());
+        assertEquals(legNetwork.getRatioTapChanger().getVoltageRegulation().getTargetDeadband(), legActual.getRatioTapChanger().getVoltageRegulation().getTargetDeadband());
 
         assertEquals(legNetwork.getPhaseTapChanger().getRegulationMode().name(), legActual.getPhaseTapChanger().getRegulationMode().name());
         assertEquals(legNetwork.getPhaseTapChanger().getRegulationValue(), legActual.getPhaseTapChanger().getRegulationValue());
@@ -1616,7 +1616,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
         return network;
     }
 
-    private Network exportImport(Network expected, ReadOnlyDataSource dataSource, boolean importTP, boolean importBD, boolean transformersWithHighestVoltageAtEnd1) throws IOException, XMLStreamException {
+    private Network exportImport(Network expected, ReadOnlyDataSource dataSource, boolean importTP, boolean importBD,
+                                 boolean transformersWithHighestVoltageAtEnd1) throws IOException, XMLStreamException {
         Path exportedEq = exportToCgmesEQ(expected, transformersWithHighestVoltageAtEnd1);
 
         // From reference data source we use only boundaries
@@ -1768,54 +1769,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
                     bus.setAngle(Double.NaN);
                 })
         );
-        network.getIdentifiables().forEach(identifiable -> {
-            if (identifiable instanceof Bus) {
-                // Nothing to do
-            } else if (identifiable instanceof BusbarSection) {
-                // Nothing to do
-            } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
-                shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
-                shuntCompensator.getTerminal().setQ(0.0);
-                shuntCompensator.getTerminal().setP(0.0);
-                shuntCompensator.setSectionCount(0);
-            } else if (identifiable instanceof Generator generator) {
-                generator.removeVoltageRegulation();
-                generator.setTargetV(Double.NaN);
-                generator.setTargetP(Double.NaN);
-                generator.setTargetQ(Double.NaN);
-                generator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
-                staticVarCompensator.removeVoltageRegulation();
-                staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof VscConverterStation converter) {
-                converter.removeVoltageRegulation();
-                converter.setLossFactor(0.8f);
-                converter.setLocalTargetV(Double.NaN);
-                converter.setLocalTargetQ(Double.NaN);
-                converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof LccConverterStation converter) {
-                converter.setPowerFactor(0.8f);
-                converter.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Injection<?> injection) {
-                injection.getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof HvdcLine hvdcLine) {
-                hvdcLine.setActivePowerSetpoint(0.0);
-                hvdcLine.setMaxP(0.0);
-                hvdcLine.getConverterStation1().getTerminal().setP(0.0).setQ(0.0);
-                hvdcLine.getConverterStation2().getTerminal().setP(0.0).setQ(0.0);
-            } else if (identifiable instanceof Branch<?> branch) {
-                branch.getTerminal1().setP(0.0).setQ(0.0);
-                branch.getTerminal2().setP(0.0).setQ(0.0);
-                if (branch instanceof TwoWindingsTransformer twoWindingsTransformer) {
-                    prepareVoltageRegulationForEqComparison(twoWindingsTransformer.getRatioTapChanger());
-                }
-            } else if (identifiable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
-                prepareVoltageRegulationForEqComparison(threeWindingsTransformer);
-                threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
-                threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
-                threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);
-            }
-        });
+        network.getIdentifiables().forEach(EquipmentExportTest::prepareNetworkElementForEQComparison);
         for (Load load : network.getLoads()) {
             load.setP0(0.0).setQ0(0.0);
         }
@@ -1830,13 +1784,62 @@ class EquipmentExportTest extends AbstractSerDeTest {
         return network;
     }
 
-    private void prepareVoltageRegulationForEqComparison(ThreeWindingsTransformer threeWindingsTransformer) {
+    private static void prepareNetworkElementForEQComparison(Identifiable<?> identifiable) {
+        if (identifiable instanceof Bus) {
+            // Nothing to do
+        } else if (identifiable instanceof BusbarSection) {
+            // Nothing to do
+        } else if (identifiable instanceof ShuntCompensator shuntCompensator) {
+            shuntCompensator.newVoltageRegulation().withRegulating(false).withMode(RegulationMode.VOLTAGE).build();
+            shuntCompensator.getTerminal().setQ(0.0);
+            shuntCompensator.getTerminal().setP(0.0);
+            shuntCompensator.setSectionCount(0);
+        } else if (identifiable instanceof Generator generator) {
+            generator.removeVoltageRegulation();
+            generator.setLocalTargetV(Double.NaN);
+            generator.setTargetP(Double.NaN);
+            generator.setLocalTargetQ(Double.NaN);
+            generator.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof StaticVarCompensator staticVarCompensator) {
+            staticVarCompensator.removeVoltageRegulation();
+            staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof VscConverterStation converter) {
+            converter.removeVoltageRegulation();
+            converter.setLossFactor(0.8f);
+            converter.setLocalTargetV(Double.NaN);
+            converter.setLocalTargetQ(Double.NaN);
+            converter.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof LccConverterStation converter) {
+            converter.setPowerFactor(0.8f);
+            converter.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof Injection<?> injection) {
+            injection.getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof HvdcLine hvdcLine) {
+            hvdcLine.setActivePowerSetpoint(0.0);
+            hvdcLine.setMaxP(0.0);
+            hvdcLine.getConverterStation1().getTerminal().setP(0.0).setQ(0.0);
+            hvdcLine.getConverterStation2().getTerminal().setP(0.0).setQ(0.0);
+        } else if (identifiable instanceof Branch<?> branch) {
+            branch.getTerminal1().setP(0.0).setQ(0.0);
+            branch.getTerminal2().setP(0.0).setQ(0.0);
+            if (branch instanceof TwoWindingsTransformer twoWindingsTransformer) {
+                prepareVoltageRegulationForEqComparison(twoWindingsTransformer.getRatioTapChanger());
+            }
+        } else if (identifiable instanceof ThreeWindingsTransformer threeWindingsTransformer) {
+            prepareVoltageRegulationForEqComparison(threeWindingsTransformer);
+            threeWindingsTransformer.getLeg1().getTerminal().setP(0.0).setQ(0.0);
+            threeWindingsTransformer.getLeg2().getTerminal().setP(0.0).setQ(0.0);
+            threeWindingsTransformer.getLeg3().getTerminal().setP(0.0).setQ(0.0);
+        }
+    }
+
+    private static void prepareVoltageRegulationForEqComparison(ThreeWindingsTransformer threeWindingsTransformer) {
         Arrays.stream(ThreeSides.values())
             .forEach(side ->
                 prepareVoltageRegulationForEqComparison(threeWindingsTransformer.getLeg(side).getRatioTapChanger()));
     }
 
-    private void prepareVoltageRegulationForEqComparison(VoltageRegulationHolder holder) {
+    private static <T extends VoltageRegulationHolder<T>> void prepareVoltageRegulationForEqComparison(T holder) {
         if (holder != null) {
             VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
             if (voltageRegulation != null) {

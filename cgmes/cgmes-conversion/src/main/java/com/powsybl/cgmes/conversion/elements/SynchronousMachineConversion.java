@@ -136,7 +136,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             targetP = -updatedPowerFlow.p();
             targetQ = -updatedPowerFlow.q();
         }
-        generator.setTargetP(targetP).setTargetQ(targetQ);
+        generator.setTargetP(targetP).setLocalTargetQ(targetQ);
 
         String generatingUnitId = generator.getProperty(PROPERTY_GENERATING_UNIT);
         if (generatingUnitId != null) {

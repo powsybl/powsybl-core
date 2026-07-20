@@ -16,8 +16,8 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_GOVERNOR_SCD;
 import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_CGMES_ORIGINAL_CLASS;
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_GOVERNOR_SCD;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -66,7 +66,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
             targetP = -updatedPowerFlow.p();
             targetQ = -updatedPowerFlow.q();
         }
-        generator.setTargetP(targetP).setTargetQ(targetQ);
+        generator.setTargetP(targetP).setLocalTargetQ(targetQ);
 
         Boolean controlEnabled = cgmesData.asBoolean(CgmesNames.CONTROL_ENABLED).orElse(null);
         updateRegulatingControl(generator, controlEnabled, context);

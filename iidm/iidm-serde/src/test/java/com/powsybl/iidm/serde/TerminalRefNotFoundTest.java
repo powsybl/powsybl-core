@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +28,8 @@ class TerminalRefNotFoundTest extends AbstractIidmSerDeTest {
         Stream.of(IidmVersion.values())
             .filter(v -> v.compareTo(minVersion) >= 0)
             .forEach(v -> {
-                PowsyblException exception = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getVersionedNetworkAsStream("terminalRefNotFound.xiidm", v)));
+                InputStream inputStream = getVersionedNetworkAsStream("terminalRefNotFound.xiidm", v);
+                PowsyblException exception = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(inputStream));
                 assertEquals(expectedError, exception.getMessage());
             });
     }

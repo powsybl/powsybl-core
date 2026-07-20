@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 
@@ -41,11 +41,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          Integer sectionCount, Integer solvedSectionCount,
                          double localTargetV,
-                         VoltageRegulationExt voltageRegulation) {
+                         VoltageRegulation.AttributesWithTerminal voltageRegulationAttributes) {
         super(network, id, name, fictitious);
         this.network = network;
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+        this.voltageRegulation = VoltageRegulationImpl.createVoltageRegulation(this, this, ShuntCompensator.class, network, voltageRegulationAttributes);
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.solvedSectionCount = new ArrayList<>(variantArraySize);
@@ -64,10 +63,14 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public VoltageRegulationHolder setLocalTargetV(double targetV) {
-        if (this.isRegulating()) {
-            ValidationUtil.checkLocalTargetQandV(this, targetV, Double.NaN, getVoltageRegulation(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
-        }
+    public ShuntCompensator setLocalTargetV(double targetV) {
+        ValidationUtil.checkLocalTargetQandV(this,
+            ShuntCompensator.class,
+            targetV,
+            Double.NaN,
+            getVoltageRegulation(),
+            getNetwork().getMinValidationLevel(),
+            getNetwork().getReportNodeContext().getReportNode());
         this.localTargetV.set(getCurrentIndex(), targetV);
         return this;
     }
@@ -198,12 +201,14 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         Terminal oldValue = getRegulatingTerminal();
         int variantIndex = network.get().getVariantIndex();
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            double targetValue = isWithMode(RegulationMode.VOLTAGE) ? getRegulatingTargetV() : Double.NaN;
-            regulation.setTerminal(regulatingTerminal, targetValue);
-            n.invalidateValidationLevel();
-            notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
-        });
+        double targetValue = getRegulatingTargetV();
+        if (voltageRegulation != null) {
+            voltageRegulation.setTerminal(regulatingTerminal, targetValue);
+        } else {
+            newVoltageRegulation().withRegulating(false).withTargetValue(targetValue).withTerminal(regulatingTerminal).build();
+        }
+        n.invalidateValidationLevel();
+        notifyUpdate("regulatingTerminal", variantId, oldValue, regulatingTerminal);
         return this;
     }
 
@@ -217,11 +222,15 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            boolean oldValue = regulation.setRegulating(voltageRegulatorOn);
-            n.invalidateValidationLevel();
-            notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
-        });
+        boolean oldValue = isRegulating();
+        if (voltageRegulation != null) {
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+            oldValue = voltageRegulation.setRegulating(voltageRegulatorOn);
+        } else {
+            newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(voltageRegulatorOn).build();
+        }
+        n.invalidateValidationLevel();
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -235,11 +244,19 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            double oldValue = regulation.setTargetValue(targetV);
-            n.invalidateValidationLevel();
-            notifyUpdate("targetV", variantId, oldValue, targetV);
-        });
+        double oldValue = getLocalTargetV();
+        if (voltageRegulation != null) {
+            if (isRemoteRegulating() && isWithMode(RegulationMode.VOLTAGE)) {
+                oldValue = getVoltageRegulation().getTargetValue();
+                getVoltageRegulation().setTargetValue(targetV);
+            } else {
+                setLocalTargetV(targetV);
+            }
+        } else {
+            setLocalTargetV(targetV);
+        }
+        n.invalidateValidationLevel();
+        notifyUpdate("targetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -253,17 +270,20 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getOptionalVoltageRegulation().ifPresent(regulation -> {
-            double oldValue = regulation.setTargetDeadband(targetDeadband);
-            n.invalidateValidationLevel();
-            notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);
-        });
+        double oldValue = Double.NaN;
+        if (voltageRegulation != null) {
+            voltageRegulation.setTargetDeadband(targetDeadband);
+        } else {
+            newVoltageRegulation().withRegulating(false).withTargetDeadband(targetDeadband).build();
+        }
+        n.invalidateValidationLevel();
+        notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);
         return this;
     }
 
     @Override
     public void remove() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         super.remove();
     }
 
@@ -335,7 +355,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public void removeVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
+        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::onRemove);
         this.voltageRegulation = null;
     }
 
@@ -343,20 +363,31 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         return Optional.ofNullable(this.voltageRegulation);
     }
 
-    private void setVoltageRegulation(VoltageRegulationExt voltageRegulation) {
-        getOptionalVoltageRegulation().ifPresent(VoltageRegulationExt::remove);
-        this.voltageRegulation = voltageRegulation;
-        this.attachVoltageRegulation();
+    /**
+     * Creates or updates the voltage regulation associated with this battery.
+     * <p>
+     * If a voltage regulation already exists, only the current variant attributes are updated from the
+     * provided voltage regulation, while keeping the existing instance.
+     * </p>
+     * <p>
+     * This method must remain private to ensure voltage regulation lifecycle operations are done through
+     * the public API and to avoid sharing a voltage regulation instance between equipments.
+     * </p>
+     *
+     * @param voltageRegulation the voltage regulation to attach or use as source attributes
+     * @return the voltage regulation associated with this equipment
+     */
+    private VoltageRegulationExt setVoltageRegulation(@NonNull VoltageRegulationExt voltageRegulation) {
+        if (this.voltageRegulation == null) {
+            this.voltageRegulation = voltageRegulation;
+        } else {
+            this.voltageRegulation.setAttributesOnCurrentVariant(voltageRegulation);
+        }
+        return this.voltageRegulation;
     }
 
     private int getCurrentIndex() {
         return network.get().getVariantIndex();
     }
 
-    private void attachVoltageRegulation() {
-        getOptionalVoltageRegulation().ifPresent(vr -> {
-            vr.updateValidable(this);
-            vr.setHolder(this);
-        });
-    }
 }

@@ -143,6 +143,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(Double.NaN, vsc.getTargetVdc());
         assertEquals("PT_1_2", vsc.getPccTerminal().getConnectable().getId());
         assertFalse(vsc.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(vsc.isRegulating());
         assertEquals(0.0, vsc.getRegulatingTargetQ());
         assertEquals(Double.NaN, vsc.getRegulatingTargetV());
         assertEquals("DCN_1_2P", vsc.getDcTerminal1().getDcNode().getId());
@@ -213,6 +214,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(500.0, vsc.getTargetP());
         assertEquals(Double.NaN, vsc.getTargetVdc());
         assertFalse(vsc.isWithMode(RegulationMode.VOLTAGE));
+        assertFalse(vsc.isRegulating());
         assertEquals(1.0, vsc.getRegulatingTargetQ());
         assertEquals(Double.NaN, vsc.getRegulatingTargetV());
 
@@ -220,7 +222,7 @@ class AcDcConversionTest extends AbstractSerDeTest {
         assertEquals(AcDcConverter.ControlMode.V_DC, vsc2.getControlMode());
         assertEquals(Double.NaN, vsc2.getTargetP());
         assertEquals(497.0, vsc2.getTargetVdc());
-        assertTrue(vsc2.isWithMode(RegulationMode.VOLTAGE));
+        assertTrue(vsc2.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(Double.NaN, vsc2.getRegulatingTargetQ());
         assertEquals(400.0, vsc2.getRegulatingTargetV());
     }

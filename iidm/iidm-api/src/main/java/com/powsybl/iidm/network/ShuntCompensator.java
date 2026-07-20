@@ -88,7 +88,7 @@ import java.util.OptionalInt;
  *             <td style="border: 1px solid black">The voltage target</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">TargetDeadband</td></td>
+ *             <td style="border: 1px solid black">TargetDeadband</td>
  *             <td style="border: 1px solid black">double</td>
  *             <td style="border: 1px solid black">kV</td>
  *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
@@ -111,7 +111,7 @@ import java.util.OptionalInt;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @see ShuntCompensatorAdder
  */
-public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRegulationHolder {
+public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRegulationHolder<ShuntCompensator> {
 
     /**
      * Get the count of sections in service.
@@ -204,6 +204,15 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
     }
 
     /**
+     * Unset all solved values of the shunt compensator.
+     */
+    @Override
+    default void unsetSolvedValues() {
+        Injection.super.unsetSolvedValues();
+        unsetSolvedSectionCount();
+    }
+
+    /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
      * Return 0 if no section is in service (disconnected state).
      * @see #getSectionCount()
@@ -258,7 +267,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * If null is passed as regulating terminal, the regulation is considered local.
      * @deprecated use {@link VoltageRegulation#setTerminal(Terminal)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();
     }
@@ -270,7 +279,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#isRegulating()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     boolean isVoltageRegulatorOn();
 
     /**
@@ -280,7 +289,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#setRegulating(boolean)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
@@ -292,7 +301,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * @see VariantManager
      * @deprecated use {@link #getLocalTargetV()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetV() {
         throw new UnsupportedOperationException();
     }
@@ -304,7 +313,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * @see VariantManager
      * @deprecated use {@link #setLocalTargetV(double)} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
@@ -317,7 +326,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#getTargetDeadband()} instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default double getTargetDeadband() {
         throw new UnsupportedOperationException();
     }
@@ -330,7 +339,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator>, VoltageRe
      * @see VariantManager
      * @deprecated use {@link VoltageRegulation#setTargetDeadband(double)}  instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     default ShuntCompensator setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }

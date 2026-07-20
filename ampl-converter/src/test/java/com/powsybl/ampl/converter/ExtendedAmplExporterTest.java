@@ -199,8 +199,6 @@ class ExtendedAmplExporterTest extends AbstractAmplExporterTest {
     void testRegulatingBusIdExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         Generator gen = network.getGenerator("GEN");
-        gen.setTargetV(gen.getRegulatingTargetV());
-        gen.setTargetQ(gen.getLocalTargetQ());
         gen.getVoltageRegulation().setRegulating(false);
         network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GEN3")

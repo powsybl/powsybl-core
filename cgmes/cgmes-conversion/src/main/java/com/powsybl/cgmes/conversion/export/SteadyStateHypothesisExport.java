@@ -222,7 +222,9 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTapChangers(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeTapChangers(Network network, String cimNamespace,
+                                         Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                         XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
                 String aliasType = twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER2).isPresent() && twt.getAliasFromType(ALIAS_PHASE_TAP_CHANGER1).isEmpty() ?
@@ -241,7 +243,8 @@ public final class SteadyStateHypothesisExport {
                 int endNumber = leg.getSide().getNum();
                 if (leg.hasPhaseTapChanger()) {
                     String aliasType = getPhaseTapChangerAliasType(Integer.toString(endNumber));
-                    writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, endNumber, CgmesNames.PHASE_TAP_CHANGER_TABULAR, leg.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
+                    writeTapChanger(twt, aliasType, PHASE_TAP_CHANGER, endNumber, CgmesNames.PHASE_TAP_CHANGER_TABULAR,
+                        leg.getPhaseTapChanger(), regulatingControlViews, cimNamespace, writer, context);
                 }
                 if (leg.hasRatioTapChanger()) {
                     String aliasType = getRatioTapChangerAliasType(Integer.toString(endNumber));
@@ -251,7 +254,11 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static <C extends Connectable<C>> void writeTapChanger(C twt, String aliasType, Part part, int endNumber, String defaultType, TapChanger<?, ?, ?, ?> tc, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writeTapChanger(C twt, String aliasType, Part part, int endNumber,
+                                                                   String defaultType, TapChanger<?, ?, ?, ?> tc,
+                                                                   Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                                                   String cimNamespace, XMLStreamWriter writer,
+                                                                   CgmesExportContext context) throws XMLStreamException {
         String tapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
         String cgmesTapChangerId = twt.getAliasFromType(aliasType).orElse(null);
         String tapChangerControlId = getTapChangerControlId(twt, part, endNumber, cgmesTapChangerId, context);
@@ -346,7 +353,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeExternalNetworkInjection(String id, boolean controlEnabled, double p, double q, int referencePriority, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeExternalNetworkInjection(String id, boolean controlEnabled, double p, double q, int referencePriority,
+                                                      String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(CgmesNames.EXTERNAL_NETWORK_INJECTION, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
         writer.writeCharacters(Boolean.toString(controlEnabled));
@@ -363,7 +371,8 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void writeSynchronousMachine(String id, boolean controlEnabled, double p, double q, int referencePriority, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeSynchronousMachine(String id, boolean controlEnabled, double p, double q, int referencePriority,
+                                                String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(CgmesNames.SYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
         writer.writeCharacters(Boolean.toString(controlEnabled));
@@ -511,7 +520,8 @@ public final class SteadyStateHypothesisExport {
         writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition(), cimNamespace, writer, context);
     }
 
-    private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace,
+                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(type, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "TapChanger.controlEnabled");
         writer.writeCharacters(Boolean.toString(controlEnabled));
@@ -537,11 +547,12 @@ public final class SteadyStateHypothesisExport {
                     default -> "none";
                 };
                 double regulationValue = ratioTapChanger.getVoltageRegulation() != null ? ratioTapChanger.getVoltageRegulation().getTargetValue() : Double.NaN;
+                double targetDeadband = ratioTapChanger.getVoltageRegulation() != null ? ratioTapChanger.getVoltageRegulation().getTargetDeadband() : Double.NaN;
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
                         ratioTapChanger.isRegulating(),
-                        ratioTapChanger.getTargetDeadband(),
+                        targetDeadband,
                         regulationValue,
                         unitMultiplier);
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
@@ -580,13 +591,15 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeHiddenTapChanger(CgmesTapChanger cgmesTc, String defaultType, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeHiddenTapChanger(CgmesTapChanger cgmesTc, String defaultType, String cimNamespace,
+                                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeTapChanger(Optional.ofNullable(cgmesTc.getType()).orElse(defaultType), cgmesTc.getId(), false,
                 cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId())),
                 cimNamespace, writer, context);
     }
 
-    private static void writeRegulatingControls(Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeRegulatingControls(Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace,
+                                                XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (List<RegulatingControlView> views : regulatingControlViews.values()) {
             writeRegulatingControl(combineRegulatingControlViews(views), cimNamespace, writer, context);
         }
@@ -676,7 +689,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeEquivalentInjection(String cgmesId, double p, double q, boolean regulationStatus, double regulationTarget, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeEquivalentInjection(String cgmesId, double p, double q, boolean regulationStatus, double regulationTarget, String cimNamespace,
+                                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(CgmesNames.EQUIVALENT_INJECTION, cgmesId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
@@ -738,7 +752,8 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void writeSshEnergyConsumer(String id, String className, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeSshEnergyConsumer(String id, String className, double p, double q, String cimNamespace,
+                                               XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(className, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
@@ -761,7 +776,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeConverterStation(HvdcConverterStation<?> converterStation, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeConverterStation(HvdcConverterStation<?> converterStation, String cimNamespace,
+                                              XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String converterId = context.getNamingStrategy().getCgmesId(converterStation);
         double targetPpcc;
         double targetUdc;
@@ -842,7 +858,8 @@ public final class SteadyStateHypothesisExport {
         writeDCTerminal(dcTerminal2G, CgmesNames.DC_TERMINAL, true, cimNamespace, writer, context);
     }
 
-    private static void writeDCTerminal(String terminalId, String className, boolean connected, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeDCTerminal(String terminalId, String className, boolean connected, String cimNamespace,
+                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(className, terminalId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ACDCTerminal.connected");
         writer.writeCharacters(Boolean.toString(connected));

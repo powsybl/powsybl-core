@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.extensions.removed.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.serde.extensions.RemoteReactivePowerControlSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -55,7 +55,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     }
 
     private static void writeEquivalentLocalTargetV(Generator g, NetworkSerializerContext context) {
-        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15, IidmVersion.V_1_17, context, () -> {
             double equivalentTargetV = Double.NaN;
             if (g.isRemoteRegulating() && g.isWithMode(RegulationMode.VOLTAGE)) {
                 equivalentTargetV = g.getLocalTargetV();
@@ -65,12 +65,12 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     }
 
     private static void writeVoltageRegulatorOn(Generator g, NetworkSerializerContext context) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
             context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isRegulatingWithMode(RegulationMode.VOLTAGE)));
     }
 
     private static void writeTargetV(Generator g, NetworkSerializerContext context) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             double targetV;
             if (g.isRemoteRegulating() && g.isWithMode(RegulationMode.VOLTAGE)) {
                 targetV = g.getVoltageRegulation().getTargetValue();
@@ -79,7 +79,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             }
             context.getWriter().writeDoubleAttribute(getTargetVName(context), targetV);
         });
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> context.getWriter().writeDoubleAttribute(getTargetVName(context), g.getLocalTargetV()));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> context.getWriter().writeDoubleAttribute(getTargetVName(context), g.getLocalTargetV()));
     }
 
     private static void writeTargetQ(Generator g, NetworkSerializerContext context) {
@@ -99,7 +99,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
 
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkSerializerContext context) {
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             if (g.getVoltageRegulation() != null
                 && g.getVoltageRegulation().getTerminal() != null
                 && g != g.getVoltageRegulation().getTerminal().getConnectable()
@@ -108,7 +108,7 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             }
         });
         ReactiveLimitsSerDe.INSTANCE.write(g, context);
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(g.getVoltageRegulation(), context));
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> VoltageRegulationSerDe.writeVoltageRegulation(g.getVoltageRegulation(), context));
     }
 
     @Override
@@ -134,16 +134,17 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
             adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         adder.setTargetP(targetP);
         AtomicReference<Double> equivalentLocalTargetV = new AtomicReference<>(Double.NaN);
-        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15, IidmVersion.V_1_16, context, () -> equivalentLocalTargetV.set(context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
+        IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_15,
+            IidmVersion.V_1_17,
+            context,
+            () -> equivalentLocalTargetV.set(context.getReader().readDoubleAttribute("equivalentLocalTargetV", Double.NaN)));
         buildVoltageRegulationFromOlderVersions(context, adder, voltageRegulatorOn);
         addTargetV(context, adder, targetV, equivalentLocalTargetV.get());
         adder.setLocalTargetQ(targetQ);
 
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
 
-        double p = context.getReader().readDoubleAttribute("p");
-        double q = context.getReader().readDoubleAttribute("q");
-        toApply.add(generator -> generator.getTerminal().setP(p).setQ(q));
+        readPQ(toApply, context.getReader());
         toApply.add(generator -> {
             double targetValueDouble = Double.isNaN(targetV) ? equivalentLocalTargetV.get() : targetV;
             Runnable actionOnRemoteTerminal;
@@ -160,7 +161,10 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     protected void readSubElements(String id, GeneratorAdder adder, List<Consumer<Generator>> toApply, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case REGULATING_TERMINAL -> VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                case REGULATING_TERMINAL -> {
+                    IidmSerDeUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_17, context);
+                    VoltageRegulationSerDe.readRegulatingTerminal(toApply, context);
+                }
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(toApply, context);
                 case ReactiveLimitsSerDe.ELEM_MIN_MAX_REACTIVE_LIMITS -> ReactiveLimitsSerDe.INSTANCE.readMinMaxReactiveLimits(toApply, context);
                 case VoltageRegulationSerDe.ELEMENT_NAME -> VoltageRegulationSerDe.readVoltageRegulation(toApply, adder, context);
@@ -172,39 +176,39 @@ class GeneratorSerDe extends AbstractComplexIdentifiableSerDe<Generator, Generat
     private void buildVoltageRegulationFromOlderVersions(NetworkDeserializerContext context, final GeneratorAdder adder,
                                                          Boolean voltageRegulatorOn) {
         // VOLTAGE REGULATION
-        // version < V_1_17
+        // version < V_1_18
         // Terminal null because remote terminal information come from subElements regulatingTerminal
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
             createVoltageRegulationBackwardCompatibility(adder, Double.NaN, Double.NaN, voltageRegulatorOn, null));
-        // version >= V_1_17 -> voltageRegulation is read with VoltageRegulationSerDe
+        // version >= V_1_18 -> voltageRegulation is read with VoltageRegulationSerDe
         // Nothing to do
     }
 
     private static void addTargetV(NetworkDeserializerContext context, GeneratorAdder adder, double targetV, double equivalentLocalTargetV) {
-        // version < V_1_17
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () -> {
+        // version < V_1_18
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () -> {
             double newTargetV = targetV;
             if (!Double.isNaN(equivalentLocalTargetV)) {
                 newTargetV = equivalentLocalTargetV;
             }
             adder.setLocalTargetV(newTargetV);
         });
-        // From V_1_17
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_17, context, () -> adder.setLocalTargetV(targetV));
+        // From V_1_18
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_18, context, () -> adder.setLocalTargetV(targetV));
     }
 
     private Boolean readVoltageRegulatorOnByVersion(NetworkDeserializerContext context) {
         AtomicReference<Boolean> voltageRegulatorOn = new AtomicReference<>();
-        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_16, context, () ->
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_17, context, () ->
             voltageRegulatorOn.set(context.getReader().readBooleanAttribute("voltageRegulatorOn")));
         return voltageRegulatorOn.get();
     }
 
-    private static <T extends AbstractOptions<T>> @Nonnull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
-        return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetQ" : "localTargetQ";
+    private static <T extends AbstractOptions<T>> @NonNull String getTargetQName(AbstractNetworkSerDeContext<T> context) {
+        return context.getVersion().compareTo(IidmVersion.V_1_18) < 0 ? "targetQ" : "localTargetQ";
     }
 
-    private static <T extends AbstractOptions<T>> @Nonnull String getTargetVName(AbstractNetworkSerDeContext<T> context) {
-        return context.getVersion().compareTo(IidmVersion.V_1_17) < 0 ? "targetV" : "localTargetV";
+    private static <T extends AbstractOptions<T>> @NonNull String getTargetVName(AbstractNetworkSerDeContext<T> context) {
+        return context.getVersion().compareTo(IidmVersion.V_1_18) < 0 ? "targetV" : "localTargetV";
     }
 }

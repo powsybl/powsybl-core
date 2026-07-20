@@ -7,8 +7,6 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.*;
-
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -18,6 +16,8 @@ import com.powsybl.psse.model.pf.PsseFacts;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
@@ -195,7 +195,9 @@ class FactsDeviceConverter extends AbstractConverter {
     }
 
     private static OptionalDouble findTargetV(StaticVarCompensator staticVarCompensator) {
-        return staticVarCompensator.getRegulatingTerminal() != null ? OptionalDouble.of(staticVarCompensator.getRegulatingTargetV() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()) : OptionalDouble.empty();
+        return staticVarCompensator.getRegulatingTerminal() != null ?
+            OptionalDouble.of(staticVarCompensator.getRegulatingTargetV() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()) :
+            OptionalDouble.empty();
     }
 
     private static boolean isStatCom(PsseFacts psseFactsDevice) {

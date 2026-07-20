@@ -27,7 +27,7 @@ final class TopologyTestUtils {
 
     static Network createNbNetworkWithBusbarSection() {
         VoltageLevel vl = createNbNetwork().getVoltageLevel(VLTEST);
-        vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        vl.getNodeBreakerView().newBusbarSection().setId(BBS).setNode(0).add();
         return vl.getNetwork();
     }
 
@@ -41,7 +41,7 @@ final class TopologyTestUtils {
     static Network createNbBbNetwork() {
         Network network = createNetwork();
         VoltageLevel vl = network.newVoltageLevel().setId("NHV1_NHV2_1_VL#0").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        vl.getNodeBreakerView().newBusbarSection().setId(BBS).setNode(0).add();
         return network;
     }
 

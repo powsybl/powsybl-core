@@ -8,10 +8,6 @@
 package com.powsybl.ieeecdf.model.elements;
 
 /**
- * <p>
- * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
- * </p>
- *
  * <pre>
  * Columns  1- 4   Tap bus number (I) *
  *                  For transformers or phase shifters, the side of the model
@@ -48,6 +44,7 @@ package com.powsybl.ieeecdf.model.elements;
  * Columns 120-126 Maximum voltage, MVAR or MW limit (F)
  * </pre>
  *
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class IeeeCdfBranch extends AbstractIeeeElement {

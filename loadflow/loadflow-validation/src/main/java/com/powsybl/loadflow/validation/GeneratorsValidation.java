@@ -7,6 +7,14 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -15,15 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
-
-import com.powsybl.iidm.network.regulation.RegulationMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *
@@ -206,7 +205,16 @@ public final class GeneratorsValidation {
             || v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold()
             || v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold()
             || Math.abs(v - targetV) <= config.getThreshold() && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
-            LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} minQ={} maxQ={} - V={} targetV={}", regulationMode, ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
+            LOGGER.warn("{} {}: {}: voltage regulation mode={} - Q={} minQ={} maxQ={} - V={} targetV={}",
+                regulationMode,
+                ValidationType.GENERATORS,
+                ValidationUtils.VALIDATION_ERROR,
+                id,
+                qGen,
+                minQ,
+                maxQ,
+                v,
+                targetV);
             validated = false;
         }
         return validated;

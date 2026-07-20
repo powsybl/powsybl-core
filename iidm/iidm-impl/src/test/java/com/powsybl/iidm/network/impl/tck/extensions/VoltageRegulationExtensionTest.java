@@ -68,7 +68,9 @@ class VoltageRegulationExtensionTest {
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(Double.NaN, voltageRegulation.getTargetValue(), 0);
         assertEquals(50.0, bat.getLocalTargetV(), 0);
-        assertEquals(RegulationMode.VOLTAGE, voltageRegulation.getMode());
+        // first variant was created before adding VOLTAGE regulation
+        assertFalse(voltageRegulation.isRegulating());
+        assertNull(voltageRegulation.getMode());
     }
 
     @Test
@@ -110,7 +112,7 @@ class VoltageRegulationExtensionTest {
         assertRegulatingTerminal(battery2.getTerminal(), voltageRegulation);
         battery2.remove();
         // Fallback on local terminal
-        assertRegulatingTerminal(null, voltageRegulation, battery2.getTerminal());
+        assertRegulatingTerminal(battery.getTerminal(), voltageRegulation, battery2.getTerminal());
     }
 
     private void assertRegulatingTerminal(Terminal expectedRegulatingTerminal, VoltageRegulation voltageRegulation) {
@@ -165,7 +167,7 @@ class VoltageRegulationExtensionTest {
         assertRegulatingTerminal(battery3.getTerminal(), voltageRegulation);
         // Removing battery 3 should change the regulating terminal to the local one (fallback)
         battery3.remove();
-        assertRegulatingTerminal(null, voltageRegulation, battery3.getTerminal());
+        assertRegulatingTerminal(battery.getTerminal(), voltageRegulation, battery3.getTerminal());
         // Switch to local regulation (this was already the case)
         voltageRegulation.removeTerminal();
         assertRegulatingTerminal(null, voltageRegulation);

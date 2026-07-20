@@ -9,7 +9,8 @@ usage: itools [OPTIONS] loadflow --case-file <FILE> [-E <property=value>]
               [--export-parameters <EXPORT_PARAMETERS>] [--help] [-I <property=value>]
               [--import-parameters <IMPORT_PARAMETERS>] [--output-case-file <FILE>]
               [--output-case-format <CASEFORMAT>] [--output-file <FILE>]
-              [--output-format <FORMAT>] [--parameters-file <FILE>]
+              [--output-format <FORMAT>] [--output-log-file <FILE>]
+              [--parameters-file <FILE>]
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
@@ -29,6 +30,7 @@ Available arguments are:
      --output-file <FILE>                         loadflow results output path
      --output-format <FORMAT>                     loadflow results output format
                                                   [CSV, JSON]
+     --output-log-file <FILE>                     loadflow logs output path
      --parameters-file <FILE>                     loadflow parameters as JSON file
 ```
 
@@ -56,6 +58,9 @@ This option defines the path where to export the [results](../../simulation/load
 
 `--output-format`<br>
 This option defines the format of the output file. The supported format are `CSV` and `JSON`. This option is required if the `--output-file` is used.
+
+`--output-log-file`<br>
+This option defines the path where to export the logs of the load flow.
 
 `--parameters-file`<br>
 This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters.

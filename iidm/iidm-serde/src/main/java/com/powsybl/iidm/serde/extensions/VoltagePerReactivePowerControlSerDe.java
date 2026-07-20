@@ -25,7 +25,7 @@ import com.powsybl.iidm.serde.NetworkSerializerContext;
 public class VoltagePerReactivePowerControlSerDe extends AbstractExtensionSerDe<StaticVarCompensator, VoltagePerReactivePowerControl>
         implements ExtinctExtensionSerDe<StaticVarCompensator, VoltagePerReactivePowerControl> {
 
-    public static final IidmVersion LAST_SUPPORTED_VERSION = IidmVersion.V_1_16;
+    public static final IidmVersion LAST_SUPPORTED_VERSION = IidmVersion.V_1_17;
 
     public VoltagePerReactivePowerControlSerDe() {
         super(VoltagePerReactivePowerControl.NAME, "network", VoltagePerReactivePowerControl.class, "voltagePerReactivePowerControl.xsd",
@@ -60,7 +60,7 @@ public class VoltagePerReactivePowerControlSerDe extends AbstractExtensionSerDe<
     private static boolean isExtensionNeeded(StaticVarCompensator svc) {
         return svc.getVoltageRegulation() != null
                 && !Double.isNaN(svc.getVoltageRegulation().getSlope());
-                //&& svc.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE_PER_REACTIVE_POWER; //TODO OPE is this expected?
+        //&& svc.getVoltageRegulation().getMode() == RegulationMode.VOLTAGE_PER_REACTIVE_POWER; //TODO OPE is this expected?
     }
 
     public static boolean isExtensionNeededAndExportable(StaticVarCompensator svc, NetworkSerializerContext context) {

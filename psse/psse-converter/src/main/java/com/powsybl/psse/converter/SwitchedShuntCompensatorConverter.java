@@ -7,19 +7,19 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseSwitchedShunt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_SWITCHED_SHUNT;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
@@ -168,7 +168,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         return sectionCount;
     }
 
-// IIDM only considers consecutive sections
+    // IIDM only considers consecutive sections
     private static List<ShuntBlock> defineShuntBlocks(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
         List<ShuntBlock> psseBlocks = collectShuntBlocks(psseSwitchedShunt, version);
         List<ShuntBlock> psseReactorBlocks = psseBlocks.stream().filter(sb -> sb.getB() < 0.0)
@@ -220,7 +220,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         return bAdd;
     }
 
-// defined blocks can be reactors (< 0) or / and capacitors ( > 0)
+    // defined blocks can be reactors (< 0) or / and capacitors ( > 0)
     private static List<ShuntBlock> collectShuntBlocks(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
         if (version.major() == V35) {
@@ -334,7 +334,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static double getRegulatingTerminalNominalV(ShuntCompensator shuntCompensator) {
-        return shuntCompensator.getRegulatingTerminal() != null ? shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV() : shuntCompensator.getTerminal().getVoltageLevel().getNominalV();
+        return shuntCompensator.getRegulatingTerminal() != null ?
+            shuntCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV() :
+            shuntCompensator.getTerminal().getVoltageLevel().getNominalV();
     }
 
     private static void setShuntBlocks(ShuntCompensator shuntCompensator, PsseSwitchedShunt psseSwitchedShunt) {

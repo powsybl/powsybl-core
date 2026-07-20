@@ -42,7 +42,7 @@ public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder>, Vol
      * @see VariantManager
      * @deprecated use {@link #setLocalTargetQ(double)}  instead
      */
-    @Deprecated(forRemoval = true, since = "7.3.0")
+    @Deprecated(forRemoval = true, since = "7.4.0")
     BatteryAdder setTargetQ(double targetQ);
 
     /**

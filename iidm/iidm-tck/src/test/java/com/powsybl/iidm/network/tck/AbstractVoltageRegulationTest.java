@@ -26,9 +26,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
@@ -40,10 +42,11 @@ public abstract class AbstractVoltageRegulationTest {
 
     private VoltageLevel voltageLevel;
     private Terminal remoteTerminal;
+    private Network network;
 
     @BeforeEach
     void initNetwork() {
-        Network network = BatteryNetworkFactory.create();
+        network = BatteryNetworkFactory.create();
         voltageLevel = network.getVoltageLevel("VLGEN");
         remoteTerminal = network.getBattery("BAT").getTerminal();
     }
@@ -115,7 +118,8 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
+        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+            validationException.getMessage());
     }
 
     @Test
@@ -129,18 +133,18 @@ public abstract class AbstractVoltageRegulationTest {
         // WHEN
         ValidationException validationException = assertThrows(ValidationException.class, generatorAdder::add);
         // THEN
-        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)", validationException.getMessage());
+        assertEquals("Generator 'LocalVoltageTargetV_missing': invalid value (NaN) for localTargetV (voltageRegulation is set with VOLTAGE mode and regulating true and the terminal is unset)",
+            validationException.getMessage());
     }
 
     @Test
     void testGeneratorErrorLocalTargetVMissingTargetValuePresent() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("LocalVoltageTargetV_missing");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder.newVoltageRegulation()
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("LocalVoltageTargetV_missing").newVoltageRegulation()
             .withMode(RegulationMode.VOLTAGE)
             .withTargetValue(240);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
         assertEquals("Generator 'LocalVoltageTargetV_missing': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
     }
@@ -148,16 +152,16 @@ public abstract class AbstractVoltageRegulationTest {
     @Test
     void testGeneratorErrorTargetValuePresent() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("ErrorTargetValuePresent_when_terminal_absent")
             .setLocalTargetV(24)
             .newVoltageRegulation()
                 .withMode(RegulationMode.VOLTAGE)
                 .withTargetValue(240);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("Generator 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set", validationException.getMessage());
+        assertEquals("Generator 'ErrorTargetValuePresent_when_terminal_absent': Invalid value for voltageRegulation.targetValue, expected NaN when a terminal is not set",
+            validationException.getMessage());
     }
 
     // Cases Regulating True, Terminal present, Mode VOLTAGE
@@ -189,15 +193,15 @@ public abstract class AbstractVoltageRegulationTest {
     @Test
     void testGeneratorRemoteVoltageRegulatingErrorMissingTargetValue() {
         // GIVEN
-        GeneratorAdder generatorAdder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue");
-        VoltageRegulationAdder<GeneratorAdder> voltageRegulationAdder = generatorAdder
+        VoltageRegulationAdder<GeneratorAdder> adder = newGeneratorAdder("Error_Remote_Voltage_Missing_targetValue")
             .newVoltageRegulation()
-            .withMode(RegulationMode.VOLTAGE)
-            .withTerminal(remoteTerminal);
+                .withMode(RegulationMode.VOLTAGE)
+                .withTerminal(remoteTerminal);
         // WHEN
-        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulationAdder::add);
+        ValidationException validationException = assertThrows(ValidationException.class, adder::add);
         // THEN
-        assertEquals("Generator 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set", validationException.getMessage());
+        assertEquals("Generator 'Error_Remote_Voltage_Missing_targetValue': Undefined value for voltageRegulation.targetValue, expected defined value when a terminal is set",
+            validationException.getMessage());
     }
 
     // Cases Regulating false, Terminal NUll, Mode VOLTAGE
@@ -284,6 +288,78 @@ public abstract class AbstractVoltageRegulationTest {
         assertEquals("Generator 'Error_Remote_Voltage_OFF_Missing_TargetQ': invalid value (NaN) for localTargetQ (voltageRegulation is set with regulating false)", validationException.getMessage());
     }
 
+    // RemoveTerminal
+    @Test
+    void testRemoveTerminalOnMultiVariantWithLocalTargetV() {
+        // GIVEN
+        GeneratorAdder generatorAdder = newGeneratorAdder("OK_removeTerminal_multiVariant_With_LocalTargetV");
+        int localTargetV = 25;
+        Generator generator = generatorAdder
+            .setLocalTargetV(localTargetV)
+            .newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(220)
+            .withTerminal(remoteTerminal)
+            .withRegulating(true)
+            .add()
+            .add();
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        String variant3 = "variant3";
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant1);
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant2);
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant3);
+        // WHEN
+        voltageRegulation.removeTerminal();
+        // THEN
+        network.getVariantManager().getVariantIds().forEach(variantId -> {
+            network.getVariantManager().setWorkingVariant(variantId);
+            assertNull(generator.getVoltageRegulation().getTerminal());
+            assertEquals(Double.NaN, generator.getVoltageRegulation().getTargetValue());
+            assertEquals(localTargetV, generator.getRegulatingTargetV());
+        });
+    }
+
+    @Test
+    void testRemoveTerminalOnMultiVariantMissingLocalTargetV() {
+        // GIVEN
+        GeneratorAdder generatorAdder = newGeneratorAdder("Error_removeTerminal_multiVariant_Missing_LocalTargetV");
+        int targetValue = 220;
+        Generator generator = generatorAdder
+            .setLocalTargetV(25)
+            .newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withTargetValue(targetValue)
+            .withTerminal(remoteTerminal)
+            .withRegulating(true)
+            .add()
+            .add();
+        VoltageRegulation voltageRegulation = generator.getVoltageRegulation();
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        String variant3 = "variant3";
+        network.getVariantManager().cloneVariant(INITIAL_VARIANT_ID, variant1);
+        network.getVariantManager().setWorkingVariant(variant1);
+        generator.setLocalTargetV(Double.NaN);
+        network.getVariantManager().cloneVariant(variant1, variant2);
+        network.getVariantManager().cloneVariant(variant1, variant3);
+        network.getVariantManager().setWorkingVariant(INITIAL_VARIANT_ID);
+        // WHEN
+        ValidationException validationException = assertThrows(ValidationException.class, voltageRegulation::removeTerminal);
+        // THEN
+        String expectedMessage = "Generator 'Error_removeTerminal_multiVariant_Missing_LocalTargetV': " +
+            "Trying to remove the regulating terminal from the voltageRegulation of Error_removeTerminal_multiVariant_Missing_LocalTargetV " +
+            "but the next variants are missing local target values [variant2, variant1, variant3]";
+        assertEquals(expectedMessage, validationException.getMessage());
+        network.getVariantManager().getVariantIds().forEach(variantId -> {
+            network.getVariantManager().setWorkingVariant(variantId);
+            assertEquals(remoteTerminal, generator.getVoltageRegulation().getTerminal());
+            assertEquals(targetValue, generator.getVoltageRegulation().getTargetValue());
+            assertEquals(targetValue, generator.getRegulatingTargetV());
+        });
+    }
+
     private GeneratorAdder newGeneratorAdder(String id) {
         return voltageLevel.newGenerator()
             .setId(id)
@@ -293,7 +369,6 @@ public abstract class AbstractVoltageRegulationTest {
             .setMaxP(120.0)
             .setTargetP(100.0);
     }
-
 
     record DataGeneratorCreator(
         String id,
@@ -394,12 +469,12 @@ public abstract class AbstractVoltageRegulationTest {
         return Stream.of(
             addArgumentSet(regulatingLocalVoltage, true),
             addArgumentSet(regulatingLocalVoltageWithTargetQ, false),
-            addArgumentSet(regulatingRemoteVoltage, false),
-            addArgumentSet(regulatingRemoteVoltageWithLocalTargetV, false),
+            addArgumentSet(regulatingRemoteVoltage, true),
+            addArgumentSet(regulatingRemoteVoltageWithLocalTargetV, true),
             addArgumentSet(regulatingRemoteVoltageWithLocalTargetVAndTargetQ, false),
             addArgumentSet(regulatingRemoteVoltageWithTargetQ, false),
-            addArgumentSet(regulatingRemoteReactiveP, false),
-            addArgumentSet(regulatingRemoteReactivePWithLocalTargetV, false),
+            addArgumentSet(regulatingRemoteReactiveP, true),
+            addArgumentSet(regulatingRemoteReactivePWithLocalTargetV, true),
             addArgumentSet(regulatingRemoteReactivePWithLocalTargetVAndTargetQ, false),
             addArgumentSet(regulatingRemoteReactivePWithTargetQ, false)
         );

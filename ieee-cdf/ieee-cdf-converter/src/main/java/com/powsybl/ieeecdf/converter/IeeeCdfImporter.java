@@ -198,7 +198,7 @@ public class IeeeCdfImporter implements Importer {
                     // Keep the given value for reactive output
                     // It is relevant if we want to load a solved case and validate it
                     // Another option would be to store given p, q values at terminal
-                    generator.setTargetQ(ieeeCdfBus.getReactiveGeneration());
+                    generator.setLocalTargetQ(ieeeCdfBus.getReactiveGeneration());
                     break;
 
                 default:

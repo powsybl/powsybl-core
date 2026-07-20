@@ -54,6 +54,7 @@ abstract class AbstractDcConnectable<I extends DcConnectable<I>> extends Abstrac
         dcTerminal.setDcConnectable(this);
     }
 
+    @Override
     public void remove() {
         NetworkImpl network = getNetwork();
 
@@ -67,6 +68,24 @@ abstract class AbstractDcConnectable<I extends DcConnectable<I>> extends Abstrac
         });
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
+    }
+
+    @Override
+    public boolean connectDc() {
+        return ConnectDisconnectUtil.connectAllDcTerminals(
+            this,
+            getDcTerminals(),
+            getNetwork().getReportNodeContext().getReportNode()
+        );
+    }
+
+    @Override
+    public boolean disconnectDc() {
+        return ConnectDisconnectUtil.disconnectAllDcTerminals(
+            this,
+            getDcTerminals(),
+            getNetwork().getReportNodeContext().getReportNode()
+        );
     }
 
     @Override
