@@ -1,0 +1,160 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# SPDX-License-Identifier: MPL-2.0
+#
+
+# query: header
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?fullModel
+            dcat:keyword ?keyword ;
+        OPTIONAL {
+            ?fullModel
+                dcat:startDate ?startDate ;
+                dcat:endDate ?endDate .
+            }
+    }
+}
+
+# query: contingencyEquipment
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?contingencyEquipment
+            rdf:type cim:ContingencyEquipment ;
+            cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+            cim:ContingencyElement.Contingency ?contingency ;
+            cim:ContingencyEquipment.contingentStatus ?contingentStatus .
+    }
+}
+
+# query: ordinaryContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?contingency
+            rdf:type nc:OrdinaryContingency ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:Contingency.normalMustStudy ?normalMustStudy ;
+        OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name ;
+        }
+        OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?equipmentOperator .
+        }
+    }
+}
+
+# query: exceptionalContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?contingency
+            rdf:type nc:ExceptionalContingency ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:Contingency.normalMustStudy ?normalMustStudy ;
+        OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name ;
+        }
+        OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?equipmentOperator .
+        }
+    }
+}
+
+# query: outOfRangeContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?contingency
+            rdf:type nc:OutOfRangeContingency ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:Contingency.normalMustStudy ?normalMustStudy ;
+        OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name ;
+        }
+        OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?equipmentOperator .
+        }
+    }
+}
+
+# query: shuntCompensatorModification
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?shuntCompensatorModification
+            rdf:type nc:ShuntCompensatorModification ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensator ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+            OPTIONAL {
+                ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled ;
+            }
+            OPTIONAL {
+                ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
+            }
+            OPTIONAL {
+                ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+            }
+    }
+}
+
+# query: topologyAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?topologyAction
+            rdf:type nc:TopologyAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:TopologyAction.Switch ?switch ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+            OPTIONAL {
+                ?topologyAction nc:GridStateAlteration.normalEnabled ?normalEnabled ;
+            }
+            OPTIONAL {
+                ?topologyAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
+            }
+            OPTIONAL {
+                ?topologyAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+            }
+    }
+}
+
+# query: staticPropertyRange
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+    {
+    GRAPH <%s> {
+        ?staticPropertyRange
+            rdf:type nc:StaticPropertyRange ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RangeConstraint.normalValue ?normalValue ;
+            nc:RangeConstraint.valueKind ?valueKind ;
+            nc:RangeConstraint.direction ?direction ;
+            nc:RangeConstraint.GridStateAlteration ?gridStateAlteration ;
+            nc:StaticPropertyRange.PropertyReference ?propertyReference;
+    }
+}
