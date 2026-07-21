@@ -26,7 +26,7 @@ import java.io.IOException;
  */
 public class ContingencyElementDeserializer extends StdDeserializer<ContingencyElement> implements ContextualDeserializer {
 
-    private final JsonDeserializer<Object> typeDeserializer;
+    private final transient JsonDeserializer<Object> typeDeserializer;
 
     public ContingencyElementDeserializer() {
         this(null);

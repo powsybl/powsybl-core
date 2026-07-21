@@ -40,9 +40,9 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
 
     public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
-    private JsonDeserializer<Object> typeDeserializer;
-    private JsonDeserializer<Object> identifierListDeserializer;
-    private JsonDeserializer<Object> identifiableTypeSetDeserializer;
+    private transient JsonDeserializer<Object> typeDeserializer;
+    private transient JsonDeserializer<Object> identifierListDeserializer;
+    private transient JsonDeserializer<Object> identifiableTypeSetDeserializer;
 
     public IdentifierDeserializer() {
         super(NetworkElementIdentifier.class);

@@ -28,8 +28,8 @@ import java.util.List;
 public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T extends AbstractEquipmentCriterionContingencyList>
     extends StdDeserializer<T> implements ContextualDeserializer {
 
-    protected final JsonDeserializer<Object> criterionDeserializer;
-    protected final JsonDeserializer<Object> propertyCriteriaDeserializer;
+    protected final transient JsonDeserializer<Object> criterionDeserializer;
+    protected final transient JsonDeserializer<Object> propertyCriteriaDeserializer;
 
     protected AbstractEquipmentCriterionContingencyListDeserializer(Class<T> c) {
         this(c, null, null);

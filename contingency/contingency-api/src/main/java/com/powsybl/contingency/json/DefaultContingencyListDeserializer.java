@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> implements ContextualDeserializer {
 
-    private final JsonDeserializer<Object> contingenciesDeserializer;
+    private final transient JsonDeserializer<Object> contingenciesDeserializer;
 
     public DefaultContingencyListDeserializer() {
         this(null);

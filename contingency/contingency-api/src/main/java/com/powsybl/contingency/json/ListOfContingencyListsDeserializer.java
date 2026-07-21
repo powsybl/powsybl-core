@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.list.ContingencyList;
 import com.powsybl.contingency.list.ListOfContingencyLists;
 
@@ -31,14 +30,14 @@ import java.util.List;
  */
 public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfContingencyLists> implements ContextualDeserializer {
 
-    private JsonDeserializer<Object> contingenciesDeserializer;
+    private final transient JsonDeserializer<Object> contingenciesDeserializer;
 
     public ListOfContingencyListsDeserializer() {
-        super(ListOfContingencyLists.class);
+        this(null);
     }
 
     public ListOfContingencyListsDeserializer(JsonDeserializer<?> contingenciesDeserializer) {
-        super(Contingency.class);
+        super(ListOfContingencyListsDeserializer.class);
         this.contingenciesDeserializer = (JsonDeserializer<Object>) contingenciesDeserializer;
     }
 
