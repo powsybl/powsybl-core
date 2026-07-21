@@ -59,14 +59,14 @@ public class RotatingMachineActionReader extends AbstractReader<GeneratorAction>
     private static Map<String, Set<PropertyBag>> groupStaticPropertyRangesPerGeneratorAction(PropertyBags staticPropertyRanges) {
         Map<String, Set<PropertyBag>> staticPropertyRangesPerGeneratorAction = new HashMap<>();
         staticPropertyRanges.forEach(
-            staticPropertyRange -> staticPropertyRangesPerGeneratorAction.computeIfAbsent(staticPropertyRange.get("gridStateAlteration"),
+            staticPropertyRange -> staticPropertyRangesPerGeneratorAction.computeIfAbsent(ReaderUtils.getElementIdFromResourceUri(staticPropertyRange.get("gridStateAlteration")),
                 k -> new HashSet<>()).add(staticPropertyRange));
         return staticPropertyRangesPerGeneratorAction;
     }
 
     private Optional<GeneratorAction> processGeneratorAction(PropertyBag generatorAction, Set<PropertyBag> staticPropertyRanges) {
         String generatorActionId = generatorAction.get("mRID");
-        String generatorId = generatorAction.get("rotatingMachine");
+        String generatorId = ReaderUtils.getElementIdFromResourceUri(generatorAction.get("rotatingMachine"));
         Generator generatorInNetwork = network.getGenerator(generatorId);
         if (generatorInNetwork == null) {
             LOGGER.warn("RotatingMachineAction {} refers to a non-existing generator {} and will be ignored.", generatorActionId, generatorId);
