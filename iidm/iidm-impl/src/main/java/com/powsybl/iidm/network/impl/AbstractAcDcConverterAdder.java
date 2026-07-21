@@ -36,6 +36,8 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
 
     private String connectableBus2;
 
+    protected double minP = -Double.MAX_VALUE;
+    protected double maxP = Double.MAX_VALUE;
     protected double idleLoss = 0.;
     protected double switchingLoss = 0.;
     protected double resistiveLoss = 0.;
@@ -89,7 +91,7 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
     }
 
     protected TerminalExt checkAndGetTerminal1() {
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.ONE)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), voltageLevel.getTopologyKind(), this, null, TerminalNumber.ONE)
                 .setNode(node1)
                 .setBus(bus1)
                 .setConnectableBus(connectableBus1)
@@ -113,13 +115,23 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
 
     protected Optional<TerminalExt> checkAndGetTerminal2() {
         if (hasTwoAcTerminals()) {
-            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), this, null, TerminalNumber.TWO)
+            return Optional.of(new TerminalBuilder(voltageLevel.getNetworkRef(), voltageLevel.getTopologyKind(), this, null, TerminalNumber.TWO)
                     .setNode(node2)
                     .setBus(bus2)
                     .setConnectableBus(connectableBus2)
                     .build());
         }
         return Optional.empty();
+    }
+
+    public T setMinP(double minP) {
+        this.minP = minP;
+        return self();
+    }
+
+    public T setMaxP(double maxP) {
+        this.maxP = maxP;
+        return self();
     }
 
     public T setIdleLoss(double idleLoss) {
@@ -162,6 +174,9 @@ abstract class AbstractAcDcConverterAdder<T extends AbstractAcDcConverterAdder<T
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkAcDcConverterControl(this, controlMode, targetP, targetVdc,
                 network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkAcDcConverterPccTerminal(this, pccTerminal, voltageLevel);
+        ValidationUtil.checkMinP(this, minP);
+        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
     }
 
     private boolean hasTwoAcTerminals() {

@@ -8,13 +8,12 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.StreamSupport;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test to verify consistency between getSwitches(), getSwitchStream(), and

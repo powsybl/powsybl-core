@@ -23,9 +23,17 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
+ * DcTopologyModel provides the list of DC buses for a given network.
+ * It is only meant to be used in NetworkImpl.
+ * DC buses are parts of the DC network with the same voltage, i.e. connected by
+ * zero impedance links. The only links with zero impedance are closed DcSwitches
+ * with zero resistance.
+ * Only nodes with terminal create buses. In particular, disconnected nodes do
+ * not create buses.
+ *
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
-public class DcTopologyModel implements MultiVariantObject {
+class DcTopologyModel implements MultiVariantObject {
 
     public static final int DEFAULT_DC_NODE_INDEX_LIMIT = 1000;
     private static final String NOT_FOUND_IN_THE_NETWORK = "' not found in the network";
@@ -45,7 +53,11 @@ public class DcTopologyModel implements MultiVariantObject {
 
     private final VariantArray<DcTopologyModel.VariantImpl> variants;
 
-    public DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
+    // Constructor is not meant to be used outside NetworkImpl, since type
+    // NetworkImpl is non-public and therefore RefChain<NetworkImpl> is as well.
+    // If you want a DcTopologyModel object, get it through
+    // Network::getDcTopologyModel
+    DcTopologyModel(RefChain<NetworkImpl> networkRef, RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = Objects.requireNonNull(networkRef);
         this.subnetworkRef = Objects.requireNonNull(subnetworkRef);
         // the ref object of the variant array is the same as the current object
@@ -247,7 +259,7 @@ public class DcTopologyModel implements MultiVariantObject {
                     dcNodeSet.add(graph.getVertexObject(v));
                     graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
                         DcSwitchImpl dcSwitch = graph.getEdgeObject(e);
-                        if (dcSwitch.isOpen()) {
+                        if (dcSwitch.isOpen() || dcSwitch.getR() != 0.0) {
                             return TraverseResult.TERMINATE_PATH;
                         } else {
                             dcNodeSet.add(graph.getVertexObject(v2));

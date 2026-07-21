@@ -8,14 +8,15 @@
 package com.powsybl.security.json;
 
 import com.powsybl.action.json.ActionJsonModule;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.violations.BusBreakerViolationLocation;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.contingency.violations.NodeBreakerViolationLocation;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.*;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +52,11 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")), Double.NaN);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency,
+            PostContingencyComputationStatus.CONVERGED, result,
+            new NetworkResult(branchResults, busResults, threeWindingsTransformerResults),
+            new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")),
+            Double.NaN);
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",

@@ -9,8 +9,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
-import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -247,5 +248,44 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
         writeXmlTest(network, "/fictitious-line-split-vl-with-limits.xml");
+    }
+
+    @Test
+    void creatingPositionWhenAttachingVoltageLevelOnLineTest() {
+        Network network = createNbNetworkWithBusbarSection();
+        network.getBusbarSection(BBS).newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(1).withSectionIndex(1).add();
+
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(PowsyblTestReportResourceBundle.TEST_BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("reportAttachVoltageLevelOnLineNbTest")
+                .build();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .withPositionForNewLine1(5)
+                .withPositionForNewLine2(10)
+                .build();
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
+        Line line1 = network.getLine("CJ_1");
+        assertNotNull(line1);
+        ConnectablePosition<Line> connectablePosition = line1.getExtension(ConnectablePosition.class);
+        assertNotNull(connectablePosition);
+        assertNotNull(connectablePosition.getFeeder2());
+        assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder2().getDirection());
+        assertTrue(connectablePosition.getFeeder2().getOrder().isPresent());
+        assertEquals(5, connectablePosition.getFeeder2().getOrder().get());
+        assertTrue(connectablePosition.getFeeder2().getName().isPresent());
+        assertEquals("CJ_1", connectablePosition.getFeeder2().getName().get());
+
+        Line line2 = network.getLine("CJ_2");
+        assertNotNull(line2);
+        connectablePosition = line2.getExtension(ConnectablePosition.class);
+        assertNotNull(connectablePosition);
+        assertNotNull(connectablePosition.getFeeder1());
+        assertEquals(ConnectablePosition.Direction.UNDEFINED, connectablePosition.getFeeder1().getDirection());
+        assertTrue(connectablePosition.getFeeder1().getOrder().isPresent());
+        assertEquals(10, connectablePosition.getFeeder1().getOrder().get());
+        assertTrue(connectablePosition.getFeeder1().getName().isPresent());
+        assertEquals("CJ_2", connectablePosition.getFeeder1().getName().get());
     }
 }

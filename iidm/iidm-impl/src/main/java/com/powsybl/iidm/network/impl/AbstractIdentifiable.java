@@ -49,10 +49,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return id;
     }
 
-    void replaceId(String newId) {
-        throw new PowsyblException("Cannot change ID");
-    }
-
     @Override
     public Optional<String> getOptionalName() {
         return Optional.ofNullable(name);
@@ -68,6 +64,22 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         String oldName = this.name;
         this.name = name;
         getNetwork().getListeners().notifyUpdate(this, "name", oldName, name);
+        return (I) this;
+    }
+
+    @Override
+    public I setId(String id) {
+        if (!this.id.equals(id)) {
+            NetworkIndex.checkId(id);
+            if (getNetwork().getIndex().get(id) != null) {
+                throw new PowsyblException("Object with id (" + id + ") already exists");
+            }
+            getNetwork().getIndex().remove(this);
+            String oldId = this.id;
+            this.id = id;
+            getNetwork().getIndex().checkAndAdd(this);
+            getNetwork().getListeners().notifyUpdate(this, "id", oldId, id);
+        }
         return (I) this;
     }
 

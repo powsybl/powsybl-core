@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.util.SwitchPredicates;
+
 import java.util.function.Predicate;
 
 /**
@@ -18,7 +20,6 @@ import java.util.function.Predicate;
  * </p>
  * As there is no injection at the boundary node, by applying kron reduction, this node can be
  * removed getting an equivalent branch between both network model nodes.
- * </p>
  * <p>
  *  Characteristics
  * </p>
@@ -131,16 +132,66 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
      */
     void remove(boolean updateBoundaryLines);
 
-    boolean connectBoundaryLines();
+    /**
+     * Try to connect the two boundary lines of the tie line.<br/>
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #connectBoundaryLines(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates}
+     * such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_BREAKER}
+     * @return true if the boundary lines have been connected by this operation, false otherwise (any of the two boundary lines could not be connected, or was already connected)
+     */
+    default boolean connectBoundaryLines() {
+        return connectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
 
-    boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate);
+    /**
+     * Try to connect the two boundary lines of the tie-line by operating the switches matching the <code>isSwitchOpenable</code>
+     * predicate.
+     * @param isTypeSwitchToOperate which switches to operate on to connect the boundary lines of the tie-line.
+     * @return true if both boundary lines were connected by this operation, false otherwise (any of the two boundary lines could not be connected, or was already connected)
+     */
+    default boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectBoundaryLines(isTypeSwitchToOperate, null);
+    }
 
+    /**
+     * Try to connect the boundary line on <code>side</code> by operating the switches matching the predicate. No operation
+     * should be performed if the connection is not possible.
+     * @param isTypeSwitchToOperate the type of switch to operate
+     * @param side the side of the tie line to connect. If the side is null, both sides should be connected.
+     * @return true if the connection on <code>side</code> by this operation succeeded, false otherwise (the boundary line
+     * on the given side could not be connected, or was already connected)
+     */
     boolean connectBoundaryLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
-    boolean disconnectBoundaryLines();
+    /**
+     * Try to disconnect the two boundary lines of the tie line.<br/>
+     * By default, this method only operates on non-fictitious breakers. If you wish to operate on other switches,
+     * use {@link #disconnectBoundaryLines(Predicate)} with another specific {@link com.powsybl.iidm.network.util.SwitchPredicates}
+     * such as {@link com.powsybl.iidm.network.util.SwitchPredicates#IS_CLOSED_BREAKER}
+     * @return true if the boundary lines have been disconnected by this operation, false otherwise (any of the two boundary
+     * lines could not be disconnected, or was already disconnected)
+     */
+    default boolean disconnectBoundaryLines() {
+        return disconnectBoundaryLines(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER);
+    }
 
-    boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable);
+    /**
+     * Try to disconnect the two boundary lines of the tie line by operating the switches matching the <code>isSwitchOpenable</code>
+     * predicate.
+     * @param isSwitchOpenable which switches to operate on to disconnect the boundary lines of the tie-line.
+     * @return true if both boundary lines were disconnected by this operation, false otherwise (any of the two boundary lines could not be disconnected, or was already disconnected)
+     */
+    default boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable) {
+        return disconnectBoundaryLines(isSwitchOpenable, null);
+    }
 
+    /**
+     * Try to disconnect the boundary line on <code>side</code> by operating the switches matching the predicate. No operation
+     * should be performed if the disconnection is not possible.
+     * @param isSwitchOpenable the type of switch to operate
+     * @param side the side of the tie line to disconnect. If the side is null, both sides should be disconnected.
+     * @return true if the disconnection on <code>side</code> by this operation succeeded, false otherwise (the boundary line on the given side could not be disconnected, or was already disconnected)
+     */
     boolean disconnectBoundaryLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     Network getNetwork();

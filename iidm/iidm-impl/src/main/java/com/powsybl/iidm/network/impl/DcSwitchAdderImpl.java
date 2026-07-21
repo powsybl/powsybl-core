@@ -24,6 +24,7 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     private String dcNode1Id;
     private String dcNode2Id;
     private Boolean open;
+    private double r = 0.0;
 
     DcSwitchAdderImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef) {
         this.networkRef = ref;
@@ -55,10 +56,17 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
     }
 
     @Override
+    public DcSwitchAdder setR(double r) {
+        this.r = r;
+        return this;
+    }
+
+    @Override
     public DcSwitch add() {
         String id = checkAndGetUniqueId();
         DcNode dcNode1 = ValidationUtil.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode1Id, "dcNode1");
         DcNode dcNode2 = ValidationUtil.checkAndGetDcNode(getNetwork().getParentNetwork(), this, dcNode2Id, "dcNode2");
+        ValidationUtil.checkDoubleParamPositive(this, this.r, DcSwitchImpl.R_ATTRIBUTE);
         ValidationUtil.checkSameParentNetwork(this.getParentNetwork(), this, dcNode1, dcNode2);
         if (kind == null) {
             throw new ValidationException(this, "kind is not set");
@@ -66,7 +74,17 @@ public class DcSwitchAdderImpl extends AbstractIdentifiableAdder<DcSwitchAdderIm
         if (open == null) {
             throw new ValidationException(this, "open is not set");
         }
-        DcSwitchImpl dcSwitch = new DcSwitchImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), kind, dcNode1, dcNode2, open);
+        DcSwitchImpl dcSwitch = new DcSwitchImpl(networkRef,
+                subnetworkRef,
+                id,
+                getName(),
+                isFictitious(),
+                kind,
+                dcNode1,
+                dcNode2,
+                open,
+                this.r);
+
         getNetwork().getIndex().checkAndAdd(dcSwitch);
         getNetwork().getListeners().notifyCreation(dcSwitch);
         getParentNetwork().getDcTopologyModel().addDcSwitchToTopology(dcSwitch, dcNode1Id, dcNode2Id);

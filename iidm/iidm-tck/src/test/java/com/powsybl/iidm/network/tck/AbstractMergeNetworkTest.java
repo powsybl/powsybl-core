@@ -14,10 +14,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -57,7 +57,7 @@ public abstract class AbstractMergeNetworkTest {
         addSubstation(n1, "P1");
         addSubstation(n2, "P1");
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
-        assertEquals("The following object(s) of type SubstationImpl exist(s) in both networks: [P1]", e.getMessage());
+        assertEquals("The following object(s) of type SubstationImpl already exist in merged network when trying to merge network 'n2': [P1]", e.getMessage());
     }
 
     @Test
@@ -320,7 +320,7 @@ public abstract class AbstractMergeNetworkTest {
     static class FooNetworkExtensionImpl extends AbstractExtension<Network> implements FooNetworkExtension {
         private final String val;
 
-        public FooNetworkExtensionImpl(String val) {
+        FooNetworkExtensionImpl(String val) {
             this.val = val;
         }
 
@@ -434,7 +434,7 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         addCommonBoundaryLines("dl", null, "dl", "code");
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n0, n1, n2));
-        assertTrue(e.getMessage().contains("The following object(s) of type BoundaryLineImpl exist(s) in both networks: [dl]"));
+        assertEquals("The following object(s) of type BoundaryLineImpl already exist in merged network when trying to merge network 'n2': [dl]", e.getMessage());
     }
 
     @Test
@@ -616,13 +616,13 @@ public abstract class AbstractMergeNetworkTest {
 
         // Merge should fail, because area "bza" is present in both network but with different attribute values
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
-        assertEquals("The following object(s) of type AreaImpl exist(s) in both networks: [bza]", e.getMessage());
+        assertEquals("The following object(s) of type AreaImpl already exist in merged network when trying to merge network 'n2': [bza]", e.getMessage());
     }
 
     @Test
     public void testListeners() {
         MutableBoolean listenerCalled = new MutableBoolean(false);
-        NetworkListener listener = new DefaultNetworkListener() {
+        NetworkListener listener = new NetworkListener() {
             @Override
             public void onCreation(Identifiable identifiable) {
                 listenerCalled.setTrue();

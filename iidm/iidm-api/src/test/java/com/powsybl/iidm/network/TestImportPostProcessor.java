@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.concurrent.Executor;
-
 import com.powsybl.computation.ComputationManager;
+
+import java.util.concurrent.Executor;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
