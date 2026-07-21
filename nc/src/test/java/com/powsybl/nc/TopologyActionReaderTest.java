@@ -56,11 +56,11 @@ public class TopologyActionReaderTest extends AbstractReaderTest {
         assertEquals("StaticPropertyRange static-property-range-6 associated to TopologyAction topology-action-6 has an invalid property reference and will be ignored "
                 + "(expected http://energy.referencedata.eu/PropertyReference/Switch.open, got http://energy.referencedata.eu/PropertyReference/RotatingMachine.p).",
             appender.getEvents().get(4).getFormattedMessage());
-        assertEquals("StaticPropertyRange static-property-range-7 associated to TopologyAction topology-action-7 has an invalid relative direction kind and will be ignored "
-                + "(expected http://entsoe.eu/ns/nc#RelativeDirectionKind.none, got http://entsoe.eu/ns/nc#RelativeDirectionKind.up).",
+        assertEquals("StaticPropertyRange static-property-range-7 associated to TopologyAction topology-action-7 "
+                + "has an invalid relative direction kind and value offset kind combination and will be ignored.",
             appender.getEvents().get(5).getFormattedMessage());
-        assertEquals("StaticPropertyRange static-property-range-8 associated to TopologyAction topology-action-8 has an invalid value offset kind and will be ignored "
-                + "(expected http://entsoe.eu/ns/nc#ValueOffsetKind.absolute, got http://entsoe.eu/ns/nc#ValueOffsetKind.incrementalPercentage).",
+        assertEquals("StaticPropertyRange static-property-range-8 associated to TopologyAction topology-action-8 "
+                + "has an invalid relative direction kind and value offset kind combination and will be ignored.",
             appender.getEvents().get(6).getFormattedMessage());
         assertEquals("TopologyAction topology-action-9 has no static property range and will be ignored.",
             appender.getEvents().get(7).getFormattedMessage());

@@ -27,39 +27,31 @@ public class TopologyActionReader extends AbstractActionReader<SwitchAction> {
     private static final String TOPOLOGY_ACTION_QUERY_NAME = "topologyAction";
     private static final String SWITCH = "switch";
     private static final String PROPERTY_REFERENCE = "http://energy.referencedata.eu/PropertyReference/Switch.open";
-    private static final String RELATIVE_DIRECTION_KIND = "http://entsoe.eu/ns/nc#RelativeDirectionKind.none";
-    private static final String VALUE_OFFSET_KIND = "http://entsoe.eu/ns/nc#ValueOffsetKind.absolute";
 
     public TopologyActionReader(QueryManager queryManager, Network network) {
-        super(queryManager, network, TOPOLOGY_ACTION, PROPERTY_REFERENCE, TOPOLOGY_ACTION_QUERY_NAME, SWITCH, Switch.class);
+        super(queryManager, network, TOPOLOGY_ACTION, PROPERTY_REFERENCE, TOPOLOGY_ACTION_QUERY_NAME, SWITCH, false, Switch.class);
     }
 
     @Override
-    protected Optional<SwitchAction> convertGridStateAlterationToAction(String actionId, Identifiable<?> networkElement, PropertyBag gridStateAlteration, PropertyBag staticPropertyRange) {
+    protected Optional<SwitchAction> convertGridStateAlterationToAction(String actionId,
+                                                                        Identifiable<?> networkElement,
+                                                                        PropertyBag gridStateAlteration,
+                                                                        PropertyBag staticPropertyRange,
+                                                                        VariationType variationType) {
         return getOpen(staticPropertyRange, actionId)
             .map(open -> new SwitchAction(actionId, networkElement.getId(), open));
     }
 
     private static Optional<Boolean> getOpen(PropertyBag staticPropertyRange, String switchActionId) {
-        if (!RELATIVE_DIRECTION_KIND.equals(staticPropertyRange.get("direction"))) {
-            LOGGER.warn("StaticPropertyRange {} associated to TopologyAction {} has an invalid relative direction kind and will be ignored (expected {}, got {}).",
-                staticPropertyRange.get("mRID"), switchActionId, RELATIVE_DIRECTION_KIND, staticPropertyRange.get("direction"));
-            return Optional.empty();
-        } else if (!VALUE_OFFSET_KIND.equals(staticPropertyRange.get("valueKind"))) {
-            LOGGER.warn("StaticPropertyRange {} associated to TopologyAction {} has an invalid value offset kind and will be ignored (expected {}, got {}).", staticPropertyRange.get("mRID"),
-                switchActionId, VALUE_OFFSET_KIND, staticPropertyRange.get("valueKind"));
-            return Optional.empty();
+        String normalValue = staticPropertyRange.get("normalValue");
+        if ("0".equals(normalValue)) {
+            return Optional.of(false);
+        } else if ("1".equals(normalValue)) {
+            return Optional.of(true);
         } else {
-            String normalValue = staticPropertyRange.get("normalValue");
-            if ("0".equals(normalValue)) {
-                return Optional.of(false);
-            } else if ("1".equals(normalValue)) {
-                return Optional.of(true);
-            } else {
-                LOGGER.warn("StaticPropertyRange {} associated to TopologyAction {} has an invalid normal value and will be ignored (expected 0 or 1, got {}).",
-                    staticPropertyRange.get("mRID"), switchActionId, normalValue);
-                return Optional.empty();
-            }
+            LOGGER.warn("StaticPropertyRange {} associated to TopologyAction {} has an invalid normal value and will be ignored (expected 0 or 1, got {}).",
+                staticPropertyRange.get("mRID"), switchActionId, normalValue);
+            return Optional.empty();
         }
     }
 }

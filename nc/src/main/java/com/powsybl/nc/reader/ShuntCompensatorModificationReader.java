@@ -28,18 +28,17 @@ public class ShuntCompensatorModificationReader extends AbstractActionReader<Shu
     private static final String SHUNT_COMPENSATOR_MODIFICATION_QUERY_NAME = "shuntCompensatorModification";
     private static final String SHUNT_COMPENSATOR = "shuntCompensator";
     private static final String PROPERTY_REFERENCE = "http://energy.referencedata.eu/PropertyReference/ShuntCompensator.sections";
-    private static final String RELATIVE_DIRECTION_KIND = "http://entsoe.eu/ns/nc#RelativeDirectionKind.none";
-    private static final String VALUE_OFFSET_KIND = "http://entsoe.eu/ns/nc#ValueOffsetKind.absolute";
 
     public ShuntCompensatorModificationReader(QueryManager queryManager, Network network) {
-        super(queryManager, network, SHUNT_COMPENSATOR_MODIFICATION, PROPERTY_REFERENCE, SHUNT_COMPENSATOR_MODIFICATION_QUERY_NAME, SHUNT_COMPENSATOR, ShuntCompensator.class);
+        super(queryManager, network, SHUNT_COMPENSATOR_MODIFICATION, PROPERTY_REFERENCE, SHUNT_COMPENSATOR_MODIFICATION_QUERY_NAME, SHUNT_COMPENSATOR, false, ShuntCompensator.class);
     }
 
     @Override
     protected Optional<ShuntCompensatorPositionAction> convertGridStateAlterationToAction(String actionId,
                                                                                           Identifiable<?> networkElement,
                                                                                           PropertyBag gridStateAlteration,
-                                                                                          PropertyBag staticPropertyRange) {
+                                                                                          PropertyBag staticPropertyRange,
+                                                                                          VariationType variationType) {
         return getSectionCount(staticPropertyRange, actionId)
             .map(sectionCount -> new ShuntCompensatorPositionActionBuilder()
                 .withId(actionId)
@@ -49,27 +48,17 @@ public class ShuntCompensatorModificationReader extends AbstractActionReader<Shu
     }
 
     private static Optional<Integer> getSectionCount(PropertyBag staticPropertyRange, String shuntCompensatorPositionActionId) {
-        if (!RELATIVE_DIRECTION_KIND.equals(staticPropertyRange.get("direction"))) {
-            LOGGER.warn("StaticPropertyRange {} associated to ShuntCompensatorModification {} has an invalid relative direction kind and will be ignored (expected {}, got {}).",
-                staticPropertyRange.get("mRID"), shuntCompensatorPositionActionId, RELATIVE_DIRECTION_KIND, staticPropertyRange.get("direction"));
-            return Optional.empty();
-        } else if (!VALUE_OFFSET_KIND.equals(staticPropertyRange.get("valueKind"))) {
-            LOGGER.warn("StaticPropertyRange {} associated to ShuntCompensatorModification {} has an invalid value offset kind and will be ignored (expected {}, got {}).",
-                staticPropertyRange.get("mRID"), shuntCompensatorPositionActionId, VALUE_OFFSET_KIND, staticPropertyRange.get("valueKind"));
-            return Optional.empty();
-        } else {
-            String normalValue = staticPropertyRange.get("normalValue");
-            try {
-                int sectionCount = Integer.parseInt(normalValue);
-                if (sectionCount < 0) {
-                    throw new NumberFormatException("Negative section count: " + normalValue);
-                }
-                return Optional.of(sectionCount);
-            } catch (NumberFormatException e) {
-                LOGGER.warn("StaticPropertyRange {} associated to ShuntCompensatorModification {} has an invalid normal value and will be ignored (expected positive integer, got {}).",
-                    staticPropertyRange.get("mRID"), shuntCompensatorPositionActionId, normalValue);
-                return Optional.empty();
+        String normalValue = staticPropertyRange.get("normalValue");
+        try {
+            int sectionCount = Integer.parseInt(normalValue);
+            if (sectionCount < 0) {
+                throw new NumberFormatException("Negative section count: " + normalValue);
             }
+            return Optional.of(sectionCount);
+        } catch (NumberFormatException e) {
+            LOGGER.warn("StaticPropertyRange {} associated to ShuntCompensatorModification {} has an invalid normal value and will be ignored (expected positive integer, got {}).",
+                staticPropertyRange.get("mRID"), shuntCompensatorPositionActionId, normalValue);
+            return Optional.empty();
         }
     }
 }

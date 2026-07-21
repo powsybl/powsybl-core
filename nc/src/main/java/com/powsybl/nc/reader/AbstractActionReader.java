@@ -29,11 +29,17 @@ import static com.powsybl.nc.reader.ReaderUtils.MRID;
  */
 public abstract class AbstractActionReader<A extends Action> extends AbstractReader<A> {
     private static final String STATIC_PROPERTY_RANGE_QUERY_NAME = "staticPropertyRange";
+    private static final String RELATIVE_DIRECTION_KIND_NONE = "http://entsoe.eu/ns/nc#RelativeDirectionKind.none";
+    private static final String RELATIVE_DIRECTION_KIND_UP = "http://entsoe.eu/ns/nc#RelativeDirectionKind.up";
+    private static final String RELATIVE_DIRECTION_KIND_DOWN = "http://entsoe.eu/ns/nc#RelativeDirectionKind.down";
+    private static final String VALUE_OFFSET_KIND_ABSOLUTE = "http://entsoe.eu/ns/nc#ValueOffsetKind.absolute";
+    private static final String VALUE_OFFSET_KIND_INCREMENTAL = "http://entsoe.eu/ns/nc#ValueOffsetKind.incremental";
 
     protected final String queryName;
     protected final String gridStateAlterationType;
     protected final String propertyReference;
     protected final String networkElementAttribute;
+    protected final boolean allowIncremental;
     protected final Class<? extends Identifiable<?>> identifiableClass;
 
     public AbstractActionReader(QueryManager queryManager,
@@ -42,12 +48,14 @@ public abstract class AbstractActionReader<A extends Action> extends AbstractRea
                                 String propertyReference,
                                 String queryName,
                                 String networkElementAttribute,
+                                boolean allowIncremental,
                                 Class<? extends Identifiable<?>> identifiableClass) {
         super(queryManager, network);
         this.queryName = queryName;
         this.gridStateAlterationType = gridStateAlterationType;
         this.propertyReference = propertyReference;
         this.networkElementAttribute = networkElementAttribute;
+        this.allowIncremental = allowIncremental;
         this.identifiableClass = identifiableClass;
     }
 
@@ -105,8 +113,32 @@ public abstract class AbstractActionReader<A extends Action> extends AbstractRea
             return Optional.empty();
         }
 
-        return convertGridStateAlterationToAction(actionId, networkElement, gridStateAlteration, staticPropertyRange);
+        String direction = staticPropertyRange.get("direction");
+        String valueKind = staticPropertyRange.get("valueKind");
+
+        VariationType variationType;
+        if (RELATIVE_DIRECTION_KIND_NONE.equals(direction) && VALUE_OFFSET_KIND_ABSOLUTE.equals(valueKind)) {
+            variationType = VariationType.ABSOLUTE;
+        } else if (allowIncremental && RELATIVE_DIRECTION_KIND_UP.equals(direction) && VALUE_OFFSET_KIND_INCREMENTAL.equals(valueKind)) {
+            variationType = VariationType.INCREMENTAL_UP;
+        } else if (allowIncremental && RELATIVE_DIRECTION_KIND_DOWN.equals(direction) && VALUE_OFFSET_KIND_INCREMENTAL.equals(valueKind)) {
+            variationType = VariationType.INCREMENTAL_DOWN;
+        } else {
+            LOGGER.warn("StaticPropertyRange {} associated to {} {} has an invalid relative direction kind and value offset kind combination and will be ignored.",
+                staticPropertyRange.get(MRID), gridStateAlterationType, actionId);
+            return Optional.empty();
+        }
+
+        return convertGridStateAlterationToAction(actionId, networkElement, gridStateAlteration, staticPropertyRange, variationType);
     }
 
-    protected abstract Optional<A> convertGridStateAlterationToAction(String actionId, Identifiable<?> networkElement, PropertyBag gridStateAlteration, PropertyBag staticPropertyRange);
+    protected abstract Optional<A> convertGridStateAlterationToAction(String actionId,
+                                                                      Identifiable<?> networkElement,
+                                                                      PropertyBag gridStateAlteration,
+                                                                      PropertyBag staticPropertyRange,
+                                                                      VariationType variationType);
+
+    protected enum VariationType {
+        ABSOLUTE, INCREMENTAL_UP, INCREMENTAL_DOWN
+    }
 }

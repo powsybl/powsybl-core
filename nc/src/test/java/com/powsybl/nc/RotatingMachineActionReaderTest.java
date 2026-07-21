@@ -59,9 +59,9 @@ public class RotatingMachineActionReaderTest extends AbstractReaderTest {
         // test logs content
         assertEquals(13, appender.getEvents().size());
         assertEquals("Processing entry RTE_RA.xml.", appender.getEvents().getFirst().getFormattedMessage());
-        assertEquals("RotatingMachineAction rotating-machine-action-4 refers to a non-existing generator FFR1AA1 _load and will be ignored.",
+        assertEquals("RotatingMachineAction rotating-machine-action-4 refers to a non-existing Generator FFR1AA1 _load and will be ignored.",
             appender.getEvents().get(1).getFormattedMessage());
-        assertEquals("RotatingMachineAction rotating-machine-action-5 refers to a non-existing generator FFR1AA1 _load and will be ignored.",
+        assertEquals("RotatingMachineAction rotating-machine-action-5 refers to a non-existing Generator FFR1AA1 _load and will be ignored.",
             appender.getEvents().get(2).getFormattedMessage());
         assertEquals("RotatingMachineAction rotating-machine-action-6 has an invalid property reference and will be ignored "
                 + "(expected http://energy.referencedata.eu/PropertyReference/RotatingMachine.p, got http://energy.referencedata.eu/PropertyReference/Switch.open).",
@@ -71,18 +71,18 @@ public class RotatingMachineActionReaderTest extends AbstractReaderTest {
                 + "(expected http://energy.referencedata.eu/PropertyReference/RotatingMachine.p, got http://energy.referencedata.eu/PropertyReference/Switch.open).",
             appender.getEvents().get(4).getFormattedMessage());
         assertEquals("StaticPropertyRange static-property-range-8 associated to RotatingMachineAction rotating-machine-action-8 "
-                + "has an invalid combination of relativeDirectionKind and valueOffsetKind.",
+                + "has an invalid relative direction kind and value offset kind combination and will be ignored.",
             appender.getEvents().get(5).getFormattedMessage());
         assertEquals("StaticPropertyRange static-property-range-9 associated to RotatingMachineAction rotating-machine-action-9 "
-                + "has an invalid combination of relativeDirectionKind and valueOffsetKind.",
+                + "has an invalid relative direction kind and value offset kind combination and will be ignored.",
             appender.getEvents().get(6).getFormattedMessage());
         assertEquals("StaticPropertyRange static-property-range-10 associated to RotatingMachineAction rotating-machine-action-10 "
-                + "has an invalid combination of relativeDirectionKind and valueOffsetKind.",
+                + "has an invalid relative direction kind and value offset kind combination and will be ignored.",
             appender.getEvents().get(7).getFormattedMessage());
         assertEquals("StaticPropertyRange static-property-range-11 associated to RotatingMachineAction rotating-machine-action-11 "
-                + "has an invalid combination of relativeDirectionKind and valueOffsetKind.",
+                + "has an invalid relative direction kind and value offset kind combination and will be ignored.",
             appender.getEvents().get(8).getFormattedMessage());
-        assertEquals("RotatingMachineAction rotating-machine-action-12 refers to a non-existing generator unknown-rotating-machine and will be ignored.",
+        assertEquals("RotatingMachineAction rotating-machine-action-12 refers to a non-existing Generator unknown-rotating-machine and will be ignored.",
             appender.getEvents().get(9).getFormattedMessage());
         assertEquals("RotatingMachineAction rotating-machine-action-13 has no static property range and will be ignored.",
             appender.getEvents().get(10).getFormattedMessage());
