@@ -37,7 +37,7 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
     }
 
     public ListOfContingencyListsDeserializer(JsonDeserializer<?> contingenciesDeserializer) {
-        super(ListOfContingencyListsDeserializer.class);
+        super(ListOfContingencyLists.class);
         this.contingenciesDeserializer = (JsonDeserializer<Object>) contingenciesDeserializer;
     }
 
