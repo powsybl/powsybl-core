@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.zip.ZipInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -27,7 +25,7 @@ public class TopologyActionReaderTest extends AbstractReaderTest {
 
     @Test
     void importTopologicalActions() {
-        queryManager.read(new ZipInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/SwitchActions.zip"))));
+        queryManager.read(getResourcePath("/SwitchActions.zip"));
 
         TopologyActionReader reader = new TopologyActionReader(queryManager, NETWORK);
         List<SwitchAction> switchActions = reader.readFromProfiles().stream().sorted(Comparator.comparing(SwitchAction::getId)).toList();

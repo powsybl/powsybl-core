@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.zip.ZipInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +25,7 @@ public class ContingencyReaderTest extends AbstractReaderTest {
 
     @Test
     void importContingencies() {
-        queryManager.read(new ZipInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/Contingencies.zip"))));
+        queryManager.read(getResourcePath("/Contingencies.zip"));
 
         ContingencyReader reader = new ContingencyReader(queryManager, NETWORK);
         List<Contingency> contingencies = reader.readFromProfiles().stream().sorted(Comparator.comparing(Contingency::getId)).toList();

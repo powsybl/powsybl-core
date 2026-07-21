@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.zip.ZipInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,7 +23,7 @@ public class ShuntCompensatorModificationReaderTest extends AbstractReaderTest {
 
     @Test
     void importShuntCompensatorModifications() {
-        queryManager.read(new ZipInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/ShuntCompensatorModifications.zip"))));
+        queryManager.read(getResourcePath("/ShuntCompensatorModifications.zip"));
 
         ShuntCompensatorModificationReader reader = new ShuntCompensatorModificationReader(queryManager, NETWORK);
         List<ShuntCompensatorPositionAction> shuntCompensatorPositionActions = reader.readFromProfiles().stream().sorted(Comparator.comparing(ShuntCompensatorPositionAction::getId)).toList();

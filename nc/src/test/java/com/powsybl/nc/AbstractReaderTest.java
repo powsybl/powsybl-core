@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -54,6 +55,10 @@ public abstract class AbstractReaderTest {
     void tearDown() {
         Logger logger = (Logger) LoggerFactory.getLogger(NcConverter.class);
         logger.detachAppender(appender);
+    }
+
+    protected static String getResourcePath(String filename) {
+        return Objects.requireNonNull(AbstractReaderTest.class.getResource(filename)).getPath();
     }
 
 }
