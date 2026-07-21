@@ -28,7 +28,7 @@ SELECT *
     GRAPH <%s> {
         ?contingencyEquipment
             rdf:type cim:ContingencyEquipment ;
-            cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+            cim:ContingencyEquipment.Equipment ?equipment ;
             cim:ContingencyElement.Contingency ?contingency ;
             cim:ContingencyEquipment.contingentStatus ?contingentStatus .
     }

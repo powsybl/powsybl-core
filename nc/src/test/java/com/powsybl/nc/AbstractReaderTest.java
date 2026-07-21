@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AbstractReaderTest {
+public abstract class AbstractReaderTest {
 
     protected TestAppender appender;
     protected QueryManager queryManager;
