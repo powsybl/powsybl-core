@@ -16,13 +16,13 @@ import com.powsybl.nc.QueryManager;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.nc.NcConverter.LOGGER;
+import static com.powsybl.nc.reader.ReaderUtils.MRID;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -55,24 +55,16 @@ public abstract class AbstractActionReader<A extends Action> extends AbstractRea
         Set<A> actions = new HashSet<>();
         PropertyBags gridStateAlterations = queryManager.query(queryName, NcProfile.REMEDIAL_ACTION);
         PropertyBags staticPropertyRanges = queryManager.query(STATIC_PROPERTY_RANGE_QUERY_NAME, NcProfile.REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> staticPropertyRangesPerGridStateAlteration = groupStaticPropertyRangesPerGridStateAlteration(staticPropertyRanges);
+        Map<String, Set<PropertyBag>> staticPropertyRangesPerGridStateAlteration = ReaderUtils.groupOnAttribute(staticPropertyRanges, "gridStateAlteration", true);
         for (PropertyBag gridStateAlteration : gridStateAlterations) {
-            Optional<A> action = processGridStateAlteration(gridStateAlteration, staticPropertyRangesPerGridStateAlteration.getOrDefault(gridStateAlteration.get("mRID"), Set.of()));
+            Optional<A> action = processGridStateAlteration(gridStateAlteration, staticPropertyRangesPerGridStateAlteration.getOrDefault(gridStateAlteration.get(MRID), Set.of()));
             action.ifPresent(actions::add);
         }
         return actions;
     }
 
-    private static Map<String, Set<PropertyBag>> groupStaticPropertyRangesPerGridStateAlteration(PropertyBags staticPropertyRanges) {
-        Map<String, Set<PropertyBag>> staticPropertyRangesPerTopologyAction = new HashMap<>();
-        staticPropertyRanges.forEach(
-            staticPropertyRange -> staticPropertyRangesPerTopologyAction.computeIfAbsent(ReaderUtils.getElementIdFromResourceUri(staticPropertyRange.get("gridStateAlteration")),
-                k -> new HashSet<>()).add(staticPropertyRange));
-        return staticPropertyRangesPerTopologyAction;
-    }
-
     private Optional<A> processGridStateAlteration(PropertyBag gridStateAlteration, Set<PropertyBag> staticPropertyRanges) {
-        String actionId = gridStateAlteration.get("mRID");
+        String actionId = gridStateAlteration.get(MRID);
         String networkElementId = ReaderUtils.getElementIdFromResourceUri(gridStateAlteration.get(networkElementAttribute));
 
         Identifiable<?> networkElement = network.getIdentifiable(networkElementId);
@@ -109,7 +101,7 @@ public abstract class AbstractActionReader<A extends Action> extends AbstractRea
         PropertyBag staticPropertyRange = staticPropertyRanges.iterator().next();
         if (!propertyReference.equals(staticPropertyRange.get("propertyReference"))) {
             LOGGER.warn("StaticPropertyRange {} associated to {} {} has an invalid property reference and will be ignored (expected {}, got {}).",
-                staticPropertyRange.get("mRID"), gridStateAlterationType, actionId, propertyReference, staticPropertyRange.get("propertyReference"));
+                staticPropertyRange.get(MRID), gridStateAlterationType, actionId, propertyReference, staticPropertyRange.get("propertyReference"));
             return Optional.empty();
         }
 

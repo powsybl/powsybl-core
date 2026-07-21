@@ -18,13 +18,13 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.nc.NcConverter.LOGGER;
+import static com.powsybl.nc.reader.ReaderUtils.MRID;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -48,24 +48,16 @@ public class RotatingMachineActionReader extends AbstractReader<GeneratorAction>
         Set<GeneratorAction> generatorActions = new HashSet<>();
         PropertyBags rotatingMachineActions = queryManager.query(ROTATING_MACHINE_ACTION_QUERY_NAME, NcProfile.REMEDIAL_ACTION);
         PropertyBags staticPropertyRanges = queryManager.query(STATIC_PROPERTY_RANGE_QUERY_NAME, NcProfile.REMEDIAL_ACTION);
-        Map<String, Set<PropertyBag>> staticPropertyRangesPerGeneratorAction = groupStaticPropertyRangesPerGeneratorAction(staticPropertyRanges);
+        Map<String, Set<PropertyBag>> staticPropertyRangesPerGeneratorAction = ReaderUtils.groupOnAttribute(staticPropertyRanges, "gridStateAlteration", true);
         for (PropertyBag rotatingMachineAction : rotatingMachineActions) {
-            Optional<GeneratorAction> switchAction = processGeneratorAction(rotatingMachineAction, staticPropertyRangesPerGeneratorAction.getOrDefault(rotatingMachineAction.get("mRID"), Set.of()));
+            Optional<GeneratorAction> switchAction = processGeneratorAction(rotatingMachineAction, staticPropertyRangesPerGeneratorAction.getOrDefault(rotatingMachineAction.get(MRID), Set.of()));
             switchAction.ifPresent(generatorActions::add);
         }
         return generatorActions;
     }
 
-    private static Map<String, Set<PropertyBag>> groupStaticPropertyRangesPerGeneratorAction(PropertyBags staticPropertyRanges) {
-        Map<String, Set<PropertyBag>> staticPropertyRangesPerGeneratorAction = new HashMap<>();
-        staticPropertyRanges.forEach(
-            staticPropertyRange -> staticPropertyRangesPerGeneratorAction.computeIfAbsent(ReaderUtils.getElementIdFromResourceUri(staticPropertyRange.get("gridStateAlteration")),
-                k -> new HashSet<>()).add(staticPropertyRange));
-        return staticPropertyRangesPerGeneratorAction;
-    }
-
     private Optional<GeneratorAction> processGeneratorAction(PropertyBag generatorAction, Set<PropertyBag> staticPropertyRanges) {
-        String generatorActionId = generatorAction.get("mRID");
+        String generatorActionId = generatorAction.get(MRID);
         String generatorId = ReaderUtils.getElementIdFromResourceUri(generatorAction.get("rotatingMachine"));
         Generator generatorInNetwork = network.getGenerator(generatorId);
         if (generatorInNetwork == null) {
@@ -104,7 +96,7 @@ public class RotatingMachineActionReader extends AbstractReader<GeneratorAction>
             setPoint = Double.parseDouble(normalValue);
         } catch (NumberFormatException e) {
             LOGGER.warn("StaticPropertyRange {} associated to RotatingMachineAction {} has an invalid normal value and will be ignored (expected integer, got {}).",
-                staticPropertyRange.get("mRID"), generatorActionId, normalValue);
+                staticPropertyRange.get(MRID), generatorActionId, normalValue);
             return Optional.empty();
         }
 
@@ -118,7 +110,7 @@ public class RotatingMachineActionReader extends AbstractReader<GeneratorAction>
             return Optional.of(Pair.of(-setPoint, true));
         } // TODO: incrementalPercentage?
         LOGGER.warn("StaticPropertyRange {} associated to RotatingMachineAction {} has an invalid combination of relativeDirectionKind and valueOffsetKind.",
-            staticPropertyRange.get("mRID"), generatorActionId);
+            staticPropertyRange.get(MRID), generatorActionId);
         return Optional.empty();
     }
 
@@ -133,7 +125,7 @@ public class RotatingMachineActionReader extends AbstractReader<GeneratorAction>
         PropertyBag staticPropertyRange = staticPropertyRanges.iterator().next();
         if (!PROPERTY_REFERENCE.equals(staticPropertyRange.get("propertyReference"))) {
             LOGGER.warn("StaticPropertyRange {} associated to RotatingMachineAction {} has an invalid property reference and will be ignored (expected {}, got {}).",
-                staticPropertyRange.get("mRID"), generatorActionId, PROPERTY_REFERENCE, staticPropertyRange.get("propertyReference"));
+                staticPropertyRange.get(MRID), generatorActionId, PROPERTY_REFERENCE, staticPropertyRange.get("propertyReference"));
             return false;
         }
         return true;

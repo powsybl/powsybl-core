@@ -7,10 +7,19 @@
 
 package com.powsybl.nc.reader;
 
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class ReaderUtils {
+    public static final String MRID = "mRID";
 
     private ReaderUtils() {
     }
@@ -19,5 +28,15 @@ public final class ReaderUtils {
         // expected format is http://entsoe.eu/#_
         // +s need to be replaced by spaces to account for networks imported from UCTE
         return resourceUri.substring(resourceUri.lastIndexOf('#') + 2).replace('+', ' ');
+    }
+
+    public static Map<String, Set<PropertyBag>> groupOnAttribute(PropertyBags propertyBags, String propertyName, boolean isUri) {
+        Map<String, Set<PropertyBag>> propertyBagsPerAttribute = new HashMap<>();
+        propertyBags.forEach(
+            propertyBag -> propertyBagsPerAttribute.computeIfAbsent(
+                isUri ? ReaderUtils.getElementIdFromResourceUri(propertyBag.get(propertyName)) : propertyName,
+                k -> new HashSet<>()
+            ).add(propertyBag));
+        return propertyBagsPerAttribute;
     }
 }

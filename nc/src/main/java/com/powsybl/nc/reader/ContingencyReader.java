@@ -35,7 +35,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.nc.NcConverter.LOGGER;
+import static com.powsybl.nc.reader.ReaderUtils.MRID;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -61,7 +61,7 @@ public class ContingencyReader extends AbstractReader<Contingency> {
         PropertyBags exceptionalContingencies = queryManager.query("exceptionalContingency", NcProfile.CONTINGENCY);
         PropertyBags outOfRangeContingencies = queryManager.query("outOfRangeContingency", NcProfile.CONTINGENCY);
         PropertyBags contingencyEquipments = queryManager.query("contingencyEquipment", NcProfile.CONTINGENCY);
-        Map<String, Set<PropertyBag>> contingencyElementsPerContingency = groupContingencyElementsPerContingency(contingencyEquipments);
+        Map<String, Set<PropertyBag>> contingencyElementsPerContingency = ReaderUtils.groupOnAttribute(contingencyEquipments, "contingency", true);
         Set<PropertyBag> allContingencies = new HashSet<>(ordinaryContingencies);
         allContingencies.addAll(exceptionalContingencies);
         allContingencies.addAll(outOfRangeContingencies);
@@ -72,16 +72,8 @@ public class ContingencyReader extends AbstractReader<Contingency> {
         return contingencies;
     }
 
-    private static Map<String, Set<PropertyBag>> groupContingencyElementsPerContingency(PropertyBags contingencyElements) {
-        Map<String, Set<PropertyBag>> contingencyElementsPerContingency = new HashMap<>();
-        contingencyElements.forEach(
-            contingencyElement -> contingencyElementsPerContingency.computeIfAbsent(ReaderUtils.getElementIdFromResourceUri(contingencyElement.get("contingency")),
-                k -> new HashSet<>()).add(contingencyElement));
-        return contingencyElementsPerContingency;
-    }
-
     private Optional<Contingency> processContingency(PropertyBag contingency, Set<PropertyBag> contingencyEquipments) {
-        String contingencyId = contingency.get("mRID");
+        String contingencyId = contingency.get(MRID);
         String contingencyName = contingency.get("name");
 
         boolean mustStudy = Boolean.parseBoolean(contingency.get("normalMustStudy"));
