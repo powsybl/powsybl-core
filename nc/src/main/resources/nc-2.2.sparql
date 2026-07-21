@@ -94,6 +94,30 @@ SELECT *
     }
 }
 
+# query: rotatingMachineAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?rotatingMachineAction
+            rdf:type nc:RotatingMachineAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RotatingMachineAction.RotatingMachine ?rotatingMachine ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled ;
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction ;
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+            }
+    }
+}
+
 # query: shuntCompensatorModification
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>

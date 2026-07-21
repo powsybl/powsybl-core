@@ -65,7 +65,19 @@ public class QueryManager {
     }
 
     // TODO: add report nodes
-    // TODO: add read signature from a file path / name
+
+    /**
+     * Populate the triplestore with the content of NC profiles stored in a ZIP archive.
+     *
+     * @param path : path of the zip archive that contains the NC profiles
+     */
+    public void read(String path) {
+        try {
+            read(new ZipInputStream(new FileInputStream(path)));
+        } catch (IOException e) {
+            throw new RuntimeException("An error occurred while opening the archive: " + e.getMessage(), e);
+        }
+    }
 
     /**
      * Populate the triplestore with the content of NC profiles stored in a ZIP archive.
@@ -149,12 +161,23 @@ public class QueryManager {
         }
     }
 
-    // TODO: @Junie: write docstring to explain method
+    /**
+     * Run a SPARQL query on the triplestore.
+     *
+     * @param queryName the name of the query in the catalog
+     * @return the result of the query
+     */
     public PropertyBags query(String queryName) {
         return query(queryName, null);
     }
 
-    // TODO: @Junie: write docstring to explain method
+    /**
+     * Run a SPARQL query on the triplestore, restricted to a specific NC profile type.
+     *
+     * @param queryName       the name of the query in the catalog
+     * @param profilesToQuery the NC profile type to query
+     * @return the result of the query
+     */
     public PropertyBags query(String queryName, NcProfile profilesToQuery) {
         String query = queryCatalog.get(queryName);
         if (query == null) {

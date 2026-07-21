@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>powsybl-nc</artifactId>
+    <name>NC</name>
+    <description>NC Profile converter</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

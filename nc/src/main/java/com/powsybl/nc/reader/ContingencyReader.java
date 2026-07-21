@@ -66,8 +66,7 @@ public class ContingencyReader extends AbstractReader<Contingency> {
         allContingencies.addAll(exceptionalContingencies);
         allContingencies.addAll(outOfRangeContingencies);
         for (PropertyBag contingency : allContingencies) {
-            Optional<Contingency> contingencyOpt = processContingency(contingency, contingencyElementsPerContingency.getOrDefault(
-                ReaderUtils.getElementIdFromResourceUri(contingency.get("mRID")), Set.of()));
+            Optional<Contingency> contingencyOpt = processContingency(contingency, contingencyElementsPerContingency.getOrDefault(contingency.get("mRID"), Set.of()));
             contingencyOpt.ifPresent(contingencies::add);
         }
         return contingencies;
@@ -110,11 +109,16 @@ public class ContingencyReader extends AbstractReader<Contingency> {
         String contingentStatus = contingencyEquipment.get("contingentStatus");
 
         if (!OUT_OF_SERVICE_CONTINGENT_STATUS.equals(contingentStatus)) {
-            LOGGER.warn("ContingencyEquipment {} associated to Contingency {} must not be put out of service and will be ignored.", contingencyEquipment.get("mRID"), contingencyId);
+            LOGGER.info("ContingencyEquipment with equipment {} associated to Contingency {} must not be put out of service and will be ignored.", equipment, contingencyId);
             return Optional.empty();
         }
 
         Identifiable<?> networkElement = network.getIdentifiable(equipment);
+        if (networkElement == null) {
+            LOGGER.info("ContingencyEquipment with equipment {} associated to Contingency {} refers to a non-existing network element and will be ignored.", equipment, contingencyId);
+            return Optional.empty();
+        }
+
         return switch (networkElement.getType()) {
             case BATTERY -> Optional.of(new BatteryContingency(equipment));
             case BOUNDARY_LINE -> Optional.of(new BoundaryLineContingency(equipment));
@@ -134,7 +138,7 @@ public class ContingencyReader extends AbstractReader<Contingency> {
             case TWO_WINDINGS_TRANSFORMER -> Optional.of(new TwoWindingsTransformerContingency(equipment));
             case VOLTAGE_SOURCE_CONVERTER -> Optional.of(new VoltageSourceConverterContingency(equipment));
             default -> {
-                LOGGER.warn("ContingencyEquipment {} associated to Contingency {} is not a valid type and will be ignored.", contingencyEquipment.get("mRID"), contingencyId);
+                LOGGER.warn("ContingencyEquipment with equipment {} associated to Contingency {} is not suitable to define a contingency and will be ignored.", equipment, contingencyId);
                 yield Optional.empty();
             }
         };
