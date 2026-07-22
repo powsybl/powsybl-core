@@ -110,7 +110,7 @@ public class VoltageRegulationImpl implements VoltageRegulationExt {
     }
 
     private void initVariantAttributes(double targetValue, double targetDeadband, double slope, boolean regulating, RegulationMode mode, int variantArraySize) {
-        Integer regulationModeIndex = RegulationMode.getIndex(mode);
+        Integer regulationModeIndex = RegulationMode.getIndexFromMode(mode);
         for (int i = 0; i < variantArraySize; i++) {
             // When the VoltageRegulation object is created and there's already other variants,
             // it is created with "empty" values and defined as not regulating for the other variants.

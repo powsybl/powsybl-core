@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.regulation;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -32,14 +33,18 @@ public enum RegulationMode {
                 return mode;
             }
         }
-        throw new IllegalArgumentException("Unknown index: " + index);
+        String allowedRegulationModeIndices = Arrays.toString(Arrays.stream(values())
+            .mapToInt(RegulationMode::getIndex)
+            .toArray());
+        throw new IllegalArgumentException("Unknown or unsupported regulation mode index: " + index
+            + ". Allowed values are: " + allowedRegulationModeIndices);
     }
 
     public int getIndex() {
         return index;
     }
 
-    public static Integer getIndex(RegulationMode mode) {
+    public static Integer getIndexFromMode(RegulationMode mode) {
         return mode == null ? null : mode.index;
     }
 
