@@ -333,7 +333,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder, V
         double q = this.getTerminal().getQ();
         if (!Double.isNaN(q)) {
             // In any cases we set the localTargetQ
-            this.setLocalTargetQ(-this.getTerminal().getQ());
+            this.setLocalTargetQ(-q);
         }
     }
 
