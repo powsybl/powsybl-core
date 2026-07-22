@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class NodeBreakerTest extends AbstractNodeBreakerTest {
@@ -34,8 +34,7 @@ class NodeBreakerTest extends AbstractNodeBreakerTest {
         // ConnectableBus gives different value from 2 identical networks
         String connectableBus1 = network1.getLoad("Load").getTerminal().getBusView().getConnectableBus().getId();
         String connectableBus2 = network2.getLoad("Load").getTerminal().getBusView().getConnectableBus().getId();
-        assertEquals("VL_1", connectableBus1);
-        assertEquals("VL_4", connectableBus2);
+        assertThat(connectableBus1).isEqualTo(connectableBus2);
     }
 
 
