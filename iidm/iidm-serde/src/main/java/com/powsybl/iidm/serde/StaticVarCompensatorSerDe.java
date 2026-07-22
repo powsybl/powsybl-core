@@ -10,7 +10,9 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.removed.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.serde.extensions.VoltagePerReactivePowerControlSerDe;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.List;
@@ -58,7 +60,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
 
         // If SVC is not regulating in versions < 1.14, then its regulation mode should be exported as OFF (as it means that it has been imported with a "OFF" or null regulation mode)
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_13, context, () -> {
-            if (svc.isRegulatingWithMode(RegulationMode.VOLTAGE) || svc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER)) {
+            if (svc.isRegulatingWithMode(RegulationMode.VOLTAGE) || svc.isRegulatingWithMode(RegulationMode.REACTIVE_POWER) || svc.isRegulatingWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER)) {
                 context.getWriter().writeEnumAttribute(REGULATION_MODE, SvcRegulationMode.from(svc.getVoltageRegulation().getMode()));
             } else {
                 context.getWriter().writeEnumAttribute(REGULATION_MODE, RegulationModeSerDe.OFF);
@@ -66,7 +68,7 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
         });
         IidmSerDeUtil.runInBetweenTwoVersions(IidmVersion.V_1_14, IidmVersion.V_1_17, context, () -> {
             if (svc.getVoltageRegulation() != null) {
-                context.getWriter().writeEnumAttribute(REGULATION_MODE, svc.getVoltageRegulation().getMode());
+                context.getWriter().writeEnumAttribute(REGULATION_MODE, SvcRegulationMode.from(svc.getVoltageRegulation().getMode()));
                 context.getWriter().writeBooleanAttribute(REGULATING, svc.getVoltageRegulation().isRegulating());
             } else {
                 context.getWriter().writeEnumAttribute(REGULATION_MODE, RegulationMode.VOLTAGE); // Previous default mode in the SVC adder
@@ -236,12 +238,12 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
     }
 
     private enum SvcRegulationMode {
-        VOLTAGE(RegulationMode.VOLTAGE),
-        REACTIVE_POWER(RegulationMode.REACTIVE_POWER);
-        private final RegulationMode regulationMode;
+        VOLTAGE(List.of(RegulationMode.VOLTAGE, RegulationMode.VOLTAGE_PER_REACTIVE_POWER)),
+        REACTIVE_POWER(List.of(RegulationMode.REACTIVE_POWER));
+        private final List<RegulationMode> regulationModes;
 
-        SvcRegulationMode(RegulationMode regulationMode) {
-            this.regulationMode = regulationMode;
+        SvcRegulationMode(List<RegulationMode> regulationModes) {
+            this.regulationModes = regulationModes;
         }
 
         static SvcRegulationMode from(RegulationMode regulationMode) {
@@ -249,12 +251,21 @@ public class StaticVarCompensatorSerDe extends AbstractComplexIdentifiableSerDe<
                 return null;
             }
             for (SvcRegulationMode value : values()) {
-                if (value.regulationMode == regulationMode) {
+                if (value.regulationModes.contains(regulationMode)) {
                     return value;
                 }
             }
             throw new IllegalArgumentException(
                 "None SvcRegulationMode for the RegulationMode : " + regulationMode);
+        }
+    }
+
+    @Override
+    protected void addExtinctExtensions(StaticVarCompensator staticVarCompensator, NetworkSerializerContext context) {
+        if (VoltagePerReactivePowerControlSerDe.isExtensionNeededAndExportable(staticVarCompensator, context)) {
+            VoltagePerReactivePowerControl extension = new VoltagePerReactivePowerControl(staticVarCompensator,
+                    staticVarCompensator.getVoltageRegulation().getSlope());
+            context.addExtinctExtensionsToSerialize(staticVarCompensator.getId(), extension);
         }
     }
 }

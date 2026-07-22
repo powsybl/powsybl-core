@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.regulation.RegulationMode;
 
 import java.util.Objects;
 
@@ -35,15 +34,6 @@ public class RemoteReactivePowerControl implements Extension<Generator> {
             throw new PowsyblException("Regulating terminal is not in the right Network ("
                 + regulatingTerminal.getVoltageLevel().getParentNetwork().getId() + " instead of "
                 + getExtendable().getParentNetwork().getId() + ")");
-        }
-        //TODO OPE: to remove (after the extinct extensions management is merged)
-        if (generator.getVoltageRegulation() == null) {
-            generator.newVoltageRegulation()
-                .withTargetValue(targetQ)
-                .withMode(RegulationMode.REACTIVE_POWER)
-                .withRegulating(enabled)
-                .withTerminal(regulatingTerminal)
-                .build();
         }
     }
 
