@@ -238,8 +238,8 @@ A load is a passive equipment representing a delivery point that consumes or pro
     - Consumptions are positive.
 
 **Metadata**
-In the grid model, loads comprise the following metadata:
-- The load type, which can be:
+In the grid model, the following metadata is included for loads:
+- The load type, which is required and by default `UNDEFINED`. It can be:
     - `UNDEFINED`
     - `AUXILIARY`
     - `FICTITIOUS`
