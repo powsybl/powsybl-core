@@ -47,44 +47,48 @@ public abstract class AbstractBranchObservabilityTest {
         assertFalse(branchObservability.isObservable());
 
         // P
-        assertEquals(0.02d, branchObservability.getQualityP1().getStandardDeviation(), 0d);
-        branchObservability.getQualityP1().setStandardDeviation(0.03d);
-        assertEquals(0.03d, branchObservability.getQualityP1().getStandardDeviation(), 0d);
-        assertEquals(0.04d, branchObservability.getQualityP2().getStandardDeviation(), 0d);
-        branchObservability.getQualityP2().setStandardDeviation(0.08d);
-        assertEquals(0.08d, branchObservability.getQualityP2().getStandardDeviation(), 0d);
+        assertTrue(branchObservability.getQualityP1().isPresent());
+        assertTrue(branchObservability.getQualityP2().isPresent());
+        assertEquals(0.02d, branchObservability.getNullableQualityP1().getStandardDeviation(), 0d);
+        branchObservability.getNullableQualityP1().setStandardDeviation(0.03d);
+        assertEquals(0.03d, branchObservability.getNullableQualityP1().getStandardDeviation(), 0d);
+        assertEquals(0.04d, branchObservability.getNullableQualityP2().getStandardDeviation(), 0d);
+        branchObservability.getNullableQualityP2().setStandardDeviation(0.08d);
+        assertEquals(0.08d, branchObservability.getNullableQualityP2().getStandardDeviation(), 0d);
 
-        assertTrue(branchObservability.getQualityP1().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityP1().isRedundant().get());
-        branchObservability.getQualityP1().setRedundant(false);
-        assertTrue(branchObservability.getQualityP1().isRedundant().isPresent());
-        assertFalse(branchObservability.getQualityP1().isRedundant().get());
-        assertTrue(branchObservability.getQualityP2().isRedundant().isPresent());
-        assertFalse(branchObservability.getQualityP2().isRedundant().get());
-        branchObservability.getQualityP2().setRedundant(true);
-        assertTrue(branchObservability.getQualityP2().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityP2().isRedundant().get());
+        assertTrue(branchObservability.getNullableQualityP1().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityP1().isRedundant().get());
+        branchObservability.getNullableQualityP1().setRedundant(false);
+        assertTrue(branchObservability.getNullableQualityP1().isRedundant().isPresent());
+        assertFalse(branchObservability.getNullableQualityP1().isRedundant().get());
+        assertTrue(branchObservability.getNullableQualityP2().isRedundant().isPresent());
+        assertFalse(branchObservability.getNullableQualityP2().isRedundant().get());
+        branchObservability.getNullableQualityP2().setRedundant(true);
+        assertTrue(branchObservability.getNullableQualityP2().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityP2().isRedundant().get());
 
         // Q
-        assertEquals(0.5d, branchObservability.getQualityQ1().getStandardDeviation(), 0d);
-        branchObservability.getQualityQ1().setStandardDeviation(0.6d);
-        assertEquals(0.6d, branchObservability.getQualityQ1().getStandardDeviation(), 0d);
-        assertEquals(1.0d, branchObservability.getQualityQ2().getStandardDeviation(), 0d);
-        branchObservability.getQualityQ2().setStandardDeviation(1.01d);
-        assertEquals(1.01d, branchObservability.getQualityQ2().getStandardDeviation(), 0d);
+        assertTrue(branchObservability.getQualityQ1().isPresent());
+        assertTrue(branchObservability.getQualityQ2().isPresent());
+        assertEquals(0.5d, branchObservability.getNullableQualityQ1().getStandardDeviation(), 0d);
+        branchObservability.getNullableQualityQ1().setStandardDeviation(0.6d);
+        assertEquals(0.6d, branchObservability.getNullableQualityQ1().getStandardDeviation(), 0d);
+        assertEquals(1.0d, branchObservability.getNullableQualityQ2().getStandardDeviation(), 0d);
+        branchObservability.getNullableQualityQ2().setStandardDeviation(1.01d);
+        assertEquals(1.01d, branchObservability.getNullableQualityQ2().getStandardDeviation(), 0d);
 
-        assertTrue(branchObservability.getQualityQ1().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityQ1().isRedundant().get());
-        branchObservability.getQualityQ1().setRedundant(false);
-        assertTrue(branchObservability.getQualityQ1().isRedundant().isPresent());
-        assertFalse(branchObservability.getQualityQ1().isRedundant().get());
-        assertTrue(branchObservability.getQualityQ1().isRedundant().isPresent());
-        assertFalse(branchObservability.getQualityQ1().isRedundant().get());
-        assertTrue(branchObservability.getQualityQ2().isRedundant().isPresent());
-        assertFalse(branchObservability.getQualityQ2().isRedundant().get());
-        branchObservability.getQualityQ2().setRedundant(true);
-        assertTrue(branchObservability.getQualityQ2().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityQ2().isRedundant().get());
+        assertTrue(branchObservability.getNullableQualityQ1().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityQ1().isRedundant().get());
+        branchObservability.getNullableQualityQ1().setRedundant(false);
+        assertTrue(branchObservability.getNullableQualityQ1().isRedundant().isPresent());
+        assertFalse(branchObservability.getNullableQualityQ1().isRedundant().get());
+        assertTrue(branchObservability.getNullableQualityQ1().isRedundant().isPresent());
+        assertFalse(branchObservability.getNullableQualityQ1().isRedundant().get());
+        assertTrue(branchObservability.getNullableQualityQ2().isRedundant().isPresent());
+        assertFalse(branchObservability.getNullableQualityQ2().isRedundant().get());
+        branchObservability.getNullableQualityQ2().setRedundant(true);
+        assertTrue(branchObservability.getNullableQualityQ2().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityQ2().isRedundant().get());
     }
 
     @Test
@@ -98,53 +102,58 @@ public abstract class AbstractBranchObservabilityTest {
         assertEquals("branchObservability", branchObservability.getName());
         assertEquals("NHV1_NHV2_1", branchObservability.getExtendable().getId());
 
-        assertNull(branchObservability.getQualityP1());
-        assertNull(branchObservability.getQualityP2());
-        assertNull(branchObservability.getQualityQ1());
-        assertNull(branchObservability.getQualityQ2());
+        assertFalse(branchObservability.getQualityP1().isPresent());
+        assertFalse(branchObservability.getQualityP2().isPresent());
+        assertFalse(branchObservability.getQualityQ1().isPresent());
+        assertFalse(branchObservability.getQualityQ2().isPresent());
+
+        assertNull(branchObservability.getNullableQualityP1());
+        assertNull(branchObservability.getNullableQualityP2());
+        assertNull(branchObservability.getNullableQualityQ1());
+        assertNull(branchObservability.getNullableQualityQ2());
 
         // P1
         assertSame(branchObservability, branchObservability.setQualityP1(0.03d));
-        assertEquals(0.03d, branchObservability.getQualityP1().getStandardDeviation(), 0d);
+        assertEquals(0.03d, branchObservability.getNullableQualityP1().getStandardDeviation(), 0d);
         assertSame(branchObservability, branchObservability.setQualityP1(0.04d));
-        assertEquals(0.04d, branchObservability.getQualityP1().getStandardDeviation(), 0d);
-        assertFalse(branchObservability.getQualityP1().isRedundant().isPresent());
-        branchObservability.getQualityP1().setRedundant(true);
-        assertTrue(branchObservability.getQualityP1().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityP1().isRedundant().get());
+        assertEquals(0.04d, branchObservability.getNullableQualityP1().getStandardDeviation(), 0d);
+        assertFalse(branchObservability.getNullableQualityP1().isRedundant().isPresent());
+        branchObservability.getNullableQualityP1().setRedundant(true);
+        assertTrue(branchObservability.getNullableQualityP1().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityP1().isRedundant().get());
 
         // P2
         assertSame(branchObservability, branchObservability.setQualityP2(0.031d));
-        assertEquals(0.031d, branchObservability.getQualityP2().getStandardDeviation(), 0d);
+        assertEquals(0.031d, branchObservability.getNullableQualityP2().getStandardDeviation(), 0d);
         assertSame(branchObservability, branchObservability.setQualityP2(0.041d));
-        assertEquals(0.041d, branchObservability.getQualityP2().getStandardDeviation(), 0d);
+        assertEquals(0.041d, branchObservability.getNullableQualityP2().getStandardDeviation(), 0d);
 
-        assertFalse(branchObservability.getQualityP2().isRedundant().isPresent());
-        branchObservability.getQualityP2().setRedundant(true);
-        assertTrue(branchObservability.getQualityP2().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityP2().isRedundant().get());
+        assertFalse(branchObservability.getNullableQualityP2().isRedundant().isPresent());
+        branchObservability.getNullableQualityP2().setRedundant(true);
+        assertTrue(branchObservability.getNullableQualityP2().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityP2().isRedundant().get());
 
         // Q1
         assertSame(branchObservability, branchObservability.setQualityQ1(0.6d));
-        assertEquals(0.6d, branchObservability.getQualityQ1().getStandardDeviation(), 0d);
+        assertEquals(0.6d, branchObservability.getNullableQualityQ1().getStandardDeviation(), 0d);
         assertSame(branchObservability, branchObservability.setQualityQ1(0.61d));
-        assertEquals(0.61d, branchObservability.getQualityQ1().getStandardDeviation(), 0d);
+        assertEquals(0.61d, branchObservability.getNullableQualityQ1().getStandardDeviation(), 0d);
 
-        assertFalse(branchObservability.getQualityQ1().isRedundant().isPresent());
-        branchObservability.getQualityQ1().setRedundant(true);
-        assertTrue(branchObservability.getQualityQ1().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityQ1().isRedundant().get());
+        assertFalse(branchObservability.getNullableQualityQ1().isRedundant().isPresent());
+        branchObservability.getNullableQualityQ1().setRedundant(true);
+        assertTrue(branchObservability.getNullableQualityQ1().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityQ1().isRedundant().get());
 
         // Q2
         assertSame(branchObservability, branchObservability.setQualityQ2(0.6d));
-        assertEquals(0.6d, branchObservability.getQualityQ2().getStandardDeviation(), 0d);
+        assertEquals(0.6d, branchObservability.getNullableQualityQ2().getStandardDeviation(), 0d);
         assertSame(branchObservability, branchObservability.setQualityQ2(0.61d));
-        assertEquals(0.61d, branchObservability.getQualityQ2().getStandardDeviation(), 0d);
+        assertEquals(0.61d, branchObservability.getNullableQualityQ2().getStandardDeviation(), 0d);
 
-        assertFalse(branchObservability.getQualityQ2().isRedundant().isPresent());
-        branchObservability.getQualityQ2().setRedundant(true);
-        assertTrue(branchObservability.getQualityQ2().isRedundant().isPresent());
-        assertTrue(branchObservability.getQualityQ2().isRedundant().get());
+        assertFalse(branchObservability.getNullableQualityQ2().isRedundant().isPresent());
+        branchObservability.getNullableQualityQ2().setRedundant(true);
+        assertTrue(branchObservability.getNullableQualityQ2().isRedundant().isPresent());
+        assertTrue(branchObservability.getNullableQualityQ2().isRedundant().get());
     }
 
     @Test
@@ -157,11 +166,11 @@ public abstract class AbstractBranchObservabilityTest {
                 .withRedundantQ1(true)
                 .add();
         BranchObservability injectionObservability = network.getLine("NHV1_NHV2_1").getExtension(BranchObservability.class);
-        assertNull(injectionObservability.getQualityQ2());
-        assertNull(injectionObservability.getQualityQ1());
-        assertFalse((Boolean) injectionObservability.getQualityP1().isRedundant().get());
-        assertEquals(0.5, injectionObservability.getQualityP1().getStandardDeviation(), 0.01);
-        assertFalse(injectionObservability.getQualityP2().isRedundant().isPresent());
-        assertEquals(0.2, injectionObservability.getQualityP2().getStandardDeviation(), 0.01);
+        assertNull(injectionObservability.getNullableQualityQ2());
+        assertNull(injectionObservability.getNullableQualityQ1());
+        assertFalse((Boolean) injectionObservability.getNullableQualityP1().isRedundant().get());
+        assertEquals(0.5, injectionObservability.getNullableQualityP1().getStandardDeviation(), 0.01);
+        assertFalse(injectionObservability.getNullableQualityP2().isRedundant().isPresent());
+        assertEquals(0.2, injectionObservability.getNullableQualityP2().getStandardDeviation(), 0.01);
     }
 }

@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
+import java.util.Optional;
+
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
@@ -56,8 +58,13 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP1() {
+    public ObservabilityQuality<B> getNullableQualityP1() {
         return qualityP1;
+    }
+
+    @Override
+    public Optional<ObservabilityQuality<B>> getQualityP1() {
+        return qualityP1 == null ? Optional.empty() : Optional.of(qualityP1);
     }
 
     @Override
@@ -82,8 +89,13 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityP2() {
+    public ObservabilityQuality<B> getNullableQualityP2() {
         return qualityP2;
+    }
+
+    @Override
+    public Optional<ObservabilityQuality<B>> getQualityP2() {
+        return qualityP2 == null ? Optional.empty() : Optional.of(qualityP2);
     }
 
     @Override
@@ -108,8 +120,13 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ1() {
+    public ObservabilityQuality<B> getNullableQualityQ1() {
         return qualityQ1;
+    }
+
+    @Override
+    public Optional<ObservabilityQuality<B>> getQualityQ1() {
+        return qualityQ1 == null ? Optional.empty() : Optional.of(qualityQ1);
     }
 
     @Override
@@ -134,8 +151,13 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public ObservabilityQuality<B> getQualityQ2() {
+    public ObservabilityQuality<B> getNullableQualityQ2() {
         return qualityQ2;
+    }
+
+    @Override
+    public Optional<ObservabilityQuality<B>> getQualityQ2() {
+        return qualityQ2 == null ? Optional.empty() : Optional.of(qualityQ2);
     }
 
     @Override

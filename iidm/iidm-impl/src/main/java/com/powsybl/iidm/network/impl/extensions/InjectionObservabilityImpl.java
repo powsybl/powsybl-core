@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
+import java.util.Optional;
+
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
@@ -52,8 +54,13 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityP() {
+    public ObservabilityQuality<T> getNullableQualityP() {
         return qualityP;
+    }
+
+    @Override
+    public Optional<ObservabilityQuality<T>> getQualityP() {
+        return qualityP == null ? Optional.empty() : Optional.of(qualityP);
     }
 
     @Override
@@ -78,8 +85,13 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityQ() {
+    public ObservabilityQuality<T> getNullableQualityQ() {
         return qualityQ;
+    }
+
+    @Override
+    public Optional<ObservabilityQuality<T>> getQualityQ() {
+        return qualityQ == null ? Optional.empty() : Optional.of(qualityQ);
     }
 
     @Override
@@ -104,8 +116,13 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public ObservabilityQuality<T> getQualityV() {
+    public ObservabilityQuality<T> getNullableQualityV() {
         return qualityV;
+    }
+
+    @Override
+    public Optional<ObservabilityQuality<T>> getQualityV() {
+        return qualityV == null ? Optional.empty() : Optional.of(qualityV);
     }
 
     @Override
