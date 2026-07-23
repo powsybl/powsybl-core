@@ -8,8 +8,10 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -36,11 +38,20 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
     }
 
     protected AbstractEquipmentCriterionContingencyListDeserializer(Class<T> c,
-                                                                    JsonDeserializer<?> criterionDeserializer,
-                                                                    JsonDeserializer<?> propertyCriteriaDeserializer) {
+                                                                    JsonDeserializer<Object> criterionDeserializer,
+                                                                    JsonDeserializer<Object> propertyCriteriaDeserializer) {
         super(c);
-        this.criterionDeserializer = (JsonDeserializer<Object>) criterionDeserializer;
-        this.propertyCriteriaDeserializer = (JsonDeserializer<Object>) propertyCriteriaDeserializer;
+        this.criterionDeserializer = criterionDeserializer;
+        this.propertyCriteriaDeserializer = propertyCriteriaDeserializer;
+    }
+
+    protected abstract JsonDeserializer<?> create(JsonDeserializer<Object> criterionDeserializer,
+                                                JsonDeserializer<Object> propertyCriteriaDeserializer);
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return create(JsonUtil.buildValueDeserializer(ctxt, property, Criterion.class),
+            JsonUtil.buildListDeserializer(ctxt, property, Criterion.class));
     }
 
     protected static class ParsingContext {

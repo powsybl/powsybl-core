@@ -827,6 +827,20 @@ public final class JsonUtil {
         }
     }
 
+    public static JsonDeserializer<Object> buildValueDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
+        return ctxt.findContextualValueDeserializer(ctxt.constructType(valueClass), property);
+    }
+
+    public static JsonDeserializer<Object> buildListDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
+        JavaType type = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, valueClass);
+        return ctxt.findContextualValueDeserializer(type, property);
+    }
+
+    public static JsonDeserializer<Object> buildSetDeserializer(DeserializationContext ctxt, BeanProperty property, Class<?> valueClass) throws JsonMappingException {
+        JavaType type = ctxt.getTypeFactory().constructCollectionType(HashSet.class, valueClass);
+        return ctxt.findContextualValueDeserializer(type, property);
+    }
+
     public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws IOException {
         if (optional.isPresent()) {
             jsonGenerator.writeStringField(field, optional.get().toString());

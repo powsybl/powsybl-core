@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.identifiers.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
@@ -25,9 +24,7 @@ import com.powsybl.iidm.network.identifiers.SubstationOrVoltageLevelEquipmentsId
 import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -49,11 +46,8 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
 
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException {
-        JavaType listType = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, NetworkElementIdentifier.class);
-        this.identifierListDeserializer = ctxt.findContextualValueDeserializer(listType, null);
-
-        JavaType setType = ctxt.getTypeFactory().constructCollectionType(HashSet.class, IdentifiableType.class);
-        this.identifiableTypeSetDeserializer = ctxt.findContextualValueDeserializer(setType, null);
+        this.identifierListDeserializer = JsonUtil.buildListDeserializer(ctxt, null, NetworkElementIdentifier.class);
+        this.identifiableTypeSetDeserializer = JsonUtil.buildSetDeserializer(ctxt, null, IdentifiableType.class);
     }
 
     @Override

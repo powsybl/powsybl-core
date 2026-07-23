@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -20,7 +19,6 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,9 +44,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-        JavaType type = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, NetworkElementIdentifier.class);
-        JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(type, property);
-        return new IdentifierContingencyListDeserializer(deser);
+        return new IdentifierContingencyListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, NetworkElementIdentifier.class));
     }
 
     @Override
@@ -76,7 +72,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                 }
                 case "identifiers" -> {
                     parser.nextToken();
-                    networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                    networkElementIdentifiers = JsonUtil.readList(identifiersDeserializer, deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }

@@ -39,8 +39,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-        JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(ctxt.constructType(ContingencyElementType.class), property);
-        return new ContingencyElementDeserializer(deser);
+        return new ContingencyElementDeserializer(JsonUtil.buildValueDeserializer(ctxt, property, ContingencyElementType.class));
     }
 
     @Override

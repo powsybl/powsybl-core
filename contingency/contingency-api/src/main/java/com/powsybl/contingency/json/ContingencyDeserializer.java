@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -25,7 +24,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -55,10 +53,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency>
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
                                                 BeanProperty property) throws JsonMappingException {
-        JavaType elementsType = deserializationContext.getTypeFactory()
-            .constructCollectionType(ArrayList.class, ContingencyElement.class);
-        JsonDeserializer<?> deserializer = deserializationContext.findContextualValueDeserializer(elementsType, property);
-        return new ContingencyDeserializer(deserializer);
+        return new ContingencyDeserializer(JsonUtil.buildListDeserializer(deserializationContext, property, ContingencyElement.class));
     }
 
     @Override

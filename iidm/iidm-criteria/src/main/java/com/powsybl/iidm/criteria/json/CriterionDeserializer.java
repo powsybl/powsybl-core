@@ -18,7 +18,6 @@ import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,13 +43,11 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> implements
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-        JavaType elementsTypeVoltage = ctxt.constructType(VoltageInterval.class);
-        JsonDeserializer<?> deserVoltage = ctxt.findContextualValueDeserializer(elementsTypeVoltage, property);
-        JavaType elementsTypeCountry = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, String.class);
-        JsonDeserializer<?> deserCountry = ctxt.findContextualValueDeserializer(elementsTypeCountry, property);
-        JavaType elementsTypeProperty = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, String.class);
-        JsonDeserializer<?> deserProperty = ctxt.findContextualValueDeserializer(elementsTypeProperty, property);
-        return new CriterionDeserializer(deserVoltage, deserCountry, deserProperty);
+        return new CriterionDeserializer(
+            JsonUtil.buildValueDeserializer(ctxt, property, VoltageInterval.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class),
+            JsonUtil.buildListDeserializer(ctxt, property, String.class)
+        );
     }
 
     @Override

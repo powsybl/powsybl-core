@@ -9,8 +9,12 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
 import com.powsybl.action.json.ActionJsonModule;
@@ -38,7 +42,7 @@ import static com.powsybl.contingency.json.LimitViolationDeserializer.VIOLATION_
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
  */
-public class SecurityAnalysisResultDeserializer extends StdDeserializer<SecurityAnalysisResult> {
+public class SecurityAnalysisResultDeserializer extends StdDeserializer<SecurityAnalysisResult> implements ContextualDeserializer {
 
     private static final String CONTEXT_NAME = "SecurityAnalysisResult";
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
@@ -46,8 +50,38 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
+    private final transient JsonDeserializer<Object> networkMetadataDeserializer;
+    private final transient JsonDeserializer<Object> limitViolationsResultDeserializer;
+    private final transient JsonDeserializer<Object> postContingencyResultsDeserializer;
+    private final transient JsonDeserializer<Object> preContingencyResultDeserializer;
+    private final transient JsonDeserializer<Object> operatorStrategyResultsDeserializer;
+
     public SecurityAnalysisResultDeserializer() {
+        this(null, null, null, null, null);
+    }
+
+    protected SecurityAnalysisResultDeserializer(JsonDeserializer<?> networkMetadataDeserializer,
+                                               JsonDeserializer<?> limitViolationsResultDeserializer,
+                                               JsonDeserializer<?> postContingencyResultsDeserializer,
+                                               JsonDeserializer<?> preContingencyResultDeserializer,
+                                               JsonDeserializer<?> operatorStrategyResultsDeserializer) {
         super(SecurityAnalysisResult.class);
+        this.networkMetadataDeserializer = (JsonDeserializer<Object>) networkMetadataDeserializer;
+        this.limitViolationsResultDeserializer = (JsonDeserializer<Object>) limitViolationsResultDeserializer;
+        this.postContingencyResultsDeserializer = (JsonDeserializer<Object>) postContingencyResultsDeserializer;
+        this.preContingencyResultDeserializer = (JsonDeserializer<Object>) preContingencyResultDeserializer;
+        this.operatorStrategyResultsDeserializer = (JsonDeserializer<Object>) operatorStrategyResultsDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new SecurityAnalysisResultDeserializer(
+            JsonUtil.buildValueDeserializer(ctxt, property, NetworkMetadata.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, LimitViolationsResult.class),
+            JsonUtil.buildListDeserializer(ctxt, property, PostContingencyResult.class),
+            JsonUtil.buildValueDeserializer(ctxt, property, PreContingencyResult.class),
+            JsonUtil.buildListDeserializer(ctxt, property, OperatorStrategyResult.class)
+        );
     }
 
     @Override
@@ -70,27 +104,27 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "network":
                     parser.nextToken();
-                    networkMetadata = JsonUtil.readValue(ctx, parser, NetworkMetadata.class);
+                    networkMetadata = JsonUtil.readValue(networkMetadataDeserializer, ctx, parser, NetworkMetadata.class);
                     break;
 
                 case "preContingencyResult":
                     parser.nextToken();
                     if ("1.0".equals(version)) {
-                        limitViolationsResult = JsonUtil.readValue(ctx, parser, LimitViolationsResult.class);
+                        limitViolationsResult = JsonUtil.readValue(limitViolationsResultDeserializer, ctx, parser, LimitViolationsResult.class);
                     } else {
-                        preContingencyResult = JsonUtil.readValue(ctx, parser, PreContingencyResult.class);
+                        preContingencyResult = JsonUtil.readValue(preContingencyResultDeserializer, ctx, parser, PreContingencyResult.class);
                     }
                     break;
 
                 case "postContingencyResults":
                     parser.nextToken();
-                    postContingencyResults = JsonUtil.readList(ctx, parser, PostContingencyResult.class);
+                    postContingencyResults = JsonUtil.readList(postContingencyResultsDeserializer, ctx, parser, PostContingencyResult.class);
                     break;
 
                 case "operatorStrategyResults":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyResults", version, "1.2");
                     parser.nextToken();
-                    operatorStrategyResults = JsonUtil.readList(ctx, parser, OperatorStrategyResult.class);
+                    operatorStrategyResults = JsonUtil.readList(operatorStrategyResultsDeserializer, ctx, parser, OperatorStrategyResult.class);
                     break;
 
                 case "extensions":

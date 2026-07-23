@@ -21,7 +21,6 @@ import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,11 +47,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty beanProperty) throws JsonMappingException {
-        JavaType countriesType = ctxt.getTypeFactory().constructCollectionType(HashSet.class, Country.class);
-        JsonDeserializer<?> countriesDeserializer = ctxt.findContextualValueDeserializer(countriesType, beanProperty);
-        return new LoadFlowParametersDeserializer(
-            countriesDeserializer
-        );
+        return new LoadFlowParametersDeserializer(JsonUtil.buildSetDeserializer(ctxt, beanProperty, Country.class));
     }
 
     @Override

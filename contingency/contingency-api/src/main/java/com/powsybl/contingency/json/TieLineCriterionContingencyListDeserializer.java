@@ -8,18 +8,14 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.list.TieLineCriterionContingencyList;
-import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 import com.powsybl.iidm.criteria.TwoCountriesCriterion;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -30,15 +26,12 @@ public class TieLineCriterionContingencyListDeserializer extends AbstractEquipme
         this(null, null);
     }
 
-    protected TieLineCriterionContingencyListDeserializer(JsonDeserializer<?> criterionDeser, JsonDeserializer<?> propertyDeser) {
+    protected TieLineCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
         super(TieLineCriterionContingencyList.class, criterionDeser, propertyDeser);
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-        JsonDeserializer<?> criterionDeser = ctxt.findContextualValueDeserializer(ctxt.constructType(Criterion.class), property);
-        JsonDeserializer<?> propertyDeser = ctxt.findContextualValueDeserializer(
-            ctxt.getTypeFactory().constructCollectionType(ArrayList.class, Criterion.class), property);
+    protected TieLineCriterionContingencyListDeserializer create(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
         return new TieLineCriterionContingencyListDeserializer(criterionDeser, propertyDeser);
     }
 
