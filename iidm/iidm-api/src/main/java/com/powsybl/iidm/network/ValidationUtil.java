@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.regulation.RegulationMode;
 import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
+import com.powsybl.iidm.network.regulation.mode.getter.RegulationModeGetters;
 import com.powsybl.iidm.network.util.NetworkReports;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -1347,7 +1348,7 @@ public final class ValidationUtil {
             return ValidationLevel.EQUIPMENT;
         } else {
             // CHECK ALLOWED MODE
-            Set<RegulationMode> allowedModes = RegulationMode.getAllowedRegulationModes(isRemote, classHolder);
+            Set<RegulationMode> allowedModes = RegulationModeGetters.getAllowedRegulationModes(classHolder, isRemote);
             if (!allowedModes.contains(mode)) {
                 String allowedModesString = allowedModes.stream().map(RegulationMode::name).collect(Collectors.joining(", "));
                 String message = String.format("The current regulationMode is %s but allowed modes are [%s] when isRemote = %s",
