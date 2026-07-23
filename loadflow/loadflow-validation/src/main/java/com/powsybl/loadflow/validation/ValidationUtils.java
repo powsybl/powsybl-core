@@ -58,17 +58,6 @@ public final class ValidationUtils {
         return areNaN;
     }
 
-    public static boolean areNaN(double... values) {
-        boolean areMissing = false;
-        for (double value : values) {
-            if (Double.isNaN(value)) {
-                areMissing = true;
-                break;
-            }
-        }
-        return areMissing;
-    }
-
     public static boolean areNaN(ValidationConfig config, double... values) {
         Objects.requireNonNull(config);
         if (config.areOkMissingValues()) {
@@ -116,7 +105,7 @@ public final class ValidationUtils {
         return new TerminalState(v, connected, mainComponent);
     }
 
-    public static boolean isUndefinedOrZero(double value, double threshold) {
+    public static boolean isNaNOrZero(double value, double threshold) {
         return Double.isNaN(value) || Math.abs(value) <= threshold;
     }
 

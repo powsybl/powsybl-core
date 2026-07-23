@@ -125,15 +125,15 @@ public final class ShuntCompensatorsValidation {
      * Rules for valid results :<br/>
      * - Rule: |p| < e <br/>
      * - Rule: q must match expectedQ <br/>
-     * - Rule: if the shunt is disconnected, q should be undefined or 0
+     * - Rule: if the shunt is disconnected, q should be NaN or 0
      */
     public boolean checkShunt(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                               double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                               ValidationWriter shuntsWriter) {
         boolean validated = true;
         double threshold = config.getThreshold();
-        // Rule: if the shunt is disconnected, q should be undefined or 0
-        if (!connected && !isUndefinedOrZero(q, threshold)) {
+        // Rule: if the shunt is disconnected, q should be NaN or 0
+        if (!connected && !isNaNOrZero(q, threshold)) {
             LOGGER.warn("{} {}: {}: disconnected shunt Q {}", ValidationType.SHUNTS, ValidationUtils.VALIDATION_ERROR, id, q);
             validated = false;
         }

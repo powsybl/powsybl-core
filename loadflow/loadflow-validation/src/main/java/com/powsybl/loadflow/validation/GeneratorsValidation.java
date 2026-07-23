@@ -145,7 +145,7 @@ public final class GeneratorsValidation {
         boolean validated = true;
         double expectedP = getExpectedP(guesser, id, p, targetP, minP, maxP, config.getThreshold());
         if (isConnectedAndMainComponent(connected, mainComponent, config)) {
-            if (areNaN(p, q)) {
+            if (Double.isNaN(p) || Double.isNaN(q)) {
                 validated = validateMissingPQRule(id, p, q, targetP, targetQ);
             } else if (isGenReactiveBoundInverted(minQ, maxQ, config.getThreshold(), config.isNoRequirementIfReactiveBoundInversion())) {
                 validated = true;

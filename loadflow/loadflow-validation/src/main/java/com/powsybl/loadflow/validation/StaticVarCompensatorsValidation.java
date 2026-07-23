@@ -151,7 +151,7 @@ public final class StaticVarCompensatorsValidation {
             // Rule: reactivePowerSetpoint must be 0 if p or q is missing
             if (Double.isNaN(p) || Double.isNaN(q)) {
                 // a validation error should be detected if there is a setpoint but no p or q
-                if (!isUndefinedOrZero(reactivePowerSetpoint, 0.0)) {
+                if (!isNaNOrZero(reactivePowerSetpoint, 0.0)) {
                     LOGGER.warn("{} {}: {}: P={} Q={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, p, q, reactivePowerSetpoint);
                     validated = false;
                 }

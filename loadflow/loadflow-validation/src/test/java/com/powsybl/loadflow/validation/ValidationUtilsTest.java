@@ -81,11 +81,11 @@ class ValidationUtilsTest extends AbstractValidationTest {
     }
 
     @Test
-    void isUndefinedOrZeroShouldSucceed() {
-        assertTrue(ValidationUtils.isUndefinedOrZero(NaN, 0.01));
-        assertTrue(ValidationUtils.isUndefinedOrZero(0.0, 0.01));
-        assertTrue(ValidationUtils.isUndefinedOrZero(0.01, 0.02));
-        assertFalse(ValidationUtils.isUndefinedOrZero(0.02, 0.01));
+    void isNaNOrZeroShouldSucceed() {
+        assertTrue(ValidationUtils.isNaNOrZero(NaN, 0.01));
+        assertTrue(ValidationUtils.isNaNOrZero(0.0, 0.01));
+        assertTrue(ValidationUtils.isNaNOrZero(0.01, 0.02));
+        assertFalse(ValidationUtils.isNaNOrZero(0.02, 0.01));
     }
 
     @Test
