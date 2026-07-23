@@ -161,7 +161,7 @@ class SecurityTest {
     @Test
     void printOperatorStrategyViolations() throws Exception {
         StringWriter writer = new StringWriter();
-        try {
+        try (writer) {
             Security.printOperatorStrategyViolations(result, network, writer, formatterFactory, formatterConfig, null, false);
         } finally {
             writer.close();
@@ -179,7 +179,7 @@ class SecurityTest {
     @Test
     void printOperatorStrategyViolationsWithPreContingencyViolationsFiltering() throws Exception {
         StringWriter writer = new StringWriter();
-        try {
+        try (writer) {
             Security.printOperatorStrategyViolations(result, network, writer, formatterFactory, formatterConfig, null, true);
         } finally {
             writer.close();

@@ -351,7 +351,7 @@ The "version" field of a JSON operator strategy list must be located at the top 
       "id" : "decreaseLoadP",
       "loadId" : "LOAD",
       "relativeValue" : false,
-      "activePowerValue" : 250.0
+      "activePowerValue" : 500.0
     }, {
       "type" : "GENERATOR",
       "id" : "decreaseGenP",
@@ -385,11 +385,10 @@ Operator strategy limit violations:
 | Operator strategy | Status    | Contingency | Equipment (1) | End   | Country | Base voltage | Violation type | Violation name | Value     | Limit    | abs(value-limit) | Loading rate % |
 +--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
 | strategy_gen_load | CONVERGED | contingency1 | Equipment (1) |       |         |              |                |                |           |          |                  |                |
-|                   |           |              | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 1008,9288 | 460,0000 |         548,9288 |         219,33 |
+|                   |           |              | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 831,3471 | 460,0000 |         371,3471 |         180,73 |
 +--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
 ```
 
-- After adding operator strategies and actions, the simulation result written out by itools does not yet include information about operator strategies remedial action violations.
 - `itools` print:
   - ✅ Pre-contingency violations
   - ✅ Post-contingency limit violations
