@@ -204,6 +204,23 @@ public final class TestingResultFactory {
         return shortCircuitAnalysisResult;
     }
 
+    public static ShortCircuitAnalysisResult createFortescueResultWithEquivalentImpedance() {
+        Fault fault1 = new BusFault("id1", "busId");
+        List<FaultResult> faultResults = new ArrayList<>();
+        FortescueFaultResult faultResult1 = new FortescueFaultResult(fault1, 1.0, new FortescueValue(1.0, 10),
+                new FortescueValue(2.0, 20), null, SUCCESS, 2.0, 3.0, 4.0, 5.0);
+        faultResults.add(faultResult1);
+        return new ShortCircuitAnalysisResult(faultResults);
+    }
+
+    public static ShortCircuitAnalysisResult createMagnitudeResultWithEquivalentImpedance() {
+        Fault fault1 = new BusFault("id1", "busId");
+        List<FaultResult> faultResults = new ArrayList<>();
+        MagnitudeFaultResult faultResult1 = new MagnitudeFaultResult(fault1, 1.0, 2.0, 3.0, null, SUCCESS, 4.0, 5.0);
+        faultResults.add(faultResult1);
+        return new ShortCircuitAnalysisResult(faultResults);
+    }
+
     public static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {
 
         @Override

@@ -39,7 +39,6 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         }
         if (faultResult instanceof FortescueFaultResult fortescueFaultResult) {
             fortescueResultSerialization(fortescueFaultResult, jsonGenerator, serializerProvider);
-
         } else if (faultResult instanceof MagnitudeFaultResult) {
             magnitudeResultSerialization(faultResult, jsonGenerator, serializerProvider);
         }
@@ -65,17 +64,36 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (result.getVoltage() != null) {
             serializerProvider.defaultSerializeField("voltage", result.getVoltage(), jsonGenerator);
         }
+        if (!Double.isNaN(result.getEquivalentR())) {
+            serializerProvider.defaultSerializeField("equivalentR", result.getEquivalentR(), jsonGenerator);
+        }
+        if (!Double.isNaN(result.getEquivalentRZero())) {
+            serializerProvider.defaultSerializeField("equivalentRZero", result.getEquivalentR(), jsonGenerator);
+        }
+        if (!Double.isNaN(result.getEquivalentX())) {
+            serializerProvider.defaultSerializeField("equivalentX", result.getEquivalentX(), jsonGenerator);
+        }
+        if (!Double.isNaN(result.getEquivalentXZero())) {
+            serializerProvider.defaultSerializeField("equivalentXZero", result.getEquivalentX(), jsonGenerator);
+        }
     }
 
     private void magnitudeResultSerialization(FaultResult faultResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        MagnitudeFaultResult magnitudeFaultResult = (MagnitudeFaultResult) faultResult;
         if (!((faultResult.getFeederResults()).isEmpty())) {
             serializerProvider.defaultSerializeField("feederResult", faultResult.getFeederResults(), jsonGenerator);
         }
-        if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getCurrent())) {
-            serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFaultResult) faultResult).getCurrent(), jsonGenerator);
+        if (!Double.isNaN(magnitudeFaultResult.getCurrent())) {
+            serializerProvider.defaultSerializeField("currentMagnitude", magnitudeFaultResult.getCurrent(), jsonGenerator);
         }
-        if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getVoltage())) {
-            serializerProvider.defaultSerializeField("voltageMagnitude", ((MagnitudeFaultResult) faultResult).getVoltage(), jsonGenerator);
+        if (!Double.isNaN(magnitudeFaultResult.getVoltage())) {
+            serializerProvider.defaultSerializeField("voltageMagnitude", magnitudeFaultResult.getVoltage(), jsonGenerator);
+        }
+        if (!Double.isNaN(magnitudeFaultResult.getEquivalentR())) {
+            serializerProvider.defaultSerializeField("equivalentR", magnitudeFaultResult.getEquivalentR(), jsonGenerator);
+        }
+        if (!Double.isNaN(magnitudeFaultResult.getEquivalentX())) {
+            serializerProvider.defaultSerializeField("equivalentX", magnitudeFaultResult.getEquivalentX(), jsonGenerator);
         }
     }
 

@@ -1,0 +1,29 @@
+{
+  "version" : "1.6",
+  "faultResults" : [ {
+    "status" : "SUCCESS",
+    "fault" : {
+      "type" : "BUS",
+      "id" : "id",
+      "elementId" : "busId",
+      "r" : 0.0,
+      "x" : 0.0,
+      "connection" : "SERIES",
+      "faultType" : "THREE_PHASE"
+    },
+    "shortCircuitPower" : 1.0,
+    "timeConstant" : "PT1S",
+    "current" : {
+      "directMagnitude" : 1.0,
+      "directAngle" : 10.0
+    },
+    "voltage" : {
+      "directMagnitude" : 50.0,
+      "directAngle" : 50.0
+    },
+    "equivalentR" : 2.0,
+    "equivalentRZero" : 3.0,
+    "equivalentX" : 4.0,
+    "equivalentXZero" : 5.0
+  } ]
+}
