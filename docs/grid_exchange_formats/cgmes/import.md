@@ -316,6 +316,8 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`. If undefined, they are set to `0`.
 - `EnergySource` is set as `OTHER`
 
+The [`Reference Priority`](../../grid_model/extensions.md#reference-priorities) extension is created from the `ExternalNetworkInjection.referencePriority` value in `SSH`.
+
 <span style="color: red">TODO reactive limits</span>
 
 <span style="color: red">TODO regulation</span>
