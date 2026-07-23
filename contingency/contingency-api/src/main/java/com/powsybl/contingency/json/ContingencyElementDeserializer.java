@@ -55,9 +55,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case "voltageLevelId" -> voltageLevelId = parser.nextTextValue();
                 case "type" -> {
                     parser.nextToken();
-                    type = typeDeserializer != null ?
-                        (ContingencyElementType) typeDeserializer.deserialize(parser, ctx) :
-                        JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
+                    type = JsonUtil.readValue(typeDeserializer, ctx, parser, ContingencyElementType.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }

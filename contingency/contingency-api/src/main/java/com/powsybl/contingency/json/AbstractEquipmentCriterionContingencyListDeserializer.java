@@ -70,9 +70,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
             }
             case "propertyCriteria" -> {
                 parser.nextToken();
-                parsingCtx.propertyCriteria = propertyCriteriaDeserializer != null ?
-                    (List<PropertyCriterion>) propertyCriteriaDeserializer.deserialize(parser, ctx) :
-                    JsonUtil.readList(ctx, parser, Criterion.class);
+                parsingCtx.propertyCriteria = JsonUtil.readList(propertyCriteriaDeserializer, ctx, parser, PropertyCriterion.class);
                 return true;
             }
             case "regexCriterion" -> {
@@ -96,10 +94,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
         }
     }
 
-    private Criterion readCriterion(JsonParser parser, DeserializationContext ctx) throws IOException {
-        if (criterionDeserializer != null) {
-            return (Criterion) criterionDeserializer.deserialize(parser, ctx);
-        }
-        return JsonUtil.readValue(ctx, parser, Criterion.class);
+    private Criterion readCriterion(JsonParser parser, DeserializationContext ctx) {
+        return JsonUtil.readValue(criterionDeserializer, ctx, parser, Criterion.class);
     }
 }

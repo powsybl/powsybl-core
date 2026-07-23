@@ -66,9 +66,7 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
                 }
                 case "contingencyLists" -> {
                     parser.nextToken();
-                    contingencyLists = contingenciesDeserializer != null ?
-                        (List<ContingencyList>) contingenciesDeserializer.deserialize(parser, deserializationContext) :
-                        JsonUtil.readList(deserializationContext, parser, ContingencyList.class);
+                    contingencyLists = JsonUtil.readList(contingenciesDeserializer, deserializationContext, parser, ContingencyList.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }

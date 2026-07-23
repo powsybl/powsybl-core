@@ -40,7 +40,6 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
 
     public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
-    private transient JsonDeserializer<Object> typeDeserializer;
     private transient JsonDeserializer<Object> identifierListDeserializer;
     private transient JsonDeserializer<Object> identifiableTypeSetDeserializer;
 
@@ -50,8 +49,6 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
 
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException {
-        this.typeDeserializer = ctxt.findContextualValueDeserializer(ctxt.constructType(NetworkElementIdentifier.IdentifierType.class), null);
-
         JavaType listType = ctxt.getTypeFactory().constructCollectionType(ArrayList.class, NetworkElementIdentifier.class);
         this.identifierListDeserializer = ctxt.findContextualValueDeserializer(listType, null);
 
@@ -74,12 +71,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
-                case "type" -> {
-                    parser.nextToken();
-                    type = typeDeserializer != null ?
-                        (NetworkElementIdentifier.IdentifierType) typeDeserializer.deserialize(parser, deserializationContext) :
-                        NetworkElementIdentifier.IdentifierType.valueOf(parser.getText());
-                }
+                case "type" -> type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextTextValue());
                 case "identifier" -> identifier = parser.nextTextValue();
                 case CONTINGENCY_ID -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, CONTINGENCY_ID, version, "1.2");
@@ -87,18 +79,14 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                 }
                 case "identifierList" -> {
                     parser.nextToken();
-                    networkElementIdentifierList = identifierListDeserializer != null ?
-                        (List<NetworkElementIdentifier>) identifierListDeserializer.deserialize(parser, deserializationContext) :
-                        JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                    networkElementIdentifierList = JsonUtil.readList(identifierListDeserializer, deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 case "voltageLevelId1" -> voltageLevelId1 = parser.nextTextValue();
                 case "voltageLevelId2" -> voltageLevelId2 = parser.nextTextValue();
                 case "substationOrVoltageLevelId" -> substationOrVoltageLevelId = parser.nextTextValue();
                 case "voltageLevelIdentifiableTypes" -> {
                     parser.nextToken();
-                    voltageLevelIdentifiableTypes = identifiableTypeSetDeserializer != null ?
-                        (Set<IdentifiableType>) identifiableTypeSetDeserializer.deserialize(parser, deserializationContext) :
-                        JsonUtil.readSet(deserializationContext, parser, IdentifiableType.class);
+                    voltageLevelIdentifiableTypes = JsonUtil.readSet(identifiableTypeSetDeserializer, deserializationContext, parser, IdentifiableType.class);
                 }
                 case "order" -> {
                     String orderStr = parser.nextTextValue();

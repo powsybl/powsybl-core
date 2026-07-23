@@ -756,6 +756,23 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Reads a value using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param valueDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the value of the parsed JSON
+     * @param <T> casting type for the value returned by the deserializer
+     */
+    public static <T> T readValue(JsonDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<T> typeClass) {
+        try {
+            return valueDeserializer != null ?
+                (T) valueDeserializer.deserialize(parser, context) :
+                readValue(context, parser, typeClass);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
         JavaType listType = LIST_TYPE_CACHE.computeIfAbsent(type,
             t -> context.getTypeFactory().constructCollectionType(List.class, t));
@@ -766,11 +783,45 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Reads a list using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param listDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the list of the parsed JSON
+     * @param <T> casting type for the elements of the list returned by the deserializer
+     */
+    public static <T> List<T> readList(JsonDeserializer<Object> listDeserializer, DeserializationContext context, JsonParser parser, Class<T> typeClass) {
+        try {
+            return listDeserializer != null ?
+                (List<T>) listDeserializer.deserialize(parser, context) :
+                readList(context, parser, typeClass);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {
         JavaType setType = SET_TYPE_CACHE.computeIfAbsent(type,
             t -> context.getTypeFactory().constructCollectionType(Set.class, t));
         try {
             return context.readValue(parser, setType);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Reads a set using a provided deserializer. This avoids recreating the type of the context each time, which is faster.
+     * @param setDeserializer a potentially null deserializer.
+     * @param typeClass type of the context used in case the deserializer is null. Generally, this is the class corresponding to the type <code>T</code>.
+     * @return the set of the parsed JSON
+     * @param <T> casting type for the elements of the set returned by the deserializer
+     */
+    public static <T> Set<T> readSet(JsonDeserializer<Object> setDeserializer, DeserializationContext deserializationContext, JsonParser parser, Class<T> typeClass) {
+        try {
+            return setDeserializer != null ?
+                (Set<T>) setDeserializer.deserialize(parser, deserializationContext) :
+                readSet(deserializationContext, parser, typeClass);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

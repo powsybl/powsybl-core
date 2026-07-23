@@ -76,9 +76,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                 }
                 case "identifiers" -> {
                     parser.nextToken();
-                    networkElementIdentifiers = identifiersDeserializer != null ?
-                        (List<NetworkElementIdentifier>) identifiersDeserializer.deserialize(parser, deserializationContext) :
-                        JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
+                    networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }

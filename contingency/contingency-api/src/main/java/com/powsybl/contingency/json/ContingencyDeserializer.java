@@ -75,9 +75,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency>
                 case "name" -> name = parser.nextTextValue();
                 case "elements" -> {
                     parser.nextToken();
-                    elements = elementDeserializer != null ?
-                        (List<ContingencyElement>) elementDeserializer.deserialize(parser, deserializationContext) :
-                        JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
+                    elements = JsonUtil.readList(elementDeserializer, deserializationContext, parser, ContingencyElement.class);
                 }
                 case "extensions" -> {
                     parser.nextToken();

@@ -9,7 +9,8 @@ package com.powsybl.loadflow.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
@@ -20,6 +21,7 @@ import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,13 +30,29 @@ import static com.powsybl.loadflow.json.JsonLoadFlowParameters.*;
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
+public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> implements ContextualDeserializer {
 
     private static final String CONTEXT_NAME = "LoadFlowParameters";
     private static final String TAGS = "Tag: ";
 
+    private final transient JsonDeserializer<Object> countriesDeserializer;
+
     LoadFlowParametersDeserializer() {
+        this(null);
+    }
+
+    LoadFlowParametersDeserializer(JsonDeserializer<?> countriesDeserializer) {
         super(LoadFlowParameters.class);
+        this.countriesDeserializer = (JsonDeserializer<Object>) countriesDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty beanProperty) throws JsonMappingException {
+        JavaType countriesType = ctxt.getTypeFactory().constructCollectionType(HashSet.class, Country.class);
+        JsonDeserializer<?> countriesDeserializer = ctxt.findContextualValueDeserializer(countriesType, beanProperty);
+        return new LoadFlowParametersDeserializer(
+            countriesDeserializer
+        );
     }
 
     @Override
@@ -54,8 +72,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "voltageInitMode":
-                    parser.nextToken();
-                    parameters.setVoltageInitMode(JsonUtil.readValue(deserializationContext, parser, VoltageInitMode.class));
+                    parameters.setVoltageInitMode(VoltageInitMode.valueOf(parser.nextTextValue()));
                     break;
 
                 case "transformerVoltageControlOn":
@@ -138,8 +155,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "balanceType":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.4");
-                    parser.nextToken();
-                    parameters.setBalanceType(JsonUtil.readValue(deserializationContext, parser, BalanceType.class));
+                    parameters.setBalanceType(BalanceType.valueOf(parser.nextTextValue()));
                     break;
 
                 case "dcUseTransformerRatio":
@@ -151,21 +167,19 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "countriesToBalance":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
                     parser.nextToken();
-                    Set<Country> countries = JsonUtil.readSet(deserializationContext, parser, Country.class);
+                    Set<Country> countries = JsonUtil.readSet(countriesDeserializer, deserializationContext, parser, Country.class);
                     parameters.setCountriesToBalance(countries);
                     break;
 
                 case "connectedComponentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
-                    parser.nextToken();
-                    parameters.setComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ComponentMode.class));
+                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.fromString(parser.nextTextValue()));
                     break;
 
                 case "componentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.10");
-                    parser.nextToken();
-                    parameters.setComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ComponentMode.class));
+                    parameters.setComponentMode(LoadFlowParameters.ComponentMode.valueOf(parser.nextTextValue()));
                     break;
 
                 case "hvdcAcEmulation":
