@@ -153,7 +153,7 @@ This option defines the path of the [parameters](#parameters) file of the simula
 This option defines the list of extensions to complete the simulation results with additional data. The available extensions are listed in the usage of the command.
 
 ## Simulators
-The available security analysis implementations are described [here](../../simulation/security/implementations.md).
+The available security analysis implementations are described [here](../../simulation/security/index.md#implementations).
 
 ## Contingencies
 Contingencies are provided through `--contingencies-file`. The file is interpreted by the configured `ContingenciesProviderFactory` (see [`componentDefaultConfig`](../configuration/componentDefaultConfig.md)).
@@ -163,10 +163,14 @@ Typical inputs are:
 - JSON contingencies list (type `ContingencyList`, see examples above)
 
 ## Parameters
-<span style="color: red">TODO</span>
+The available parameters are described [here](../../simulation/security/configuration.md#parameters).
 
 ## Results
 The expected results are described in the [security analysis documentation](../../simulation/security/index.md#outputs)
+
+### with-extensions
+Use the `--with-extensions` parameter to activate a list of `com.powsybl.security.interceptors.SecurityAnalysisInterceptor`
+implementations.
 
 ## Examples
 
@@ -376,6 +380,12 @@ Post-contingency limit violations:
 +--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
 | contingency1 | CONVERGED |        | Equipment (1) |       |         |              |                |                |           |          |                  |                |
 |              |           |        | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 1008,9288 | 460,0000 |         548,9288 |         219,33 |
+Operator strategy limit violations:
++--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+| Operator strategy | Status    | Contingency | Equipment (1) | End   | Country | Base voltage | Violation type | Violation name | Value     | Limit    | abs(value-limit) | Loading rate % |
++--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
+| strategy_gen_load | CONVERGED | contingency1 | Equipment (1) |       |         |              |                |                |           |          |                  |                |
+|                   |           |              | NHV1_NHV2_1   | VLHV1 | FR      |          380 | CURRENT        | permanent      | 1008,9288 | 460,0000 |         548,9288 |         219,33 |
 +--------------+-----------+--------+---------------+-------+---------+--------------+----------------+----------------+-----------+----------+------------------+----------------+
 ```
 
@@ -383,7 +393,7 @@ Post-contingency limit violations:
 - `itools` print:
   - ✅ Pre-contingency violations
   - ✅ Post-contingency limit violations
-  - ⬜️ Operator strategy remedial action violations
+  - ✅ Operator strategy remedial action violations
 - All simulation results are contained in the output result, which can be retrieved using `--output-file` and `--output-format`.
 
 Example
@@ -395,7 +405,7 @@ itools security-analysis \
   --actions-file action-load-gen.json \
   --output-file "/tmp/result.json" --output-format JSON
 ```
-The result shows that no more limit violations exist.
+A result can show that no more limit violations exist when `operatorStrategyResults:limitViolations` is empty.
 ```json 
 ...
 "operatorStrategyResults" : [ {
@@ -505,10 +515,3 @@ Pre-contingency violations:
 +--------+---------------+-------+---------+--------------+----------------+----------------+----------+----------+------------------+----------------+
 ```
 ***
-
-<span style="color: red">TODO</span>: to be clean and completed with the following information
-
-
-### with-extensions
-Use the `--with-extensions` parameter to activate a list of `com.powsybl.security.interceptors.SecurityAnalysisInterceptor`
-implementations.
