@@ -68,13 +68,13 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
             serializerProvider.defaultSerializeField("equivalentR", result.getEquivalentR(), jsonGenerator);
         }
         if (!Double.isNaN(result.getEquivalentRZero())) {
-            serializerProvider.defaultSerializeField("equivalentRZero", result.getEquivalentR(), jsonGenerator);
+            serializerProvider.defaultSerializeField("equivalentRZero", result.getEquivalentRZero(), jsonGenerator);
         }
         if (!Double.isNaN(result.getEquivalentX())) {
             serializerProvider.defaultSerializeField("equivalentX", result.getEquivalentX(), jsonGenerator);
         }
         if (!Double.isNaN(result.getEquivalentXZero())) {
-            serializerProvider.defaultSerializeField("equivalentXZero", result.getEquivalentX(), jsonGenerator);
+            serializerProvider.defaultSerializeField("equivalentXZero", result.getEquivalentXZero(), jsonGenerator);
         }
     }
 
