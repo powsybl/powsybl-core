@@ -94,6 +94,20 @@ SELECT *
     }
 }
 
+# query: gridStateAlterationRemedialAction
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?gridStateAlterationRemedialAction
+            rdf:type nc:GridStateAlterationRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind .
+    }
+}
+
 # query: rotatingMachineAction
 PREFIX nc: <http://entsoe.eu/ns/nc#>
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
@@ -180,5 +194,22 @@ SELECT *
             nc:RangeConstraint.direction ?direction ;
             nc:RangeConstraint.GridStateAlteration ?gridStateAlteration ;
             nc:StaticPropertyRange.PropertyReference ?propertyReference;
+    }
+}
+
+# query: contingencyWithRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?contingencyWithRemedialAction
+            rdf:type nc:ContingencyWithRemedialAction ;
+            nc:ContingencyWithRemedialAction.mRID ?mRID ;
+            nc:ContingencyWithRemedialAction.RemedialAction ?remedialAction ;
+            nc:ContingencyWithRemedialAction.Contingency ?contingency ;
+            nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
+            OPTIONAL {
+                ?contingencyWithRemedialAction nc:ContingencyWithRemedialAction.normalEnabled ?normalEnabled .
+            }
     }
 }
