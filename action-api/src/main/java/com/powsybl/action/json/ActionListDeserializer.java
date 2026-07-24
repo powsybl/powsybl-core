@@ -9,8 +9,11 @@ package com.powsybl.action.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.action.Action;
 import com.powsybl.action.ActionBuilder;
@@ -27,12 +30,24 @@ import java.util.Map;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class ActionListDeserializer extends StdDeserializer<ActionList> {
+public class ActionListDeserializer extends StdDeserializer<ActionList> implements ContextualDeserializer {
 
     public static final String VERSION = "version";
 
+    private final transient JsonDeserializer<Object> actionBuilderDeserializer;
+
     public ActionListDeserializer() {
+        this(null);
+    }
+
+    public ActionListDeserializer(JsonDeserializer<Object> actionBuilderDeserializer) {
         super(ActionList.class);
+        this.actionBuilderDeserializer = actionBuilderDeserializer;
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
+        return new ActionListDeserializer(JsonUtil.buildListDeserializer(ctxt, property, ActionBuilder.class));
     }
 
     public static class ParsingContext {
@@ -73,7 +88,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
                 return true;
             case "actions":
                 parser.nextToken();
-                List<ActionBuilder> actionBuilders = JsonUtil.readList(deserializationContext, parser, ActionBuilder.class);
+                List<ActionBuilder> actionBuilders = JsonUtil.readList(actionBuilderDeserializer, deserializationContext, parser, ActionBuilder.class);
                 context.actions = actionBuilders.stream().map(ActionBuilder::build).toList();
                 return true;
             case "elementIdentifiers":
