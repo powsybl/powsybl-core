@@ -67,7 +67,7 @@ class RegulationModeGettersTest {
     void testGetAllowedRegulationModesForUnsupportedClass() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> RegulationModeGetters.getAllowedRegulationModes(UnsupportedHolder.class, true));
-        assertEquals("The voltage regulation is not supported for UnsupportedHolder", exception.getMessage());
+        assertEquals("UnsupportedHolder class cannot be used with VoltageRegulation", exception.getMessage());
     }
 
     private interface UnsupportedHolder extends VoltageRegulationHolder<UnsupportedHolder> {
