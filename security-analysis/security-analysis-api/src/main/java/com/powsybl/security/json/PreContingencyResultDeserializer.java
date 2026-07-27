@@ -48,7 +48,7 @@ public class PreContingencyResultDeserializer extends AbstractContingencyResultD
     }
 
     @Override
-    protected JsonDeserializer<?> create(JsonDeserializer<Object> limitViolationsResultDeserializer,
+    protected PreContingencyResultDeserializer create(JsonDeserializer<Object> limitViolationsResultDeserializer,
                                          JsonDeserializer<Object> networkResultDeserializer,
                                          JsonDeserializer<Object> busResultDeserializer,
                                          JsonDeserializer<Object> branchResultDeserializer,

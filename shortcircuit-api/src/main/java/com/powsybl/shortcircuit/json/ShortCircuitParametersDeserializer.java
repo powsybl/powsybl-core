@@ -87,9 +87,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setWithFeederResult(parser.readValueAs(Boolean.class));
                 }
-                case "studyType" -> {
-                    parameters.setStudyType(StudyType.valueOf(parser.nextTextValue()));
-                }
+                case "studyType" -> parameters.setStudyType(StudyType.valueOf(parser.nextTextValue()));
                 case "minVoltageDropProportionalThreshold" -> {
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));

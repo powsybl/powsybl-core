@@ -52,7 +52,7 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
         this.threeWindingsTransformerResultDeserializer = threeWindingsTransformerResultDeserializer;
     }
 
-    protected abstract JsonDeserializer<?> create(JsonDeserializer<Object> limitViolationsResultDeserializer,
+    protected abstract JsonDeserializer<T> create(JsonDeserializer<Object> limitViolationsResultDeserializer,
                                                   JsonDeserializer<Object> networkResultDeserializer,
                                                   JsonDeserializer<Object> busResultDeserializer,
                                                   JsonDeserializer<Object> branchResultDeserializer,

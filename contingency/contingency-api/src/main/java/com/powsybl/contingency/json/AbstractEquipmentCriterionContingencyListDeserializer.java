@@ -45,7 +45,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
         this.propertyCriteriaDeserializer = propertyCriteriaDeserializer;
     }
 
-    protected abstract JsonDeserializer<?> create(JsonDeserializer<Object> criterionDeserializer,
+    protected abstract JsonDeserializer<T> create(JsonDeserializer<Object> criterionDeserializer,
                                                 JsonDeserializer<Object> propertyCriteriaDeserializer);
 
     @Override
