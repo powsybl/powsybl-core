@@ -23,7 +23,9 @@ import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.PowsyblTestReportResourceBundle;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.ExportersServiceLoader;
+import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamConstants;
@@ -36,7 +38,8 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.*;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getFirstMatch;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.getUniqueMatches;
 import static com.powsybl.commons.xml.XmlUtil.getXMLInputFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -137,11 +140,11 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Here the version number part of the id 1 for original models and 2 for updated ones
         String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
-        String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
+        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
         String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalBeTpBdId, originalNlTpBdId);
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, updatedBeTpId, updatedNlTpId, originalBeTpBdId, originalNlTpBdId);
         assertEquals(expectedDependencies, getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
@@ -198,10 +201,10 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
         String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
-        String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
+        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
+        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_2_1D__FM";
         String originalTpBdId = "Common TP_BD model ID";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalTpBdId);
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, updatedBeTpId, updatedNlTpId, originalTpBdId);
         assertEquals(expectedDependencies, getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
@@ -256,16 +259,16 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertEquals("4", getFirstMatch(updatedNlSshXml, REGEX_VERSION));
         assertEquals("4", getFirstMatch(updatedCgmSvXml, REGEX_VERSION));
 
-        // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
+        // The updated CGM SV should depend on the updated IGMs SSH and on the updated IGMs TP
         // The model of the main network brings an additional dependency
         String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
-        String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
-        String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
+        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_4_1D__FM";
+        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_4_1D__FM";
         String originalTpBdId = "Common TP_BD model ID";
         String additionalDependency = "Additional dependency";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId,
-                originalNlTpId, originalTpBdId, additionalDependency);
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, updatedBeTpId,
+                updatedNlTpId, originalTpBdId, additionalDependency);
         assertEquals(expectedDependencies, getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
@@ -325,10 +328,10 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
         String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_4_1D__FM";
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_4_1D__FM";
-        String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
+        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_4_1D__FM";
+        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_4_1D__FM";
         String originalTpBdId = "ENTSOE TP_BD model ID";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalTpBdId);
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, updatedBeTpId, updatedNlTpId, originalTpBdId);
         assertEquals(expectedDependencies, getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
@@ -370,53 +373,71 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         network.write("CGMES", exportParams, tmpDir.resolve(basename));
         String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
         String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
+        String updatedBeTpXml = Files.readString(tmpDir.resolve(basename + "_BE_TP.xml"));
+        String updatedNlTpXml = Files.readString(tmpDir.resolve(basename + "_NL_TP.xml"));
         String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
 
         // The main network has a different scenario time than the subnetworks
         // All updated models should get that scenario time
         assertEquals("2022-03-04T05:30:00Z", getFirstMatch(updatedBeSshXml, REGEX_SCENARIO_TIME));
         assertEquals("2022-03-04T05:30:00Z", getFirstMatch(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2022-03-04T05:30:00Z", getFirstMatch(updatedBeTpXml, REGEX_SCENARIO_TIME));
+        assertEquals("2022-03-04T05:30:00Z", getFirstMatch(updatedNlTpXml, REGEX_SCENARIO_TIME));
         assertEquals("2022-03-04T05:30:00Z", getFirstMatch(updatedCgmSvXml, REGEX_SCENARIO_TIME));
 
         // Both the models and a property define the description. The property should prevail.
         assertEquals("Common Grid Model export", getFirstMatch(updatedBeSshXml, REGEX_DESCRIPTION));
         assertEquals("Common Grid Model export", getFirstMatch(updatedNlSshXml, REGEX_DESCRIPTION));
+        assertEquals("Common Grid Model export", getFirstMatch(updatedBeTpXml, REGEX_DESCRIPTION));
+        assertEquals("Common Grid Model export", getFirstMatch(updatedNlTpXml, REGEX_DESCRIPTION));
         assertEquals("Common Grid Model export", getFirstMatch(updatedCgmSvXml, REGEX_DESCRIPTION));
 
         // Both the models and a property define the version number. The property should prevail.
         assertEquals("4", getFirstMatch(updatedBeSshXml, REGEX_VERSION));
         assertEquals("4", getFirstMatch(updatedNlSshXml, REGEX_VERSION));
+        assertEquals("4", getFirstMatch(updatedBeTpXml, REGEX_VERSION));
+        assertEquals("4", getFirstMatch(updatedNlTpXml, REGEX_VERSION));
         assertEquals("4", getFirstMatch(updatedCgmSvXml, REGEX_VERSION));
 
-        // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
+        // The updated CGM SV should depend on the updated IGMs SSH and TP
         // The model of the main network brings an additional dependency
         String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
-        String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
-        String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
+        String updatedBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_4_1D__FM";
+        String updatedNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_4_1D__FM";
         String originalTpBdId = "ENTSOE TP_BD model ID";  // the parameter prevails on the extension
         String additionalDependency = "Additional dependency";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId,
-                originalNlTpId, originalTpBdId, additionalDependency);
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, updatedBeTpId,
+                updatedNlTpId, originalTpBdId, additionalDependency);
         assertEquals(expectedDependencies, getUniqueMatches(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
         String originalBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_1_1D__FM";
+        String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
+        String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
         assertEquals(originalBeSshId, getFirstMatch(updatedBeSshXml, REGEX_SUPERSEDES));
         assertEquals(originalNlSshId, getFirstMatch(updatedNlSshXml, REGEX_SUPERSEDES));
         assertEquals(Set.of("BE EQ model ID"), getUniqueMatches(updatedBeSshXml, REGEX_DEPENDENT_ON));
         assertEquals(Set.of("NL EQ model ID"), getUniqueMatches(updatedNlSshXml, REGEX_DEPENDENT_ON));
+        assertEquals(originalBeTpId, getFirstMatch(updatedBeTpXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlTpId, getFirstMatch(updatedNlTpXml, REGEX_SUPERSEDES));
+        assertEquals(Set.of("BE EQ model ID"), getUniqueMatches(updatedBeTpXml, REGEX_DEPENDENT_ON));
+        assertEquals(Set.of("NL EQ model ID"), getUniqueMatches(updatedNlTpXml, REGEX_DEPENDENT_ON));
 
         // Profiles should be consistent with the instance files, CGM SV has an additional profile
         assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedBeSshXml, REGEX_PROFILE));
         assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstMatch(updatedNlSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedBeTpXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/Topology/4/1", getFirstMatch(updatedNlTpXml, REGEX_PROFILE));
         Set<String> expectedProfiles = Set.of("Additional profile", "http://entsoe.eu/CIM/StateVariables/4/1");
         assertEquals(expectedProfiles, getUniqueMatches(updatedCgmSvXml, REGEX_PROFILE));
 
         // Both the model and a property define the main network MAS. The property should prevail.
         assertEquals("http://elia.be/CGMES/2.4.15", getFirstMatch(updatedBeSshXml, REGEX_MAS));
         assertEquals("http://tennet.nl/CGMES/2.4.15", getFirstMatch(updatedNlSshXml, REGEX_MAS));
+        assertEquals("http://elia.be/CGMES/2.4.15", getFirstMatch(updatedBeTpXml, REGEX_MAS));
+        assertEquals("http://tennet.nl/CGMES/2.4.15", getFirstMatch(updatedNlTpXml, REGEX_MAS));
         assertEquals("Regional Coordination Center", getFirstMatch(updatedCgmSvXml, REGEX_MAS));
     }
 
@@ -429,12 +450,17 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Check the version of the individual files in the test case
         int currentVersion = readVersion(ds, "MicroGridTestConfiguration_BC_BE_SSH_V2.xml").orElseThrow();
         int sshNLVersion = readVersion(ds, "MicroGridTestConfiguration_BC_NL_SSH_V2.xml").orElseThrow();
+        int tpNLVersion = readVersion(ds, "MicroGridTestConfiguration_BC_NL_TP_V2.xml").orElseThrow();
         int svVersion = readVersion(ds, "MicroGridTestConfiguration_BC_Assembled_SV_V2.xml").orElseThrow();
         assertEquals(currentVersion, sshNLVersion);
+        assertEquals(currentVersion, tpNLVersion);
         assertEquals(currentVersion, svVersion);
         Network[] ns = cgmNetwork.getSubnetworks().toArray(new Network[] {});
         assertEquals(currentVersion, ns[0].getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow().getVersion());
         assertEquals(currentVersion, ns[1].getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow().getVersion());
+
+        assertEquals(currentVersion, ns[0].getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.TOPOLOGY).orElseThrow().getVersion());
+        assertEquals(currentVersion, ns[1].getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.TOPOLOGY).orElseThrow().getVersion());
 
         // If we export this CGM we expected the output files to on current version + 1
         int expectedOutputVersion = currentVersion + 1;
@@ -465,22 +491,32 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
             Country country = entry.getKey();
             // For this unit test we do not need the TSO from the entry value
             String filenameFromCgmesExport = cgmNetwork.getNameOrId() + "_" + country.toString() + "_SSH.xml";
+            String tpFilenameFromCgmesExport = cgmNetwork.getNameOrId() + "_" + country.toString() + "_TP.xml";
 
             // The CGM network does not have metadata models, only the subnetworks
             assertEquals((CgmesMetadataModels) null, cgmNetwork.getExtension(CgmesMetadataModels.class));
 
             // The metadata models in memory are NEVER updated after export (this is by design)
             // Look for the subnetwork of the current country
-            Network nc = cgmNetwork.getSubnetworks().stream().filter(n -> country == n.getSubstations().iterator().next().getCountry().orElseThrow()).toList().get(0);
+            Network nc = cgmNetwork.getSubnetworks().stream().filter(n -> country == n.getSubstations().iterator().next().getCountry().orElseThrow()).toList().getFirst();
             int sshVersionInNetworkMetadataModels = nc.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow().getVersion();
             assertEquals(currentVersion, sshVersionInNetworkMetadataModels);
+            int tpVersionInNetworkMetadataModels = nc.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.TOPOLOGY).orElseThrow().getVersion();
+            assertEquals(currentVersion, tpVersionInNetworkMetadataModels);
 
-            // To know the exported version we should read what has been written in the output files
+            // To know the exported version, we should read what has been written in the output files
             int sshVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
             assertEquals(expectedOutputVersion, sshVersionInOutput);
             cgmesId = readModelId(memDataSource, filenameFromCgmesExport);
             exportedModelIdsFromFiles.add(cgmesId);
             exportedModelId2Subset.put(cgmesId, CgmesSubset.STEADY_STATE_HYPOTHESIS.getIdentifier());
+            exportedModelId2NetworkId.put(cgmesId, nc.getId());
+
+            int tpVersionInOutput = readVersion(memDataSource, tpFilenameFromCgmesExport).orElseThrow();
+            assertEquals(expectedOutputVersion, tpVersionInOutput);
+            cgmesId = readModelId(memDataSource, tpFilenameFromCgmesExport);
+            exportedModelIdsFromFiles.add(cgmesId);
+            exportedModelId2Subset.put(cgmesId, CgmesSubset.TOPOLOGY.getIdentifier());
             exportedModelId2NetworkId.put(cgmesId, nc.getId());
         }
         String filenameFromCgmesExport = cgmNetwork.getNameOrId() + "_SV.xml";
@@ -492,7 +528,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         exportedModelId2Subset.put(cgmesId, CgmesSubset.STATE_VARIABLES.getIdentifier());
         exportedModelId2NetworkId.put(cgmesId, cgmNetwork.getId());
 
-        // Obtain exported model identifiers from reporter
+        // Get exported model identifiers from reporter
         Set<String> exportedModelIdsFromReporter = new HashSet<>();
         for (ReportNode n : report.getChildren()) {
             if ("core.cgmes.conversion.ExportedCgmesId".equals(n.getMessageKey())) {
@@ -666,6 +702,15 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
                 .add()
                 .newModel()
+                .setSubset(CgmesSubset.TOPOLOGY)
+                .setDescription("BE network description")
+                .setVersion(version)
+                .setModelingAuthoritySet("http://elia.be/CGMES/2.4.15")
+                .addDependentOn("BE EQ model ID")
+                .addSupersedes("BE TP previous ID")
+                .addProfile("http://entsoe.eu/CIM/Topology/4/1")
+                .add()
+                .newModel()
                 .setId("BE EQ model ID")
                 .setSubset(CgmesSubset.EQUIPMENT)
                 .setVersion(1)
@@ -690,6 +735,15 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .addDependentOn("NL EQ model ID")
                 .addSupersedes("NL SSH previous ID")
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
+                .add()
+                .newModel()
+                .setSubset(CgmesSubset.TOPOLOGY)
+                .setDescription("NL network description")
+                .setVersion(version)
+                .setModelingAuthoritySet("http://tennet.nl/CGMES/2.4.15")
+                .addDependentOn("NL EQ model ID")
+                .addSupersedes("NL TP previous ID")
+                .addProfile("http://entsoe.eu/CIM/Topology/4/1")
                 .add()
                 .newModel()
                 .setId("NL EQ model ID")
