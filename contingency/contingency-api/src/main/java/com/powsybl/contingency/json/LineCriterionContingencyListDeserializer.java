@@ -26,7 +26,7 @@ public class LineCriterionContingencyListDeserializer extends AbstractEquipmentC
         this(null, null);
     }
 
-    protected LineCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
+    public LineCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
         super(LineCriterionContingencyList.class, criterionDeser, propertyDeser);
     }
 

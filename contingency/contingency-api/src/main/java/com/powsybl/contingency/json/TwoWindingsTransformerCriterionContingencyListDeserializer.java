@@ -26,7 +26,7 @@ public class TwoWindingsTransformerCriterionContingencyListDeserializer extends 
         this(null, null);
     }
 
-    protected TwoWindingsTransformerCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
+    public TwoWindingsTransformerCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
         super(TwoWindingsTransformerCriterionContingencyList.class, criterionDeser, propertyDeser);
     }
 

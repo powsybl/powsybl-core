@@ -26,7 +26,7 @@ public class HvdcLineCriterionContingencyListDeserializer extends AbstractEquipm
         this(null, null);
     }
 
-    protected HvdcLineCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
+    public HvdcLineCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
         super(HvdcLineCriterionContingencyList.class, criterionDeser, propertyDeser);
     }
 

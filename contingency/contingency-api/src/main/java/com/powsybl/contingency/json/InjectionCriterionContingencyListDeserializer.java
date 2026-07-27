@@ -26,7 +26,7 @@ public class InjectionCriterionContingencyListDeserializer extends AbstractEquip
         this(null, null);
     }
 
-    protected InjectionCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
+    public InjectionCriterionContingencyListDeserializer(JsonDeserializer<Object> criterionDeser, JsonDeserializer<Object> propertyDeser) {
         super(InjectionCriterionContingencyList.class, criterionDeser, propertyDeser);
     }
 
