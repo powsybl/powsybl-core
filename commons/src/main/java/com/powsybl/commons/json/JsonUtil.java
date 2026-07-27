@@ -763,7 +763,7 @@ public final class JsonUtil {
      * @return the value of the parsed JSON
      * @param <T> casting type for the value returned by the deserializer
      */
-    public static <T> T readValue(JsonDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<T> typeClass) {
+    public static <T> T readValue(JsonDeserializer<Object> valueDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
         try {
             return valueDeserializer != null ?
                 (T) valueDeserializer.deserialize(parser, context) :
@@ -790,7 +790,7 @@ public final class JsonUtil {
      * @return the list of the parsed JSON
      * @param <T> casting type for the elements of the list returned by the deserializer
      */
-    public static <T> List<T> readList(JsonDeserializer<Object> listDeserializer, DeserializationContext context, JsonParser parser, Class<T> typeClass) {
+    public static <T> List<T> readList(JsonDeserializer<Object> listDeserializer, DeserializationContext context, JsonParser parser, Class<?> typeClass) {
         try {
             return listDeserializer != null ?
                 (List<T>) listDeserializer.deserialize(parser, context) :
@@ -817,7 +817,7 @@ public final class JsonUtil {
      * @return the set of the parsed JSON
      * @param <T> casting type for the elements of the set returned by the deserializer
      */
-    public static <T> Set<T> readSet(JsonDeserializer<Object> setDeserializer, DeserializationContext deserializationContext, JsonParser parser, Class<T> typeClass) {
+    public static <T> Set<T> readSet(JsonDeserializer<Object> setDeserializer, DeserializationContext deserializationContext, JsonParser parser, Class<?> typeClass) {
         try {
             return setDeserializer != null ?
                 (Set<T>) setDeserializer.deserialize(parser, deserializationContext) :

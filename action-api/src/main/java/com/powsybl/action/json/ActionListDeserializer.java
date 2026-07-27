@@ -88,7 +88,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> implemen
                 return true;
             case "actions":
                 parser.nextToken();
-                List<ActionBuilder> actionBuilders = JsonUtil.readList(actionBuilderDeserializer, deserializationContext, parser, ActionBuilder.class);
+                List<ActionBuilder<?>> actionBuilders = JsonUtil.readList(actionBuilderDeserializer, deserializationContext, parser, ActionBuilder.class);
                 context.actions = actionBuilders.stream().map(ActionBuilder::build).toList();
                 return true;
             case "elementIdentifiers":
