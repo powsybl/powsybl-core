@@ -45,9 +45,9 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency>
         this(null);
     }
 
-    public ContingencyDeserializer(JsonDeserializer<?> elementDeserializer) {
+    public ContingencyDeserializer(JsonDeserializer<Object> elementDeserializer) {
         super(Contingency.class);
-        this.elementDeserializer = (JsonDeserializer<Object>) elementDeserializer;
+        this.elementDeserializer = elementDeserializer;
     }
 
     @Override

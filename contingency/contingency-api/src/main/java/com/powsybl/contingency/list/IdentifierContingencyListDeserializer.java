@@ -37,9 +37,9 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
         this(null);
     }
 
-    protected IdentifierContingencyListDeserializer(JsonDeserializer<?> identifiersDeserializer) {
+    protected IdentifierContingencyListDeserializer(JsonDeserializer<Object> identifiersDeserializer) {
         super(IdentifierContingencyList.class);
-        this.identifiersDeserializer = (JsonDeserializer<Object>) identifiersDeserializer;
+        this.identifiersDeserializer = identifiersDeserializer;
     }
 
     @Override

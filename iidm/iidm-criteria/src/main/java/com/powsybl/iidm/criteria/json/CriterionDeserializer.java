@@ -34,11 +34,11 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> implements
         this(null, null, null);
     }
 
-    public CriterionDeserializer(JsonDeserializer<?> voltageDeserializer, JsonDeserializer<?> countryDeserializer, JsonDeserializer<?> propertyDeserializer) {
+    public CriterionDeserializer(JsonDeserializer<Object> voltageDeserializer, JsonDeserializer<Object> countryDeserializer, JsonDeserializer<Object> propertyDeserializer) {
         super(Criterion.class);
-        this.voltageDeserializer = (JsonDeserializer<Object>) voltageDeserializer;
-        this.countryDeserializer = (JsonDeserializer<Object>) countryDeserializer;
-        this.propertyDeserializer = (JsonDeserializer<Object>) propertyDeserializer;
+        this.voltageDeserializer = voltageDeserializer;
+        this.countryDeserializer = countryDeserializer;
+        this.propertyDeserializer = propertyDeserializer;
     }
 
     @Override

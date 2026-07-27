@@ -40,9 +40,9 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
         this(null);
     }
 
-    LoadFlowParametersDeserializer(JsonDeserializer<?> countriesDeserializer) {
+    LoadFlowParametersDeserializer(JsonDeserializer<Object> countriesDeserializer) {
         super(LoadFlowParameters.class);
-        this.countriesDeserializer = (JsonDeserializer<Object>) countriesDeserializer;
+        this.countriesDeserializer = countriesDeserializer;
     }
 
     @Override

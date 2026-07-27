@@ -32,9 +32,9 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
         this(null);
     }
 
-    public ContingencyElementDeserializer(JsonDeserializer<?> typeDeserializer) {
+    public ContingencyElementDeserializer(JsonDeserializer<Object> typeDeserializer) {
         super(ContingencyElement.class);
-        this.typeDeserializer = (JsonDeserializer<Object>) typeDeserializer;
+        this.typeDeserializer = typeDeserializer;
     }
 
     @Override

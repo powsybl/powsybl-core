@@ -60,17 +60,17 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         this(null, null, null, null, null);
     }
 
-    protected SecurityAnalysisResultDeserializer(JsonDeserializer<?> networkMetadataDeserializer,
-                                               JsonDeserializer<?> limitViolationsResultDeserializer,
-                                               JsonDeserializer<?> postContingencyResultsDeserializer,
-                                               JsonDeserializer<?> preContingencyResultDeserializer,
-                                               JsonDeserializer<?> operatorStrategyResultsDeserializer) {
+    protected SecurityAnalysisResultDeserializer(JsonDeserializer<Object> networkMetadataDeserializer,
+                                               JsonDeserializer<Object> limitViolationsResultDeserializer,
+                                               JsonDeserializer<Object> postContingencyResultsDeserializer,
+                                               JsonDeserializer<Object> preContingencyResultDeserializer,
+                                               JsonDeserializer<Object> operatorStrategyResultsDeserializer) {
         super(SecurityAnalysisResult.class);
-        this.networkMetadataDeserializer = (JsonDeserializer<Object>) networkMetadataDeserializer;
-        this.limitViolationsResultDeserializer = (JsonDeserializer<Object>) limitViolationsResultDeserializer;
-        this.postContingencyResultsDeserializer = (JsonDeserializer<Object>) postContingencyResultsDeserializer;
-        this.preContingencyResultDeserializer = (JsonDeserializer<Object>) preContingencyResultDeserializer;
-        this.operatorStrategyResultsDeserializer = (JsonDeserializer<Object>) operatorStrategyResultsDeserializer;
+        this.networkMetadataDeserializer = networkMetadataDeserializer;
+        this.limitViolationsResultDeserializer = limitViolationsResultDeserializer;
+        this.postContingencyResultsDeserializer = postContingencyResultsDeserializer;
+        this.preContingencyResultDeserializer = preContingencyResultDeserializer;
+        this.operatorStrategyResultsDeserializer = operatorStrategyResultsDeserializer;
     }
 
     @Override

@@ -35,9 +35,9 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
         this(null);
     }
 
-    public DefaultContingencyListDeserializer(JsonDeserializer<?> contingenciesDeserializer) {
+    public DefaultContingencyListDeserializer(JsonDeserializer<Object> contingenciesDeserializer) {
         super(DefaultContingencyList.class);
-        this.contingenciesDeserializer = (JsonDeserializer<Object>) contingenciesDeserializer;
+        this.contingenciesDeserializer = contingenciesDeserializer;
     }
 
     @Override
