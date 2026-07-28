@@ -19,4 +19,4 @@ jobs:
 
     steps:
       - name: Checkout, set up JDK 21 And Build with Maven
-        uses: powsybl/github-ci/setup-java-maven@becb8ae5630fbd2a856dcb00e0908a7417d5b668
+        uses: powsybl/github-ci/setup-java-maven@a59b1a78dde659a215516549d7c665f0702d1f49
