@@ -10,7 +10,7 @@ permissions: {}
 
 jobs:
   build:
-    name: CI Test :: Build OS ${{ matrix.os }}
+    name: CI Test Build OS ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     if: github.event.pull_request.head.repo.fork == false
     strategy:
