@@ -1,0 +1,22 @@
+name: CI Test
+
+on:
+  push:
+    branches:
+      - 'test/common-workflows'
+  pull_request:
+
+permissions: {}
+
+jobs:
+  build:
+    name: CI Test :: Build OS ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.head.repo.fork == false
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout, set up JDK 21 And Build with Maven
+        uses: powsybl/github-ci/setup-java-maven@becb8ae5630fbd2a856dcb00e0908a7417d5b668
