@@ -29,6 +29,7 @@ import com.powsybl.contingency.TwoWindingsTransformerContingency;
 import com.powsybl.contingency.VoltageSourceConverterContingency;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.NcProfile;
 import com.powsybl.nc.QueryManager;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -50,8 +51,8 @@ import static com.powsybl.nc.reader.ReaderUtils.MRID;
 public class ContingencyReader extends AbstractReader<Contingency> {
     private static final String OUT_OF_SERVICE_CONTINGENT_STATUS = "http://iec.ch/TC57/CIM100#ContingencyEquipmentStatusKind.outOfService";
 
-    public ContingencyReader(QueryManager queryManager, Network network) {
-        super(queryManager, network);
+    public ContingencyReader(QueryManager queryManager, ImporterContext importerContext, Network network) {
+        super(queryManager, importerContext, network);
     }
 
     @Override

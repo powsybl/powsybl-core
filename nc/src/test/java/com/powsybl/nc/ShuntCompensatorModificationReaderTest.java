@@ -26,7 +26,7 @@ public class ShuntCompensatorModificationReaderTest extends AbstractReaderTest {
     void importShuntCompensatorModifications() {
         queryManager.read(getResourcePath("/ShuntCompensatorModifications.zip"));
 
-        ShuntCompensatorModificationReader reader = new ShuntCompensatorModificationReader(queryManager, NETWORK);
+        ShuntCompensatorModificationReader reader = new ShuntCompensatorModificationReader(queryManager, importerContext, NETWORK);
         List<ShuntCompensatorPositionAction> shuntCompensatorPositionActions = reader.readFromProfiles().stream().sorted(Comparator.comparing(ShuntCompensatorPositionAction::getId)).toList();
 
         assertEquals(1, shuntCompensatorPositionActions.size());

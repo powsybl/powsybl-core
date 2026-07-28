@@ -28,7 +28,7 @@ public class RotatingMachineActionReaderTest extends AbstractReaderTest {
     void importRotatingMachineActions() {
         queryManager.read(getResourcePath("/RotatingMachineActions.zip"));
 
-        RotatingMachineActionReader reader = new RotatingMachineActionReader(queryManager, NETWORK);
+        RotatingMachineActionReader reader = new RotatingMachineActionReader(queryManager, importerContext, NETWORK);
         List<GeneratorAction> generatorActions = reader.readFromProfiles().stream().sorted(Comparator.comparing(GeneratorAction::getId)).toList();
 
         assertEquals(3, generatorActions.size());

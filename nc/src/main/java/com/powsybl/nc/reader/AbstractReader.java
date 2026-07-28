@@ -9,6 +9,7 @@
 package com.powsybl.nc.reader;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.QueryManager;
 
 import java.util.Set;
@@ -18,10 +19,12 @@ import java.util.Set;
  */
 public abstract class AbstractReader<T> {
     protected final QueryManager queryManager;
+    protected final ImporterContext importerContext;
     protected final Network network;
 
-    protected AbstractReader(QueryManager queryManager, Network network) {
+    protected AbstractReader(QueryManager queryManager, ImporterContext importerContext, Network network) {
         this.queryManager = queryManager;
+        this.importerContext = importerContext;
         this.network = network;
     }
 

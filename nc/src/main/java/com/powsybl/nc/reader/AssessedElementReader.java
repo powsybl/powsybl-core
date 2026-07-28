@@ -12,6 +12,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.NcProfile;
 import com.powsybl.nc.QueryManager;
 import com.powsybl.security.monitor.StateMonitor;
@@ -39,8 +40,11 @@ public class AssessedElementReader extends AbstractReader<StateMonitor> {
     private final Set<String> preventiveBranchIds;
     private final Map<String, Set<String>> curativeBranchIds;
 
-    public AssessedElementReader(QueryManager queryManager, Network network, Set<Contingency> contingencies) {
-        super(queryManager, network);
+    public AssessedElementReader(QueryManager queryManager,
+                                 ImporterContext importerContext,
+                                 Network network,
+                                 Set<Contingency> contingencies) {
+        super(queryManager, importerContext, network);
         this.preventiveBranchIds = new HashSet<>();
         this.curativeBranchIds = contingencies.stream()
             .collect(Collectors.toMap(Contingency::getId, k -> new HashSet<>()));
@@ -90,10 +94,12 @@ public class AssessedElementReader extends AbstractReader<StateMonitor> {
             return;
         }
 
-        if (Boolean.parseBoolean(assessedElement.get("inBaseCase"))) {
+        boolean inBaseCase = Boolean.parseBoolean(assessedElement.get("inBaseCase"));
+        if (inBaseCase) {
             preventiveBranchIds.add(branch.getId());
         }
 
+        Set<String> contingencies = new HashSet<>();
         for (PropertyBag contingencyWithAssessedElement : contingenciesWithAssessedElement) {
             String contingencyId = ReaderUtils.getElementIdFromResourceUri(contingencyWithAssessedElement.get("contingency"));
 
@@ -108,7 +114,14 @@ public class AssessedElementReader extends AbstractReader<StateMonitor> {
                     contingencyId, assessedElementId, branch.getId());
             } else {
                 curativeBranchIds.get(contingencyId).add(branch.getId());
+                contingencies.add(contingencyId);
             }
+        }
+
+        if (!contingenciesWithAssessedElement.isEmpty() && contingencies.isEmpty()) {
+            LOGGER.warn("No Contingency associated to AssessedElement {} was properly imported. The branch {} will not be monitored in curative.",
+                assessedElementId, branch.getId());
+            return;
         }
 
         // TODO: handle flow reliability margin
@@ -122,5 +135,8 @@ public class AssessedElementReader extends AbstractReader<StateMonitor> {
         } else {
             flowReliabilityMargin = 0.0;
         }
+
+        // store AssessedElement native data in context for later use
+        importerContext.addImportedAssessedElement(assessedElementId, branch, inBaseCase, contingencies);
     }
 }

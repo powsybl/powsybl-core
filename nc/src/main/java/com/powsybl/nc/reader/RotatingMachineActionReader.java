@@ -13,6 +13,7 @@ import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.QueryManager;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -31,8 +32,9 @@ public class RotatingMachineActionReader extends AbstractActionReader<GeneratorA
     private static final String PROPERTY_REFERENCE = "http://energy.referencedata.eu/PropertyReference/RotatingMachine.p";
     // TODO: handle incrementalPercentage?
 
-    public RotatingMachineActionReader(QueryManager queryManager, Network network) {
-        super(queryManager, network, ROTATING_MACHINE_ACTION, PROPERTY_REFERENCE, ROTATING_MACHINE_ACTION_QUERY_NAME, ROTATING_MACHINE, true, Generator.class);
+    public RotatingMachineActionReader(QueryManager queryManager, ImporterContext importerContext, Network network) {
+        super(queryManager, importerContext, network, ROTATING_MACHINE_ACTION, PROPERTY_REFERENCE,
+            ROTATING_MACHINE_ACTION_QUERY_NAME, ROTATING_MACHINE, true, Generator.class);
     }
 
     @Override

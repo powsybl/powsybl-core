@@ -45,18 +45,20 @@ public final class NcConverter {
         QueryManager queryManager = new QueryManager();
         queryManager.read(ncArchivePath);
 
+        ImporterContext importerContext = new ImporterContext();
+
         // read contingencies
-        Set<Contingency> contingencies = new ContingencyReader(queryManager, network).readFromProfiles();
+        Set<Contingency> contingencies = new ContingencyReader(queryManager, importerContext, network).readFromProfiles();
 
         // read elementary actions
         Set<Action> allActions = new HashSet<>();
-        allActions.addAll(new TopologyActionReader(queryManager, network).readFromProfiles());
-        allActions.addAll(new ShuntCompensatorModificationReader(queryManager, network).readFromProfiles());
-        allActions.addAll(new RotatingMachineActionReader(queryManager, network).readFromProfiles());
+        allActions.addAll(new TopologyActionReader(queryManager, importerContext, network).readFromProfiles());
+        allActions.addAll(new ShuntCompensatorModificationReader(queryManager, importerContext, network).readFromProfiles());
+        allActions.addAll(new RotatingMachineActionReader(queryManager, importerContext, network).readFromProfiles());
 
         // read operator strategies
         Set<OperatorStrategy> operatorStrategies = new GridStateAlterationRemedialActionReader(
-            queryManager, network, allActions, contingencies
+            queryManager, importerContext, network, allActions, contingencies
         ).readFromProfiles();
 
         return new NcData(

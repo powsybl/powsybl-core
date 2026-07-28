@@ -28,7 +28,7 @@ public class TopologyActionReaderTest extends AbstractReaderTest {
     void importTopologicalActions() {
         queryManager.read(getResourcePath("/SwitchActions.zip"));
 
-        TopologyActionReader reader = new TopologyActionReader(queryManager, NETWORK);
+        TopologyActionReader reader = new TopologyActionReader(queryManager, importerContext, NETWORK);
         List<SwitchAction> switchActions = reader.readFromProfiles().stream().sorted(Comparator.comparing(SwitchAction::getId)).toList();
 
         assertEquals(2, switchActions.size());

@@ -12,6 +12,7 @@ import com.powsybl.action.SwitchAction;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.QueryManager;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -28,8 +29,9 @@ public class TopologyActionReader extends AbstractActionReader<SwitchAction> {
     private static final String SWITCH = "switch";
     private static final String PROPERTY_REFERENCE = "http://energy.referencedata.eu/PropertyReference/Switch.open";
 
-    public TopologyActionReader(QueryManager queryManager, Network network) {
-        super(queryManager, network, TOPOLOGY_ACTION, PROPERTY_REFERENCE, TOPOLOGY_ACTION_QUERY_NAME, SWITCH, false, Switch.class);
+    public TopologyActionReader(QueryManager queryManager, ImporterContext importerContext, Network network) {
+        super(queryManager, importerContext, network, TOPOLOGY_ACTION, PROPERTY_REFERENCE,
+            TOPOLOGY_ACTION_QUERY_NAME, SWITCH, false, Switch.class);
     }
 
     @Override

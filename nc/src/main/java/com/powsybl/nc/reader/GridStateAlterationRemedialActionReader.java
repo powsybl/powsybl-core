@@ -12,8 +12,11 @@ import com.powsybl.action.Action;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.strategy.OperatorStrategy;
+import com.powsybl.contingency.strategy.condition.AtLeastOneViolationCondition;
+import com.powsybl.contingency.strategy.condition.Condition;
 import com.powsybl.contingency.strategy.condition.TrueCondition;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.NcProfile;
 import com.powsybl.nc.QueryManager;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -41,8 +44,12 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
     private final Set<String> importedActions;
     private final Set<String> importedContingencies;
 
-    public GridStateAlterationRemedialActionReader(QueryManager queryManager, Network network, Set<Action> actions, Set<Contingency> contingencies) {
-        super(queryManager, network);
+    public GridStateAlterationRemedialActionReader(QueryManager queryManager,
+                                                   ImporterContext importerContext,
+                                                   Network network,
+                                                   Set<Action> actions,
+                                                   Set<Contingency> contingencies) {
+        super(queryManager, importerContext, network);
         this.importedActions = actions.stream().map(Action::getId).collect(Collectors.toSet());
         this.importedContingencies = contingencies.stream().map(Contingency::getId).collect(Collectors.toSet());
     }
@@ -52,16 +59,19 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
         Set<OperatorStrategy> operatorStrategies = new HashSet<>();
         PropertyBags gridStateAlterationRemedialActions = queryManager.query("gridStateAlterationRemedialAction", NcProfile.REMEDIAL_ACTION);
         PropertyBags contingencyWithRemedialActions = queryManager.query("contingencyWithRemedialAction", NcProfile.REMEDIAL_ACTION);
+        PropertyBags assessedElementWithRemedialActions = queryManager.query("assessedElementWithRemedialAction", NcProfile.ASSESSED_ELEMENT);
         PropertyBags gridStateAlterations = queryManager.query("topologyAction", NcProfile.REMEDIAL_ACTION);
         gridStateAlterations.addAll(queryManager.query("shuntCompensatorModification", NcProfile.REMEDIAL_ACTION));
         gridStateAlterations.addAll(queryManager.query("rotatingMachineAction", NcProfile.REMEDIAL_ACTION));
         Map<String, Set<PropertyBag>> contingencyPerRemedialAction = ReaderUtils.groupOnAttribute(contingencyWithRemedialActions, "remedialAction", true);
+        Map<String, Set<PropertyBag>> assessedElementPerRemedialAction = ReaderUtils.groupOnAttribute(assessedElementWithRemedialActions, "remedialAction", true);
         Map<String, Set<PropertyBag>> gridStateAlterationsPerRemedialAction = ReaderUtils.groupOnAttribute(gridStateAlterations, "gridStateAlterationRemedialAction", true);
         for (PropertyBag gridStateAlterationRemedialAction : gridStateAlterationRemedialActions) {
             String gridStateAlterationRemedialActionId = gridStateAlterationRemedialAction.get(MRID);
             operatorStrategies.addAll(processGridStateAlterationRemedialAction(
                 gridStateAlterationRemedialAction,
                 contingencyPerRemedialAction.getOrDefault(gridStateAlterationRemedialActionId, Set.of()),
+                assessedElementPerRemedialAction.getOrDefault(gridStateAlterationRemedialActionId, Set.of()),
                 gridStateAlterationsPerRemedialAction.getOrDefault(gridStateAlterationRemedialActionId, Set.of())
             ));
         }
@@ -70,6 +80,7 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
 
     private Set<OperatorStrategy> processGridStateAlterationRemedialAction(PropertyBag gridStateAlterationRemedialAction,
                                                                            Set<PropertyBag> contingencyWithRemedialActions,
+                                                                           Set<PropertyBag> assessedElementWithRemedialAction,
                                                                            Set<PropertyBag> gridStateAlterations) {
         String operatorStrategyId = gridStateAlterationRemedialAction.get(MRID);
 
@@ -90,17 +101,19 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
             }
         }
 
-        // TODO: take into account association with AE for conditional triggering
-
         String kind = gridStateAlterationRemedialAction.get("kind");
         if (PREVENTIVE_KIND.equals(kind)) {
             if (!contingencyWithRemedialActions.isEmpty()) {
                 LOGGER.info("Contingencies associated with preventive GridStateAlterationRemedialAction {} will not be taken into account.", operatorStrategyId);
             }
-            return Set.of(new OperatorStrategy(operatorStrategyId, ContingencyContext.none(), new TrueCondition(), actions));
+            ContingencyContext contingencyContext = ContingencyContext.none();
+            Optional<Condition> optionalCondition = getCondition(operatorStrategyId, assessedElementWithRemedialAction, contingencyContext);
+            return optionalCondition.map(condition -> Set.of(new OperatorStrategy(operatorStrategyId, contingencyContext, condition, actions))).orElseGet(Set::of);
         } else if (CURATIVE_KIND.equals(kind)) {
             if (contingencyWithRemedialActions.isEmpty()) {
-                return Set.of(new OperatorStrategy(operatorStrategyId, ContingencyContext.onlyContingencies(), new TrueCondition(), actions));
+                ContingencyContext contingencyContext = ContingencyContext.onlyContingencies();
+                Optional<Condition> optionalCondition = getCondition(operatorStrategyId, assessedElementWithRemedialAction, contingencyContext);
+                return optionalCondition.map(condition -> Set.of(new OperatorStrategy(operatorStrategyId, contingencyContext, condition, actions))).orElseGet(Set::of);
             } else {
                 Set<OperatorStrategy> contingencyOperatorStrategies = new HashSet<>();
                 for (PropertyBag contingencyWithRemedialAction : contingencyWithRemedialActions) {
@@ -110,7 +123,7 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
                             contingencyId, operatorStrategyId);
                     } else {
                         Optional<OperatorStrategy> curativeOperatorStrategy = processGridStateAlterationRemedialActionForContingency(
-                            operatorStrategyId, contingencyId, actions, contingencyWithRemedialAction
+                            operatorStrategyId, contingencyId, actions, contingencyWithRemedialAction, assessedElementWithRemedialAction
                         );
                         curativeOperatorStrategy.ifPresent(contingencyOperatorStrategies::add);
                     }
@@ -128,10 +141,51 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
         }
     }
 
+    private Optional<Condition> getCondition(String operatorStrategyId, Set<PropertyBag> assessedElementWithRemedialAction, ContingencyContext contingencyContext) {
+        if (assessedElementWithRemedialAction.isEmpty()) {
+            return Optional.of(new TrueCondition());
+        }
+        List<String> conditionalBranches = new ArrayList<>();
+        for (PropertyBag assessedElement : assessedElementWithRemedialAction) {
+            processAssociatedAssessedElement(operatorStrategyId, assessedElement, contingencyContext).ifPresent(conditionalBranches::add);
+        }
+        if (conditionalBranches.isEmpty()) {
+            LOGGER.warn("None of the AssessedElements associated with GridStateAlterationRemedialAction {} was properly imported. "
+                + "GridStateAlterationRemedialAction will be ignored", operatorStrategyId);
+            return Optional.empty();
+        }
+        return Optional.of(new AtLeastOneViolationCondition(conditionalBranches));
+    }
+
+    private Optional<String> processAssociatedAssessedElement(String operatorStrategyId, PropertyBag assessedElement, ContingencyContext contingencyContext) {
+        String assessedElementId = ReaderUtils.getElementIdFromResourceUri(assessedElement.get("assessedElement"));
+
+        if (!Boolean.parseBoolean(assessedElement.getOrDefault("normalEnabled", "false"))) {
+            LOGGER.info("Association between AssessedElement {} and GridStateAlterationRemedialAction {} is disabled and will be ignored.",
+                assessedElementId, operatorStrategyId);
+            return Optional.empty();
+        }
+
+        if (!COMBINATION_CONSTRAINT_KIND_INCLUDED.equals(assessedElement.get("combinationConstraintKind"))) {
+            LOGGER.info("Association between AssessedElement {} and GridStateAlterationRemedialAction {} is not included and will be ignored.",
+                assessedElementId, operatorStrategyId);
+            return Optional.empty();
+        }
+
+        ImporterContext.AssessedElementContext assessedElementContext = importerContext.getImportedAssessedElements().get(assessedElementId);
+        if (assessedElementContext == null) {
+            LOGGER.info("AssessedElement {} associated to GridStateAlterationRemedialAction {} was not imported. The association will be ignored.", assessedElementId, operatorStrategyId);
+            return Optional.empty();
+        }
+
+        return Optional.of(assessedElementContext.branch().getId());
+    }
+
     private Optional<OperatorStrategy> processGridStateAlterationRemedialActionForContingency(String operatorStrategyId,
                                                                                               String contingencyId,
                                                                                               List<String> actions,
-                                                                                              PropertyBag contingencyWithRemedialAction) {
+                                                                                              PropertyBag contingencyWithRemedialAction,
+                                                                                              Set<PropertyBag> assessedElementWithRemedialAction) {
         boolean normalEnabled = Boolean.parseBoolean(contingencyWithRemedialAction.getOrDefault("normalEnabled", "true"));
         if (!normalEnabled) {
             LOGGER.info("Association between Contingency {} and GridStateAlterationRemedialAction {} is disabled and will be ignored. "
@@ -148,11 +202,15 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
             return Optional.empty();
         }
 
-        return Optional.of(new OperatorStrategy(
-            operatorStrategyId + "@" + contingencyId,
-            ContingencyContext.specificContingency(contingencyId),
-            new TrueCondition(),
-            actions
-        ));
+        ContingencyContext contingencyContext = ContingencyContext.specificContingency(contingencyId);
+        Optional<Condition> optionalCondition = getCondition(operatorStrategyId, assessedElementWithRemedialAction, contingencyContext);
+        return optionalCondition.map(condition ->
+            new OperatorStrategy(
+                operatorStrategyId + "@" + contingencyId,
+                contingencyContext,
+                condition,
+                actions
+            )
+        );
     }
 }

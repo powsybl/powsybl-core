@@ -10,6 +10,7 @@ package com.powsybl.nc;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.nc.reader.AssessedElementReader;
 import com.powsybl.nc.reader.ContingencyReader;
 import com.powsybl.security.monitor.StateMonitor;
@@ -32,10 +33,10 @@ public class AssessedElementReaderTest extends AbstractReaderTest {
     void importAssessedElements() {
         queryManager.read(getResourcePath("/AssessedElements.zip"));
 
-        ContingencyReader reader = new ContingencyReader(queryManager, NETWORK);
+        ContingencyReader reader = new ContingencyReader(queryManager, importerContext, NETWORK);
         List<Contingency> contingencies = reader.readFromProfiles().stream().sorted(Comparator.comparing(Contingency::getId)).toList();
 
-        AssessedElementReader assessedElementReader = new AssessedElementReader(queryManager, NETWORK, new HashSet<>(contingencies));
+        AssessedElementReader assessedElementReader = new AssessedElementReader(queryManager, importerContext, NETWORK, new HashSet<>(contingencies));
         Set<StateMonitor> stateMonitors = assessedElementReader.readFromProfiles();
 
         assertEquals(3, stateMonitors.size());
@@ -56,7 +57,7 @@ public class AssessedElementReaderTest extends AbstractReaderTest {
         assertEquals(Set.of("FFR2AA1  FFR3AA1  1"), curative2StateMonitor.getBranchIds());
 
         // test logs content
-        assertEquals(8, appender.getEvents().size());
+        assertEquals(9, appender.getEvents().size());
         assertEquals("Processing entry RTE_AE.xml.", appender.getEvents().getFirst().getFormattedMessage());
         assertEquals("Processing entry RTE_CO.xml.", appender.getEvents().get(1).getFormattedMessage());
         assertEquals("Association between Contingency contingency-2 and AssessedElement assessed-element-2 is disabled. "
@@ -72,8 +73,24 @@ public class AssessedElementReaderTest extends AbstractReaderTest {
         assertEquals("Association between Contingency contingency-1 and AssessedElement assessed-element-6 is not included. "
                 + "The branch FFR1AA1  FFR4AA1  1 will not be monitored for this contingency.",
             appender.getEvents().get(6).getFormattedMessage());
+        assertEquals("No Contingency associated to AssessedElement assessed-element-6 was properly imported. "
+                + "The branch FFR1AA1  FFR4AA1  1 will not be monitored in curative.",
+            appender.getEvents().get(7).getFormattedMessage());
         assertEquals("ConductingEquipment FFR1AA1 _generator belonging to AssessedElement assessed-element-7 is not a branch. "
                 + "AssessedElement will be ignored.",
-            appender.getEvents().get(7).getFormattedMessage());
+            appender.getEvents().get(8).getFormattedMessage());
+
+        // check context
+        assertEquals(3, importerContext.getImportedAssessedElements().size());
+        checkAssessedElementContext("assessed-element-1", NETWORK.getBranch("FFR1AA1  FFR2AA1  1"), true, Set.of());
+        checkAssessedElementContext("assessed-element-2", NETWORK.getBranch("FFR3AA1  FFR5AA1  1"), false, Set.of("contingency-1"));
+        checkAssessedElementContext("assessed-element-3", NETWORK.getBranch("FFR2AA1  FFR3AA1  1"), true, Set.of("contingency-1", "contingency-2"));
+    }
+
+    private void checkAssessedElementContext(String assessedElementId, Branch<?> branch, boolean inBaseCase, Set<String> contingencies) {
+        ImporterContext.AssessedElementContext expectedContext = new ImporterContext.AssessedElementContext(
+            assessedElementId, branch, inBaseCase, contingencies
+        );
+        assertEquals(expectedContext, importerContext.getImportedAssessedElements().get(assessedElementId));
     }
 }

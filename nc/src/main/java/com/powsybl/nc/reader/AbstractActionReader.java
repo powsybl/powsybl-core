@@ -11,6 +11,7 @@ package com.powsybl.nc.reader;
 import com.powsybl.action.Action;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.NcProfile;
 import com.powsybl.nc.QueryManager;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -43,6 +44,7 @@ public abstract class AbstractActionReader<A extends Action> extends AbstractRea
     protected final Class<? extends Identifiable<?>> identifiableClass;
 
     public AbstractActionReader(QueryManager queryManager,
+                                ImporterContext importerContext,
                                 Network network,
                                 String gridStateAlterationType,
                                 String propertyReference,
@@ -50,7 +52,7 @@ public abstract class AbstractActionReader<A extends Action> extends AbstractRea
                                 String networkElementAttribute,
                                 boolean allowIncremental,
                                 Class<? extends Identifiable<?>> identifiableClass) {
-        super(queryManager, network);
+        super(queryManager, importerContext, network);
         this.queryName = queryName;
         this.gridStateAlterationType = gridStateAlterationType;
         this.propertyReference = propertyReference;

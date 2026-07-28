@@ -45,7 +45,6 @@ import static com.powsybl.nc.NcConverter.LOGGER;
  */
 public class QueryManager {
     private static final String TRIPLESTORE_IMPLEMENTATION = "rdf4j";
-    private static final String ZIP_EXTENSION = ".zip";
     private static final String SPARQL_GRAPH = "nc-2.2.sparql";
     private static final String NAMESPACE = "http://entsoe.eu";
     private static final Pattern KEYWORD_PATTERN = Pattern.compile("<dcat:keyword>(?<keyword>[A-Z]{2,3})</dcat:keyword>");

@@ -133,6 +133,24 @@ SELECT *
     }
 }
 
+# query: assessedElementWithRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?assessedElementWithRemedialAction
+            rdf:type nc:AssessedElementWithRemedialAction ;
+            nc:AssessedElementWithRemedialAction.mRID ?mRID ;
+            nc:AssessedElementWithRemedialAction.AssessedElement ?assessedElement ;
+            nc:AssessedElementWithRemedialAction.RemedialAction ?remedialAction ;
+            nc:AssessedElementWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
+
+            OPTIONAL {
+                ?assessedElementWithRemedialAction nc:AssessedElementWithRemedialAction.normalEnabled ?normalEnabled .
+            }
+    }
+}
+
 # query: gridStateAlterationRemedialAction
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>

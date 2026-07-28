@@ -28,7 +28,7 @@ public class ContingencyReaderTest extends AbstractReaderTest {
     void importContingencies() {
         queryManager.read(getResourcePath("/Contingencies.zip"));
 
-        ContingencyReader reader = new ContingencyReader(queryManager, NETWORK);
+        ContingencyReader reader = new ContingencyReader(queryManager, importerContext, NETWORK);
         List<Contingency> contingencies = reader.readFromProfiles().stream().sorted(Comparator.comparing(Contingency::getId)).toList();
 
         assertEquals(8, contingencies.size());

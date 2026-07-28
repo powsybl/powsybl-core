@@ -13,6 +13,7 @@ import com.powsybl.action.ShuntCompensatorPositionActionBuilder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.nc.ImporterContext;
 import com.powsybl.nc.QueryManager;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -29,8 +30,9 @@ public class ShuntCompensatorModificationReader extends AbstractActionReader<Shu
     private static final String SHUNT_COMPENSATOR = "shuntCompensator";
     private static final String PROPERTY_REFERENCE = "http://energy.referencedata.eu/PropertyReference/ShuntCompensator.sections";
 
-    public ShuntCompensatorModificationReader(QueryManager queryManager, Network network) {
-        super(queryManager, network, SHUNT_COMPENSATOR_MODIFICATION, PROPERTY_REFERENCE, SHUNT_COMPENSATOR_MODIFICATION_QUERY_NAME, SHUNT_COMPENSATOR, false, ShuntCompensator.class);
+    public ShuntCompensatorModificationReader(QueryManager queryManager, ImporterContext importerContext, Network network) {
+        super(queryManager, importerContext, network, SHUNT_COMPENSATOR_MODIFICATION, PROPERTY_REFERENCE,
+            SHUNT_COMPENSATOR_MODIFICATION_QUERY_NAME, SHUNT_COMPENSATOR, false, ShuntCompensator.class);
     }
 
     @Override

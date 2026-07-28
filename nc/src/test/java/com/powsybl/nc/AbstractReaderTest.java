@@ -27,6 +27,7 @@ public abstract class AbstractReaderTest {
 
     protected TestAppender appender;
     protected QueryManager queryManager;
+    protected ImporterContext importerContext;
     protected static final Network NETWORK = Network.read("16Nodes.zip", AbstractReaderTest.class.getResourceAsStream("/16Nodes.zip"));
 
     protected static class TestAppender extends AppenderBase<ILoggingEvent> {
@@ -50,6 +51,7 @@ public abstract class AbstractReaderTest {
         appender.start();
         logger.addAppender(appender);
         queryManager = new QueryManager();
+        importerContext = new ImporterContext();
     }
 
     @AfterEach
