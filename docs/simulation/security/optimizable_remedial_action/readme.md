@@ -19,11 +19,17 @@ We want to standardize this interface.
 
 # Examples
 
+Before reading this section, it is recommended to take a look at the diagram [operatorStrategy_simple_future.puml](operatorStrategy_simple_future.puml).
+
 We will provide examples in two ways:
 - inspired by real optimizable operator strategies
 - to justify some design choices
 
-## Trying to use real optimizable operator strategies with this model
+## Reality-inspired optimizable operator strategies
+
+In this section, we will provide examples inspired by real optimizable operator strategies.
+
+TODO
 
 ## Design choices
 
@@ -46,6 +52,7 @@ This delay can be a response time or an operator application time, for example.
 
 ### Ranges
 
+TODO
 
 # Known model limitations
 
@@ -60,7 +67,7 @@ We might not want to put all implementations of all interfaces in powsybl-core.
 This means that we might need some ways to extend the model without modifying the core library.  
 This can be tricky because of serialization and deserialization.  
 To answer this need, we have not chosen between a modular design (jackson.databind.ObjectMapper) or an
-extension-based design.
+extension-based design (for example).
 
 ## TODO
 
@@ -70,6 +77,19 @@ extension-based design.
 - (P3) Check which UML formats readthedocs supports (puml, mermaid ?, ...)
 - Finish writing doc
 - expliciter is Relative 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # OLD TEXT
 
