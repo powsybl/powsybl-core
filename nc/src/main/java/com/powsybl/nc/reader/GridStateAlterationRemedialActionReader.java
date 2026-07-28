@@ -23,6 +23,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +104,7 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
 
         String kind = gridStateAlterationRemedialAction.get("kind");
         if (PREVENTIVE_KIND.equals(kind)) {
+            // monitor the branch in base case
             if (!contingencyWithRemedialActions.isEmpty()) {
                 LOGGER.info("Contingencies associated with preventive GridStateAlterationRemedialAction {} will not be taken into account.", operatorStrategyId);
             }
@@ -110,11 +112,26 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
             Optional<Condition> optionalCondition = getCondition(operatorStrategyId, assessedElementWithRemedialAction, contingencyContext);
             return optionalCondition.map(condition -> Set.of(new OperatorStrategy(operatorStrategyId, contingencyContext, condition, actions))).orElseGet(Set::of);
         } else if (CURATIVE_KIND.equals(kind)) {
+            // the remedial action is curative
             if (contingencyWithRemedialActions.isEmpty()) {
-                ContingencyContext contingencyContext = ContingencyContext.onlyContingencies();
-                Optional<Condition> optionalCondition = getCondition(operatorStrategyId, assessedElementWithRemedialAction, contingencyContext);
-                return optionalCondition.map(condition -> Set.of(new OperatorStrategy(operatorStrategyId, contingencyContext, condition, actions))).orElseGet(Set::of);
+                if (assessedElementWithRemedialAction.isEmpty()) {
+                    // the remedial action is free-to-use after any contingency
+                    return Set.of(new OperatorStrategy(operatorStrategyId, ContingencyContext.onlyContingencies(), new TrueCondition(), actions));
+                } else {
+                    // the remedial action is available after certain curative overloads on lines that may not be monitored after all contingencies
+                    Set<OperatorStrategy> strategies = new HashSet<>();
+                    Map<String, List<String>> monitoredBranchesPerContingency = getMonitoredBranchesPerContingency(assessedElementWithRemedialAction);
+                    monitoredBranchesPerContingency.forEach((contingencyId, monitoredBranches) ->
+                        strategies.add(new OperatorStrategy(
+                            operatorStrategyId,
+                            ContingencyContext.specificContingency(contingencyId),
+                            new AtLeastOneViolationCondition(monitoredBranches),
+                            actions)
+                        ));
+                    return strategies;
+                }
             } else {
+                // the remedial action is available after certain curative overloads and after specific contingencies
                 Set<OperatorStrategy> contingencyOperatorStrategies = new HashSet<>();
                 for (PropertyBag contingencyWithRemedialAction : contingencyWithRemedialActions) {
                     String contingencyId = contingencyWithRemedialAction.get("contingency");
@@ -212,5 +229,16 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
                 actions
             )
         );
+    }
+
+    private Map<String, List<String>> getMonitoredBranchesPerContingency(Set<PropertyBag> assessedElementsWithRemedialAction) {
+        Map<String, List<String>> monitoredBranchesPerContingency = new HashMap<>();
+        assessedElementsWithRemedialAction.stream()
+            .filter(assessedElement -> importerContext.getImportedAssessedElements().containsKey(assessedElement.get("assessedElement")))
+            .map(assessedElement -> importerContext.getImportedAssessedElements().get(assessedElement.get("assessedElement")))
+            .forEach(context -> context.contingencies().forEach(
+                contingency -> monitoredBranchesPerContingency.computeIfAbsent(contingency, k -> new ArrayList<>()).add(context.branch().getId())
+            ));
+        return monitoredBranchesPerContingency;
     }
 }
