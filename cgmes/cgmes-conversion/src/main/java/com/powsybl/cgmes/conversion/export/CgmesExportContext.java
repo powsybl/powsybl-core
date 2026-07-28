@@ -89,6 +89,7 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final Network network; // Used for naming strategy of OperationalLimitType and LoadGroups
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
         return fictitiousContainers.get(id.getId());
@@ -98,8 +99,9 @@ public class CgmesExportContext {
         fictitiousContainers.put(id.getId(), containerId);
     }
 
-    public CgmesExportContext() {
+    public CgmesExportContext() { //TODO: delete?
         referenceDataProvider = null;
+        network = null;
     }
 
     public CgmesExportContext(Network network) {
@@ -128,6 +130,7 @@ public class CgmesExportContext {
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         scenarioTime = network.getCaseDate();
+        this.network = network;
         addParameters(exportParameters);
         computeCimVersion(exportParameters, network);
         computeTopologyKind(exportParameters, network);
@@ -619,6 +622,10 @@ public class CgmesExportContext {
 
     public boolean updateDependencies() {
         return updateDependencies;
+    }
+
+    public Network getNetwork() {
+        return network;
     }
 
     record BaseVoltageSource(Double nominalV, String id, Source source) { }
