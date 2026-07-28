@@ -75,7 +75,7 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
 
         boolean normalAvailable = Boolean.parseBoolean(gridStateAlterationRemedialAction.get("normalAvailable"));
         if (!normalAvailable) {
-            LOGGER.warn("GridStateAlterationRemedialAction {} should not be available and will be ignored.", operatorStrategyId);
+            LOGGER.warn("GridStateAlterationRemedialAction {} is not available and will be ignored.", operatorStrategyId);
             return Set.of();
         }
 
@@ -89,6 +89,8 @@ public class GridStateAlterationRemedialActionReader extends AbstractReader<Oper
                 return Set.of();
             }
         }
+
+        // TODO: take into account association with AE for conditional triggering
 
         String kind = gridStateAlterationRemedialAction.get("kind");
         if (PREVENTIVE_KIND.equals(kind)) {

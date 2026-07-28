@@ -28,7 +28,8 @@ public final class ReaderUtils {
     public static String getElementIdFromResourceUri(String resourceUri) {
         // expected format is http://entsoe.eu/#_
         // +s need to be replaced by spaces to account for networks imported from UCTE
-        return resourceUri.substring(resourceUri.lastIndexOf('#') + 2).replace('+', ' ');
+        return resourceUri == null ? null :
+            resourceUri.substring(resourceUri.lastIndexOf('#') + 2).replace('+', ' ');
     }
 
     public static Map<String, Set<PropertyBag>> groupOnAttribute(PropertyBags propertyBags, String propertyName, boolean isUri) {

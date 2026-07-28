@@ -37,7 +37,6 @@ SELECT *
 # query: ordinaryContingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
@@ -57,7 +56,6 @@ SELECT *
 # query: exceptionalContingency
 PREFIX cim: <http://iec.ch/TC57/CIM100#>
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
 SELECT *
 {
     GRAPH <%s> {
@@ -91,6 +89,47 @@ SELECT *
         OPTIONAL {
             ?contingency nc:Contingency.EquipmentOperator ?equipmentOperator .
         }
+    }
+}
+
+# query: assessedElement
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?assessedElement
+            rdf:type nc:AssessedElement ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:AssessedElement.inBaseCase ?inBaseCase ;
+
+        OPTIONAL {
+            ?assessedElement nc:AssessedElement.ConductingEquipment ?conductingEquipment ;
+        }
+        OPTIONAL {
+           ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled ;
+        }
+        OPTIONAL {
+            ?assessedElement nc:AssessedElement.flowReliabilityMargin ?flowReliabilityMargin .
+        }
+    }
+}
+
+# query: assessedElementWithContingency
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?assessedElementWithContingency
+            rdf:type nc:AssessedElementWithContingency ;
+            nc:AssessedElementWithContingency.mRID ?mRID ;
+            nc:AssessedElementWithContingency.AssessedElement ?assessedElement ;
+            nc:AssessedElementWithContingency.Contingency ?contingency ;
+            nc:AssessedElementWithContingency.combinationConstraintKind ?combinationConstraintKind ;
+
+            OPTIONAL {
+                ?assessedElementWithContingency nc:AssessedElementWithContingency.normalEnabled ?normalEnabled .
+            }
     }
 }
 
@@ -208,6 +247,7 @@ SELECT *
             nc:ContingencyWithRemedialAction.RemedialAction ?remedialAction ;
             nc:ContingencyWithRemedialAction.Contingency ?contingency ;
             nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
+
             OPTIONAL {
                 ?contingencyWithRemedialAction nc:ContingencyWithRemedialAction.normalEnabled ?normalEnabled .
             }
