@@ -39,7 +39,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "dynamic-simulation", 11, 2);
+        assertCommand(command, "dynamic-simulation", 13, 2);
         assertEquals("Computation", command.getTheme());
         assertEquals("Run dynamic simulation", command.getDescription());
         assertNull(command.getUsageFooter());
@@ -51,6 +51,10 @@ class DynamicSimulationToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "output-log-file", false, true);
         assertOption(command.getOptions(), "output-case-file", false, true);
         assertOption(command.getOptions(), "output-case-format", false, true);
+        assertOption(command.getOptions(), "import-parameters", false, true);
+        assertOption(command.getOptions(), "I", false, true);
+        assertOption(command.getOptions(), "export-parameters", false, true);
+        assertOption(command.getOptions(), "E", false, true);
     }
 
     @BeforeEach

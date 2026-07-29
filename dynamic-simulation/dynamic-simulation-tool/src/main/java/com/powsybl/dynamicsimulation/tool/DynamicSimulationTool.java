@@ -36,8 +36,6 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.iidm.network.tools.ConversionToolUtils.readProperties;
-
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
@@ -124,7 +122,8 @@ public class DynamicSimulationTool implements Tool {
                         .longOpt(OUTPUT_CASE_FILE)
                         .desc("modified network base name")
                         .hasArg()
-                        .argName("FILE").get());
+                        .argName("FILE")
+                        .get());
                 options.addOption(Option.builder()
                         .longOpt(OUTPUT_CASE_FORMAT)
                         .desc("modified network output format " + Exporter.getFormats())
@@ -133,6 +132,8 @@ public class DynamicSimulationTool implements Tool {
                         .get());
                 options.addOption(ConversionToolUtils.createImportParametersFileOption());
                 options.addOption(ConversionToolUtils.createImportParameterOption());
+                options.addOption(ConversionToolUtils.createExportParametersFileOption());
+                options.addOption(ConversionToolUtils.createExportParameterOption());
                 return options;
             }
 
@@ -161,7 +162,7 @@ public class DynamicSimulationTool implements Tool {
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
@@ -209,7 +210,7 @@ public class DynamicSimulationTool implements Tool {
 
         if (outputCaseFile != null) {
             context.getOutputStream().println("Writing case file to '" + outputCaseFile + "'");
-            Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
+            Properties outputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
             network.write(outputCaseFormat, outputParams, outputCaseFile);
         }
     }
