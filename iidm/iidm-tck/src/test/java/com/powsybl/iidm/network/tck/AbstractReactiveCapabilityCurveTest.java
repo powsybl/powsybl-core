@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -123,7 +122,6 @@ public abstract class AbstractReactiveCapabilityCurveTest {
         assertTrue(e.getMessage().contains("min Q is not set"));
     }
 
-    @Disabled(value = "To be reactivated in IIDM v1.1")
     @Test
     public void invalidMinQGreaterThanMaxQ() {
         ValidationException e = assertThrows(ValidationException.class, () -> generator.newReactiveCapabilityCurve()

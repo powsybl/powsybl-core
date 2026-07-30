@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -64,21 +64,27 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
         ImportOptions options = new ImportOptions()
                 .setCheckRevertedMinQMaxQ(checkRevertedMinQMaxQ);
 
-        Network network = NetworkSerDe.read(
-                new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
-                options,
-                null);
-
-        Generator g = network.getGenerator("G1");
-        ReactiveCapabilityCurve curve =
-                g.getReactiveLimits(ReactiveCapabilityCurve.class);
-
         if (checkRevertedMinQMaxQ) {
+            Network network = NetworkSerDe.read(
+                    new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
+                    options,
+                    null);
+
+            ReactiveCapabilityCurve curve = network.getGenerator("G1")
+                    .getReactiveLimits(ReactiveCapabilityCurve.class);
+
             assertEquals(2.0, curve.getMinQ(100.0));
             assertEquals(10.0, curve.getMaxQ(100.0));
         } else {
-            assertEquals(10.0, curve.getMinQ(100.0));
-            assertEquals(2.0, curve.getMaxQ(100.0));
+            ValidationException e = assertThrows(
+                    ValidationException.class,
+                    () -> NetworkSerDe.read(
+                            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
+                            options,
+                            null));
+
+            assertTrue(e.getMessage().contains(
+                    "maximum reactive power is expected to be greater than or equal to minimum reactive power"));
         }
     }
 }
