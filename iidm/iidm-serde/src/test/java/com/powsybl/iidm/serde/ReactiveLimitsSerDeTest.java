@@ -76,12 +76,12 @@ class ReactiveLimitsSerDeTest extends AbstractIidmSerDeTest {
             assertEquals(2.0, curve.getMinQ(100.0));
             assertEquals(10.0, curve.getMaxQ(100.0));
         } else {
+            byte[] xmlBytes = xml.getBytes(StandardCharsets.UTF_8);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlBytes);
+
             ValidationException e = assertThrows(
                     ValidationException.class,
-                    () -> NetworkSerDe.read(
-                            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
-                            options,
-                            null));
+                    () -> NetworkSerDe.read(inputStream, options, null));
 
             assertTrue(e.getMessage().contains(
                     "maximum reactive power is expected to be greater than or equal to minimum reactive power"));
