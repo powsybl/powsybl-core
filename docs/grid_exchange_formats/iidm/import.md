@@ -26,7 +26,11 @@ The `iidm.import.xml.with-automation-systems` property is an optional property t
 By default, the value is `true`, the overload management systems are imported when deserializing a network.
 
 **iidm.import.xml.check-reverted-minqmaxq**<br>
-The `iidm.import.xml.check-reverted-minqmaxq` property is an optional property that enables a check in the XIIDM importer to detect reversed Qmin > QMax values in ReactiveCapabilityCurves and put them in the right order.
+The `iidm.import.xml.check-reverted-minqmaxq` property is an optional property that enables the XIIDM importer to detect reversed `minQ > maxQ` values in `ReactiveCapabilityCurve` points and automatically reorder them before validation.
+
+By default, the value is `false`.  
+When set to `false`, a reactive capability curve point with `minQ > maxQ` is considered invalid and the import fails with a validation error.  
+When set to `true`, the importer automatically swaps the values so that `minQ <= maxQ`, allowing the import to succeed.  
 
 **iidm.import.xml.missing-permanent-limit-percentage**<br>
 The `iidm.import.xml.missing-permanent-limit-percentage` property is an optional property that defines the percentage applied to the lowest temporary limit to compute the permanent limit when missing (for IIDM < 1.12 only).
