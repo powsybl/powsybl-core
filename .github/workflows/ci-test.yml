@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout, set up JDK 21, build with Maven and Run SonarCloud analysis
-        uses: powsybl/github-ci/setup-java-maven-sonar@f9953cdb8d7377bee3ee2d88658757fb915bbe75
+        uses: powsybl/github-ci/setup-java-maven-sonar@89027772071d7d59d8c00c95446535678c7700d3
         with:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           sonar_projectKey: 'com.powsybl:powsybl-core'
