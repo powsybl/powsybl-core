@@ -14,11 +14,15 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public class ReactiveLimitsSerDe {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveLimitsSerDe.class);
 
     static final ReactiveLimitsSerDe INSTANCE = new ReactiveLimitsSerDe();
 
@@ -100,6 +104,7 @@ public class ReactiveLimitsSerDe {
         PropertiesSerDe.readProperties(context, pointAdder);
 
         if (context.getOptions().isCheckRevertedMinQMaxQ() && minQ > maxQ) {
+            LOGGER.warn("Reactive capability curve point at P={} has reversed limits (minQ={} > maxQ={}); values have been reordered", p, minQ, maxQ);
             double tmp = minQ;
             minQ = maxQ;
             maxQ = tmp;
