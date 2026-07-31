@@ -19,26 +19,7 @@ jobs:
 
     steps:
       - name: Checkout, set up JDK 21, build with Maven and Run SonarCloud analysis
-        uses: powsybl/github-ci/setup-java-maven-sonar@89027772071d7d59d8c00c95446535678c7700d3
+        uses: powsybl/github-ci/maven-dev@51d6a182d54d28172016b4ea7c5510c3836f1d98
         with:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           sonar_projectKey: 'com.powsybl:powsybl-core'
-#      - name: Checkout sources
-#        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#        with:
-#          fetch-depth: 0
-#
-#      - name: Set up JDK 21
-#        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
-#        with:
-#          distribution: 'temurin'
-#          java-version: '21'
-#          cache: 'maven'
-#
-#      - name: Build with Maven ( Ubuntu )
-#        if: matrix.os == 'ubuntu-latest'
-#        run: mvn -B -ntp -Pjacoco install
-#
-#      - name: Build with Maven ( != Ubuntu )
-#        if: matrix.os != 'ubuntu-latest'
-#        run: mvn -B -ntp verify
