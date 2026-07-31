@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Setup [JDK, Maven build, Sonar]
-        uses: powsybl/github-ci/setup-powsybl-dev@c3779beb6e68605d996f3c328f5b350d8c2473cf
+        uses: powsybl/github-ci/setup-powsybl-dev@f0dd9c6c85034e68d16d0c9616c9083218d65bef
         with:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           sonar_projectKey: 'com.powsybl:powsybl-core'
