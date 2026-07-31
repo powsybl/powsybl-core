@@ -1,4 +1,4 @@
-name: CI Test
+name: CI⚡ Test
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions: {}
 
 jobs:
   build:
-    name: CI Test Build OS ${{ matrix.os }}
+    name: CI⚡ Build OS ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     if: github.event.pull_request.head.repo.fork == false
     strategy:
@@ -18,8 +18,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - name: Checkout, set up JDK 21, build with Maven and Run SonarCloud analysis
-        uses: powsybl/github-ci/maven-dev@51d6a182d54d28172016b4ea7c5510c3836f1d98
+      - name: Setup [JDK, Maven build, Sonar]
+        uses: powsybl/github-ci/setup-powsybl-dev@c3779beb6e68605d996f3c328f5b350d8c2473cf
         with:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           sonar_projectKey: 'com.powsybl:powsybl-core'
