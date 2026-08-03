@@ -156,11 +156,14 @@ passed to the individual range action (modulo a -1 factor for load range actions
 Equivalent to RD but taking in account the GLSKs from both countries.  
 We can use a range with step to only rely on specific volumes of CT.
 
-## Design choices
+# Design choices
 
-In the next section, we will provide examples that justify our design choices.
+In the next section, we will provide examples that justify our design choices.  
+This design is based on the existing PowSyBl model.  
+We propose a modification to the existing PowSyBl model to add the application delay and the creation of a new object to
+represent the operator strategy not yet optimized.
 
-### Application delay
+## Application delay
 
 The application delay allows simulating chronologically ordered events.
 
@@ -175,17 +178,39 @@ We might also have a limited range of possible set points due to the physical co
 Furthermore, some range actions might take some time to be applied.  
 This delay can be a response time or an operator application time, for example.
 
-### Ranges
+## Optimizable Remedial Action
+
+The optimizer will choose the optimal set point of the actions.  
+This means that we need a new object to represent the operator strategy not yet optimized "OptimizableRemedialAction".  
+This object will have:
+
+- an ID;
+- a condition: to model in which condition, the action will be applied;
+- a contingency context: to model in which contingency context (N state, after a contingency, etc., ...), the action
+  will be applied;
+- an application delay (optional)
+- some supplementary temporal contraints (optional)
+
+An optimizable remedial action can either be a binary remedial action or a range remedial action.
+
+## Binary remedial action
+
+## Range remedial action
+
+## Ranges
 
 TODO
 
-### Optimizable Remedial Action
+## Extra temporal contraints
 
-The optimizer will choose the optimal set point of the actions.
+If we need to optimize remedial actions with several timesteps, we might need some supplementary contraints.  
+This object will store the contraints values.  
+They have been sorted in three categories:  
+- simple constraints: contraints that are independent of the time step (level time for example)
+- budget constraints: contraints that depend on the entire time window (max energy for example)
+- variable contraints: contraints with bounds that varies over time (min power for example)
 
-This means that we need a new object to represent the operator strategy not yet optimized "OptimizableRemedialAction".
-
-# List of work in progress
+# Work in progress
 
 This section contains the list of questions that need to be answered before we can implement the feature.
 
@@ -208,10 +233,4 @@ design (for example).
 - expliciter is Relative
 
 ## Draft
-
-Turn `RangeRemedialAction` into an interface? 3 useful use-cases:
-
-1. `SimpleRangeRemedialAction` : only one `RangeAction` involved
-2. `MultipleRangeRemedialAction` : several correlated `RangeAction`s involved, each having a distribution key
-3. `GlskRangeRemedialAction` : `RangeAction`s are associated with a GLSK (linear or not) -> might require a network
 
