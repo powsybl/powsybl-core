@@ -45,14 +45,27 @@ The optimizer will either choose all of them or none of them.
 
 ## Range remedial action
 
-A range remedial action is a remedial action that can be applied with a [range of values](#range-and-step).  
+A range remedial action is a remedial action that can be applied with a [range of values](#range).  
 The optimizer decides the application value of this action.  
-The optimizer can use a step to explore not every value in the range.  
-A range remedial action can be composed of several actions.
+The optimizer can use a [step](#step) to explore not every value in the range.  
+A range remedial action can be composed of several [range actions](#range-action).
 
-## Range and step
+## Range
 
-TODO
+The most simple range is a continuous range between a minimum and a maximum value.  
+This range can be relative to the current value of the range action (for example, a range between -1 and +3 tap
+positions around the initial tap position).  
+Then, ranges can be composed with union or intersection.
+
+## Step
+
+The step is used by the optimizer to explore not every value in the range.  
+A step is defined by a value and an offset.  
+The step can be relative to the current value of the step action.  
+
+## Range action
+
+A range action behaves like an action, but it does have a defined set point.
 
 ## Exclusive optimizable remedial action group
 
