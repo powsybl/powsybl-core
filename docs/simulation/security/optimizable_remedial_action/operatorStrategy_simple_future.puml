@@ -88,10 +88,6 @@ interface RangeRemedialAction {
   - Range range
   + Set<Action> toActions(double setPoint)
 }
-RangeRemedialAction --* "1" Step
-note right of RangeRemedialAction::step
- Links to optimisation
-end note
 RangeRemedialAction <|-- SimpleRangeRemedialAction
 RangeRemedialAction <|-- MultipleRangeRemedialAction
 RangeRemedialAction <|-- GlskRangeRemedialAction
@@ -115,12 +111,6 @@ note bottom of GlskRangeRemedialAction
   How to manage GLSK provider ? (linear or not)
 end note
 
-class Step {
- - boolean isRelative
- - double value
- - double offset = 0
-}
-
 interface RangeAction {
   - boolean isIntegerValue
   + Action toAction(double setPoint)
@@ -132,16 +122,26 @@ end note
 
 namespace nonExhaustiveRangeActionExamples {
 
-PhaseTapChangerTapPositionRangeAction --|> RangeAction
+PhaseTapChangerTapPositionRangeAction -up-|> RangeAction
 
 class LoadRangeAction {
  + LoadAction toAction(double setPoint)
 }
-LoadRangeAction --|> RangeAction
+LoadRangeAction -up-|> RangeAction
 
 'end namespace nonExhaustiveRangeActionExamples
 }
 }
+class Step {
+ - boolean isRelative
+ - double value
+ - double offset = 0
+}
+RangeRemedialAction --* "1" Step
+note top of Step
+ Links to optimisation
+end note
+
 class ExclusiveOptimizableRemedialActionGroup {
   - List<String> exclusiveRemedialActionIds
   - int limitOfSelectedRemedialActions
