@@ -33,67 +33,7 @@ Those examples are not exhaustive and are just meant to illustrate the interface
 
 In this section, we will provide examples inspired by real optimizable operator strategies.
 
-TODO
-
-## Design choices
-
-In the next section, we will provide examples that justify our design choices.
-
-### Application delay
-
-The application delay allows simulating chronologically ordered events.
-
-For example, let's consider a PST range action that we want to optimize.  
-To avoid any threshold crossing in case of any contingency, the PST has been optimized to a given position.  
-This corresponds to a `ContingencyContextType.ALL`.
-
-Now, let's consider that a contingency might occur.  
-We want to optimize the PST set point to avoid threshold crossing based on the time after the contingency.  
-In fact, thresholds vary depending on the time after the contingency.  
-We might also have a limited range of possible set points due to the physical constraints of the system.  
-Furthermore, some range actions might take some time to be applied.  
-This delay can be a response time or an operator application time, for example.
-
-### Ranges
-
-TODO
-
-# Known model limitations
-
-- This operator strategy optimizer design is a bit verbose to define arbitrary set points ranges (you need to define a
-  big union).
-
-# List of work in progress
-
-## Model extension
-
-We might not want to put all implementations of all interfaces in powsybl-core.
-
-This means that we might need some ways to extend the model without modifying the core library.  
-This can be tricky because of serialization and deserialization.  
-To answer this need, we have not chosen between a modular design (jackson.databind.ObjectMapper) or an extension-based
-design (for example).
-
-## TODO
-
-- (P1) Choose how to extend our model across multiple repositories?
-- (P1) Redispatching needs saturation and merit order. How to manage non-linearities?
-- (P2) How to add GLSK support?
-- (P3) Check which UML formats readthedocs supports (puml, mermaid ?, ...)
-- Finish writing doc
-- expliciter is Relative
-
-# OLD TEXT
-
-## Optimizable Remedial Action
-
-The optimizer will choose the optimal set point of the actions.
-
-This means that we need a new object to represent the operator strategy not yet optimized "OptimizableRemedialAction".
-
-### Examples
-
-#### Optimizable PST Range Action
+### Optimizable PST Range Action example
 
 For example, let's consider a PST range action.  
 It will have a step value of 1 and a non-relative range of 0-33.  
@@ -125,7 +65,7 @@ We might want to only move the PST of a few taps in case of a contingency.
 This can be done with a relative range of -3 to 3.  
 We have to take the union with the range of the PST to avoid moving outside of the range of the PST.
 
-#### Generator shut down example
+### Generator shut down example
 
 Now, let's consider a generator.  
 We might want to shut it down.  
@@ -174,13 +114,13 @@ RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction1
 RangeRemedialAction --* "key=1" PhaseTapChangerTapPositionRangeAction2
 ```
 
-#### Hvdc example
+### Hvdc example
 
 If so, we can use a `rangeActionsAndKeys` with 1/-1 to emulate a new set point.  
 If the hdvc has a better model, those keys are not needed.  
 We can also use a continuous range to explore all available setpoints without step.
 
-#### Redispatching example
+### Redispatching example
 
 Redispatching actions' behavior depends on the type of GLSK which is used by the TSOs.  
 Merit order GLSKs are too complex for now and will be dealt with in a future version of the model.  
@@ -203,17 +143,67 @@ passed to the individual range action (modulo a -1 factor for load range actions
 
 > TODO
 
-#### Countertrading
+### Countertrading example
 
 Equivalent to RD but taking in account the GLSKs from both countries.  
 We can use a range with step to only rely on specific volumes of CT.
 
-# Draft
+## Design choices
 
-TODO:
+In the next section, we will provide examples that justify our design choices.
 
-- write this page
-- add examples
+### Application delay
+
+The application delay allows simulating chronologically ordered events.
+
+For example, let's consider a PST range action that we want to optimize.  
+To avoid any threshold crossing in case of any contingency, the PST has been optimized to a given position.  
+This corresponds to a `ContingencyContextType.ALL`.
+
+Now, let's consider that a contingency might occur.  
+We want to optimize the PST set point to avoid threshold crossing based on the time after the contingency.  
+In fact, thresholds vary depending on the time after the contingency.  
+We might also have a limited range of possible set points due to the physical constraints of the system.  
+Furthermore, some range actions might take some time to be applied.  
+This delay can be a response time or an operator application time, for example.
+
+### Ranges
+
+TODO
+
+### Optimizable Remedial Action
+
+The optimizer will choose the optimal set point of the actions.
+
+This means that we need a new object to represent the operator strategy not yet optimized "OptimizableRemedialAction".
+
+# Known model limitations
+
+- This operator strategy optimizer design is a bit verbose to define arbitrary set points ranges (you need to define a
+  big union).
+
+# List of work in progress
+
+## Model extension
+
+We might not want to put all implementations of all interfaces in powsybl-core.
+
+This means that we might need some ways to extend the model without modifying the core library.  
+This can be tricky because of serialization and deserialization.  
+To answer this need, we have not chosen between a modular design (jackson.databind.ObjectMapper) or an extension-based
+design (for example).
+
+## TODO
+
+- (P1) Choose how to extend our model across multiple repositories?
+- (P1) Redispatching needs saturation and merit order. How to manage non-linearities?
+- (P2) How to add GLSK support?
+- (P3) Check which UML formats readthedocs supports (puml, mermaid ?, ...)
+- Finish writing doc
+- expliciter is Relative
+
+## Draft
+
 
 Notes en pagaille:
 
