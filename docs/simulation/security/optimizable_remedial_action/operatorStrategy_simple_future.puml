@@ -75,7 +75,6 @@ interface OptimizableRemedialAction {
 OptimizableRemedialAction --* "1" Condition
 OptimizableRemedialAction --* "1" ContingencyContext
 OptimizableRemedialAction <|-- BinaryRemedialAction
-OptimizableRemedialAction <|-- RangeRemedialAction
 
 class BinaryRemedialAction {
   - Set<Action> actions
@@ -83,12 +82,12 @@ class BinaryRemedialAction {
 }
 BinaryRemedialAction --* "*" Action
 
+namespace rangeRemedialAction {
 interface RangeRemedialAction {
   - Optional<Step> step
   - Range range
   + Set<Action> toActions(double setPoint)
 }
-RangeRemedialAction --* "1" Range
 RangeRemedialAction --* "1" Step
 note right of RangeRemedialAction::step
  Links to optimisation
@@ -96,6 +95,7 @@ end note
 RangeRemedialAction <|-- SimpleRangeRemedialAction
 RangeRemedialAction <|-- MultipleRangeRemedialAction
 RangeRemedialAction <|-- GlskRangeRemedialAction
+OptimizableRemedialAction <|-- RangeRemedialAction
 
 class SimpleRangeRemedialAction {
   - RangeAction rangeAction
@@ -111,13 +111,48 @@ class GlskRangeRemedialAction {
   - Map<RangeAction, double> rangeActionsAndKeys
 }
 GlskRangeRemedialAction --* "*" RangeAction
-note right of GlskRangeRemedialAction
+note bottom of GlskRangeRemedialAction
   How to manage GLSK provider ? (linear or not)
 end note
 
+class Step {
+ - boolean isRelative
+ - double value
+ - double offset = 0
+}
+
+interface RangeAction {
+  - boolean isIntegerValue
+  + Action toAction(double setPoint)
+}
+note right: Clone of "set point based actions" but without "set point"
+note left of RangeAction::isIntegerValue
+ Links to physics
+end note
+
+namespace nonExhaustiveRangeActionExamples {
+
+PhaseTapChangerTapPositionRangeAction --|> RangeAction
+
+class LoadRangeAction {
+ + LoadAction toAction(double setPoint)
+}
+LoadRangeAction --|> RangeAction
+
+'end namespace nonExhaustiveRangeActionExamples
+}
+}
+class ExclusiveOptimizableRemedialActionGroup {
+  - List<String> exclusiveRemedialActionIds
+  - int limitOfSelectedRemedialActions
+}
+ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
+
+
+namespace range {
 interface Range{
 }
-note left
+note right
   Pas évident comment le rendre user friendly ?
   Est-ce qu'il est mieux de laisser parcourir l'arbre des ranges par l'optim ?
   On peut simplifier ça en interdisant l'union et avec les exclusivités entre parades
@@ -128,6 +163,7 @@ end note
 Range <|-- ContinuousRange
 Range <|-- IntersectionRange
 Range <|-- UnionRange
+RangeRemedialAction --* "1" Range
 
 class ContinuousRange {
  - boolean isRelative
@@ -146,39 +182,9 @@ class IntersectionRange {
 class UnionRange {
  - Set<Range> ranges
 }
-
-class Step {
- - boolean isRelative
- - double value
- - double offset = 0
 }
 
-interface RangeAction {
-  - boolean isIntegerValue
-  + Action toAction(double setPoint)
-}
-note bottom: Clone of "set point based actions" but without "set point"
-note left of RangeAction::isIntegerValue
- Links to physics
-end note
-
-namespace nonExhaustiveRangeActionExamples {
-
-PhaseTapChangerTapPositionRangeAction --|> RangeAction
-
-class LoadRangeAction {
- + LoadAction toAction(double setPoint)
-}
-LoadRangeAction --|> RangeAction
-
-'end namespace nonExhaustiveRangeActionExamples
-}
-class ExclusiveOptimizableRemedialActionGroup {
-  - List<String> exclusiveRemedialActionIds
-  - int limitOfSelectedRemedialActions
-}
-ExclusiveOptimizableRemedialActionGroup ..* "*" OptimizableRemedialAction
-
+namespace extraTemporalContraints {
 class ExtraTemporalContraints {
   - SimpleContraints simpleContraints
   - List<BudgetContraint> budgetContraints
@@ -230,5 +236,6 @@ class VariableConstraints {
 note right of VariableConstraints::canStartUpShutDownBalancing
   Example: start/end balancing on round hours
 end note
+}
 
 @enduml
