@@ -121,11 +121,11 @@ base name + separator + element type + optional index.
 The default implementation uses underscores as separators and appends element types and indices when necessary
 to ensure unique naming.
 
-#### Custom strategies
+#### Custom naming strategies
 Other Naming strategies can be implemented based on the `NamingStrategy` interface.
 This allows for organization-specific naming conventions, different separator characters, or specialized formatting rules.
 
-#### Naming strategies service loader
+#### Service loader for naming strategies
 The `NamingStrategiesServiceLoader` enables dynamic discovery of available naming strategies through Java's ServiceLoader mechanism.
 
 ### Network element creation
@@ -351,7 +351,7 @@ The classes `com.powsybl.iidm.modification.RemoveFeederBay`, `com.powsybl.iidm.m
 `com.powsybl.iidm.modification.RemoveVoltageLevel` and `com.powsybl.iidm.modification.RemoveSubstation` allow to remove
 all types of elements from a network.
 
-### Remove feeder bay
+#### Remove feeder bay
 This is the class to use to remove any Injection, Branch or Three-winding transformer.
 The builder should be used to create any instance of this class. Only the ID of the connectable to remove should be given
 as input.
@@ -360,8 +360,8 @@ Note: Busbar sections are not allowed to be removed with this class.
 
 Class: `RemoveFeederBay`
 
-### Remove HVDC line
-This class should be used to remove a HVDC line.
+#### Remove HVDC line
+This class should be used to remove an HVDC line.
 The input arguments are:
 - The ID of the HVDC line
 - If the HVDC line is an LCC, an optional list of IDs of the shunt compensators associated with this HVDC line that should also be removed.
@@ -371,7 +371,7 @@ The input arguments are:
 
 Class: `RemoveHvdcLine`
 
-### Remove voltage level
+#### Remove voltage level
 This class is used to remove an entire voltage level. All the connectables, busbar sections, coupling devices of the voltage level
 are removed. The lines, two-winding transformers and three-winding transformers are also removed as well as their
 switches in other voltage levels.
@@ -379,7 +379,7 @@ The builder to be used to initialize this class takes only the ID of the voltage
 
 Class: `RemoveVoltageLevel`
 
-### Remove substation
+#### Remove substation
 This class should be used to remove an entire substation. All the voltage levels of the substation with all their
 connectables are removed. The branches and three-winding transformers are also removed with their switches in the other
 substations.
@@ -387,9 +387,9 @@ The builder takes the ID of the substation as input.
 
 Class: `RemoveSubstation`
 
-### Moving a network element
+### Move network elements
 
-### Move feeder bay
+#### Move feeder bay
 This class is used to move feeder bays of connectables
 (except `BusOrBusBarSection` connectables) from one place to another within a network.
 
@@ -411,9 +411,9 @@ This modification ensures that the connectivity of the network is preserved whil
 
 Class: `MoveFeederBay`
 
-### Connect a line on a line or a voltage level on a line
+### Line splitting and tapping
 
-### Connect voltage level on line
+#### Connect voltage level on line
 This class cuts an existing line into two new lines that are connected to an existing voltage level (the "switching voltage level").
 The switching voltage level should be added to the network just before calling this method and should contain
 at least a bus in `BUS_BREAKER` topology or a busbar section in `NODE_BREAKER` topology.
@@ -438,7 +438,7 @@ The line between `VL3` and `VL2` is now connected to the fictitious voltage leve
 
 Class: `ConnectVoltageLevelOnLine`
 
-### Revert connect voltage level on line
+#### Revert voltage level connection
 This class reverses the action performed by `ConnectVoltageLevelOnLine`. It replaces two existing lines that share a 
 common voltage level at one of their ends with a single new line.
 
@@ -452,7 +452,7 @@ The common switching voltage level is removed if it no longer contains any equip
 
 Class: `RevertConnectVoltageLevelOnLine`
 
-### Create line on line
+#### Create line tee point
 This class connects an existing voltage level to an existing line through a tee point.
 It cuts the existing line in two, creating a fictitious voltage level (the tee point) between them, and then connects the 
 existing voltage level to this tee point with a new line.
@@ -479,7 +479,7 @@ A fictitious voltage level has been created to represent the tee point.
 
 Class: `CreateLineOnLine`
 
-### Revert create line on line
+#### Revert line tee point
 This class reverses the action performed by `CreateLineOnLine`. It replaces three existing lines that meet at a common tee point with a single new line.
 
 It takes as input:
@@ -493,7 +493,7 @@ are removed if they become empty (except for buses or busbar sections).
 
 Class: `RevertCreateLineOnLine`
 
-### Replace tee point by voltage level on line
+#### Replace tee point by voltage level
 This class transforms a tee point configuration into a switching voltage level configuration. It replaces three existing 
 lines meeting at a tee point with two new lines connected to the formerly tapped voltage level, which now acts as a switching voltage level.
 
@@ -685,12 +685,12 @@ Class: `VoltageSourceConverterTripping`
 
 ## Other modifications
 
-### List
+### Modification list
 This modification is used to apply a list of any Powsybl `NetworkModification`.
 
 Class: `NetworkModificationList`
 
-### Area interchange
+### Area interchange target
 This modification is used to update the target of an area interchange.
 
 The target is in MW in load sign convention (negative for export, positive for import).
@@ -698,12 +698,12 @@ Providing `Double.NaN` removes the target.
 
 Class: `AreaInterchangeTargetModification`
 
-### Battery
+### Battery setpoints
 This modification is used to update the target powers (active `targetP` and reactive `targetV`) of a battery.
 
 Class: `BatteryModification`
 
-### Connection
+### Connectable connection
 This modification is used to connect a network element to the closest bus or busbar section.
 
 It works on:
@@ -715,7 +715,7 @@ It is possible to specify a side of the element to connect. If no side is specif
 
 Class: `ConnectableConnection`
 
-### Boundary line
+### Boundary line injections
 This modification is used to update the active and reactive powers of the load part of a boundary line.
 
 If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.
@@ -756,9 +756,9 @@ It is possible to specify a side of the element to disconnect. If no side is spe
 
 Class: `UnplannedDisconnection`
 
-### Generator
+### Generator modifications
 
-#### Modification
+#### Update attributes
 This modification is used to apply a set of modifications on a generator.
 
 The data to be updated are optional among:
@@ -774,7 +774,7 @@ The data to be updated are optional among:
 
 Class: `GeneratorModification`
 
-#### Connection
+#### Connect generator
 This modification is used to connect a given generator.
 
 If the generator terminal is regulating then it will also set its target voltage if an acceptable value is found.
@@ -790,7 +790,7 @@ If no other generator is regulating on the same bus, targetV engineering unit va
 
 Class: `SetGeneratorToLocalRegulation`
 
-### HVDC line
+### HVDC line modifications
 This modification is used to modify a given HVDC line (and potentially its angle droop active power control extension).
 
 - Modify the HVDC line `activePowerSetpoint` if given, relatively to the existent `activePowerSetpoint` if `relativeValue` is true or as a replacement value if not.
@@ -802,9 +802,9 @@ This modification is used to modify a given HVDC line (and potentially its angle
 
 Class: `HvdcLineModification`
 
-### Load
+### Load modifications
 
-#### Modification
+#### Update active and reactive power
 This modification updates the `P` and `Q` values of the load.
 
 If `relativeValue` is set to true, then the new constant active power (`P0`) and reactive power (`Q0`) are set as the addition of the given values to the previous ones.
@@ -812,28 +812,28 @@ If `relativeValue` is set to false, then the new constant active power (`P0`) an
 
 Class: `LoadModification`
 
-#### Percent modification
+#### Percent change
 This modification is used to add or remove a percentage of the P and Q of the load. The percentage to add or remove for P and Q cannot be less than -100 (in percentage).
 
 Class: `PercentChangeLoadModification`
 
-### Phase shifters
+### Phase shifter modifications
 
-#### Optimize tap modification
+#### Optimize tap
 This modification is used to find the optimal phase tap changer position of a given two-winding transformer phase shifter id.
 
 A phase shifter optimization load flow is run with the configured `load-flow-based-phase-shifter-optimizer` to determine the optimal tap position.
 
 Class: `PhaseShifterOptimizeTap`
 
-#### Fixed tap modification
+#### Set fixed tap
 This modification updates the phase tap changer of a given two-winding transformer phase shifter id.
 
 It updates its `tapPosition` with the given value and set the phase tap changer as not regulating.
 
 Class: `PhaseShifterSetAsFixedTap`
 
-#### Shift tap modification
+#### Shift tap
 This modification is used to update the phase tap changer of a given two-winding transformer phase shifter id.
 
 It sets the phase tap changer as not regulating and updates its `tapPosition` by adjusting it with the given `tapDelta` applied on the current tap position. The resulting tap position is bounded by the phase tap changer lowest and highest possible positions.
@@ -855,39 +855,39 @@ This modification is used to replace all the tie lines of a network with simple 
 
 Class: `ReplaceTieLinesByLines`
 
-### Shunt compensator
+### Shunt compensator modifications
 This modification is used to (dis)connect a shunt compensator and/or change its section count in service.
 
 If the modification connects the shunt compensator and its terminal is regulating then it will also set its target voltage if an acceptable value is found.
 
 Class: `ShuntCompensatorModification`
 
-### Static var compensator
+### Static var compensator modifications
 This modification modifies the voltage and reactive power setpoints of a static var compensator, following a load convention.
 
 Class: `StaticVarCompensatorModification`
 
-### Switch
-#### Close
+### Switch modifications
+#### Close switch
 This modification is used to close a switch.
 
 Class: `CloseSwitch`
 
-#### Open
+#### Open switch
 This modification is used to open a switch.
 
 Class: `OpenSwitch`
 
-### Transformers
+### Transformer modifications
 
-#### Three-winding transformer legs rated voltage
+#### Leg rated voltage
 This modification is used to modify the rated voltage of each leg of a three-winding transformer.
 
 On each leg the new rated voltage is computed from the given common rated voltage multiplied by the ratio (leg old rated voltage / rated voltage of the three-winding transformer (the `ratedU0` also used as nominal voltage) at the fictitious bus (in kV)).
 
 Class: `ThreeWindingsTransformerModification`
 
-#### Replace 1 three-winding transformer by 3 two-winding transformers
+#### Replace three-winding transformer by 3 two-winding transformers
 This modification is used to replace all or a given list of `ThreeWindingsTransformer` by triplets of `TwoWindingsTransformer`.
 
 For each `ThreeWindingsTransformer` to be replaced:
@@ -914,7 +914,7 @@ For each `ThreeWindingsTransformer` to be replaced:
 
 Class: `ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers`
 
-#### Replace 3 two-winding transformers with 1 three-winding transformer
+#### Replace 3 two-winding transformers by a three-winding transformer
 This modification is used to replace all or a given list of `TwoWindingsTransformer` by `ThreeWindingsTransformer`.
 
 In the list of `TwoWindingsTransformer` if only one of a triplet of `TwoWindingsTransformer` is given then the 3 `TwoWindingsTransformer` will be transformed to a `ThreeWindingsTransformer`.
@@ -948,9 +948,9 @@ Then a `ThreeWindingsTransformer` is created to replace them:
 
 Class: `Replace3TwoWindingsTransformersByThreeWindingsTransformers`
 
-### Tap changers
+### Tap changer modifications
 
-#### Phase tap changer position
+#### Phase tap position
 This modification is used to modify a phase tap changers tap position of a given `PhaseTapChangerHolder` (for two or three-winding transformer).
 
 The new tap position can be either the one given in parameter or a relative position added to the existing one.
@@ -961,7 +961,7 @@ The `PhaseTapChangerHolder` can be from:
 
 Class: `PhaseTapPositionModification`
 
-#### Ratio tap changer position
+#### Ratio tap position
 This modification is used to modify a ratio tap changers tap position of a given `RatioTapChangerHolder` (for two or three-winding transformer).
 
 The `RatioTapChangerHolder` can be from:
@@ -971,7 +971,7 @@ The `RatioTapChangerHolder` can be from:
 
 Class: `RatioTapPositionModification`
 
-### VSC converter station
+### VSC converter station modifications
 This modification is used to modify the voltage and reactive power setpoints of a VSC converter station, following a generator convention.
 
 Class: `VscConverterStationModification`
