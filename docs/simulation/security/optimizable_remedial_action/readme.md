@@ -13,6 +13,9 @@ We want to standardize this interface.
 It is recommended to take a look at the
 diagram [operatorStrategy_simple_future.puml](operatorStrategy_simple_future.puml).
 
+The design choices are detailed in this [design.md](design.md).  
+Examples are available in this [example.md](example.md).
+
 # General remarks
 
 - All names are not final, they are just placeholders and can be changed.

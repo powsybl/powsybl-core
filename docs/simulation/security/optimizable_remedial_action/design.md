@@ -61,7 +61,7 @@ Then, ranges can be composed with union or intersection.
 
 The step is used by the optimizer to explore not every value in the range.  
 A step is defined by a value and an offset.  
-The step can be relative to the current value of the step action.  
+The step can be relative to the current value of the step action.
 
 ## Range action
 
