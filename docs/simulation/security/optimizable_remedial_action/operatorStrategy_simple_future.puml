@@ -65,7 +65,7 @@ class AnyViolationInCountryCondition {
 }
 
 
-class OptimizableRemedialAction {
+interface OptimizableRemedialAction {
   - String id
   - Condition condition
   - ContingencyContext contingencyContext
@@ -83,22 +83,41 @@ class BinaryRemedialAction {
 }
 BinaryRemedialAction --* "*" Action
 
-class RangeRemedialAction {
+interface RangeRemedialAction {
   - Optional<Step> step
   - Range range
-  - Map<RangeAction, double> rangeActionsAndKeys
   + Set<Action> toActions(double setPoint)
 }
-RangeRemedialAction --* "*" RangeAction
 RangeRemedialAction --* "1" Range
 RangeRemedialAction --* "1" Step
 note right of RangeRemedialAction::step
  Links to optimisation
 end note
+RangeRemedialAction <|-- SimpleRangeRemedialAction
+RangeRemedialAction <|-- MultipleRangeRemedialAction
+RangeRemedialAction <|-- GlskRangeRemedialAction
+
+class SimpleRangeRemedialAction {
+  - RangeAction rangeAction
+}
+SimpleRangeRemedialAction --* "1" RangeAction
+
+class MultipleRangeRemedialAction {
+  - Set<RangeAction> rangeActions
+}
+MultipleRangeRemedialAction --* "*" RangeAction
+
+class GlskRangeRemedialAction {
+  - Map<RangeAction, double> rangeActionsAndKeys
+}
+GlskRangeRemedialAction --* "*" RangeAction
+note right of GlskRangeRemedialAction
+  How to manage GLSK provider ? (linear or not)
+end note
 
 interface Range{
 }
-note right
+note left
   Pas évident comment le rendre user friendly ?
   Est-ce qu'il est mieux de laisser parcourir l'arbre des ranges par l'optim ?
   On peut simplifier ça en interdisant l'union et avec les exclusivités entre parades
