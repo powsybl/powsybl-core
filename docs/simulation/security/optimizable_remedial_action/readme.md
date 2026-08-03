@@ -20,6 +20,14 @@ diagram [operatorStrategy_simple_future.puml](operatorStrategy_simple_future.pum
 - The physical units are the ones of PowSyBl (power in MW and time deltas in seconds).
 - Objects with optional values are stored with a null value. The corresponding getter will return an optional.
 
+## Known model limitations
+
+- This operator strategy optimizer design is a bit verbose to define arbitrary set points ranges (you need to define a
+  big union).
+- Durée de mobilisation (DMO) and Durée de prévenance (DP) are equivalent to lead time.
+- Energy constraints require to define how to interpolate between timesteps.  
+  This will be done by the implementations.
+
 # Examples
 
 We will provide examples in two ways:
@@ -177,12 +185,9 @@ The optimizer will choose the optimal set point of the actions.
 
 This means that we need a new object to represent the operator strategy not yet optimized "OptimizableRemedialAction".
 
-# Known model limitations
-
-- This operator strategy optimizer design is a bit verbose to define arbitrary set points ranges (you need to define a
-  big union).
-
 # List of work in progress
+
+This section contains the list of questions that need to be answered before we can implement the feature.
 
 ## Model extension
 
@@ -203,13 +208,6 @@ design (for example).
 - expliciter is Relative
 
 ## Draft
-
-
-Notes en pagaille:
-
-- DMO/DP are equivalent to lead time.
-- Energy constraints require to define how to interpolate between timesteps.  
-  This will be done by the implementations.
 
 Turn `RangeRemedialAction` into an interface? 3 useful use-cases:
 
