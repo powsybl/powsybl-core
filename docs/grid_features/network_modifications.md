@@ -166,6 +166,9 @@ parallel busbar section. To know which busbar sections are parallel, the [`Busba
 is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the injection with the given data, unless there are no extensions yet in the voltage level.
 
+For instance, adding a `Load` to a beforehand empty `NODE_BREAKER` voltage level will result in:
+![Node/breaker network with new load](img/networkNodeBreakerWithLoad.svg){width="100%" align=center}
+
 Class: `CreateFeederBay`
 
 #### Create Branch Feeder bays
@@ -210,6 +213,11 @@ parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#bu
 is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the branch with the given data, unless no extensions are already available in the voltage level.
 
+For instance, here is a `Substation`:
+![Node/breaker network substation](img/networkNodeBreakerBeforeAddingTwoWindingTransformer.svg){width="100%" align=center}
+Adding a `TwoWindingsTransformer`  between both voltage levels of this substation will result in:
+![Node/breaker network with new two-winding transformer](img/networkNodeBreakerWithTwoWindingTransformer.svg){width="100%" align=center}
+
 Class: `CreateBranchFeederBays`
 
 #### Create Coupling Device
@@ -230,6 +238,10 @@ An open disconnector will be created on every parallel busbar section. To find t
 [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position) is used.
 The coupling device can be created between busbar sections that are parallel or not. If the two busbar sections are
 parallel and there are exactly two parallel busbar sections, then no open disconnectors are created.
+
+In the following single-line diagram, we can see three coupling devices added for each section and one coupling device 
+between sections:  
+![Emtpy node/breaker network with coupling devices](img/networkNodeBreakerEmptyWithCouplingDevice.svg){width="100%" align=center}
 
 Class: `CreateCouplingDevice`
 
@@ -267,11 +279,19 @@ if the busbar sections are created in a non-empty voltage level. If true, they w
 an open switch of the same kind as the first switch that connects the connectable to the other busbar sections.
 If this boolean is true, the [`ConnectFeedersToBusbarSections`](#connect-feeders-to-busbar-sections) modification will be called on the network.
 
+For instance, this single-line diagram shows the result of calling this modification on an empty voltage level in `NODE_BREAKER` topology with:
+- two aligned busbar sections
+- three sections
+- `Breakers` between the first and the second sections and `Disconnector` between the second and the third sections.
+![Node/breaker network with busbar sections created with the network modification](img/networkNodeBreakerWithBusbarSections.svg){width="100%" align=center}
+
+
 Class: `CreateVoltageLevelTopology`
 
 #### Create Voltage Level Sections
 This class allows the creation of new busbar sections inside a voltage level in the NODE_BREAKER topology.
-The voltage level must already have been created, must already contain some busbar sections, and these busbar sections must have the extension BusbarSectionPosition,
+The voltage level must already have been created, must already contain some busbar sections, and these busbar sections 
+must have the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position),
 which indicates their position in the voltage level busbar sections matrix (busbarIndex and sectionIndex).
 When applied to a network, it will create new busbar sections before or after a reference busbar section.
 
