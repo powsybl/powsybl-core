@@ -26,7 +26,7 @@ optionally with the scaling parameters.
 
 Interface: `Scalable`
 
-### Scaling Parameters
+### Scaling parameters
 
 #### scalingConvention
 Defines the sign convention used in scaling:
@@ -171,7 +171,7 @@ For instance, adding a `Load` to a beforehand empty `NODE_BREAKER` voltage level
 
 Class: `CreateFeederBay`
 
-#### Create Branch Feeder bays
+#### Create branch feeder bays
 This class allows the creation of lines and two-winding transformers.
 It takes as input:
 - The `BranchAdder`, which should be created beforehand with the electrotechnical characteristics of the branch.
@@ -220,7 +220,7 @@ Adding a `TwoWindingsTransformer`  between both voltage levels of this substatio
 
 Class: `CreateBranchFeederBays`
 
-#### Create Coupling Device
+#### Create coupling device
 This class allows the creation of coupling devices within a voltage level to couple some busbar sections.
 It takes as input:
 - The ID of one bus or busbar section (in `BUS_BREAKER` or `NODE_BREAKER` voltage levels respectively)
@@ -245,7 +245,7 @@ between sections:
 
 Class: `CreateCouplingDevice`
 
-#### Create Voltage Level Topology
+#### Create voltage level topology
 This class allows the creation of the topology inside a voltage level if it is meant to be symmetrical.
 The voltage level must already exist and does not have to be empty.
 When applied to a network, it will create buses or busbar sections in a matrix of aligned buses or busbar sections.
@@ -288,7 +288,7 @@ For instance, this single-line diagram shows the result of calling this modifica
 
 Class: `CreateVoltageLevelTopology`
 
-#### Create Voltage Level Sections
+#### Create voltage level sections
 This class allows the creation of new busbar sections inside a voltage level in the NODE_BREAKER topology.
 The voltage level must already have been created, must already contain some busbar sections, and these busbar sections 
 must have the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position),
@@ -351,7 +351,7 @@ The classes `com.powsybl.iidm.modification.RemoveFeederBay`, `com.powsybl.iidm.m
 `com.powsybl.iidm.modification.RemoveVoltageLevel` and `com.powsybl.iidm.modification.RemoveSubstation` allow to remove
 all types of elements from a network.
 
-#### RemoveFeederBay
+### Remove feeder bay
 This is the class to use to remove any Injection, Branch or Three-winding transformer.
 The builder should be used to create any instance of this class. Only the ID of the connectable to remove should be given
 as input.
@@ -360,7 +360,7 @@ Note: Busbar sections are not allowed to be removed with this class.
 
 Class: `RemoveFeederBay`
 
-#### RemoveHvdcLine
+### Remove HVDC line
 This class should be used to remove a HVDC line.
 The input arguments are:
 - The ID of the HVDC line
@@ -371,7 +371,7 @@ The input arguments are:
 
 Class: `RemoveHvdcLine`
 
-#### RemoveVoltageLevel
+### Remove voltage level
 This class is used to remove an entire voltage level. All the connectables, busbar sections, coupling devices of the voltage level
 are removed. The lines, two-winding transformers and three-winding transformers are also removed as well as their
 switches in other voltage levels.
@@ -379,7 +379,7 @@ The builder to be used to initialize this class takes only the ID of the voltage
 
 Class: `RemoveVoltageLevel`
 
-#### RemoveSubstation
+### Remove substation
 This class should be used to remove an entire substation. All the voltage levels of the substation with all their
 connectables are removed. The branches and three-winding transformers are also removed with their switches in the other
 substations.
@@ -389,7 +389,7 @@ Class: `RemoveSubstation`
 
 ### Moving a network element
 
-#### MoveFeederBay
+### Move feeder bay
 This class is used to move feeder bays of connectables
 (except `BusOrBusBarSection` connectables) from one place to another within a network.
 
@@ -413,7 +413,7 @@ Class: `MoveFeederBay`
 
 ### Connect a line on a line or a voltage level on a line
 
-#### ConnectVoltageLevelOnLine
+### Connect voltage level on line
 This class cuts an existing line into two new lines that are connected to an existing voltage level (the "switching voltage level").
 The switching voltage level should be added to the network just before calling this method and should contain
 at least a bus in `BUS_BREAKER` topology or a busbar section in `NODE_BREAKER` topology.
@@ -438,7 +438,7 @@ The line between `VL3` and `VL2` is now connected to the fictitious voltage leve
 
 Class: `ConnectVoltageLevelOnLine`
 
-#### RevertConnectVoltageLevelOnLine
+### Revert connect voltage level on line
 This class reverses the action performed by `ConnectVoltageLevelOnLine`. It replaces two existing lines that share a 
 common voltage level at one of their ends with a single new line.
 
@@ -452,7 +452,7 @@ The common switching voltage level is removed if it no longer contains any equip
 
 Class: `RevertConnectVoltageLevelOnLine`
 
-#### CreateLineOnLine
+### Create line on line
 This class connects an existing voltage level to an existing line through a tee point.
 It cuts the existing line in two, creating a fictitious voltage level (the tee point) between them, and then connects the 
 existing voltage level to this tee point with a new line.
@@ -479,7 +479,7 @@ A fictitious voltage level has been created to represent the tee point.
 
 Class: `CreateLineOnLine`
 
-#### RevertCreateLineOnLine
+### Revert create line on line
 This class reverses the action performed by `CreateLineOnLine`. It replaces three existing lines that meet at a common tee point with a single new line.
 
 It takes as input:
@@ -493,7 +493,7 @@ are removed if they become empty (except for buses or busbar sections).
 
 Class: `RevertCreateLineOnLine`
 
-### ReplaceTeePointByVoltageLevelOnLine
+### Replace tee point by voltage level on line
 This class transforms a tee point configuration into a switching voltage level configuration. It replaces three existing 
 lines meeting at a tee point with two new lines connected to the formerly tapped voltage level, which now acts as a switching voltage level.
 
@@ -566,7 +566,7 @@ It takes as input:
 
 Class: `BoundaryLineTripping`
 
-### Dc ground tripping
+### DC ground tripping
 This modification trips a DC ground by opening the switches connected to all its DC terminals.
 
 It takes as input:
@@ -574,7 +574,7 @@ It takes as input:
 
 Class: `DcGroundTripping`
 
-### Dc line tripping
+### DC line tripping
 This modification trips a DC line by opening the DC switches connected to its terminals.
 
 It takes as input:
@@ -583,7 +583,7 @@ It takes as input:
 
 Class: `DcLineTripping`
 
-### Dc node tripping
+### DC node tripping
 This modification trips a DC node by opening the switches connected to all the DC terminals associated with the DC node.
 
 It takes as input:
@@ -599,7 +599,7 @@ It takes as input:
 
 Class: `GeneratorTripping`
 
-### Hvdc line tripping
+### HVDC line tripping
 This modification trips an HVDC line by opening the switches connected to its converter stations terminals.
 
 It takes as input:
@@ -633,11 +633,11 @@ It takes as input:
 
 Class: `ShuntCompensatorTripping`
 
-### Static Var compensator tripping
-This modification trips a static Var compensator by opening the switches connected to its terminal.
+### Static var compensator tripping
+This modification trips a static var compensator by opening the switches connected to its terminal.
 
 It takes as input:
-- The ID of the static Var compensator to trip.
+- The ID of the static var compensator to trip.
 
 Class: `StaticVarCompensatorTripping`
 
