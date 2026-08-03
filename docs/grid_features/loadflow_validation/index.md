@@ -7,7 +7,7 @@ maxdepth: 1
 
 configuration.md
 ```
-A load flow result is considered *acceptable* if it describes a feasible steady-state of a power system given its physics and its logics.
+A load flow result is considered *acceptable* if it describes a feasible steady-state of a power system given the network physics and operating constraints.
 More practically, generations of practitioners have set quasi-standard ways to describe them that makes it possible to define precise rules.
 They are described below for the different elements of the network.
 
@@ -38,9 +38,9 @@ $$
 \end{aligned}
 $$
 
-Reworded with elements details:
+Where:
 - `P injections` and `Q injections` are the sums of connected injections (generators, batteries, shunts, SVCs, VSC, lines, dangling lines, and transformers)
-- `P load` and `Q load` are the sums of connected loads.
+- `P branches` and `Q branches` are the sums of connected loads.
 
 (loadflow-validation-branches)=
 ## Branches
@@ -88,36 +88,6 @@ In case the voltages are available but not the powers, the result completion fea
 can be used to recompute them using the validation equations (meaning that the branch validation tests will always be OK, so that it allows performing the bus validation tests).
 
 In case of disconnected branch, $P_i$ and $Q_i$ must be undefined or approximately equal to zero.
-
-(loadflow-validation-three-winding-transformers)=
-## Three-winding transformers
-
-All network three-winding transformers are evaluated individually.
-
-The validation consists in comparing the active and reactive powers on each leg with the recalculated powers (from the transformer parameters).
-
-The configuration used during this validation is:
-- [threshold](configuration.md#threshold) to determine the acceptable difference between the measured and calculated powers
-- [apply-reactance-correction](configuration.md#apply-reactance-correction) to correct or not the very small reactances to `epsilon-x` value
-- [epsilon-x](configuration.md#epsilon-x) for reactances considered too small then they can be set to epsilon-x value
-- [ok-missing-values](configuration.md#ok-missing-values) to determine if missing values (NaN) are considered as valid or not
- 
-If the transformer has the `ThreeWindingsTransformerPhaseAngleClock` extension, the phase angles clocks 2 and 3 are extracted, if not they are considered as `0`.
-
-The power comparisons are done via a `TwtData` [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-iidm-api/latest/com.powsybl.iidm.api/com/powsybl/iidm/network/util/TwtData.html) object.
-
-A three-winding transformer is considered valid if its 3 legs are valid.
-
-A leg is valid:
-- if not connected or not in the main component
-- or if the measured and calculated powers are within the configured threshold.
-
-$$
-\begin{aligned}
-|P_{side\;measured} - P_{side\;computed}| > thresold \\
-|Q_{side\;measured} - Q_{side\;computed}| > thresold
-\end{aligned}
-$$
 
 (loadflow-validation-generators)=
 ## Generators
@@ -240,6 +210,36 @@ $$\sum_{\text{stations}}{P} = \sum_{\text{stations}}{Loss} + Loss_{cable}$$
 (loadflow-validation-lcc)=
 ## LCC
 To be done.
+
+(loadflow-validation-three-winding-transformers)=
+## Three-winding transformers
+
+All network three-winding transformers are evaluated individually.
+
+The validation consists in comparing the active and reactive powers on each leg with the recalculated powers (from the transformer parameters).
+
+The configuration used during this validation is:
+- [threshold](configuration.md#threshold) to determine the acceptable difference between the measured and calculated powers
+- [apply-reactance-correction](configuration.md#apply-reactance-correction) to correct or not the very small reactances to `epsilon-x` value
+- [epsilon-x](configuration.md#epsilon-x) for reactances considered too small then they can be set to epsilon-x value
+- [ok-missing-values](configuration.md#ok-missing-values) to determine if missing values (NaN) are considered as valid or not
+
+If the transformer has the `ThreeWindingsTransformerPhaseAngleClock` extension, the phase angles clocks 2 and 3 are extracted, if not they are considered as `0`.
+
+The power comparisons are done via a `TwtData` [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-iidm-api/latest/com.powsybl.iidm.api/com/powsybl/iidm/network/util/TwtData.html) object.
+
+A three-winding transformer is considered valid if its 3 legs are valid.
+
+A leg is valid:
+- if not connected or not in the main component
+- or if the measured and calculated powers are within the configured threshold.
+
+$$
+\begin{aligned}
+|P_{side\;measured} - P_{side\;computed}| > threshold \\
+|Q_{side\;measured} - Q_{side\;computed}| > threshold
+\end{aligned}
+$$
 
 (loadflow-validation-transformers-ratio-tap-changer)=
 ## Transformers with a ratio tap changer
