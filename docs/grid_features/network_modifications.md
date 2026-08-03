@@ -11,8 +11,8 @@ A `NetworkModification` offers a method to check whether its application would h
 The Scalable API in PowSyBl Core provides a flexible, composable framework for modifying active power injections:
 - **Single-injection** scalable: Define scaling for generators, loads, and boundary lines. These are leaf nodes in the scalable model.
 - **Proportional** scalable: ProportionalScalable holds a list of child scalables and a matching list of percentage weights.
-- **Stack** scalable: StackScalable applies its children in order. The first child receives the full asked, the next receives the remaining unsatisfied power, and so on.
-- **Up-Down** scalable: Combines two scalables, one scalable for upward scaling, a second scalable for downward scaling 
+- **Stack** scalable: StackScalable applies its children in order. The first child receives the full amount asked, the next receives the remaining unsatisfied power, and so on.
+- **Up-Down** scalable: Combines two scalables, one scalable for upward scaling, a second scalable for downward scaling.
 
 Above scalables can be composed and nested at will. One can for example create:
 - A Proportional scalable as a list of loads and associated weights
@@ -23,6 +23,8 @@ Above scalables can be composed and nested at will. One can for example create:
 
 Scaling is then performed using the `scale` method of the scalable where the asked volume in MW must be provided,
 optionally with the scaling parameters.
+
+Interface: `Scalable`
 
 ### Scaling Parameters
 
@@ -52,7 +54,7 @@ When true, disconnected generators/loads/boundary lines can be reconnected by sc
 Controls saturation redistribution mode for ProportionalScalable.
 - `RESPECT_OF_VOLUME_ASKED`: the scaling will distribute the power asked as much as possible by iterating if elements
 get saturated, even if it means not respecting potential percentages.
-- `RESPECT_OF_DISTRIBUTION`: the scaling will respect the percentages even if it means not scaling all what is asked.
+- `RESPECT_OF_DISTRIBUTION`: the scaling will respect the percentages even if it means not scaling all that is asked.
 - `ONESHOT`: the scaling will distribute the power asked as is, in one iteration even if elements get saturated and even
 if it means not respecting potential percentages.
 
@@ -64,7 +66,7 @@ A list of injections to ignore in the scaling.
 The default value is an empty list.
 
 #### loadMinPowerFactor
-The minimum active/apparent power factor (ie P/S factor) allowed when scaling load reactive power Q.
+The minimum active/apparent power factor (i.e., P/S factor) allowed when scaling load reactive power Q.
 Only applies when `constantPowerFactor` is `true`.
 
 Normally, the reactive power Q is scaled proportionally to the active power P to keep the power factor constant.
@@ -148,8 +150,7 @@ incorrect. This is mainly useful for voltage levels with `NODE_BREAKER` topology
 is not created otherwise. The order position may be incorrect if
   - it has already been taken on the busbar section,
   - if it is higher or lower than the maximum or minimum available order positions for the busbar section,
-  - or if the order positions of other adjacent busbar sections do not allow any possible order positions.
-If the boolean is set to false, then the order position will be ignored and the `ConnectablePostion` extension will not be
+If the boolean is set to false, then the order position will be ignored and the `ConnectablePosition` extension will not be
 created, but the `Injection` will be created. If the boolean is set to true, the `Injection` will not be created, and
 either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying
 the modification.
@@ -164,6 +165,8 @@ the busbar section with a closed disconnector and a breaker. Additionally, open 
 parallel busbar section. To know which busbar sections are parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
 is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the injection with the given data, unless there are no extensions yet in the voltage level.
+
+Class: `CreateFeederBay`
 
 #### Create Branch Feeder bays
 This class allows the creation of lines and two-winding transformers.
@@ -190,9 +193,8 @@ incorrect on side 1 of the branch. This is mainly useful for voltage levels with
 `ConnectablePosition` extension is not created otherwise. The order position may be incorrect if
   - it has already been taken on the busbar section,
   - if it is higher or lower than the maximum or minimum available order positions for the busbar section,
-  - or if the order positions of other adjacent busbar sections do not allow any possible order positions.
-If the boolean is set to false, then the order position will be ignored and the `ConnectablePostion` extension will not be
-created, but the `Injection` will be created. If the boolean is set to true, the `Injection` will not be created, and
+If the boolean is set to false, then the order position will be ignored and the `ConnectablePosition` extension will not be
+created, but the `Branch` will. If the boolean is set to true, the `Branch` will not be created, and
 either an exception will be thrown or a log will be returned, depending on the `throwException` boolean given when applying
 the modification.
 - Optionally, a boolean `logOrThrowIfIncorrectPositionOrder2`, which is the same but for the side 2 of the branch.
@@ -207,6 +209,8 @@ Additionally, open disconnectors will be created on every parallel busbar sectio
 parallel, the [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position)
 is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#connectable-position) will also be
 created for the branch with the given data, unless no extensions are already available in the voltage level.
+
+Class: `CreateBranchFeederBays`
 
 #### Create Coupling Device
 This class allows the creation of coupling devices within a voltage level to couple some busbar sections.
@@ -226,6 +230,8 @@ An open disconnector will be created on every parallel busbar section. To find t
 [`BusbarSectionPosition` extension](../grid_model/extensions.md#busbar-section-position) is used.
 The coupling device can be created between busbar sections that are parallel or not. If the two busbar sections are
 parallel and there are exactly two parallel busbar sections, then no open disconnectors are created.
+
+Class: `CreateCouplingDevice`
 
 #### Create Voltage Level Topology
 This class allows the creation of the topology inside a voltage level if it is meant to be symmetrical.
@@ -254,17 +260,19 @@ Additional input can be provided:
   existing ones. By default, it is 1 (no bus or busbar section already in the voltage level).
 - The bus or busbar section prefix ID is optional and used, if specified, as a prefix for the IDs of the created buses
   or busbar sections. This prefix is followed by the "row" index and the section number. If it is not specified, then the
-  name of the voltage level is used as prefix.
+  name of the voltage level is used as a prefix.
 - The switch prefix ID is also optional.
 - The boolean connectExistingConnectables indicates whether existing connectables should be connected to the new topology
 if the busbar sections are created in a non-empty voltage level. If true, they will all be connected with
 an open switch of the same kind as the first switch that connects the connectable to the other busbar sections.
 If this boolean is true, the [`ConnectFeedersToBusbarSections`](#connect-feeders-to-busbar-sections) modification will be called on the network.
 
+Class: `CreateVoltageLevelTopology`
+
 #### Create Voltage Level Sections
 This class allows the creation of new busbar sections inside a voltage level in the NODE_BREAKER topology.
-The voltage level must already have been created, must already contains some busbar sections, and these busbar sections must have the extension BusbarSectionPosition,
-which indicate their position in the voltage level busbar sections matrix (busbarIndex and sectionIndex).
+The voltage level must already have been created, must already contain some busbar sections, and these busbar sections must have the extension BusbarSectionPosition,
+which indicates their position in the voltage level busbar sections matrix (busbarIndex and sectionIndex).
 When applied to a network, it will create new busbar sections before or after a reference busbar section.
 
 It takes as input:
@@ -286,6 +294,8 @@ It takes as input:
   is followed by the busbar index and the section index, if the default naming strategy is used.
 
 <span style="color: red">TODO: add single line diagrams</span>
+
+Class: `CreateVoltageLevelSections`
 
 ### Connect feeders to busbar sections
 This class allows the connection of feeders to busbar sections in `NODE_BREAKER` topology.
@@ -313,6 +323,7 @@ If we apply the modification with both busbar sections, all the connectables and
 If we want to only connect the two-winding transformers on busbar section bbs3, we can specify the right lists as input and we will get:
 ![Node/breaker network with connected transformers on bbs3](img/networkNodeBreakerWithTwtConnected.svg){width="100%" align=center}
 
+Class: `ConnectFeedersToBusbarSections`
 
 ### Network element removal
 
@@ -327,6 +338,8 @@ as input.
 When applied to the network, the connectable will be removed, as well as all the switches connecting it to busbar sections.
 Note: Busbar sections are not allowed to be removed with this class.
 
+Class: `RemoveFeederBay`
+
 #### RemoveHvdcLine
 This class should be used to remove a HVDC line.
 The input arguments are:
@@ -336,11 +349,15 @@ The input arguments are:
   switches connecting them to their voltage levels. If the list of shunt compensators is not empty, then they will also be
   removed along with their switches.
 
+Class: `RemoveHvdcLine`
+
 #### RemoveVoltageLevel
 This class is used to remove an entire voltage level. All the connectables, busbar sections, coupling devices of the voltage level
 are removed. The lines, two-winding transformers and three-winding transformers are also removed as well as their
 switches in other voltage levels.
 The builder to be used to initialize this class takes only the ID of the voltage level to be removed.
+
+Class: `RemoveVoltageLevel`
 
 #### RemoveSubstation
 This class should be used to remove an entire substation. All the voltage levels of the substation with all their
@@ -348,13 +365,15 @@ connectables are removed. The branches and three-winding transformers are also r
 substations.
 The builder takes the ID of the substation as input.
 
+Class: `RemoveSubstation`
+
 ### Moving a network element
 
 #### MoveFeederBay
 This class is used to move feeder bays of connectables
 (except `BusOrBusBarSection` connectables) from one place to another within a network.
 
-This class allows to move a feeder bay from one busbar section to another within the network.
+This class allows moving a feeder bay from one busbar section to another within the network.
 The builder should be used to create any instance of this class. It takes as input:
 
 - The ID of the connectable whose feeder bay will be moved (`connectableId`). Note that `BusOrBusBarSection` connectables are not accepted.
@@ -370,69 +389,264 @@ If the target voltage level topology kind is `NODE_BREAKER`, the appropriate dis
 the feeder bay to the target busbar section, maintaining the correct topology.
 This modification ensures that the connectivity of the network is preserved while moving the feeder bay to its new position.
 
+Class: `MoveFeederBay`
+
 ### Connect a line on a line or a voltage level on a line
 
 #### ConnectVoltageLevelOnLine
-<span style="color: red">TODO</span>
+This class cuts an existing line into two new lines that are connected to an existing voltage level (the "switching voltage level").
+The switching voltage level should be added to the network just before calling this method and should contain
+at least a bus in `BUS_BREAKER` topology or a busbar section in `NODE_BREAKER` topology.
+
+It takes as input:
+- The original line to be cut.
+- The percentage to split the electrical characteristics of the original line (R, X, B, etc.).
+- The ID of the bus or busbar section in the switching voltage level where the lines will be connected.
+- The IDs for the two new line segments.
+- Optionally, names for the two new line segments.
+- Optionally, position orders for the new lines to create [`ConnectablePosition` extensions](../grid_model/extensions.md#connectable-position) for visualization.
+
+When applied, the original line is removed and two new lines are created. Switches are automatically created in the 
+switching voltage level to connect the new lines to the specified bus or busbar section, according to the voltage level topology.
+
+Class: `ConnectVoltageLevelOnLine`
 
 #### RevertConnectVoltageLevelOnLine
-<span style="color: red">TODO</span>
+This class reverses the action performed by `ConnectVoltageLevelOnLine`. It replaces two existing lines that share a 
+common voltage level at one of their ends with a single new line.
+
+It takes as input:
+- The IDs of the two lines to be merged.
+- The ID for the new merged line.
+- Optionally, a name for the new merged line.
+
+When applied, the two lines are removed and replaced by a single line connecting the two outer voltage levels. 
+The common switching voltage level is removed if it no longer contains any equipment (except for buses or busbar sections).
+
+Class: `RevertConnectVoltageLevelOnLine`
 
 #### CreateLineOnLine
-<span style="color: red">TODO</span>
+This class connects an existing voltage level to an existing line through a tee point.
+It cuts the existing line in two, creating a fictitious voltage level (the tee point) between them, and then connects the 
+existing voltage level to this tee point with a new line.
+
+It takes as input:
+- The percentage to split the original line at the tee point.
+- The ID of the bus or busbar section in the existing voltage level to be connected.
+- The ID for the fictitious voltage level.
+- Optionally, the name for the fictitious voltage level.
+- A boolean indicating whether to create a fictitious substation for the tee point.
+- The IDs for the two line segments.
+- Optionally, the name for the two line segments.
+- The original line to be cut.
+- The `LineAdder` for the new line connecting the existing voltage level to the tee point.
+- Optionally, a position order for the new line connection to create [`ConnectablePosition` extensions](../grid_model/extensions.md#connectable-position) for visualization.
+
+Class: `CreateLineOnLine`
 
 #### RevertCreateLineOnLine
-<span style="color: red">TODO</span>
+This class reverses the action performed by `CreateLineOnLine`. It replaces three existing lines that meet at a common tee point with a single new line.
 
-### ReplaceTeePointbyVoltageLevelOnLine
-<span style="color: red">TODO</span>
+It takes as input:
+- The IDs of the two lines to be merged (those forming the original path).
+- The ID of the line to be removed (the one connecting to the tapped voltage level).
+- The ID for the new merged line.
+- Optionally, a name for the new merged line.
+
+When applied, the three lines are removed and replaced by a single line. The tee point voltage level and the tapped voltage level 
+are removed if they become empty (except for buses or busbar sections).
+
+Class: `RevertCreateLineOnLine`
+
+### ReplaceTeePointByVoltageLevelOnLine
+This class transforms a tee point configuration into a switching voltage level configuration. It replaces three existing 
+lines meeting at a tee point with two new lines connected to the formerly tapped voltage level, which now acts as a switching voltage level.
+
+It takes as input:
+- The IDs of the three lines connected to the tee point.
+- The ID of the existing bus or busbar section in the tapped voltage level where the new lines will be connected.
+- The IDs for the two new lines.
+- Optionally, names for the two new lines.
+
+When applied, the three lines and the tee point are removed, and two new lines are created connecting the two original ends to the formerly tapped voltage level.
+
+Class: `ReplaceTeePointByVoltageLevelOnLine`
 
 ## Tripping
+Tripping modifications are used to disconnect network elements by opening the appropriate switches.
+
+### General principles
+The tripping modifications rely on a topological traversal to identify which switches should be opened:
+- In **Node/Breaker** topology, the traversal starts from the equipment terminal and searches for the nearest closed, non-fictitious `BREAKER`. 
+If such a breaker is found, it is opened.
+- In **Bus/Breaker** topology, the traversal stops at the terminal, and the terminal is simply disconnected.
+- For **DC** equipment, the traversal searches for the nearest closed, non-fictitious DC switch.
+
+Most tripping modifications for multi-terminal equipment (like lines or transformers) allow for side-specific tripping by 
+providing a voltage level ID. If no voltage level ID is specified, all sides are tripped.
+
+### Comparison with disconnection
+Tripping differs from **Planned Disconnection** in the way it handles switches in **Node/Breaker** topology. While a planned 
+disconnection aims to fully isolate a piece of equipment (e.g., for maintenance) by opening both breakers and disconnectors, 
+tripping mimics a protection system by opening only the **breakers** necessary to interrupt the current. See [Disconnections](#disconnections) for more details.
 
 ### Battery tripping
-<span style="color: red">TODO</span>
+This modification trips a battery by opening the switches connected to its terminal.
+
+It takes as input:
+- The ID of the battery to trip.
+
+Class: `BatteryTripping`
 
 ### Branch tripping
-<span style="color: red">TODO</span>
+This modification trips a branch (line or two-winding transformer) by opening the switches connected to its terminals.
+
+It takes as input:
+- The ID of the branch to trip.
+- Optionally, a voltage level ID to restrict the tripping to a single side.
+
+Class: `BranchTripping`
 
 ### Busbar section tripping
-<span style="color: red">TODO</span>
+This modification trips a busbar section by opening the switches connected to its terminal.
+
+It takes as input:
+- The ID of the busbar section to trip.
+
+Class: `BusbarSectionTripping`
 
 ### Bus tripping
-<span style="color: red">TODO</span>
+This modification trips a bus by opening the switches connected to all the terminals associated with the bus.
+
+It takes as input:
+- The ID of the bus to trip.
+
+Class: `BusTripping`
 
 ### Boundary line tripping
-<span style="color: red">TODO</span>
+This modification trips a boundary line by opening the switches connected to its terminal.
+
+It takes as input:
+- The ID of the boundary line to trip.
+
+Class: `BoundaryLineTripping`
+
+### Dc ground tripping
+This modification trips a DC ground by opening the switches connected to all its DC terminals.
+
+It takes as input:
+- The ID of the DC ground to trip.
+
+Class: `DcGroundTripping`
+
+### Dc line tripping
+This modification trips a DC line by opening the DC switches connected to its terminals.
+
+It takes as input:
+- The ID of the DC line to trip.
+- Optionally, a DC node ID to restrict the tripping to a single side.
+
+Class: `DcLineTripping`
+
+### Dc node tripping
+This modification trips a DC node by opening the switches connected to all the DC terminals associated with the DC node.
+
+It takes as input:
+- The ID of the DC node to trip.
+
+Class: `DcNodeTripping`
 
 ### Generator tripping
-<span style="color: red">TODO</span>
+This modification trips a generator by opening the switches connected to its terminal.
+
+It takes as input:
+- The ID of the generator to trip.
+
+Class: `GeneratorTripping`
 
 ### Hvdc line tripping
-<span style="color: red">TODO</span>
+This modification trips an HVDC line by opening the switches connected to its converter stations terminals.
+
+It takes as input:
+- The ID of the HVDC line to trip.
+- Optionally, a voltage level ID to restrict the tripping to a single side.
+
+Class: `HvdcLineTripping`
 
 ### Line tripping
-<span style="color: red">TODO</span>
+This modification trips a line by opening the switches connected to its terminals.
+
+It takes as input:
+- The ID of the line to trip.
+- Optionally, a voltage level ID to restrict the tripping to a single side.
+
+Class: `LineTripping`
 
 ### Load tripping
-<span style="color: red">TODO</span>
+This modification trips a load by opening the switches connected to its terminal.
+
+It takes as input:
+- The ID of the load to trip.
+
+Class: `LoadTripping`
 
 ### Shunt compensator tripping
-<span style="color: red">TODO</span>
+This modification trips a shunt compensator by opening the switches connected to its terminal.
+
+It takes as input:
+- The ID of the shunt compensator to trip.
+
+Class: `ShuntCompensatorTripping`
 
 ### Static Var compensator tripping
-<span style="color: red">TODO</span>
+This modification trips a static Var compensator by opening the switches connected to its terminal.
+
+It takes as input:
+- The ID of the static Var compensator to trip.
+
+Class: `StaticVarCompensatorTripping`
 
 ### Switch tripping
-<span style="color: red">TODO</span>
+This modification trips a switch by directly opening it. Unlike other tripping modifications, it does not perform a topological traversal to find breakers.
+
+It takes as input:
+- The ID of the switch to trip.
+
+Class: `SwitchTripping`
 
 ### Three-winding transformer tripping
-<span style="color: red">TODO</span>
+This modification trips a three-winding transformer by opening the switches connected to the terminals of its three legs.
+
+It takes as input:
+- The ID of the three-winding transformer to trip.
+
+Class: `ThreeWindingsTransformerTripping`
 
 ### Tie line tripping
-<span style="color: red">TODO</span>
+This modification trips a tie line by opening the switches connected to its boundary lines terminals.
+
+It takes as input:
+- The ID of the tie line to trip.
+- Optionally, a voltage level ID to restrict the tripping to a single side.
+
+Class: `TieLineTripping`
 
 ### Two-winding transformer tripping
-<span style="color: red">TODO</span>
+This modification trips a two-winding transformer by opening the switches connected to its terminals.
+
+It takes as input:
+- The ID of the two-winding transformer to trip.
+- Optionally, a voltage level ID to restrict the tripping to a single side.
+
+Class: `TwoWindingsTransformerTripping`
+
+### Voltage source converter tripping
+This modification trips a voltage source converter (VSC) by opening the switches connected to all its AC and DC terminals.
+
+It takes as input:
+- The ID of the converter to trip.
+
+Class: `VoltageSourceConverterTripping`
 
 ## Other modifications
 
@@ -455,7 +669,7 @@ This modification is used to update the target powers (active `targetP` and reac
 Class: `BatteryModification`
 
 ### Connection
-This modification is used to connect a network element to the closest bus or bus bar section.
+This modification is used to connect a network element to the closest bus or busbar section.
 
 It works on:
 - `Connectable` elements by connecting their terminals
@@ -475,30 +689,35 @@ If `relativeValue` is set to false, then the new constant active power (`P0`) an
 Class: `BoundaryLineModification`
 
 ### Disconnections
+Disconnection modifications are used to logically disconnect a network element. Unlike tripping, they are generic and can be applied to any connectable element.
 
 #### Planned
-This modification is used to disconnect a network element from the bus or bus bar section to which it is currently connected. It should be used if the disconnection is planned. If it is not,
-`UnplannedDisconnection` should be used instead.
+This modification is used to disconnect a network element from the bus or busbar section to which it is currently connected. 
+It should be used if the disconnection is planned (e.g., for maintenance). If it is not, `UnplannedDisconnection` should be used instead.
+
+In **Node/Breaker** topology, it opens **all switches** (both breakers and disconnectors) to fully isolate the equipment from the busbar.
 
 It works on:
 - `Connectable` elements.
 - HVDC lines, by disconnecting their converter stations
 - Tie lines, by disconnecting their underlying boundary lines
 
-It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
+It is possible to specify a side of the element to disconnect. If no side is specified, the network modification will try to disconnect every side.
 
 Class: `PlannedDisconnection`
 
 #### Unplanned
-This modification is used to disconnect a network element from the bus or bus bar section to which it is currently connected. It should be used if the disconnection is unplanned. If it is not,
-`PlannedDisconnection` should be used instead.
+This modification is used to disconnect a network element from the bus or busbar section to which it is currently connected. 
+It should be used if the disconnection is unplanned.  If it is not, `PlannedDisconnection` should be used instead.
+
+In **Node/Breaker** topology, it mimics tripping by opening only the **breakers** necessary to interrupt the current, leaving disconnectors closed.
 
 It works on:
 - `Connectable` elements.
 - HVDC lines, by disconnecting their converter stations
 - Tie lines, by disconnecting their underlying boundary lines
 
-It is possible to specify a side of the element to connect. If no side is specified, the network modification will try to connect every side.
+It is possible to specify a side of the element to disconnect. If no side is specified, the network modification will try to disconnect every side.
 
 Class: `UnplannedDisconnection`
 
@@ -534,7 +753,7 @@ The target voltage value is set to the same value for all the generators of the 
 In case other generators are already regulating locally on the same bus, targetV value is determined by being the closest value to the voltage level nominal voltage among the regulating terminals.
 If no other generator is regulating on the same bus, targetV engineering unit value is adapted to the voltage level nominal voltage, but the per unit value remains the same.
 
-Class:`SetGeneratorToLocalRegulation`
+Class: `SetGeneratorToLocalRegulation`
 
 ### HVDC line
 This modification is used to modify a given HVDC line (and potentially its angle droop active power control extension).
@@ -587,7 +806,7 @@ It sets the phase tap changer as not regulating and updates its `tapPosition` by
 Class: `PhaseShifterShiftTap`
 
 ### Replace tie lines by lines
-This modification is used to replace all the tie lines of a network to simple lines built from the original tie line and its 2 boundary lines.
+This modification is used to replace all the tie lines of a network with simple lines built from the original tie line and its 2 boundary lines.
 
 - The two voltage levels are set from the tie line boundary lines terminal voltage levels (the first voltage level from the first boundary line and the second from the second one).
 - For each voltage level the topology kind is taken into account to create node (for `NODE_BREAKER` kind) or bus and connectable bus (for `BUS_BREAKER` kind)
@@ -626,7 +845,7 @@ Class: `OpenSwitch`
 
 ### Transformers
 
-#### Three-winding transformers legs rated voltage
+#### Three-winding transformer legs rated voltage
 This modification is used to modify the rated voltage of each leg of a three-winding transformer.
 
 On each leg the new rated voltage is computed from the given common rated voltage multiplied by the ratio (leg old rated voltage / rated voltage of the three-winding transformer (the `ratedU0` also used as nominal voltage) at the fictitious bus (in kV)).
@@ -652,7 +871,7 @@ For each `ThreeWindingsTransformer` to be replaced:
   - The rest of the properties of the `ThreeWindingsTransformer` are transferred to all 3 `TwoWindingsTransformer`.
 - Extensions:
   - Only IIDM extensions are copied: `TransformerFortescueData`, `PhaseAngleClock`, and `TransformerToBeEstimated`.
-  - CGMES extensions can not be copied, as they cause circular dependencies.
+  - CGMES extensions cannot be copied, as they cause circular dependencies.
   - Extensions that are not copied are recorded in the functional log.
 - All the controllers using any of the `ThreeWindingsTransformer` terminals as regulated terminal are updated.
 - New and removed equipment is recorded in the functional log.
@@ -660,7 +879,7 @@ For each `ThreeWindingsTransformer` to be replaced:
 
 Class: `ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers`
 
-#### Replace 3 two-winding transformers by 1 three-winding transformer
+#### Replace 3 two-winding transformers with 1 three-winding transformer
 This modification is used to replace all or a given list of `TwoWindingsTransformer` by `ThreeWindingsTransformer`.
 
 In the list of `TwoWindingsTransformer` if only one of a triplet of `TwoWindingsTransformer` is given then the 3 `TwoWindingsTransformer` will be transformed to a `ThreeWindingsTransformer`.
@@ -686,7 +905,7 @@ Then a `ThreeWindingsTransformer` is created to replace them:
   - Properties that are not mapped are recorded in the functional log.
 - Extensions:
   - Only IIDM extensions are copied: `TransformerFortescueData`, `PhaseAngleClock`, and `TransformerToBeEstimated`.
-  - CGMES extensions can not be copied, as they cause circular dependencies.
+  - CGMES extensions cannot be copied, as they cause circular dependencies.
   - Extensions that are not copied are recorded in the functional log.
 - All the controllers using any of the `TwoWindingsTransformer` terminals as regulated terminal are updated.
 - New and removed equipment is recorded in the functional log.
@@ -701,7 +920,7 @@ This modification is used to modify a phase tap changers tap position of a given
 
 The new tap position can be either the one given in parameter or a relative position added to the existing one.
 The `PhaseTapChangerHolder` can be from:
-- A two-winding transformers
+- A two-winding transformer
 - A three-winding transformer with a single phase tap changer
 - A leg of a three-winding transformer
 
@@ -711,8 +930,8 @@ Class: `PhaseTapPositionModification`
 This modification is used to modify a ratio tap changers tap position of a given `RatioTapChangerHolder` (for two or three-winding transformer).
 
 The `RatioTapChangerHolder` can be from:
-- A two-winding transformers
-- A three-winding transformer with a single phase tap changer
+- A two-winding transformer
+- A three-winding transformer with a single ratio tap changer
 - A leg of a three-winding transformer
 
 Class: `RatioTapPositionModification`
