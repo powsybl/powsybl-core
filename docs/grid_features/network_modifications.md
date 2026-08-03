@@ -429,6 +429,13 @@ It takes as input:
 When applied, the original line is removed and two new lines are created. Switches are automatically created in the 
 switching voltage level to connect the new lines to the specified bus or busbar section, according to the voltage level topology.
 
+For instance, let's look at this network area diagram of a network with three voltage levels:
+![Network area diagram](img/networkNodeBreakerAreaDiagram.svg)
+
+We can connect a fictitious voltage level `VL_TEST` on the line between `VL3` and `VL2` and the associated network area diagram is:
+![Network area diagram connect voltage level on line](img/networkNodeBreakerAreaDiagramConnectVlOnLine.svg)
+The line between `VL3` and `VL2` is now connected to the fictitious voltage level `VL_TEST` and cut in two lines.
+
 Class: `ConnectVoltageLevelOnLine`
 
 #### RevertConnectVoltageLevelOnLine
@@ -461,6 +468,14 @@ It takes as input:
 - The original line to be cut.
 - The `LineAdder` for the new line connecting the existing voltage level to the tee point.
 - Optionally, a position order for the new line connection to create [`ConnectablePosition` extensions](../grid_model/extensions.md#connectable-position) for visualization.
+
+For instance, let's look at this network area diagram of a network with three voltage levels:
+![Network area diagram](img/networkNodeBreakerAreaDiagram.svg)
+
+We can connect a fictitious voltage level `VL_TEST` on the line between `VL3` and `VL2` through a tee point, and the associated network area diagram is:
+![Network area tee point](img/networkNodeBreakerAreaDiagramTeePoint.svg)![Network area diagram connect voltage level on line](img/networkNodeBreakerAreaDiagramConnectVlOnLine.svg)
+The line between `VL3` and `VL2` is now connected to the fictitious voltage level `VL_TEST` via a new line. 
+A fictitious voltage level has been created to represent the tee point.
 
 Class: `CreateLineOnLine`
 
