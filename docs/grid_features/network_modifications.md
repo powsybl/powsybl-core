@@ -167,7 +167,7 @@ is used. The [`ConnectablePosition` extension](../grid_model/extensions.md#conne
 created for the injection with the given data, unless there are no extensions yet in the voltage level.
 
 For instance, adding a `Load` to a beforehand empty `NODE_BREAKER` voltage level will result in:
-![Node/breaker network with new load](img/networkNodeBreakerWithLoad.svg){width="100%" align=center}
+![Node/breaker network with new load](img/networkNodeBreakerWithLoad.svg){width="50%" align=center}
 
 Class: `CreateFeederBay`
 
