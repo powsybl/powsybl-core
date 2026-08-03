@@ -409,6 +409,10 @@ If the target voltage level topology kind is `NODE_BREAKER`, the appropriate dis
 the feeder bay to the target busbar section, maintaining the correct topology.
 This modification ensures that the connectivity of the network is preserved while moving the feeder bay to its new position.
 
+For instance, this is a voltage level: 
+![Load1 in VL1.svg](img/networkNodeBreakerLoad1InVl1.svg)
+With this modification, we can easily move load1 to another voltage level, like vl2:
+![Load1 in VL2.svg](img/networkNodeBreakerLoad1InVl2.svg)
 Class: `MoveFeederBay`
 
 ### Line splitting and tapping
