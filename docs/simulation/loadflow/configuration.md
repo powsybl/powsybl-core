@@ -153,7 +153,7 @@ The `componentMode` property is an optional property that defines 3 possibles mo
 
 The default value is `MAIN_CONNECTED`.
 
-### PhaseControl
+### Phase control
 
 (param-lf-phase-shifter-regulation-on)=
 #### phaseShifterRegulationOn
@@ -161,7 +161,7 @@ The `phaseShifterRegulationOn` property is an optional property that defines whe
 
 The default value is `false`.
 
-### ShuntVoltageControl
+### Shunt voltage control
 
 (param-lf-shunt-compensator-voltage-control-on)=
 #### shuntCompensatorVoltageControlOn
@@ -169,7 +169,7 @@ The `shuntCompensatorVoltageControlOn` property is an optional property that def
 
 The default value is `false`.
 
-### SlackDistribution
+### Slack distribution
 
 (param-lf-balance-type)=
 #### balanceType
@@ -209,7 +209,7 @@ The `writeSlackBus` is an optional property that says if the slack bus has to be
 
 The default value is `true`.
 
-### TransformerVoltageControl
+### Transformer voltage control
 
 (param-lf-transformer-voltage-control-on)=
 #### transformerVoltageControlOn
@@ -217,7 +217,7 @@ The `transformerVoltageControlOn` property is an optional property that defines 
 
 The default value is `false`.
 
-### VoltageControls
+### Voltage control
 
 (param-lf-use-reactive-limits)=
 #### useReactiveLimits
@@ -225,7 +225,7 @@ The `useReactiveLimits` property is an optional property that defines whether th
 
 The default value is `true`.
 
-### VoltageInit
+### Voltage initialization
 
 (param-lf-voltage-init-mode)=
 #### voltageInitMode
