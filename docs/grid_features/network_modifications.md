@@ -311,9 +311,18 @@ It takes as input:
 - A boolean indicating if the new switches created right to the newly created busbar section(s) will be open
 - The switch prefix ID, used as a prefix for the IDs of the newly created switches.
 - The busbar section prefix ID, used as a prefix for the IDs of the newly created busbar sections. This prefix
-  is followed by the busbar index and the section index, if the default naming strategy is used.
+  is followed by the busbar index and the section index if the default naming strategy is used.
 
-<span style="color: red">TODO: add single line diagrams</span>
+For instance, it is possible to add new busbar sections on the left of the voltage level:
+![Voltage level with new busbar sections before first section](img/networkNodeBreakerCreateVlSectionsBeforeFirstSection.svg){width="100%" align=center}
+
+It is also possible to add new busbar sections on the right of the voltage level:
+![Voltage level with new busbar sections after last section](img/networkNodeBreakerCreateVlSectionsAfterLastSection.svg){width="100%" align=center}
+
+Or also between existing sections:
+![Voltage level with new busbar sections between sections](img/networkNodeBreakerCreateVlSectionsBetweenSections.svg){width="100%" align=center}
+
+In all of these single-line diagrams, the busbar sections that are added are the ones that are not connected to any feeders.
 
 Class: `CreateVoltageLevelSections`
 
